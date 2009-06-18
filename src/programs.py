@@ -1,19 +1,20 @@
 import os.path
-
-
+import subprocess
+from versioncontrol import get_repository
 
 class VersionedProgram(object):
     
     def __init__(self, path, name=None):
         self.path = path
         self.name = name # inferred from path if not given
-
+        
         
 class Executable(VersionedProgram): # call this Simulator? what about PyNEST?
     # store compilation/configuration options?
 
     def __init__(self, path):
         self.path = path or self._find_executable()    
+        self.version = self._get_version()
 
     def _find_executable(self):
         found = []
@@ -27,9 +28,14 @@ class Executable(VersionedProgram): # call this Simulator? what about PyNEST?
             if len(found) == 1:
                 print 'Using', executable
             else:
-                print 'Multiple versions found, using %s\n \
-                       If you wish to use a different version, please specify it explicitly' % executable
+                print 'Multiple versions found, using %s. If you wish to use a different version, please specify it explicitly' % executable
         return executable
+
+    def _get_version(self):
+        p = subprocess.Popen("%s --version" % self.path, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+        returncode = p.wait()
+        return p.stdout.read().strip()
+
 
 class NEURONSimulator(Executable):
     
@@ -51,9 +57,15 @@ class NESTSimulator(Executable):
 class Script(VersionedProgram): # call this SimulationCode?
     # note that a script need not be a single file, but could be a suite of files
     # generally, should define a RCS repository and a main file
-    pass
-    # store reference to the executable for which the script is destined?
     
+    def __init__(self, main_file, repository_url=None):
+    # store reference to the executable for which the script is destined?
+        self.main_file = main_file
+        self.repository = get_repository(repository_url)
+    
+    def checkout(self):
+        if not self.repository.working_copy:
+            self.repository.checkout()
     
 registered_programs = {
     'nrniv': NEURONSimulator,

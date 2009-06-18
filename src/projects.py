@@ -1,17 +1,20 @@
+from datastore import FileSystemDataStore
+from recordstore import ShelveRecordStore
 
 class SimProject:
 
     def __init__(self, name, default_executable=None, default_script=None,
-                 default_launch_mode=None, data_store='default'):
+                 default_launch_mode=None, data_store='default', record_store='default'):
         self.name = name
         self.default_executable = default_executable
         self.default_script = default_script
         self.default_launch_mode = default_launch_mode
-        self.record_groups = {}  # not sure how best to manage groups of simulations
-        self.current_group = None
+        if data_store == 'default':
+            data_store = FileSystemDataStore()
         self.data_store = data_store # a data store object
-        self.last_record = None # not sure this is needed
-        
+        if record_store == 'default':
+            record_store = ShelveRecordStore()
+        self.record_store = record_store
         self._save()
         
     def _save(self):
