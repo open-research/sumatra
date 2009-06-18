@@ -1,3 +1,4 @@
+import shelve
 
 
 class RecordStore(object):
@@ -5,7 +6,10 @@ class RecordStore(object):
 
 
 class ShelveRecordStore(object):
-    pass
+    
+    def __init__(self, shelf_name):
+        self.shelf = open(shelf_name)
+        
 
 class DjangoRecordStore(object):
     pass
