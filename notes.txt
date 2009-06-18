@@ -1,0 +1,30 @@
+============================
+Notes on Sumatra refactoring
+============================
+
+Should support
+    (i) use from command line (smt)
+    (ii) use from a GUI
+    (iii) an API (use from within a simulation script)
+    
+Functionality:
+    * launch simulations, and record various pieces of information about the
+      simulation, including:
+        - the executable (identity, version)
+        - the script (identity, version)
+        - the parameters
+        - the duration (execution time)
+        - console output
+        - links to all data (whether in files, in a database, etc.) produced by the simulation
+        - the reason for doing the simulation
+        - the outcome of the simulation
+    * allow browsing/searching/visualising the results of previous simulations
+    * allow the re-running of previous simulations with automatic verification that the results are unchanged
+    * launch single or batch simulations, serial or parallel
+    
+Principal classes:
+    SimProject
+    SimRecord
+    
+Running a simulation creates a SimRecord object and associates it with a SimProject. How the SimRecord stores its data
+(in a text file, binary file, database) should be decoupled from its interface.
