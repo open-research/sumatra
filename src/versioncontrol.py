@@ -1,5 +1,5 @@
 import pysvn
-
+import os.path
 
 class Repository(object):
     
@@ -14,7 +14,10 @@ class SubversionWorkingCopy(WorkingCopy):
     pass
 
 class MercurialWorkingCopy(WorkingCopy):
-    pass
+
+    def __init__(self):
+        self.repository = MercurialRepository(os.getcwd()) ###### stub
+        self.repository.working_copy = self
 
 class SubversionRepository(Repository):
     

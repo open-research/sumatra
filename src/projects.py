@@ -1,5 +1,5 @@
 import os
-import pickle
+import cPickle as pickle
 from datastore import FileSystemDataStore
 from recordstore import ShelveRecordStore
 
@@ -18,7 +18,7 @@ class SimProject:
             data_store = FileSystemDataStore()
         self.data_store = data_store # a data store object
         if record_store == 'default':
-            record_store = ShelveRecordStore(".smt/simulation_records.shelf")
+            record_store = ShelveRecordStore(os.path.join(".smt/simulation_records.shelf"))
         self.record_store = record_store
         self._save()
         print "Simulation project successfully set up"

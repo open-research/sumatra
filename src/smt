@@ -1,0 +1,26 @@
+#!/usr/bin/env python
+
+import sys
+import commands
+
+modes = ("run","batch","setup","info","list","comment","repeat","package","delete","runserver","debug")
+
+usage = """Usage: smt <subcommand> [options] [args]
+        
+Simulation management tool, version 0.1
+
+Available subcommands:  
+  """ + "\n  ".join(modes)
+
+if len(sys.argv) < 2:
+    print usage
+    sys.exit(1)
+
+cmd = sys.argv[1]
+try:
+    main = getattr(commands, cmd)
+except AttributeError:
+    print usage
+    sys.exit(1)
+    
+main(sys.argv[2:])

@@ -7,3 +7,9 @@ class LaunchMode(object):
     If MPI store configuration (which nodes, etc)
     """
     pass
+
+
+class SerialLaunchMode(object):
+    
+    def __init__(self):
+        LaunchMode.__init__(self)

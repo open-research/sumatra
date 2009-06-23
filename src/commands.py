@@ -2,6 +2,8 @@ from optparse import OptionParser
 
 from programs import get_executable, Script
 from datastore import FileSystemDataStore
+from projects import SimProject
+from launch import SerialLaunchMode
 
 def setup(argv):
     """setup: set up a new simulation project."""
@@ -20,6 +22,8 @@ def setup(argv):
     parser.add_option('-r', '--repository', help="the URL of a Subversion or Mercurial repository containing the simulation code. This will be checked out/cloned into the current directory.")
     parser.add_option('-D', '--debug', action='store_true', help="print debugging information")
     (options, args) = parser.parse_args(argv)
+    if len(args) != 2:
+        parser.error('Both NAME and MAINFILE must be specified.')
     project_name, main_file = args
     
     global _debug
@@ -27,11 +31,12 @@ def setup(argv):
     
     script_code = Script(main_file=main_file, repository_url=options.repository)
     script_code.checkout() # worth doing now, to find any errors early
-    executable = get_executable(path=options.simpath, example_script=main_file)
+    executable = get_executable(path=options.simpath, script_file=main_file)
     
     project = SimProject(name=project_name,
                          default_executable=executable,
                          default_script=script_code,
                          default_launch_mode=SerialLaunchMode(),
                          data_store=FileSystemDataStore(options.datapath))
+    
     
