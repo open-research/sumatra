@@ -13,3 +13,6 @@ class SerialLaunchMode(object):
     
     def __init__(self):
         LaunchMode.__init__(self)
+        
+    def __str__(self):
+        return "serial"

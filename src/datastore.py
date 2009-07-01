@@ -6,3 +6,6 @@ class FileSystemDataStore(object):
         self.root = root or "./Data"
         if not os.path.exists(self.root):
             os.mkdir(self.root)
+
+    def __str__(self):
+        return self.root
