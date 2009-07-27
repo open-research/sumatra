@@ -16,6 +16,9 @@ class Executable(VersionedProgram): # call this Simulator? what about PyNEST?
         self.path = path or self._find_executable()    
         self.version = self._get_version()
 
+    def __str__(self):
+        return "%s (%s) at %s" % (self.name, self.version, self.path)
+
     def _find_executable(self):
         found = []
         for path in os.getenv('PATH').split(':'):
@@ -56,15 +59,21 @@ class NESTSimulator(Executable):
 
 class Script(VersionedProgram): # call this SimulationCode?
     # note that a script need not be a single file, but could be a suite of files
-    # generally, should define a RCS repository and a main file
+    # generally, should define a VCS repository and a main file
     
     def __init__(self, main_file, repository_url=None):
     # store reference to the executable for which the script is destined?
         self.main_file = main_file
         self.repository = get_repository(repository_url)
     
+    def __str__(self):
+        if self.repository:
+            return "%s (main file is %s)" % (self.repository, self.main_file)
+        else:
+            return self.main_file
+    
     def checkout(self):
-        if not self.repository.working_copy:
+        if self.repository and not self.repository.working_copy:
             self.repository.checkout()
     
 registered_programs = {

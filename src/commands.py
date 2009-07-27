@@ -2,11 +2,11 @@ from optparse import OptionParser
 
 from programs import get_executable, Script
 from datastore import FileSystemDataStore
-from projects import SimProject
+from projects import SimProject, load_simulation_project
 from launch import SerialLaunchMode
 
 def setup(argv):
-    """setup: set up a new simulation project."""
+    """set up a new simulation project in the current directory."""
     usage = "%prog setup [options] NAME MAINFILE"
     description = """set up a new simulation project in the current directory.
     
@@ -39,4 +39,15 @@ def setup(argv):
                          default_launch_mode=SerialLaunchMode(),
                          data_store=FileSystemDataStore(options.datapath))
     
+def info(argv):
+    """print information about the current simulation project."""
+    usage = "%prog info"
+    description = __doc__
+    parser = OptionParser(usage=usage,
+                          description=description)
+    (options, args) = parser.parse_args(argv)
+    if len(args) != 0:
+        parser.error('info does not take any arguments')
+    project = load_simulation_project()
+    print project.info()
     
