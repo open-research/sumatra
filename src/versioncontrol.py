@@ -1,4 +1,5 @@
 import pysvn
+import mercurial
 import os.path
 
 class Repository(object):
@@ -10,14 +11,22 @@ class Repository(object):
 class WorkingCopy(object):
     pass
 
+
 class SubversionWorkingCopy(WorkingCopy):
-    pass
+    
+    def __init__(self):
+        self._client = pysvn.Client()
+        url = self._client.info(".").url
+        self.repository = SubversionRepository(url)
+        self.repository.working_copy = self
+
 
 class MercurialWorkingCopy(WorkingCopy):
 
     def __init__(self):
         self.repository = MercurialRepository(os.getcwd()) ###### stub
         self.repository.working_copy = self
+
 
 class SubversionRepository(Repository):
     
@@ -40,7 +49,14 @@ class SubversionRepository(Repository):
         self.working_copy = SubversionWorkingCopy()
 
 class MercurialRepository(Repository):
-    pass
+    
+    def __init__(self, url):
+        self._ui = mercurial.ui.ui()  # get a ui object
+        self._repository = mercurial.hg.repository(self._ui, url)
+            
+    def checkout(self, path="."):
+        """Clone a repository."""
+        
             
 def get_working_copy():
     if os.path.exists(os.path.join(os.getcwd(), ".svn")):
