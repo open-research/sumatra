@@ -1,4 +1,4 @@
-import mercurial
+from mercurial import hg, ui
 import os
 
 from base import Repository, WorkingCopy
@@ -22,8 +22,8 @@ class MercurialWorkingCopy(WorkingCopy):
 class MercurialRepository(Repository):
     
     def __init__(self, url):
-        self._ui = mercurial.ui.ui()  # get a ui object
-        self._repository = mercurial.hg.repository(self._ui, url)
+        self._ui = ui.ui()  # get a ui object
+        self._repository = hg.repository(self._ui, url)
             
     def checkout(self, path="."):
         """Clone a repository."""

@@ -1,6 +1,9 @@
 import os.path
+import re
 import subprocess
 from versioncontrol import get_repository
+
+version_pattern = re.compile(r'(?P<version>\d\S*\s)')
 
 class VersionedProgram(object):
     
@@ -15,9 +18,11 @@ class Executable(VersionedProgram): # call this Simulator? what about PyNEST?
     def __init__(self, path):
         self.path = path or self._find_executable()    
         self.version = self._get_version()
+        if not hasattr(self, 'name'):
+            self.name = os.path.basename(path)
 
     def __str__(self):
-        return "%s (%s) at %s" % (self.name, self.version, self.path)
+        return "%s (version: %s) at %s" % (self.name, self.version, self.path)
 
     def _find_executable(self):
         found = []
@@ -37,7 +42,12 @@ class Executable(VersionedProgram): # call this Simulator? what about PyNEST?
     def _get_version(self):
         p = subprocess.Popen("%s --version" % self.path, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
         returncode = p.wait()
-        return p.stdout.read().strip()
+        match = version_pattern.search(p.stdout.read())
+        if match:
+            version = match.groupdict()['version']
+        else:
+            version = None
+        return version
 
 
 class NEURONSimulator(Executable):
@@ -70,7 +80,7 @@ class Script(VersionedProgram): # call this SimulationCode?
         if self.repository:
             return "%s (main file is %s)" % (self.repository, self.main_file)
         else:
-            return self.main_file
+            return "%s (no repository)" % self.main_file
     
     def checkout(self):
         if self.repository and not self.repository.working_copy:
