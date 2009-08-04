@@ -30,6 +30,7 @@ class SimProject:
     def _save(self):
         """Save state to some form of persistent storage. (file, database)."""
         f = open('.smt/simulation_project', 'w') # should check if file exists?
+        print dir(self.default_script)
         pickle.dump(self, f)
         f.close()
     
