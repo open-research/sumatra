@@ -35,14 +35,17 @@ class MercurialRepository(Repository):
             # update
             hg.update(self._repository, None)
         else:
-            # clone
-            hg.clone(self._ui,
-                     self._repository, # source
-                     path) # dest
+            # can't clone into an existing directory, so we create
+            # an empty repository and then do a pull and update
+            local_repos = hg.repository(self._ui, path, create=True)
+            local_repos.pull(self._repository)
+            hg.update(local_repos, None)
             
     def __getstate__(self):
+        """For pickling"""
         return {'url': self.url, 'wc': self.working_copy}
     
     def __setstate__(self, state):
+        """For unpickling"""
         self.__init__(state['url'])
         self.working_copy = state['wc']

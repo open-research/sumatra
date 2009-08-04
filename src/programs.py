@@ -60,6 +60,11 @@ class PythonExecutable(Executable):
     
     name = "Python"
     default_executable_name = "python"
+    
+    @staticmethod
+    def write_parameters(parameters, filename):
+        parameters.save(filename)
+
 
 class NESTSimulator(Executable):
     

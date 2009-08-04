@@ -2,6 +2,7 @@ import os
 import cPickle as pickle
 from datastore import FileSystemDataStore
 from recordstore import ShelveRecordStore
+from records import SimRecord
 
 def _remove_left_margin(s):
     lines = s.strip().split('\n')
@@ -51,34 +52,36 @@ class SimProject:
     def launch_simulation(self, parameters, executable='default', script='default',
                           launch_mode='default', label=None, reason=None):
         """Launch a new simulation."""
+        # Check if the working copy has modifications and prompt to commit or revert them
+        # Check out the requested code version, if necessary
         if executable == 'default':
             executable = self.default_executable
         if script == 'default':
             script = self.default_script
         if launch_mode == 'default':
             launch_mode = self.default_launch_mode
-        sim_record = SimRecord(executable, script, parameters, launch_mode, label=label, reason=reason)
+        sim_record = SimRecord(executable, script, parameters, launch_mode, self.data_store, label=label, reason=reason)
         self.add_record(sim_record)
         sim_record.run()
     
     def add_record(self, record):
         """Add a simulation record."""
-        pass
+        self.record_store.save(record)
     
     def get_record(self, label):
         """Search for a record with the supplied label and return it if found.
            Otherwise return None."""
-        pass
+        self.record_store.get(label)
     
     def delete_record(self, label):
         """Delete a record. Return 1 if the record is found.
            Otherwise return 0."""
-        pass
+        self.record_store.delete(label)
         
     def delete_group(self, label):
         """Delete a group of records. Return the number of records deleted.
            Return 0 if the label is invalid."""
-        pass
+        self.record_store.delete_group(label)
     
     
 def load_simulation_project():

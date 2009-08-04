@@ -23,5 +23,12 @@ class ShelveRecordStore(object):
     def __setstate__(self, state):
         self.__init__(state)
 
+    def save(self, record):
+        self.shelf[record.label] = record
+        
+    def get(self, label):
+        return self.shelf[label]
+    
+
 class DjangoRecordStore(object):
     pass
