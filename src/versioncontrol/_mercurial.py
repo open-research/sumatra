@@ -1,5 +1,6 @@
 from mercurial import hg, ui
 import os
+import binascii
 
 from base import Repository, WorkingCopy
 
@@ -20,6 +21,10 @@ class MercurialWorkingCopy(WorkingCopy):
         self.repository = MercurialRepository(os.getcwd()) ###### stub
         self.repository.working_copy = self
 
+    def current_version(self):
+        changectx = self.repository._repository.changectx("tip") # need to figure out the currently checkout-out version, not necessarily "tip"
+        return binascii.hexlify(changectx.node()[:6])
+    
 
 class MercurialRepository(Repository):
     
@@ -40,6 +45,7 @@ class MercurialRepository(Repository):
             local_repos = hg.repository(self._ui, path, create=True)
             local_repos.pull(self._repository)
             hg.update(local_repos, None)
+        self.working_copy = MercurialWorkingCopy()
             
     def __getstate__(self):
         """For pickling"""

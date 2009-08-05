@@ -3,7 +3,7 @@
 import sys
 import commands
 
-modes = ("run","batch","setup","info","list","comment","repeat","package","delete","runserver","debug")
+modes = ("run","batch","setup","info","list","comment","tag","repeat","package","delete","runserver","debug")
 
 usage = """Usage: smt <subcommand> [options] [args]
         

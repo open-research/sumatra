@@ -85,3 +85,80 @@ def run(argv):
     label = options.label or parameter_file
     project.launch_simulation(parameters, label=label, reason=options.reason)
     
+def list(argv):
+    """List simulation records belonging to the current simulation project."""
+    usage = "%prog list [options] [LABEL]"
+    description = dedent("""\
+      If LABEL (optional) is specified, then only simulations in group 'LABEL'
+      will be listed.""")
+    parser = OptionParser(usage=usage,
+                          description=description)
+    parser.add_option('-m', '--mode', default='short', choices=['short', 'long', 'tab'],
+                      help="one of 'short' (default), which only lists the record IDs, 'long', which prints all information for each record, or 'tab', which prints all information in tab-separated columns (which can be imported into a spreadsheet, for example).")
+    parser.add_option('-f', '--format', metavar='FMT', choices=['text', 'html'], default='text',
+                      help="FMT can be 'text' (default) or 'html'.")
+    (options, args) = parser.parse_args(argv)
+    groups = args
+    
+    project = load_simulation_project()
+    print project.format_records(groups=groups, mode=options.mode, format=options.format)
+
+def delete(argv):
+    """Delete simulation records or groups of records from a simulation project."""
+    usage = "%prog delete [options] LIST"
+    description = dedent("""\
+      LIST should be a space-separated list of individual records or of labels
+      for groups of records. If it contains labels, you must set the --group/-g
+      option (see below). If you want to delete all records, just delete the
+      .smt directory and use smt setup to create a new, empty project.""")
+    parser = OptionParser(usage=usage,
+                          description=description)
+    parser.add_option('-g', '--group', action='store_true',
+                      help="interpret LIST as containing labels for groups of records. If this option is not given, LIST is interpreted as containing individual record IDs.")
+    (options, args) = parser.parse_args(argv)
+    if len(args) < 1:
+        parser.error('Please specify a record or list of records to be deleted.')
+        
+    project = load_simulation_project()
+    if options.group:
+        for group in args:
+            project.delete_group(group)
+    else:
+        for label in args:
+            project.delete_record(label)
+            
+def comment(argv):
+    """Add a comment to an existing simulation record."""
+    usage = "%prog comment [options] [LABEL] [COMMENT]"
+    description = dedent("""\
+      This command is used to describe the outcome of the simulation. If LABEL
+      is omitted, the comment will be added to the most recent simulation.
+      If the '-f/--file' option is set, COMMENT should be the name of a file
+      containing the comment, otherwise it should be a string of text.""")
+    parser = OptionParser(usage=usage,
+                          description=description)
+    parser.add_option('-r', '--replace', action='store_true',
+                      help="if this flag is set, any existing comment will be overwritten, otherwise, the new comment will be appended to the end, starting on a new line")
+    parser.add_option('-f', '--file', action='store_true',
+                      help="interpret COMMENT as the path to a file containing the comment")
+    (options, args) = parser.parse_args(argv)
+    if len(args) == 1:
+        label = None
+        comment = args[0]
+    elif len(args) == 2:
+        label, comment = args
+    else:
+        parser.error('Please provide a comment.')
+    if options.file:
+        f = open(comment, 'r')
+        comment = f.read()
+        f.close()
+        
+    project = load_simulation_project()
+    label = label or project.most_recent().label
+    project.add_comment(label, comment)
+    
+        
+    
+# def tag(argv):
+# def repeat(argv):

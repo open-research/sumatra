@@ -3,23 +3,21 @@ import re
 import subprocess
 from versioncontrol import get_repository
 
-version_pattern = re.compile(r'(?P<version>\d\S*\s)')
+version_pattern = re.compile(r'(?P<version>\d\S*)\s')
 
 class VersionedProgram(object):
+    pass
     
-    def __init__(self, path, name=None):
-        self.path = path
-        self.name = name # inferred from path if not given
-        
         
 class Executable(VersionedProgram): # call this Simulator? what about PyNEST?
     # store compilation/configuration options?
 
     def __init__(self, path):
+        VersionedProgram.__init__(self)
         self.path = path or self._find_executable()    
-        self.version = self._get_version()
         if not hasattr(self, 'name'):
             self.name = os.path.basename(path)
+        self.version = self._get_version()
 
     def __str__(self):
         return "%s (version: %s) at %s" % (self.name, self.version, self.path)
@@ -78,18 +76,24 @@ class Script(VersionedProgram): # call this SimulationCode?
     
     def __init__(self, main_file, repository_url=None):
     # store reference to the executable for which the script is destined?
+        VersionedProgram.__init__(self)
         self.main_file = main_file
-        self.repository = get_repository(repository_url)
+        self.repository = get_repository(repository_url)    
     
     def __str__(self):
         if self.repository:
-            return "%s (main file is %s)" % (self.repository, self.main_file)
+            return "%s r%s (main file is %s)" % (self.repository, self.version, self.main_file)
         else:
             return "%s (no repository)" % self.main_file
     
     def checkout(self):
         if self.repository and not self.repository.working_copy:
             self.repository.checkout()
+            self.version = self._get_version()
+    
+    def _get_version(self):
+        return self.repository.working_copy.current_version()
+    
     
 registered_programs = {
     'nrniv': NEURONSimulator,

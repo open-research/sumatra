@@ -3,6 +3,7 @@ import cPickle as pickle
 from datastore import FileSystemDataStore
 from recordstore import ShelveRecordStore
 from records import SimRecord
+from formatting import get_formatter
 
 def _remove_left_margin(s):
     lines = s.strip().split('\n')
@@ -61,8 +62,10 @@ class SimProject:
         if launch_mode == 'default':
             launch_mode = self.default_launch_mode
         sim_record = SimRecord(executable, script, parameters, launch_mode, self.data_store, label=label, reason=reason)
-        self.add_record(sim_record)
         sim_record.run()
+        self.add_record(sim_record)
+        self._most_recent = sim_record.label
+        self._save()
     
     def add_record(self, record):
         """Add a simulation record."""
@@ -71,7 +74,7 @@ class SimProject:
     def get_record(self, label):
         """Search for a record with the supplied label and return it if found.
            Otherwise return None."""
-        self.record_store.get(label)
+        return self.record_store.get(label)
     
     def delete_record(self, label):
         """Delete a record. Return 1 if the record is found.
@@ -82,6 +85,18 @@ class SimProject:
         """Delete a group of records. Return the number of records deleted.
            Return 0 if the label is invalid."""
         self.record_store.delete_group(label)
+    
+    def format_records(self, groups=[], format='text', mode='short'):
+        formatter = get_formatter(format)(self.record_store.list(groups))
+        return formatter.format(mode) 
+    
+    def most_recent(self):
+        return self.get_record(self._most_recent)
+    
+    def add_comment(self, label, comment):
+        record = self.record_store.get(label)
+        record.outcome = comment
+        self.record_store.save(record)
     
     
 def load_simulation_project():

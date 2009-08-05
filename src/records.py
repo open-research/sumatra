@@ -1,3 +1,4 @@
+import os
 import sys
 from datetime import datetime
 import time
@@ -37,16 +38,15 @@ class SimRecord(object): # maybe just call this Simulation
         self.output = p.stdout.read()
         sys.stdout.write(self.output)
         sys.stderr.write(self.errors)
-        self.duration = time.time() - start_time 
+        self.duration = time.time() - start_time
         # Run post-processing scripts
         pass # skip this if there is an error
         # Search for newly-created datafiles and archive them
-        #      This creates problems when running several simulations at once,
-        #      since datafiles created by other simulations may be archived with this one.
-        #      THIS NEEDS FIXED!
         self.archive_data()
-        # delete local copy of parameter file
-        os.remove(parameter_file)
     
     def archive_data(self):
-        self.data_key = self.datastore.archive(self)
+        self.data_key = self.datastore.archive(self.timestamp, self.label)
+        
+    def code_version(self):
+        return self.script.version
+    

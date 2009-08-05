@@ -29,6 +29,12 @@ class ShelveRecordStore(object):
     def get(self, label):
         return self.shelf[label]
     
+    def list(self, groups):
+        # need to handle groups
+        return self.shelf.values()
+    
+    def delete(self, label):
+        del self.shelf[label]
 
 class DjangoRecordStore(object):
     pass
