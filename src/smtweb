@@ -1,0 +1,23 @@
+#!/usr/bin/env python
+"""
+Web interface to the Sumatra simulation management tool, version 0.1
+"""
+
+import sys
+from django.core import management
+from django.conf import settings
+from sumatra.projects import load_simulation_project
+from sumatra.recordstore.django_store import DjangoRecordStore
+
+project = load_simulation_project()
+if not isinstance(project.record_store, DjangoRecordStore):
+    # should make the web interface independent of the record store, if possible
+    print "This project cannot be accessed using the web interface."
+    sys.exit(1)
+
+settings.ROOT_URLCONF = 'sumatra.web.urls'
+management.setup_environ(settings)
+management.call_command('runserver')
+
+
+
