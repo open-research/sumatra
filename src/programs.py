@@ -74,7 +74,7 @@ class Script(VersionedProgram): # call this SimulationCode?
     # note that a script need not be a single file, but could be a suite of files
     # generally, should define a VCS repository and a main file
     
-    def __init__(self, main_file, repository_url=None):
+    def __init__(self, repository_url=None, main_file=None):
     # store reference to the executable for which the script is destined?
         VersionedProgram.__init__(self)
         self.main_file = main_file
@@ -90,6 +90,9 @@ class Script(VersionedProgram): # call this SimulationCode?
         if self.repository and not self.repository.working_copy:
             self.repository.checkout()
             self.version = self._get_version()
+    
+    def change_repository(self, repository_url):
+        self.repository = get_repository(repository_url)
     
     def _get_version(self):
         return self.repository.working_copy.current_version()

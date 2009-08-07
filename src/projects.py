@@ -5,7 +5,7 @@ from recordstore import ShelveRecordStore
 from records import SimRecord
 from formatting import get_formatter
 
-def _remove_left_margin(s):
+def _remove_left_margin(s): # replace this by textwrap.dedent?
     lines = s.strip().split('\n')
     return "\n".join(line.strip() for line in lines)
 
@@ -28,11 +28,13 @@ class SimProject:
         self.record_store = record_store
         self._save()
         print "Simulation project successfully set up"
-        
+    
+    def __del__(self):
+        self._save()
+    
     def _save(self):
         """Save state to some form of persistent storage. (file, database)."""
         f = open('.smt/simulation_project', 'w') # should check if file exists?
-        print dir(self.default_script)
         pickle.dump(self, f)
         f.close()
     
