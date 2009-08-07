@@ -21,7 +21,6 @@ def get_repository(url):
     if url:
         repos = None
         for vcs in vcs_list:
-            print vcs, url
             try:
                 repos =  vcs.get_repository(url)
                 break

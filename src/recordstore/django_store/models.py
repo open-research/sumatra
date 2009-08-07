@@ -118,7 +118,7 @@ class SimulationRecord(BaseModel):
             self.reason)
         record.duration = self.duration
         record.outcome = self.outcome
-        record.data_key = self.data_key
+        record.data_key = eval(self.data_key)
         record.timestamp = self.timestamp
         return record
             

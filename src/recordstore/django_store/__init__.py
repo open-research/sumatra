@@ -1,7 +1,7 @@
 from sumatra.recordstore import RecordStore
 from django.conf import settings
 from django.core import management
-import os.path
+import os
 
 recordstore_settings = {
     'DEBUG': True,
@@ -13,20 +13,22 @@ class DjangoRecordStore(RecordStore):
     
     def __init__(self, db_file='.smt/smt.db'):
         self._db_file = db_file
-        recordstore_settings['DATABASE_NAME'] = self._db_file
+        recordstore_settings['DATABASE_NAME'] = db_file
         settings.configure(**recordstore_settings)
         management.setup_environ(settings)
-        if not os.path.exists(recordstore_settings['DATABASE_NAME']):
+        if not os.path.exists(os.path.dirname(db_file)):
+            os.makedirs(os.path.dirname(db_file))
+        if not os.path.exists(db_file):
             management.call_command('syncdb')
                 
     def __str__(self):
         return "Relational database record store using the Django ORM (database file=%s)" % self._db_file
         
-    #def __getstate__(self):
-    #    pass
+    def __getstate__(self):
+        return self._db_file
     
-    #def __setstate__(self, state):
-    #    self.__init__(state)
+    def __setstate__(self, state):
+        self.__init__(state)
     
     def _get_db_group(self, group):
         import models
@@ -56,8 +58,7 @@ class DjangoRecordStore(RecordStore):
         if created:
             db_script.save()
         return db_script
-                                                                 
-        
+                                                                     
     def _get_db_obj(self, db_class, obj):
         import models
         cls = getattr(models, db_class)
@@ -68,15 +69,27 @@ class DjangoRecordStore(RecordStore):
     
     def save(self, record):
         db_record = self._get_db_record(record)
-        for attr in 'reason', 'duration', 'outcome', 'data_key':
+        for attr in 'reason', 'duration', 'outcome':
             value = getattr(record, attr)
             if value is not None:
                 setattr(db_record, attr, value)
+        db_record.data_key = str(record.data_key)
         db_record.executable = self._get_db_obj('Executable', record.executable)
         db_record.script = self._get_db_script(record.script)
         db_record.launch_mode = self._get_db_obj('LaunchMode', record.launch_mode)
         db_record.datastore = self._get_db_obj('Datastore', record.datastore)
+        import django.db.models.manager
+        def debug(f):
+            def _debug(model, values, **kwargs):
+                print "model = ", model
+                print "values = ", values
+                print "kwargs = ", kwargs
+                return f(model, values, **kwargs)
+            return _debug
+        #django.db.models.manager.insert_query = debug(django.db.models.manager.insert_query)
+        
         db_record.save()
+        
     
     def get(self, label):
         import models
@@ -84,7 +97,11 @@ class DjangoRecordStore(RecordStore):
         return db_record.to_sumatra()
     
     def list(self, groups):
-        raise NotImplememtedError
+        import models
+        db_records = models.SimulationRecord.objects.all()
+        if groups:
+            db_records = db_records.filter(group__in=groups)
+        return [db_record.to_sumatra() for db_record in db_records]
     
     def delete(self, label):
         raise NotImplememtedError

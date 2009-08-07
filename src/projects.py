@@ -13,9 +13,10 @@ class SimProject:
 
     def __init__(self, name, default_executable=None, default_script=None,
                  default_launch_mode=None, data_store='default', record_store='default'):
-        if os.path.exists(".smt"):
+        if not os.path.exists(".smt"):
+            os.mkdir(".smt")
+        if os.path.exists(".smt/simulation_project"):
             raise Exception("Simulation project already exists in this directory.")
-        os.mkdir(".smt")
         self.name = name
         self.default_executable = default_executable
         self.default_script = default_script
@@ -89,7 +90,8 @@ class SimProject:
         self.record_store.delete_group(label)
     
     def format_records(self, groups=[], format='text', mode='short'):
-        formatter = get_formatter(format)(self.record_store.list(groups))
+        records = self.record_store.list(groups)
+        formatter = get_formatter(format)(records)
         return formatter.format(mode) 
     
     def most_recent(self):

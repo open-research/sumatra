@@ -1,4 +1,5 @@
 import os.path
+import sys
 from optparse import OptionParser
 from textwrap import dedent
 
@@ -7,6 +8,20 @@ from datastore import FileSystemDataStore
 from projects import SimProject, load_simulation_project
 from launch import SerialLaunchMode
 from parameters import build_parameters
+from recordstore import RecordStore
+
+def _process_plugins(plugin_module):
+    # current only handles RecordStore subclasses, but eventually should also
+    # handle DataStore, Repository, LaunchMode, Executable, etc., subclasses as well
+    # maybe should use zope.component
+    __import__(plugin_module)
+    plugin = sys.modules[plugin_module]
+    print plugin
+    print plugin.__dict__.keys()
+    for obj in plugin.__dict__.values():
+        if isinstance(obj, type) and issubclass(obj, RecordStore):
+            return obj
+    raise Exception("No plug-ins found in module %s" % plugin_module)
 
 def init(argv):
     """Create a new simulation project in the current directory."""
@@ -18,7 +33,8 @@ def init(argv):
     parser.add_option('-s', '--simulator', metavar='PATH', help="set the path to the simulator executable. If this is not set, smt will try to infer the executable from the value of the --main option, if supplied, and will try to find the executable from the PATH environment variable, then by searching various likely locations on the filesystem.")
     parser.add_option('-r', '--repository', help="the URL of a Subversion or Mercurial repository containing the simulation code. This will be checked out/cloned into the current directory.")
     parser.add_option('-m', '--main', help="the name of the simulator script that would be supplied on the command line if running the simulator normally, e.g. init.hoc.")
-    parser.add_option('-D', '--debug', action='store_true', help="print debugging information")
+    parser.add_option('--plugins', metavar='MODULE', help="(advanced) specify the Python path of a module containing plug-ins. These allow Sumatra's functionality to be customized.")
+    parser.add_option('-D', '--debug', action='store_true', help="print debugging information.")
     (options, args) = parser.parse_args(argv)
     if len(args) != 1:
         parser.error('You must supply a name.')
@@ -31,12 +47,20 @@ def init(argv):
     script_code = Script(repository_url=options.repository, main_file=options.main) 
     script_code.checkout()                         # this will raise an Exception if no repository is found
     executable = get_executable(path=options.simulator, script_file=options.main)
+    if options.plugins:
+        try:
+            record_store = _process_plugins(options.plugins)()
+        except Exception, e:
+            parser.error(e)
+    else:
+        record_store = 'default'
     
     project = SimProject(name=project_name,
                          default_executable=executable,
                          default_script=script_code,
                          default_launch_mode=SerialLaunchMode(),
-                         data_store=FileSystemDataStore(options.datapath))
+                         data_store=FileSystemDataStore(options.datapath),
+                         record_store=record_store)
 
 def configure(argv):
     """Modify the settings for the current project."""
