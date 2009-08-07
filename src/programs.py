@@ -12,12 +12,12 @@ class VersionedProgram(object):
 class Executable(VersionedProgram): # call this Simulator? what about PyNEST?
     # store compilation/configuration options?
 
-    def __init__(self, path):
+    def __init__(self, path, version=None):
         VersionedProgram.__init__(self)
         self.path = path or self._find_executable()    
         if not hasattr(self, 'name'):
             self.name = os.path.basename(path)
-        self.version = self._get_version()
+        self.version = version or self._get_version()
 
     def __str__(self):
         return "%s (version: %s) at %s" % (self.name, self.version, self.path)

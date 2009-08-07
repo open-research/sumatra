@@ -1,6 +1,5 @@
 import shelve
 
-
 class RecordStore(object):
     pass
 
@@ -36,5 +35,3 @@ class ShelveRecordStore(object):
     def delete(self, label):
         del self.shelf[label]
 
-class DjangoRecordStore(object):
-    pass

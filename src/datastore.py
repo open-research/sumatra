@@ -4,7 +4,17 @@ import datetime
 import shutil
 import logging
 
-class FileSystemDataStore(object):
+class DataStore(object):
+    
+    def get_state(self):
+        """
+        Since each subclass has different attributes, we provide this method
+        as a standard way of obtaining these attributes, for database storage,
+        etc. Returns a dict.
+        """
+        raise NotImplementedError
+
+class FileSystemDataStore(DataStore):
     
     def __init__(self, root):
         self.root = root or "./Data"
@@ -13,6 +23,9 @@ class FileSystemDataStore(object):
 
     def __str__(self):
         return self.root
+    
+    def get_state(self):
+        return {'root': self.root}
     
     def find_new_files(self, timestamp):
         """Finds newly created/changed files in dataroot."""
