@@ -41,11 +41,9 @@ class SimRecord(object): # maybe just call this Simulation
         self.duration = time.time() - start_time
         # Run post-processing scripts
         pass # skip this if there is an error
-        # Search for newly-created datafiles and archive them
-        self.archive_data()
-    
-    def archive_data(self):
-        self.data_key = self.datastore.archive(self.timestamp, self.label)
+        # Search for newly-created datafiles
+        self.data_key = self.datastore.find_new_files(self.timestamp)
+        print self.data_key
         
     def code_version(self):
         return self.script.version

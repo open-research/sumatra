@@ -1,3 +1,4 @@
+import os.path
 from optparse import OptionParser
 from textwrap import dedent
 
@@ -101,7 +102,7 @@ def run(argv):
     print parameters.pretty(expand_urls=True)
     
     project = load_simulation_project()
-    label = options.label or parameter_file
+    label = options.label or os.path.splitext(os.path.basename(parameter_file))[0]
     project.launch_simulation(parameters, label=label, reason=options.reason)
     
 def list(argv):
