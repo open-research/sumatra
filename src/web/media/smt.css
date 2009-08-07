@@ -1,0 +1,89 @@
+body { 
+  background: #f7f7f7;
+  font-family: "Trebuchet MS", Helvetica, Arial, sans-serif;  margin: 0;
+  padding: 0;
+  margin: 0;
+  
+}
+
+td {  
+    padding: 2px 5px 2px 5px;
+    text-align: left;
+}
+
+th {
+    text-align: left;
+    padding: 2px 5px 2px 5px;
+    vertical-align: top;
+}
+
+table.simlist th {
+    background: #555555;
+    color: #dddddd;
+    text-align: center;
+    font-size: smaller;
+}
+
+table.simlist td {
+    text-align: center;
+    font-size: smaller;
+}
+
+tr.odd {
+  background: #eeeeee;
+}
+
+tr.even {
+  background: #eeeeff;
+}
+
+#pageHeader {
+  background: #cccccc;
+  padding: 5px 10px 5px 10px;
+  /*margin: 5px 1px 5px 1px;*/
+  margin: 0;
+  color: #444444;
+}
+
+#pageBody {
+    padding: 10px 5px 10px 5px;
+}
+
+.warning {
+  color: #993333;
+} 
+
+h1 {
+    font-size: 140%;
+}
+
+h2 {
+   background: #cccccc;
+   padding: 3px 10px 3px 10px;
+   margin: 20px 1px 5px 1px;
+   font-size: 120%;
+   clear: both;
+}
+
+.floatright {
+    float: right;
+}
+
+.floatleft {
+    float: left;
+    margin-bottom: 30px;
+}
+
+.headeritem {
+    margin-left: 20px;
+    margin-right: 20px;
+    margin-top: 5px;
+    margin-bottom: 0px;
+}
+
+div.plaintext {
+  background: #eeeeff;
+  padding: 12px;
+  overflow: auto;
+  width: 97%;
+}
