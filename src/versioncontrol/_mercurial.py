@@ -32,6 +32,7 @@ class MercurialRepository(Repository):
         Repository.__init__(self, url)
         self._ui = ui.ui()  # get a ui object
         self._repository = hg.repository(self._ui, url)
+        # need to add a check that this actually is a Mercurial repository
         self.working_copy = None
             
     def checkout(self, path="."):

@@ -1,5 +1,5 @@
 from django.db import models
-from sumatra import programs, launch, datastore, records
+from sumatra import programs, launch, datastore, records, versioncontrol
 
 class SumatraObjectsManager(models.Manager):
     
@@ -49,13 +49,19 @@ class Executable(BaseModel):
         return ex
 
 class Script(BaseModel):
-    repository = models.URLField(verify_exists=False)
+    repository_type = models.CharField(max_length=20)
+    repository_url = models.URLField(verify_exists=False)
     main_file = models.CharField(max_length=50)
     version = models.CharField(max_length=20)
 
     def to_sumatra(self):
-        sc = programs.Script(repository_url=self.repository,
+        sc = programs.Script(repository_url=self.repository_url,
                              main_file=self.main_file)
+        if sc.repository.__class__.__name__ != self.repository_type:
+            for m in versioncontrol.vcs_list:
+                if hasattr(m, self.repository_type):
+                    sc.repository = getattr(m, self.repository_type)(self.repository_url)
+                    break
         sc.version = self.version
         return sc
 

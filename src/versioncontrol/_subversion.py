@@ -27,6 +27,8 @@ class SubversionRepository(Repository):
     def __init__(self, url):
         Repository.__init__(self, url)
         self._client = pysvn.Client()
+        # need to add a check that there is a valid Subversion repository at the URL,
+        # short of doing a checkout. e.g. svn info URL
         self.working_copy = None
     
     def checkout(self, path='.'):

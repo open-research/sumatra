@@ -49,7 +49,8 @@ class DjangoRecordStore(RecordStore):
         return db_record
         
     def _get_db_script(self, script):
-        db_script, created = models.Script.objects.get_or_create(repository=script.repository.url,
+        db_script, created = models.Script.objects.get_or_create(repository_url=script.repository.url,
+                                                                 repository_type=script.repository.__class__.__name__,
                                                                  main_file=script.main_file,
                                                                  version=script.version)
         if created:
