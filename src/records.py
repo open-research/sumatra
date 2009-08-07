@@ -3,6 +3,7 @@ import sys
 from datetime import datetime
 import time
 import subprocess
+from formatting import get_formatter
 
 class SimRecord(object): # maybe just call this Simulation
     
@@ -47,4 +48,8 @@ class SimRecord(object): # maybe just call this Simulation
         
     def code_version(self):
         return self.script.version
+    
+    def describe(self, format='text', mode='long'):
+        formatter = get_formatter(format)([self])
+        return formatter.format(mode)
     

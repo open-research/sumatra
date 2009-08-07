@@ -5,8 +5,8 @@ vcs_list = []
 
 for vcs in ['mercurial', 'subversion']:
     try:
-        __import__('versioncontrol._%s' % vcs)
-        vcs_list.append(sys.modules['versioncontrol._%s' % vcs])
+        __import__('sumatra.versioncontrol._%s' % vcs)
+        vcs_list.append(sys.modules['sumatra.versioncontrol._%s' % vcs])
     except ImportError:
         pass
     
@@ -21,13 +21,14 @@ def get_repository(url):
     if url:
         repos = None
         for vcs in vcs_list:
+            print vcs, url
             try:
                 repos =  vcs.get_repository(url)
                 break
             except Exception, e:
                 print e
         if repos is None:
-            raise Exception("Can't find repository")
+            raise Exception("Can't find repository at URL '%s'" % url)
         else:
             return repos
     else:

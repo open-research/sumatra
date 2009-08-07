@@ -48,31 +48,19 @@ class DjangoRecordStore(RecordStore):
                                                 timestamp=record.timestamp)
         return db_record
         
+    def _get_db_script(self, script):
+        db_script, created = models.Script.objects.get_or_create(repository=script.repository.url,
+                                                                 main_file=script.main_file,
+                                                                 version=script.version)
+        if created:
+            db_script.save()
+        return db_script
+                                                                 
+        
     def _get_db_obj(self, db_class, obj):
         import models
         cls = getattr(models, db_class)
-        # automatically retrieving the field names is nice, but leads
-        # to all the special cases below when we have subclasses that we
-        # want to store in a single table in the database.
-        # might be better to specify the list of field names explicitly
-        # as an argument.
-        field_names = cls._meta.get_all_field_names()
-        field_names.remove('id')
-        field_names.remove('simulationrecord')
-        attributes = {}
-        print "field_names = ", field_names
-        for name in field_names:
-            try:
-                attributes[name] = getattr(obj, name)
-            except AttributeError:
-                if name == 'parameters':
-                    attributes[name] = str(obj.get_state())
-                elif name == 'type':
-                    attributes[name] = repr(obj)
-                else:
-                    raise
-        print "object type = ", type(obj)
-        db_obj, created = cls.objects.get_or_create(**attributes)
+        db_obj, created = cls.objects.get_or_create_from_sumatra_object(obj)
         if created:
             db_obj.save()
         return db_obj        
@@ -84,7 +72,7 @@ class DjangoRecordStore(RecordStore):
             if value is not None:
                 setattr(db_record, attr, value)
         db_record.executable = self._get_db_obj('Executable', record.executable)
-        db_record.script = self._get_db_obj('Script', record.script)
+        db_record.script = self._get_db_script(record.script)
         db_record.launch_mode = self._get_db_obj('LaunchMode', record.launch_mode)
         db_record.datastore = self._get_db_obj('Datastore', record.datastore)
         db_record.save()
@@ -92,7 +80,7 @@ class DjangoRecordStore(RecordStore):
     def get(self, label):
         import models
         db_record = models.SimulationRecord.objects.get(id=label)
-        
+        return db_record.to_sumatra()
     
     def list(self, groups):
         raise NotImplememtedError
@@ -103,16 +91,22 @@ class DjangoRecordStore(RecordStore):
 def test():
     djrs = DjangoRecordStore()
     import sumatra.records, sumatra.programs, sumatra.datastore, sumatra.launch
+    from sumatra.versioncontrol.base import Repository
     ex = sumatra.programs.PythonExecutable('/usr/bin/python', '2.5')
     class MockScript(object): pass
     sc = MockScript()
-    sc.repository = '/path/to/repos'
+    sc.repository = Repository("http://svn.example.com")
     sc.main_file = 'main_file.py'
+    sc.version = '7a6b6cd5'
     lm = sumatra.launch.SerialLaunchMode()
     ds = sumatra.datastore.FileSystemDataStore('/dev/null')
     record = sumatra.records.SimRecord(ex, sc, {}, lm, ds, "aLabel", "aReason")
     record.outcome = "anOutcome"
     record.duration = 123.45
     djrs.save(record)
-    djrs.get(record)
+    print "\nSaved record:"
+    print record.describe()
+    record2 = djrs.get(record.label)
+    print "\nRetrieved record:"
+    print record2.describe()
     
