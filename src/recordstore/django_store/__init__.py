@@ -14,12 +14,15 @@ class DjangoRecordStore(RecordStore):
     def __init__(self, db_file='.smt/smt.db'):
         self._db_file = db_file
         recordstore_settings['DATABASE_NAME'] = db_file
-        settings.configure(**recordstore_settings)
-        management.setup_environ(settings)
-        if not os.path.exists(os.path.dirname(db_file)):
-            os.makedirs(os.path.dirname(db_file))
-        if not os.path.exists(db_file):
-            management.call_command('syncdb')
+        if not settings.configured:
+            settings.configure(**recordstore_settings)
+            management.setup_environ(settings)
+            if not os.path.exists(os.path.dirname(db_file)):
+                os.makedirs(os.path.dirname(db_file))
+            if not os.path.exists(db_file):
+                management.call_command('syncdb')
+        else:
+            assert settings.DATABASE_NAME == db_file
                 
     def __str__(self):
         return "Relational database record store using the Django ORM (database file=%s)" % self._db_file

@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 
-{% block title %}List of simulations{% if tag %} tagged with {{tag}}{% endif %}{% endblock %}
+{% block title %}{{project_name}}: List of simulations{% if tag %} tagged with {{tag}}{% endif %}{% endblock %}
 
-{% block header %}<h1>Sumatra: List of simulations{% if tag %} tagged with <em>{{tag}}</em>{% endif %}</h1><span float{% endblock %}
+{% block header %}<h1>{{project_name}}: List of simulations{% if tag %} tagged with <em>{{tag}}</em>{% endif %}</h1><span float{% endblock %}
 
 {% block content %}
 

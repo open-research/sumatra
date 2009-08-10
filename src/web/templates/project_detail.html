@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}{{project.name}}: Settings{% endblock %}
+
+{% block header %}
+<form action='{{ request.path }}' method='POST'>
+<h1>{{project.name}}: Settings</h1>
+
+{% endblock %}
+
+{% block content %}
+
+<p><a href="/">Simulation list</a></p>
+
+
+<table>
+    <tr><th>Default executable:</th><td>{{project.default_executable}}</td></tr>
+    <tr><th>Default script:</th><td>{{project.default_script}}</td></tr>
+    {{form}}
+    <tr><th>Default launch mode:</th><td>{{project.default_launch_mode}}</td></tr>
+    <tr><th>Data store:</th><td>{{project.data_store}}</td></tr>
+    <tr><th>Record store:</th><td>{{project.record_store}}</td></tr>
+</table>
+
+<input type="submit" value='Save changes' class="headeritem">
+
+</form>
+
+{% endblock %}

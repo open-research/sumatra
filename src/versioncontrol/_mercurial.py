@@ -37,6 +37,9 @@ class MercurialRepository(Repository):
             
     def checkout(self, path="."):
         """Clone a repository."""
+        path = os.path.abspath(path)
+        print path
+        print self.url
         if self.url == path:
             # update
             hg.update(self._repository, None)

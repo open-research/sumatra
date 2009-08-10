@@ -1,5 +1,6 @@
 from django.db import models
 from sumatra import programs, launch, datastore, records, versioncontrol
+import os.path
 
 class SumatraObjectsManager(models.Manager):
     
@@ -53,7 +54,7 @@ class Script(BaseModel):
     repository_url = models.URLField(verify_exists=False)
     main_file = models.CharField(max_length=50)
     version = models.CharField(max_length=20)
-
+    
     def to_sumatra(self):
         sc = programs.Script(repository_url=self.repository_url,
                              main_file=self.main_file)

@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 
-{% block title %}Simulation <i>{{record.id}}</i>{% endblock %}
+{% block title %}{{project_name}}: {{record.id}}{% endblock %}
 
 {% block header %}
 <form action='{{ request.path }}' method='POST'>
-<h1>Sumatra: Record #{{record.id}}</h1>
+<h1>{{project_name}}: <i>{{record.id}}</i></h1>
 <input type="submit" value='Save' class="headeritem">
 <input type="submit" value='Delete' class="headeritem" name="delete">
 {% endblock %}
@@ -17,16 +17,19 @@
 
 <table>
     <tr><th>Label:</th><td>{{record.id}}</td></tr>
+    <tr><th>Reason:</th><td>{{record.reason}}</td></tr>
+    <tr><th>Outcome:</th><td>{{record.outcome}}</td></tr>
     <tr><th>Timestamp:</th><td>{{record.timestamp}}</td></tr>
     {{form}}
-    <tr><th>Duration:</th><td>{{record.duration}}</td></tr>
-    <tr><th>Code version:</th><td>{{record.script.version}}</td></tr>
-    <tr><th>Simulator version:</th><td>{{record.executable.version}}</td></tr>
+    <tr><th>Duration:</th><td>{{record.duration}}&nbsp;s</td></tr>
+    <tr><th>Executable:</th><td>{{record.executable.name}} version {{record.executable.version}} ({{record.executable.path}})</td></tr>
+    <tr><th>Script:</th><td>{{record.script.main_file}} from {{record.script.repository_url}}, version {{record.script.version}}</td></tr>
 </table>
 
 </form>
 
 <h2>Data files</h2>
+<p>{{record.datastore.type}}, {{record.datastore.parameters}} {{record.data_key}}</p>
 <table>
 {% for file in datafiles %}
   <tr class="{% cycle odd,even %}"><td><a href="/{{file.name}}">{{file.name}}</a></td><td>{{file.size}}</td></tr>

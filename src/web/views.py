@@ -1,9 +1,15 @@
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
 from sumatra.recordstore.django_store import models
+from sumatra.projects import load_simulation_project
 
-def index(request):
-    return HttpResponse("Welcome to the Sumatra web interface.")
+_project = load_simulation_project()
+project_name = _project.name
+del _project
+
+def show_project(request):
+    project = load_simulation_project()
+    return render_to_response('project_detail.html', {'project': project})
 
 def simulation_detail(request, id):
     record = models.SimulationRecord.objects.get(id=id)
@@ -29,6 +35,7 @@ def simulation_detail(request, id):
     #    archive_contents = []
     
     return render_to_response('simulation_detail.html', {'record': record,
+                                                         'project_name': project_name,
                                                          #'parameters': record.iterparams(),
                                                          #'datafiles': archive_contents,
                                                          #'form': form
