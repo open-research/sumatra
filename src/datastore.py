@@ -14,6 +14,7 @@ class DataStore(object):
         """
         raise NotImplementedError
 
+
 class FileSystemDataStore(DataStore):
     
     def __init__(self, root):
@@ -35,14 +36,16 @@ class FileSystemDataStore(DataStore):
         # THIS NEEDS FIXED!
         timestamp = timestamp.replace(microsecond=0) # Round down to the nearest second
         # Find and add new data files
+        length_dataroot = len(self.root) + len(os.path.sep)
         new_files = []
         for root, dirs, files in os.walk(self.root):
             #print root, dirs, files
             for file in files:
-                file_path = os.path.join(root, file)
-                last_modified = datetime.datetime.fromtimestamp(os.stat(file_path).st_mtime)
+                full_path = os.path.join(root, file)
+                relative_path = os.path.join(root[length_dataroot:],file)
+                last_modified = datetime.datetime.fromtimestamp(os.stat(full_path).st_mtime)
                 if  last_modified >= timestamp:
-                    new_files.append(file_path)
+                    new_files.append(relative_path)
         return new_files
     
     def archive(self, label, key, delete_originals=False):
@@ -68,3 +71,22 @@ class FileSystemDataStore(DataStore):
             for file in new_files:
                 os.remove(file)
                 
+    def list_files(self, key):
+        return eval(key)
+    
+    def get_content(self, key, path, max_length=None):
+        full_path = os.path.join(self.root, path)
+        f = open(full_path, 'r')
+        # check the file size. Truncate if necessary
+        if max_length:
+            content = f.read(max_length)
+        else:
+            content = f.read()
+        f.close()
+        return content
+    
+    
+def get_data_store(type, parameters):
+    cls = eval(type)
+    return cls(**parameters)
+        

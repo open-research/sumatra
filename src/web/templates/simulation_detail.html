@@ -29,18 +29,14 @@
 </form>
 
 <h2>Data files</h2>
-<p>{{record.datastore.type}}, {{record.datastore.parameters}} {{record.data_key}}</p>
 <table>
 {% for file in datafiles %}
-  <tr class="{% cycle odd,even %}"><td><a href="/{{file.name}}">{{file.name}}</a></td><td>{{file.size}}</td></tr>
+  <tr class="{% cycle odd,even %}"><td><a href="datafile?path={{file}}">{{file}}</a></td></tr>
 {% endfor %}
 </table>
 
 <h2>Parameters</h2>
-<table>
-    {% for p in parameters %}
-    <tr class="{% cycle odd,even %}"><td>{% ifchanged p.0 %}{{p.0|join:"/"}}/{% endifchanged %}</td><td>{{p.1.name}}:</td><td>{{p.1.value}}</td></tr>
-    {% endfor %}
-</table>
-
+{% for name, value in parameters.items %}
+{{name}} = {{value}}<br>
+{% endfor %}
 {% endblock %}

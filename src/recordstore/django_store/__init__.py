@@ -81,6 +81,7 @@ class DjangoRecordStore(RecordStore):
         db_record.script = self._get_db_script(record.script)
         db_record.launch_mode = self._get_db_obj('LaunchMode', record.launch_mode)
         db_record.datastore = self._get_db_obj('Datastore', record.datastore)
+        db_record.parameters = self._get_db_obj('ParameterSet', record.parameters)
         import django.db.models.manager
         def debug(f):
             def _debug(model, values, **kwargs):

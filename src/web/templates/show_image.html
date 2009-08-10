@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Show file:: {{path}}{% endblock %}
+
+{% block header %}
+<h1>{{id}}</h1>
+{% endblock %}
+
+{% block content %}
+<p><a href="/{{id}}/">Return to simulation record</a></p>
+
+<h2>{{path}}</h2>
+
+<img src="/{{id}}/image?path={{path}}" alt="/{{id}}:{{path}}"/>
+
+
+{% endblock %}

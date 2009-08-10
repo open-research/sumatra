@@ -23,6 +23,8 @@ class SumatraObjectsManager(models.Manager):
                     attributes[name] = str(obj.get_state())
                 elif name == 'type':
                     attributes[name] = obj.__class__.__name__
+                elif name == 'content':
+                    attributes[name] = str(obj) # ParameterSet
                 else:
                     raise
         return self.get_or_create(**attributes)            
@@ -66,8 +68,8 @@ class Script(BaseModel):
         sc.version = self.version
         return sc
 
-#class ParameterSet(BaseModel):
-#    pass
+class ParameterSet(BaseModel):
+    content = models.TextField()
 
 class LaunchMode(BaseModel):
     type = models.CharField(max_length=10)
@@ -101,7 +103,7 @@ class SimulationRecord(BaseModel):
     duration = models.FloatField(null=True)
     executable = models.ForeignKey(Executable)
     script = models.ForeignKey(Script)
-    #parameters = models.ForeignKey(ParameterSet)
+    parameters = models.ForeignKey(ParameterSet)
     launch_mode = models.ForeignKey(LaunchMode)
     datastore = models.ForeignKey(Datastore)
     outcome = models.TextField(blank=True)

@@ -23,6 +23,8 @@ urlpatterns = patterns('',
     (r'^project/$', 'sumatra.web.views.show_project'),
     (r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT, 'show_indexes': True}),
     (r'^(?P<id>\w+[\w\-\.]*)/$', 'sumatra.web.views.simulation_detail'),
+    (r'^(?P<id>\w+[\w\-\.]*)/datafile$', 'sumatra.web.views.show_file'),
+    (r'^(?P<id>\w+[\w\-\.]*)/image$', 'sumatra.web.views.show_image'),
     
     # Uncomment the admin/doc line below and add 'django.contrib.admindocs' 
     # to INSTALLED_APPS to enable admin documentation:
