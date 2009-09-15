@@ -1,0 +1,30 @@
+#!/usr/bin/env python
+"""
+Web interface to the Sumatra simulation management tool, version 0.1
+"""
+
+import sys
+import os
+from django.core import management
+from django.conf import settings
+from sumatra.projects import load_simulation_project
+from sumatra.recordstore.django_store import DjangoRecordStore
+from sumatra.web import __file__ as sumatra_web
+
+project = load_simulation_project()
+if not isinstance(project.record_store, DjangoRecordStore):
+    # should make the web interface independent of the record store, if possible
+    print "This project cannot be accessed using the web interface."
+    sys.exit(1)
+del project
+
+root_dir = os.path.dirname(sumatra_web)
+settings.ROOT_URLCONF = 'sumatra.web.urls'
+settings.ADMIN_MEDIA_PREFIX = '/media/admin/' # seems we need to define this even though we're not using the admin application
+settings.MEDIA_ROOT = os.path.join(root_dir, "media")
+settings.TEMPLATE_DIRS = (os.path.join(root_dir, "templates"),)
+management.setup_environ(settings)
+management.call_command('runserver')
+
+
+

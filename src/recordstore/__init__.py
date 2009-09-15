@@ -1,6 +1,5 @@
 import shelve
 
-
 class RecordStore(object):
     pass
 
@@ -23,5 +22,16 @@ class ShelveRecordStore(object):
     def __setstate__(self, state):
         self.__init__(state)
 
-class DjangoRecordStore(object):
-    pass
+    def save(self, record):
+        self.shelf[record.label] = record
+        
+    def get(self, label):
+        return self.shelf[label]
+    
+    def list(self, groups):
+        # need to handle groups
+        return self.shelf.values()
+    
+    def delete(self, label):
+        del self.shelf[label]
+

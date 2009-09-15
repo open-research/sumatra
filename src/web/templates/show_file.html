@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}{{project_name}}: {{id}}: {{path}}{% endblock %}
+
+{% block header %}
+<h1>{{project_name}}: <i>{{id}}</i></h1>
+{% endblock %}
+
+{% block content %}
+<p><a href="/{{id}}/">Return to simulation record</a></p>
+
+<h2>{{path}}</h2>
+
+<div class="plaintext">
+<pre>
+{{content|escape}}
+</pre>
+</div>
+
+{% if truncated %}
+<p>File contents truncated.</p>
+{% endif %}
+
+{{errmsg}}
+
+{% endblock %}

@@ -1,23 +1,26 @@
 import os.path
+import re
 import subprocess
 from versioncontrol import get_repository
 
+version_pattern = re.compile(r'(?P<version>\d\S*)\s')
+
 class VersionedProgram(object):
+    pass
     
-    def __init__(self, path, name=None):
-        self.path = path
-        self.name = name # inferred from path if not given
-        
         
 class Executable(VersionedProgram): # call this Simulator? what about PyNEST?
     # store compilation/configuration options?
 
-    def __init__(self, path):
+    def __init__(self, path, version=None):
+        VersionedProgram.__init__(self)
         self.path = path or self._find_executable()    
-        self.version = self._get_version()
+        if not hasattr(self, 'name'):
+            self.name = os.path.basename(path)
+        self.version = version or self._get_version()
 
     def __str__(self):
-        return "%s (%s) at %s" % (self.name, self.version, self.path)
+        return "%s (version: %s) at %s" % (self.name, self.version, self.path)
 
     def _find_executable(self):
         found = []
@@ -37,7 +40,12 @@ class Executable(VersionedProgram): # call this Simulator? what about PyNEST?
     def _get_version(self):
         p = subprocess.Popen("%s --version" % self.path, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
         returncode = p.wait()
-        return p.stdout.read().strip()
+        match = version_pattern.search(p.stdout.read())
+        if match:
+            version = match.groupdict()['version']
+        else:
+            version = None
+        return version
 
 
 class NEURONSimulator(Executable):
@@ -50,6 +58,11 @@ class PythonExecutable(Executable):
     
     name = "Python"
     default_executable_name = "python"
+    
+    @staticmethod
+    def write_parameters(parameters, filename):
+        parameters.save(filename)
+
 
 class NESTSimulator(Executable):
     
@@ -61,20 +74,29 @@ class Script(VersionedProgram): # call this SimulationCode?
     # note that a script need not be a single file, but could be a suite of files
     # generally, should define a VCS repository and a main file
     
-    def __init__(self, main_file, repository_url=None):
+    def __init__(self, repository_url=None, main_file=None):
     # store reference to the executable for which the script is destined?
+        VersionedProgram.__init__(self)
         self.main_file = main_file
-        self.repository = get_repository(repository_url)
+        self.repository = get_repository(repository_url)    
     
     def __str__(self):
         if self.repository:
-            return "%s (main file is %s)" % (self.repository, self.main_file)
+            return "%s r%s (main file is %s)" % (self.repository, self.version, self.main_file)
         else:
-            return self.main_file
+            return "%s (no repository)" % self.main_file
     
     def checkout(self):
         if self.repository and not self.repository.working_copy:
             self.repository.checkout()
+            self.version = self._get_version()
+    
+    def change_repository(self, repository_url):
+        self.repository = get_repository(repository_url)
+    
+    def _get_version(self):
+        return self.repository.working_copy.current_version()
+    
     
 registered_programs = {
     'nrniv': NEURONSimulator,

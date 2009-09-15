@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}{{project_name}}: List of simulations{% if tag %} tagged with {{tag}}{% endif %}{% endblock %}
+
+{% block header %}<h1>{{project_name}}: List of simulations{% if tag %} tagged with <em>{{tag}}</em>{% endif %}</h1><span float{% endblock %}
+
+{% block content %}
+
+{% if tag %}
+<p><a href="/">Return to full simulation list</a></p>
+<p><a href="/tag/">Return to list of tags</a></p>
+{% endif %}
+
+{% if object_list %}
+    <form method="POST" action="/delete/">
+    <table class="simlist">
+        <tr>
+            <th rowspan="2"><input type="Submit" value="Delete"/></th>
+            <th rowspan="2">ID</th>
+            <th rowspan="2">Reason</th>
+            <th rowspan="2">Outcome</th>
+            <th rowspan="2">Duration</th>
+            <th colspan="2">Simulator</th>
+            <th colspan="2">Script</th>
+            <th rowspan="2">Date</th>
+            <th rowspan="2">Time</th>
+        </tr>
+        <tr>
+            <th>Main file</th>
+            <th>Version</th>
+            <th>Name</th>
+            <th>Version</th>
+        </tr>
+        {% for record in object_list %}
+        <tr class="{% cycle odd,even %}">
+            <td><input type="checkbox" name="delete" value="{{record.id}}"/></td>
+            <td><a href="{{record.id}}/">{{record.id}}</a></td>
+            <td>{{record.reason}}</td>
+            <td>{{record.outcome}}</td>
+            <td>{{record.duration|floatformat:2}}&nbsp;s</td>
+            <td>{{record.executable.name}}</td>
+            <td>{{record.executable.version}}</td>
+            <td>{{record.script.main_file}}</td>
+            <td>{{record.script.version}}</td>
+            <td>{{record.timestamp|date:"d/m/Y"}}</td>
+            <td>{{record.timestamp|date:"H:i:s"}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    </form>
+{% else %}
+    <p class="warning"><strong>No simulation records found</strong></p>
+{% endif %}
+
+{% endblock %}

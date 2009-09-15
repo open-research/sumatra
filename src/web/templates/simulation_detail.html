@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}{{project_name}}: {{record.id}}{% endblock %}
+
+{% block header %}
+<form action='{{ request.path }}' method='POST'>
+<h1>{{project_name}}: <i>{{record.id}}</i></h1>
+<input type="submit" value='Save' class="headeritem">
+<input type="submit" value='Delete' class="headeritem" name="delete">
+{% endblock %}
+
+{% block content %}
+
+<p><a href="/">Return to simulation list</a></p>
+
+<p>Should add previous and next buttons</p>
+
+<table>
+    <tr><th>Label:</th><td>{{record.id}}</td></tr>
+    <tr><th>Reason:</th><td>{{record.reason}}</td></tr>
+    <tr><th>Outcome:</th><td>{{record.outcome}}</td></tr>
+    <tr><th>Timestamp:</th><td>{{record.timestamp}}</td></tr>
+    {{form}}
+    <tr><th>Duration:</th><td>{{record.duration}}&nbsp;s</td></tr>
+    <tr><th>Executable:</th><td>{{record.executable.name}} version {{record.executable.version}} ({{record.executable.path}})</td></tr>
+    <tr><th>Script:</th><td>{{record.script.main_file}} from {{record.script.repository_url}}, version {{record.script.version}}</td></tr>
+</table>
+
+</form>
+
+<h2>Data files</h2>
+<table>
+{% for file in datafiles %}
+  <tr class="{% cycle odd,even %}"><td><a href="datafile?path={{file}}">{{file}}</a></td></tr>
+{% endfor %}
+</table>
+
+<h2>Parameters</h2>
+{% for name, value in parameters.items %}
+{{name}} = {{value}}<br>
+{% endfor %}
+{% endblock %}
