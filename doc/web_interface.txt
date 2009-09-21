@@ -2,11 +2,11 @@
 Using the web interface
 =======================
 
-The web interface is built using the Django http://www.djangoproject.com/ web
-framework, and requires that Django be installed (see Installation).
+The web interface is built using the Django_  web
+framework, and requires that Django be installed (see :doc:`installation`).
 
 Before using the web interface, you must have created a Sumatra project using
-smt init.
+``smt init``.
 
 To launch the web interface, in your project directory run::
 
@@ -15,13 +15,15 @@ To launch the web interface, in your project directory run::
 This will launch a simple web server that listens on port 8000. Now open your
 browser and navigate to http://localhost:8000/
 
-(If "localhost" doesn't work, try "127.0.0.1")
+(If ``localhost`` doesn't work, try ``127.0.0.1``)
 
 If port 8000 is already in use, you can specify a different port as an argument
-to smtweb.
+to ``smtweb``.
 
 DESCRIPTION OF USING THE WEB INTERFACE GOES HERE
 
 
-Don't forget to kill the webserver process (e.g. with fg, Ctrl-C) when you are
+Don't forget to kill the webserver process (e.g. with ``fg``, ``Ctrl-C``) when you are
 finished with it.
+
+.. _Django: http://www.djangoproject.com/

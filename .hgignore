@@ -1,3 +1,6 @@
 syntax: glob
 
 *.pyc
+_build
+dist/*
+

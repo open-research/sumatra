@@ -14,10 +14,12 @@ Contents:
    introduction
    installation
    getting_started
-   command_reference
    web_interface
    gui
+   parallel_simulations
    using_the_api
+   parameter_files
+   command_reference
 
 Indices and tables
 ==================

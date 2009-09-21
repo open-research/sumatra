@@ -2,14 +2,14 @@
 Using the Sumatra API within your own scripts
 =============================================
 
-Using the smt run command is quick and convenient, but it does require you to
+Using the ``smt run`` command is quick and convenient, but it does require you to
 change the way you launch your simulations.
 
-One way to avoid this is to use the sumatra package within your own simulation
-scripts to perform the record-keeping tasks performed by smt run.
+One way to avoid this is to use the ``sumatra`` package within your own simulation
+scripts to perform the record-keeping tasks performed by ``smt run``.
 
 You may also wish to write your own custom script for creating a Sumatra project,
-instead of using smt init, but we do not cover this scenario here.
+instead of using ``smt init``, but we do not cover this scenario here.
     
 We will start with a simple example script, a dummy simulation, that reads a
 parameter file, generates some random numbers, and writes some data to file::
@@ -26,8 +26,8 @@ parameter file, generates some random numbers, and writes some data to file::
     
     numpy.savetxt("example.dat", data)
     
-Let's suppose this script is in a file named myscript.py, and that we have a
-parameter file named "defaults.param", which contains::
+Let's suppose this script is in a file named ``myscript.py``, and that we have a
+parameter file named ``defaults.param``, which contains::
 
     seed = 65784
     distr = "uniform"
@@ -37,15 +37,15 @@ Without Sumatra, we would normally run this script using something like::
 
     $ python myscript.py defaults.param
 
-To run the script using the smt command line tool, we would use::
+To run the script using the ``smt`` command line tool, we would use::
 
     $ smt run --reason="reason for running this simulation" defaults.param
     
-(This assumes we have previously used smt init or smt configure to specify that
-our executable is "python" and our main file is myscript.py.)
+(This assumes we have previously used ``smt init`` or ``smt configure`` to specify that
+our executable is ``python`` and our main file is ``myscript.py``.)
 
-To benefit from the functionality of Sumatra without having to use smt run, we
-have to integrate the steps performed by smt run into our script.
+To benefit from the functionality of Sumatra without having to use ``smt run``, we
+have to integrate the steps performed by ``smt run`` into our script.
 
 First, we have to load the simulation project::
 
@@ -53,12 +53,12 @@ First, we have to load the simulation project::
     project = load_simulation_project()
     
 We're going to want to record the simulation duration, so we import the standard
-Python time module and record the start time::
+Python ``time`` module and record the start time::
 
     import time
     start_time = time.time()
     
-Now we create a new SimRecord object::
+Now we create a new ``SimRecord`` object::
 
     from sumatra.records import SimRecord
     sim_record = SimRecord(executable=project.default_executable,
@@ -123,6 +123,6 @@ Now you can run the simulation in the original way::
     
 and still have the simulation recorded in your Sumatra project. For such a
 simple script and simple run environment there is no advantage to doing it this
-way: smt run is much simpler. However, if you already have a fairly complex run
+way: ``smt run`` is much simpler. However, if you already have a fairly complex run
 environment, this provides a straightforward way to integrate Sumatra's
 functionality into your existing system.

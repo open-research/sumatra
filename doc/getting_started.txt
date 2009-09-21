@@ -7,26 +7,26 @@ managing using Sumatra, and that the code for this project is under version
 control.
 
 Change to the working directory for your project, and then create a new Sumatra
-project in this directory using the smt init command::
+project in this directory using the ``smt init`` command::
 
     $ cd myproject
     $ smt init MyProject
     
-where "MyProject" is the project name. This creates a sub-directory named .smt
-and, if it doesn't already exist, a sub-directory named Data.
+where ``MyProject`` is the project name. This creates a sub-directory named ``.smt``
+and, if it doesn't already exist, a sub-directory named ``Data``.
 
 Sumatra tracks data files created by your simulation by searching for newly
 created files within a given directory tree. By default, it assumes that your
-simulation will create files in a sub-directory Data of your working directory.
-You can change this by providing the --datapath option to smt init, e.g.::
+simulation will create files in a sub-directory ``Data`` of your working directory.
+You can change this by providing the ``--datapath`` option to ``smt init``, e.g.::
 
     $ smt init --datapath=/data/myproject MyProject
     
-Now Sumatra will look for new files within /data/myproject.
+Now Sumatra will look for new files within ``/data/myproject``.
 
 
 Now let's run a simulation. We will assume that your simulation code is written
-in Python, and that you run the simulation by executing a file called main.py,
+in Python_, and that you run the simulation by executing a file called ``main.py``,
 passing it the name of a parameter file on the command line, i.e., you would
 normally run a simulation using::
 
@@ -44,17 +44,13 @@ Now we can see a list of the simulations we have run::
     
 This shows the label for each simulation we have run. Since we did not specify
 a label, one was automatically generated from the name of the parameter file. To
-see more detail, use the --mode option::
+see more detail, use the ``--long`` option::
 
-    $ smt list --mode=long
+    $ smt list --long
     ...
     ...
     
-    
-    
-(most options also have a short form, "-m long" in this case.)
-[since there are only three modes - short, long, table, might be better to have
---long and --table options instead of --mode]
+(most options also have a short form, ``-l`` in this case.)
 
 It is a bit tedious to have to tell Sumatra which simulator and which file to
 run every time. Presumably, the name of the main file changes infrequently and
@@ -63,8 +59,8 @@ project::
 
     $ smt configure --simulator=python --main=main.py
     
-(you could also have given these options to smt init. init is used to create
-a project and configure to change its configuration later, but they mostly
+(you could also have given these options to ``smt init``. ``init`` is used to create
+a project and ``configure`` to change its configuration later, but they mostly
 accept the same arguments).
 
 Now you can run a simulation with a much shorter command line::
@@ -72,7 +68,7 @@ Now you can run a simulation with a much shorter command line::
     $ smt run default.param
     ...
     
-To see the current configuration of your project, use the info command::
+To see the current configuration of your project, use the ``info`` command::
 
     $ smt info
     ...
@@ -105,21 +101,21 @@ and delete tags::
     $ smt tag --delete barfoo
 
 The parameter file may be in any format - it is your script which is responsible
-for reading it. However, if it is in one of the formats that Sumatra understands
-([insert cross reference here]) then it is possible to modify parameter values
-on the command line. Suppose default.param contains a parameter tau_m = 20.0, as
+for reading it. However, if it is in one of the :doc:`formats that Sumatra understands <parameter_files>`
+then it is possible to modify parameter values
+on the command line. Suppose ``default.param`` contains a parameter ``tau_m = 20.0``, as
 well as a number of other parameters, then::
 
     $ smt run --reason="test effect of a smaller time constant" default.param tau_m=10.0
 
-will generate a new parameter file identical to default.param but with tau_m
+will generate a new parameter file identical to ``default.param`` but with ``tau_m``
 equal to 10.0, and then will pass this new parameter file to your script. This
 can be very convenient when you wish to study the effects of changing one or two
 parameters, without having to edit your parameter file each time.
 
 One of the main aims of Sumatra is to ensure the reproducibility of simulation
-results. The repeat command re-runs a previous simulation, and checks that the
-output is identical to that of the original run.
+results. The ``repeat`` command re-runs a previous simulation, and checks that the
+output is identical to that of the original run::
 
     $ smt repeat haggling_2009101002
     The simulation results match.
@@ -139,18 +135,53 @@ or with a given tag::
     
 Most of the commands described here have further options that we have not
 described. A full description of the options for each command is given in the
-[command reference]. The full list of commands is available by running just::
+[command reference]. The full list of commands is available by running ``smt`` by itself::
 
     $ smt
+    Usage: smt <subcommand> [options] [args]
+        
+    Simulation management tool, version 0.1
 
-and help on a given command is available by running the command with the --help
+    Available subcommands:  
+      run
+      batch
+      init
+      configure
+      info
+      list
+      comment
+      tag
+      repeat
+      package
+      delete
+      runserver
+      debug
+
+and help on a given command is available by running the command with the ``--help``
 option, e.g.::
 
     $ smt comment --help
+    Usage: smt comment [options] [LABEL] [COMMENT]
 
-This tutorial has covered using smt for serial simulations. A further tutorial
-covers [using smt for parallel simulations], whether batch or distributed
-(using MPI).
+    This command is used to describe the outcome of the simulation. If LABEL is
+    omitted, the comment will be added to the most recent simulation. If the
+    '-f/--file' option is set, COMMENT should be the name of a file containing the
+    comment, otherwise it should be a string of text.
 
-Also see [smtweb], which provides a more graphical interface to viewing lists
-of simulations than smt list.
+    Options:
+      -h, --help     show this help message and exit
+      -r, --replace  if this flag is set, any existing comment will be
+                     overwritten, otherwise, the new comment will be appended to
+                     the end, starting on a new line
+      -f, --file     interpret COMMENT as the path to a file containing the
+                     comment
+
+This tutorial has covered using ``smt`` for serial simulations. A further tutorial
+covers :doc:`using smt for parallel simulations <parallel_simulations>`, whether batch or distributed
+(using MPI_).
+
+Also see :doc:`smtweb <web_interface>`, which provides a more graphical interface to viewing lists
+of simulations than ``smt list``.
+
+.. _Python: http://www.python.org
+.. _MPI: http://en.wikipedia.org/wiki/Message_Passing_Interface
