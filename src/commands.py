@@ -165,7 +165,7 @@ def delete(argv):
       for groups of records. If it contains groups, you must set the --group/-g
       option (see below). The special value "last" allows you to delete the
       most recent simulation. If you want to delete all records, just delete the
-      .smt directory and use smt setup to create a new, empty project.""")
+      .smt directory and use smt init to create a new, empty project.""")
     parser = OptionParser(usage=usage,
                           description=description)
     parser.add_option('-g', '--group', action='store_true',

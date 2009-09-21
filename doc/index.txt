@@ -14,7 +14,7 @@ Contents:
    introduction
    installation
    getting_started
-   command_line
+   command_reference
    web_interface
    gui
    using_the_api

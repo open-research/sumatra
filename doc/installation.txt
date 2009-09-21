@@ -2,3 +2,14 @@
 Installation
 ============
 
+Sumatra may be downloaded from http://xxx.xxx/sumatra/Download. To install it,
+first unpack the tar archive::
+
+    $ tar xzf Sumatra-0.1.tar.gz
+    $ cd Sumatra-0.1
+    # python setup.py install
+    
+The last step may need to be run as root, or using sudo.
+
+
+
