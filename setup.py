@@ -7,7 +7,7 @@ setup(
     version = "0.1",
     package_dir={'sumatra': 'src'},
     packages = ['sumatra',],
-    scripts= ['src/smt',],
+    scripts= ['src/smt', 'src/smtweb'],
     author = "Andrew P. Davison",
     author_email = "andrewpdavison@gmail.com",
     description = "A tool for managing simulation-based projects",

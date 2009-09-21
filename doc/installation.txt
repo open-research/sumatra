@@ -11,5 +11,14 @@ first unpack the tar archive::
     
 The last step may need to be run as root, or using sudo.
 
+Installing Django
+-----------------
+
+If you wish to use the web interface, you will also need to install Django. On
+Linux, you may be able to do this via your package management system: see
+http://code.djangoproject.com/wiki/Distributions.
+
+Otherwise, it is very easy to install manually: see
+http://docs.djangoproject.com/en/dev/topics/install/#installing-official-release
 
 

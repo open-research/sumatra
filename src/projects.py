@@ -67,12 +67,12 @@ class SimProject:
         sim_record = SimRecord(executable, script, parameters, launch_mode, self.data_store, label=label, reason=reason)
         sim_record.run()
         self.add_record(sim_record)
-        self._most_recent = sim_record.label
         self._save()
     
     def add_record(self, record):
         """Add a simulation record."""
         self.record_store.save(record)
+        self._most_recent = record.label
     
     def get_record(self, label):
         """Search for a record with the supplied label and return it if found.

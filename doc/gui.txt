@@ -2,3 +2,13 @@
 Graphical user interfaces
 =========================
 
+Sumatra has a command line interface and a web interface, but does not currently
+have a graphical desktop client.
+
+We will probably write one at some point, but we hope that other people will
+also write their own, building on top of the tools and functionality provided in
+the Sumatra package.
+
+The reason we hope for multiple desktop clients is that everyone has their own
+preferred workflow, and it seems unlikely that one graphical interface will
+work equally well for everyone.
