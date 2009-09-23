@@ -125,5 +125,6 @@ class SimulationRecord(BaseModel):
         record.timestamp = self.timestamp
         return record
             
-            
+    def __unicode__(self):
+        return self.id
     

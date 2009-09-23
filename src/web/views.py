@@ -1,4 +1,4 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from sumatra.recordstore.django_store import models
 from sumatra.projects import load_simulation_project
@@ -39,6 +39,13 @@ def simulation_detail(request, id):
                                                          #'form': form
                                                          })
 
+def delete_records(request):
+    records_to_delete = request.POST.getlist('delete')
+    records = models.SimulationRecord.objects.filter(id__in=records_to_delete)
+    for record in records:
+        record.delete()
+    return HttpResponseRedirect('/')
+    
 
 MAX_DISPLAY_LENGTH = 10*1024
 

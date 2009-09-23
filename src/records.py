@@ -19,7 +19,10 @@ class SimRecord(object): # maybe just call this Simulation
         self.outcome = None
         self.data_key = None
         self.timestamp = datetime.now() # might need to allow for this to be set as argument to allow for distributed/batch simulations on machines with out-of-sync clocks
-        self.label = "%s_%s" % (self.group, self.timestamp.strftime("%Y%m%d-%H%M%S"))
+    
+    @property
+    def label(self):
+        return "%s_%s" % (self.group, self.timestamp.strftime("%Y%m%d-%H%M%S"))
         
     def run(self):
         """Launch the simulation."""

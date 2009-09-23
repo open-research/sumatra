@@ -108,7 +108,9 @@ class DjangoRecordStore(RecordStore):
         return [db_record.to_sumatra() for db_record in db_records]
     
     def delete(self, label):
-        raise NotImplememtedError
+        import models
+        db_record = models.SimulationRecord.objects.get(id=label)
+        db_record.delete()
     
 def test():
     djrs = DjangoRecordStore()
