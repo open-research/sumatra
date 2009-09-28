@@ -5,25 +5,25 @@
 {% block header %}
 <form action='{{ request.path }}' method='POST'>
 <h1>{{project_name}}: <i>{{record.id}}</i></h1>
-<input type="submit" value='Save' class="headeritem">
+<input type="submit" value='Save changes' class="headeritem">
 <input type="submit" value='Delete' class="headeritem" name="delete">
 {% endblock %}
 
 {% block content %}
 
-<p><a href="/">Return to simulation list</a></p>
+<p><a href="previous"><</a> <a href="/">Return to simulation list</a> <a href="next">></a></p>
 
-<p>Should add previous and next buttons</p>
+{{form.errors}}
 
 <table>
     <tr><th>Label:</th><td>{{record.id}}</td></tr>
-    <tr><th>Reason:</th><td>{{record.reason}}</td></tr>
-    <tr><th>Outcome:</th><td>{{record.outcome}}</td></tr>
-    <tr><th>Timestamp:</th><td>{{record.timestamp}}</td></tr>
-    {{form}}
-    <tr><th>Duration:</th><td>{{record.duration}}&nbsp;s</td></tr>
+    <tr><th>Reason:</th><td>{{form.reason}}</td></tr>
+    <tr><th>Outcome:</th><td>{{form.outcome}}</td></tr>
+    <tr><th>Timestamp:</th><td>{{record.timestamp|date:"d/m/Y H:i:s"}}</td></tr>
+    <tr><th>Duration:</th><td>{{record.duration|floatformat:"2"}}&nbsp;s</td></tr>
     <tr><th>Executable:</th><td>{{record.executable.name}} version {{record.executable.version}} ({{record.executable.path}})</td></tr>
     <tr><th>Script:</th><td>{{record.script.main_file}} from {{record.script.repository_url}}, version {{record.script.version}}</td></tr>
+    <tr><th>Tags:</th><td>{{form.tags}}</td></tr>
 </table>
 
 </form>

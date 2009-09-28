@@ -1,5 +1,6 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
+from django import forms
 from sumatra.recordstore.django_store import models
 from sumatra.projects import load_simulation_project
 from sumatra.datastore import get_data_store
@@ -12,22 +13,30 @@ del _project
 def show_project(request):
     project = load_simulation_project()
     return render_to_response('project_detail.html', {'project': project})
+   
+
+class SimulationUpdateForm(forms.ModelForm):
+    wide_textarea = forms.Textarea(attrs={'rows': 2, 'cols':80})
+    reason = forms.CharField(required=False, widget=wide_textarea)
+    outcome = forms.CharField(required=False, widget=wide_textarea)
+    class Meta:
+        model = models.SimulationRecord
+        fields=('reason', 'outcome', 'tags')
 
 def simulation_detail(request, id):
     record = models.SimulationRecord.objects.get(id=id)
-    #SimulationUpdateForm = forms.form_for_instance(record, fields=('reason', 'outcome', 'tags'))
     
-    #if request.method == 'POST':
-    #    if request.POST.has_key('delete'):
-    #        record.delete()
-    #        return HttpResponseRedirect('/')
-    #    else:
-    #        form = SimulationUpdateForm(request.POST)
-    #        if form.is_valid():
-    #            form.save()
-    #        return HttpResponseRedirect('/')
-    #else:
-    #    form = SimulationUpdateForm()
+    
+    if request.method == 'POST':
+        if request.POST.has_key('delete'):
+            record.delete()
+            return HttpResponseRedirect('/')
+        else:
+            form = SimulationUpdateForm(request.POST, instance=record)
+            if form.is_valid():
+                form.save()
+    else:
+        form = SimulationUpdateForm(instance=record)
     data_store = get_data_store(record.datastore.type, eval(record.datastore.parameters))
     datafiles = data_store.list_files(record.data_key)
     assert isinstance(datafiles, list), type(datafiles)
@@ -36,7 +45,7 @@ def simulation_detail(request, id):
                                                          'project_name': project_name,
                                                          'parameters': parameter_set.as_dict(),
                                                          'datafiles': datafiles,
-                                                         #'form': form
+                                                         'form': form
                                                          })
 
 def delete_records(request):
@@ -44,7 +53,7 @@ def delete_records(request):
     records = models.SimulationRecord.objects.filter(id__in=records_to_delete)
     for record in records:
         record.delete()
-    return HttpResponseRedirect('/')
+    return HttpResponseRedirect('/')  
     
 
 MAX_DISPLAY_LENGTH = 10*1024

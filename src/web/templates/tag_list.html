@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}{{project_name}}: List of tags{% endblock %}
+
+{% block header %}<h1>{{project_name}}: List of tags</h1>{% endblock %}
+
+{% block content %}
+
+<p><a href="/">Return to full simulation list</a></p>
+
+{% if object_list %}
+    <ul>
+    {% for object in object_list %}
+        <li><a href="{{object}}/">{{object}}</a></li>    
+    {% endfor %}
+    </ul>
+{% else %}
+    <p class="warning"><strong>No tags defined</strong></p>
+{% endif %}
+
+{% endblock %}

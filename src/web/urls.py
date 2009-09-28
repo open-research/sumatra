@@ -5,17 +5,33 @@ from django.conf import settings
 from sumatra.recordstore.django_store.models import SimulationRecord
 from sumatra.projects import load_simulation_project
 
+from tagging.models import Tag
+
+from copy import deepcopy
+
 # Uncomment the next two lines to enable the admin:
 # from django.contrib import admin
 # admin.autodiscover()
 
 _project = load_simulation_project()
+project_name = _project.name
+del _project
+
 simulation_records = {
     "queryset": SimulationRecord.objects.all(),
     "template_name": "simulation_list.html",
-    "extra_context": { 'project_name': _project.name }
+    "extra_context": { 'project_name': project_name }
 }
-del _project
+
+tagged_records = deepcopy(simulation_records)
+tagged_records["queryset_or_model"] = SimulationRecord
+tagged_records.pop("queryset")
+
+tags = {
+    "extra_context": { 'project_name': project_name },
+    "queryset": Tag.objects.all(),
+    "template_name": "tag_list.html",
+}
 
 urlpatterns = patterns('',
     # Example:
@@ -23,6 +39,8 @@ urlpatterns = patterns('',
     (r'^project/$', 'sumatra.web.views.show_project'),
     (r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT, 'show_indexes': True}),
     (r'^delete/$', 'sumatra.web.views.delete_records'),
+    (r'^tag/$', list_detail.object_list, tags),
+    (r'^tag/(?P<tag>.*)/$', 'tagging.views.tagged_object_list', tagged_records),
     (r'^(?P<id>\w+[\w\-\.]*)/$', 'sumatra.web.views.simulation_detail'),
     (r'^(?P<id>\w+[\w\-\.]*)/datafile$', 'sumatra.web.views.show_file'),
     (r'^(?P<id>\w+[\w\-\.]*)/image$', 'sumatra.web.views.show_image'),

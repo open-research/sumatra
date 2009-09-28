@@ -2,7 +2,7 @@
 
 {% block title %}{{project_name}}: List of simulations{% if tag %} tagged with {{tag}}{% endif %}{% endblock %}
 
-{% block header %}<h1>{{project_name}}: List of simulations{% if tag %} tagged with <em>{{tag}}</em>{% endif %}</h1><span float{% endblock %}
+{% block header %}<h1>{{project_name}}: List of simulations{% if tag %} tagged with <em>{{tag}}</em>{% endif %}</h1>{% endblock %}
 
 {% block content %}
 
@@ -24,6 +24,7 @@
             <th colspan="2">Script</th>
             <th rowspan="2">Date</th>
             <th rowspan="2">Time</th>
+            <th rowspan="2">Tags</th>
         </tr>
         <tr>
             <th>Main file</th>
@@ -44,6 +45,7 @@
             <td>{{record.script.version}}</td>
             <td>{{record.timestamp|date:"d/m/Y"}}</td>
             <td>{{record.timestamp|date:"H:i:s"}}</td>
+            <td>{{record.tags}}</td>
         </tr>
         {% endfor %}
     </table>

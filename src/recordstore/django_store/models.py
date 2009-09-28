@@ -1,6 +1,7 @@
 from django.db import models
 from sumatra import programs, launch, datastore, records, versioncontrol, parameters
 import os.path
+import tagging.fields
 
 class SumatraObjectsManager(models.Manager):
     
@@ -102,7 +103,8 @@ class Datastore(BaseModel):
 
 
 class SimulationRecord(BaseModel):
-    id = models.CharField(max_length=100, primary_key=True)
+    id = models.CharField(max_length=100, unique=True)
+    db_id = models.AutoField(primary_key=True) # django-tagging needs an integer as primary key - see http://code.google.com/p/django-tagging/issues/detail?id=15
     group = models.ForeignKey(SimulationGroup)
     reason = models.TextField(blank=True)
     duration = models.FloatField(null=True)
@@ -114,6 +116,7 @@ class SimulationRecord(BaseModel):
     outcome = models.TextField(blank=True)
     data_key = models.TextField(blank=True)
     timestamp = models.DateTimeField()
+    tags = tagging.fields.TagField()
 
     def to_sumatra(self):
         record = records.SimRecord(

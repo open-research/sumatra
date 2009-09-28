@@ -6,8 +6,11 @@ import os
 recordstore_settings = {
     'DEBUG': True,
     'DATABASE_ENGINE': 'sqlite3',
-    'INSTALLED_APPS': ('sumatra.recordstore.django_store',),
+    'INSTALLED_APPS': ('sumatra.recordstore.django_store',
+                       'django.contrib.contenttypes', # needed for tagging
+                       'tagging'),
 }
+
 
 class DjangoRecordStore(RecordStore):
     

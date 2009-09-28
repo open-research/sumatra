@@ -55,6 +55,8 @@ tr.even {
 
 h1 {
     font-size: 140%;
+    display: inline;
+    margin-right: 20px;
 }
 
 h2 {
@@ -75,8 +77,8 @@ h2 {
 }
 
 .headeritem {
-    margin-left: 20px;
-    margin-right: 20px;
+    margin-left: 5px;
+    margin-right: 5px;
     margin-top: 5px;
     margin-bottom: 0px;
 }
