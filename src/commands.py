@@ -47,7 +47,10 @@ def init(argv):
     options.repository = options.repository or '.' # if no repository is specified, we assume there is one in the current directory.
     script_code = Script(repository_url=options.repository, main_file=options.main) 
     script_code.checkout()                         # this will raise an Exception if no repository is found
-    executable = get_executable(path=options.simulator, script_file=options.main)
+    if options.simulator or options.main:
+        executable = get_executable(path=options.simulator, script_file=options.main)
+    else:
+        executable = None
     if options.plugins:
         try:
             record_store = _process_plugins(options.plugins)()
@@ -125,16 +128,22 @@ def run(argv):
     parameter_file = args[0]
     cmdline_parameters = args[1:]
     
-    parameters = build_parameters(parameter_file, cmdline_parameters)
-    print parameters.pretty(expand_urls=True)
-    simulator = options.simulator or 'default'
     project = load_simulation_project()
+    
+    parameters = build_parameters(parameter_file, cmdline_parameters)
+    print "Parameters for this simulation:\n", parameters.pretty(expand_urls=True)
     if options.main:
         script = deepcopy(project.default_script)
         script.main_file = options.main
     else:
         script = 'default'
-        
+    if options.simulator:
+        simulator = get_executable(path=options.simulator)
+    elif options.main:
+        simulator = get_executable(script_file=options.main)
+    else:
+        simulator = 'default'
+    
     label = options.label or os.path.splitext(os.path.basename(parameter_file))[0]
     project.launch_simulation(parameters, label=label, reason=options.reason,
                               executable=simulator, script=script)

@@ -1,9 +1,9 @@
 import os
 import cPickle as pickle
 from datastore import FileSystemDataStore
-from recordstore import ShelveRecordStore
 from records import SimRecord
 from formatting import get_formatter
+from recordstore import DefaultRecordStore
 
 def _remove_left_margin(s): # replace this by textwrap.dedent?
     lines = s.strip().split('\n')
@@ -25,7 +25,7 @@ class SimProject:
             data_store = FileSystemDataStore()
         self.data_store = data_store # a data store object
         if record_store == 'default':
-            record_store = ShelveRecordStore(os.path.join(".smt/simulation_records"))
+            record_store = DefaultRecordStore(os.path.join(".smt/simulation_records"))
         self.record_store = record_store
         self._save()
         print "Simulation project successfully set up"

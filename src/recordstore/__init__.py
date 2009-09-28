@@ -3,7 +3,6 @@ import shelve
 class RecordStore(object):
     pass
 
-
 class ShelveRecordStore(object):
     
     def __init__(self, shelf_name):
@@ -35,3 +34,8 @@ class ShelveRecordStore(object):
     def delete(self, label):
         del self.shelf[label]
 
+
+try:
+    from django_store import DjangoRecordStore as DefaultRecordStore
+except ImportError:
+    DefaultRecordStore = ShelveRecordStore

@@ -24,7 +24,11 @@ settings.ADMIN_MEDIA_PREFIX = '/media/admin/' # seems we need to define this eve
 settings.MEDIA_ROOT = os.path.join(root_dir, "media")
 settings.TEMPLATE_DIRS = (os.path.join(root_dir, "templates"),)
 management.setup_environ(settings)
-management.call_command('runserver')
+if len(sys.argv) > 1:
+    port = sys.argv[1]
+else:
+    port = "8000"
+management.call_command('runserver', port)
 
 
 

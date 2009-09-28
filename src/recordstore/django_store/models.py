@@ -1,5 +1,5 @@
 from django.db import models
-from sumatra import programs, launch, datastore, records, versioncontrol
+from sumatra import programs, launch, datastore, records, versioncontrol, parameters
 import os.path
 
 class SumatraObjectsManager(models.Manager):
@@ -14,7 +14,6 @@ class SumatraObjectsManager(models.Manager):
         field_names.remove('id')
         field_names.remove('simulationrecord')
         attributes = {}
-        print "field_names = ", field_names
         for name in field_names:
             try:
                 attributes[name] = getattr(obj, name)
@@ -69,7 +68,13 @@ class Script(BaseModel):
         return sc
 
 class ParameterSet(BaseModel):
+    type = models.CharField(max_length=30)
     content = models.TextField()
+    
+    def to_sumatra(self):
+        if hasattr(parameters, self.type):
+            ps = getattr(parameters, self.type)(self.content)
+        return ps
 
 class LaunchMode(BaseModel):
     type = models.CharField(max_length=10)
@@ -114,7 +119,7 @@ class SimulationRecord(BaseModel):
         record = records.SimRecord(
             self.executable.to_sumatra(),
             self.script.to_sumatra(),
-            {}, # temporary
+            self.parameters.to_sumatra(),
             self.launch_mode.to_sumatra(),
             self.datastore.to_sumatra(),
             self.group.id,

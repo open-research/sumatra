@@ -31,10 +31,10 @@ def simulation_detail(request, id):
     data_store = get_data_store(record.datastore.type, eval(record.datastore.parameters))
     datafiles = data_store.list_files(record.data_key)
     assert isinstance(datafiles, list), type(datafiles)
-    
+    parameter_set = record.parameters.to_sumatra()    
     return render_to_response('simulation_detail.html', {'record': record,
                                                          'project_name': project_name,
-                                                         'parameters': eval(record.parameters.content),
+                                                         'parameters': parameter_set.as_dict(),
                                                          'datafiles': datafiles,
                                                          #'form': form
                                                          })
@@ -88,7 +88,7 @@ def show_file(request, id):
         else:
             return render_to_response("show_file.html", {'path': path, 'id': id,
                                                          'project_name': project_name,
-                                                         'content': "Can't display file format."})
+                                                         'content': "Can't display this file (mimetype assumed to be %s)" % mimetype})
     except IOError, e:
         return render_to_response("show_file.html", {'path': path, 'id': id,
                                                      'project_name': project_name,
