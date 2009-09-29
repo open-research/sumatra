@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load filters %}
 
 {% block title %}{{project_name}}: List of simulations{% if tag %} tagged with {{tag}}{% endif %}{% endblock %}
 
@@ -45,7 +46,7 @@
             <td>{{record.script.version}}</td>
             <td>{{record.timestamp|date:"d/m/Y"}}</td>
             <td>{{record.timestamp|date:"H:i:s"}}</td>
-            <td>{{record.tags}}</td>
+            <td>{{record.tags|link}}</td>
         </tr>
         {% endfor %}
     </table>

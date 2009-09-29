@@ -35,7 +35,8 @@ tags = {
 
 urlpatterns = patterns('',
     # Example:
-    (r'^$', list_detail.object_list, simulation_records),
+    #(r'^$', list_detail.object_list, simulation_records),
+    (r'^$', 'sumatra.web.views.list_simulations'),
     (r'^project/$', 'sumatra.web.views.show_project'),
     (r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT, 'show_indexes': True}),
     (r'^delete/$', 'sumatra.web.views.delete_records'),

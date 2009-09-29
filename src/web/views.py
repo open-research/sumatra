@@ -1,5 +1,6 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
+from django.views.generic import list_detail
 from django import forms
 from sumatra.recordstore.django_store import models
 from sumatra.projects import load_simulation_project
@@ -10,18 +11,30 @@ _project = load_simulation_project()
 project_name = _project.name
 del _project
 
-def show_project(request):
-    project = load_simulation_project()
-    return render_to_response('project_detail.html', {'project': project})
-   
-
+class TagSearch(forms.Form):
+    search = forms.CharField() 
+    
 class SimulationUpdateForm(forms.ModelForm):
     wide_textarea = forms.Textarea(attrs={'rows': 2, 'cols':80})
     reason = forms.CharField(required=False, widget=wide_textarea)
     outcome = forms.CharField(required=False, widget=wide_textarea)
+    
     class Meta:
         model = models.SimulationRecord
         fields=('reason', 'outcome', 'tags')
+
+def show_project(request):
+    project = load_simulation_project()
+    return render_to_response('project_detail.html', {'project': project})
+   
+def list_simulations(request):
+    search_form = TagSearch()
+    return list_detail.object_list(request,
+                                   queryset=models.SimulationRecord.objects.all(),
+                                   template_name="simulation_list.html",
+                                   extra_context={
+                                    'project_name': project_name,
+                                    'search_form': search_form})  
 
 def simulation_detail(request, id):
     record = models.SimulationRecord.objects.get(id=id)
