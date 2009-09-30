@@ -1,7 +1,7 @@
 import textwrap
 
 fields = ['label', 'reason', 'outcome', 'duration', 'script',
-          'executable', 'timestamp']
+          'executable', 'timestamp', 'tags']
 
 class Formatter(object):
     
@@ -29,6 +29,8 @@ class TextFormatter(Formatter):
                     entryStr += str(entry())
                 elif hasattr(entry, "items"):
                     entryStr += ", ".join(["%s=%s" % item for item in entry.items()])
+                elif isinstance(entry, set):
+                    entryStr += ", ".join(entry)
                 else:
                     entryStr += str(entry)
                 output += textwrap.fill(entryStr, width=text_width,
@@ -36,6 +38,8 @@ class TextFormatter(Formatter):
                                         subsequent_indent=' '*(indent+2)) + "\n"
         return output
     
+    def table(self):
+        raise NotImplementedError
     
 class HTMLFormatter(Formatter):
     

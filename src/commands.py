@@ -132,11 +132,11 @@ def run(argv):
     
     parameters = build_parameters(parameter_file, cmdline_parameters)
     print "Parameters for this simulation:\n", parameters.pretty(expand_urls=True)
+    script = deepcopy(project.default_script)
     if options.main:
-        script = deepcopy(project.default_script)
         script.main_file = options.main
-    else:
-        script = 'default'
+    if options.version:
+        script.version = options.version
     if options.simulator:
         simulator = get_executable(path=options.simulator)
     elif options.main:
@@ -156,8 +156,11 @@ def list(argv):
       will be listed.""")
     parser = OptionParser(usage=usage,
                           description=description)
-    parser.add_option('-m', '--mode', default='short', choices=['short', 'long', 'tab'],
-                      help="one of 'short' (default), which only lists the record IDs, 'long', which prints all information for each record, or 'tab', which prints all information in tab-separated columns (which can be imported into a spreadsheet, for example).")
+    parser.add_option('-l', '--long', action="store_const", const="long",
+                      dest="mode", default="short",
+                      help="prints full information for each record"),
+    parser.add_option('-t', '--table', action="store_const", const="table",
+                      dest="mode", help="prints information in tab-separated columns")
     parser.add_option('-f', '--format', metavar='FMT', choices=['text', 'html'], default='text',
                       help="FMT can be 'text' (default) or 'html'.")
     (options, args) = parser.parse_args(argv)
@@ -224,7 +227,33 @@ def comment(argv):
     label = label or project.most_recent().label
     project.add_comment(label, comment)
     
-        
-    
-# def tag(argv):
+def tag(argv):
+    """Tag, or remove a tag, from a simulation record or records."""
+    usage = "%prog tag [options] TAG [LIST]"
+    description = dedent("""\
+      If TAG contains spaces, it must be enclosed in quotes. LIST should be a
+      space-separated list of labels for individual records. If it is omitted,
+      only the most recent record will be tagged. If the '-d/--delete' option
+      is set, the tag will be removed from the records.""")
+    parser = OptionParser(usage=usage,
+                          description=description)
+    parser.add_option('-r', '--remove', action='store_true',
+                      help="remove the tag from the record(s), rather than adding it.")
+    (options, args) = parser.parse_args(argv)
+    if len(args) > 0:
+        tag = args[0]
+        project = load_simulation_project()
+        if options.remove:
+            op = project.remove_tag
+        else:
+            op = project.add_tag
+        if len(args) > 1:
+            labels = args[1:]
+        else:
+            labels = [project.most_recent().label]
+        for label in labels:
+            op(label, tag)
+    else:
+        parser.error('Please provide a tag.')
+
 # def repeat(argv):

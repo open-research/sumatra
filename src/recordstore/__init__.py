@@ -28,8 +28,10 @@ class ShelveRecordStore(object):
         return self.shelf[label]
     
     def list(self, groups):
-        # need to handle groups
-        return self.shelf.values()
+        if groups:
+            return [record for record in self.shelf.values() if record.group in groups]
+        else:
+            returnself.shelf.values()
     
     def delete(self, label):
         del self.shelf[label]

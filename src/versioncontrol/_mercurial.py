@@ -51,6 +51,9 @@ class MercurialRepository(Repository):
             hg.update(local_repos, None)
         self.working_copy = MercurialWorkingCopy()
             
+    def use_version(self, version):
+        hg.clean(self._repository, version)
+            
     def __getstate__(self):
         """For pickling"""
         return {'url': self.url, 'wc': self.working_copy}

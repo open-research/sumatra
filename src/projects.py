@@ -51,13 +51,13 @@ class SimProject:
         Data store:          %(data_store)s
         Record store:        %(record_store)s
         """
+        print self.__dict__
+        print self, self.name
         return _remove_left_margin(template % self.__dict__)
     
     def launch_simulation(self, parameters, executable='default', script='default',
                           launch_mode='default', label=None, reason=None):
         """Launch a new simulation."""
-        # Check if the working copy has modifications and prompt to commit or revert them
-        # Check out the requested code version, if necessary
         if executable == 'default':
             executable = self.default_executable
         if script == 'default':
@@ -100,6 +100,16 @@ class SimProject:
     def add_comment(self, label, comment):
         record = self.record_store.get(label)
         record.outcome = comment
+        self.record_store.save(record)
+        
+    def add_tag(self, label, tag):
+        record = self.record_store.get(label)
+        record.tags.add(tag)
+        self.record_store.save(record)
+    
+    def remove_tag(self, label, tag):
+        record = self.record_store.get(label)
+        record.tags.remove(tag)
         self.record_store.save(record)
     
     

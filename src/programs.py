@@ -78,7 +78,8 @@ class Script(VersionedProgram): # call this SimulationCode?
     # store reference to the executable for which the script is destined?
         VersionedProgram.__init__(self)
         self.main_file = main_file
-        self.repository = get_repository(repository_url)    
+        self.repository = get_repository(repository_url)
+        self.version = None
     
     def __str__(self):
         if self.repository:
@@ -89,13 +90,20 @@ class Script(VersionedProgram): # call this SimulationCode?
     def checkout(self):
         if self.repository and not self.repository.working_copy:
             self.repository.checkout()
-            self.version = self._get_version()
     
     def change_repository(self, repository_url):
         self.repository = get_repository(repository_url)
     
-    def _get_version(self):
+    def _get_current_version(self):
         return self.repository.working_copy.current_version()
+    
+    def has_changed(self):
+        pass
+    
+    def update_code(self):
+        if self.version is None:
+            self.version = self._get_current_version()
+        self.repository.use_version(self.version)
     
     
 registered_programs = {

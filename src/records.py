@@ -19,14 +19,19 @@ class SimRecord(object): # maybe just call this Simulation
         self.outcome = None
         self.data_key = None
         self.timestamp = datetime.now() # might need to allow for this to be set as argument to allow for distributed/batch simulations on machines with out-of-sync clocks
+        self.tags = set()
     
     @property
     def label(self):
-        return "%s_%s" % (self.group, self.timestamp.strftime("%Y%m%d-%H%M%S"))
+        return "%s_%s" % (self.group, self.timestamp.strftime("%Y%m%d-%H%M%S"))        
         
     def run(self):
         """Launch the simulation."""
         # if it hasn't been run already. Do we need to distinguish separate Simulation and SimRecord classes?
+        # Check if the working copy has modifications and prompt to commit or revert them
+        
+        # Check out the requested code version, if necessary
+        self.script.update_code()        
         # run pre-simulation tasks, e.g. nrnivmodl
         pass
         # Write the simulator-specific parameter file

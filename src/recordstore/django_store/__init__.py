@@ -85,6 +85,8 @@ class DjangoRecordStore(RecordStore):
         db_record.launch_mode = self._get_db_obj('LaunchMode', record.launch_mode)
         db_record.datastore = self._get_db_obj('Datastore', record.datastore)
         db_record.parameters = self._get_db_obj('ParameterSet', record.parameters)
+        db_record.tags = ",".join(record.tags)
+        # should perhaps check here for any orphan Tags, i.e., those that are no longer associated with any records, and delete them
         import django.db.models.manager
         def debug(f):
             def _debug(model, values, **kwargs):
@@ -97,7 +99,6 @@ class DjangoRecordStore(RecordStore):
         
         db_record.save()
         
-    
     def get(self, label):
         import models
         db_record = models.SimulationRecord.objects.get(id=label)
@@ -114,6 +115,7 @@ class DjangoRecordStore(RecordStore):
         import models
         db_record = models.SimulationRecord.objects.get(id=label)
         db_record.delete()
+    
     
 def test():
     djrs = DjangoRecordStore()

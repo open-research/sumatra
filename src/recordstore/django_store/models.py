@@ -2,6 +2,7 @@ from django.db import models
 from sumatra import programs, launch, datastore, records, versioncontrol, parameters
 import os.path
 import tagging.fields
+from tagging.models import Tag
 
 class SumatraObjectsManager(models.Manager):
     
@@ -131,6 +132,7 @@ class SimulationRecord(BaseModel):
         record.outcome = self.outcome
         record.data_key = eval(self.data_key)
         record.timestamp = self.timestamp
+        record.tags = set(tag.name for tag in Tag.objects.get_for_object(self))
         return record
             
     def __unicode__(self):
