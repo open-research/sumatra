@@ -53,7 +53,21 @@ class MercurialRepository(Repository):
             
     def use_version(self, version):
         hg.clean(self._repository, version)
-            
+    
+    def status(self):
+        modified, added, removed, deleted, unknown, ignored, clean = self._repository.status(unknown=True)
+        return {'modified': modified, 'removed': removed,
+                'deleted': deleted, 'unknown': unknown}
+        
+    def has_changed(self):
+        status = self.status()
+        changed = False
+        for st in 'modified', 'removed', 'deleted':
+            if status[st]:
+                changed = True
+                break
+        return changed
+    
     def __getstate__(self):
         """For pickling"""
         return {'url': self.url, 'wc': self.working_copy}

@@ -98,7 +98,7 @@ class Script(VersionedProgram): # call this SimulationCode?
         return self.repository.working_copy.current_version()
     
     def has_changed(self):
-        pass
+        return self.repository.has_changed()
     
     def update_code(self):
         if self.version is None:
