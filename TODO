@@ -1,2 +1,10 @@
 
 - fix the confusion between label, group and id.
+- bring Subversion wrapper up to feature parity with Mercurial wrapper
+- write a functional test script, that should create a fixture in a temporary directory and operate on it.
+- ensure different record stores have feature parity
+- add filtering by tag to project.format_record()
+- implement delete_by_tag()
+- implement mpirun launch mode
+- implement HTML format for list
+- implement table mode for list

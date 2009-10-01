@@ -157,19 +157,15 @@ described. A full description of the options for each command is given in the
     Simulation management tool, version 0.1
 
     Available subcommands:  
-      run
-      batch
       init
       configure
       info
+      run
       list
+      delete
       comment
       tag
       repeat
-      package
-      delete
-      runserver
-      debug
 
 and help on a given command is available by running the command with the ``--help``
 option, e.g.::
@@ -189,6 +185,8 @@ option, e.g.::
                      the end, starting on a new line
       -f, --file     interpret COMMENT as the path to a file containing the
                      comment
+
+or ``smt help CMD``, where ``CMD`` is the name of the command.
 
 This tutorial has covered using ``smt`` for serial simulations. A further tutorial
 covers :doc:`using smt for parallel simulations <parallel_simulations>`, whether batch or distributed

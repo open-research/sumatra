@@ -37,13 +37,14 @@ def init(argv):
     parser.add_option('--plugins', metavar='MODULE', help="(advanced) specify the Python path of a module containing plug-ins. These allow Sumatra's functionality to be customized.")
     parser.add_option('-D', '--debug', action='store_true', help="print debugging information.")
     
+    (options, args) = parser.parse_args(argv)
+    
     try:
         project = load_simulation_project()
         parser.error("A project already exists in this directory.")
     except Exception:
         pass
     
-    (options, args) = parser.parse_args(argv)
     if len(args) != 1:
         parser.error('You must supply a name.')
     project_name = args[0]
@@ -166,37 +167,48 @@ def list(argv):
     parser.add_option('-l', '--long', action="store_const", const="long",
                       dest="mode", default="short",
                       help="prints full information for each record"),
-    parser.add_option('-t', '--table', action="store_const", const="table",
+    parser.add_option('-T', '--table', action="store_const", const="table",
                       dest="mode", help="prints information in tab-separated columns")
+    parser.add_option('-t', '--tag', help="only list records that have this tag.")
     parser.add_option('-f', '--format', metavar='FMT', choices=['text', 'html'], default='text',
                       help="FMT can be 'text' (default) or 'html'.")
     (options, args) = parser.parse_args(argv)
     groups = args
     
     project = load_simulation_project()
-    print project.format_records(groups=groups, mode=options.mode, format=options.format)
+    print project.format_records(groups=groups, mode=options.mode, format=options.format, tag=options.tag)
 
 def delete(argv):
-    """Delete simulation records or groups of records from a simulation project."""
+    """Delete simulation records, groups of records or records with a particular tag from a simulation project."""
     usage = "%prog delete [options] LIST"
     description = dedent("""\
       LIST should be a space-separated list of labels for individual records or
-      for groups of records. If it contains groups, you must set the --group/-g
-      option (see below). The special value "last" allows you to delete the
-      most recent simulation. If you want to delete all records, just delete the
-      .smt directory and use smt init to create a new, empty project.""")
+      for groups of records, or of tags. If it contains groups, you must set the
+      --group/-g option (see below), and --tag/-t similarly for tags.
+      The special value "last" allows you to delete the most recent simulation.
+      If you want to delete all records, just delete the .smt directory and use
+      smt init to create a new, empty project.""")
     parser = OptionParser(usage=usage,
                           description=description)
     parser.add_option('-g', '--group', action='store_true',
-                      help="interpret LIST as containing labels for groups of records. If this option is not given, LIST is interpreted as containing individual record IDs.")
+                      help="interpret LIST as containing labels for groups of records, rather than individual record IDs.")
+    parser.add_option('-t', '--tag', action='store_true',
+                      help="interpret LIST as containing tags. Records with any of these tags will be deleted.")
     (options, args) = parser.parse_args(argv)
+    if options.group and options.tag:
+        parser.error("Please specify either the '--group/-g' or '--tag/-t' option, not both.")
     if len(args) < 1:
-        parser.error('Please specify a record or list of records to be deleted.')
+        parser.error('Please specify a record or list of records to be deleted, rather than individual record IDs.')
         
     project = load_simulation_project()
     if options.group:
         for group in args:
-            project.delete_group(group)
+            n = project.delete_group(group)
+            print n, "records deleted."
+    elif options.tag:
+        for tag in args:
+            n = project.delete_by_tag(tag)
+            print n, "records deleted."
     else:
         for label in args:
             if label == 'last':
@@ -285,4 +297,19 @@ def repeat(argv):
                                        label=original.group,
                                        reason="Repeat simulation %s" % original_id)
     #project.compare(original.label, new_id)
+    
+def help(argv):
+    usage = "%prog help [CMD]"
+    description = dedent("""Get help on an %prog command.""")
+    parser = OptionParser(usage=usage,
+                          description=description)
+    (options, args) = parser.parse_args(argv)
+    if len(args) != 1:
+        parser.error('Please specify a command on which you would like help.')
+    cmd = args[0]
+    try:
+        func = globals()[cmd]
+        func(['--help'])
+    except KeyError:
+        parser.error('"%s" is not an smt command.' % cmd)
     

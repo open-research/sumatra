@@ -3,7 +3,7 @@
 import sys
 from sumatra import commands
 
-modes = ("run","batch","init", "configure", "info","list","comment","tag","repeat","package","delete","runserver","debug")
+modes = ("init", "configure", "info", "run", "list", "delete", "comment", "tag", "repeat")
 
 usage = """Usage: smt <subcommand> [options] [args]
         

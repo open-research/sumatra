@@ -116,6 +116,20 @@ class DjangoRecordStore(RecordStore):
         db_record = models.SimulationRecord.objects.get(id=label)
         db_record.delete()
     
+    def delete_group(self, group_label):
+        import models
+        db_group = self._get_db_group(group_label)
+        db_records = models.SimulationRecord.objects.filter(group=db_group)
+        n = db_records.count()
+        for db_record in db_records:
+            db_record.delete()
+        db_group.delete()
+        return n
+        
+    def delete_by_tag(self, tag):
+        import models
+        raise NotImplementedError
+    
     
 def test():
     djrs = DjangoRecordStore()

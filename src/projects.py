@@ -86,9 +86,16 @@ class SimProject:
     def delete_group(self, label):
         """Delete a group of records. Return the number of records deleted.
            Return 0 if the label is invalid."""
-        self.record_store.delete_group(label)
+        n = self.record_store.delete_group(label)
+        return n
     
-    def format_records(self, groups=[], format='text', mode='short'):
+    def delete_by_tag(self, tag):
+        """Delete all records with a given tag. Return the number of records deleted."""
+        n = self.record_store.delete_by_tag(tag)
+        return n
+    
+    def format_records(self, groups=[], format='text', mode='short', tag=None):
+        # need to add filtering by tag
         records = self.record_store.list(groups)
         formatter = get_formatter(format)(records)
         return formatter.format(mode) 
