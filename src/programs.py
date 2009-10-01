@@ -105,27 +105,20 @@ class Script(VersionedProgram): # call this SimulationCode?
             self.version = self._get_current_version()
         self.repository.use_version(self.version)
     
+registered_program_names = {}
+registered_executables = {}
+registered_extensions = {}
     
-registered_programs = {
-    'nrniv': NEURONSimulator,
-    'python': PythonExecutable,
-    'nest': NESTSimulator,
-}
-
-registered_extensions = {
-    '.py': PythonExecutable,
-    '.hoc': NEURONSimulator,
-    '.oc': NEURONSimulator,
-    '.sli': NESTSimulator
-}
-    
-def register_executable(name, cls):
+def register_executable(cls, name, executable, extensions):
     assert issubclass(cls, Executable)
-    registered_programs[name] = cls
+    registered_program_names[name] = cls
+    registered_executables[executable] = cls
+    for ext in extensions:
+        registered_extensions[ext] = cls
     
-def register_extension(ext, cls):
-    assert issubclass(cls, Executable)
-    registered_extensions[ext] = cls
+register_executable(NEURONSimulator, 'NEURON', 'nrniv', ('.hoc', '.oc'))
+register_executable(PythonExecutable, 'Python', 'python', ('.py',))
+register_executable(NESTSimulator, 'NEST', 'nest', ('.sli',))
     
 def get_executable(path=None, script_file=None):
     """
@@ -136,8 +129,8 @@ def get_executable(path=None, script_file=None):
     """
     if path:
         prog_name = os.path.basename(path)
-        if prog_name in registered_programs:
-            program = registered_programs[prog_name](path)
+        if prog_name in registered_executables:
+            program = registered_executables[prog_name](path)
         else:
             program = Executable(path)
     elif script_file:

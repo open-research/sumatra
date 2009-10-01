@@ -36,6 +36,13 @@ def init(argv):
     parser.add_option('-m', '--main', help="the name of the simulator script that would be supplied on the command line if running the simulator normally, e.g. init.hoc.")
     parser.add_option('--plugins', metavar='MODULE', help="(advanced) specify the Python path of a module containing plug-ins. These allow Sumatra's functionality to be customized.")
     parser.add_option('-D', '--debug', action='store_true', help="print debugging information.")
+    
+    try:
+        project = load_simulation_project()
+        parser.error("A project already exists in this directory.")
+    except Exception:
+        pass
+    
     (options, args) = parser.parse_args(argv)
     if len(args) != 1:
         parser.error('You must supply a name.')
@@ -87,8 +94,8 @@ def configure(argv):
     if options.main:
         project.default_script.main_file = options.main
     if options.simulator:
-        project.executable = get_executable(path=options.simulator,
-                                            script_file=options.main or project.default_script.main_file)
+        project.default_executable = get_executable(path=options.simulator,
+                                                    script_file=options.main or project.default_script.main_file)
 
 def info(argv):
     """Print information about the current simulation project."""
@@ -256,4 +263,26 @@ def tag(argv):
     else:
         parser.error('Please provide a tag.')
 
-# def repeat(argv):
+def repeat(argv):
+    """Re-run a previous simulation."""
+    usage = "%prog repeat LABEL"
+    description = dedent("""\
+        Re-run a previous simulation under (in theory) identical conditions, and
+        check that the results are unchanged.""")
+    parser = OptionParser(usage=usage,
+                          description=description)
+    (options, args) = parser.parse_args(argv)
+    if len(args) != 1:
+        parser.error('One and only one simulation label should be specified.')
+    else:
+        original_id = args[0]
+    project = load_simulation_project()
+    original = deepcopy(project.get_record(original_id))
+    new_id = project.launch_simulation(original.parameters,
+                                       executable=original.executable,
+                                       script=original.script,
+                                       launch_mode=original.launch_mode,
+                                       label=original.group,
+                                       reason="Repeat simulation %s" % original_id)
+    #project.compare(original.label, new_id)
+    

@@ -47,8 +47,8 @@ class Executable(BaseModel):
     version = models.CharField(max_length=20)
 
     def to_sumatra(self):
-        # need to deal with subclasses
-        ex = programs.Executable(self.path, self.version)
+        cls = programs.registered_program_names.get(self.name, programs.Executable)
+        ex = cls(self.path, self.version)
         ex.name = self.name
         return ex
 

@@ -44,15 +44,13 @@ class SimProject:
         template = """
         Simulation project
         ------------------
-        Name:                %(name)s
-        Default executable:  %(default_executable)s
-        Default script:      %(default_script)s
-        Default launch mode: %(default_launch_mode)s
-        Data store:          %(data_store)s
-        Record store:        %(record_store)s
+        Name                : %(name)s
+        Default executable  : %(default_executable)s
+        Default script      : %(default_script)s
+        Default launch mode : %(default_launch_mode)s
+        Data store          : %(data_store)s
+        Record store        : %(record_store)s
         """
-        print self.__dict__
-        print self, self.name
         return _remove_left_margin(template % self.__dict__)
     
     def launch_simulation(self, parameters, executable='default', script='default',
@@ -68,6 +66,7 @@ class SimProject:
         sim_record.run()
         self.add_record(sim_record)
         self._save()
+        return sim_record.label
     
     def add_record(self, record):
         """Add a simulation record."""

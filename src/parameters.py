@@ -15,6 +15,7 @@ class SimpleParameterSet(object):
         for line in content:
             if "=" in line:
                 name, value = line.split("=")[:2]
+                name = name.strip()
                 self.values[name] = eval(value)
                 self.types[name] = type(self.values[name])
     
@@ -38,9 +39,23 @@ class SimpleParameterSet(object):
         with open(filename, 'w') as f:
             f.write(self.pretty())
 
-def build_parameters(filename, cmdline):
+    def update(self, name, value):
+        self.values[name] = value
+        self.types[name] = type(value)
+        
+
+def build_parameters(filename, cmdline_parameters):
     try:
         parameters = NTParameterSet(filename)
     except SyntaxError:
         parameters = SimpleParameterSet(filename)
+    for p in cmdline_parameters:
+        name, value = p.split("=")
+        for cast in int, float:
+            try:
+                value = cast(value)
+                break
+            except ValueError:
+                pass
+        parameters.update(name, value)
     return parameters
