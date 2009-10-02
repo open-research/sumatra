@@ -10,6 +10,7 @@ from projects import SimProject, load_simulation_project
 from launch import SerialLaunchMode
 from parameters import build_parameters
 from recordstore import RecordStore
+from versioncontrol import get_working_copy
 
 def _process_plugins(plugin_module):
     # current only handles RecordStore subclasses, but eventually should also
@@ -53,7 +54,11 @@ def init(argv):
     global _debug
     _debug = options.debug
 
-    options.repository = options.repository or '.' # if no repository is specified, we assume there is one in the current directory.
+    if not os.path.exists(".smt"):
+        os.mkdir(".smt")
+
+    if not options.repository:
+        options.repository = get_working_copy().repository.url # if no repository is specified, we assume there is a working copy in the current directory.
     script_code = Script(repository_url=options.repository, main_file=options.main) 
     script_code.checkout()                         # this will raise an Exception if no repository is found
     if options.simulator or options.main:

@@ -76,3 +76,4 @@ class MercurialRepository(Repository):
         """For unpickling"""
         self.__init__(state['url'])
         self.working_copy = state['wc']
+        

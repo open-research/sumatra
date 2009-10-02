@@ -24,7 +24,7 @@ http://docs.djangoproject.com/en/dev/topics/install/#installing-official-release
 Installing Python bindings for your version control system
 ---------------------------------------------------------
 
-Sumatra current supports Mercurial_ and Subversion_. If you are using Subversion,
+Sumatra currently supports Mercurial_ and Subversion_. If you are using Subversion,
 you will need to install the pysvn bindings from http://pysvn.tigris.org/project_downloads.html.
 
 .. _Django: http://www.djangoproject.com

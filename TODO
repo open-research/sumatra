@@ -8,3 +8,6 @@
 - implement mpirun launch mode
 - implement HTML format for list
 - implement table mode for list
+- implement comparison of two simulation records, for use by the repeat command
+- test the using_the_api.txt examples
+- many of the operations I've added to Repository for should actually be in WorkingCopy. (This comes from developing with Mercurial)

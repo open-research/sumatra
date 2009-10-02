@@ -94,7 +94,7 @@ was run, and its duration. You may also add your own annotations, in several
 different ways. On running the simulation, you can specify a label, and the reason
 for which you are running the simulation::
 
-    $ smt run --label="haggling" --reason="determine whether the gourd is worth 3 or 4 shekels" romans.param
+    $ smt run --label=haggling --reason="determine whether the gourd is worth 3 or 4 shekels" romans.param
     
 After the simulation is complete, you can add a description of the outcome::
 
@@ -108,7 +108,8 @@ timestamp)::
     
 You can also tag a simulation record with one or more short keywords::
 
-    $ smt tag foobar barfoo 
+    $ smt tag foobar
+    $ smt tag barfoo
     
 and remove tags::
 
