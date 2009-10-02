@@ -19,21 +19,19 @@ def run(cmd):
     subprocess.check_call(args)
 
 def create_mercurial_repos(working_dir):
-    os.chdir(working_dir)
+    
     run("hg init")
     run("hg add")
     run("hg commit -m 'Creating example project'")
-    os.chdir(cwd)
+    
 
 def create_subversion_repos(working_dir, repos_dir):
     run("svnadmin create %s" % repos_dir)
-    os.chdir(working_dir)
     run("svn checkout file://%s ." % repos_dir)
     file_list = os.listdir(working_dir)
     file_list.remove(".svn")
     run("svn add %s" % " ".join(file_list))
     run("svn commit -m 'Creating example project'")
-    os.chdir(cwd)
 
 def copy_example_project(working_dir):
     for file in "test.py", "defaults.param":
@@ -41,9 +39,13 @@ def copy_example_project(working_dir):
 
 def initialize_sumatra_project(working_dir):
     pass
-    
+
+
+os.chdir(working_dir)
+
 copy_example_project(working_dir)
 #create_mercurial_repos(working_dir)
 create_subversion_repos(working_dir, repos_dir)
 
+os.chdir(cwd)
 shutil.rmtree(working_dir)
