@@ -31,4 +31,4 @@ sim_record.duration = time.time() - start_time
 sim_record.data_key = sim_record.datastore.find_new_files(sim_record.timestamp)
 project.add_record(sim_record)
 
-project._save()
+project.save()

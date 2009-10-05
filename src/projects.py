@@ -28,10 +28,10 @@ class SimProject:
         if record_store == 'default':
             record_store = DefaultRecordStore(".smt/simulation_records")
         self.record_store = record_store
-        self._save()
+        self.save()
         print "Simulation project successfully set up"
     
-    def _save(self):
+    def save(self):
         """Save state to some form of persistent storage. (file, database)."""
         f = open('.smt/simulation_project', 'w') # should check if file exists?
         pickle.dump(self, f)

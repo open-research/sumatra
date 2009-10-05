@@ -97,7 +97,7 @@ calculate the simulation duration and search for newly created files::
 Now we add this simulation record to the project, and save the project::
 
     project.add_record(sim_record)
-    project._save()
+    project.save()
     
 Putting this all together::
 
@@ -135,7 +135,7 @@ Putting this all together::
     sim_record.data_key = sim_record.datastore.find_new_files(sim_record.timestamp)
     project.add_record(sim_record)
 
-    project._save()
+    project.save()
 
 
 Now you can run the simulation in the original way::
