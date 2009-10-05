@@ -79,6 +79,7 @@ def init(argv):
                          default_launch_mode=SerialLaunchMode(),
                          data_store=FileSystemDataStore(options.datapath),
                          record_store=record_store)
+    project._save()
 
 def configure(argv):
     """Modify the settings for the current project."""
@@ -103,6 +104,7 @@ def configure(argv):
     if options.simulator:
         project.default_executable = get_executable(path=options.simulator,
                                                     script_file=options.main or project.default_script.main_file)
+    project._save()
 
 def info(argv):
     """Print information about the current simulation project."""

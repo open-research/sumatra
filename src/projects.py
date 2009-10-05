@@ -4,6 +4,7 @@ from datastore import FileSystemDataStore
 from records import SimRecord
 from formatting import get_formatter
 from recordstore import DefaultRecordStore
+from programs import get_executable
 
 def _remove_left_margin(s): # replace this by textwrap.dedent?
     lines = s.strip().split('\n')
@@ -30,9 +31,6 @@ class SimProject:
         self._save()
         print "Simulation project successfully set up"
     
-    def __del__(self):
-        self._save()
-    
     def _save(self):
         """Save state to some form of persistent storage. (file, database)."""
         f = open('.smt/simulation_project', 'w') # should check if file exists?
@@ -53,16 +51,20 @@ class SimProject:
         """
         return _remove_left_margin(template % self.__dict__)
     
+    def new_record(self, parameters, executable='default', script='default',
+                   launch_mode='default', label=None, reason=None):
+        if script == 'default':
+            script = self.default_script
+        if executable == 'default':
+            executable = self.default_executable
+        if launch_mode == 'default':
+            launch_mode = self.default_launch_mode
+        return SimRecord(executable, script, parameters, launch_mode, self.data_store, label=label, reason=reason)
+    
     def launch_simulation(self, parameters, executable='default', script='default',
                           launch_mode='default', label=None, reason=None):
         """Launch a new simulation."""
-        if executable == 'default':
-            executable = self.default_executable
-        if script == 'default':
-            script = self.default_script
-        if launch_mode == 'default':
-            launch_mode = self.default_launch_mode
-        sim_record = SimRecord(executable, script, parameters, launch_mode, self.data_store, label=label, reason=reason)
+        sim_record = self.new_record(parameters, executable, script, launch_mode, label, reason)
         sim_record.run()
         self.add_record(sim_record)
         self._save()

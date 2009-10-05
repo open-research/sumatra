@@ -76,6 +76,8 @@ class ParameterSet(BaseModel):
     def to_sumatra(self):
         if hasattr(parameters, self.type):
             ps = getattr(parameters, self.type)(self.content)
+        else:
+            ps = self.content
         return ps
 
 class LaunchMode(BaseModel):

@@ -18,13 +18,15 @@ parameter file, generates some random numbers, and writes some data to file::
     import sys
     
     parameter_file = sys.argv[1]
-    exec("import %s as parameters" % parameter_file) # this way of reading parameters
-                                                     # is not necessarily recommended
-    numpy.random.seed(parameters.seed)
-    distr = getattr(numpy.random, parameters.distribution)
-    data = distr(size=parameters.n)
+    parameters = {}
+    execfile(parameter_file, parameters) # this way of reading parameters
+                                         # is not necessarily recommended
+    numpy.random.seed(parameters["seed"])
+    distr = getattr(numpy.random, parameters["distr"])
+    data = distr(size=parameters["n"])
     
-    numpy.savetxt("example.dat", data)
+    output_file = "example.dat"
+    numpy.savetxt(output_file, data)
     
 Let's suppose this script is in a file named ``myscript.py``, and that we have a
 parameter file named ``defaults.param``, which contains::
@@ -58,20 +60,35 @@ Python ``time`` module and record the start time::
     import time
     start_time = time.time()
     
-Now we create a new ``SimRecord`` object::
+We need to slightly modify the procedure for reading parameters. Sumatra stores
+the parameters for later use in searching and comparison, so they need to be
+transformed into a form Sumatra can use. This is very simple, we just replace
+the ``execfile()`` call with a ``build_parameters()`` call.
 
-    from sumatra.records import SimRecord
-    sim_record = SimRecord(executable=project.default_executable,
-                           script=__file__,
-                           parameters=parameters,
-                           launch_mode=project.default_launch_mode,
-                           datastore=project.data_store,
-                           label="a label for this simulation",
-                           reason="reason for running this simulation")
-                           
-[capture stdout and stderr]
+    from sumatra.parameters import build_parameters
+    parameters = build_parameters(parameter_file)
+    
+Now we create a new ``SimRecord`` object, telling it which script and executable
+to use (these are obviously inferable, but in the current version of Sumatra
+we have to specify them explicitly)::
 
-Now comes the main body of the simulation. At the end of the simulation, we
+    from sumatra.programs import Script, get_executable
+    simulator = get_executable('python')
+    script = Script(main_file=__file__)
+    script.update_code()
+    
+    sim_record = project.new_record(parameters=parameters,
+                                    executable=simulator,
+                                    script=script,
+                                    label="api_example",
+                                    reason="reason for running this simulation")
+
+Now comes the main body of the simulation, which is unchanged except that we
+take the opportunity to give the output data file a more informative name:
+
+    output_file = "%s.dat" % sim_record.label
+
+At the end of the simulation, we
 calculate the simulation duration and search for newly created files::
 
     sim_record.duration = time.time() - start_time
@@ -88,34 +105,38 @@ Putting this all together::
     import sys
     import time
     from sumatra.projects import load_simulation_project
-    from sumatra.records import SimRecord
-    
+    from sumatra.programs import Script, get_executable
+    from sumatra.parameters import build_parameters
+
     project = load_simulation_project()
     start_time = time.time()
     
     parameter_file = sys.argv[1]
-    exec("import %s as parameters" % parameter_file) # this way of reading parameters
-                                                     # is not necessarily recommended
-    sim_record = SimRecord(executable=project.default_executable,
-                           script=__file__,
-                           parameters=parameters,
-                           launch_mode=project.default_launch_mode,
-                           datastore=project.data_store,
-                           label="a label for this simulation",
-                           reason="reason for running this simulation")
+    parameters = build_parameters(parameter_file)
 
-    numpy.random.seed(parameters.seed)
-    distr = getattr(numpy.random, parameters.distribution)
-    data = distr(size=parameters.n)
+    simulator = get_executable('python')
+    script = Script(main_file=__file__)
+    script.update_code()
     
-    numpy.savetxt("example.dat", data)
+    sim_record = project.new_record(parameters=parameters,
+                                    executable=simulator,
+                                    script=script,
+                                    label="api_example",
+                                    reason="reason for running this simulation")
+
+    numpy.random.seed(parameters["seed"])
+    distr = getattr(numpy.random, parameters["distr"])
+    data = distr(size=parameters["n"])
+    
+    output_file = "%s.dat" % sim_record.label
+    numpy.savetxt(output_file, data)
     
     sim_record.duration = time.time() - start_time
     sim_record.data_key = sim_record.datastore.find_new_files(sim_record.timestamp)
     project.add_record(sim_record)
+
     project._save()
 
-[archiving data? to avoid that the next sim overwrites the data file]
 
 Now you can run the simulation in the original way::
 

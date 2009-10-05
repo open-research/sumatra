@@ -22,6 +22,9 @@ class SimpleParameterSet(object):
     def __str__(self):
         return self.pretty()
     
+    def __getitem__(self, name):
+        return self.values[name]
+    
     def pretty(self, expand_urls=False):
         output = []
         for name, value in self.values.items():
@@ -44,7 +47,7 @@ class SimpleParameterSet(object):
         self.types[name] = type(value)
         
 
-def build_parameters(filename, cmdline_parameters):
+def build_parameters(filename, cmdline_parameters=[]):
     try:
         parameters = NTParameterSet(filename)
     except SyntaxError:
