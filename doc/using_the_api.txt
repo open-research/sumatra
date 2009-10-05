@@ -63,28 +63,25 @@ Python ``time`` module and record the start time::
 We need to slightly modify the procedure for reading parameters. Sumatra stores
 the parameters for later use in searching and comparison, so they need to be
 transformed into a form Sumatra can use. This is very simple, we just replace
-the ``execfile()`` call with a ``build_parameters()`` call.
+the ``execfile()`` call with a ``build_parameters()`` call::
 
     from sumatra.parameters import build_parameters
     parameters = build_parameters(parameter_file)
     
-Now we create a new ``SimRecord`` object, telling it which script and executable
-to use (these are obviously inferable, but in the current version of Sumatra
-we have to specify them explicitly)::
+Now we create a new ``SimRecord`` object, telling it that the script is the
+current file::
 
-    from sumatra.programs import Script, get_executable
-    simulator = get_executable('python')
+    from sumatra.programs import Script
     script = Script(main_file=__file__)
     script.update_code()
     
     sim_record = project.new_record(parameters=parameters,
-                                    executable=simulator,
                                     script=script,
                                     label="api_example",
                                     reason="reason for running this simulation")
 
 Now comes the main body of the simulation, which is unchanged except that we
-take the opportunity to give the output data file a more informative name:
+take the opportunity to give the output data file a more informative name::
 
     output_file = "%s.dat" % sim_record.label
 
@@ -105,7 +102,7 @@ Putting this all together::
     import sys
     import time
     from sumatra.projects import load_simulation_project
-    from sumatra.programs import Script, get_executable
+    from sumatra.programs import Script
     from sumatra.parameters import build_parameters
 
     project = load_simulation_project()
@@ -114,12 +111,10 @@ Putting this all together::
     parameter_file = sys.argv[1]
     parameters = build_parameters(parameter_file)
 
-    simulator = get_executable('python')
     script = Script(main_file=__file__)
     script.update_code()
     
     sim_record = project.new_record(parameters=parameters,
-                                    executable=simulator,
                                     script=script,
                                     label="api_example",
                                     reason="reason for running this simulation")

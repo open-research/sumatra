@@ -1,7 +1,7 @@
 import sys, StringIO
 from sumatra import commands
 
-modes = ("init", "configure", "info", "run", "list", "delete", "comment", "tag", "repeat")
+modes = ["init", "configure", "info", "run", "list", "delete", "comment", "tag", "repeat"]
 modes.sort()
 
 usage = {}
@@ -25,7 +25,8 @@ f.write("=====================\n")
 f.write("smt command reference\n")
 f.write("=====================\n\n")
 
-for mode, sio in usage.items():
+for mode in modes:
+    sio = usage[mode]
     f.write(mode + '\n')
     f.write('-'*len(mode) + '\n::\n\n    ')
     sio.seek(0)
