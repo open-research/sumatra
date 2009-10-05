@@ -67,7 +67,7 @@ class SimProject:
         sim_record = self.new_record(parameters, executable, script, launch_mode, label, reason)
         sim_record.run()
         self.add_record(sim_record)
-        self._save()
+        self.save()
         return sim_record.label
     
     def add_record(self, record):
