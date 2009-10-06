@@ -6,17 +6,28 @@ Background
 Reproducibility, provenance and project management
 --------------------------------------------------
 
-The need for reproducibility in science, why this should be easy in
-computational science, and why it is not easy.
+Reproducibility of experiments is one of the foundation stones of science.
+A related concept is provenance, being able to track a given scientific result,
+such as a figure in an article, back through all the analysis steps (verifying
+the correctness of each) to the original raw data, and the experimental protocol
+used to obtain it.
 
-Overlap with the concept of provenance, more usually applied to data.
+In computational, simulation-based science, reproduction of previous
+experiments, and establishing the provenance of results, ought to be easy, given
+that computers are deterministic, not suffering from the problems of
+inter-subject and trial-to-trial variability that make reproduction of
+biological experiments more challenging.
 
-More general problem of simulation project management
+In general, however, it is not easy, perhaps due to the complexity of our code
+and our computing environments, and the difficulty of capturing every essential
+piece of information needed to reproduce a computational experiment using
+existing tools such as spreadsheets, version control systems and paper
+noteboooks.
 
 What needs to be recorded?
 --------------------------
 
-What needs to be recorded to ensure reproducibility:
+To ensure reproducibility of a computational experiment we need to record:
     
 * the code that was run
 * any parameter files and command line options
@@ -43,7 +54,6 @@ with "recording the URL of the repository and the revision number".
 The platform includes the processor architecture(s), the operating system(s),
 the number of processors (for distributed simulations), etc.
 
-
 Tools for recording provenance information
 ------------------------------------------
 
@@ -53,40 +63,62 @@ copies or print-outs of any results. More modern approaches may replace or
 augment the paper notebook with a spreadsheet or other hand-rolled database, but
 still with the feature that all relevant information is entered by hand.
 
-Electronic lab notebooks and LIMS in other areas of science...
+In other areas of science, particularly in applied science laboratories with
+high-throughput, highly-standardised procedures, electronic lab notebooks and
+laboratory information management systems (LIMS) are in widespread use, but none
+of these tools seem to be well suited for tracking simulation experiments.
 
+.. [Previous partial attempts in neuroscience: programmer's workbench, NeuroConstruct.]
 
-Challenges for automated recording
-----------------------------------
+.. [Other areas of science?]
 
-Different ways of working, different workflows: command line, GUI, batch-jobs (e.g. in supercomputer
-environment), or any combination of these for different components (simulation,
-analysis,graphing, etc.) and phases of a project.
+.. [What about workflow tools like Taverna].
 
-Solo or collaborative projects.
+Challenges for tracking computational experiments
+---------------------------------------------------------------
 
-Previous or partial attempt: programmer's workbench, NeuroConstruct.
-What about other areas of simulation science, or workflow tools like Taverna?
+In developing a tool for tracking simulation experiments, something like an
+electronic lab notebook for computational science, there are a number of
+challenges:
+
+* different researchers have very different ways of working and different
+  workflows: command line, GUI, batch-jobs (e.g. in supercomputer
+  environments), or any combination of these for different components (simulation,
+  analysis, graphing, etc.) and phases of a project.
+
+* some projects are essentially solo endeavours, others collaborative projects,
+  possibly distributed geographically.
+
+* as much as possible should be recorded automatically. If it is left to the
+  researcher to record critical details there is a risk that some details will
+  be missed or left out, particularly under pressure of deadlines.
 
 The solution we propose is to develop a core library, implemented as a Python
-package, sumatra, and then to develop a series of interfaces that build on top of this:
-a command-line interface, a web interface, a graphical interface. Each of these
-interfaces will enable:
+package, ``sumatra``, and then to develop a series of interfaces that build on
+top of this: a command-line interface, a web interface, a graphical interface.
+Each of these interfaces will enable:
 
-* launching simulations with automated recording of provenance information
-* managing a simulaion project: browsing, viewing, deleting simulations
+* launching simulations with automated recording of provenance information;
+* managing a simulaion project: browsing, viewing, deleting simulations.
 
-Alternatively, modellers can use the sumatra package directly in their own code,
-to enable provenance recording, then simply launch simulations in their usual way.
+Alternatively, modellers can use the ``sumatra`` package directly in their own
+code, to enable provenance recording, then simply launch simulations in their
+usual way.
 
-The core sumatra package needs to:
+The core ``sumatra`` package needs to:
 
-* interact with version control systems, such as Subversion, Git, Mercurial, or
-  Bazaar;
-* support launching serial, distributed (via MPI) or batch simulations;
-* link to data generated by the simulation, whether stored in files or databases
-* support all and any simulation programs
-* support both local and networked storage of simulation information
+* interact with version control systems, such as Subversion_, Git_, Mercurial_, or
+  Bazaar_;
+* support launching serial, distributed (via MPI_) or batch simulations;
+* link to data generated by the simulation, whether stored in files or databases;
+* support all and any simulation programs;
+* support both local and networked storage of simulation information;
 * be extensible, so that components can easily be added for new version control
   systems, etc.
-* be very easy to use, otherwise it will only be used by the very conscientious
+* be very easy to use, otherwise it will only be used by the very conscientious.
+
+.. _Subversion: http://subversion.tigris.org/
+.. _Git: http://git-scm.com
+.. _Mercurial: http://www.selenic.com/mercurial
+.. _Bazaar: http://bazaar-vcs.org
+.. _MPI: http://en.wikipedia.org/wiki/Message_Passing_Interface
