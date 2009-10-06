@@ -74,12 +74,12 @@ class Script(VersionedProgram): # call this SimulationCode?
     # note that a script need not be a single file, but could be a suite of files
     # generally, should define a VCS repository and a main file
     
-    def __init__(self, repository_url=None, main_file=None):
+    def __init__(self, repository_url=None, main_file=None, version='latest'):
     # store reference to the executable for which the script is destined?
         VersionedProgram.__init__(self)
         self.main_file = main_file
         self.repository = get_repository(repository_url)
-        self.version = None
+        self.version = version
     
     def __str__(self):
         if self.repository:
@@ -94,17 +94,20 @@ class Script(VersionedProgram): # call this SimulationCode?
     def change_repository(self, repository_url):
         self.repository = get_repository(repository_url)
     
-    def _get_current_version(self):
-        return self.repository.working_copy.current_version()
-    
     def has_changed(self):
-        return self.repository.has_changed()
+        return self.repository.working_copy.has_changed()
     
     def update_code(self):
-        if self.version is None:
-            self.version = self._get_current_version()
-        self.repository.use_version(self.version)
+        # Check if the working copy has modifications and prompt to commit or revert them
+        if self.has_changed():
+            raise Exception("Code has changed, please commit your changes")
+        if self.version == 'latest':
+            self.repository.working_copy.use_latest_version()
+            self.version = self.repository.working_copy.current_version()
+        else:
+            self.repository.working_copy.use_version(self.version)
     
+
 registered_program_names = {}
 registered_executables = {}
 registered_extensions = {}

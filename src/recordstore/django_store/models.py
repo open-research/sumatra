@@ -67,6 +67,7 @@ class Script(BaseModel):
                     sc.repository = getattr(m, self.repository_type)(self.repository_url)
                     break
         sc.version = self.version
+        sc.checkout()
         return sc
 
 class ParameterSet(BaseModel):

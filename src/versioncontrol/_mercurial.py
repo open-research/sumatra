@@ -22,8 +22,28 @@ class MercurialWorkingCopy(WorkingCopy):
         self.repository.working_copy = self
 
     def current_version(self):
-        changectx = self.repository._repository.changectx("tip") # need to figure out the currently checkout-out version, not necessarily "tip"
+        changectx = self.repository._repository.changectx("tip")
         return binascii.hexlify(changectx.node()[:6])
+    
+    def use_version(self, version):
+        hg.clean(self.repository._repository, version)
+
+    def use_latest_version(self):
+        hg.clean(self.repository._repository, 'tip')
+
+    def status(self):
+        modified, added, removed, deleted, unknown, ignored, clean = self.repository._repository.status(unknown=True)
+        return {'modified': modified, 'removed': removed,
+                'deleted': deleted, 'unknown': unknown}
+
+    def has_changed(self):
+        status = self.status()
+        changed = False
+        for st in 'modified', 'removed', 'deleted':
+            if status[st]:
+                changed = True
+                break
+        return changed
     
 
 class MercurialRepository(Repository):
@@ -50,23 +70,6 @@ class MercurialRepository(Repository):
             local_repos.pull(self._repository)
             hg.update(local_repos, None)
         self.working_copy = MercurialWorkingCopy()
-            
-    def use_version(self, version):
-        hg.clean(self._repository, version)
-    
-    def status(self):
-        modified, added, removed, deleted, unknown, ignored, clean = self._repository.status(unknown=True)
-        return {'modified': modified, 'removed': removed,
-                'deleted': deleted, 'unknown': unknown}
-        
-    def has_changed(self):
-        status = self.status()
-        changed = False
-        for st in 'modified', 'removed', 'deleted':
-            if status[st]:
-                changed = True
-                break
-        return changed
     
     def __getstate__(self):
         """For pickling"""

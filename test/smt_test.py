@@ -92,6 +92,7 @@ def getting_started(plugins):
         pass
     run("smt comment --help")
     run("smt help list")
+    run("smt list -l")
 
 if __name__ == "__main__":
     cwd = os.getcwd()

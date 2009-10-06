@@ -28,9 +28,6 @@ class SimRecord(object): # maybe just call this Simulation
     def run(self):
         """Launch the simulation."""
         # if it hasn't been run already. Do we need to distinguish separate Simulation and SimRecord classes?
-        # Check if the working copy has modifications and prompt to commit or revert them
-        if self.script.has_changed():
-            raise Exception("Code has changed, please commit your changes")
         # Check out the requested code version, if necessary
         self.script.update_code()        
         # run pre-simulation tasks, e.g. nrnivmodl

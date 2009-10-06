@@ -1,5 +1,6 @@
 import os
 import cPickle as pickle
+from copy import deepcopy
 from datastore import FileSystemDataStore
 from records import SimRecord
 from formatting import get_formatter
@@ -54,11 +55,11 @@ class SimProject:
     def new_record(self, parameters, executable='default', script='default',
                    launch_mode='default', label=None, reason=None):
         if script == 'default':
-            script = self.default_script
+            script = deepcopy(self.default_script)
         if executable == 'default':
-            executable = self.default_executable
+            executable = deepcopy(self.default_executable)
         if launch_mode == 'default':
-            launch_mode = self.default_launch_mode
+            launch_mode = deepcopy(self.default_launch_mode)
         return SimRecord(executable, script, parameters, launch_mode, self.data_store, label=label, reason=reason)
     
     def launch_simulation(self, parameters, executable='default', script='default',

@@ -25,6 +25,35 @@ class SubversionWorkingCopy(WorkingCopy):
     def current_version(self):
         return self.repository._client.info('.').revision.number
 
+    def use_version(self, version):
+        self.repository._client.update(
+            '.',
+            revision=pysvn.Revision(pysvn.opt_revision_kind.number, version))
+
+    def use_latest_version(self):
+        self.repository._client.update('.')
+
+    def status(self):
+        changes = self.repository._client.status('.')
+        status_dict = {}
+        status_dict['modified'] = [f.path for f in changes if f.text_status == pysvn.wc_status_kind.modified]
+        status_dict['added'] = [f.path for f in changes if f.text_status == pysvn.wc_status_kind.added]
+        status_dict['removed'] = [f.path for f in changes if f.text_status == pysvn.wc_status_kind.deleted]
+        status_dict['deleted'] = [f.path for f in changes if f.text_status == pysvn.wc_status_kind.missing]
+        status_dict['unknown'] = [f.path for f in changes if f.text_status == pysvn.wc_status_kind.unversioned]
+        status_dict['clean'] = [f.path for f in changes if f.text_status == pysvn.wc_status_kind.normal]
+        return status_dict
+
+    def has_changed(self):
+        status = self.status()
+        changed = False
+        for st in 'modified', 'removed', 'deleted':
+            if status[st]:
+                changed = True
+                break
+        return changed
+        
+
 class SubversionRepository(Repository):
     
     def __init__(self, url):
@@ -47,30 +76,6 @@ class SubversionRepository(Repository):
             self._client.checkout(self.url, ".")
         self.working_copy = SubversionWorkingCopy()
 
-    def status(self):
-        changes = self._client.status('.')
-        status_dict = {}
-        status_dict['modified'] = [f.path for f in changes if f.text_status == pysvn.wc_status_kind.modified]
-        status_dict['added'] = [f.path for f in changes if f.text_status == pysvn.wc_status_kind.added]
-        status_dict['removed'] = [f.path for f in changes if f.text_status == pysvn.wc_status_kind.deleted]
-        status_dict['deleted'] = [f.path for f in changes if f.text_status == pysvn.wc_status_kind.missing]
-        status_dict['unknown'] = [f.path for f in changes if f.text_status == pysvn.wc_status_kind.unversioned]
-        status_dict['clean'] = [f.path for f in changes if f.text_status == pysvn.wc_status_kind.normal]
-        return status_dict
-
-    def has_changed(self):
-        status = self.status()
-        changed = False
-        for st in 'modified', 'removed', 'deleted':
-            if status[st]:
-                changed = True
-                break
-        return changed
-        
-    def use_version(self, version):
-        self._client.update('.',
-                            revision=pysvn.Revision(pysvn.opt_revision_kind.number, version))
-            
     def __getstate__(self):
         """For pickling"""
         return {'url': self.url, 'wc': self.working_copy}
