@@ -32,7 +32,7 @@ class MercurialWorkingCopy(WorkingCopy):
         hg.clean(self.repository._repository, 'tip')
 
     def status(self):
-        modified, added, removed, deleted, unknown, ignored, clean = self.repository._repository.status(unknown=True)
+        modified, added, removed, deleted, unknown, ignored, clean = self.repository._repository.status() #unknown=True)
         return {'modified': modified, 'removed': removed,
                 'deleted': deleted, 'unknown': unknown}
 

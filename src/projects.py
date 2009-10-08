@@ -107,7 +107,10 @@ class SimProject:
         return self.get_record(self._most_recent)
     
     def add_comment(self, label, comment):
-        record = self.record_store.get(label)
+        try:
+            record = self.record_store.get(label)
+        except Exception, e:
+            raise Exception("%s. label=<%s>" % (e,label))
         record.outcome = comment
         self.record_store.save(record)
         
