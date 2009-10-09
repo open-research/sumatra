@@ -1,8 +1,5 @@
-import os
-import sys
 from datetime import datetime
 import time
-import subprocess
 from formatting import get_formatter
 
 def assert_equal(a, b, msg=''):
@@ -38,21 +35,13 @@ class SimRecord(object): # maybe just call this Simulation
         assert not self.repository.working_copy.has_changed()
         assert_equal(self.repository.working_copy.current_version(), self.version, "version") 
         # run pre-simulation tasks, e.g. nrnivmodl
-        pass
+        self.launch_mode.pre_run(self.executable)
         # Write the simulator-specific parameter file
         parameter_file = "%s.param" % self.label
         self.executable.write_parameters(self.parameters, parameter_file)
         # Run simulation
-        cmd = "%s %s %s" % (self.executable.default_executable_name, self.main_file, parameter_file)
-        start_time = time.time()
-        print "Sumatra is running the following command:", cmd
-        #p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True)
-        p = subprocess.Popen(cmd, shell=True, stdout=None, stderr=None, close_fds=True)
-        result = p.wait() 
-        #self.errors = p.stderr.read()
-        #self.output = p.stdout.read()
-        #sys.stdout.write(self.output)
-        #sys.stderr.write(self.errors)
+        start_time = time.time()        
+        result = self.launch_mode.run(self.executable, self.main_file, parameter_file)
         self.duration = time.time() - start_time
         # Run post-processing scripts
         pass # skip this if there is an error
