@@ -5,7 +5,6 @@ from datastore import FileSystemDataStore
 from records import SimRecord
 from formatting import get_formatter
 from recordstore import DefaultRecordStore
-from programs import get_executable
 
 def _remove_left_margin(s): # replace this by textwrap.dedent?
     lines = s.strip().split('\n')
@@ -13,15 +12,17 @@ def _remove_left_margin(s): # replace this by textwrap.dedent?
 
 class SimProject:
 
-    def __init__(self, name, default_executable=None, default_script=None,
-                 default_launch_mode=None, data_store='default', record_store='default'):
+    def __init__(self, name, default_executable=None, default_repository=None,
+                 default_main_file=None, default_launch_mode=None,
+                 data_store='default', record_store='default'):
         if not os.path.exists(".smt"):
             os.mkdir(".smt")
         if os.path.exists(".smt/simulation_project"):
             raise Exception("Simulation project already exists in this directory.")
         self.name = name
         self.default_executable = default_executable
-        self.default_script = default_script
+        self.default_repository = default_repository
+        self.default_main_file = default_main_file
         self.default_launch_mode = default_launch_mode
         if data_store == 'default':
             data_store = FileSystemDataStore()
@@ -29,6 +30,7 @@ class SimProject:
         if record_store == 'default':
             record_store = DefaultRecordStore(".smt/simulation_records")
         self.record_store = record_store
+        self.on_changed = 'error'
         self.save()
         print "Simulation project successfully set up"
     
@@ -45,31 +47,64 @@ class SimProject:
         ------------------
         Name                : %(name)s
         Default executable  : %(default_executable)s
-        Default script      : %(default_script)s
+        Default repository  : %(default_repository)s
+        Default main file   : %(default_main_file)s
         Default launch mode : %(default_launch_mode)s
         Data store          : %(data_store)s
         Record store        : %(record_store)s
         """
         return _remove_left_margin(template % self.__dict__)
     
-    def new_record(self, parameters, executable='default', script='default',
-                   launch_mode='default', label=None, reason=None):
-        if script == 'default':
-            script = deepcopy(self.default_script)
+    def new_record(self, parameters, executable='default', repository='default',
+                   main_file='default', version='latest', launch_mode='default',
+                   label=None, reason=None):
         if executable == 'default':
             executable = deepcopy(self.default_executable)
+        if repository == 'default':
+            repository = deepcopy(self.default_repository)
+        if main_file == 'default':
+            main_file = self.default_main_file
         if launch_mode == 'default':
             launch_mode = deepcopy(self.default_launch_mode)
-        return SimRecord(executable, script, parameters, launch_mode, self.data_store, label=label, reason=reason)
+        version = self.update_code(repository.working_copy, version)
+        return SimRecord(executable, repository, main_file, version, parameters,
+                         launch_mode, self.data_store, label=label, reason=reason)
     
-    def launch_simulation(self, parameters, executable='default', script='default',
-                          launch_mode='default', label=None, reason=None):
+    def launch_simulation(self, parameters, executable='default',
+                          repository='default', main_file='default',
+                          version='latest', launch_mode='default', label=None,
+                          reason=None):
         """Launch a new simulation."""
-        sim_record = self.new_record(parameters, executable, script, launch_mode, label, reason)
+        sim_record = self.new_record(parameters, executable, repository,
+                                     main_file, version, launch_mode, label,
+                                     reason)
         sim_record.run()
         self.add_record(sim_record)
         self.save()
         return sim_record.label
+    
+    def update_code(self, working_copy, version='latest'):
+        # Check if the working copy has modifications and prompt to commit or revert them
+        if working_copy.has_changed():
+            if self.on_changed == "error":
+                raise Exception("Code has changed, please commit your changes")
+            elif self.on_changed == "auto-commit":
+                working_copy.commit() # should provide a commit message
+            elif self.on_changed == "prompt":
+                try:
+                    message = raw_input("Code has changed. Please enter a commit message or Ctrl-D to abort.")
+                except EOFError:
+                    raise Exception("You have chosen to quit.") #This exception is supposed to be passed up to the calling object to make sure everything is cleaned up before quitting.")
+                finally:
+                    working_copy.commit(message)
+            else:
+                raise Exception("Invalid value of on_changed.")
+        if version == 'latest':
+            working_copy.use_latest_version()
+            version = working_copy.current_version()
+        else:
+            working_copy.use_version(version)
+        return version
     
     def add_record(self, record):
         """Add a simulation record."""

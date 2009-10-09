@@ -52,23 +52,18 @@ class Executable(BaseModel):
         ex.name = self.name
         return ex
 
-class Script(BaseModel):
-    repository_type = models.CharField(max_length=20)
-    repository_url = models.URLField(verify_exists=False)
-    main_file = models.CharField(max_length=50)
-    version = models.CharField(max_length=20)
+
+class Repository(BaseModel):
+    # the following should be unique together.
+    type = models.CharField(max_length=20)
+    url = models.URLField(verify_exists=False)
     
     def to_sumatra(self):
-        sc = programs.Script(repository_url=self.repository_url,
-                             main_file=self.main_file)
-        if sc.repository.__class__.__name__ != self.repository_type:
-            for m in versioncontrol.vcs_list:
-                if hasattr(m, self.repository_type):
-                    sc.repository = getattr(m, self.repository_type)(self.repository_url)
-                    break
-        sc.version = self.version
-        sc.checkout()
-        return sc
+        for m in versioncontrol.vcs_list:
+            if hasattr(m, self.type):
+                return getattr(m, self.type)(self.url)
+        raise Exception("Repository type %s not supported." % self.type)
+
 
 class ParameterSet(BaseModel):
     type = models.CharField(max_length=30)
@@ -80,6 +75,7 @@ class ParameterSet(BaseModel):
         else:
             ps = self.content
         return ps
+
 
 class LaunchMode(BaseModel):
     type = models.CharField(max_length=10)
@@ -113,7 +109,9 @@ class SimulationRecord(BaseModel):
     reason = models.TextField(blank=True)
     duration = models.FloatField(null=True)
     executable = models.ForeignKey(Executable)
-    script = models.ForeignKey(Script)
+    repository = models.ForeignKey(Repository)
+    main_file = models.CharField(max_length=100)
+    version = models.CharField(max_length=50)
     parameters = models.ForeignKey(ParameterSet)
     launch_mode = models.ForeignKey(LaunchMode)
     datastore = models.ForeignKey(Datastore)
@@ -125,7 +123,9 @@ class SimulationRecord(BaseModel):
     def to_sumatra(self):
         record = records.SimRecord(
             self.executable.to_sumatra(),
-            self.script.to_sumatra(),
+            self.repository.to_sumatra(),
+            self.main_file,
+            self.version,
             self.parameters.to_sumatra(),
             self.launch_mode.to_sumatra(),
             self.datastore.to_sumatra(),

@@ -22,7 +22,9 @@
     <tr><th>Timestamp:</th><td>{{record.timestamp|date:"d/m/Y H:i:s"}}</td></tr>
     <tr><th>Duration:</th><td>{{record.duration|floatformat:"2"}}&nbsp;s</td></tr>
     <tr><th>Executable:</th><td>{{record.executable.name}} version {{record.executable.version}} ({{record.executable.path}})</td></tr>
-    <tr><th>Script:</th><td>{{record.script.main_file}} from {{record.script.repository_url}}, version {{record.script.version}}</td></tr>
+    <tr><th>Repository:</th><td>{{record.repository.url}}</td></tr>
+    <tr><th>Main file:</th><td>{{record.main_file}}</td></tr>
+    <tr><th>Version:</th><td>{{record.version}}</td></tr>
     <tr><th>Tags:</th><td>{{form.tags}}</td></tr>
 </table>
 

@@ -1,7 +1,6 @@
 import os.path
 import re
 import subprocess
-from versioncontrol import get_repository
 
 version_pattern = re.compile(r'(?P<version>\d\S*)\s')
 
@@ -69,45 +68,7 @@ class NESTSimulator(Executable):
     name = "NEST"
     default_executable_name = 'nest'
     
-
-class Script(VersionedProgram): # call this SimulationCode?
-    # note that a script need not be a single file, but could be a suite of files
-    # generally, should define a VCS repository and a main file
     
-    def __init__(self, repository_url=None, main_file=None, version='latest'):
-    # store reference to the executable for which the script is destined?
-        VersionedProgram.__init__(self)
-        self.main_file = main_file
-        self.repository = get_repository(repository_url)
-        self.version = version
-    
-    def __str__(self):
-        if self.repository:
-            return "%s r%s (main file is %s)" % (self.repository, self.version, self.main_file)
-        else:
-            return "%s (no repository)" % self.main_file
-    
-    def checkout(self):
-        if self.repository and not self.repository.working_copy:
-            self.repository.checkout()
-    
-    def change_repository(self, repository_url):
-        self.repository = get_repository(repository_url)
-    
-    def has_changed(self):
-        return self.repository.working_copy.has_changed()
-    
-    def update_code(self):
-        # Check if the working copy has modifications and prompt to commit or revert them
-        if self.has_changed():
-            raise Exception("Code has changed, please commit your changes")
-        if self.version == 'latest':
-            self.repository.working_copy.use_latest_version()
-            self.version = self.repository.working_copy.current_version()
-        else:
-            self.repository.working_copy.use_version(self.version)
-    
-
 registered_program_names = {}
 registered_executables = {}
 registered_extensions = {}

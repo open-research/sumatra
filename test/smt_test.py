@@ -97,7 +97,7 @@ def getting_started(plugins):
 if __name__ == "__main__":
     cwd = os.getcwd()
     
-    for repos in 'subversion', 'mercurial':
+    for repos in 'subversion',: #'subversion', 'mercurial':
         for plugins in ("sumatra.recordstore.shelve_store",  None):
             working_dir = tempfile.mkdtemp()
             repos_dir = tempfile.mkdtemp()

@@ -22,7 +22,7 @@
             <th rowspan="2">Outcome</th>
             <th rowspan="2">Duration</th>
             <th colspan="2">Simulator</th>
-            <th colspan="2">Script</th>
+            <th colspan="3">Script</th>
             <th rowspan="2">Date</th>
             <th rowspan="2">Time</th>
             <th rowspan="2">Tags</th>
@@ -30,6 +30,7 @@
         <tr>
             <th>Name</th>
             <th>Version</th>
+            <th>Repository</th>
             <th>Main file</th>
             <th>Version</th>
         </tr>
@@ -42,8 +43,9 @@
             <td>{{record.duration|floatformat:2}}&nbsp;s</td>
             <td>{{record.executable.name}}</td>
             <td>{{record.executable.version}}</td>
-            <td>{{record.script.main_file}}</td>
-            <td>{{record.script.version}}</td>
+            <td>{{record.repository.url}}</td>
+            <td>{{record.main_file}}</td>
+            <td>{{record.version}}</td>
             <td>{{record.timestamp|date:"d/m/Y"}}</td>
             <td>{{record.timestamp|date:"H:i:s"}}</td>
             <td>{{record.tags|link}}</td>

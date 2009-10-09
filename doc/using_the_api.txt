@@ -70,13 +70,9 @@ the ``execfile()`` call with a ``build_parameters()`` call::
     
 Now we create a new ``SimRecord`` object, telling it that the script is the
 current file::
-
-    from sumatra.programs import Script
-    script = Script(main_file=__file__)
-    script.update_code()
     
     sim_record = project.new_record(parameters=parameters,
-                                    script=script,
+                                    main_file=__file__,
                                     label="api_example",
                                     reason="reason for running this simulation")
 
@@ -102,36 +98,30 @@ Putting this all together::
     import sys
     import time
     from sumatra.projects import load_simulation_project
-    from sumatra.programs import Script
     from sumatra.parameters import build_parameters
-
+    
     project = load_simulation_project()
     start_time = time.time()
-    
+        
     parameter_file = sys.argv[1]
     parameters = build_parameters(parameter_file)
-
-    script = Script(main_file=__file__)
-    script.update_code()
-    
+        
     sim_record = project.new_record(parameters=parameters,
-                                    script=script,
+                                    main_file=__file__,
                                     label="api_example",
                                     reason="reason for running this simulation")
-
+    
     numpy.random.seed(parameters["seed"])
     distr = getattr(numpy.random, parameters["distr"])
     data = distr(size=parameters["n"])
-    
-    output_file = "%s.dat" % sim_record.label
-    numpy.savetxt(output_file, data)
-    
+        
+    numpy.savetxt("%s.dat" % sim_record.label, data)
+        
     sim_record.duration = time.time() - start_time
     sim_record.data_key = sim_record.datastore.find_new_files(sim_record.timestamp)
     project.add_record(sim_record)
 
     project.save()
-
 
 Now you can run the simulation in the original way::
 

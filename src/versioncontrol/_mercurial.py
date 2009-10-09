@@ -22,8 +22,9 @@ class MercurialWorkingCopy(WorkingCopy):
         self.repository.working_copy = self
 
     def current_version(self):
-        changectx = self.repository._repository.changectx("tip")
-        return binascii.hexlify(changectx.node()[:6])
+        #ctx = self.repository._repository.changectx("tip")
+        ctx = self.repository._repository.workingctx().parents()[0]
+        return binascii.hexlify(ctx.node()[:6])
     
     def use_version(self, version):
         hg.clean(self.repository._repository, version)
@@ -58,8 +59,6 @@ class MercurialRepository(Repository):
     def checkout(self, path="."):
         """Clone a repository."""
         path = os.path.abspath(path)
-        print path
-        print self.url
         if self.url == path:
             # update
             hg.update(self._repository, None)

@@ -1,7 +1,7 @@
 import textwrap
 
-fields = ['label', 'reason', 'outcome', 'duration', 'script',
-          'executable', 'timestamp', 'tags']
+fields = ['label', 'reason', 'outcome', 'duration', 'repository', 'main_file',
+          'version', 'executable', 'timestamp', 'tags']
 
 class Formatter(object):
     

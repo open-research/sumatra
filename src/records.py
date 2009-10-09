@@ -5,14 +5,20 @@ import time
 import subprocess
 from formatting import get_formatter
 
+def assert_equal(a, b, msg=''):
+    assert a == b, "%s: %s != %s" % (msg,a,b)
+
 class SimRecord(object): # maybe just call this Simulation
     
-    def __init__(self, executable, script, parameters, launch_mode, datastore, label=None, reason=None):
+    def __init__(self, executable, repository, main_file, version, parameters,
+                 launch_mode, datastore, label=None, reason=None):
         self.group = label
         self.reason = reason
         self.duration = None
         self.executable = executable # an Executable object incorporating path, version, maybe system information
-        self.script = script # a Script object incorporating path and version (and maybe version of all imported modules as well)
+        self.repository = repository # a Repository object
+        self.main_file = main_file
+        self.version = version
         self.parameters = parameters # a ParameterSet object
         self.launch_mode = launch_mode # a launch_mode object - basically, run serially or with MPI. If MPI, what configuration
         self.datastore = datastore
@@ -28,15 +34,16 @@ class SimRecord(object): # maybe just call this Simulation
     def run(self):
         """Launch the simulation."""
         # if it hasn't been run already. Do we need to distinguish separate Simulation and SimRecord classes?
-        # Check out the requested code version, if necessary
-        self.script.update_code()        
+        # Check the code hasn't changed and the version is correct
+        assert not self.repository.working_copy.has_changed()
+        assert_equal(self.repository.working_copy.current_version(), self.version, "version") 
         # run pre-simulation tasks, e.g. nrnivmodl
         pass
         # Write the simulator-specific parameter file
         parameter_file = "%s.param" % self.label
         self.executable.write_parameters(self.parameters, parameter_file)
         # Run simulation
-        cmd = "%s %s %s" % (self.executable.default_executable_name, self.script.main_file, parameter_file)
+        cmd = "%s %s %s" % (self.executable.default_executable_name, self.main_file, parameter_file)
         start_time = time.time()
         print "Sumatra is running the following command:", cmd
         #p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True)
@@ -52,9 +59,6 @@ class SimRecord(object): # maybe just call this Simulation
         # Search for newly-created datafiles
         self.data_key = self.datastore.find_new_files(self.timestamp)
         print "Data key is", self.data_key
-        
-    def code_version(self):
-        return self.script.version
     
     def describe(self, format='text', mode='long'):
         formatter = get_formatter(format)([self])

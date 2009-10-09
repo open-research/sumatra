@@ -15,7 +15,7 @@ def get_working_copy():
     for vcs in vcs_list:
         if vcs.may_have_working_copy():
             return vcs.get_working_copy()
-    return None
+    raise Exception("No working copy found") # add some diagnostic information
             
 def get_repository(url):
     if url:

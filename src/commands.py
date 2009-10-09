@@ -4,13 +4,13 @@ from optparse import OptionParser
 from textwrap import dedent
 from copy import deepcopy
 
-from programs import get_executable, Script
+from programs import get_executable
 from datastore import FileSystemDataStore
 from projects import SimProject, load_simulation_project
 from launch import SerialLaunchMode
 from parameters import build_parameters
 from recordstore import RecordStore
-from versioncontrol import get_working_copy
+from versioncontrol import get_working_copy, get_repository
 
 def _process_plugins(plugin_module):
     # current only handles RecordStore subclasses, but eventually should also
@@ -57,10 +57,12 @@ def init(argv):
     if not os.path.exists(".smt"):
         os.mkdir(".smt")
 
-    if not options.repository:
-        options.repository = get_working_copy().repository.url # if no repository is specified, we assume there is a working copy in the current directory.
-    script_code = Script(repository_url=options.repository, main_file=options.main) 
-    script_code.checkout()                         # this will raise an Exception if no repository is found
+    if options.repository:
+        repository = get_repository(options.repository)
+        repository.checkout()
+    else:
+        repository = get_working_copy().repository # if no repository is specified, we assume there is a working copy in the current directory.        
+
     if options.simulator or options.main:
         executable = get_executable(path=options.simulator, script_file=options.main)
     else:
@@ -75,7 +77,8 @@ def init(argv):
     
     project = SimProject(name=project_name,
                          default_executable=executable,
-                         default_script=script_code,
+                         default_repository=repository,
+                         default_main_file=options.main,
                          default_launch_mode=SerialLaunchMode(),
                          data_store=FileSystemDataStore(options.datapath),
                          record_store=record_store)
@@ -98,12 +101,14 @@ def configure(argv):
     if options.datapath:
         project.data_store.root = options.datapath
     if options.repository:
-        project.default_script.change_repository(options.repository)
+        repository = get_repository(options.repository)
+        repository.checkout()
+        project.default_repository = repository
     if options.main:
-        project.default_script.main_file = options.main
+        project.default_main_file = options.main
     if options.simulator:
         project.default_executable = get_executable(path=options.simulator,
-                                                    script_file=options.main or project.default_script.main_file)
+                                                    script_file=options.main or project.default_main_file)
     project.save()
 
 def info(argv):
@@ -148,11 +153,6 @@ def run(argv):
     
     parameters = build_parameters(parameter_file, cmdline_parameters)
     print "Parameters for this simulation:\n", parameters.pretty(expand_urls=True)
-    script = deepcopy(project.default_script)
-    if options.main:
-        script.main_file = options.main
-    if options.version:
-        script.version = options.version
     if options.simulator:
         simulator = get_executable(path=options.simulator)
     elif options.main:
@@ -162,7 +162,9 @@ def run(argv):
     
     label = options.label or os.path.splitext(os.path.basename(parameter_file))[0]
     project.launch_simulation(parameters, label=label, reason=options.reason,
-                              executable=simulator, script=script)
+                              executable=simulator,
+                              main_file=options.main or 'default',
+                              version=options.version or 'latest')
     
 def list(argv):
     """List simulation records belonging to the current simulation project."""
@@ -298,9 +300,12 @@ def repeat(argv):
         original_id = args[0]
     project = load_simulation_project()
     original = deepcopy(project.get_record(original_id))
+    original.repository.checkout() # should do nothing if there is already a checkout
     new_id = project.launch_simulation(original.parameters,
                                        executable=original.executable,
-                                       script=original.script,
+                                       main_file=original.main_file,
+                                       repository=original.repository,
+                                       version=original.version,
                                        launch_mode=original.launch_mode,
                                        label=original.group,
                                        reason="Repeat simulation %s" % original_id)

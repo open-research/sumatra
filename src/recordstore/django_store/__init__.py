@@ -55,15 +55,6 @@ class DjangoRecordStore(RecordStore):
                                                 group=db_group,
                                                 timestamp=record.timestamp)
         return db_record
-        
-    def _get_db_script(self, script):
-        db_script, created = models.Script.objects.get_or_create(repository_url=script.repository.url,
-                                                                 repository_type=script.repository.__class__.__name__,
-                                                                 main_file=script.main_file,
-                                                                 version=script.version)
-        if created:
-            db_script.save()
-        return db_script
                                                                      
     def _get_db_obj(self, db_class, obj):
         import models
@@ -75,13 +66,13 @@ class DjangoRecordStore(RecordStore):
     
     def save(self, record):
         db_record = self._get_db_record(record)
-        for attr in 'reason', 'duration', 'outcome':
+        for attr in 'reason', 'duration', 'outcome', 'main_file', 'version':
             value = getattr(record, attr)
             if value is not None:
                 setattr(db_record, attr, value)
         db_record.data_key = str(record.data_key)
         db_record.executable = self._get_db_obj('Executable', record.executable)
-        db_record.script = self._get_db_script(record.script)
+        db_record.repository = self._get_db_obj('Repository', record.repository)
         db_record.launch_mode = self._get_db_obj('LaunchMode', record.launch_mode)
         db_record.datastore = self._get_db_obj('Datastore', record.datastore)
         db_record.parameters = self._get_db_obj('ParameterSet', record.parameters)
