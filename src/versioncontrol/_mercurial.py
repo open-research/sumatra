@@ -25,7 +25,7 @@ class MercurialWorkingCopy(WorkingCopy):
         if hasattr(self.repository._repository, 'workingctx'): # handle different versions of Mercurial 
             ctx = self.repository._repository.workingctx().parents()[0]
         else:
-            ctx = self.repository._repository[0]
+            ctx = self.repository._repository.parents()[0]
         return binascii.hexlify(ctx.node()[:6])
     
     def use_version(self, version):
