@@ -1,6 +1,10 @@
 from __future__ import with_statement
 import os.path
-from NeuroTools.parameters import ParameterSet as NTParameterSet
+import NeuroTools.parameters
+
+class NTParameterSet(NeuroTools.parameters.ParameterSet):
+    # just a re-name, to clarify things
+    pass
 
 class SimpleParameterSet(object):
     
