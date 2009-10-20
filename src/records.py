@@ -3,7 +3,7 @@ import time
 from formatting import get_formatter
 
 def assert_equal(a, b, msg=''):
-    assert a == b, "%s: %s != %s" % (msg,a,b)
+    assert a == b, "%s: %s %s != %s %s" % (msg, a, type(a), b, type(b))
 
 class SimRecord(object): # maybe just call this Simulation
     

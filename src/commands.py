@@ -301,7 +301,8 @@ def repeat(argv):
     project = load_simulation_project()
     tmp = project.get_record(original_id)
     original = deepcopy(tmp)
-    original.parameters._url = tmp.parameters._url # for some reason, _url is not copied.
+    if hasattr(tmp.parameters, '_url'): # for some reason, _url is not copied.
+        original.parameters._url = tmp.parameters._url # this is a hackish solution - needs fixed properly
     original.repository.checkout() # should do nothing if there is already a checkout
     new_id = project.launch_simulation(original.parameters,
                                        executable=original.executable,

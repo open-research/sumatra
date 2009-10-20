@@ -23,12 +23,12 @@ class SubversionWorkingCopy(WorkingCopy):
         self.repository.working_copy = self
 
     def current_version(self):
-        return self.repository._client.info('.').revision.number
+        return str(self.repository._client.info('.').revision.number)
 
     def use_version(self, version):
         self.repository._client.update(
             '.',
-            revision=pysvn.Revision(pysvn.opt_revision_kind.number, version))
+            revision=pysvn.Revision(pysvn.opt_revision_kind.number, int(version)))
 
     def use_latest_version(self):
         self.repository._client.update('.')
