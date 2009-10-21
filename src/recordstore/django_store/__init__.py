@@ -78,6 +78,10 @@ class DjangoRecordStore(RecordStore):
         db_record.parameters = self._get_db_obj('ParameterSet', record.parameters)
         db_record.tags = ",".join(record.tags)
         # should perhaps check here for any orphan Tags, i.e., those that are no longer associated with any records, and delete them
+        db_record.save() # need to save before using many-to-many relationship
+        for dep in record.dependencies:
+            #print "Adding dependency %s to db_record" % dep
+            db_record.dependencies.add(self._get_db_obj('Dependency', dep))
         import django.db.models.manager
         def debug(f):
             def _debug(model, values, **kwargs):
@@ -87,7 +91,6 @@ class DjangoRecordStore(RecordStore):
                 return f(model, values, **kwargs)
             return _debug
         #django.db.models.manager.insert_query = debug(django.db.models.manager.insert_query)
-        
         db_record.save()
         
     def get(self, label):

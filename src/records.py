@@ -1,6 +1,7 @@
 from datetime import datetime
 import time
 from formatting import get_formatter
+import dependency_finder
 
 def assert_equal(a, b, msg=''):
     assert a == b, "%s: %s %s != %s %s" % (msg, a, type(a), b, type(b))
@@ -33,7 +34,9 @@ class SimRecord(object): # maybe just call this Simulation
         # if it hasn't been run already. Do we need to distinguish separate Simulation and SimRecord classes?
         # Check the code hasn't changed and the version is correct
         assert not self.repository.working_copy.has_changed()
-        assert_equal(self.repository.working_copy.current_version(), self.version, "version") 
+        assert_equal(self.repository.working_copy.current_version(), self.version, "version")
+        # Record dependencies
+        self.dependencies = dependency_finder.find_dependencies(self.main_file, self.executable)
         # run pre-simulation tasks, e.g. nrnivmodl
         self.launch_mode.pre_run(self.executable)
         # Write the simulator-specific parameter file

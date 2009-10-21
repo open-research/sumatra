@@ -1,5 +1,5 @@
 from django.db import models
-from sumatra import programs, launch, datastore, records, versioncontrol, parameters
+from sumatra import programs, launch, datastore, records, versioncontrol, parameters, dependency_finder
 import os.path
 import tagging.fields
 from tagging.models import Tag
@@ -52,6 +52,17 @@ class Executable(BaseModel):
         ex.name = self.name
         return ex
 
+class Dependency(BaseModel):
+    name = models.CharField(max_length=50)
+    path = models.CharField(max_length=200)
+    version = models.CharField(max_length=20)
+    
+    def __unicode__(self):
+        return "%s (%s) version=%s" % (self.name, self.path, self.version)
+    
+    def to_sumatra(self):
+        return dependency_finder.Dependency(self.name, self.path, self.version)
+        
 
 class Repository(BaseModel):
     # the following should be unique together.
@@ -119,6 +130,7 @@ class SimulationRecord(BaseModel):
     data_key = models.TextField(blank=True)
     timestamp = models.DateTimeField()
     tags = tagging.fields.TagField()
+    dependencies = models.ManyToManyField(Dependency)
 
     def to_sumatra(self):
         record = records.SimRecord(
@@ -136,6 +148,7 @@ class SimulationRecord(BaseModel):
         record.data_key = eval(self.data_key)
         record.timestamp = self.timestamp
         record.tags = set(tag.name for tag in Tag.objects.get_for_object(self))
+        record.dependencies = [dep.to_sumatra() for dep in self.dependencies.all()]
         return record
             
     def __unicode__(self):

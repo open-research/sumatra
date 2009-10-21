@@ -4,6 +4,7 @@ from modulefinder import ModuleFinder
 import imp
 import distutils.sysconfig
 import os
+import sys
 
 stdlib_path = distutils.sysconfig.get_python_lib(standard_lib=True)
 
@@ -20,6 +21,7 @@ def find_version_by_attribute(module):
             else:
                 version = attr
             break
+    if version is None: version = 'unknown'
     return version
 
 def find_version_from_egg(module):
@@ -42,7 +44,7 @@ def find_version(module, extra_heuristics=[]):
         version = heuristic(module)
         if version is not 'unknown':
             break
-    return version
+    return str(version)
         
     version = find_version_by_attribute(module)
     # next, check if the module is a .egg
@@ -53,12 +55,19 @@ def find_version(module, extra_heuristics=[]):
     # lying around.
     
     # could also look in the __init__.py for a Subversion $Id:$ tag
-    return version, attr_name
+    return version
 
 def find_imported_packages(filename):
     """Find all imported top-level packages for a given Python file."""
-    finder = ModuleFinder()
-    finder.run_script(filename)
+    finder = ModuleFinder(path=sys.path[1:], debug=2)
+    # note that we remove the first element of sys.path to stop modules in the
+    # sumatra source directory with the same name as standard library modules,
+    # e.g. commands, being loaded when the standard library module was wanted.
+    finder_output = open("module_finder_output.txt", "w")
+    sys.stdout = finder_output
+    finder.run_script(os.path.abspath(filename))
+    sys.stdout = sys.__stdout__
+    finder_output.close()
     top_level_packages = {}
     for name, module in finder.modules.items():
         if module.__path__ and "." not in name:
@@ -68,15 +77,21 @@ def find_imported_packages(filename):
 
 class Dependency(object):
     
-    def __init__(self, module_name):
+    def __init__(self, module_name, path=None, version=None):
         self.name = module_name
-        file_obj, self.path, description = imp.find_module(self.name)
-        self.in_stdlib = os.path.dirname(self.path) == stdlib_path
-        m = self._import()
-        if m:
-            self.version = find_version(m)
+        if path:
+            self.path = path
         else:
-            self.version = 'unknown'
+            file_obj, self.path, description = imp.find_module(self.name)
+        self.in_stdlib = os.path.dirname(self.path) == stdlib_path
+        if version:
+            self.version = version
+        else:
+            m = self._import()
+            if m:
+                self.version = find_version(m)
+            else:
+                self.version = 'unknown'
     
     def __repr__(self):
         return "%s (%s) version=%s" % (self.name, self.path, self.version)
@@ -91,10 +106,16 @@ class Dependency(object):
         return m
         
         
-def find_dependencies(filename):
+def find_dependencies_python(filename):
     packages = find_imported_packages(filename)
     dependencies = [Dependency(name) for name in packages]
     return [d for d in dependencies if not d.in_stdlib]
+
+def find_dependencies(filename, executable):
+    if executable.name == "Python":
+        return find_dependencies_python(filename)
+    else:
+        raise Exception("find_dependencies() not yet implemented for %s" % executable.name)
 
 
 def test():

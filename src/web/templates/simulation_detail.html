@@ -39,6 +39,13 @@
 
 <h2>Parameters</h2>
 {% for name, value in parameters.items %}
-{{name}} = {{value}}<br>
-{% endfor %}
+{{name}} = {{value}}<br>{% endfor %}
+                        
+<h2>Dependencies</h2>
+<table>
+<tr><th>Name</th><th>Path</th><th>Version</th></tr>
+{% for dep in record.dependencies.all %}
+<tr><td>{{dep.name}}</td><td>{{dep.path}}</td><td>{{dep.version}}</td></tr>{% endfor %}
+</table>
+
 {% endblock %}
