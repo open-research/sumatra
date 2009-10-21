@@ -3,12 +3,13 @@ import os
 
 from base import Repository, WorkingCopy
 
-def may_have_working_copy():
-    print "Testing for existence of ", os.path.join(os.getcwd(), ".svn")
-    return os.path.exists(os.path.join(os.getcwd(), ".svn"))
+def may_have_working_copy(path=None):
+    path = path or os.getcwd()
+    #print "Testing for existence of ", os.path.join(path, ".svn")
+    return os.path.exists(os.path.join(path, ".svn"))
 
-def get_working_copy():
-    return SubversionWorkingCopy()
+def get_working_copy(path=None):
+    return SubversionWorkingCopy(path)
 
 def get_repository(url):
     return SubversionRepository(url)
@@ -16,14 +17,15 @@ def get_repository(url):
 
 class SubversionWorkingCopy(WorkingCopy):
     
-    def __init__(self):
+    def __init__(self, path=None):
+        self.path = os.path.realpath(path or os.getcwd())
         client = pysvn.Client()
-        url = client.info(".").url
+        url = client.info(self.path).url
         self.repository = SubversionRepository(url)
         self.repository.working_copy = self
 
     def current_version(self):
-        return str(self.repository._client.info('.').revision.number)
+        return str(self.repository._client.info(self.path).revision.number)
 
     def use_version(self, version):
         self.repository._client.update(
@@ -31,10 +33,10 @@ class SubversionWorkingCopy(WorkingCopy):
             revision=pysvn.Revision(pysvn.opt_revision_kind.number, int(version)))
 
     def use_latest_version(self):
-        self.repository._client.update('.')
+        self.repository._client.update(self.path)
 
     def status(self):
-        changes = self.repository._client.status('.')
+        changes = self.repository._client.status(self.path)
         status_dict = {}
         status_dict['modified'] = [f.path for f in changes if f.text_status == pysvn.wc_status_kind.modified]
         status_dict['added'] = [f.path for f in changes if f.text_status == pysvn.wc_status_kind.added]

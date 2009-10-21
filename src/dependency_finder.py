@@ -5,6 +5,7 @@ import imp
 import distutils.sysconfig
 import os
 import sys
+from sumatra import versioncontrol
 
 stdlib_path = distutils.sysconfig.get_python_lib(standard_lib=True)
 
@@ -36,7 +37,24 @@ def find_version_from_egg(module):
                     break
     return version
 
-heuristics = [find_version_by_attribute, find_version_from_egg]
+def find_version_from_versioncontrol(module):
+    #print "Looking for working copy at %s" % module.__path__[0]
+    try:
+        wc = versioncontrol.get_working_copy(module.__path__[0])
+    except versioncontrol.VersionControlError:
+        version = 'unknown'
+    else:
+        #print "Found working copy for %s" % module.__name__
+        if wc.has_changed():
+            msg = "Working copy at %s has uncommitted modifications. It is therefore not possible to determine the code version. Please commit your modifications." % module.__path__[0]
+            raise versioncontrol.VersionControlError(msg)
+        version = wc.current_version()
+    return version
+    
+
+heuristics = [find_version_from_versioncontrol,
+              find_version_by_attribute,
+              find_version_from_egg]
 
 def find_version(module, extra_heuristics=[]):
     heuristics.extend(extra_heuristics)
@@ -132,4 +150,6 @@ def test():
         
 if __name__ == "__main__":
     import sys
-    print "\n".join(str(d) for d in find_dependencies(sys.argv[1]))
+    import programs
+    print "\n".join(str(d) for d in find_dependencies(sys.argv[1],
+                                                      programs.PythonExecutable(None)))

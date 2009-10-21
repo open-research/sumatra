@@ -5,11 +5,12 @@ import binascii
 from base import Repository, WorkingCopy
 
 
-def may_have_working_copy():
-    return os.path.exists(os.path.join(os.getcwd(), ".hg"))
+def may_have_working_copy(path=None):
+    path = path or os.getcwd()
+    return os.path.exists(os.path.join(path, ".hg"))
 
-def get_working_copy():
-    return MercurialWorkingCopy()
+def get_working_copy(path=None):
+    return MercurialWorkingCopy(path)
 
 def get_repository(url):
     return MercurialRepository(url)
@@ -17,8 +18,9 @@ def get_repository(url):
 
 class MercurialWorkingCopy(WorkingCopy):
 
-    def __init__(self):
-        self.repository = MercurialRepository(os.getcwd()) ###### stub
+    def __init__(self, path=None):
+        self.path = path or os.getcwd()
+        self.repository = MercurialRepository(self.path)
         self.repository.working_copy = self
 
     def current_version(self):
