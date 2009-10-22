@@ -36,10 +36,17 @@ class BaseModel(models.Model):
     
     class Meta:
         abstract = True
-        
+    
+    def field_names(self):
+        field_names = self._meta.get_all_field_names()
+        field_names.remove('id')
+        field_names.remove('simulationrecord')
+        return field_names
+    
 
 class SimulationGroup(BaseModel):
     id = models.CharField(max_length=100, primary_key=True)
+
 
 class Executable(BaseModel):
     path = models.CharField(max_length=200)
@@ -113,6 +120,24 @@ class Datastore(BaseModel):
         return ds
 
 
+class PlatformInformation(BaseModel):
+    architecture_bits = models.CharField(max_length=10)
+    architecture_linkage = models.CharField(max_length=10)
+    machine = models.CharField(max_length=20)
+    network_name = models.CharField(max_length=100)
+    ip_addr = models.IPAddressField()
+    processor = models.CharField(max_length=30)
+    release = models.CharField(max_length=30)
+    system_name = models.CharField(max_length=20)
+    version = models.CharField(max_length=50)
+    
+    def to_sumatra(self):
+        pi = {}
+        for name in self.field_names():
+            pi[name] = getattr(self, name)
+        return launch.PlatformInformation(**pi)
+
+
 class SimulationRecord(BaseModel):
     id = models.CharField(max_length=100, unique=True)
     db_id = models.AutoField(primary_key=True) # django-tagging needs an integer as primary key - see http://code.google.com/p/django-tagging/issues/detail?id=15
@@ -131,6 +156,7 @@ class SimulationRecord(BaseModel):
     timestamp = models.DateTimeField()
     tags = tagging.fields.TagField()
     dependencies = models.ManyToManyField(Dependency)
+    platforms = models.ManyToManyField(PlatformInformation)
 
     def to_sumatra(self):
         record = records.SimRecord(
@@ -149,6 +175,7 @@ class SimulationRecord(BaseModel):
         record.timestamp = self.timestamp
         record.tags = set(tag.name for tag in Tag.objects.get_for_object(self))
         record.dependencies = [dep.to_sumatra() for dep in self.dependencies.all()]
+        record.platforms = [pi.to_sumatra() for pi in self.platforms.all()]
         return record
             
     def __unicode__(self):

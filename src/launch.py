@@ -3,6 +3,18 @@ import platform
 import socket
 import subprocess
 
+
+class PlatformInformation(object):
+    
+    def __init__(self, **kwargs):
+        for k,v in kwargs.items():
+            setattr(self, k, v)
+    #platform.mac_ver()
+    #platform.win32_ver()
+    #platform.dist()
+    #platform.libc_ver()
+
+
 class LaunchMode(object):
     """
     Launch serially or in parallel with MPI.
@@ -42,6 +54,18 @@ class SerialLaunchMode(LaunchMode):
         #sys.stderr.write(self.errors)
         return result
     
+    def get_platform_information(self):
+        network_name = platform.node()
+        bits, linkage = platform.architecture()
+        return [PlatformInformation(architecture_bits=bits,
+                                    architecture_linkage=linkage,
+                                    machine=platform.machine(),
+                                    network_name=network_name,
+                                    ip_addr=socket.gethostbyname(network_name),
+                                    processor=platform.processor(),
+                                    release=platform.release(),
+                                    system_name=platform.system(),
+                                    version=platform.version())]
     
 class DistributedLaunchMode(LaunchMode):
     
@@ -65,16 +89,5 @@ class DistributedLaunchMode(LaunchMode):
         return result
     
     
-class PlatformInformation(object):
-    architecture = platform.architecture()
-    machine = platform.machine()
-    network_name = platform.node()
-    ip_addr = socket.gethostbyname(network_name)
-    processor = platform.processor()
-    release = platform.release()
-    system_name = platform.system()
-    version = platform.version()
-    #platform.mac_ver()
-    #platform.win32_ver()
-    #platform.dist()
-    #platform.libc_ver()
+    
+    

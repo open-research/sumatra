@@ -37,6 +37,8 @@ class SimRecord(object): # maybe just call this Simulation
         assert_equal(self.repository.working_copy.current_version(), self.version, "version")
         # Record dependencies
         self.dependencies = dependency_finder.find_dependencies(self.main_file, self.executable)
+        # Record platform information
+        self.platforms = self.launch_mode.get_platform_information()
         # run pre-simulation tasks, e.g. nrnivmodl
         self.launch_mode.pre_run(self.executable)
         # Write the simulator-specific parameter file

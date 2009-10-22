@@ -48,4 +48,22 @@
 <tr><td>{{dep.name}}</td><td>{{dep.path}}</td><td>{{dep.version}}</td></tr>{% endfor %}
 </table>
 
+<h2>Platform information</h2>
+<table>
+<tr><th>Name</th><th>IP address</th><th>Processor</th>
+    <th colspan="2">Architecture</th><th>System type</th>
+    <th>Release</th><th>Version</th>
+</tr>
+{% for platform in record.platforms.all %}
+<tr><td>{{platform.network_name}}</td>
+    <td>{{platform.ip_addr}}</td>
+    <td>{{platform.processor}} {{platform.machine}}</td>
+    <td>{{platform.architecture_bits}}</td>
+    <td>{{platform.architecture_linkage}}</td>
+    <td>{{platform.system_name}}</td>
+    <td>{{platform.release}}</td>
+    <td>{{platform.version}}</td>
+</tr>{% endfor %}
+</table>
+
 {% endblock %}
