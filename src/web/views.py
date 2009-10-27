@@ -1,3 +1,7 @@
+"""
+Defines view functions and forms for the Sumatra web interface.
+"""
+
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.views.generic import list_detail

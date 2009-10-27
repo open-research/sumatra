@@ -1,3 +1,8 @@
+"""
+Handles storage of simulation records based on the Python standard shelve
+module.
+"""
+
 from sumatra.recordstore import RecordStore
 import shelve
 

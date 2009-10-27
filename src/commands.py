@@ -1,3 +1,9 @@
+"""
+Commands provided by the smt tool.
+
+Each command corresponds to a function in this module.
+"""
+
 import os.path
 import sys
 from optparse import OptionParser

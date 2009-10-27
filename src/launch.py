@@ -1,3 +1,14 @@
+"""
+The launch module handles launching of simulations as sub-processes, and
+obtaining information about the platform(s) on which the simulations are run.
+
+Classes
+-------
+
+PlatformInformation   - a container for platform information
+SerialLaunchMode      - handles launching local, serial simulations
+DistributedLaunchMode - handles launching distributed simulations using MPI
+"""
 
 import platform
 import socket
@@ -34,6 +45,7 @@ class LaunchMode(object):
         #should get the tasks to run from the Executable 
         pass
 
+
 class SerialLaunchMode(LaunchMode):
     
     def __init__(self):
@@ -66,7 +78,8 @@ class SerialLaunchMode(LaunchMode):
                                     release=platform.release(),
                                     system_name=platform.system(),
                                     version=platform.version())]
-    
+
+
 class DistributedLaunchMode(LaunchMode):
     
     def __init__(self, mpirun, hosts, n):

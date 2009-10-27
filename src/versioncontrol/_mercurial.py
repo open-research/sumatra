@@ -1,3 +1,21 @@
+"""
+Defines the Sumatra version control interface for Mercurial.
+
+Classes
+-------
+
+MercurialWorkingCopy
+MercurialRepository
+
+Functions
+---------
+
+may_have_working_copy() - determine whether a .hg subdirectory exists at a given
+                          path
+get_working_copy()      - return a MercurialWorkingCopy object for a given path
+get_repository()        - return a MercurialRepository object for a given URL.
+"""
+
 from mercurial import hg, ui
 import os
 import binascii

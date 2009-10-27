@@ -1,3 +1,21 @@
+"""
+The formatting module provides classes for formatting simulation records in
+different ways: summary, list or table; and in different mark-up formats:
+currently text or HTML.
+
+Classes
+-------
+
+TextFormatter - formats records as text
+HTMLFormatter - formats records as HTML
+
+Function
+--------
+
+get_formatter() - return an approriate Formatter object for a given requested
+                  format.
+"""
+
 import textwrap
 
 fields = ['label', 'reason', 'outcome', 'duration', 'repository', 'main_file',
