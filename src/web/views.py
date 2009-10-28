@@ -129,3 +129,17 @@ def show_image(request, id):
         return response
     else:
         return HttpResponse(mimetype="image/png") # should return a placeholder image?
+    
+def show_diff(request, id, package):
+    record = models.SimulationRecord.objects.get(id=id)
+    if package:
+        dependency = record.dependencies.get(name=package)
+    else:
+        package = "Main script"
+        dependency = record
+    return render_to_response("show_diff.html", {'id': id,
+                                                 'project_name': project_name,
+                                                 'package': package,
+                                                 'parent_version': dependency.version,
+                                                 'diff': dependency.diff})
+    

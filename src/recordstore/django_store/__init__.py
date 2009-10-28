@@ -84,6 +84,7 @@ class DjangoRecordStore(RecordStore):
             db_record.dependencies.add(self._get_db_obj('Dependency', dep))
         for pi in record.platforms:
             db_record.platforms.add(self._get_db_obj('PlatformInformation', pi))
+        db_record.diff = record.diff
         import django.db.models.manager
         def debug(f):
             def _debug(model, values, **kwargs):

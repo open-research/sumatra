@@ -59,17 +59,25 @@ class Executable(BaseModel):
         ex.name = self.name
         return ex
 
+
 class Dependency(BaseModel):
     name = models.CharField(max_length=50)
     path = models.CharField(max_length=200)
     version = models.CharField(max_length=20)
+    diff = models.TextField(blank=True)
     
     def __unicode__(self):
         return "%s (%s) version=%s" % (self.name, self.path, self.version)
     
     def to_sumatra(self):
-        return dependency_finder.Dependency(self.name, self.path, self.version)
+        dep = dependency_finder.Dependency(self.name, self.path, self.version)
+        if self.diff:
+            dep.diff = self.diff
+        return dep
         
+    class Meta:
+        ordering = ['name']
+
 
 class Repository(BaseModel):
     # the following should be unique together.
@@ -157,6 +165,7 @@ class SimulationRecord(BaseModel):
     tags = tagging.fields.TagField()
     dependencies = models.ManyToManyField(Dependency)
     platforms = models.ManyToManyField(PlatformInformation)
+    diff = models.TextField(blank=True)
 
     def to_sumatra(self):
         record = records.SimRecord(
@@ -168,7 +177,8 @@ class SimulationRecord(BaseModel):
             self.launch_mode.to_sumatra(),
             self.datastore.to_sumatra(),
             self.group.id,
-            self.reason)
+            self.reason,
+            self.diff)
         record.duration = self.duration
         record.outcome = self.outcome
         record.data_key = eval(self.data_key)

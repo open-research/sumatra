@@ -36,6 +36,7 @@ def init(argv):
     parser.add_option('-s', '--simulator', metavar='PATH', help="set the path to the simulator executable. If this is not set, smt will try to infer the executable from the value of the --main option, if supplied, and will try to find the executable from the PATH environment variable, then by searching various likely locations on the filesystem.")
     parser.add_option('-r', '--repository', help="the URL of a Subversion or Mercurial repository containing the simulation code. This will be checked out/cloned into the current directory.")
     parser.add_option('-m', '--main', help="the name of the simulator script that would be supplied on the command line if running the simulator normally, e.g. init.hoc.")
+    parser.add_option('-c', '--on-changed', default='error', help="the action to take if the code in the repository or any of the depdendencies has changed. Defaults to %default") # need to add list of allowed values
     parser.add_option('--plugins', metavar='MODULE', help="(advanced) specify the Python path of a module containing plug-ins. These allow Sumatra's functionality to be customized.")
     parser.add_option('-D', '--debug', action='store_true', help="print debugging information.")
     
@@ -81,7 +82,8 @@ def init(argv):
                          default_main_file=options.main,
                          default_launch_mode=SerialLaunchMode(),
                          data_store=FileSystemDataStore(options.datapath),
-                         record_store=record_store)
+                         record_store=record_store,
+                         on_changed=options.on_changed)
     project.save()
 
 def configure(argv):
@@ -94,6 +96,7 @@ def configure(argv):
     parser.add_option('-s', '--simulator', metavar='PATH', help="set the path to the simulator executable.")
     parser.add_option('-r', '--repository', help="the URL of a Subversion or Mercurial repository containing the simulation code. This will be checked out/cloned into the current directory.")
     parser.add_option('-m', '--main', help="the name of the simulator script that would be supplied on the command line if running the simulator normally, e.g. init.hoc.")
+    parser.add_option('-c', '--on-changed', default='error', help="the action to take if the code in the repository or any of the depdendencies has changed. Defaults to %default") # need to add list of allowed values
     (options, args) = parser.parse_args(argv)
     if len(args) != 0:
         parser.error('configure does not take any arguments')
@@ -109,6 +112,8 @@ def configure(argv):
     if options.simulator:
         project.default_executable = get_executable(path=options.simulator,
                                                     script_file=options.main or project.default_main_file)
+    if options.on_changed:
+        project.on_changed = options.on_changed
     project.save()
 
 def info(argv):

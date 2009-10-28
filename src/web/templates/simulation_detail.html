@@ -24,7 +24,7 @@
     <tr><th>Executable:</th><td>{{record.executable.name}} version {{record.executable.version}} ({{record.executable.path}})</td></tr>
     <tr><th>Repository:</th><td>{{record.repository.url}}</td></tr>
     <tr><th>Main file:</th><td>{{record.main_file}}</td></tr>
-    <tr><th>Version:</th><td>{{record.version}}</td></tr>
+    <tr><th>Version:</th><td>{{record.version}}{% if record.diff %}* (<a href="diff/">diff</a>){% endif %}</td></tr>
     <tr><th>Tags:</th><td>{{form.tags}}</td></tr>
 </table>
 
@@ -45,7 +45,7 @@
 <table>
 <tr><th>Name</th><th>Path</th><th>Version</th></tr>
 {% for dep in record.dependencies.all %}
-<tr><td>{{dep.name}}</td><td>{{dep.path}}</td><td>{{dep.version}}</td></tr>{% endfor %}
+<tr><td>{{dep.name}}</td><td>{{dep.path}}</td><td>{{dep.version}}{% if dep.diff %}* (<a href="diff/{{dep.name}}">diff</a>){% endif %}</td></tr>{% endfor %}
 </table>
 
 <h2>Platform information</h2>

@@ -4,6 +4,9 @@ import os
 class VersionControlError(Exception):
     pass
 
+class UncommittedModificationsError(Exception):
+    pass
+
 vcs_list = []
 
 for vcs in ['mercurial', 'subversion']:

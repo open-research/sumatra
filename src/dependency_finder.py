@@ -47,7 +47,7 @@ def find_version_from_versioncontrol(module):
         #print "Found working copy for %s" % module.__name__
         if wc.has_changed():
             msg = "Working copy at %s has uncommitted modifications. It is therefore not possible to determine the code version. Please commit your modifications." % module.__path__[0]
-            raise versioncontrol.VersionControlError(msg)
+            raise versioncontrol.UncommittedModificationsError(msg)
         version = wc.current_version()
     return version
     
@@ -58,22 +58,18 @@ heuristics = [find_version_from_versioncontrol,
 
 def find_version(module, extra_heuristics=[]):
     heuristics.extend(extra_heuristics)
+    errors = []
     for heuristic in heuristics:
         version = heuristic(module)
         if version is not 'unknown':
             break
     return str(version)
-        
-    version = find_version_by_attribute(module)
-    # next, check if the module is a .egg
-    if version == 'unknown':
-        version = find_version_from_egg(module)
-    # next, could check for an egg-info file with a similar name to the module
-    # although this is not really safe, as there can be old egg-info files
-    # lying around.
     
-    # could also look in the __init__.py for a Subversion $Id:$ tag
-    return version
+    # Other possible heuristics:
+    #   * check for an egg-info file with a similar name to the module
+    #     although this is not really safe, as there can be old egg-info files
+    #     lying around.
+    #   * could also look in the __init__.py for a Subversion $Id:$ tag
 
 def find_imported_packages(filename):
     """Find all imported top-level packages for a given Python file."""
@@ -95,24 +91,35 @@ def find_imported_packages(filename):
 
 class Dependency(object):
     
-    def __init__(self, module_name, path=None, version=None):
+    def __init__(self, module_name, path=None, version=None, on_changed='error'):
         self.name = module_name
         if path:
             self.path = path
         else:
             file_obj, self.path, description = imp.find_module(self.name)
         self.in_stdlib = os.path.dirname(self.path) == stdlib_path
+        self.diff = ''
         if version:
             self.version = version
         else:
             m = self._import()
             if m:
-                self.version = find_version(m)
+                try:
+                    self.version = find_version(m)
+                except versioncontrol.UncommittedModificationsError:
+                    if on_changed == 'error':
+                        raise
+                    elif on_changed == 'store-diff':
+                        wc = versioncontrol.get_working_copy(m.__path__[0])
+                        self.version = wc.current_version()
+                        self.diff = wc.diff()
+                    else:
+                        raise Exception("Only 'error' and 'store-diff' are currently supported for on_changed.")
             else:
                 self.version = 'unknown'
-    
+        
     def __repr__(self):
-        return "%s (%s) version=%s" % (self.name, self.path, self.version)
+        return "%s (%s) version=%s%s" % (self.name, self.path, self.version, "*" and self.diff or '')
     
     def _import(self):
         self.import_error = None
@@ -124,14 +131,14 @@ class Dependency(object):
         return m
         
         
-def find_dependencies_python(filename):
+def find_dependencies_python(filename, on_changed):
     packages = find_imported_packages(filename)
-    dependencies = [Dependency(name) for name in packages]
+    dependencies = [Dependency(name, on_changed=on_changed) for name in packages]
     return [d for d in dependencies if not d.in_stdlib]
 
-def find_dependencies(filename, executable):
+def find_dependencies(filename, executable, on_changed='error'):
     if executable.name == "Python":
-        return find_dependencies_python(filename)
+        return find_dependencies_python(filename, on_changed)
     else:
         raise Exception("find_dependencies() not yet implemented for %s" % executable.name)
 

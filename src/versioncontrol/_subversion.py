@@ -54,7 +54,11 @@ class SubversionWorkingCopy(WorkingCopy):
                 changed = True
                 break
         return changed
-        
+    
+    def diff(self):
+        """Difference between working copy and repository."""
+        return self.repository._client.diff('./tmp-', self.path)
+    
 
 class SubversionRepository(Repository):
     

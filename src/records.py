@@ -1,5 +1,6 @@
 from datetime import datetime
 import time
+import os
 from formatting import get_formatter
 import dependency_finder
 
@@ -9,7 +10,7 @@ def assert_equal(a, b, msg=''):
 class SimRecord(object): # maybe just call this Simulation
     
     def __init__(self, executable, repository, main_file, version, parameters,
-                 launch_mode, datastore, label=None, reason=None):
+                 launch_mode, datastore, label=None, reason=None, diff='', on_changed='error'):
         self.group = label
         self.reason = reason
         self.duration = None
@@ -24,6 +25,8 @@ class SimRecord(object): # maybe just call this Simulation
         self.data_key = None
         self.timestamp = datetime.now() # might need to allow for this to be set as argument to allow for distributed/batch simulations on machines with out-of-sync clocks
         self.tags = set()
+        self.diff = diff
+        self.on_changed = on_changed
     
     @property
     def label(self):
@@ -33,10 +36,11 @@ class SimRecord(object): # maybe just call this Simulation
         """Launch the simulation."""
         # if it hasn't been run already. Do we need to distinguish separate Simulation and SimRecord classes?
         # Check the code hasn't changed and the version is correct
-        assert not self.repository.working_copy.has_changed()
+        if len(self.diff) == 0:
+            assert not self.repository.working_copy.has_changed()
         assert_equal(self.repository.working_copy.current_version(), self.version, "version")
         # Record dependencies
-        self.dependencies = dependency_finder.find_dependencies(self.main_file, self.executable)
+        self.dependencies = dependency_finder.find_dependencies(self.main_file, self.executable, self.on_changed)
         # Record platform information
         self.platforms = self.launch_mode.get_platform_information()
         # run pre-simulation tasks, e.g. nrnivmodl
@@ -53,6 +57,7 @@ class SimRecord(object): # maybe just call this Simulation
         # Search for newly-created datafiles
         self.data_key = self.datastore.find_new_files(self.timestamp)
         print "Data key is", self.data_key
+        os.remove(parameter_file)
     
     def describe(self, format='text', mode='long'):
         formatter = get_formatter(format)([self])

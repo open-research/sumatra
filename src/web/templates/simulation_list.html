@@ -45,7 +45,7 @@
             <td>{{record.executable.version}}</td>
             <td>{{record.repository.url}}</td>
             <td>{{record.main_file}}</td>
-            <td>{{record.version}}</td>
+            <td>{{record.version}}{% if record.diff %}*{% endif %}</td>
             <td>{{record.timestamp|date:"d/m/Y"}}</td>
             <td>{{record.timestamp|date:"H:i:s"}}</td>
             <td>{{record.tags|link}}</td>

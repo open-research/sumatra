@@ -5,6 +5,7 @@ from datastore import FileSystemDataStore
 from records import SimRecord
 from formatting import get_formatter
 from recordstore import DefaultRecordStore
+from versioncontrol import UncommittedModificationsError
 
 def _remove_left_margin(s): # replace this by textwrap.dedent?
     lines = s.strip().split('\n')
@@ -14,7 +15,7 @@ class SimProject:
 
     def __init__(self, name, default_executable=None, default_repository=None,
                  default_main_file=None, default_launch_mode=None,
-                 data_store='default', record_store='default'):
+                 data_store='default', record_store='default', on_changed='error'):
         if not os.path.exists(".smt"):
             os.mkdir(".smt")
         if os.path.exists(".smt/simulation_project"):
@@ -30,7 +31,7 @@ class SimProject:
         if record_store == 'default':
             record_store = DefaultRecordStore(".smt/simulation_records")
         self.record_store = record_store
-        self.on_changed = 'error'
+        self.on_changed = on_changed
         self.save()
         print "Simulation project successfully set up"
     
@@ -52,6 +53,7 @@ class SimProject:
         Default launch mode : %(default_launch_mode)s
         Data store          : %(data_store)s
         Record store        : %(record_store)s
+        Code change policy  : %(on_changed)s
         """
         return _remove_left_margin(template % self.__dict__)
     
@@ -66,9 +68,10 @@ class SimProject:
             main_file = self.default_main_file
         if launch_mode == 'default':
             launch_mode = deepcopy(self.default_launch_mode)
-        version = self.update_code(repository.working_copy, version)
+        version, diff = self.update_code(repository.working_copy, version)
         return SimRecord(executable, repository, main_file, version, parameters,
-                         launch_mode, self.data_store, label=label, reason=reason)
+                         launch_mode, self.data_store, label=label, reason=reason,
+                         diff=diff, on_changed=self.on_changed)
     
     def launch_simulation(self, parameters, executable='default',
                           repository='default', main_file='default',
@@ -85,26 +88,22 @@ class SimProject:
     
     def update_code(self, working_copy, version='latest'):
         # Check if the working copy has modifications and prompt to commit or revert them
-        if working_copy.has_changed():
-            if self.on_changed == "error":
-                raise Exception("Code has changed, please commit your changes")
-            elif self.on_changed == "auto-commit":
-                working_copy.commit() # should provide a commit message
-            elif self.on_changed == "prompt":
-                try:
-                    message = raw_input("Code has changed. Please enter a commit message or Ctrl-D to abort.")
-                except EOFError:
-                    raise Exception("You have chosen to quit.") #This exception is supposed to be passed up to the calling object to make sure everything is cleaned up before quitting.")
-                finally:
-                    working_copy.commit(message)
-            else:
-                raise Exception("Invalid value of on_changed.")
+        # we really need to extend this to the dependencies, but we need to take extra special care that the
+        # code ends up in the same condition as before the run
+        diff = ''
+        changed = working_copy.has_changed()
         if version == 'latest':
+            if changed and self.on_changed == "error":
+                raise UncommittedModificationsError("Code has changed, please commit your changes")
             working_copy.use_latest_version()
             version = working_copy.current_version()
+            if changed and self.on_changed == "store-diff":
+                diff = working_copy.diff()
         else:
-            working_copy.use_version(version)
-        return version
+            if changed:
+                raise UncommittedModificationsError("Code has changed. These changes will be lost when switching to a different version, so please commit your changes and then retry.")
+            working_copy.use_version(version) # what if there are local modifications and we're using store-diff? Do we store patches and then restore them?
+        return version, diff
     
     def add_record(self, record):
         """Add a simulation record."""

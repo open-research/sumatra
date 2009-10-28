@@ -45,6 +45,7 @@ urlpatterns = patterns('',
     (r'^(?P<id>\w+[\w\-\.]*)/$', 'sumatra.web.views.simulation_detail'),
     (r'^(?P<id>\w+[\w\-\.]*)/datafile$', 'sumatra.web.views.show_file'),
     (r'^(?P<id>\w+[\w\-\.]*)/image$', 'sumatra.web.views.show_image'),
+    (r'^(?P<id>\w+[\w\-\.]*)/diff/(?P<package>[\w_]+)*$', 'sumatra.web.views.show_diff'),
     
     # Uncomment the admin/doc line below and add 'django.contrib.admindocs' 
     # to INSTALLED_APPS to enable admin documentation:

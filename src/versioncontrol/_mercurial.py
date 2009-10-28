@@ -1,4 +1,4 @@
-from mercurial import hg, ui
+from mercurial import hg, ui, patch
 import os
 import binascii
 
@@ -31,10 +31,12 @@ class MercurialWorkingCopy(WorkingCopy):
         return binascii.hexlify(ctx.node()[:6])
     
     def use_version(self, version):
+        assert not self.has_changed()
         hg.clean(self.repository._repository, version)
 
     def use_latest_version(self):
-        hg.clean(self.repository._repository, 'tip')
+        # any changes to the working copy are retained/merged in
+        hg.update(self.repository._repository, 'tip')
 
     def status(self):
         modified, added, removed, deleted, unknown, ignored, clean = self.repository._repository.status() #unknown=True)
@@ -50,6 +52,10 @@ class MercurialWorkingCopy(WorkingCopy):
                 break
         return changed
     
+    def diff(self):
+        """Difference between working copy and repository."""
+        diff = patch.diff(self.repository._repository)
+        return "".join(diff)
 
 class MercurialRepository(Repository):
     
