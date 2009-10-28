@@ -1,3 +1,45 @@
+"""
+The dependency_finder module attempts to determine all the dependencies of a
+given simulation script, including the version of each dependency.
+
+It is currently rather Python-specific, but other simulation languages that
+support some method of importing or including other files, e.g. Hoc, will also
+be supported.
+
+Classes
+-------
+Dependency - contains information about a Python module or package, and tries
+             to determine version information.
+
+Functions
+---------
+
+find_version_by_attribute() - tries to find version information from the
+                              attributes of a Python module.
+find_version_from_egg()     - determines whether a Python module is provided as
+                              an egg, and if so, obtains version information
+                              from this.
+find_version_from_versioncontrol() - determines whether a Python module is
+                                     under version control, and if so, obtains
+                                     version information from this.
+find_version()              - tries to find version information by calling a
+                              series of functions in turn.
+find_imported_packages()    - finds all imported top-level packages for a given
+                              Python file.
+find_dependencies_python()  - returns a list of Dependency objects representing
+                              all the top-level modules or packages imported
+                              (directly or indirectly) by a given Python file.
+find_dependencies()         - returns a list of dependencies for a given script
+                              and programming langauge. Currently only supports
+                              Python.
+
+Module variables
+----------------
+
+heuristics - a list of functions that will be called in sequence by
+             find_version()
+"""
+
 from __future__ import with_statement
 from types import ModuleType
 from modulefinder import ModuleFinder
@@ -11,6 +53,7 @@ stdlib_path = distutils.sysconfig.get_python_lib(standard_lib=True)
 
 
 def find_version_by_attribute(module):
+    """Try to find version information from the attributes of a Python module."""
     version = 'unknown'
     for attr_name in 'version', 'get_version', '__version__', 'VERSION':
         if hasattr(module, attr_name):
@@ -26,6 +69,8 @@ def find_version_by_attribute(module):
     return version
 
 def find_version_from_egg(module):
+    """Determine whether a Python module is provided as an egg, and if so,
+       obtain version information from this."""
     version = 'unknown'
     dir = os.path.dirname(module.__file__)
     if 'EGG-INFO' in os.listdir(dir):
@@ -38,6 +83,8 @@ def find_version_from_egg(module):
     return version
 
 def find_version_from_versioncontrol(module):
+    """Determine whether a Python module is under version control, and if so,
+       obtain version information from this."""
     #print "Looking for working copy at %s" % module.__path__[0]
     try:
         wc = versioncontrol.get_working_copy(module.__path__[0])
@@ -57,6 +104,7 @@ heuristics = [find_version_from_versioncontrol,
               find_version_from_egg]
 
 def find_version(module, extra_heuristics=[]):
+    """Try to find version information by calling a series of functions in turn."""
     heuristics.extend(extra_heuristics)
     errors = []
     for heuristic in heuristics:
@@ -90,6 +138,10 @@ def find_imported_packages(filename):
 
 
 class Dependency(object):
+    """
+    Contains information about a Python module or package, and tries to
+    determine version information.
+    """
     
     def __init__(self, module_name, path=None, version=None, on_changed='error'):
         self.name = module_name
@@ -132,11 +184,15 @@ class Dependency(object):
         
         
 def find_dependencies_python(filename, on_changed):
+    """Return a list of Dependency objects representing all the top-level
+       modules or packages imported (directly or indirectly) by a given Python file."""
     packages = find_imported_packages(filename)
     dependencies = [Dependency(name, on_changed=on_changed) for name in packages]
     return [d for d in dependencies if not d.in_stdlib]
 
 def find_dependencies(filename, executable, on_changed='error'):
+    """Return a list of dependencies for a given script and programming
+       language. Currently only supports Python."""
     if executable.name == "Python":
         return find_dependencies_python(filename, on_changed)
     else:

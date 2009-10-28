@@ -1,3 +1,23 @@
+"""
+The datastore module provides an abstraction layer around data storage,
+allowing different methods of storing simulation results (local filesystem,
+remote filesystem, database, etc.) to provide a common interface.
+
+Currently, only local filesystem storage is supported.
+
+Classes
+-------
+
+FileSystemDataStore - provides methods for accessing and archiving files stored
+                      on a local file system, under a given root directory.
+                      
+Functions
+---------
+
+get_data_store() - return a DataStore object based on a class name and
+                   constructor arguments.
+"""
+
 import os
 import tarfile
 import datetime
@@ -89,4 +109,3 @@ class FileSystemDataStore(DataStore):
 def get_data_store(type, parameters):
     cls = eval(type)
     return cls(**parameters)
-        

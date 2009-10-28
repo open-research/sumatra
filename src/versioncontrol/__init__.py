@@ -1,3 +1,32 @@
+"""
+The versioncontrol sub-package provides an abstraction layer around different
+revision/version control systems. Only the functionality required for recording
+version numbers and switching the working copy between different versions is
+wrapped - for more complex tasks such as merging, branching, etc., the
+version control tool should be used directly.
+
+Sub-modules
+-----------
+
+base        - defines the base WorkingCopy and Repository classes
+_mercurial  - defines MercurialWorkingCopy and MercurialRepository classes
+_subversion - defines SubversionWorkingCopy and SubversionRepository classes
+
+Exceptions
+----------
+
+VersionControlError - generic Exception class for problems with version control
+
+Functions
+---------
+
+get_working_copy() - given a filesystem path, determine if a working copy exists
+                     and return an appropriate WorkingCopy object if so.
+get_repository()   - determine whether a revision control system repository
+                     exists at a given URL and return an appropriate Repository
+                     object if so.
+"""
+
 import sys
 import os
 

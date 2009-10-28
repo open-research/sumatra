@@ -1,3 +1,7 @@
+"""
+Definition of database tables and object retrieval for the DjangoRecordStore.
+"""
+
 from django.db import models
 from sumatra import programs, launch, datastore, records, versioncontrol, parameters, dependency_finder
 import os.path

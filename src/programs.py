@@ -1,3 +1,26 @@
+"""
+The programs module handles simulator programs, i.e. executable files, to
+support the ability to customize Sumatra's behaviour for specific simulators.
+
+Classes
+-------
+
+Executable       - represents a generic executable, about which nothing is known
+                   except its name. The base class for specific simulator classes.
+NESTSimulator    - represents the NEST neuroscience simulator.
+NEURONSimulator  - represents the NEURON neuroscience simulator.
+PythonExecutable - represents the Python interpreter executable.
+
+Functions
+---------
+
+get_executable()      - Return an appropriate subclass of Executable, given
+                        either the path to an executable file or a script file
+                        that can be run with a given simulator.
+register_executable() - Register new subclasses of Executable that can be
+                        returned by get_executable().
+"""
+
 import os.path
 import re
 import subprocess

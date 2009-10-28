@@ -1,3 +1,23 @@
+"""
+The projects module defines the SimProject class, which stores information
+about a simulation project and contains a number of methods for managing
+simulation projects and running simulations. This is the main class that is
+used directly when using Sumatra within your own scripts.
+
+Classes
+-------
+
+SimProject - stores information about a simulation project, and enables
+             launching, annotating, deleting and retrieving information about
+             simulation runs.
+
+Functions
+---------
+
+load_simulation_project() - read project information from the working directory
+                            and return a SimProject object.
+"""
+
 import os
 import cPickle as pickle
 from copy import deepcopy

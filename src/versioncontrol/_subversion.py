@@ -1,3 +1,21 @@
+"""
+Defines the Sumatra version control interface for Subversion.
+
+Classes
+-------
+
+SubversionWorkingCopy
+SubversionRepository
+
+Functions
+---------
+
+may_have_working_copy() - determine whether a .svn subdirectory exists at a
+                          given path
+get_working_copy()      - return a SubversionWorkingCopy object for a given path
+get_repository()        - return a SubversionRepository object for a given URL.
+"""
+
 import pysvn
 import os
 

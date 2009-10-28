@@ -1,3 +1,20 @@
+"""
+The parameters module handles different parameter file formats, taking care of
+converting them to/from Sumatra's internal parameter format, which is the
+NeuroTools ParameterSet class.
+
+Classes
+-------
+
+NTParameterSet           - handles parameter files in the NeuroTools parameter
+                           set format, based on nested dictionaries
+SimpleParameterSet       - handles parameter files in a simple "name = value"
+                           format, with no nesting or grouping.
+ConfigParserParameterSet - handles parameter files in traditional config file
+                           format, as parsed by the standard Python ConfigParser
+                           module.
+"""
+
 from __future__ import with_statement
 import os.path
 import NeuroTools.parameters

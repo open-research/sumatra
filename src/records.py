@@ -1,3 +1,15 @@
+"""
+The records module defines the SimRecord class, which gathers and stores
+information about an individual simulation run.
+
+Classes
+-------
+
+SimRecord - gathers and stores information about an individual simulation run.
+            Can be instantiated directly, but more usually created by the
+            new_record() method of SimProject.
+"""
+
 from datetime import datetime
 import time
 import os

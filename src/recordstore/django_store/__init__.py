@@ -1,3 +1,11 @@
+"""
+Handles storage of simulation records in a relational database, via the
+Django object-relational mapper (ORM), which means that any database
+supported by Django could in principle be used, although for now we assume
+SQLite.
+"""
+
+
 from sumatra.recordstore import RecordStore
 from django.conf import settings
 from django.core import management
