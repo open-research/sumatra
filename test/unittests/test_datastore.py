@@ -36,7 +36,7 @@ class TestFileSystemDataStore(unittest.TestCase):
         
 class TestModuleFunctions(unittest.TestCase):
     
-    def test__get_data_store__should_return_DataStore_subclass(self):
+    def test__get_data_store__should_return_DataStore_object(self):
         self.fail()
         
     def test__get_data_store__should_raise_Exception_if_wrong_type(self):
