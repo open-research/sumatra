@@ -13,7 +13,7 @@ from copy import deepcopy
 from programs import get_executable
 from datastore import FileSystemDataStore
 from projects import SimProject, load_simulation_project
-from launch import SerialLaunchMode
+from launch import SerialLaunchMode, DistributedLaunchMode
 from parameters import build_parameters
 from recordstore import RecordStore
 from versioncontrol import get_working_copy, get_repository
@@ -102,7 +102,7 @@ def configure(argv):
     parser.add_option('-s', '--simulator', metavar='PATH', help="set the path to the simulator executable.")
     parser.add_option('-r', '--repository', help="the URL of a Subversion or Mercurial repository containing the simulation code. This will be checked out/cloned into the current directory.")
     parser.add_option('-m', '--main', help="the name of the simulator script that would be supplied on the command line if running the simulator normally, e.g. init.hoc.")
-    parser.add_option('-c', '--on-changed', default='error', help="the action to take if the code in the repository or any of the depdendencies has changed. Defaults to %default") # need to add list of allowed values
+    parser.add_option('-c', '--on-changed', help="the action to take if the code in the repository or any of the depdendencies has changed. Defaults to %default") # need to add list of allowed values
     (options, args) = parser.parse_args(argv)
     if len(args) != 0:
         parser.error('configure does not take any arguments')
@@ -153,6 +153,8 @@ def run(argv):
     parser.add_option('-r', '--reason', help="explain the reason for running this simulation.")
     parser.add_option('-s', '--simulator', metavar='PATH', help="Use this simulator executable for this run. If not specified, the project's default executable will be used.")
     parser.add_option('-m', '--main', help="the name of the simulator script that would be supplied on the command line if running the simulator normally, e.g. init.hoc. If not specified, the project's default will be used.")
+    parser.add_option('-n', '--num_processes', metavar='N', type="int",
+                      help="run a distributed simulation on N processes using MPI. If this option is not used, or if N=0, a normal, serial simulation is run.")
     
     (options, args) = parser.parse_args(argv)
     if len(args) < 1:
@@ -170,12 +172,17 @@ def run(argv):
         simulator = get_executable(script_file=options.main)
     else:
         simulator = 'default'
+    if options.num_processes:
+        launch_mode = DistributedLaunchMode(n=options.num_processes)
+    else:
+        launch_mode = SerialLaunchMode()
     
     label = options.label or os.path.splitext(os.path.basename(parameter_file))[0]
     project.launch_simulation(parameters, label=label, reason=options.reason,
                               executable=simulator,
                               main_file=options.main or 'default',
-                              version=options.version or 'latest')
+                              version=options.version or 'latest',
+                              launch_mode=launch_mode)
     
 def list(argv):
     """List simulation records belonging to the current simulation project."""

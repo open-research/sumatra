@@ -21,6 +21,7 @@
             <th rowspan="2">Reason</th>
             <th rowspan="2">Outcome</th>
             <th rowspan="2">Duration</th>
+            <th rowspan="2">Processes</th>
             <th colspan="2">Simulator</th>
             <th colspan="3">Script</th>
             <th rowspan="2">Date</th>
@@ -41,6 +42,7 @@
             <td>{{record.reason}}</td>
             <td>{{record.outcome}}</td>
             <td>{{record.duration|floatformat:2}}&nbsp;s</td>
+            <td>{{record.launch_mode.get_parameters.n}}</td>
             <td>{{record.executable.name}}</td>
             <td>{{record.executable.version}}</td>
             <td>{{record.repository.url}}</td>

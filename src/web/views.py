@@ -73,10 +73,17 @@ def delete_records(request):
     return HttpResponseRedirect('/')  
     
 
-MAX_DISPLAY_LENGTH = 10*1024
+DEFAULT_MAX_DISPLAY_LENGTH = 10*1024
 
 def show_file(request, id):
     path = request.GET['path']
+    if 'truncate' in request.GET:
+        if request.GET['truncate'].lower() == 'false':
+            max_display_length = None
+        else:
+            max_display_length = int(request.GET['truncate'])*1024
+    else:
+        max_display_length = DEFAULT_MAX_DISPLAY_LENGTH
     
     record = models.SimulationRecord.objects.get(id=id)
     data_store = get_data_store(record.datastore.type, eval(record.datastore.parameters))
@@ -85,9 +92,9 @@ def show_file(request, id):
     try:
         mimetype, encoding = mimetypes.guess_type(path)
         if mimetype == None or mimetype.split("/")[0] == "text":
-            content = data_store.get_content(record.data_key, path, max_length=MAX_DISPLAY_LENGTH)
+            content = data_store.get_content(record.data_key, path, max_length=max_display_length)
             truncated = False
-            if len(content) >= MAX_DISPLAY_LENGTH:
+            if max_display_length is not None and len(content) >= max_display_length:
                 truncated = True
             return render_to_response("show_file.html",
                                       {'path': path, 'id': id,

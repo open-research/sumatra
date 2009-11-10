@@ -121,10 +121,12 @@ def find_version(module, extra_heuristics=[]):
 
 def find_imported_packages(filename):
     """Find all imported top-level packages for a given Python file."""
+    # if using a different Python as the simulator from the one used to run Sumatra,
+    # there is a strong risk that different packages will be found. This is a major bug.
     finder = ModuleFinder(path=sys.path[1:], debug=2)
     # note that we remove the first element of sys.path to stop modules in the
     # sumatra source directory with the same name as standard library modules,
-    # e.g. commands, being loaded when the standard library module was wanted.
+    # e.g. "commands", being loaded when the standard library module was wanted.
     finder_output = open("module_finder_output.txt", "w")
     sys.stdout = finder_output
     finder.run_script(os.path.abspath(filename))

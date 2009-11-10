@@ -55,7 +55,7 @@ class SerialLaunchMode(LaunchMode):
         return "serial"
     
     def run(self, executable, main_file, parameter_file):
-        cmd = "%s %s %s" % (executable.default_executable_name, main_file, parameter_file)
+        cmd = "%s %s %s" % (executable.path, main_file, parameter_file)
         print "Sumatra is running the following command:", cmd
         #p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True)
         p = subprocess.Popen(cmd, shell=True, stdout=None, stderr=None, close_fds=True)
@@ -82,25 +82,34 @@ class SerialLaunchMode(LaunchMode):
 
 class DistributedLaunchMode(LaunchMode):
     
-    def __init__(self, mpirun, hosts, n):
+    def __init__(self, n, mpirun="mpiexec", hosts=[]):
         LaunchMode.__init__(self)
-        self.mpirun = os.path.abspath(mpirun)
+        self.mpirun = "/usr/local/bin/mpiexec" # temporary hack. If mpirun is not a full path, need to find its path
         self.hosts = hosts
         self.n = n
         self.mpi_info = {}
     
     def run(self, executable, main_file, parameter_file):
-        cmd = "%s -np %d -host %s %s %s %s" % (self.mpirun,
-                                               self.n,
-                                               ",".join(hosts),
-                                               executable.default_executable_name,
-                                               main_file,
-                                               parameter_file)
+        #cmd = "%s -np %d -host %s %s %s %s" % (self.mpirun,
+        #                                       self.n,
+        #                                       ",".join(hosts),
+        #                                       executable.path,
+        #                                       main_file,
+        #                                       parameter_file)
+        cmd = "%s -n %d %s %s %s" % ( # MPICH2-specific - need to generalize
+            self.mpirun,
+            self.n,
+            executable.path,
+            main_file,
+            parameter_file)
         print "Sumatra is running the following command:", cmd
         p = subprocess.Popen(cmd, shell=True, stdout=None, stderr=None, close_fds=True)
         result = p.wait() 
         return result
     
-    
-    
+    def get_platform_information(self):
+        return []
+
+    def get_state(self):
+        return {'mpirun': self.mpirun, 'n': self.n, 'hosts': self.hosts}
     

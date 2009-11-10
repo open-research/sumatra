@@ -112,11 +112,15 @@ class LaunchMode(BaseModel):
     parameters = models.CharField(max_length=100)
     
     def to_sumatra(self):
+        parameters = eval(self.parameters)
         if hasattr(launch, self.type):
-            lm = getattr(launch, self.type)()
+            lm = getattr(launch, self.type)(**parameters)
         else:
             raise Exception("Unknown launch mode '%s' stored in database" % self.type)
         return lm
+
+    def get_parameters(self):
+        return eval(self.parameters)
     
 
 class Datastore(BaseModel):
