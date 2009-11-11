@@ -23,6 +23,7 @@ import tarfile
 import datetime
 import shutil
 import logging
+import mimetypes
 
 class DataStore(object):
     
@@ -92,7 +93,7 @@ class FileSystemDataStore(DataStore):
                 os.remove(file)
                 
     def list_files(self, key):
-        return eval(key)
+        return [DataFile(path, self) for path in key]
     
     def get_content(self, key, path, max_length=None):
         full_path = os.path.join(self.root, path)
@@ -105,6 +106,37 @@ class FileSystemDataStore(DataStore):
         f.close()
         return content
     
+    
+class DataFile(object):
+    
+    def __init__(self, path, store):
+        self.path = path
+        self.full_path = os.path.join(store.root, path)
+        self.name = os.path.basename(self.full_path)
+        self.extension = os.path.splitext(self.full_path)
+        self.mimetype, self.encoding = mimetypes.guess_type(self.full_path)
+        stats = os.stat(self.full_path)
+        self.size = stats.st_size
+        
+    def __str__(self):
+        return self.path
+    
+    @property
+    def content(self):
+        f = open(self.full_path, 'r')
+        content = f.read()
+        f.close()
+        return content
+        
+    def __eq__(self, other):
+        if self.size != other.size:
+            return False
+        else:
+            return self.content == other.content
+        
+    def __ne__(self, other):
+        return not self.__eq__(other)
+        
     
 def get_data_store(type, parameters):
     cls = eval(type)

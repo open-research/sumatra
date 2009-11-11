@@ -69,6 +69,12 @@ class Executable(VersionedProgram): # call this Simulator? what about PyNEST?
             version = None
         return version
 
+    def __eq__(self, other):
+        return self.path == other.path and self.name == other.name and self.version == other.version
+    
+    def __ne__(self, other):
+        return not self.__eq__(other)
+    
 
 class NEURONSimulator(Executable):
     

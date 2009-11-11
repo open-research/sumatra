@@ -72,7 +72,8 @@ class MercurialWorkingCopy(WorkingCopy):
     
     def diff(self):
         """Difference between working copy and repository."""
-        diff = patch.diff(self.repository._repository)
+        opts = patch.mdiff.diffopts(nodates=True)
+        diff = patch.diff(self.repository._repository, opts=opts)
         return "".join(diff)
 
 class MercurialRepository(Repository):
@@ -106,4 +107,3 @@ class MercurialRepository(Repository):
         """For unpickling"""
         self.__init__(state['url'])
         self.working_copy = state['wc']
-        

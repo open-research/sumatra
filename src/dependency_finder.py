@@ -184,6 +184,12 @@ class Dependency(object):
             m = None
         return m
         
+    def __eq__(self, other):
+        return self.name == other.name and self.path == other.path and \
+               self.version == other.version and self.diff == other.diff
+        
+    def __ne__(self, other):
+        return not self.__eq__(other)
         
 def find_dependencies_python(filename, on_changed):
     """Return a list of Dependency objects representing all the top-level

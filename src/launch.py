@@ -45,6 +45,12 @@ class LaunchMode(object):
         #should get the tasks to run from the Executable 
         pass
 
+    def __eq__(self, other):
+        return self.__class__ == other.__class__ and self.get_state() == other.get_state()
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+    
 
 class SerialLaunchMode(LaunchMode):
     

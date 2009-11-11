@@ -55,7 +55,7 @@ def simulation_detail(request, id):
     else:
         form = SimulationUpdateForm(instance=record)
     data_store = get_data_store(record.datastore.type, eval(record.datastore.parameters))
-    datafiles = data_store.list_files(record.data_key)
+    datafiles = data_store.list_files(eval(record.data_key))
     assert isinstance(datafiles, list), type(datafiles)
     parameter_set = record.parameters.to_sumatra()    
     return render_to_response('simulation_detail.html', {'record': record,

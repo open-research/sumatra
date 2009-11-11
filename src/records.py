@@ -13,6 +13,8 @@ SimRecord - gathers and stores information about an individual simulation run.
 from datetime import datetime
 import time
 import os
+import re
+from operator import or_
 from formatting import get_formatter
 import dependency_finder
 
@@ -74,4 +76,92 @@ class SimRecord(object): # maybe just call this Simulation
     def describe(self, format='text', mode='long'):
         formatter = get_formatter(format)([self])
         return formatter.format(mode)
+    
+    def difference(self, other_record, ignore_mimetypes=[], ignore_filenames=[]):
+        """
+        Determine the difference between this simulation and another (code,
+        platform, results, etc.).
+        
+        Return a RecordDifference object.
+        """
+        return RecordDifference(self, other_record, ignore_mimetypes, ignore_filenames)
+    
+
+class RecordDifference(object):
+    """Represents the difference between two SimulationRecord objects."""
+    
+    ignore_mimetypes = [r'image/\w+', r'video/\w+']
+    ignore_filenames = [r'\.log', r'^log']
+    
+    def __init__(self, recordA, recordB,
+                 ignore_mimetypes=[],
+                 ignore_filenames=[]):
+        self.recordA = recordA
+        self.recordB = recordB
+        assert not isinstance(ignore_mimetypes, basestring) # catch a 
+        assert not isinstance(ignore_filenames, basestring) # common error
+        self.ignore_mimetypes += ignore_mimetypes
+        self.ignore_filenames += ignore_filenames 
+        self.executable_differs = recordA.executable != recordB.executable
+        self.repository_differs = recordA.repository != recordB.repository
+        self.main_file_differs = recordA.main_file != recordB.main_file
+        self.version_differs = recordA.version != recordB.version
+        self.parameters_differ = recordA.parameters != recordB.parameters
+        self.launch_mode_differs = recordA.launch_mode != recordB.launch_mode
+        #self.platforms
+        #self.datastore = datastore
+        #self.data_key = None
+        self.diff_differs = recordA.diff != recordB.diff
+    
+    def __nonzero__(self):
+        """
+        Return True if there are differences in executable, code, parameters or
+        output data between the records, otherwise return False.
+        
+        Differences in launch mode or platform are not counted, since those
+        don't in principle make it a different simulation (they may do in
+        practice, but then the output data will to be different).
+        """
+        return reduce(or_, (self.executable_differs, self.code_differs,
+                            self.parameters_differ, self.data_differs))
+    
+    @property
+    def code_differs(self):
+        return reduce(or_, (self.repository_differs, self.main_file_differs,
+                            self.version_differs, self.diff_differs,
+                            self.dependencies_differ))
+    
+    @property
+    def dependencies_differ(self):
+        for depA,depB in zip(self.recordA.dependencies, self.recordB.dependencies):
+            if depA != depB:
+                return True
+        return False
+    
+    @property
+    def data_differs(self):
+        files = {self.recordA.label: {}, self.recordB.label: {}}
+        for rec in self.recordA, self.recordB:
+            for file in rec.datastore.list_files(rec.data_key):
+                ignore = False
+                if file.mimetype:
+                    for pattern in self.ignore_mimetypes:
+                        if re.match(pattern, file.mimetype):
+                            ignore = True
+                            break
+                for pattern in self.ignore_filenames:
+                    if re.search(pattern, file.name):
+                        ignore = True
+                        break
+                if not ignore:
+                    files[rec.label][file.name] = file
+        filenamesA = set(files[self.recordA.label].keys())
+        filenamesB = set(files[self.recordB.label].keys())
+        if filenamesA.difference(filenamesB):
+            return True
+        differs = {}
+        for filename in filenamesA:
+            differs[filename] = files[self.recordA.label][filename] != files[self.recordB.label][filename]
+        return reduce(or_, differs.values())
+        
     
