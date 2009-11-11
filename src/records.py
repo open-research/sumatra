@@ -101,7 +101,7 @@ class RecordDifference(object):
         assert not isinstance(ignore_mimetypes, basestring) # catch a 
         assert not isinstance(ignore_filenames, basestring) # common error
         self.ignore_mimetypes += ignore_mimetypes
-        self.ignore_filenames += ignore_filenames 
+        self.ignore_filenames += ignore_filenames
         self.executable_differs = recordA.executable != recordB.executable
         self.repository_differs = recordA.repository != recordB.repository
         self.main_file_differs = recordA.main_file != recordB.main_file
@@ -133,13 +133,34 @@ class RecordDifference(object):
     
     @property
     def dependencies_differ(self):
+        if len(self.recordA.dependencies) != len(self.recordB.dependencies):
+            return True
         for depA,depB in zip(self.recordA.dependencies, self.recordB.dependencies):
             if depA != depB:
                 return True
         return False
     
     @property
-    def data_differs(self):
+    def dependency_differences(self):
+        depsA = {}
+        for dep in self.recordA.dependencies:
+            depsA[dep.name] = dep
+        depsB = {}
+        for dep in self.recordB.dependencies:
+            depsB[dep.name] = dep
+        diffs = {}
+        for name in depsA:
+            if name in depsB:
+                if depsA[name] != depsB[name]:
+                    diffs[name] = (depsA[name], depsB[name])
+            else:
+                diffs[name] = (depsA[name], None)
+        for name in depsB:
+            if name not in depsA:
+                diffs[name] = (None, depsB[name])
+        return diffs
+    
+    def _list_datafiles(self):
         files = {self.recordA.label: {}, self.recordB.label: {}}
         for rec in self.recordA, self.recordB:
             for file in rec.datastore.list_files(rec.data_key):
@@ -155,6 +176,11 @@ class RecordDifference(object):
                         break
                 if not ignore:
                     files[rec.label][file.name] = file
+        return files
+                    
+    @property
+    def data_differs(self):
+        files = self._list_datafiles()
         filenamesA = set(files[self.recordA.label].keys())
         filenamesB = set(files[self.recordB.label].keys())
         if filenamesA.difference(filenamesB):
@@ -164,4 +190,27 @@ class RecordDifference(object):
             differs[filename] = files[self.recordA.label][filename] != files[self.recordB.label][filename]
         return reduce(or_, differs.values())
         
+    @property
+    def data_differences(self):
+        files = self._list_datafiles()
+        A = files[self.recordA.label]
+        B = files[self.recordB.label]
+        diffs = {}
+        for name in A:
+            if name in B:
+                if A[name] != B[name]:
+                    diffs[name] = (A[name], B[name])
+            else:
+                diffs[name] = (A[name], None)
+        for name in B:
+            if name not in B:
+                diffs[name] = (None, B[name])
+        return diffs
     
+    @property
+    def launch_mode_differences(self):
+        if self.launch_mode_differs:
+            return self.recordA.launch_mode, self.recordB.launch_mode
+        else:
+            return None
+        

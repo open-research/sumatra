@@ -173,7 +173,7 @@ class Dependency(object):
                 self.version = 'unknown'
         
     def __repr__(self):
-        return "%s (%s) version=%s%s" % (self.name, self.path, self.version, "*" and self.diff or '')
+        return "%s (%s) version=%s%s" % (self.name, self.path, self.version, self.diff and "*" or '')
     
     def _import(self):
         self.import_error = None

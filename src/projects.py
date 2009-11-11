@@ -23,7 +23,7 @@ import cPickle as pickle
 from copy import deepcopy
 from datastore import FileSystemDataStore
 from records import SimRecord
-from formatting import get_formatter
+from formatting import get_formatter, get_diff_formatter
 from recordstore import DefaultRecordStore
 from versioncontrol import UncommittedModificationsError
 
@@ -177,6 +177,13 @@ class SimProject:
         record = self.record_store.get(label)
         record.tags.remove(tag)
         self.record_store.save(record)
+    
+    def show_diff(self, label1, label2, mode='short', ignore_mimetypes=[], ignore_filenames=[]):
+        record1 = self.record_store.get(label1)
+        record2 = self.record_store.get(label2)
+        diff = record1.difference(record2, ignore_mimetypes, ignore_filenames)
+        formatter = get_diff_formatter()(diff)
+        return formatter.format(mode)
     
     
 def load_simulation_project():

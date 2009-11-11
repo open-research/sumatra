@@ -331,6 +331,27 @@ def repeat(argv):
                                        label=original.group,
                                        reason="Repeat simulation %s" % original_id)
     #project.compare(original.label, new_id)
+
+def diff(argv):
+    """Show the differences, if any, between two simulation records."""
+    usage = "%prog diff [options] LABEL1 LABEL2"
+    description = dedent("""Show the differences, if any, between two simulation records.""")
+    parser = OptionParser(usage=usage,
+                          description=description)
+    parser.add_option('-i', '--ignore', action="append",
+                      help="a regular expression pattern for filenames to ignore when evaluating differences in output data. To supply multiple patterns, use the -i option multiple times.")
+    parser.add_option('-l', '--long', action="store_const", const="long",
+                      dest="mode", default="short",
+                      help="prints full information for each record"),
+    (options, args) = parser.parse_args(argv)
+    if len(args) != 2:
+        parser.error('Please specify two simulation labels.')
+    label1, label2 = args
+    if options.ignore is None:
+        options.ignore = []
+    
+    project = load_simulation_project()
+    print project.show_diff(label1, label2, mode=options.mode, ignore_filenames=options.ignore)
     
 def help(argv):
     usage = "%prog help [CMD]"

@@ -95,6 +95,9 @@ class DistributedLaunchMode(LaunchMode):
         self.n = n
         self.mpi_info = {}
     
+    def __str__(self):
+        return "distributed (n=%d, mpiexec=%s, hosts=%s)" % (self.n, self.mpirun, self.hosts)
+    
     def run(self, executable, main_file, parameter_file):
         #cmd = "%s -np %d -host %s %s %s %s" % (self.mpirun,
         #                                       self.n,

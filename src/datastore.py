@@ -24,6 +24,7 @@ import datetime
 import shutil
 import logging
 import mimetypes
+from subprocess import Popen
 
 class DataStore(object):
     
@@ -127,12 +128,26 @@ class DataFile(object):
         content = f.read()
         f.close()
         return content
+    
+    @property
+    def sorted_content(self):
+        sorted_path = "%s,sorted" % self.full_path
+        if not os.path.exists(sorted_path):
+            cmd = "sort %s > %s" % (self.full_path, sorted_path)
+            job = Popen(cmd, shell=True)
+            job.wait()
+        f = open(sorted_path, 'r')
+        content = f.read()
+        f.close()
+        return content
         
     def __eq__(self, other):
         if self.size != other.size:
             return False
+        elif self.content == other.content:
+            return True
         else:
-            return self.content == other.content
+            return self.sorted_content == other.sorted_content
         
     def __ne__(self, other):
         return not self.__eq__(other)
