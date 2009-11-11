@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}{{project_name}}: {{id}}: {{path}}{% endblock %}
+
+{% block header %}
+<h1>{{project_name}}: <i>{{id}}</i></h1>
+{% endblock %}
+
+{% block content %}
+<p><a href="/{{id}}/">Return to simulation record</a></p>
+
+<h2>{{package}}: Difference between the code used and version {{parent_version}}</h2>
+
+<div class="plaintext">
+<pre>
+{{diff|escape}}
+</pre>
+</div>
+
+{% endblock %}
