@@ -70,28 +70,31 @@ class FileSystemDataStore(DataStore):
                     new_files.append(relative_path)
         return new_files
     
-    def archive(self, label, key, delete_originals=False):
+    def archive(self, timestamp, label, key, delete_originals=False):
         """Archives files based on an access key, and deletes the originals."""
         data_archive = tarfile.open(label + ".tar.gz",'w:gz')
         logging.info("Archiving data to file %s" % data_archive.name)
         length_dataroot = len(self.root) + 1 # +1 for the "/"
         # Add parameter file
-        data_archive.add(os.path.join(os.getcwd(),label + ".param"), os.path.join(label,label + ".param"))
+        parameter_file = os.path.join(os.getcwd(), label + ".param")
+        if os.path.exists(parameter_file):
+            data_archive.add(parameter_file, os.path.join(label, label + ".param"))
         # Find and add new data files
-        new_files = self.find_new_files()
+        new_files = self.find_new_files(timestamp)
         for file_path in new_files:
-            archive_path = os.path.join(label,root[length_dataroot:],file)
-            data_archive.add(file_path, archive_path)
+            archive_path = os.path.join(label, self.root[length_dataroot:], file_path)
+            data_archive.add(os.path.join(self.root, file_path), archive_path)
         data_archive.close()
         # Move the archive to dataroot
         shutil.copy(data_archive.name, self.root) # shutil.move() doesn't work as expected if dataroot is a symbolic link
         os.remove(data_archive.name)
         # Delete original files.
         if delete_originals:
-            os.remove(label + ".param")
+            if os.path.exists(parameter_file):
+                os.remove(parameter_file)
             logging.debug("Deleting %s" % new_files)
             for file in new_files:
-                os.remove(file)
+                os.remove(os.path.join(self.root, file))
                 
     def list_files(self, key):
         return [DataFile(path, self) for path in key]
