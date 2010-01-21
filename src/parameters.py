@@ -17,6 +17,7 @@ ConfigParserParameterSet - handles parameter files in traditional config file
 
 from __future__ import with_statement
 import os.path
+import shutil
 import NeuroTools.parameters
 
 class NTParameterSet(NeuroTools.parameters.ParameterSet):
@@ -28,6 +29,7 @@ class SimpleParameterSet(object):
     def __init__(self, initialiser):
         self.values = {}
         self.types = {}
+        self.comments = {}
         if os.path.exists(initialiser):
             with open(initialiser) as f:
                 content = f.readlines()
@@ -37,8 +39,11 @@ class SimpleParameterSet(object):
             if "=" in line:
                 name, value = line.split("=")[:2]
                 name = name.strip()
+                if "#" in value:
+                    value, comment = value.split("#")[:2]
+                    self.comments[name] = comment
                 self.values[name] = eval(value)
-                self.types[name] = type(self.values[name])
+                self.types[name] = type(self.values[name])   
     
     def __str__(self):
         return self.pretty()
@@ -54,18 +59,34 @@ class SimpleParameterSet(object):
                 output.append('%s = "%s"' % (name, value))
             else:
                 output.append('%s = %s' % (name, value))
+            if name in self.comments:
+                output[-1] += ' #%s' % self.comments[name]
         return "\n".join(output)
     
     def as_dict(self):
         return self.values.copy()
     
     def save(self, filename):
+        if os.path.exists(filename):
+            shutil.copy(filename, filename + ".orig")
         with open(filename, 'w') as f:
             f.write(self.pretty())
 
-    def update(self, name, value):
-        self.values[name] = value
-        self.types[name] = type(value)
+    def update(self, E, **F):
+        def _update(name, value):
+            if not isinstance(value, (int, float, basestring)):
+                raise TypeError("value must be a numeric value or a string")
+            self.values[name] = value
+            self.types[name] = type(value)
+        if hasattr(E, "items"):
+            for name,value in E.items():
+                _update(name, value)
+        else:
+            for name, value in E:
+                _update(name, value)
+        for name,value in F.items():
+            _update(name, value)
+            
         
 
 def build_parameters(filename, cmdline_parameters=[]):
@@ -81,5 +102,5 @@ def build_parameters(filename, cmdline_parameters=[]):
                 break
             except ValueError:
                 pass
-        parameters.update(name, value)
+        parameters.update({name: value})
     return parameters
