@@ -71,7 +71,8 @@ class SimRecord(object): # maybe just call this Simulation
         # Search for newly-created datafiles
         self.data_key = self.datastore.find_new_files(self.timestamp)
         print "Data key is", self.data_key
-        os.remove(parameter_file)
+        if os.path.exists(parameter_file):
+            os.remove(parameter_file)
     
     def describe(self, format='text', mode='long'):
         formatter = get_formatter(format)([self])

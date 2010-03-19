@@ -46,7 +46,7 @@ class SimProject:
         self.default_main_file = default_main_file
         self.default_launch_mode = default_launch_mode
         if data_store == 'default':
-            data_store = FileSystemDataStore()
+            data_store = FileSystemDataStore(None)
         self.data_store = data_store # a data store object
         if record_store == 'default':
             record_store = DefaultRecordStore(".smt/simulation_records")
