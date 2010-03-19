@@ -23,17 +23,17 @@ recordstore_settings = {
 class DjangoRecordStore(RecordStore):
     
     def __init__(self, db_file='.smt/smt.db'):
-        self._db_file = db_file
-        recordstore_settings['DATABASE_NAME'] = db_file
+        self._db_file = os.path.abspath(db_file)
+        recordstore_settings['DATABASE_NAME'] = self._db_file
         if not settings.configured:
             settings.configure(**recordstore_settings)
             management.setup_environ(settings)
-            if not os.path.exists(os.path.dirname(db_file)):
-                os.makedirs(os.path.dirname(db_file))
-            if not os.path.exists(db_file):
+            if not os.path.exists(os.path.dirname(self._db_file)):
+                os.makedirs(os.path.dirname(self._db_file))
+            if not os.path.exists(self._db_file):
                 management.call_command('syncdb')
         else:
-            assert settings.DATABASE_NAME == db_file
+            assert settings.DATABASE_NAME == self._db_file
                 
     def __str__(self):
         return "Relational database record store using the Django ORM (database file=%s)" % self._db_file
@@ -93,20 +93,23 @@ class DjangoRecordStore(RecordStore):
         for pi in record.platforms:
             db_record.platforms.add(self._get_db_obj('PlatformInformation', pi))
         db_record.diff = record.diff
-        import django.db.models.manager
-        def debug(f):
-            def _debug(model, values, **kwargs):
-                print "model = ", model
-                print "values = ", values
-                print "kwargs = ", kwargs
-                return f(model, values, **kwargs)
-            return _debug
+        #import django.db.models.manager
+        #def debug(f):
+        #    def _debug(model, values, **kwargs):
+        #        print "model = ", model
+        #        print "values = ", values
+        #        print "kwargs = ", kwargs
+        #        return f(model, values, **kwargs)
+        #    return _debug
         #django.db.models.manager.insert_query = debug(django.db.models.manager.insert_query)
         db_record.save()
         
     def get(self, label):
         import models
-        db_record = models.SimulationRecord.objects.get(id=label)
+        try:
+            db_record = models.SimulationRecord.objects.get(id=label)
+        except models.SimulationRecord.DoesNotExist:
+            raise KeyError(label)
         return db_record.to_sumatra()
     
     def list(self, groups):
@@ -135,26 +138,5 @@ class DjangoRecordStore(RecordStore):
         import models
         raise NotImplementedError
     
-    
-def test():
-    djrs = DjangoRecordStore()
-    import sumatra.records, sumatra.programs, sumatra.datastore, sumatra.launch
-    from sumatra.versioncontrol.base import Repository
-    ex = sumatra.programs.PythonExecutable('/usr/bin/python', '2.5')
-    class MockScript(object): pass
-    sc = MockScript()
-    sc.repository = Repository("http://svn.example.com")
-    sc.main_file = 'main_file.py'
-    sc.version = '7a6b6cd5'
-    lm = sumatra.launch.SerialLaunchMode()
-    ds = sumatra.datastore.FileSystemDataStore('/dev/null')
-    record = sumatra.records.SimRecord(ex, sc, {}, lm, ds, "aLabel", "aReason")
-    record.outcome = "anOutcome"
-    record.duration = 123.45
-    djrs.save(record)
-    print "\nSaved record:"
-    print record.describe()
-    record2 = djrs.get(record.label)
-    print "\nRetrieved record:"
-    print record2.describe()
+
     
