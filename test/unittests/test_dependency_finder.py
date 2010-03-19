@@ -1,5 +1,5 @@
 """
-Unit tests for the sumatra.formatting module
+Unit tests for the sumatra.dependency_finder module
 """
 
 import unittest

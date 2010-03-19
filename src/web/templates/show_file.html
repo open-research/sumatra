@@ -18,7 +18,7 @@
 </div>
 
 {% if truncated %}
-<p>File contents truncated.</p>
+<p>File contents truncated. <a href="datafile?path={{path}}&truncate=false">Show entire contents</a></p>
 {% endif %}
 
 {{errmsg}}

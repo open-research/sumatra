@@ -142,6 +142,7 @@ class TextDiffFormatter(Formatter):
 formatters = {
     'text': TextFormatter,
     'html': HTMLFormatter,
+    'textdiff': TextDiffFormatter,
 }
         
 def get_formatter(format):
