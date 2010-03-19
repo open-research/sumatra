@@ -38,7 +38,7 @@ class Executable(VersionedProgram): # call this Simulator? what about PyNEST?
         VersionedProgram.__init__(self)
         self.path = path or self._find_executable()    
         if not hasattr(self, 'name'):
-            self.name = os.path.basename(path)
+            self.name = os.path.basename(self.path)
         self.version = version or self._get_version()
 
     def __str__(self):
@@ -97,6 +97,8 @@ class NESTSimulator(Executable):
     name = "NEST"
     default_executable_name = 'nest'
     
+    
+
     
 registered_program_names = {}
 registered_executables = {}
