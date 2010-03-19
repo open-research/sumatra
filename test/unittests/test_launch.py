@@ -80,7 +80,7 @@ class TestSerialLaunchMode(unittest.TestCase, BaseTestLaunchMode):
     def setUp(self):
         self.lm = SerialLaunchMode()
     
-    def test__get_platform_information_should_return_a_list_of_PlatformInformation_objects(self):
+    def test__get_platform_information__should_return_a_list_of_PlatformInformation_objects(self):
         pis = self.lm.get_platform_information()
         pi0 = pis[0]
         import platform

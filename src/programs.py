@@ -25,7 +25,7 @@ import os.path
 import re
 import subprocess
 
-version_pattern = re.compile(r'(?P<version>\d\S*)\s')
+version_pattern = re.compile(r'\b(?P<version>\d[\.\d]*([a-z]*\d)*)\b')
 
 class VersionedProgram(object):
     pass
