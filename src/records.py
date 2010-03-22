@@ -97,6 +97,7 @@ class RecordDifference(object):
     def __init__(self, recordA, recordB,
                  ignore_mimetypes=[],
                  ignore_filenames=[]):
+        assert recordA.label != recordB.label
         self.recordA = recordA
         self.recordB = recordB
         assert not isinstance(ignore_mimetypes, basestring) # catch a 
@@ -184,6 +185,8 @@ class RecordDifference(object):
         files = self._list_datafiles()
         filenamesA = set(files[self.recordA.label].keys())
         filenamesB = set(files[self.recordB.label].keys())
+        if len(filenamesA) == len(filenamesB) == 0:
+            return False
         if filenamesA.difference(filenamesB):
             return True
         differs = {}
