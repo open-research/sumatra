@@ -59,13 +59,18 @@ def find_version_by_attribute(module):
         if hasattr(module, attr_name):
             attr = getattr(module, attr_name)
             if callable(attr):
-                version = attr()
+                try:
+                    version = attr()
+                except TypeError:
+                    continue
             elif isinstance(attr, ModuleType):
                 version = find_version_by_attribute(attr)
             else:
                 version = attr
             break
     if version is None: version = 'unknown'
+    if isinstance(version, tuple):
+        version = ".".join(str(c) for c in version)
     return version
 
 def find_version_from_egg(module):
@@ -73,21 +78,26 @@ def find_version_from_egg(module):
        obtain version information from this."""
     version = 'unknown'
     dir = os.path.dirname(module.__file__)
-    if 'EGG-INFO' in os.listdir(dir):
-        with open(os.path.join(dir, 'EGG-INFO', 'PKG-INFO')) as f:
-            for line in f.readlines():
-                if line[:7] == 'Version':
-                    version = line.split(' ')[1].strip()
-                    attr_name = 'egg-info'
-                    break
+    if os.path.isdir(dir):
+        if 'EGG-INFO' in os.listdir(dir):
+            with open(os.path.join(dir, 'EGG-INFO', 'PKG-INFO')) as f:
+                for line in f.readlines():
+                    if line[:7] == 'Version':
+                        version = line.split(' ')[1].strip()
+                        attr_name = 'egg-info'
+                        break        
     return version
 
 def find_version_from_versioncontrol(module):
     """Determine whether a Python module is under version control, and if so,
        obtain version information from this."""
-    #print "Looking for working copy at %s" % module.__path__[0]
+    if hasattr(module, "__path__"):
+        real_path = os.path.realpath(module.__path__[0]) # resolve any symbolic links
+    else:
+        real_path = os.path.realpath(os.path.dirname(module.__file__))
+    print "Looking for working copy at %s" % real_path
     try:
-        wc = versioncontrol.get_working_copy(module.__path__[0])
+        wc = versioncontrol.get_working_copy(real_path)
     except versioncontrol.VersionControlError:
         version = 'unknown'
     else:
@@ -150,7 +160,10 @@ class Dependency(object):
         if path:
             self.path = path
         else:
-            file_obj, self.path, description = imp.find_module(self.name)
+            try:
+                file_obj, self.path, description = imp.find_module(self.name)
+            except ImportError:
+                self.path = ""
         self.in_stdlib = os.path.dirname(self.path) == stdlib_path
         self.diff = ''
         if version:
