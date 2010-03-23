@@ -69,7 +69,53 @@ class TestFileSystemDataStore(unittest.TestCase):
     def test__get_content__should_truncate_long_files(self):
         content = self.ds.get_content('key_not_used', 'test_file1', max_length=10)
         self.assertEqual(content, self.test_data[:10])
-     
+    
+    
+class MockDataStore(object):
+        root = os.getcwd()
+        
+class TestDataFile(unittest.TestCase):   
+    
+    def setUp(self):
+        self.test_file = 'test_file1'
+        self.test_data = 'licgsnireugcsenrigucsic\ncrgqgjch,kgch'
+        with open(self.test_file, 'w') as f:
+            f.write(self.test_data)
+        self.data_file = DataFile(self.test_file, MockDataStore())
+    
+    def tearDown(self):
+        os.remove(self.test_file)
+    
+    def test_init(self):
+        pass
+    
+    def test_str__should_return_path(self):
+        self.assertEqual(str(self.data_file), self.data_file.path)
+    
+    def test_content(self):
+        self.assertEqual(self.data_file.content, self.test_data)
+        
+    def test_sorted_content(self):
+        self.assertEqual(self.data_file.sorted_content,
+                         'crgqgjch,kgch\nlicgsnireugcsenrigucsic')
+        os.remove("%s,sorted" % self.test_file)
+
+    def test_eq(self):
+        same_data_file = DataFile(self.test_file, MockDataStore())
+        self.assertEqual(self.data_file, same_data_file)
+        with open("test_file2", 'w') as f:
+            f.write(self.data_file.sorted_content)
+        sorted_data_file = DataFile("test_file2", MockDataStore())
+        self.assertEqual(self.data_file, sorted_data_file)
+        os.remove("test_file2")
+        os.remove("test_file2,sorted")
+        
+    def test_ne(self):
+        with open("test_file3", "w") as f:
+            f.write("ucyfgnauygfcangf\niauff\ngiurg\n")
+        other_data_file = DataFile("test_file3", MockDataStore())
+        self.assertNotEqual(self.data_file, other_data_file)
+        os.remove("test_file3")
         
 class TestModuleFunctions(unittest.TestCase):
     

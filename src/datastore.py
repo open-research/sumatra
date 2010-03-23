@@ -142,6 +142,9 @@ class DataFile(object):
         f = open(sorted_path, 'r')
         content = f.read()
         f.close()
+        if len(content) != self.size: # sort adds a \n if the file does not end with one
+            assert len(content) == self.size + 1
+            content = content[:-1]
         return content
         
     def __eq__(self, other):
