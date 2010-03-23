@@ -1,3 +1,3 @@
-seed = 65784        # seed for random number generator
+seed = 65785        # seed for random number generator
 distr = "uniform"   # statistical distribution to draw values from 
 n = 100             # number of values to draw

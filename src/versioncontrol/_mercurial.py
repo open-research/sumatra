@@ -37,6 +37,7 @@ def get_repository(url):
 class MercurialWorkingCopy(WorkingCopy):
 
     def __init__(self, path=None):
+        WorkingCopy.__init__(self)
         self.path = path or os.getcwd()
         self.repository = MercurialRepository(self.path)
         self.repository.working_copy = self
@@ -76,6 +77,7 @@ class MercurialWorkingCopy(WorkingCopy):
         diff = patch.diff(self.repository._repository, opts=opts)
         return "".join(diff)
 
+
 class MercurialRepository(Repository):
     
     def __init__(self, url):
@@ -97,7 +99,7 @@ class MercurialRepository(Repository):
             local_repos = hg.repository(self._ui, path, create=True)
             local_repos.pull(self._repository)
             hg.update(local_repos, None)
-        self.working_copy = MercurialWorkingCopy()
+        self.working_copy = MercurialWorkingCopy(path)
     
     def __getstate__(self):
         """For pickling"""

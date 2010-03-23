@@ -36,6 +36,7 @@ def get_repository(url):
 class SubversionWorkingCopy(WorkingCopy):
     
     def __init__(self, path=None):
+        WorkingCopy.__init__(self)
         self.path = os.path.realpath(path or os.getcwd())
         client = pysvn.Client()
         url = client.info(self.path).url
@@ -47,7 +48,7 @@ class SubversionWorkingCopy(WorkingCopy):
 
     def use_version(self, version):
         self.repository._client.update(
-            '.',
+            self.path,
             revision=pysvn.Revision(pysvn.opt_revision_kind.number, int(version)))
 
     def use_latest_version(self):
@@ -83,13 +84,14 @@ class SubversionRepository(Repository):
     def __init__(self, url):
         Repository.__init__(self, url)
         self._client = pysvn.Client()
-        # need to add a check that there is a valid Subversion repository at the URL,
-        # short of doing a checkout. e.g. svn info URL
+        # check that there is a valid Subversion repository at the URL,
+        # without doing a checkout.
+        self._client.ls(url)
         self.working_copy = None
     
     def checkout(self, path='.'):
         try:
-            self._client.checkout(self.url, ".")
+            self._client.checkout(self.url, path)
         except pysvn._pysvn.ClientError: # assume this is an 'object of the same name already exists' error
             repos_contents = self._client.ls(self.url)
             os.mkdir(".smt_backup")
@@ -97,8 +99,8 @@ class SubversionRepository(Repository):
                 filename = entry["name"][len(self.url)+1:]
                 if os.path.exists(filename):
                     os.rename(filename,os.path.join(".smt_backup", filename))
-            self._client.checkout(self.url, ".")
-        self.working_copy = SubversionWorkingCopy()
+            self._client.checkout(self.url, path)
+        self.working_copy = SubversionWorkingCopy(path)
 
     def __getstate__(self):
         """For pickling"""
