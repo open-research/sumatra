@@ -4,21 +4,29 @@ Unit tests for the sumatra.recordstore package
 
 import unittest
 import os
+import sys
 from datetime import datetime
 from django.core import management
 from sumatra.records import SimRecord
+from sumatra.programs import register_executable, Executable
 from sumatra.recordstore.shelve_store import ShelveRecordStore
 from sumatra.recordstore.django_store import DjangoRecordStore
+from sumatra.versioncontrol import vcs_list
 
-
-class MockExecutable(object):
+class MockExecutable(Executable):
     name = "a.out"
     path = "/usr/local/bin/a.out"
     version = 999
+    def __init__(self, *args, **kwargs):
+        pass
+register_executable(MockExecutable, "a.out", "/usr/local/bin/a.out", [])
 
 class MockRepository(object):
     url = "http://svn.example.com/"
-    type = "SubversionRepository"
+    type = "MockRepository"
+    def __init__(self, *args, **kwargs):
+        pass
+vcs_list.append(sys.modules[__name__])
 
 class MockLaunchMode(object):
     type = "SerialLaunchMode"

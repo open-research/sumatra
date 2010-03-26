@@ -130,7 +130,8 @@ class TestModuleFunctions(unittest.TestCase):
         # unless they are in quotes
         # also applies to tuples
         # what about dicts or sets?
-        self.fail()
+        P = build_parameters("test_file", ["M=[1,2,3,4,5]", "N=['1', '2', 3, 4, '5']"])
+        self.assertEqual(P.values, {"x": 2, "y": 3, "M": [1,2,3,4,5], "N": ['1', '2', 3, 4, '5']})
     
 
 

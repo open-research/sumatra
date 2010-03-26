@@ -33,7 +33,7 @@ class DjangoRecordStore(RecordStore):
             if not os.path.exists(self._db_file):
                 management.call_command('syncdb')
         else:
-            assert settings.DATABASE_NAME == self._db_file
+            assert settings.DATABASE_NAME == self._db_file, "%s != %s" % (settings.DATABASE_NAME, self._db_file)
                 
     def __str__(self):
         return "Relational database record store using the Django ORM (database file=%s)" % self._db_file
@@ -43,6 +43,13 @@ class DjangoRecordStore(RecordStore):
     
     def __setstate__(self, state):
         self.__init__(state)
+    
+    def _switch_db(self, db_file):
+        # for testing
+        settings._wrapped = None
+        assert settings.configured == False
+        if db_file:
+            self.__init__(db_file)
     
     def _get_db_group(self, group):
         import models

@@ -95,7 +95,7 @@ def find_version_from_versioncontrol(module):
         real_path = os.path.realpath(module.__path__[0]) # resolve any symbolic links
     else:
         real_path = os.path.realpath(os.path.dirname(module.__file__))
-    print "Looking for working copy at %s" % real_path
+    #print "Looking for working copy at %s" % real_path
     try:
         wc = versioncontrol.get_working_copy(real_path)
     except versioncontrol.VersionControlError:

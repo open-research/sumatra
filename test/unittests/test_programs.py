@@ -34,6 +34,10 @@ class TestExecutable(unittest.TestCase):
         prog = Executable("/bin/ls")
         self.assertEqual(prog.path, "/bin/ls")
         
+    def test__init__with_only_prog_name__should_try_to_find_full_path(self):
+        prog = Executable("ls")
+        self.assertEqual(prog.path, "/bin/ls")
+        
     def test__init__should_find_version_if_possible(self):
         prog = Executable("/bin/ls")
         self.assertEqual(prog.version, None)

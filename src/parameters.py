@@ -18,6 +18,7 @@ ConfigParserParameterSet - handles parameter files in traditional config file
 from __future__ import with_statement
 import os.path
 import shutil
+import re
 import NeuroTools.parameters
 
 class NTParameterSet(NeuroTools.parameters.ParameterSet):
@@ -74,7 +75,7 @@ class SimpleParameterSet(object):
 
     def update(self, E, **F):
         def _update(name, value):
-            if not isinstance(value, (int, float, basestring)):
+            if not isinstance(value, (int, float, basestring, list)):
                 raise TypeError("value must be a numeric value or a string")
             self.values[name] = value
             self.types[name] = type(value)
@@ -89,18 +90,26 @@ class SimpleParameterSet(object):
             
         
 
+list_pattern = re.compile(r'^\s*\[.*\]\s*$')
+tuple_pattern = re.compile(r'^\s*\(.*\)\s*$')
+
+
+
 def build_parameters(filename, cmdline_parameters=[]):
     try:
-        parameters = NTParameterSet(filename)
+        parameters = NTParameterSet("file://%s" % os.path.abspath(filename))
     except SyntaxError:
         parameters = SimpleParameterSet(filename)
     for p in cmdline_parameters:
         name, value = p.split("=")
-        for cast in int, float:
-            try:
-                value = cast(value)
-                break
-            except ValueError:
-                pass
+        if list_pattern.match(value) or tuple_pattern.match(value):
+            value = eval(value)
+        else:
+            for cast in int, float:
+                try:
+                    value = cast(value)
+                    break
+                except ValueError:
+                    pass
         parameters.update({name: value})
     return parameters

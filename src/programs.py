@@ -36,7 +36,12 @@ class Executable(VersionedProgram): # call this Simulator? what about PyNEST?
 
     def __init__(self, path, version=None):
         VersionedProgram.__init__(self)
-        self.path = path or self._find_executable()    
+        if not hasattr(self, 'name'):
+            self.name = os.path.basename(path)
+        if path and os.path.exists(path):
+            self.path = path
+        else:
+            self.path = self._find_executable(path or self.default_executable_name)    
         if not hasattr(self, 'name'):
             self.name = os.path.basename(self.path)
         self.version = version or self._get_version()
@@ -44,15 +49,15 @@ class Executable(VersionedProgram): # call this Simulator? what about PyNEST?
     def __str__(self):
         return "%s (version: %s) at %s" % (self.name, self.version, self.path)
 
-    def _find_executable(self):
+    def _find_executable(self, executable_name):
         found = []
         for path in os.getenv('PATH').split(':'):
-            if os.path.exists(os.path.join(path, self.default_executable_name)):
+            if os.path.exists(os.path.join(path, executable_name)):
                 found += [path] 
         if not found:
-            raise Exception('%s could not be found. Please supply the path to the %s executable.' % (self.name, self.default_executable_name))
+            raise Exception('%s could not be found. Please supply the path to the %s executable.' % (self.name, executable_name))
         else:
-            executable = os.path.join(found[0], self.default_executable_name) 
+            executable = os.path.join(found[0], executable_name) 
             if len(found) == 1:
                 print 'Using', executable
             else:
@@ -70,7 +75,7 @@ class Executable(VersionedProgram): # call this Simulator? what about PyNEST?
         return version
 
     def __eq__(self, other):
-        return self.path == other.path and self.name == other.name and self.version == other.version
+        return type(self) == type(other) and self.path == other.path and self.name == other.name and self.version == other.version
     
     def __ne__(self, other):
         return not self.__eq__(other)

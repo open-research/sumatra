@@ -52,7 +52,8 @@ def create_subversion_repos(repos_dir):
 
 def copy_example_project(working_dir):
     for file in os.listdir("example_project"):
-        shutil.copy("example_project/"+file, working_dir)
+        if os.path.isfile("example_project/"+file):
+            shutil.copy("example_project/"+file, working_dir)
 
 def get_last_simulation_id():
     project = load_simulation_project()
@@ -63,6 +64,11 @@ def initialize_sumatra_project(plugins=None):
         run("smt init TestProject --plugins=%s" % plugins)
     else:
         run("smt init TestProject")
+
+def reset_django_settings():
+    project = load_simulation_project()
+    if hasattr(project.record_store, "_switch_db"):
+        project.record_store._switch_db(None)
 
 def getting_started(plugins):
     initialize_sumatra_project(plugins)
@@ -97,10 +103,11 @@ def getting_started(plugins):
 if __name__ == "__main__":
     cwd = os.getcwd()
     
-    for repos in 'subversion', 'mercurial':
+    for repos in 'subversion', 'mercurial':  
         for plugins in ("sumatra.recordstore.shelve_store",  None):
-            working_dir = tempfile.mkdtemp()
-            repos_dir = tempfile.mkdtemp()
+            
+            working_dir = os.path.realpath(tempfile.mkdtemp())
+            repos_dir = os.path.realpath(tempfile.mkdtemp())
             print working_dir, repos_dir
     
             copy_example_project(working_dir)
@@ -110,6 +117,8 @@ if __name__ == "__main__":
         
             getting_started(plugins)
         
+            reset_django_settings()
+            
             os.chdir(cwd)
             shutil.rmtree(working_dir)
             shutil.rmtree(repos_dir)
