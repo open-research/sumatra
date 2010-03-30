@@ -61,8 +61,8 @@ it hasn't been tested.
 
 If you have downloaded the source package, sumatra-0.1.tar.gz,
 
-$ tar xzf sumatra-0.1.tar.gz
-$ cd sumatra-0.1
+$ tar xzf Sumatra-0.1.tar.gz
+$ cd Sumatra-0.1
 # python setup.py install
 
 The last step may have to be done as root.
