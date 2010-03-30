@@ -1,12 +1,13 @@
 #/bin/bash
-coverage -e
+COVERAGE=coverage
+$COVERAGE -e
 
 for file in test_*.py; do
     echo $file;
-    coverage -x $file;
+    $COVERAGE -x $file;
     done
 
-SUMATRA_SRC=/Users/andrew/dev/sumatra
+SUMATRA_SRC=$HOME/dev/sumatra
 
-coverage -r $SUMATRA_SRC/*.py  $SUMATRA_SRC/*/*.py $SUMATRA_SRC/*/*/*.py ./test_*.py
-coverage -a $SUMATRA_SRC/*.py  $SUMATRA_SRC/*/*.py $SUMATRA_SRC/*/*/*.py
+$COVERAGE -r $SUMATRA_SRC/*.py  $SUMATRA_SRC/*/*.py $SUMATRA_SRC/*/*/*.py ./test_*.py
+$COVERAGE -a $SUMATRA_SRC/*.py  $SUMATRA_SRC/*/*.py $SUMATRA_SRC/*/*/*.py
