@@ -47,6 +47,7 @@ import imp
 import distutils.sysconfig
 import os
 import sys
+import re
 from sumatra import versioncontrol
 
 stdlib_path = distutils.sysconfig.get_python_lib(standard_lib=True)
@@ -147,6 +148,28 @@ def find_imported_packages(filename):
         if module.__path__ and "." not in name:
             top_level_packages[name] = module
     return top_level_packages
+
+def find_xopened_files(file_path):
+    """
+    Find all files that are xopened, whether directly or indirectly, by a given
+    Hoc file. Note that this only handles cases whether the path is given
+    directly, not where it has been previously assigned to a strdef.
+    """
+    xopen_pattern = re.compile(r'xopen\("(?P<path>\w+\.*\w*)"\)')
+    all_paths = []
+    def find(path, paths):
+        current_dir = os.path.dirname(path)
+        with open(path) as f:
+            new_paths = xopen_pattern.findall(f.read())
+        #print "-", path, new_paths
+        new_paths = [os.path.join(current_dir, path) for path in new_paths]
+        paths.extend(new_paths)
+        for path in new_paths:
+            find(path, paths)
+    find(os.path.abspath(file_path), all_paths)
+    return all_paths
+        
+    
 
 
 class Dependency(object):
