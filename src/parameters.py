@@ -19,7 +19,7 @@ from __future__ import with_statement
 import os.path
 import shutil
 import re
-import NeuroTools.parameters
+from sumatra.external import NeuroTools
 
 class NTParameterSet(NeuroTools.parameters.ParameterSet):
     # just a re-name, to clarify things
