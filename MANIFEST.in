@@ -1,3 +1,6 @@
 include doc/*.txt
 include COPYING
+include src/web/media/smt.css
+include src/web/templates/*.html
+
 
