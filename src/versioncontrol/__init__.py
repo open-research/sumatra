@@ -30,8 +30,7 @@ get_repository()   - determine whether a revision control system repository
 import sys
 import os
 
-class VersionControlError(Exception):
-    pass
+from base import VersionControlError
 
 class UncommittedModificationsError(Exception):
     pass

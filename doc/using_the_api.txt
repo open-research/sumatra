@@ -69,12 +69,13 @@ the ``execfile()`` call with a ``build_parameters()`` call::
     parameters = build_parameters(parameter_file)
     
 Now we create a new ``SimRecord`` object, telling it that the script is the
-current file::
+current file, then we register information about the simulation environment::
     
     sim_record = project.new_record(parameters=parameters,
                                     main_file=__file__,
                                     label="api_example",
                                     reason="reason for running this simulation")
+    sim_record.register()
 
 Now comes the main body of the simulation, which is unchanged except that we
 take the opportunity to give the output data file a more informative name::
@@ -110,6 +111,7 @@ Putting this all together::
                                     main_file=__file__,
                                     label="api_example",
                                     reason="reason for running this simulation")
+    sim_record.register()
     
     numpy.random.seed(parameters["seed"])
     distr = getattr(numpy.random, parameters["distr"])

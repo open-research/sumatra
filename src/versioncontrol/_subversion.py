@@ -19,7 +19,7 @@ get_repository()        - return a SubversionRepository object for a given URL.
 import pysvn
 import os
 
-from base import Repository, WorkingCopy
+from base import Repository, WorkingCopy, VersionControlError
 
 def may_have_working_copy(path=None):
     path = path or os.getcwd()
@@ -86,7 +86,10 @@ class SubversionRepository(Repository):
         self._client = pysvn.Client()
         # check that there is a valid Subversion repository at the URL,
         # without doing a checkout.
-        self._client.ls(url)
+        try:
+            self._client.ls(url)
+        except pysvn._pysvn.ClientError, errmsg:
+            raise VersionControlError(errmsg)
         self.working_copy = None
     
     def checkout(self, path='.'):

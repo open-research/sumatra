@@ -4,6 +4,9 @@ Define the base classes for the Sumatra version control abstraction layer.
 
 import os.path
 
+class VersionControlError(Exception):
+    pass
+
 class Repository(object):
     
     def __init__(self, url):

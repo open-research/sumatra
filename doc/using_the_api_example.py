@@ -14,6 +14,7 @@ sim_record = project.new_record(parameters=parameters,
                                 main_file=__file__,
                                 label="api_example",
                                 reason="reason for running this simulation")
+sim_record.register()
 
 numpy.random.seed(parameters["seed"])
 distr = getattr(numpy.random, parameters["distr"])

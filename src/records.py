@@ -45,10 +45,9 @@ class SimRecord(object): # maybe just call this Simulation
     @property
     def label(self):
         return "%s_%s" % (self.group, self.timestamp.strftime("%Y%m%d-%H%M%S"))        
-        
-    def run(self):
-        """Launch the simulation."""
-        # if it hasn't been run already. Do we need to distinguish separate Simulation and SimRecord classes?
+    
+    def register(self):
+        """Record information about the simulation environment."""
         # Check the code hasn't changed and the version is correct
         if len(self.diff) == 0:
             assert not self.repository.working_copy.has_changed()
@@ -57,6 +56,11 @@ class SimRecord(object): # maybe just call this Simulation
         self.dependencies = dependency_finder.find_dependencies(self.main_file, self.executable, self.on_changed)
         # Record platform information
         self.platforms = self.launch_mode.get_platform_information()
+    
+    def run(self):
+        """Launch the simulation."""
+        # if it hasn't been run already. Do we need to distinguish separate Simulation and SimRecord classes?
+        self.register()
         # run pre-simulation tasks, e.g. nrnivmodl
         self.launch_mode.pre_run(self.executable)
         # Write the simulator-specific parameter file
