@@ -39,6 +39,7 @@ import imp
 import distutils.sysconfig
 
 from sumatra.dependency_finder import core
+from sumatra import versioncontrol
 
 stdlib_path = distutils.sysconfig.get_python_lib(standard_lib=True)
 

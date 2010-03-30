@@ -28,6 +28,7 @@ from __future__ import with_statement
 import re
 import os
 from sumatra.dependency_finder import core
+from sumatra import versioncontrol
 
 heuristics = [core.find_version_from_versioncontrol,]
 
@@ -47,12 +48,12 @@ class Dependency(core.BaseDependency):
             self.version = version
         else:
             try:
-                self.version = core.find_version(m, heuristics)
+                self.version = core.find_version(self.path, heuristics)
             except versioncontrol.UncommittedModificationsError:
                 if on_changed == 'error':
                     raise
                 elif on_changed == 'store-diff':
-                    wc = versioncontrol.get_working_copy(m.__path__[0])
+                    wc = versioncontrol.get_working_copy(self.path)
                     self.version = wc.current_version()
                     self.diff = wc.diff()
                 else:

@@ -55,9 +55,9 @@ def create_subversion_repos(repos_dir):
     run("svn commit -m 'Creating example project'")
 
 def copy_example_project(working_dir):
-    for file in os.listdir("example_projects"):
-        if os.path.isfile("example_projects/"+file):
-            shutil.copy("example_projects/"+file, working_dir)
+    for file in os.listdir("example_projects/python"):
+        if os.path.isfile("example_projects/python/"+file):
+            shutil.copy("example_projects/python/"+file, working_dir)
 
 def get_last_simulation_id():
     project = load_simulation_project()

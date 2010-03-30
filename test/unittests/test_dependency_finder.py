@@ -18,7 +18,7 @@ class TestPythonModuleFunctions(unittest.TestCase):
     
     def setUp(self):
         self.saved_path = sys.path[:]
-        example_project = os.path.join(os.path.pardir, "example_projects")
+        example_project = os.path.join(os.path.pardir, "example_projects/python")
         assert os.path.exists(example_project)
         sys.path.append(os.path.abspath(example_project))
     
@@ -37,7 +37,7 @@ class TestPythonModuleFunctions(unittest.TestCase):
     
     def test__find_imported_packages(self):
         # the example project has numpy as its only import
-        example_project_imports = df.python.find_imported_packages(os.path.join(os.path.pardir, "example_projects", "main.py"))
+        example_project_imports = df.python.find_imported_packages(os.path.join(os.path.pardir, "example_projects/python", "main.py"))
         assert "numpy" in example_project_imports.keys()
         numpy_imports = df.python.find_imported_packages(numpy.__file__.replace(".pyc", ".py"))
         assert len(example_project_imports) == len(numpy_imports)
@@ -50,7 +50,7 @@ class TestCoreModuleFunctions(unittest.TestCase):
     
     def setUp(self):
         self.saved_path = sys.path[:]
-        example_project = os.path.join(os.path.pardir, "example_projects")
+        example_project = os.path.join(os.path.pardir, "example_projects/python")
         assert os.path.exists(example_project)
         sys.path.append(os.path.abspath(example_project))
     
@@ -66,17 +66,26 @@ class TestMainModuleFunctions(unittest.TestCase):
     
     def setUp(self):
         self.saved_path = sys.path[:]
-        example_project = os.path.join(os.path.pardir, "example_projects")
-        assert os.path.exists(example_project)
-        sys.path.append(os.path.abspath(example_project))
+        example_projects = {
+            'python': os.path.join(os.path.pardir, "example_projects/python"),
+            'neuron': os.path.join(os.path.pardir, "example_projects/neuron"),
+        }
+        for example_project in example_projects.values():
+            assert os.path.exists(example_project)
+            sys.path.append(os.path.abspath(example_project))
     
     def tearDown(self):
         sys.path = self.saved_path
         
+    def test__find_dependencies_for_a_NEURON_project(self):
+        deps = df.find_dependencies(os.path.join(os.path.pardir, "example_projects/neuron", "main.hoc"),
+                                    MockExecutable("NEURON"))
+        self.assertEqual(os.path.basename(deps[0].path), "dependency.hoc")  
+        
     def test__find_dependencies_with_unsupported_executable__should_raise_exception(self):
         self.assertRaises(Exception,
                           df.find_dependencies,
-                          os.path.join(os.path.pardir, "example_projects", "main.py"),
+                          os.path.join(os.path.pardir, "example_projects/python", "main.py"),
                           MockExecutable("Perl")) # I'm not saying Perl shouldn't be supported, it just isn't at present
         
 
@@ -84,7 +93,7 @@ class TestPythonDependency(unittest.TestCase):
     
     def setUp(self):
         self.saved_path = sys.path[:]
-        example_project = os.path.join(os.path.pardir, "example_projects")
+        example_project = os.path.join(os.path.pardir, "example_projects/python")
         assert os.path.exists(example_project)
         sys.path.append(os.path.abspath(example_project))
     
@@ -112,6 +121,40 @@ class TestPythonDependency(unittest.TestCase):
     def test__init__with_nonexistent_module(self):
         dep = df.python.Dependency("foo")
         assert isinstance(dep.import_error, ImportError)
+        assert dep.version == 'unknown'
+        
+        
+class TestNEURONDependency(unittest.TestCase):
+    
+    def setUp(self):
+        self.saved_path = sys.path[:]
+        self.example_project = os.path.join(os.path.pardir, "example_projects/neuron")
+        assert os.path.exists(self.example_project)
+        sys.path.append(os.path.abspath(self.example_project))
+    
+    def tearDown(self):
+        sys.path = self.saved_path
+    
+    def test__init(self):
+        dep = df.neuron.Dependency(os.path.join(self.example_project, "main.hoc"))
+        self.assertEqual(dep.version, "unknown")
+
+    def test__str(self):
+        dep = df.neuron.Dependency(os.path.join(self.example_project, "main.hoc"))
+        str(dep)
+        
+    def test_eq(self):
+        dep1 = df.neuron.Dependency(os.path.join(self.example_project, "main.hoc"))
+        dep2 = df.neuron.Dependency(os.path.join(self.example_project, "main.hoc"))
+        self.assertEqual(dep1, dep2)
+
+    def test_ne(self):
+        dep1 = df.neuron.Dependency(os.path.join(self.example_project, "main.hoc"))
+        dep2 = df.neuron.Dependency("unittest")
+        self.assertNotEqual(dep1, dep2)
+        
+    def test__init__with_nonexistent_path(self):
+        dep = df.neuron.Dependency("foo.hoc")
         assert dep.version == 'unknown'
         
         
