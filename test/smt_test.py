@@ -37,10 +37,14 @@ def run(cmd):
     subprocess.check_call(args)
 
 def create_mercurial_repos(repos_dir):
+    orig_wd = os.getcwd()
+    os.chdir(repos_dir)
+    run("hg init")
+    os.chdir(orig_wd)
     run("hg init")
     run("hg add")
     run("hg commit -m 'Creating example project'")
-    
+    run("hg push %s" % repos_dir)
 
 def create_subversion_repos(repos_dir):
     run("svnadmin create %s" % repos_dir)
@@ -107,12 +111,11 @@ if __name__ == "__main__":
         for plugins in ("sumatra.recordstore.shelve_store",  None):
             
             working_dir = os.path.realpath(tempfile.mkdtemp())
-            repos_dir = os.path.realpath(tempfile.mkdtemp())
-            print working_dir, repos_dir
-    
             copy_example_project(working_dir)
             os.chdir(working_dir)
-        
+            
+            repos_dir = os.path.realpath(tempfile.mkdtemp())
+            print working_dir, repos_dir      
             exec("create_%s_repos('%s')" % (repos, repos_dir))
         
             getting_started(plugins)

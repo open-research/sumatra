@@ -24,7 +24,8 @@ settings.ADMIN_MEDIA_PREFIX = '/media/admin/' # seems we need to define this eve
 settings.MEDIA_ROOT = os.path.join(root_dir, "media")
 settings.TEMPLATE_DIRS = (os.path.join(root_dir, "templates"),)
 settings.INSTALLED_APPS = list(settings.INSTALLED_APPS) + ['sumatra.web']
-print settings.INSTALLED_APPS
+settings.MIDDLEWARE_CLASSES = tuple()
+
 management.setup_environ(settings)
 if len(sys.argv) > 1:
     port = sys.argv[1]
