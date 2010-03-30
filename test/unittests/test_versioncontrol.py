@@ -133,7 +133,7 @@ class TestMercurialRepository(unittest.TestCase):
         r.checkout(path=tmpdir)
         repos_files = os.listdir(tmpdir)
         repos_files.remove(".hg")
-        project_files = os.listdir("../example_project")
+        project_files = os.listdir("../example_projects")
         if "main.pyc" in project_files:
             project_files.remove("main.pyc")
         self.assertEqual(repos_files, project_files)
@@ -174,7 +174,7 @@ class TestSubversionRepository(unittest.TestCase):
         r.checkout(path=tmpdir)
         repos_files = os.listdir(tmpdir)
         repos_files.remove(".svn")
-        project_files = os.listdir("../example_project")
+        project_files = os.listdir("../example_projects")
         if "main.pyc" in project_files:
             project_files.remove("main.pyc")
         self.assertEqual(repos_files, project_files)
