@@ -43,6 +43,7 @@ class MockDependency(object):
     path = "/usr/lib/python/some_module.py"
     version = "1.0"
     diff = ""
+    module = "python"
     
 class MockPlatformInformation(object):
     architecture_bits = 32

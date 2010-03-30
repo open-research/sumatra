@@ -104,6 +104,7 @@ class Dependency(core.BaseDependency):
     Contains information about a Python module or package, and tries to
     determine version information.
     """
+    module = 'python'
     
     def __init__(self, module_name, path=None, version=None, on_changed='error'):
         self.name = module_name

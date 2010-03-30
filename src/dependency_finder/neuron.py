@@ -36,6 +36,7 @@ class Dependency(core.BaseDependency):
     """
     Contains information about a Hoc file, and tries to determine version information.
     """
+    module = 'neuron'
     
     def __init__(self, name, path=None, version=None, on_changed='error'):
         self.name = name
