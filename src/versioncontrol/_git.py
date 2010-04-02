@@ -27,6 +27,8 @@ def may_have_working_copy(path=None):
     path = path or os.getcwd()
     if git.cmd.is_git_dir(os.path.join(path, ".git")):
         return os.path.exists(os.path.join(path, ".git"))
+    else:
+        return False
 
 def get_working_copy(path=None):
     return GitWorkingCopy(path)
@@ -38,6 +40,7 @@ def get_repository(url):
 class GitWorkingCopy(WorkingCopy):
 
     def __init__(self, path=None):
+        WorkingCopy.__init__(self)
         self.path = path or os.getcwd()
         self.repository = GitRepository(self.path)
         self.repository.working_copy = self
@@ -49,22 +52,21 @@ class GitWorkingCopy(WorkingCopy):
     def use_version(self, version):
         pass
         # TODO:
-        # What exactly should happen here?
+        # this command should move the tree to some older
+        # revision (if I have understood git terminology correctly)
+        # this is perhaps equivalent to the git checkout command?
 
     def use_latest_version(self):
         pass
         # TODO:
-        # Shall we use the last version available from the repo? 
+        # use the last version available from the repo
         
     def status(self):
-        # We don't need to use this.
+        # We don't need to use this. 
         pass            
 
     def has_changed(self):
-        changed = False
-        if self.repository._repository.is_dirty():
-            changed = True
-        return changed
+        return self.repository._repository.is_dirty
     
     def diff(self):
         """Difference between working copy and repository."""
@@ -75,28 +77,24 @@ class GitRepository(Repository):
     
     def __init__(self, url):
         Repository.__init__(self, url)
-        self._repository = git.Repo(url)
         self.working_copy = None
             
     def checkout(self, path="."):
         """Clone a repository."""
-        
-        pass
-        # TODO: We need to checkout the last commit?
-        # Or we need to clone the last commit somewhere (light branch?)
-        
-#        path = os.path.abspath(path)
-#        if self.url == path:
-#            # update
-#            hg.update(self._repository, None)
-#            
-#        else:
-#            # can't clone into an existing directory, so we create
-#            # an empty repository and then do a pull and update
-#            local_repos = hg.repository(self._ui, path, create=True)
-#            local_repos.pull(self._repository)
-#            hg.update(local_repos, None)
-#        self.working_copy = MercurialWorkingCopy()
+        path = os.path.abspath(path)
+        g = git.Git()       
+        if self.url == path:
+            pass
+        elif os.path.exists(path):
+            # can't clone into an existing directory
+            # suggest we create an empty repository in
+            # path and then pull/fetch whatever from url into
+            # it.
+            raise NotImplementedError("TODO")
+        else:
+            g.clone(self.url, path)           
+        self._repository = git.Repo(path)
+        self.working_copy = GitWorkingCopy(path)
     
     def __getstate__(self):
         """For pickling"""
