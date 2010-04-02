@@ -39,10 +39,10 @@ def get_repository(url):
 
 class GitWorkingCopy(WorkingCopy):
 
-    def __init__(self, path=None):
+    def __init__(self, path=None, repository=None):
         WorkingCopy.__init__(self)
         self.path = path or os.getcwd()
-        self.repository = GitRepository(self.path)
+        self.repository = repository or GitRepository(self.path)
         self.repository.working_copy = self
 
     def current_version(self):
@@ -84,6 +84,7 @@ class GitRepository(Repository):
         path = os.path.abspath(path)
         g = git.Git()       
         if self.url == path:
+            # already have a repository in the working directory
             pass
         elif os.path.exists(path):
             # can't clone into an existing directory
@@ -94,7 +95,7 @@ class GitRepository(Repository):
         else:
             g.clone(self.url, path)           
         self._repository = git.Repo(path)
-        self.working_copy = GitWorkingCopy(path)
+        self.working_copy = GitWorkingCopy(path, repository=self)
     
     def __getstate__(self):
         """For pickling"""
