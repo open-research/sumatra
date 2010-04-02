@@ -11,7 +11,7 @@ Sub-modules
 base        - defines the base WorkingCopy and Repository classes
 _mercurial  - defines MercurialWorkingCopy and MercurialRepository classes
 _subversion - defines SubversionWorkingCopy and SubversionRepository classes
-
+_git        - defines GitWorkingCopy and GitRepository classes
 Exceptions
 ----------
 
@@ -37,7 +37,7 @@ class UncommittedModificationsError(Exception):
 
 vcs_list = []
 
-for vcs in ['mercurial', 'subversion']:
+for vcs in ['mercurial', 'subversion', 'git']:
     try:
         __import__('sumatra.versioncontrol._%s' % vcs)
         vcs_list.append(sys.modules['sumatra.versioncontrol._%s' % vcs])
