@@ -20,12 +20,16 @@ get_repository()        - return a GitRepository object for a given URL.
 import git
 import os
 
-from base import Repository, WorkingCopy
+from base import Repository, WorkingCopy, VersionControlError
 
+def check_version():
+    if git.__version__.split(".")[1] < 2:
+        raise VersionControlError("Your Git Python binding is too old. You require at least version 0.2.0-beta1.")
 
 def may_have_working_copy(path=None):
+    check_version()
     path = path or os.getcwd()
-    if git.cmd.is_git_dir(os.path.join(path, ".git")):
+    if git.repo.is_git_dir(os.path.join(path, ".git")):
         return os.path.exists(os.path.join(path, ".git"))
     else:
         return False
@@ -40,33 +44,30 @@ def get_repository(url):
 class GitWorkingCopy(WorkingCopy):
 
     def __init__(self, path=None, repository=None):
+        check_version()
         WorkingCopy.__init__(self)
         self.path = path or os.getcwd()
         self.repository = repository or GitRepository(self.path)
         self.repository.working_copy = self
 
     def current_version(self):
-        head = self.repository._repository.commits()[0]
-        return head.id
+        head = self.repository._repository.head
+        return head.commit.sha
     
     def use_version(self, version):
-        pass
-        # TODO:
-        # this command should move the tree to some older
-        # revision (if I have understood git terminology correctly)
-        # this is perhaps equivalent to the git checkout command?
+        assert not self.has_changed()
+        g = git.Git(self.path)
+        g.checkout(version)
 
     def use_latest_version(self):
-        pass
-        # TODO:
-        # use the last version available from the repo
+        self.use_version('HEAD')
         
     def status(self):
         # We don't need to use this. 
         pass            
 
     def has_changed(self):
-        return self.repository._repository.is_dirty
+        return self.repository._repository.is_dirty()
     
     def diff(self):
         """Difference between working copy and repository."""
@@ -76,13 +77,15 @@ class GitWorkingCopy(WorkingCopy):
 class GitRepository(Repository):
     
     def __init__(self, url):
+        check_version()
         Repository.__init__(self, url)
         self.working_copy = None
+        self.checkout(url)
             
     def checkout(self, path="."):
         """Clone a repository."""
         path = os.path.abspath(path)
-        g = git.Git()       
+        g = git.Git(path)       
         if self.url == path:
             # already have a repository in the working directory
             pass
