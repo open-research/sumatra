@@ -44,7 +44,7 @@ def get_repository(url):
 class GitWorkingCopy(WorkingCopy):
 
     def __init__(self, path=None, repository=None):
-        check_version()
+        #check_version()
         WorkingCopy.__init__(self)
         self.path = path or os.getcwd()
         self.repository = repository or GitRepository(self.path)
