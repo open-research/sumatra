@@ -1,0 +1,9 @@
+syntax: glob
+
+*.pyc
+_build
+dist/*
+*.py,cover
+.project
+.pydevproject
+
