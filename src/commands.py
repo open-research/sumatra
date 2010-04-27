@@ -155,6 +155,7 @@ def run(argv):
     parser.add_option('-m', '--main', help="the name of the simulator script that would be supplied on the command line if running the simulator normally, e.g. init.hoc. If not specified, the project's default will be used.")
     parser.add_option('-n', '--num_processes', metavar='N', type="int",
                       help="run a distributed simulation on N processes using MPI. If this option is not used, or if N=0, a normal, serial simulation is run.")
+    parser.add_option('-t', '--tag', help="tag you want to add to the project")
     
     (options, args) = parser.parse_args(argv)
     if len(args) < 1:
@@ -178,11 +179,13 @@ def run(argv):
         launch_mode = SerialLaunchMode()
     
     label = options.label or os.path.splitext(os.path.basename(parameter_file))[0]
-    project.launch_simulation(parameters, label=label, reason=options.reason,
+    run_label = project.launch_simulation(parameters, label=label, reason=options.reason,
                               executable=simulator,
                               main_file=options.main or 'default',
                               version=options.version or 'latest',
                               launch_mode=launch_mode)
+    if options.tag:
+        project.add_tag(run_label, options.tag)
     
 def list(argv):
     """List simulation records belonging to the current simulation project."""
