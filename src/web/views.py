@@ -98,7 +98,11 @@ def show_file(request, id):
             if max_display_length is not None and len(content) >= max_display_length:
                 truncated = True
 
-            reader = csv.reader(content.splitlines())
+            # dump the last truncated line (if any)
+            content = content.rpartition('\n')[0]
+
+            lines = content.splitlines()
+            reader = csv.reader(lines)
             
             return render_to_response("show_csv.html",
                                       {'path': path, 'id': id,
