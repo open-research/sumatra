@@ -94,14 +94,17 @@ def show_file(request, id):
         mimetype, encoding = mimetypes.guess_type(path)
         if mimetype  == "text/csv":
             content = data_store.get_content(record.data_key, path, max_length=max_display_length)
+            truncated = False
+            if max_display_length is not None and len(content) >= max_display_length:
+                truncated = True
+
             reader = csv.reader(content.splitlines())
-            #import pdb; pdb.set_trace()
+            
             return render_to_response("show_csv.html",
                                       {'path': path, 'id': id,
                                        'project_name': project_name,
-                                       'content': content,
                                        'reader': reader,
-                                       'truncated':False 
+                                       'truncated':truncated
                                        })
 
             print content
