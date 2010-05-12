@@ -8,10 +8,18 @@
 
 {% block content %}
 
-<table>
+<p><a href="/{{id}}/">Return to simulation record</a></p>
+
+<h2>{{path}}</h2>
+
+<table class="csvfile">
 {% for row in reader %}
  <tr>
+{% if forloop.first %}
+ {% for col in row %}<th>{{col}}</th>{% endfor %}
+{% else %}
  {% for col in row %}<td>{{col}}</td>{% endfor %}
+{% endif %}
  </tr>
 {% endfor %}
 </table>
