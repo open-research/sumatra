@@ -97,9 +97,9 @@ def show_file(request, id):
             truncated = False
             if max_display_length is not None and len(content) >= max_display_length:
                 truncated = True
-
-            # dump the last truncated line (if any)
-            content = content.rpartition('\n')[0]
+                
+                # dump the last truncated line (if any)
+                content = content.rpartition('\n')[0]
 
             lines = content.splitlines()
             reader = csv.reader(lines)
