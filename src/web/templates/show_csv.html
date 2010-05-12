@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}{{project_name}}: {{id}}: {{path}}{% endblock %}
+
+{% block header %}
+<h1>{{project_name}}: <i>{{id}}</i></h1>
+{% endblock %}
+
+{% block content %}
+
+<table>
+{% for row in reader %}
+ <tr>
+ {% for col in row %}<td>{{col}}</td>{% endfor %}
+ </tr>
+{% endfor %}
+</table>
+
+
+{% if truncated %}
+<p>File contents truncated. <a href="datafile?path={{path}}&truncate=false">Show entire contents</a></p>
+{% endif %}
+
+{{errmsg}}
+
+{% endblock %}
