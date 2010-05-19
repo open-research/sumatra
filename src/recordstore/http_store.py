@@ -5,11 +5,7 @@ Handles storage of simulation records on a remote server using HTTP.
 from sumatra.recordstore import RecordStore
 import httplib2
 from urlparse import urlparse
-try:
-    import json
-except ImportError:
-    import simplejson as json
-
+import jsonpickle
 
 def domain(url):
     return urlparse(url).netloc
@@ -19,11 +15,9 @@ class  HttpRecordStore(RecordStore):
     def __init__(self, server_url, username, password):
         self.server_url = server_url
         if self.server_url != "/":
-            self.server_url.append("/")
+            self.server_url += "/"
         self.client = httplib2.Http('.cache')
         self.client.add_credentials(username, password, domain(server_url))
-
-#content.decode('utf-8')
         
     def __str__(self):
         return "Interface to remote record store at %s using HTTP" % self.server_url
@@ -40,7 +34,7 @@ class  HttpRecordStore(RecordStore):
     def save(self, record):
         url = self._build_url(record)
         headers = {'Content-Type': 'application/json'}
-        data = json.dumps(record, cls=RecordEncoder)
+        data = jsonpickle.encode(record) # in future, unpicklable=False should give nicer json, but then we'll have to parse it more by hand
         response, content = self.client.request(url, 'PUT', data,
                                                 headers=headers)
         assert response.status == "200"
@@ -49,7 +43,7 @@ class  HttpRecordStore(RecordStore):
         url = "%s%s/%s" % (self.server_url, project, label.replace("_", "/"))
         response, content = self.client.request(url)
         assert response.status == "200"
-        return json.loads(content)
+        return jsonpickle.decode(content)
     
     def list(self, project, groups):
         if groups:
@@ -58,7 +52,7 @@ class  HttpRecordStore(RecordStore):
             url = "%s%s/" % (self.server_url, project)
         response, content = self.client.request(url)
         assert response.status == "200"
-        return X
+        return jsonpickle.decode(content)
     
     def delete(self, project, label):
         url = "%s%s/%s" % (self.server_url, project, label)
@@ -72,66 +66,4 @@ class  HttpRecordStore(RecordStore):
         
     def delete_by_tag(self, project, tag):
         raise NotImplementedError
-    
-    
-class RecordEncoder(json.JSONEncoder):
-    
-    def __init__(self):
-        json.JSONEncoder.__init__(self, ensure_ascii=False)
-    
-    def default(self, record):
-        return {
-            "group": record.group,
-            "reason": record.reason,
-            "duration": record.duration,
-            "executable": json.dumps(record.executable, cls=ExecutableEncoder),
-            "repository": json.dumps(record.repository, cls=RepositoryEncoder),
-            "main_file": record.main_file,
-            "version": record.version,
-            "parameters": json.dumps(record.parameters, cls=ParameterSetEncoder),
-            "launch_mode": json.dumps(record.launch_mode, cls=LaunchModeEncoder),
-            #"datastore": record.datastore, # do we need to include this? The datastore knows its own identity
-            "outcome": record.outcome,
-            "data_key": record.data_key,
-            "timestamp": record.timestamp,
-            "tags": record.tags, # not sure if tags should be PUT, perhaps have separate URL for this?
-            "diff": record.diff,
-            "user": record.user,
-            "dependencies": json.dumps(record.dependencies, cls=DependenciesEncoder),
-            "platforms": json.dumps(record.platforms, cls=PlatformInformationEncoder),
-        }
-        #in case of exception, return json.JSONEncoder.default(self, obj)
-        
-def build_encoder(*attributes):
-    class SimpleJSONEncoder(json.JSONEncoder):
-        def default(self, obj):
-            D = {}
-            for attr in attributes:
-                D[attr] = getattr(self, attr)
-            return D
-    return SimpleJSONEncoder
-
-ExecutableEncoder = build_encoder("name", "path", "version")
-RepositoryEncoder =  build_encoder("__class__", "url")
-# seems like I'm re-expressing information that pickle already knows how to get (or I can get from __getstate__)
-# see http://jsonpickle.github.com/
-
-class ParameterSetEncoder(json.JSONEncoder):
-    def default(self, obj):
-        pass
-        as_dict
-
-class LaunchModeEncoder(json.JSONEncoder):
-    def default(self, obj):
-        pass
-        none or n, mpirun, hosts    
-
-DependenciesEncoder = build_encoder("name", "path", "version", "on_change")
-
-class PlatformInformationEncoder(json.JSONEncoder):
-    def default(self, obj):
-        pass
-        kwargs
-
-def object_hook(obj):
     
