@@ -27,7 +27,7 @@ def check_version():
         raise VersionControlError("Your Git Python binding is too old. You require at least version 0.2.0-beta1.")
 
 def may_have_working_copy(path=None):
-    check_version()
+    #check_version()
     path = path or os.getcwd()
     if git.repo.is_git_dir(os.path.join(path, ".git")):
         return os.path.exists(os.path.join(path, ".git"))
@@ -44,7 +44,7 @@ def get_repository(url):
 class GitWorkingCopy(WorkingCopy):
 
     def __init__(self, path=None, repository=None):
-        check_version()
+        #check_version()
         WorkingCopy.__init__(self)
         self.path = path or os.getcwd()
         self.repository = repository or GitRepository(self.path)
@@ -77,7 +77,7 @@ class GitWorkingCopy(WorkingCopy):
 class GitRepository(Repository):
     
     def __init__(self, url):
-        check_version()
+        #check_version()
         Repository.__init__(self, url)
         self.working_copy = None
         self.checkout(url)

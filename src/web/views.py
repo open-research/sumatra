@@ -10,6 +10,7 @@ from sumatra.recordstore.django_store import models
 from sumatra.projects import load_simulation_project
 from sumatra.datastore import get_data_store
 import mimetypes
+import csv
 
 _project = load_simulation_project()
 project_name = _project.name
@@ -91,7 +92,28 @@ def show_file(request, id):
         
     try:
         mimetype, encoding = mimetypes.guess_type(path)
-        if mimetype == None or mimetype.split("/")[0] == "text":
+        if mimetype  == "text/csv":
+            content = data_store.get_content(record.data_key, path, max_length=max_display_length)
+            truncated = False
+            if max_display_length is not None and len(content) >= max_display_length:
+                truncated = True
+                
+                # dump the last truncated line (if any)
+                content = content.rpartition('\n')[0]
+
+            lines = content.splitlines()
+            reader = csv.reader(lines)
+            
+            return render_to_response("show_csv.html",
+                                      {'path': path, 'id': id,
+                                       'project_name': project_name,
+                                       'reader': reader,
+                                       'truncated':truncated
+                                       })
+
+            print content
+
+        elif mimetype == None or mimetype.split("/")[0] == "text":
             content = data_store.get_content(record.data_key, path, max_length=max_display_length)
             truncated = False
             if max_display_length is not None and len(content) >= max_display_length:

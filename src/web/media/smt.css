@@ -37,6 +37,26 @@ tr.even {
   background: #eeeeff;
 }
 
+table.csvfile {
+    border-collapse:collapse;
+    border: 1px solid black;
+}
+
+table.csvfile th {
+    background: #555555;
+    color: #dddddd;
+    text-align: center;
+    font-size: smaller;
+    border: 3px solid #f7f7f7;
+}
+
+table.csvfile td {
+    text-align: center;
+    font-size: smaller;
+    border: 1px solid black;
+}
+
+
 #pageHeader {
   background: #cccccc;
   padding: 5px 10px 5px 10px;

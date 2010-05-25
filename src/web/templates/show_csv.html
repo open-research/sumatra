@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}{{project_name}}: {{id}}: {{path}}{% endblock %}
+
+{% block header %}
+<h1>{{project_name}}: <i>{{id}}</i></h1>
+{% endblock %}
+
+{% block content %}
+
+<p><a href="/{{id}}/">Return to simulation record</a></p>
+
+<h2>{{path}}</h2>
+
+<table class="csvfile">
+{% for row in reader %}
+ <tr>
+{% if forloop.first %}
+ {% for col in row %}<th>{{col}}</th>{% endfor %}
+{% else %}
+ {% for col in row %}<td>{{col}}</td>{% endfor %}
+{% endif %}
+ </tr>
+{% endfor %}
+</table>
+
+
+{% if truncated %}
+<p>File contents truncated. <a href="datafile?path={{path}}&truncate=false">Show entire contents</a></p>
+{% endif %}
+
+{{errmsg}}
+
+{% endblock %}
