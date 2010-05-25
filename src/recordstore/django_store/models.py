@@ -3,6 +3,7 @@ Definition of database tables and object retrieval for the DjangoRecordStore.
 """
 
 from django.db import models
+from django.contrib.auth.models import User
 from sumatra import programs, launch, datastore, records, versioncontrol, parameters, dependency_finder
 import os.path
 import tagging.fields
@@ -48,8 +49,13 @@ class BaseModel(models.Model):
         return field_names
     
 
-class SimulationGroup(BaseModel):
-    id = models.CharField(max_length=100, primary_key=True)
+class Project(BaseModel):
+    id = models.SlugField(primary_key=True)
+    name = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+
+    def groups(self):
+        return set(rec.group for rec in self.simulationrecord_set.all())
 
 
 class Executable(BaseModel):
@@ -158,7 +164,7 @@ class PlatformInformation(BaseModel):
 class SimulationRecord(BaseModel):
     id = models.CharField(max_length=100, unique=True)
     db_id = models.AutoField(primary_key=True) # django-tagging needs an integer as primary key - see http://code.google.com/p/django-tagging/issues/detail?id=15
-    group = models.ForeignKey(SimulationGroup)
+    group = models.SlugField()
     reason = models.TextField(blank=True)
     duration = models.FloatField(null=True)
     executable = models.ForeignKey(Executable)
@@ -175,6 +181,8 @@ class SimulationRecord(BaseModel):
     dependencies = models.ManyToManyField(Dependency)
     platforms = models.ManyToManyField(PlatformInformation)
     diff = models.TextField(blank=True)
+    user = models.CharField(max_length=30)
+    project = models.ForeignKey(Project, null=True)
 
     def to_sumatra(self):
         record = records.SimRecord(
@@ -185,9 +193,10 @@ class SimulationRecord(BaseModel):
             self.parameters.to_sumatra(),
             self.launch_mode.to_sumatra(),
             self.datastore.to_sumatra(),
-            self.group.id,
+            self.group,
             self.reason,
-            self.diff)
+            self.diff,
+            self.user)
         record.duration = self.duration
         record.outcome = self.outcome
         record.data_key = eval(self.data_key)

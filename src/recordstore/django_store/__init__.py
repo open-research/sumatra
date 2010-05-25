@@ -51,23 +51,15 @@ class DjangoRecordStore(RecordStore):
         if db_file:
             self.__init__(db_file)
     
-    def _get_db_group(self, group):
-        import models
-        db_group, created = models.SimulationGroup.objects.get_or_create(id=group)
-        if created:
-            db_group.save()
-        return db_group
-    
     def _get_db_record(self, record):
         import models
-        db_group = self._get_db_group(record.group)
         try:
             db_record = models.SimulationRecord.objects.get(id=record.label,
-                                                            group=db_group,
+                                                            group=record.group,
                                                             timestamp=record.timestamp)
         except models.SimulationRecord.DoesNotExist:
             db_record = models.SimulationRecord(id=record.label,
-                                                group=db_group,
+                                                group=record.group,
                                                 timestamp=record.timestamp)
         return db_record
                                                                      
@@ -91,6 +83,7 @@ class DjangoRecordStore(RecordStore):
         db_record.launch_mode = self._get_db_obj('LaunchMode', record.launch_mode)
         db_record.datastore = self._get_db_obj('Datastore', record.datastore)
         db_record.parameters = self._get_db_obj('ParameterSet', record.parameters)
+        db_record.user = record.user
         db_record.tags = ",".join(record.tags)
         # should perhaps check here for any orphan Tags, i.e., those that are no longer associated with any records, and delete them
         db_record.save() # need to save before using many-to-many relationship
@@ -133,12 +126,10 @@ class DjangoRecordStore(RecordStore):
     
     def delete_group(self, group_label):
         import models
-        db_group = self._get_db_group(group_label)
-        db_records = models.SimulationRecord.objects.filter(group=db_group)
+        db_records = models.SimulationRecord.objects.filter(group=group_label)
         n = db_records.count()
         for db_record in db_records:
             db_record.delete()
-        db_group.delete()
         return n
         
     def delete_by_tag(self, tag):

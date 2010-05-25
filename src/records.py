@@ -14,6 +14,7 @@ from datetime import datetime
 import time
 import os
 import re
+import getpass
 from operator import or_
 from formatting import get_formatter
 import dependency_finder
@@ -24,7 +25,8 @@ def assert_equal(a, b, msg=''):
 class SimRecord(object): # maybe just call this Simulation
     
     def __init__(self, executable, repository, main_file, version, parameters,
-                 launch_mode, datastore, label=None, reason=None, diff='', on_changed='error'):
+                 launch_mode, datastore, label=None, reason=None, diff='',
+                 user='', on_changed='error'):
         self.group = label
         self.reason = reason
         self.duration = None
@@ -40,6 +42,7 @@ class SimRecord(object): # maybe just call this Simulation
         self.timestamp = datetime.now() # might need to allow for this to be set as argument to allow for distributed/batch simulations on machines with out-of-sync clocks
         self.tags = set()
         self.diff = diff
+        self.user = user
         self.on_changed = on_changed
     
     @property

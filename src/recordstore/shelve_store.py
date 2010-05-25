@@ -44,3 +44,6 @@ class ShelveRecordStore(RecordStore):
         for record in for_deletion:
             self.delete(record.label)
         return len(for_deletion)
+        
+    def delete_by_tag(self, tag):
+        raise NotImplementedError

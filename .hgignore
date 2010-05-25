@@ -4,4 +4,5 @@ syntax: glob
 _build
 dist/*
 *.py,cover
+bulbNet
 
