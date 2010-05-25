@@ -104,24 +104,35 @@ def getting_started(plugins):
     run("smt help list")
     run("smt list -l")
 
-if __name__ == "__main__":
+
+def create_temporary_directories():
+    working_dir = os.path.realpath(tempfile.mkdtemp())
+    repos_dir = os.path.realpath(tempfile.mkdtemp())
+    return working_dir, repos_dir
+
+def run_test(repos, plugins, working_dir, repos_dir):
     cwd = os.getcwd()
     
+    copy_example_project(working_dir)
+    os.chdir(working_dir)
+    
+    repos_dir = os.path.realpath(tempfile.mkdtemp())
+    exec("create_%s_repos('%s')" % (repos, repos_dir))
+
+    getting_started(plugins)
+
+    reset_django_settings()
+    os.chdir(cwd)
+    
+def main():    
     for repos in 'subversion', 'mercurial':  
         for plugins in ("sumatra.recordstore.shelve_store",  None):
-            
-            working_dir = os.path.realpath(tempfile.mkdtemp())
-            copy_example_project(working_dir)
-            os.chdir(working_dir)
-            
-            repos_dir = os.path.realpath(tempfile.mkdtemp())
-            print working_dir, repos_dir      
-            exec("create_%s_repos('%s')" % (repos, repos_dir))
-        
-            getting_started(plugins)
-        
-            reset_django_settings()
-            
-            os.chdir(cwd)
+            working_dir, repos_dir = create_temporary_directories()
+            print working_dir, repos_dir
+            run_test(repos, plugins, working_dir, repos_dir)
             shutil.rmtree(working_dir)
             shutil.rmtree(repos_dir)
+            
+if __name__ == "__main__":
+    #run_test('mercurial', None, "/Users/andrew/tmp/SumatraTest", "/Users/andrew/tmp/smt_example_repos")
+    main()
