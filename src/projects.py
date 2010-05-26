@@ -127,33 +127,33 @@ class SimProject:
     
     def add_record(self, record):
         """Add a simulation record."""
-        self.record_store.save(record)
+        self.record_store.save(self, record)
         self._most_recent = record.label
     
     def get_record(self, label):
         """Search for a record with the supplied label and return it if found.
            Otherwise return None."""
-        return self.record_store.get(label)
+        return self.record_store.get(self, label)
     
     def delete_record(self, label):
         """Delete a record. Return 1 if the record is found.
            Otherwise return 0."""
-        self.record_store.delete(label)
+        self.record_store.delete(self, label)
         
     def delete_group(self, label):
         """Delete a group of records. Return the number of records deleted.
            Return 0 if the label is invalid."""
-        n = self.record_store.delete_group(label)
+        n = self.record_store.delete_group(self, label)
         return n
     
     def delete_by_tag(self, tag):
         """Delete all records with a given tag. Return the number of records deleted."""
-        n = self.record_store.delete_by_tag(tag)
+        n = self.record_store.delete_by_tag(self, tag)
         return n
     
     def format_records(self, groups=[], format='text', mode='short', tag=None):
         # need to add filtering by tag
-        records = self.record_store.list(groups)
+        records = self.record_store.list(self, groups)
         formatter = get_formatter(format)(records)
         return formatter.format(mode) 
     
@@ -162,25 +162,25 @@ class SimProject:
     
     def add_comment(self, label, comment):
         try:
-            record = self.record_store.get(label)
+            record = self.record_store.get(self, label)
         except Exception, e:
             raise Exception("%s. label=<%s>" % (e,label))
         record.outcome = comment
-        self.record_store.save(record)
+        self.record_store.save(self, record)
         
     def add_tag(self, label, tag):
-        record = self.record_store.get(label)
+        record = self.record_store.get(self, label)
         record.tags.add(tag)
-        self.record_store.save(record)
+        self.record_store.save(self, record)
     
     def remove_tag(self, label, tag):
-        record = self.record_store.get(label)
+        record = self.record_store.get(self, label)
         record.tags.remove(tag)
-        self.record_store.save(record)
+        self.record_store.save(self, record)
     
     def show_diff(self, label1, label2, mode='short', ignore_mimetypes=[], ignore_filenames=[]):
-        record1 = self.record_store.get(label1)
-        record2 = self.record_store.get(label2)
+        record1 = self.record_store.get(self, label1)
+        record2 = self.record_store.get(self, label2)
         diff = record1.difference(record2, ignore_mimetypes, ignore_filenames)
         formatter = get_diff_formatter()(diff)
         return formatter.format(mode)

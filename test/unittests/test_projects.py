@@ -66,16 +66,16 @@ class MockRecord(object):
 
     
 class MockRecordStore(object):
-    def save(self, record):
+    def save(self, project, record):
         pass
-    def get(self, label):
+    def get(self, project, label):
         if label != "none_existent":
             return MockRecord(label=label*2)
         else:
             raise Exception()
-    def delete(self, label):
+    def delete(self, project, label):
         self.deleted = label
-    def delete_group(self, label):
+    def delete_group(self, project, label):
         return "".join(reversed(label))
     delete_by_tag = delete_group
 

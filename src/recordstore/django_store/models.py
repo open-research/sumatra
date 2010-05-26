@@ -75,7 +75,7 @@ class Dependency(BaseModel):
     path = models.CharField(max_length=200)
     version = models.CharField(max_length=20)
     diff = models.TextField(blank=True)
-    module = models.CharField(max_length=50)
+    module = models.CharField(max_length=50) # should be called language, or something
     
     def __unicode__(self):
         return "%s (%s) version=%s" % (self.name, self.path, self.version)

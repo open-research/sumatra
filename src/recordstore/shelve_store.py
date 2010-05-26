@@ -24,26 +24,33 @@ class ShelveRecordStore(RecordStore):
     def __setstate__(self, state):
         self.__init__(state)
 
-    def save(self, record):
-        self.shelf[record.label] = record
-        
-    def get(self, label):
-        return self.shelf[label]
-    
-    def list(self, groups):
-        if groups:
-            return [record for record in self.shelf.values() if record.group in groups]
+    def save(self, project, record):
+        if self.shelf.has_key(project.name):
+            records = self.shelf[project.name]
         else:
-            return self.shelf.values()
-    
-    def delete(self, label):
-        del self.shelf[label]
+            records = {}
+        records[record.label] = record
+        self.shelf[project.name] = records
         
-    def delete_group(self, group_label):
-        for_deletion = [record for record in self.shelf.values() if record.group==group_label]
+    def get(self, project, label):
+        return self.shelf[project.name][label]
+    
+    def list(self, project, groups):
+        if groups:
+            return [record for record in self.shelf[project.name].values() if record.group in groups]
+        else:
+            return self.shelf[project.name].values()
+    
+    def delete(self, project, label):
+        records = self.shelf[project.name]
+        records.pop(label)
+        self.shelf[project.name] = records
+        
+    def delete_group(self, project, group_label):
+        for_deletion = [record for record in self.shelf[project.name].values() if record.group==group_label]
         for record in for_deletion:
-            self.delete(record.label)
+            self.delete(project, record.label)
         return len(for_deletion)
         
-    def delete_by_tag(self, tag):
+    def delete_by_tag(self, project, tag):
         raise NotImplementedError

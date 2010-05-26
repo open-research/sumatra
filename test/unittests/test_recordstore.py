@@ -76,10 +76,14 @@ class MockRecord(object):
         self.dependencies = [MockDependency(), MockDependency()]
         self.platforms = [MockPlatformInformation()]
         self.diff = ""
+        self.user = "michaelpalin"
         
     @property
     def label(self):
         return "%s_%s" % (self.group, self.timestamp.strftime("%Y%m%d-%H%M%S"))
+
+class MockProject(object):
+    name = "TestProject"
 
 
 class BaseTestRecordStore(object):
@@ -89,7 +93,7 @@ class BaseTestRecordStore(object):
         r2 = MockRecord(timestamp=datetime(2009, 1, 2), group="groupA")
         r3 = MockRecord(timestamp=datetime(2009, 1, 2), group="groupB")
         for r in r1, r2, r3:
-            self.store.save(r)
+            self.store.save(self.project, r)
 
     def test_create_record_store_should_not_produce_errors(self):
         pass
@@ -99,38 +103,38 @@ class BaseTestRecordStore(object):
     
     def test_get(self):
         self.add_some_records()
-        r = self.store.get("groupA_20090101-000000")
+        r = self.store.get(self.project, "groupA_20090101-000000")
         assert isinstance(r, (MockRecord, SimRecord)), type(r)
         assert r.label == "groupA_20090101-000000", r.label
         
     def test_get_nonexistent_record_raises_KeyError(self):
-        self.assertRaises(KeyError, self.store.get, "foo")
+        self.assertRaises(KeyError, self.store.get, self.project, "foo")
 
     def test_list_without_groups_should_return_all_records(self):
         self.add_some_records()
-        records = self.store.list([])
+        records = self.store.list(self.project, [])
         assert isinstance(records, list)
         assert len(records) == 3
         
     def test_list_with_groups_should_return_subset_of_records(self):
         self.add_some_records()
-        records = self.store.list(["groupA"])
+        records = self.store.list(self.project, ["groupA"])
         assert len(records) == 2
         for record in records:
             assert record.group == "groupA"
-        records = self.store.list(["groupA", "groupB", "foo"])
+        records = self.store.list(self.project, ["groupA", "groupB", "foo"])
         assert len(records) == 3
         
     def test_delete_removes_record(self):
         self.add_some_records()
         key = "groupA_20090101-000000"
-        self.store.delete(key)
-        self.assertRaises(KeyError, self.store.get, key)
+        self.store.delete(self.project, key)
+        self.assertRaises(KeyError, self.store.get, self.project, key)
 
     def test_delete_group(self):
         self.add_some_records()
-        assert self.store.delete_group("groupA") == 2
-        assert len(self.store.list(["groupA"])) == 0
+        assert self.store.delete_group(self.project, "groupA") == 2
+        assert len(self.store.list(self.project, ["groupA"])) == 0
 
     def test_str(self):
         #this test is pointless, just to increase coverage
@@ -141,6 +145,7 @@ class TestShelveRecordStore(unittest.TestCase, BaseTestRecordStore):
     
     def setUp(self):
         self.store = ShelveRecordStore(shelf_name="test_record_store")
+        self.project = MockProject()
         
     def tearDown(self):
         os.remove("test_record_store")
@@ -162,6 +167,7 @@ class TestDjangoRecordStore(unittest.TestCase, BaseTestRecordStore):
     
     def setUp(self):
         self.store = DjangoRecordStore(db_file="test_record_store.db")
+        self.project = MockProject()
 
     def tearDown(self):
         management.call_command("reset", "django_store", interactive=False)
