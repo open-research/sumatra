@@ -120,7 +120,7 @@ class  HttpRecordStore(RecordStore):
     
     def __init__(self, server_url, username, password):
         self.server_url = server_url
-        if self.server_url != "/":
+        if self.server_url[-1] != "/":
             self.server_url += "/"
         self.client = httplib2.Http('.cache')
         self.client.add_credentials(username, password, domain(server_url))
@@ -134,42 +134,43 @@ class  HttpRecordStore(RecordStore):
     #def __setstate__(self, state):
     #    self.__init__(state)
 
-    def _build_url(self, project, record):
-        return "%s%s/%s/%s" % (self.server_url, project.name, record.group, record.timestamp.strftime("%Y%m%d-%H%M%S"))
+    def _build_url(self, project_name, record):
+        return "%s%s/%s/%s" % (self.server_url, project_name, record.group, record.timestamp.strftime("%Y%m%d-%H%M%S"))
 
-    def save(self, project, record):
-        url = self._build_url(project, record)
+    def save(self, project_name, record):
+        url = self._build_url(project_name, record)
         headers = {'Content-Type': 'application/json'}
         data = encode(record)
         response, content = self.client.request(url, 'PUT', data,
                                                 headers=headers)
-        assert response.status == "200"
+        assert response.status == 200
         
-    def get(self, project, label):
-        url = "%s%s/%s" % (self.server_url, project, label.replace("_", "/"))
+    def get(self, project_name, label):
+        url = "%s%s/%s" % (self.server_url, project_name, label.replace("_", "/"))
+        print url
         response, content = self.client.request(url)
-        assert response.status == "200"
+        assert response.status == 200
         return decode(content)
     
-    def list(self, project, groups):
+    def list(self, project_name, groups):
         if groups:
             raise NotImplementedError
         else:
-            url = "%s%s/" % (self.server_url, project)
+            url = "%s%s/" % (self.server_url, project_name)
         response, content = self.client.request(url)
-        assert response.status == "200"
+        assert response.status == 200
         return decode(content)
     
-    def delete(self, project, label):
-        url = "%s%s/%s" % (self.server_url, project, label)
+    def delete(self, project_name, label):
+        url = "%s%s/%s" % (self.server_url, project_name, label)
         response, deleted_content = self.client.request(url, 'DELETE')
-        assert response.status == "200"
+        assert response.status == 200
         
-    def delete_group(self, project, group_label):
-        "%s%s/%s/" % (self.server_url, project, group_label)
+    def delete_group(self, project_name, group_label):
+        "%s%s/%s/" % (self.server_url, project_name, group_label)
         response, deleted_content = self.client.request(url, 'DELETE')
-        assert response.status == "200"
+        assert response.status == 200
         
-    def delete_by_tag(self, project, tag):
+    def delete_by_tag(self, project_name, tag):
         raise NotImplementedError
     

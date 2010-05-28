@@ -93,7 +93,7 @@ class BaseTestRecordStore(object):
         r2 = MockRecord(timestamp=datetime(2009, 1, 2), group="groupA")
         r3 = MockRecord(timestamp=datetime(2009, 1, 2), group="groupB")
         for r in r1, r2, r3:
-            self.store.save(self.project, r)
+            self.store.save(self.project.name, r)
 
     def test_create_record_store_should_not_produce_errors(self):
         pass
@@ -103,38 +103,38 @@ class BaseTestRecordStore(object):
     
     def test_get(self):
         self.add_some_records()
-        r = self.store.get(self.project, "groupA_20090101-000000")
+        r = self.store.get(self.project.name, "groupA_20090101-000000")
         assert isinstance(r, (MockRecord, SimRecord)), type(r)
         assert r.label == "groupA_20090101-000000", r.label
         
     def test_get_nonexistent_record_raises_KeyError(self):
-        self.assertRaises(KeyError, self.store.get, self.project, "foo")
+        self.assertRaises(KeyError, self.store.get, self.project.name, "foo")
 
     def test_list_without_groups_should_return_all_records(self):
         self.add_some_records()
-        records = self.store.list(self.project, [])
+        records = self.store.list(self.project.name, [])
         assert isinstance(records, list)
         assert len(records) == 3
         
     def test_list_with_groups_should_return_subset_of_records(self):
         self.add_some_records()
-        records = self.store.list(self.project, ["groupA"])
+        records = self.store.list(self.project.name, ["groupA"])
         assert len(records) == 2
         for record in records:
             assert record.group == "groupA"
-        records = self.store.list(self.project, ["groupA", "groupB", "foo"])
+        records = self.store.list(self.project.name, ["groupA", "groupB", "foo"])
         assert len(records) == 3
         
     def test_delete_removes_record(self):
         self.add_some_records()
         key = "groupA_20090101-000000"
-        self.store.delete(self.project, key)
-        self.assertRaises(KeyError, self.store.get, self.project, key)
+        self.store.delete(self.project.name, key)
+        self.assertRaises(KeyError, self.store.get, self.project.name, key)
 
     def test_delete_group(self):
         self.add_some_records()
-        assert self.store.delete_group(self.project, "groupA") == 2
-        assert len(self.store.list(self.project, ["groupA"])) == 0
+        assert self.store.delete_group(self.project.name, "groupA") == 2
+        assert len(self.store.list(self.project.name, ["groupA"])) == 0
 
     def test_str(self):
         #this test is pointless, just to increase coverage
