@@ -16,7 +16,7 @@ except ImportError:
 def domain(url):
     return urlparse(url).netloc
 
-def encode(record):
+def encode_record(record):
     data = {
         "group": record.group,
         "reason": record.reason,
@@ -45,7 +45,7 @@ def encode(record):
             "parameters": str(record.datastore.get_state()),
         },
         "outcome": record.outcome,
-        "data_key": record.data_key,
+        "data_key": str(record.data_key),
         "timestamp": record.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
         "tags": list(record.tags), # not sure if tags should be PUT, perhaps have separate URL for this?
         "diff": record.diff,
@@ -78,7 +78,13 @@ def keys2str(D):
         E[str(k)] = v
     return E
 
-def decode(content):
+def decode_group_list(content):
+    return json.loads(content)
+
+def decode_record_list(content):
+    return json.loads(content)
+
+def decode_record(content):
     data = json.loads(content)
     edata = data["executable"]
     cls = programs.registered_program_names.get(edata["name"], programs.Executable)
@@ -140,35 +146,48 @@ class  HttpRecordStore(RecordStore):
     def save(self, project, record):
         url = self._build_url(project, record)
         headers = {'Content-Type': 'application/json'}
-        data = encode(record)
+        data = encode_record(record)
         response, content = self.client.request(url, 'PUT', data,
                                                 headers=headers)
-        assert response.status == "200"
-        
+        assert response.status == 200
+    
+    def _get_record(self, url):
+        response, content = self.client.request(url)
+        assert response.status == 200
+        return decode_record(content)
+    
     def get(self, project, label):
         url = "%s%s/%s" % (self.server_url, project, label.replace("_", "/"))
-        response, content = self.client.request(url)
-        assert response.status == "200"
-        return decode(content)
+        return self._get_record(url)
     
     def list(self, project, groups):
-        if groups:
-            raise NotImplementedError
-        else:
-            url = "%s%s/" % (self.server_url, project)
-        response, content = self.client.request(url)
-        assert response.status == "200"
-        return decode(content)
+        project_url = "%s%s/" % (self.server_url, project)
+        response, content = self.client.request(project_url)
+        print content
+        assert response.status == 200
+        group_urls = decode_group_list(content)["groups"]
+        #if groups:
+        #    raise NotImplementedError
+        #else:
+        records = []
+        for group_url in group_urls:
+            response, content = self.client.request(group_url)
+            print content
+            record_urls = decode_record_list(content)["records"]
+            for record_url in record_urls:
+                records.append(self._get_record(record_url))
+        return records
+        
     
     def delete(self, project, label):
         url = "%s%s/%s" % (self.server_url, project, label)
         response, deleted_content = self.client.request(url, 'DELETE')
-        assert response.status == "200"
+        assert response.status == 200
         
     def delete_group(self, project, group_label):
-        "%s%s/%s/" % (self.server_url, project, group_label)
+        url = "%s%s/%s/" % (self.server_url, project, group_label)
         response, deleted_content = self.client.request(url, 'DELETE')
-        assert response.status == "200"
+        assert response.status == 200
         
     def delete_by_tag(self, project, tag):
         raise NotImplementedError
