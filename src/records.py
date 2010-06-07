@@ -35,7 +35,7 @@ class SimRecord(object): # maybe just call this Simulation
         self.main_file = main_file
         self.version = version
         self.parameters = parameters # a ParameterSet object
-        self.launch_mode = launch_mode # a launch_mode object - basically, run serially or with MPI. If MPI, what configuration
+        self.launch_mode = launch_mode # a LaunchMode object - basically, run serially or with MPI. If MPI, what configuration
         self.datastore = datastore
         self.outcome = None
         self.data_key = None

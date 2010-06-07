@@ -22,7 +22,7 @@ project_name = _project.name
 del _project
 
 simulation_records = {
-    "queryset": SimulationRecord.objects.all(),
+    "queryset": SimulationRecord.objects.filter(project=project_name),
     "template_name": "simulation_list.html",
     "extra_context": { 'project_name': project_name }
 }
