@@ -51,9 +51,9 @@ class DjangoRecordStore(RecordStore):
         if db_file:
             self.__init__(db_file)
     
-    def _get_db_record(self, project, record):
+    def _get_db_record(self, project_name, record):
         import models
-        db_project = self._get_db_project(project)
+        db_project = self._get_db_project(project_name)
         try:
             db_record = models.SimulationRecord.objects.get(id=record.label,
                                                             project=db_project,
@@ -66,11 +66,11 @@ class DjangoRecordStore(RecordStore):
                                                 timestamp=record.timestamp)
         return db_record
     
-    def _get_db_project(self, project):
+    def _get_db_project(self, project_name):
         try:
-            db_project = models.Project.objects.get(id=project.name)
+            db_project = models.Project.objects.get(id=project_name)
         except models.Project.DoesNotExist:
-            db_project = models.Project(id=project.name)
+            db_project = models.Project(id=project_name)
             db_project.save()
         return db_project
                                                                      
@@ -82,8 +82,8 @@ class DjangoRecordStore(RecordStore):
             db_obj.save()
         return db_obj        
     
-    def save(self, project, record):
-        db_record = self._get_db_record(project, record)
+    def save(self, project_name, record):
+        db_record = self._get_db_record(project_name, record)
         for attr in 'reason', 'duration', 'outcome', 'main_file', 'version':
             value = getattr(record, attr)
             if value is not None:
@@ -115,35 +115,35 @@ class DjangoRecordStore(RecordStore):
         #django.db.models.manager.insert_query = debug(django.db.models.manager.insert_query)
         db_record.save()
         
-    def get(self, project, label):
+    def get(self, project_name, label):
         import models
         try:
-            db_record = models.SimulationRecord.objects.get(project__id=project.name, id=label)
+            db_record = models.SimulationRecord.objects.get(project__id=project_name, id=label)
         except models.SimulationRecord.DoesNotExist:
             raise KeyError(label)
         return db_record.to_sumatra()
     
-    def list(self, project, groups):
+    def list(self, project_name, groups):
         import models
-        db_records = models.SimulationRecord.objects.filter(project__id=project.name)
+        db_records = models.SimulationRecord.objects.filter(project__id=project_name)
         if groups:
             db_records = db_records.filter(group__in=groups)
         return [db_record.to_sumatra() for db_record in db_records]
     
-    def delete(self, project, label):
+    def delete(self, project_name, label):
         import models
-        db_record = models.SimulationRecord.objects.get(id=label, project__id=project.name)
+        db_record = models.SimulationRecord.objects.get(id=label, project__id=project_name)
         db_record.delete()
     
-    def delete_group(self, project, group_label):
+    def delete_group(self, project_name, group_label):
         import models
-        db_records = models.SimulationRecord.objects.filter(project__id=project.name, group=group_label)
+        db_records = models.SimulationRecord.objects.filter(project__id=project_name, group=group_label)
         n = db_records.count()
         for db_record in db_records:
             db_record.delete()
         return n
         
-    def delete_by_tag(self, project, tag):
+    def delete_by_tag(self, project_name, tag):
         import models
         raise NotImplementedError
     
