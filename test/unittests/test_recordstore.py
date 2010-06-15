@@ -11,12 +11,15 @@ from sumatra.records import SimRecord
 from sumatra.programs import register_executable, Executable
 from sumatra.recordstore.shelve_store import ShelveRecordStore
 from sumatra.recordstore.django_store import DjangoRecordStore
+from sumatra.recordstore.http_store import HttpRecordStore
 from sumatra.versioncontrol import vcs_list
+import sumatra.launch
+import sumatra.datastore
 
 class MockExecutable(Executable):
     name = "a.out"
     path = "/usr/local/bin/a.out"
-    version = 999
+    version = "999"
     def __init__(self, *args, **kwargs):
         pass
 register_executable(MockExecutable, "a.out", "/usr/local/bin/a.out", [])
@@ -32,11 +35,15 @@ class MockLaunchMode(object):
     type = "SerialLaunchMode"
     def get_state(self):
         return {}
+sumatra.launch.MockLaunchMode = MockLaunchMode
 
 class MockDataStore(object):
     type = "FileSystemDataStore"
+    def __init__(self, **parameters):
+        pass
     def get_state(self):
         return {'root': "/tmp"}
+sumatra.datastore.MockDataStore = MockDataStore
 
 class MockDependency(object):
     name = "some_module"
@@ -62,7 +69,7 @@ class MockRecord(object):
         self.group = group
         self.timestamp = timestamp
         self.reason = "because"
-        self.duration = 7543
+        self.duration = 7543.2
         self.outcome = None
         self.main_file = "test"
         self.version = "99863a9dc5f"
@@ -93,6 +100,7 @@ class BaseTestRecordStore(object):
         r2 = MockRecord(timestamp=datetime(2009, 1, 2), group="groupA")
         r3 = MockRecord(timestamp=datetime(2009, 1, 2), group="groupB")
         for r in r1, r2, r3:
+            print "saving record %s" % r.label
             self.store.save(self.project.name, r)
 
     def test_create_record_store_should_not_produce_errors(self):
@@ -114,7 +122,7 @@ class BaseTestRecordStore(object):
         self.add_some_records()
         records = self.store.list(self.project.name, [])
         assert isinstance(records, list)
-        assert len(records) == 3
+        self.assertEqual(len(records), 3)
         
     def test_list_with_groups_should_return_subset_of_records(self):
         self.add_some_records()
@@ -134,11 +142,12 @@ class BaseTestRecordStore(object):
     def test_delete_group(self):
         self.add_some_records()
         assert self.store.delete_group(self.project.name, "groupA") == 2
-        assert len(self.store.list(self.project.name, ["groupA"])) == 0
+        self.assertEqual(len(self.store.list(self.project.name, ["groupA"])), 0)
 
     def test_str(self):
         #this test is pointless, just to increase coverage
         assert isinstance(str(self.store), basestring)
+
 
 class TestShelveRecordStore(unittest.TestCase, BaseTestRecordStore):
     
@@ -180,6 +189,23 @@ class TestDjangoRecordStore(unittest.TestCase, BaseTestRecordStore):
         unpickled = pickle.loads(s)
         #assert unpickled._shelf_name == "test_record_store"
         #assert os.path.exists(unpickled._shelf_name)
+
+
+class TestHttpRecordStore(unittest.TestCase, BaseTestRecordStore):
+    
+    def setUp(self):
+        self.store = HttpRecordStore("http://127.0.0.1:8000/records/", None, None)
+        self.project = MockProject()
+        
+    def tearDown(self):
+        pass
+    
+    def test_record_store_is_pickleable(self):
+        import pickle
+        self.add_some_records()
+        s = pickle.dumps(self.store)
+        del self.store
+        unpickled = pickle.loads(s)
 
 
 if __name__ == '__main__':

@@ -44,7 +44,7 @@ def encode_record(record):
             "type": record.datastore.__class__.__name__,
             "parameters": str(record.datastore.get_state()),
         },
-        "outcome": record.outcome,
+        "outcome": record.outcome or "",
         "data_key": str(record.data_key),
         "timestamp": record.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
         "tags": list(record.tags), # not sure if tags should be PUT, perhaps have separate URL for this?
@@ -91,13 +91,20 @@ def decode_record(content):
     executable = cls(edata["path"], edata["version"])
     executable.name = edata["name"]
     rdata = data["repository"]
+    repos_cls = None
     for m in versioncontrol.vcs_list:
         if hasattr(m, rdata["type"]):
-            repository = getattr(m, rdata["type"])(rdata["url"])
+            repos_cls = getattr(m, rdata["type"])
             break
-        raise Exception("Repository type not found") # maybe return DummyRepository in this case
+    if repos_cls is None:  
+        repos_cls = versioncontrol.base.Repository
+    repository = repos_cls(rdata["url"])
     pdata = data["parameters"]
-    parameter_set = getattr(parameters, pdata["type"])(pdata["content"])
+    if pdata["type"] == "dict":
+        parameter_set = eval(pdata["content"])
+        assert isinstance(parameter_set, dict)
+    else:
+        parameter_set = getattr(parameters, pdata["type"])(pdata["content"])
     ldata = data["launch_mode"]
     lm_parameters = eval(ldata["parameters"])
     launch_mode = getattr(launch, ldata["type"])(**lm_parameters)
@@ -149,11 +156,16 @@ class  HttpRecordStore(RecordStore):
         data = encode_record(record)
         response, content = self.client.request(url, 'PUT', data,
                                                 headers=headers)
-        assert response.status == 200
+        if response.status not in (200, 201):
+            raise Exception("%d\n%s" % (response.status, content))
     
     def _get_record(self, url):
         response, content = self.client.request(url)
-        assert response.status == 200
+        if response.status != 200:
+            if response.status == 404:
+                raise KeyError("No record was found at %s" % url)                
+            else:
+                raise Exception("%d\n%s" % (response.status, content))
         return decode_record(content)
     
     def get(self, project_name, label):
@@ -162,30 +174,33 @@ class  HttpRecordStore(RecordStore):
     
     def list(self, project_name, groups):
         project_url = "%s%s/" % (self.server_url, project_name)
-        response, content = self.client.request(project_url)
-        assert response.status == 200
-        group_urls = decode_group_list(content)["groups"]
-        #if groups:
-        #    raise NotImplementedError
-        #else:
+        if groups:
+            group_urls = ["%s%s/" % (project_url, group) for group in groups]
+        else:
+            response, content = self.client.request(project_url)
+            assert response.status == 200
+            group_urls = decode_group_list(content)["groups"]
         records = []
         for group_url in group_urls:
             response, content = self.client.request(group_url)
-            print content
+            print "<DEBUG>", content, "</DEBUG>"
             record_urls = decode_record_list(content)["records"]
             for record_url in record_urls:
                 records.append(self._get_record(record_url))
         return records
     
     def delete(self, project_name, label):
-        url = "%s%s/%s" % (self.server_url, project_name, label)
+        url = "%s%s/%s" % (self.server_url, project_name, label.replace("_", "/"))
         response, deleted_content = self.client.request(url, 'DELETE')
-        assert response.status == 200
+        if response.status != 204:
+            raise Exception("%d\n%s" % (response.status, deleted_content))
         
     def delete_group(self, project_name, group_label):
         url = "%s%s/%s/" % (self.server_url, project_name, group_label)
-        response, deleted_content = self.client.request(url, 'DELETE')
-        assert response.status == 200
+        response, n_records = self.client.request(url, 'DELETE')
+        if response.status != 200:
+            raise Exception("%d\n%s" % (response.status, deleted_content))
+        return int(n_records)
         
     def delete_by_tag(self, project_name, tag):
         raise NotImplementedError
