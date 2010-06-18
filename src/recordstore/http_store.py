@@ -199,7 +199,7 @@ class  HttpRecordStore(RecordStore):
         url = "%s%s/%s/" % (self.server_url, project_name, group_label)
         response, n_records = self.client.request(url, 'DELETE')
         if response.status != 200:
-            raise Exception("%d\n%s" % (response.status, deleted_content))
+            raise Exception("%d\n%s" % (response.status, n_records))
         return int(n_records)
         
     def delete_by_tag(self, project_name, tag):

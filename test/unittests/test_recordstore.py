@@ -194,7 +194,7 @@ class TestDjangoRecordStore(unittest.TestCase, BaseTestRecordStore):
 class TestHttpRecordStore(unittest.TestCase, BaseTestRecordStore):
     
     def setUp(self):
-        self.store = HttpRecordStore("http://127.0.0.1:8000/records/", None, None)
+        self.store = HttpRecordStore("http://127.0.0.1:8000/records/", "testuser", "z6Ty49HY")
         self.project = MockProject()
         
     def tearDown(self):
