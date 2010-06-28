@@ -16,6 +16,20 @@ _project = load_simulation_project()
 project_name = _project.name
 del _project
 
+# Idea: add project as arg to the view functions.
+#       When using with smtweb, we use a decorator something like the
+#       following to provide the project. When using sumatra_piston, the project
+#       is provided from the URL
+#       The conditional could be something like whether we successfully load
+#       a local project.
+#def call_with_project(func):
+#    def wrapped(request, *args, **kwargs):
+#        return func(request, project, *args, **kwargs)
+#    return wrapped
+
+# A much simpler idea: we put the project in the URL for smtweb as well.
+
+
 class TagSearch(forms.Form):
     search = forms.CharField() 
     
@@ -35,14 +49,14 @@ def show_project(request):
 def list_simulations(request):
     search_form = TagSearch()
     return list_detail.object_list(request,
-                                   queryset=models.SimulationRecord.objects.all(),
+                                   queryset=models.SimulationRecord.objects.filter(project__id=project_name),
                                    template_name="simulation_list.html",
                                    extra_context={
                                     'project_name': project_name,
                                     'search_form': search_form})  
 
 def simulation_detail(request, id):
-    record = models.SimulationRecord.objects.get(id=id)
+    record = models.SimulationRecord.objects.get(id=id, project__id=project_name)
     
     
     if request.method == 'POST':
@@ -68,7 +82,7 @@ def simulation_detail(request, id):
 
 def delete_records(request):
     records_to_delete = request.POST.getlist('delete')
-    records = models.SimulationRecord.objects.filter(id__in=records_to_delete)
+    records = models.SimulationRecord.objects.filter(id__in=records_to_delete, project__id=project_name)
     for record in records:
         record.delete()
     return HttpResponseRedirect('/')  
@@ -86,7 +100,7 @@ def show_file(request, id):
     else:
         max_display_length = DEFAULT_MAX_DISPLAY_LENGTH
     
-    record = models.SimulationRecord.objects.get(id=id)
+    record = models.SimulationRecord.objects.get(id=id, project__id=project_name)
     data_store = get_data_store(record.datastore.type, eval(record.datastore.parameters))
     # check the file is in the store for a given simulation
         
@@ -154,7 +168,7 @@ def show_image(request, id):
     path = request.GET['path']
     mimetype, encoding = mimetypes.guess_type(path)
     if mimetype in ("image/png", "image/jpeg", "image/gif"):
-        record = models.SimulationRecord.objects.get(id=id)
+        record = models.SimulationRecord.objects.get(id=id, project__id=project_name)
         data_store = get_data_store(record.datastore.type, eval(record.datastore.parameters))
         content = data_store.get_content(record.data_key, path)
         response = HttpResponse(mimetype=mimetype)
@@ -164,7 +178,7 @@ def show_image(request, id):
         return HttpResponse(mimetype="image/png") # should return a placeholder image?
     
 def show_diff(request, id, package):
-    record = models.SimulationRecord.objects.get(id=id)
+    record = models.SimulationRecord.objects.get(id=id, project__id=project_name)
     if package:
         dependency = record.dependencies.get(name=package)
     else:
