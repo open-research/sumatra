@@ -36,7 +36,8 @@ class SimProject(object):
 
     def __init__(self, name, default_executable=None, default_repository=None,
                  default_main_file=None, default_launch_mode=None,
-                 data_store='default', record_store='default', on_changed='error'):
+                 data_store='default', record_store='default',
+                 on_changed='error', description=''):
         if not os.path.exists(".smt"):
             os.mkdir(".smt")
         if os.path.exists(".smt/simulation_project"):
@@ -53,6 +54,7 @@ class SimProject(object):
             record_store = DefaultRecordStore(".smt/simulation_records")
         self.record_store = record_store
         self.on_changed = on_changed
+        self.description = description
         self.save()
         print "Simulation project successfully set up"
     
