@@ -106,6 +106,8 @@ class TestSimProject(unittest.TestCase):
     def test_new_record_with_minimal_args_should_set_defaults(self):
         proj = SimProject("test_project",
                           default_main_file="test.py",
+                          default_executable=MockExecutable(),
+                          default_launch_mode=MockLaunchMode(),
                           default_repository=MockRepository())
         rec = proj.new_record({})
         self.assertEqual(rec.repository, proj.default_repository)

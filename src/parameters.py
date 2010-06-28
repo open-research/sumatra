@@ -87,13 +87,10 @@ class SimpleParameterSet(object):
                 _update(name, value)
         for name,value in F.items():
             _update(name, value)
-            
-        
+    
 
 list_pattern = re.compile(r'^\s*\[.*\]\s*$')
 tuple_pattern = re.compile(r'^\s*\(.*\)\s*$')
-
-
 
 def build_parameters(filename, cmdline_parameters=[]):
     try:

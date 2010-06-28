@@ -5,6 +5,7 @@ Web interface to the Sumatra simulation management tool.
 
 import sys
 import os
+import webbrowser
 from django.core import management
 from django.conf import settings
 from sumatra.projects import load_simulation_project
@@ -33,5 +34,6 @@ else:
     port = "8000"
 management.call_command('runserver', port)
 
+#webbrowser.open_new_tab("http://127.0.0.1:%s" % port)
 
 

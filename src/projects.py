@@ -25,13 +25,14 @@ from datastore import FileSystemDataStore
 from records import SimRecord
 from formatting import get_formatter, get_diff_formatter
 from recordstore import DefaultRecordStore
-from versioncontrol import UncommittedModificationsError
+from versioncontrol import UncommittedModificationsError, get_working_copy
 
 def _remove_left_margin(s): # replace this by textwrap.dedent?
     lines = s.strip().split('\n')
     return "\n".join(line.strip() for line in lines)
 
-class SimProject:
+
+class SimProject(object):
 
     def __init__(self, name, default_executable=None, default_repository=None,
                  default_main_file=None, default_launch_mode=None,
@@ -42,7 +43,7 @@ class SimProject:
             raise Exception("Simulation project already exists in this directory.")
         self.name = name
         self.default_executable = default_executable
-        self.default_repository = default_repository
+        self.default_repository = default_repository # maybe we should be storing the working copy instead, as this has a ref to the repository anyway
         self.default_main_file = default_main_file
         self.default_launch_mode = default_launch_mode
         if data_store == 'default':
@@ -89,9 +90,11 @@ class SimProject:
         if launch_mode == 'default':
             launch_mode = deepcopy(self.default_launch_mode)
         version, diff = self.update_code(repository.working_copy, version)
-        return SimRecord(executable, repository, main_file, version, parameters,
-                         launch_mode, self.data_store, label=label, reason=reason,
-                         diff=diff, on_changed=self.on_changed)
+        record = SimRecord(executable, repository, main_file, version, parameters,
+                          launch_mode, self.data_store, label=label, reason=reason,
+                          diff=diff, on_changed=self.on_changed)
+        record.register()
+        return record
     
     def launch_simulation(self, parameters, executable='default',
                           repository='default', main_file='default',
@@ -184,7 +187,7 @@ class SimProject:
         diff = record1.difference(record2, ignore_mimetypes, ignore_filenames)
         formatter = get_diff_formatter()(diff)
         return formatter.format(mode)
-    
+
     
 def load_simulation_project():
     if os.path.exists(".smt"):
@@ -194,3 +197,4 @@ def load_simulation_project():
         return prj
     else:
         raise Exception("No simulation project exists in the current directory")
+        

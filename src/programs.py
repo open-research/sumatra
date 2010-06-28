@@ -31,7 +31,7 @@ class VersionedProgram(object):
     pass
     
         
-class Executable(VersionedProgram): # call this Simulator? what about PyNEST?
+class Executable(VersionedProgram):
     # store compilation/configuration options?
 
     def __init__(self, path, version=None):

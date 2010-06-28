@@ -62,8 +62,6 @@ class SimRecord(object): # maybe just call this Simulation
     
     def run(self):
         """Launch the simulation."""
-        # if it hasn't been run already. Do we need to distinguish separate Simulation and SimRecord classes?
-        self.register()
         # run pre-simulation tasks, e.g. nrnivmodl
         self.launch_mode.pre_run(self.executable)
         # Write the simulator-specific parameter file
