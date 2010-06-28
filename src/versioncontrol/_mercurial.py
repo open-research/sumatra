@@ -17,6 +17,7 @@ get_repository()        - return a MercurialRepository object for a given URL.
 """
 
 from mercurial import hg, ui, patch
+from mercurial.dispatch import _findrepo # this has moved in more recent versions - need try..except ImportError
 import os
 import binascii
 
@@ -25,7 +26,7 @@ from base import Repository, WorkingCopy
 
 def may_have_working_copy(path=None):
     path = path or os.getcwd()
-    return os.path.exists(os.path.join(path, ".hg"))
+    return bool(_findrepo(path))
 
 def get_working_copy(path=None):
     return MercurialWorkingCopy(path)

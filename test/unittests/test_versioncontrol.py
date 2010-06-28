@@ -8,7 +8,7 @@ import os
 import pickle
 import tempfile
 import shutil
-from sumatra.versioncontrol._mercurial import MercurialRepository, MercurialWorkingCopy
+from sumatra.versioncontrol._mercurial import MercurialRepository, MercurialWorkingCopy, may_have_working_copy
 from sumatra.versioncontrol._subversion import SubversionRepository, SubversionWorkingCopy
 from sumatra.versioncontrol import get_repository
 
@@ -69,7 +69,7 @@ class TestMercurialWorkingCopy(unittest.TestCase, BaseTestWorkingCopy):
         self.tmpdir = tempfile.mkdtemp()
         self.repos.checkout(self.tmpdir)
         self.wc = MercurialWorkingCopy(self.tmpdir)
-        self.latest_version = "6f2933e38cb7"
+        self.latest_version = "7ba7d226aefe"
         self.previous_version = "2f63951b5f32"
         
     def tearDown(self):
@@ -185,7 +185,27 @@ class TestSubversionRepository(unittest.TestCase):
         self.assertRaises(Exception, r.checkout, path="file:///tmp/")
 
 class TestMercurialModuleFunctions(unittest.TestCase):
-    pass
+    
+    def setUp(self):
+        self.repository_path = os.path.abspath("../example_repositories/mercurial")
+        os.symlink("%s/hg" % self.repository_path, "%s/.hg" % self.repository_path)
+        self.repos = MercurialRepository("file://%s" % self.repository_path)
+        self.tmpdir = tempfile.mkdtemp()
+        self.repos.checkout(self.tmpdir)
+        
+    def tearDown(self):
+        os.unlink("%s/.hg" % self.repository_path)
+        shutil.rmtree(self.tmpdir)
+    
+    def test__may_have_working_copy(self):
+        have_wc = may_have_working_copy(self.tmpdir)
+        assert have_wc == True
+        
+    def test__may_have_working_copy_with_submodule(self):
+        path = os.path.join(self.tmpdir, "subpackage")
+        have_wc = may_have_working_copy()
+        assert have_wc == True
+
 
 class TestSubversionModuleFunctions(unittest.TestCase):
     pass
