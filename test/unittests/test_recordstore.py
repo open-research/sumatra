@@ -79,7 +79,7 @@ class MockRecord(object):
         self.launch_mode = MockLaunchMode()
         self.datastore = MockDataStore()
         self.parameters = {}
-        self.tags = []
+        self.tags = set([])
         self.dependencies = [MockDependency(), MockDependency()]
         self.platforms = [MockPlatformInformation()]
         self.diff = ""
@@ -102,6 +102,15 @@ class BaseTestRecordStore(object):
         for r in r1, r2, r3:
             print "saving record %s" % r.label
             self.store.save(self.project.name, r)
+
+    def add_some_tags(self):
+        r1 = MockRecord(timestamp=datetime(2009, 1, 1), group="groupA")
+        r3 = MockRecord(timestamp=datetime(2009, 1, 2), group="groupB")
+        r1.tags.add("tag1")
+        r1.tags.add("tag2")
+        r3.tags.add("tag1")
+        self.store.save(self.project.name, r1)
+        self.store.save(self.project.name, r3)
 
     def test_create_record_store_should_not_produce_errors(self):
         pass
@@ -143,6 +152,17 @@ class BaseTestRecordStore(object):
         self.add_some_records()
         assert self.store.delete_group(self.project.name, "groupA") == 2
         self.assertEqual(len(self.store.list(self.project.name, ["groupA"])), 0)
+
+    def test_delete_by_tag(self):
+        self.add_some_records()
+        self.assertEqual(len(self.store.list(self.project.name, [])), 3)
+        self.add_some_tags()
+        r = self.store.get(self.project.name, "groupA_20090101-000000")
+        self.assertEqual(r.tags, set(['tag1', 'tag2']))
+        n = self.store.delete_by_tag(self.project.name, "tag1")
+        self.assertEqual(n, 2)
+        self.assertEqual(len(self.store.list(self.project.name, [])), 1)
+        self.assertRaises(KeyError, self.store.get, self.project.name, "groupA_20090101-000000")
 
     def test_str(self):
         #this test is pointless, just to increase coverage

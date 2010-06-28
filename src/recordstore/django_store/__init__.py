@@ -145,7 +145,11 @@ class DjangoRecordStore(RecordStore):
         
     def delete_by_tag(self, project_name, tag):
         import models
-        raise NotImplementedError
+        db_records = models.SimulationRecord.objects.filter(project__id=project_name, tags__contains=tag)
+        n = db_records.count()
+        for db_record in db_records:
+            db_record.delete()
+        return n
     
 
     

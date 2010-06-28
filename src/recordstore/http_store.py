@@ -203,5 +203,9 @@ class  HttpRecordStore(RecordStore):
         return int(n_records)
         
     def delete_by_tag(self, project_name, tag):
-        raise NotImplementedError
+        url = "%s%s/tag/%s/" % (self.server_url, project_name, tag)
+        response, n_records = self.client.request(url, 'DELETE')
+        if response.status != 200:
+            raise Exception("%d\n%s" % (response.status, n_records))
+        return int(n_records)
     
