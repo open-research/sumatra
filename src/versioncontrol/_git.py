@@ -1,6 +1,5 @@
 """
 Defines the Sumatra version control interface for Git.
-Based (heavily) on the Mercurial class
 
 Classes
 -------

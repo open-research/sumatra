@@ -2,11 +2,11 @@
 Installation
 ============
 
-Sumatra may be downloaded from the `Python Package Index`_ or from the `INCF Software Centre`_.
+Sumatra may be downloaded from the `Python Package Index`_ (PyPI) or from the `INCF Software Centre`_.
 To install it, first unpack the tar archive::
 
-    $ tar xzf Sumatra-0.1.tar.gz
-    $ cd Sumatra-0.1
+    $ tar xzf Sumatra-0.2.tar.gz
+    $ cd Sumatra-0.2
     # python setup.py install
     
 The last step may need to be run as root, or using sudo.
@@ -21,14 +21,26 @@ http://code.djangoproject.com/wiki/Distributions.
 Otherwise, it is very easy to install manually: see
 http://docs.djangoproject.com/en/dev/topics/install/#installing-official-release
 
+You will also need to install the `django-tagging`_ package, which may be in
+your package management system, otherwise it can be installed from PyPI::
+
+    $ easy_install django-tagging
+
 Installing Python bindings for your version control system
 ----------------------------------------------------------
 
-Sumatra currently supports Mercurial_ and Subversion_. If you are using Subversion,
-you will need to install the pysvn bindings from http://pysvn.tigris.org/project_downloads.html.
+Sumatra currently supports Mercurial_,  Subversion_ and Git_. If you are using Subversion,
+you will need to install the `pysvn bindings`_.
+Since Mercurial is mostly written in Python, just installing the main Mercurial
+package is sufficient. For Git, you need to install the GitPython_ library.
+
 
 .. _Django: http://www.djangoproject.com
 .. _Mercurial: http://www.selenic.com/mercurial/
 .. _Subversion: http://subversion.tigris.org/
+.. _Git: http://git-scm.com/
 .. _`Python Package Index`: http://pypi.python.org/pypi/sumatra/
 .. _`INCF Software Centre`: http://software.incf.org/software/sumatra/home/download/
+.. _`django-tagging`: http://pypi.python.org/pypi/django-tagging/
+.. _`pysvn bindings`: http://pysvn.tigris.org/project_downloads.html
+.. _`GitPython`: http://pypi.python.org/pypi/GitPython/
