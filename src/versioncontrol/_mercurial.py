@@ -17,9 +17,11 @@ get_repository()        - return a MercurialRepository object for a given URL.
 """
 
 from mercurial import hg, ui, patch
+from mercurial.repo import RepoError
 from mercurial.dispatch import _findrepo # this has moved in more recent versions - need try..except ImportError
 import os
 import binascii
+from base import VersionControlError
 
 from base import Repository, WorkingCopy
 
@@ -29,7 +31,10 @@ def may_have_working_copy(path=None):
     return bool(_findrepo(path))
 
 def get_working_copy(path=None):
-    return MercurialWorkingCopy(path)
+    if may_have_working_copy(path):
+        return MercurialWorkingCopy(path)
+    else:
+        raise VersionControlError("No Mercurial working copy found at %s" % path)
 
 def get_repository(url):
     return MercurialRepository(url)
@@ -84,8 +89,11 @@ class MercurialRepository(Repository):
     def __init__(self, url):
         Repository.__init__(self, url)
         self._ui = ui.ui()  # get a ui object
-        self._repository = hg.repository(self._ui, url)
+        try:
+            self._repository = hg.repository(self._ui, url)
         # need to add a check that this actually is a Mercurial repository
+        except (RepoError, Exception), err:
+            raise VersionControlError("%s" % err)
         self.working_copy = None
             
     def checkout(self, path="."):
