@@ -158,7 +158,10 @@ class SimProject(object):
     
     def format_records(self, groups=[], format='text', mode='short', tag=None):
         # need to add filtering by tag
-        records = self.record_store.list(self.name, groups)
+        if tag:
+            records = self.record_store.list_for_tag(self.name, tag)
+        else:
+            records = self.record_store.list(self.name, groups)
         formatter = get_formatter(format)(records)
         return formatter.format(mode) 
     

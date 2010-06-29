@@ -26,6 +26,10 @@ class PlatformInformation(object):
     #platform.win32_ver()
     #platform.dist()
     #platform.libc_ver()
+    # Python compile options? distutils.sys_config?
+    # some numpy information?
+    # numpy.distutils.system_info import get_info
+    # get_info('blas_opt')
 
 
 def check_files_exist(executable, main_file, parameter_file):

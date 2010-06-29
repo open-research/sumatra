@@ -6,6 +6,7 @@ module.
 from sumatra.recordstore import RecordStore
 import shelve
 
+
 class ShelveRecordStore(RecordStore):
     
     def __init__(self, shelf_name=".smt/simulation_records"):
@@ -40,6 +41,14 @@ class ShelveRecordStore(RecordStore):
             return [record for record in self.shelf[project_name].values() if record.group in groups]
         else:
             return self.shelf[project_name].values()
+    
+    def list_for_tags(self, project_name, tags):
+        if not hasattr(tags, "__iter__"):
+            tags = [tags]
+        records = set()
+        for tag in tags:
+            records = records.union([record for record in self.shelf[project_name].values() if tag in record.tags])
+        return records
     
     def delete(self, project_name, label):
         records = self.shelf[project_name]

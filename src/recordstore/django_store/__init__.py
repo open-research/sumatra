@@ -130,6 +130,15 @@ class DjangoRecordStore(RecordStore):
             db_records = db_records.filter(group__in=groups)
         return [db_record.to_sumatra() for db_record in db_records]
     
+    def list_for_tags(self, project_name, tags):
+        import models
+        if not hasattr(tags, "__len__"):
+            tags = [tags]
+        db_records = models.SimulationRecord.objects.filter(project__id=project_name)
+        for tag in tags:
+            db_records = db_records.filter(tags__contains=tag)
+        return db_records
+    
     def delete(self, project_name, label):
         import models
         db_record = models.SimulationRecord.objects.get(id=label, project__id=project_name)

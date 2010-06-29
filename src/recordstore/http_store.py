@@ -189,6 +189,9 @@ class  HttpRecordStore(RecordStore):
                 records.append(self._get_record(record_url))
         return records
     
+    def list_for_tags(self, project_name, tags):
+        raise NotImplementedError
+    
     def delete(self, project_name, label):
         url = "%s%s/%s" % (self.server_url, project_name, label.replace("_", "/"))
         response, deleted_content = self.client.request(url, 'DELETE')

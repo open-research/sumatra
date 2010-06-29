@@ -141,7 +141,13 @@ class BaseTestRecordStore(object):
             assert record.group == "groupA"
         records = self.store.list(self.project.name, ["groupA", "groupB", "foo"])
         assert len(records) == 3
-        
+    
+    def test_list_for_tags_should_filter_records_appropriately(self):
+        self.add_some_records()
+        self.add_some_tags()
+        records = self.store.list_for_tags(self.project.name, "tag1")
+        self.assertEqual(len(records), 2)
+    
     def test_delete_removes_record(self):
         self.add_some_records()
         key = "groupA_20090101-000000"
