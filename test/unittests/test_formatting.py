@@ -6,10 +6,11 @@ import unittest
 from datetime import datetime
 from sumatra.records import SimRecord
 from sumatra.formatting import Formatter, TextFormatter, HTMLFormatter, TextDiffFormatter, get_formatter
+from xml.etree import ElementTree
 
 class MockRecord(SimRecord):
     def __init__(self):
-        self.group = ""
+        self.group = "test"
         self.reason = ""
         self.outcome = ""
         self.duration = ""
@@ -52,7 +53,7 @@ class TestTextFormatter(unittest.TestCase):
         tf1 = TextFormatter(self.record_list)
         self.assertEqual(tf1.format(mode='short'), tf1.short())
         self.assertEqual(tf1.format(mode='long'), tf1.long())
-        #self.assertEqual(tf1.format(mode='table'), tf1.table())
+        self.assertEqual(tf1.format(mode='table'), tf1.table())
         
     def test__format__should_raise_an_Exception_with_invalid_mode(self):
         tf1 = TextFormatter(self.record_list)
@@ -69,14 +70,44 @@ class TestTextFormatter(unittest.TestCase):
         lengths = [len(line) for line in txt.split("\n")]
         self.assert_(max(lengths)  <= 80)
 
-    #def test__table__should_return_a_constant_width_string(self):
-    #    self.fail()
+    def test__table__should_return_a_constant_width_string(self):
+        tf1 = TextFormatter(self.record_list)
+        txt = tf1.table()
+        lengths = [len(line) for line in txt.split("\n")[:-1]]
+        for l in lengths:
+            assert l == lengths[0]
 
 
 class TestHTMLFormatter(unittest.TestCase):
-    pass
-
     
+    def setUp(self):
+        self.record_list = [ MockRecord(), MockRecord() ]
+        self.record_tuple = ( MockRecord(), MockRecord() )
+        
+    def test__short__should_return_an_unordered_list(self):
+        hf1 = HTMLFormatter(self.record_list)
+        doc = ElementTree.fromstring(hf1.short())
+        self.assertEqual(doc.tag, 'ul')
+        self.assertEqual(len(doc.getchildren()), 2)
+
+    def test__long__should_return_a_definition_list(self):
+        hf1 = HTMLFormatter(self.record_list)
+        doc = ElementTree.fromstring(hf1.long())
+        self.assertEqual(doc.tag, 'dl')
+        self.assertEqual(len(doc.findall("dt")), 2)
+        self.assertEqual(len(doc.findall("dd")), 2)
+        first_record = doc.find("dd")
+        self.assertEqual(len(first_record.getchildren()), 1)
+        self.assertEqual(first_record.getchildren()[0].tag, "dl")
+        # this test is rather limited.
+
+    def test__table__should_return_an_html_table(self):
+        hf1 = HTMLFormatter(self.record_list)
+        doc = ElementTree.fromstring(hf1.table())
+        self.assertEqual(doc.tag, 'table')
+        self.assertEqual(len(doc.findall("tr")), 3)
+
+
 class TestTextDiffFormatter(unittest.TestCase):
     
     def setUp(self):

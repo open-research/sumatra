@@ -57,13 +57,61 @@ class TextFormatter(Formatter):
         return output
     
     def table(self):
-        raise NotImplementedError
+        tt = TextTable(fields, self.records)
+        return str(tt)
     
+
+class TextTable(object):
+    """
+    Very primitive implementation of a text table. There are more sophisticated
+    implementations around, e.g. http://pypi.python.org/pypi/texttable/0.6.0/
+    but for now I'd like to avoid too many dependencies.
+    """
+    
+    def __init__(self, headers, rows, max_column_width=20):
+        self.headers = headers
+        self.rows = rows
+        self.max_column_width = max_column_width
+        
+    def calculate_column_widths(self):
+        column_widths = []
+        for header in self.headers:
+            column_width = max([len(header)] + [len(str(getattr(row, header))) for row in self.rows])
+            column_widths.append(min(self.max_column_width, column_width))
+        return column_widths
+            
+    def __str__(self):
+        column_widths = self.calculate_column_widths()
+        format = "| " + " | ".join("%%-%ds" % w for w in column_widths) + " |\n"
+        assert len(column_widths) == len(self.headers)
+        output = format % tuple(h.title() for h in self.headers)
+        for row in self.rows:
+            output += format % tuple(str(getattr(row, header))[:self.max_column_width] for header in self.headers)
+        return output
+        
+
 class HTMLFormatter(Formatter):
     
     def short(self):
-        raise NotImplementedError
+        return "<ul>\n<li>" + "</li>\n<li>".join(record.label for record in self.records) + "</li>\n</ul>"
     
+    def long(self):
+        def format_record(record):
+            output = "  <dt>%s</dt>\n  <dd>\n    <dl>\n" % record.label
+            for field in fields:
+                output += "      <dt>%s</dt><dd>%s</dd>\n" % (field, getattr(record, field))
+            output += "    </dl>\n  </dd>"
+            return output
+        return "<dl>\n" + "\n".join(format_record(record) for record in self.records) + "\n</dl>"
+
+    def table(self):
+        def format_record(record):
+            return "  <tr>\n    <td>" + "</td>\n    <td>".join(str(getattr(record, field)) for field in fields) + "    </td>\n  </tr>"
+        return "<table>\n" + \
+               "  <tr>\n    <th>" + "</th>\n    <th>".join(field.title() for field in fields) + "    </th>\n  </tr>\n" + \
+               "\n".join(format_record(record) for record in self.records) + \
+               "\n</table>"
+
 
 class TextDiffFormatter(Formatter):
     
