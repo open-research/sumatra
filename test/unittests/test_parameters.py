@@ -4,7 +4,9 @@ Unit tests for the sumatra.parameters module
 from __future__ import with_statement
 import unittest
 import os
-from sumatra.parameters import SimpleParameterSet, NTParameterSet, build_parameters
+from textwrap import dedent
+from sumatra.parameters import SimpleParameterSet, NTParameterSet, ConfigParserParameterSet, build_parameters
+
 
 class TestNTParameterSet(unittest.TestCase):
     pass
@@ -88,7 +90,42 @@ class TestSimpleParameterSet(unittest.TestCase):
     
 
 class TestConfigParserParameterSet(unittest.TestCase):
-    pass
+    test_parameters = dedent("""
+        [sectionA]
+        a = 2
+        b = 3
+        [sectionB]
+        c = hello
+        d = world
+        """)
+    
+    def test__init__should_accept_an_empty_initializer(self):
+        P = ConfigParserParameterSet("")
+        self.assertEqual(P.as_dict(), {})
+        
+    def test__init__should_accept_a_filename_or_string(self):
+        init = self.__class__.test_parameters
+        P1 = ConfigParserParameterSet(init)
+        with open("test_file", "w") as f:
+            f.write(init)
+        P2 = ConfigParserParameterSet("test_file")
+        self.assertEqual(P1.as_dict(), P2.as_dict())
+        os.remove("test_file")
+
+    def test__pretty__output_should_be_useable_to_create_an_identical_parameterset(self):
+        init = self.__class__.test_parameters
+        P1 = ConfigParserParameterSet(init)
+        P2 = ConfigParserParameterSet(P1.pretty())
+        self.assertEqual(P1.as_dict(), P2.as_dict())
+        
+    def test__update_should_handle_dots_appropriately(self):
+        init = self.__class__.test_parameters
+        P = ConfigParserParameterSet(init)
+        P.update({"sectionA.a": 5, "sectionA.c": 4, "sectionC.e": 9})
+        self.assertEqual(P.as_dict(), {"sectionA": dict(a="5", b="3", c="4"),
+                                       "sectionB": dict(c="hello", d="world"),
+                                       "sectionC": dict(e="9")})
+
 
 class TestModuleFunctions(unittest.TestCase):
     
@@ -99,18 +136,27 @@ class TestModuleFunctions(unittest.TestCase):
         init2 = "{\n  'x': 2,\n  'y': {'a': 3, 'b': 4}\n}"
         with open("test_file2", "w") as f:
             f.write(init2)
+        init3 = "[sectionA]\na = 2\nb = 3\n[sectionB]\nc = hello\nd = world"
+        with open("test_file3", "w") as f:
+            f.write(init3)
     
     def tearDown(self):
         os.remove("test_file")
         os.remove("test_file2")
+        os.remove("test_file3")
             
     def test__build_parameters__should_add_new_command_line_parameters_to_the_file_parameters(self):
         P = build_parameters("test_file", ["z=42", "foo=bar"])
-        self.assertEqual(P.values, {"x": 2, "y": 3, "z": 42, "foo": "bar"})        
+        self.assertEqual(P.values, {"x": 2, "y": 3, "z": 42, "foo": "bar"})
+        P = build_parameters("test_file3", ["sectionA.c=42", "sectionC.foo=bar"])
+        self.assertEqual(P["sectionA.c"], "42")
+        self.assertEqual(P["sectionC.foo"], "bar")
                 
     def test__build_parameters__should_overwrite_file_parameters_if_command_line_parameters_have_the_same_name(self):
         P = build_parameters("test_file", ["x=12", "y=13"])
         self.assertEqual(P.values, {"x": 12, "y": 13})
+        P = build_parameters("test_file3", ["sectionA.a=999"])
+        self.assertEqual(P["sectionA.a"], "999")
         
     def test__build_parameters__should_insert_dotted_parameters_in_the_appropriate_place_in_the_hierarchy(self):
         P = build_parameters("test_file2", ["z=100", "y.c=5", "y.a=-2"])
