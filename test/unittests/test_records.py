@@ -4,7 +4,7 @@ Unit tests for the sumatra.records module
 
 import unittest
 import time
-from sumatra.records import SimRecord, RecordDifference
+from sumatra.records import Record, RecordDifference
 
 
 class MockExecutable(object):
@@ -48,24 +48,24 @@ class MockDependency(object):
         self.name = name
         
 
-class TestSimRecord(unittest.TestCase):
+class TestRecord(unittest.TestCase):
     pass
 
 class TestRecordDifference(unittest.TestCase):
     
     def test__init(self):
-        r1 = SimRecord(MockExecutable(), MockRepository(), "test.py",
+        r1 = Record(MockExecutable(), MockRepository(), "test.py",
                        999, {}, MockLaunchMode(), MockDataStore)
         time.sleep(1)
-        r2 = SimRecord(MockExecutable(), MockRepository(), "test.py",
+        r2 = Record(MockExecutable(), MockRepository(), "test.py",
                        999, {}, MockLaunchMode(), MockDataStore)
         diff = RecordDifference(r1, r2)
         
     def test__nonzero__should_return_True__for_different_parameters(self):
-        r1 = SimRecord(MockExecutable(), MockRepository(), "test.py",
+        r1 = Record(MockExecutable(), MockRepository(), "test.py",
                        999, {"a": 2}, MockLaunchMode(), MockDataStore())
         time.sleep(1)
-        r2 = SimRecord(MockExecutable(), MockRepository(), "test.py",
+        r2 = Record(MockExecutable(), MockRepository(), "test.py",
                        999, {"a": 3}, MockLaunchMode(), MockDataStore())
         r1.dependencies = []
         r2.dependencies = []
@@ -77,10 +77,10 @@ class TestRecordDifference(unittest.TestCase):
         assert diff.__nonzero__()
         
     def test__nonzero__should_return_True__for_identical_parameters(self):
-        r1 = SimRecord(MockExecutable(), MockRepository(), "test.py",
+        r1 = Record(MockExecutable(), MockRepository(), "test.py",
                        999, {"a": 2}, MockLaunchMode(), MockDataStore())
         time.sleep(1)
-        r2 = SimRecord(MockExecutable(), MockRepository(), "test.py",
+        r2 = Record(MockExecutable(), MockRepository(), "test.py",
                        999, {"a": 2}, MockLaunchMode(), MockDataStore())
         r1.dependencies = []
         r2.dependencies = []
@@ -92,10 +92,10 @@ class TestRecordDifference(unittest.TestCase):
         self.assertEqual(diff.__nonzero__(), False)
 
     def test__dependency_differences(self):
-        r1 = SimRecord(MockExecutable(), MockRepository(), "test.py",
+        r1 = Record(MockExecutable(), MockRepository(), "test.py",
                        999, {}, MockLaunchMode(), MockDataStore())
         time.sleep(1)
-        r2 = SimRecord(MockExecutable(), MockRepository(), "test.py",
+        r2 = Record(MockExecutable(), MockRepository(), "test.py",
                        999, {}, MockLaunchMode(), MockDataStore())
         r1.dependencies = [MockDependency("foo"), MockDependency("bar")]
         r2.dependencies = [MockDependency("bar"), MockDependency("eric")]
@@ -103,10 +103,10 @@ class TestRecordDifference(unittest.TestCase):
         diff.dependency_differences
 
     def test__data_differences(self):
-        r1 = SimRecord(MockExecutable(), MockRepository(), "test.py",
+        r1 = Record(MockExecutable(), MockRepository(), "test.py",
                        999, {}, MockLaunchMode(), MockDataStore())
         time.sleep(1)
-        r2 = SimRecord(MockExecutable(), MockRepository(), "test.py",
+        r2 = Record(MockExecutable(), MockRepository(), "test.py",
                        999, {}, MockLaunchMode(), MockDataStore())
         diff = RecordDifference(r1, r2)
         diff.data_differences

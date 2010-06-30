@@ -1,8 +1,0 @@
-
-- fix the confusion between label, group and id.
-- add filtering by tag to project.format_record()
-- implement delete_by_tag()
-- implement HTML format for list
-- implement table mode for list
-- implement comparison of two simulation records, for use by the repeat command
-- test the using_the_api.txt examples

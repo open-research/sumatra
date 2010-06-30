@@ -2,9 +2,11 @@
 Getting started
 ===============
 
-Let us assume that you already have a simulation project, which you wish to start
-managing using Sumatra, and that the code for this project is under version
-control.
+Let us assume that you already have a project based on numerical simulation,
+which you wish to start managing using Sumatra, and that the code for this
+project is under version control. Note that the following is equally valid if
+your project is based on numerical analysis rather than, or as well as,
+simulation: just mentally replace "simulation" with "analysis" in the following.
 
 Change to the working directory for your project, and then create a new Sumatra
 project in this directory using the ``smt init`` command::
@@ -34,20 +36,20 @@ normally run a simulation using::
     
 To run it using Sumatra, you would use::
 
-    $ smt run --simulator=python --main=main.py default.param
+    $ smt run --executable=python --main=main.py default.param
 
 Now we can see a list of the simulations we have run::
 
     $ smt list
-    default_20090930-174949
+    20090930-174949
     
 This shows the label for each simulation we have run. Since we did not specify
-a label, one was automatically generated from the name of the parameter file. To
-see more detail, use the ``--long`` option::
+a label, one was automatically generated from the timestamp. To see more detail,
+use the ``--long`` option::
 
     $ smt list --long
     --------------------------------------------------------------------------------
-    Label        : default_20090930-174949
+    Label        : 20090930-174949
     Reason       :
     Outcome      :
     Duration     : 0.0548920631409
@@ -65,7 +67,7 @@ run every time. Presumably, the name of the main file changes infrequently and
 the simulator almost never. Therefore, these can be set as defaults for a given
 project::
 
-    $ smt configure --simulator=python --main=main.py
+    $ smt configure --executable=python --main=main.py
     
 (you could also have given these options to ``smt init``. ``init`` is used to create
 a project and ``configure`` to change its configuration later, but they mostly
@@ -78,7 +80,7 @@ Now you can run a simulation with a much shorter command line::
 To see the current configuration of your project, use the ``info`` command::
 
     $ smt info
-    Simulation project
+    Sumatra project
     ------------------
     Name                : MyProject
     Default executable  : Python (version: 2.6.2) at python
@@ -91,8 +93,8 @@ Sumatra automatically records the identity and versions of the simulation files
 and the simulator executable, stores links to any files created by the
 simulation, records any error messages, the date and time at which the simulation
 was run, and its duration. You may also add your own annotations, in several
-different ways. On running the simulation, you can specify a label, and the reason
-for which you are running the simulation::
+different ways. On running the simulation, you can specify a unique label, and
+the reason for which you are running the simulation::
 
     $ smt run --label=haggling --reason="determine whether the gourd is worth 3 or 4 shekels" romans.param
     
@@ -104,7 +106,7 @@ This adds the comment to the most recent simulation. You may also describe the o
 of an earlier simulation, by specifying its ID (made up from the label and the
 timestamp)::
 
-    $ smt comment default_20090930-174949 "Eureka! Nobel prize here we come."
+    $ smt comment 20090930-174949 "Eureka! Nobel prize here we come."
     
 You can also tag a simulation record with one or more short keywords::
 
@@ -132,19 +134,15 @@ One of the main aims of Sumatra is to ensure the reproducibility of simulation
 results. The ``repeat`` command re-runs a previous simulation, and checks that the
 output is identical to that of the original run::
 
-    $ smt repeat haggling_2009101002
+    $ smt repeat haggling
     The simulation results match.
     
 Although it is better not to delete simulation records (so as to preserve a full
 record of the project, false starts and all), it is possible::
 
-    $ smt delete default_2009101003
+    $ smt delete 2009101003-174949
     
-It is also possible to delete all simulations with a given label::
-
-    $ smt delete --group default
-    
-or with a given tag::
+It is also possible to delete all simulations with a given tag::
 
     $ smt delete --tag foobar
     
@@ -174,10 +172,10 @@ option, e.g.::
     $ smt comment --help
     Usage: smt comment [options] [LABEL] [COMMENT]
 
-    This command is used to describe the outcome of the simulation. If LABEL is
-    omitted, the comment will be added to the most recent simulation. If the
-    '-f/--file' option is set, COMMENT should be the name of a file containing the
-    comment, otherwise it should be a string of text.
+    This command is used to describe the outcome of the simulation/analysis. If
+    LABEL is omitted, the comment will be added to the most recent experiment.
+    If the '-f/--file' option is set, COMMENT should be the name of a file
+    containing the comment, otherwise it should be a string of text.
 
     Options:
       -h, --help     show this help message and exit
@@ -189,12 +187,12 @@ option, e.g.::
 
 or ``smt help CMD``, where ``CMD`` is the name of the command.
 
-This tutorial has covered using ``smt`` for serial simulations. A further tutorial
-covers :doc:`using smt for parallel simulations <parallel_simulations>`, whether batch or distributed
+This tutorial has covered using ``smt`` for serial simulations/analyses. A further tutorial
+covers :doc:`using smt for parallel computations <parallel_computations>`, whether batch or distributed
 (using MPI_).
 
 Also see :doc:`smtweb <web_interface>`, which provides a more graphical interface to viewing lists
-of simulations than ``smt list``.
+of records than ``smt list``.
 
 .. _Python: http://www.python.org
 .. _MPI: http://en.wikipedia.org/wiki/Message_Passing_Interface

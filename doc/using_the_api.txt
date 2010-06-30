@@ -3,9 +3,9 @@ Using the Sumatra API within your own scripts
 =============================================
 
 Using the ``smt run`` command is quick and convenient, but it does require you to
-change the way you launch your simulations.
+change the way you launch your simulations/analyses.
 
-One way to avoid this is to use the ``sumatra`` package within your own simulation
+One way to avoid this is to use the ``sumatra`` package within your own
 scripts to perform the record-keeping tasks performed by ``smt run``.
 
 You may also wish to write your own custom script for creating a Sumatra project,
@@ -49,10 +49,10 @@ our executable is ``python`` and our main file is ``myscript.py``.)
 To benefit from the functionality of Sumatra without having to use ``smt run``, we
 have to integrate the steps performed by ``smt run`` into our script.
 
-First, we have to load the simulation project::
+First, we have to load the Sumatra project::
 
-    from sumatra.projects import load_simulation_project
-    project = load_simulation_project()
+    from sumatra.projects import load_project
+    project = load_project()
     
 We're going to want to record the simulation duration, so we import the standard
 Python ``time`` module and record the start time::
@@ -69,28 +69,27 @@ the ``execfile()`` call with a ``build_parameters()`` call::
     parameters = build_parameters(parameter_file)
     
 Now we create a new ``SimRecord`` object, telling it that the script is the
-current file, then we register information about the simulation environment::
+current file; this automatically registers information about the simulation environment::
     
-    sim_record = project.new_record(parameters=parameters,
-                                    main_file=__file__,
-                                    label="api_example",
-                                    reason="reason for running this simulation")
-    sim_record.register()
+    record = project.new_record(parameters=parameters,
+                                main_file=__file__,
+                                label="api_example",
+                                reason="reason for running this simulation")
 
 Now comes the main body of the simulation, which is unchanged except that we
 take the opportunity to give the output data file a more informative name::
 
-    output_file = "%s.dat" % sim_record.label
+    output_file = "%s.dat" % record.label
 
 At the end of the simulation, we
 calculate the simulation duration and search for newly created files::
 
-    sim_record.duration = time.time() - start_time
-    sim_record.data_key = sim_record.datastore.find_new_files(sim_record.timestamp)
+    record.duration = time.time() - start_time
+    record.data_key = record.datastore.find_new_files(record.timestamp)
 
 Now we add this simulation record to the project, and save the project::
 
-    project.add_record(sim_record)
+    project.add_record(record)
     project.save()
     
 Putting this all together::
@@ -98,30 +97,30 @@ Putting this all together::
     import numpy
     import sys
     import time
-    from sumatra.projects import load_simulation_project
+    from sumatra.projects import load_project
     from sumatra.parameters import build_parameters
     
-    project = load_simulation_project()
+    project = load_project()
     start_time = time.time()
         
     parameter_file = sys.argv[1]
     parameters = build_parameters(parameter_file)
         
-    sim_record = project.new_record(parameters=parameters,
-                                    main_file=__file__,
-                                    label="api_example",
-                                    reason="reason for running this simulation")
-    sim_record.register()
+    record = project.new_record(parameters=parameters,
+                                main_file=__file__,
+                                label="api_example",
+                                reason="reason for running this simulation")
     
     numpy.random.seed(parameters["seed"])
     distr = getattr(numpy.random, parameters["distr"])
     data = distr(size=parameters["n"])
+    
+    output_file = "%s.dat" % record.label
+    numpy.savetxt(output_file, data)
         
-    numpy.savetxt("%s.dat" % sim_record.label, data)
-        
-    sim_record.duration = time.time() - start_time
-    sim_record.data_key = sim_record.datastore.find_new_files(sim_record.timestamp)
-    project.add_record(sim_record)
+    record.duration = time.time() - start_time
+    record.data_key = record.datastore.find_new_files(record.timestamp)
+    project.add_record(record)
 
     project.save()
 

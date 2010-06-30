@@ -3,42 +3,43 @@ About Sumatra
 =============
 
 Sumatra is a tool for managing and tracking projects based on numerical
-simulation, with the aim of supporting reproducible research. It can be thought
-of as an automated electronic lab notebook for simulation projects.
+simulation and/or analysis, with the aim of supporting reproducible research.
+It can be thought of as an automated electronic lab notebook for computational
+projects.
 
 It consists of:
 
- * a command-line interface, smt, for launching simulations with automatic
-   recording of information about the simulation, annotating these records,
-   linking to data files, etc.
+ * a command-line interface, smt, for launching simulations/analyses with
+   automatic recording of information about the experiment, annotating these
+   records, linking to data files, etc.
  * a web interface with a built-in web-server, smtweb, for browsing and
-   annotating simulation results.
+   annotating simulation/analysis results.
  * a Python API, on which smt and smtweb are based, that can be used in your own
    scripts in place of using smt, or could be integrated into a GUI-based
    application.
 
 Sumatra is currently alpha code, and should be used with caution and frequent
-backups of your simulation records.
+backups of your records.
 
 For documentation, see http://neuralensemble.org/trac/sumatra/
 
     
 Intended functionality (not all implemented yet):
-    * launch simulations, and record various pieces of information about the
-      simulation, including:
+    * launch simulations and analyses, and record various pieces of information,
+      including:
         - the executable (identity, version)
         - the script (identity, version)
         - the parameters
         - the duration (execution time)
         - console output
         - links to all data (whether in files, in a database, etc.) produced by
-          the simulation
-        - the reason for doing the simulation
-        - the outcome of the simulation
-    * allow browsing/searching/visualising the results of previous simulations
-    * allow the re-running of previous simulations with automatic verification
-      that the results are unchanged
-    * launch single or batch simulations, serial or parallel
+          the simulation/analysis
+        - the reason for doing the simulation/analysis
+        - the outcome of the simulation/analysis
+    * allow browsing/searching/visualising the results of previous experiments
+    * allow the re-running of previous simulations/analyses with automatic
+      verification that the results are unchanged
+    * launch single or batch experiments, serial or parallel
     
 
 ============

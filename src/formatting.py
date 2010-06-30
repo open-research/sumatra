@@ -1,7 +1,7 @@
 """
-The formatting module provides classes for formatting simulation records in
-different ways: summary, list or table; and in different mark-up formats:
-currently text or HTML.
+The formatting module provides classes for formatting simulation/analysis
+records in different ways: summary, list or table; and in different mark-up
+formats: currently text or HTML.
 
 Classes
 -------

@@ -19,7 +19,7 @@ class SumatraObjectsManager(models.Manager):
         # as an argument to the Manager __init__().
         field_names = self.model._meta.get_all_field_names()
         field_names.remove('id')
-        field_names.remove('simulationrecord')
+        field_names.remove('record')
         attributes = {}
         for name in field_names:
             try:
@@ -45,7 +45,7 @@ class BaseModel(models.Model):
     def field_names(self):
         field_names = self._meta.get_all_field_names()
         field_names.remove('id')
-        field_names.remove('simulationrecord')
+        field_names.remove('record')
         return field_names
     
 
@@ -158,7 +158,7 @@ class PlatformInformation(BaseModel):
         return launch.PlatformInformation(**pi)
 
 
-class SimulationRecord(BaseModel):
+class Record(BaseModel):
     label = models.CharField(max_length=100, unique=True) # make this a SlugField?
     db_id = models.AutoField(primary_key=True) # django-tagging needs an integer as primary key - see http://code.google.com/p/django-tagging/issues/detail?id=15
     reason = models.TextField(blank=True)
@@ -181,7 +181,7 @@ class SimulationRecord(BaseModel):
     project = models.ForeignKey(Project, null=True)
 
     def to_sumatra(self):
-        record = records.SimRecord(
+        record = records.Record(
             self.executable.to_sumatra(),
             self.repository.to_sumatra(),
             self.main_file,

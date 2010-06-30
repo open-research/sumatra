@@ -16,7 +16,7 @@ Contents:
    getting_started
    web_interface
    gui
-   parallel_simulations
+   parallel_computations
    using_the_api
    parameter_files
    command_reference

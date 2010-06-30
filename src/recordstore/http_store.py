@@ -1,5 +1,5 @@
 """
-Handles storage of simulation records on a remote server using HTTP.
+Handles storage of simulation/analysis records on a remote server using HTTP.
 
 The server should support the following URL structure and HTTP methods:
 
@@ -14,7 +14,7 @@ DESCRIBE HERE THE JSON STRUCTURE
 """
 
 from sumatra.recordstore import RecordStore
-from sumatra.records import SimRecord
+from sumatra.records import Record
 from sumatra import programs, launch, datastore, versioncontrol, parameters, dependency_finder
 import httplib2
 from urlparse import urlparse
@@ -119,7 +119,7 @@ def decode_record(content):
     ddata = data["datastore"]
     ds_parameters = eval(ddata["parameters"])
     data_store = getattr(datastore, ddata["type"])(**ds_parameters)
-    record = SimRecord(executable, repository, data["main_file"],
+    record = Record(executable, repository, data["main_file"],
                        data["version"], parameter_set, launch_mode, data_store,
                        data["label"], data["reason"], data["diff"],
                        data["user"])

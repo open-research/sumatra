@@ -7,7 +7,7 @@ import os
 import sys
 from datetime import datetime
 from django.core import management
-from sumatra.records import SimRecord
+from sumatra.records import Record
 from sumatra.programs import register_executable, Executable
 from sumatra.recordstore import shelve_store, django_store, http_store
 from sumatra.versioncontrol import vcs_list
@@ -121,7 +121,7 @@ class BaseTestRecordStore(object):
     def test_get(self):
         self.add_some_records()
         r = self.store.get(self.project.name, "record1")
-        assert isinstance(r, (MockRecord, SimRecord)), type(r)
+        assert isinstance(r, (MockRecord, Record)), type(r)
         assert r.label == "record1", r.label
         
     def test_get_nonexistent_record_raises_KeyError(self):

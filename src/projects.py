@@ -1,28 +1,29 @@
 """
-The projects module defines the SimProject class, which stores information
-about a simulation project and contains a number of methods for managing
-simulation projects and running simulations. This is the main class that is
-used directly when using Sumatra within your own scripts.
+The projects module defines the Project class, which stores information
+about a computation-based project and contains a number of methods for managing
+and running computational experiments, whether simulations, analyses or whatever.
+This is the main class that is used directly when using Sumatra within your own
+scripts.
 
 Classes
 -------
 
-SimProject - stores information about a simulation project, and enables
-             launching, annotating, deleting and retrieving information about
-             simulation runs.
+Project - stores information about a computational project, and enables
+          launching, annotating, deleting and retrieving information about
+          simulation/analysis runs.
 
 Functions
 ---------
 
-load_simulation_project() - read project information from the working directory
-                            and return a SimProject object.
+load_project() - read project information from the working directory and return
+                 a Project object.
 """
 
 import os
 import cPickle as pickle
 from copy import deepcopy
 from datastore import FileSystemDataStore
-from records import SimRecord
+from records import Record
 from formatting import get_formatter, get_diff_formatter
 from recordstore import DefaultRecordStore
 from versioncontrol import UncommittedModificationsError, get_working_copy
@@ -32,7 +33,7 @@ def _remove_left_margin(s): # replace this by textwrap.dedent?
     return "\n".join(line.strip() for line in lines)
 
 
-class SimProject(object):
+class Project(object):
 
     def __init__(self, name, default_executable=None, default_repository=None,
                  default_main_file=None, default_launch_mode=None,
@@ -40,8 +41,8 @@ class SimProject(object):
                  on_changed='error', description=''):
         if not os.path.exists(".smt"):
             os.mkdir(".smt")
-        if os.path.exists(".smt/simulation_project"):
-            raise Exception("Simulation project already exists in this directory.")
+        if os.path.exists(".smt/project"):
+            raise Exception("Sumatra project already exists in this directory.")
         self.name = name
         self.default_executable = default_executable
         self.default_repository = default_repository # maybe we should be storing the working copy instead, as this has a ref to the repository anyway
@@ -51,24 +52,24 @@ class SimProject(object):
             data_store = FileSystemDataStore(None)
         self.data_store = data_store # a data store object
         if record_store == 'default':
-            record_store = DefaultRecordStore(".smt/simulation_records")
+            record_store = DefaultRecordStore(".smt/records")
         self.record_store = record_store
         self.on_changed = on_changed
         self.description = description
         self.save()
-        print "Simulation project successfully set up"
+        print "Sumatra project successfully set up"
     
     def save(self):
         """Save state to some form of persistent storage. (file, database)."""
-        f = open('.smt/simulation_project', 'w') # should check if file exists?
+        f = open('.smt/project', 'w') # should check if file exists?
         pickle.dump(self, f)
         f.close()
     
     def info(self):
         """Show some basic information about the project."""
         template = """
-        Simulation project
-        ------------------
+        Sumatra project
+        ---------------
         Name                : %(name)s
         Default executable  : %(default_executable)s
         Default repository  : %(default_repository)s
@@ -92,24 +93,23 @@ class SimProject(object):
         if launch_mode == 'default':
             launch_mode = deepcopy(self.default_launch_mode)
         version, diff = self.update_code(repository.working_copy, version)
-        record = SimRecord(executable, repository, main_file, version, parameters,
-                          launch_mode, self.data_store, label=label, reason=reason,
-                          diff=diff, on_changed=self.on_changed)
+        record = Record(executable, repository, main_file, version, parameters,
+                        launch_mode, self.data_store, label=label, reason=reason,
+                        diff=diff, on_changed=self.on_changed)
         record.register()
         return record
     
-    def launch_simulation(self, parameters, executable='default',
-                          repository='default', main_file='default',
-                          version='latest', launch_mode='default', label=None,
-                          reason=None):
-        """Launch a new simulation."""
-        sim_record = self.new_record(parameters, executable, repository,
-                                     main_file, version, launch_mode, label,
-                                     reason)
-        sim_record.run()
-        self.add_record(sim_record)
+    def launch(self, parameters, executable='default', repository='default',
+               main_file='default', version='latest', launch_mode='default',
+               label=None, reason=None):
+        """Launch a new simulation or analysis."""
+        record = self.new_record(parameters, executable, repository,
+                                 main_file, version, launch_mode, label,
+                                 reason)
+        record.run()
+        self.add_record(record)
         self.save()
-        return sim_record.label
+        return record.label
     
     def update_code(self, working_copy, version='latest'):
         # Check if the working copy has modifications and prompt to commit or revert them
@@ -131,7 +131,7 @@ class SimProject(object):
         return version, diff
     
     def add_record(self, record):
-        """Add a simulation record."""
+        """Add a simulation or analysis record."""
         self.record_store.save(self.name, record)
         self._most_recent = record.label
     
@@ -184,12 +184,12 @@ class SimProject(object):
         return formatter.format(mode)
 
     
-def load_simulation_project():
+def load_project():
     if os.path.exists(".smt"):
-        f = open(".smt/simulation_project", 'r')
+        f = open(".smt/project", 'r')
         prj = pickle.load(f)
         f.close()
         return prj
     else:
-        raise Exception("No simulation project exists in the current directory")
+        raise Exception("No Sumatra project exists in the current directory")
         

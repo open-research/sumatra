@@ -148,7 +148,7 @@ class Dependency(core.BaseDependency):
 
 def find_imported_packages(filename):
     """Find all imported top-level packages for a given Python file."""
-    # if using a different Python as the simulator from the one used to run Sumatra,
+    # if using a different Python as the executable from the one used to run Sumatra,
     # there is a strong risk that different packages will be found. This is a major bug.
     finder = ModuleFinder(path=sys.path[1:], debug=2)
     # note that we remove the first element of sys.path to stop modules in the

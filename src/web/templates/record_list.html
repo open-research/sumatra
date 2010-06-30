@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 {% load filters %}
 
-{% block title %}{{project_name}}: List of simulations{% if tag %} tagged with {{tag}}{% endif %}{% endblock %}
+{% block title %}{{project_name}}: List of records{% if tag %} tagged with {{tag}}{% endif %}{% endblock %}
 
-{% block header %}<h1>{{project_name}}: List of simulations{% if tag %} tagged with <em>{{tag}}</em>{% endif %}</h1>{% endblock %}
+{% block header %}<h1>{{project_name}}: List of records{% if tag %} tagged with <em>{{tag}}</em>{% endif %}</h1>{% endblock %}
 
 {% block content %}
 
 {% if tag %}
-<p><a href="/">Return to full simulation list</a></p>
+<p><a href="/">Return to full record list</a></p>
 <p><a href="/tag/">Return to list of tags</a></p>
 {% endif %}
 
@@ -56,7 +56,7 @@
     </table>
     </form>
 {% else %}
-    <p class="warning"><strong>No simulation records found</strong></p>
+    <p class="warning"><strong>No records found</strong></p>
 {% endif %}
 
 {% endblock %}

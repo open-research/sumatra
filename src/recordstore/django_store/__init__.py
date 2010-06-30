@@ -1,5 +1,5 @@
 """
-Handles storage of simulation records in a relational database, via the
+Handles storage of simulation/analysis records in a relational database, via the
 Django object-relational mapper (ORM), which means that any database
 supported by Django could in principle be used, although for now we assume
 SQLite.
@@ -54,11 +54,10 @@ class DjangoRecordStore(RecordStore):
     def _get_db_record(self, project_name, record):
         db_project = self._get_db_project(project_name)
         try:
-            db_record = models.SimulationRecord.objects.get(label=record.label,
-                                                            project=db_project)
-        except models.SimulationRecord.DoesNotExist:
-            db_record = models.SimulationRecord(label=record.label,
-                                                project=db_project)
+            db_record = models.Record.objects.get(label=record.label,
+                                                  project=db_project)
+        except models.Record.DoesNotExist:
+            db_record = models.Record(label=record.label, project=db_project)
         return db_record
     
     def _get_db_project(self, project_name):
@@ -113,14 +112,14 @@ class DjangoRecordStore(RecordStore):
     def get(self, project_name, label):
         import models
         try:
-            db_record = models.SimulationRecord.objects.get(project__id=project_name, label=label)
-        except models.SimulationRecord.DoesNotExist:
+            db_record = models.Record.objects.get(project__id=project_name, label=label)
+        except models.Record.DoesNotExist:
             raise KeyError(label)
         return db_record.to_sumatra()
     
     def list(self, project_name, tags=None):
         import models
-        db_records = models.SimulationRecord.objects.filter(project__id=project_name)
+        db_records = models.Record.objects.filter(project__id=project_name)
         if tags:
             if not hasattr(tags, "__len__"):
                 tags = [tags]
@@ -130,12 +129,12 @@ class DjangoRecordStore(RecordStore):
     
     def delete(self, project_name, label):
         import models
-        db_record = models.SimulationRecord.objects.get(label=label, project__id=project_name)
+        db_record = models.Record.objects.get(label=label, project__id=project_name)
         db_record.delete()
         
     def delete_by_tag(self, project_name, tag):
         import models
-        db_records = models.SimulationRecord.objects.filter(project__id=project_name, tags__contains=tag)
+        db_records = models.Record.objects.filter(project__id=project_name, tags__contains=tag)
         n = db_records.count()
         for db_record in db_records:
             db_record.delete()

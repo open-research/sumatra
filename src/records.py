@@ -1,13 +1,14 @@
 """
-The records module defines the SimRecord class, which gathers and stores
-information about an individual simulation run.
+The records module defines the Record class, which gathers and stores
+information about an individual simulation or analysis run.
 
 Classes
 -------
 
-SimRecord - gathers and stores information about an individual simulation run.
-            Can be instantiated directly, but more usually created by the
-            new_record() method of SimProject.
+Record - gathers and stores information about an individual simulation or
+         analysis run.
+         Can be instantiated directly, but more usually created by the
+         new_record() method of Project.
 """
 
 from datetime import datetime
@@ -22,7 +23,7 @@ import dependency_finder
 def assert_equal(a, b, msg=''):
     assert a == b, "%s: %s %s != %s %s" % (msg, a, type(a), b, type(b))
 
-class SimRecord(object): # maybe just call this Simulation
+class Record(object):
     
     def __init__(self, executable, repository, main_file, version, parameters,
                  launch_mode, datastore, label=None, reason=None, diff='',
@@ -46,7 +47,7 @@ class SimRecord(object): # maybe just call this Simulation
         self.on_changed = on_changed  
     
     def register(self):
-        """Record information about the simulation environment."""
+        """Record information about the environment."""
         # Check the code hasn't changed and the version is correct
         if len(self.diff) == 0:
             assert not self.repository.working_copy.has_changed()
@@ -57,13 +58,13 @@ class SimRecord(object): # maybe just call this Simulation
         self.platforms = self.launch_mode.get_platform_information()
     
     def run(self):
-        """Launch the simulation."""
-        # run pre-simulation tasks, e.g. nrnivmodl
+        """Launch the simulation or analysis"""
+        # run pre-simulation/analysis tasks, e.g. nrnivmodl
         self.launch_mode.pre_run(self.executable)
-        # Write the simulator-specific parameter file
+        # Write the executable-specific parameter file
         parameter_file = "%s.param" % self.label
         self.executable.write_parameters(self.parameters, parameter_file)
-        # Run simulation
+        # Run simulation/analysis
         start_time = time.time()        
         result = self.launch_mode.run(self.executable, self.main_file, parameter_file)
         self.duration = time.time() - start_time
@@ -81,8 +82,8 @@ class SimRecord(object): # maybe just call this Simulation
     
     def difference(self, other_record, ignore_mimetypes=[], ignore_filenames=[]):
         """
-        Determine the difference between this simulation and another (code,
-        platform, results, etc.).
+        Determine the difference between this computational experiment and
+        another (code, platform, results, etc.).
         
         Return a RecordDifference object.
         """
@@ -90,7 +91,7 @@ class SimRecord(object): # maybe just call this Simulation
     
 
 class RecordDifference(object):
-    """Represents the difference between two SimulationRecord objects."""
+    """Represents the difference between two Record objects."""
     
     ignore_mimetypes = [r'image/\w+', r'video/\w+']
     ignore_filenames = [r'\.log', r'^log']
@@ -122,8 +123,8 @@ class RecordDifference(object):
         output data between the records, otherwise return False.
         
         Differences in launch mode or platform are not counted, since those
-        don't in principle make it a different simulation (they may do in
-        practice, but then the output data will to be different).
+        don't in principle make it a different experiment (they may do in
+        practice, but then the output data will be different).
         """
         return reduce(or_, (self.executable_differs, self.code_differs,
                             self.parameters_differ, self.data_differs))

@@ -1,7 +1,7 @@
 """
 The datastore module provides an abstraction layer around data storage,
-allowing different methods of storing simulation results (local filesystem,
-remote filesystem, database, etc.) to provide a common interface.
+allowing different methods of storing simulation/analysis results (local
+filesystem, remote filesystem, database, etc.) to provide a common interface.
 
 Currently, only local filesystem storage is supported.
 
@@ -53,7 +53,7 @@ class FileSystemDataStore(DataStore):
     def find_new_files(self, timestamp):
         """Finds newly created/changed files in dataroot."""
         # The timestamp-based approach creates problems when running several
-        # simulations at once, since datafiles created by other simulations may
+        # experiments at once, since datafiles created by other experiments may
         # be mixed in with this one.
         # THIS NEEDS FIXED!
         timestamp = timestamp.replace(microsecond=0) # Round down to the nearest second

@@ -1,7 +1,7 @@
 """
 The recordstore sub-package provides an abstraction layer around storage of
-simulation records, providing a common interface to different storage methods
-(simple serialisation, relational database, etc.)
+simulation/analysis records, providing a common interface to different storage
+methods (simple serialisation, relational database, etc.)
 
 Sub-packages/modules
 --------------------

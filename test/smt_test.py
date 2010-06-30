@@ -2,7 +2,7 @@ import tempfile
 import os
 import subprocess
 import shutil
-from sumatra.projects import load_simulation_project
+from sumatra.projects import load_project
 
 def split(s):
     """
@@ -59,8 +59,8 @@ def copy_example_project(working_dir):
         if os.path.isfile("example_projects/python/"+file):
             shutil.copy("example_projects/python/"+file, working_dir)
 
-def get_last_simulation_id():
-    project = load_simulation_project()
+def get_last_record_id():
+    project = load_project()
     return project._most_recent
 
 def initialize_sumatra_project(plugins=None):
@@ -70,22 +70,22 @@ def initialize_sumatra_project(plugins=None):
         run("smt init TestProject")
 
 def reset_django_settings():
-    project = load_simulation_project()
+    project = load_project()
     if hasattr(project.record_store, "_switch_db"):
         project.record_store._switch_db(None)
 
 def getting_started(plugins):
     initialize_sumatra_project(plugins)
         
-    run("smt run --simulator=python --main=main.py default.param")
-    id0 = get_last_simulation_id()
+    run("smt run --executable=python --main=main.py default.param")
+    id0 = get_last_record_id()
     run("smt list")
     run("smt list --long")
-    run("smt configure --simulator=python --main=main.py")
+    run("smt configure --executable=python --main=main.py")
     run("smt run default.param")
     run("smt info")
     run("smt run --label=haggling --reason='determine whether the gourd is worth 3 or 4 shekels' romans.param")
-    id1 = get_last_simulation_id()
+    id1 = get_last_record_id()
     run("smt comment 'apparently, it is worth NaN shekels.'")
     run("smt comment %s 'Eureka! Nobel prize here we come.'" % id0)
     run("smt tag foobar")

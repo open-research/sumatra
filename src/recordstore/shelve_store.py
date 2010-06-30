@@ -1,6 +1,6 @@
 """
-Handles storage of simulation records based on the Python standard shelve
-module.
+Handles storage of simulation/analysis records based on the Python standard
+shelve module.
 """
 
 from sumatra.recordstore import RecordStore
@@ -9,7 +9,7 @@ import shelve
 
 class ShelveRecordStore(RecordStore):
     
-    def __init__(self, shelf_name=".smt/simulation_records"):
+    def __init__(self, shelf_name=".smt/records"):
         self._shelf_name = shelf_name
         self.shelf = shelve.open(shelf_name)
         

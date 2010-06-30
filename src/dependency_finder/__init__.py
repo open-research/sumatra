@@ -1,6 +1,6 @@
 """
 The dependency_finder sub-package attempts to determine all the dependencies of
-a given simulation script, including the version of each dependency.
+a given script, including the version of each dependency.
 
 For each executable that is supported there is a sub-module containing a
 ``find_dependencies()`` function, and a series of heuristics for finding

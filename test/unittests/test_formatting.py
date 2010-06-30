@@ -4,11 +4,11 @@ Unit tests for the sumatra.formatting module
 
 import unittest
 from datetime import datetime
-from sumatra.records import SimRecord
+from sumatra.records import Record
 from sumatra.formatting import Formatter, TextFormatter, HTMLFormatter, TextDiffFormatter, get_formatter
 from xml.etree import ElementTree
 
-class MockRecord(SimRecord):
+class MockRecord(Record):
     def __init__(self):
         self.timestamp = datetime.now()
         self.label = self.timestamp.strftime("%Y%m%d-%H%M%S")

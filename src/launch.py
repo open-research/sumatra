@@ -1,13 +1,13 @@
 """
-The launch module handles launching of simulations as sub-processes, and
+The launch module handles launching of simulations/analyses as sub-processes, and
 obtaining information about the platform(s) on which the simulations are run.
 
 Classes
 -------
 
 PlatformInformation   - a container for platform information
-SerialLaunchMode      - handles launching local, serial simulations
-DistributedLaunchMode - handles launching distributed simulations using MPI
+SerialLaunchMode      - handles launching local, serial computations
+DistributedLaunchMode - handles launching distributed computations using MPI
 """
 
 import platform
@@ -57,7 +57,7 @@ class LaunchMode(object):
         return {}
     
     def pre_run(self, executable):
-        #Run tasks before the simulation proper, e.g. nrnivmodl
+        #Run tasks before the simulation/analysis proper, e.g. nrnivmodl
         #should get the tasks to run from the Executable 
         pass
 
