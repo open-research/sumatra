@@ -183,6 +183,7 @@ class TestSubversionRepository(unittest.TestCase):
     def test__checkout__with_nonexistent_repos__should_raise_Exception(self):
         r = SubversionRepository("file://%s" % self.repository_path)
         self.assertRaises(Exception, r.checkout, path="file:///tmp/")
+        shutil.rmtree("file:") # this is not quite what's supposed to happen
 
 class TestMercurialModuleFunctions(unittest.TestCase):
     

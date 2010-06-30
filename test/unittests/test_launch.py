@@ -19,11 +19,6 @@ class TestPlatformInformation(unittest.TestCase):
 
 
 class BaseTestLaunchMode(object):
-
-    def tearDown(self):
-        for path in "valid_test_script.py", "invalid_test_script.py", "test_parameters":
-            if os.path.exists(path):
-                os.remove(path)
     
     def write_valid_test_script(self):
         with open("valid_test_script.py", "w") as f:
@@ -80,6 +75,11 @@ class TestSerialLaunchMode(unittest.TestCase, BaseTestLaunchMode):
     def setUp(self):
         self.lm = SerialLaunchMode()
     
+    def tearDown(self):
+        for path in "valid_test_script.py", "invalid_test_script.py", "test_parameters":
+            if os.path.exists(path):
+                os.remove(path)
+    
     def test__get_platform_information__should_return_a_list_of_PlatformInformation_objects(self):
         pis = self.lm.get_platform_information()
         pi0 = pis[0]
@@ -91,10 +91,16 @@ class TestSerialLaunchMode(unittest.TestCase, BaseTestLaunchMode):
         self.assertEqual(self.lm, new_lm)
         assert self.lm != 42
 
+
 class TestDistributedLaunchMode(unittest.TestCase, BaseTestLaunchMode):
     
     def setUp(self):
         self.lm = DistributedLaunchMode(2, "mpiexec", ["node1", "node2"])
+
+    def tearDown(self):
+        for path in "valid_test_script.py", "invalid_test_script.py", "test_parameters":
+            if os.path.exists(path):
+                os.remove(path)
 
     def test__init__should_raise_an_exception_if_the_mpiexec_is_not_found(self):
         self.assertRaises(Exception, DistributedLaunchMode, 2, "mpifoo", ["node1", "node2"])

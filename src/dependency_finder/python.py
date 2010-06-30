@@ -159,6 +159,7 @@ def find_imported_packages(filename):
     finder.run_script(os.path.abspath(filename))
     sys.stdout = sys.__stdout__
     finder_output.close()
+    os.remove("module_finder_output.txt")
     top_level_packages = {}
     for name, module in finder.modules.items():
         if module.__path__ and "." not in name:

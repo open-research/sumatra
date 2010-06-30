@@ -191,6 +191,9 @@ class TestDjangoRecordStore(unittest.TestCase, BaseTestRecordStore):
     def tearDown(self):
         management.call_command("reset", "django_store", interactive=False)
 
+    def __del__(self):
+        clean_up()
+
     def test_record_store_is_pickleable(self):
         import pickle
         self.add_some_records()
@@ -300,8 +303,10 @@ class TestHttpRecordStore(unittest.TestCase, BaseTestRecordStore):
         unpickled = pickle.loads(s)
 
 
-if __name__ == '__main__':
+def clean_up():
     if os.path.exists("test_record_store.db"):
         os.remove("test_record_store.db")
+
+if __name__ == '__main__':
+    clean_up()
     unittest.main()
-    

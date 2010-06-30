@@ -86,6 +86,8 @@ class TestSimProject(unittest.TestCase):
             shutil.rmtree(".smt")
         if os.path.exists("Data"):
             os.rmdir("Data")
+        if os.path.exists("test.py"):
+            os.remove("test.py")
     
     def write_test_script(self, filename):
         with open(filename, "w") as f:
@@ -103,6 +105,7 @@ class TestSimProject(unittest.TestCase):
         proj.info()
         
     def test_new_record_with_minimal_args_should_set_defaults(self):
+        self.write_test_script("test.py")
         proj = SimProject("test_project",
                           default_main_file="test.py",
                           default_executable=MockExecutable(),
