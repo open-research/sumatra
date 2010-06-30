@@ -36,30 +36,22 @@ class ShelveRecordStore(RecordStore):
     def get(self, project_name, label):
         return self.shelf[project_name][label]
     
-    def list(self, project_name, groups):
-        if groups:
-            return [record for record in self.shelf[project_name].values() if record.group in groups]
+    def list(self, project_name, tags=None):
+        if tags:
+            if not hasattr(tags, "__iter__"):
+                tags = [tags]
+            records = set()
+            for tag in tags:
+                records = records.union([record for record in self.shelf[project_name].values() if tag in record.tags])
+            records = list(records)
         else:
-            return self.shelf[project_name].values()
-    
-    def list_for_tags(self, project_name, tags):
-        if not hasattr(tags, "__iter__"):
-            tags = [tags]
-        records = set()
-        for tag in tags:
-            records = records.union([record for record in self.shelf[project_name].values() if tag in record.tags])
+            records = self.shelf[project_name].values()
         return records
     
     def delete(self, project_name, label):
         records = self.shelf[project_name]
         records.pop(label)
         self.shelf[project_name] = records
-        
-    def delete_group(self, project_name, group_label):
-        for_deletion = [record for record in self.shelf[project_name].values() if record.group==group_label]
-        for record in for_deletion:
-            self.delete(project_name, record.label)
-        return len(for_deletion)
         
     def delete_by_tag(self, project_name, tag):
         for_deletion = [record for record in self.shelf[project_name].values() if tag in record.tags]

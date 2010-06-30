@@ -10,16 +10,16 @@ from xml.etree import ElementTree
 
 class MockRecord(SimRecord):
     def __init__(self):
-        self.group = "test"
-        self.reason = ""
-        self.outcome = ""
-        self.duration = ""
-        self.repository = ""
-        self.main_file = ""
-        self.version = ""
-        self.executable = ""
         self.timestamp = datetime.now()
-        self.tags = ""
+        self.label = self.timestamp.strftime("%Y%m%d-%H%M%S")
+        self.reason = "determine how many shekels the gourd is worth"
+        self.outcome = "apparently it is worth NaN shekels"
+        self.duration = 1.2345
+        self.repository = "http://cvs.example.com/pfj/"
+        self.main_file = "haggle.py"
+        self.version = "5.4.3"
+        self.executable = "brian"
+        self.tags = ["splitters",]
 
 class MockRecordDifference(object):
     recordA = MockRecord()

@@ -1,5 +1,16 @@
 """
 Handles storage of simulation records on a remote server using HTTP.
+
+The server should support the following URL structure and HTTP methods:
+
+/<project_name>/[?tags=<tag1>,<tag2>,...]    GET
+/<project_name>/tag/<tag>/                   GET, DELETE
+/<project_name>/<record_label>/              GET, PUT, DELETE
+
+and should both accept and return JSON-encoded data when the Accept header is
+"application/json".
+
+DESCRIBE HERE THE JSON STRUCTURE
 """
 
 from sumatra.recordstore import RecordStore
@@ -18,7 +29,7 @@ def domain(url):
 
 def encode_record(record):
     data = {
-        "group": record.group,
+        "label": record.label,
         "reason": record.reason,
         "duration": record.duration,
         "executable": {
@@ -78,9 +89,6 @@ def keys2str(D):
         E[str(k)] = v
     return E
 
-def decode_group_list(content):
-    return json.loads(content)
-
 def decode_record_list(content):
     return json.loads(content)
 
@@ -113,7 +121,7 @@ def decode_record(content):
     data_store = getattr(datastore, ddata["type"])(**ds_parameters)
     record = SimRecord(executable, repository, data["main_file"],
                        data["version"], parameter_set, launch_mode, data_store,
-                       data["group"], data["reason"], data["diff"],
+                       data["label"], data["reason"], data["diff"],
                        data["user"])
     record.tags = set(data["tags"])
     record.timestamp = datetime.strptime(data["timestamp"], "%Y-%m-%d %H:%M:%S")
@@ -140,18 +148,9 @@ class  HttpRecordStore(RecordStore):
         
     def __str__(self):
         return "Interface to remote record store at %s using HTTP" % self.server_url
-        
-    #def __getstate__(self):
-    #    return self.server_url
-    
-    #def __setstate__(self, state):
-    #    self.__init__(state)
-
-    def _build_url(self, project_name, record):
-        return "%s%s/%s/%s" % (self.server_url, project_name, record.group, record.timestamp.strftime("%Y%m%d-%H%M%S"))
 
     def save(self, project_name, record):
-        url = self._build_url(project_name, record)
+        url = "%s%s/%s/" % (self.server_url, project_name, record.label)
         headers = {'Content-Type': 'application/json'}
         data = encode_record(record)
         response, content = self.client.request(url, 'PUT', data,
@@ -169,41 +168,28 @@ class  HttpRecordStore(RecordStore):
         return decode_record(content)
     
     def get(self, project_name, label):
-        url = "%s%s/%s" % (self.server_url, project_name, label.replace("_", "/"))
+        url = "%s%s/%s/" % (self.server_url, project_name, label)
         return self._get_record(url)
     
-    def list(self, project_name, groups):
+    def list(self, project_name, tags=None):
         project_url = "%s%s/" % (self.server_url, project_name)
-        if groups:
-            group_urls = ["%s%s/" % (project_url, group) for group in groups]
-        else:
-            response, content = self.client.request(project_url)
-            assert response.status == 200
-            group_urls = decode_group_list(content)["groups"]
+        if tags:
+            if not hasattr(tags, "__iter__"):
+                tags=[tags]
+            project_url += "?tags=%s" % ",".join(tags)
+        response, content = self.client.request(project_url)
+        assert response.status == 200
+        record_urls = decode_record_list(content)["records"]
         records = []
-        for group_url in group_urls:
-            response, content = self.client.request(group_url)
-            print "<DEBUG>", content, "</DEBUG>"
-            record_urls = decode_record_list(content)["records"]
-            for record_url in record_urls:
-                records.append(self._get_record(record_url))
+        for record_url in record_urls:
+            records.append(self._get_record(record_url))
         return records
     
-    def list_for_tags(self, project_name, tags):
-        raise NotImplementedError
-    
     def delete(self, project_name, label):
-        url = "%s%s/%s" % (self.server_url, project_name, label.replace("_", "/"))
+        url = "%s%s/%s/" % (self.server_url, project_name, label)
         response, deleted_content = self.client.request(url, 'DELETE')
         if response.status != 204:
             raise Exception("%d\n%s" % (response.status, deleted_content))
-        
-    def delete_group(self, project_name, group_label):
-        url = "%s%s/%s/" % (self.server_url, project_name, group_label)
-        response, n_records = self.client.request(url, 'DELETE')
-        if response.status != 200:
-            raise Exception("%d\n%s" % (response.status, n_records))
-        return int(n_records)
         
     def delete_by_tag(self, project_name, tag):
         url = "%s%s/tag/%s/" % (self.server_url, project_name, tag)

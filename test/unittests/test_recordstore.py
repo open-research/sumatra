@@ -9,12 +9,16 @@ from datetime import datetime
 from django.core import management
 from sumatra.records import SimRecord
 from sumatra.programs import register_executable, Executable
-from sumatra.recordstore.shelve_store import ShelveRecordStore
-from sumatra.recordstore.django_store import DjangoRecordStore
-from sumatra.recordstore.http_store import HttpRecordStore
+from sumatra.recordstore import shelve_store, django_store, http_store
 from sumatra.versioncontrol import vcs_list
 import sumatra.launch
 import sumatra.datastore
+try:
+    import json
+except ImportError:
+    import simplejson as json
+import urlparse
+    
 
 class MockExecutable(Executable):
     name = "a.out"
@@ -65,9 +69,9 @@ class MockPlatformInformation(object):
 
 class MockRecord(object):
     
-    def __init__(self, timestamp, group="default"):
-        self.group = group
-        self.timestamp = timestamp
+    def __init__(self, label):
+        self.label = label
+        self.timestamp = datetime(1901, 6, 1, 12, 0, 0)
         self.reason = "because"
         self.duration = 7543.2
         self.outcome = None
@@ -84,10 +88,6 @@ class MockRecord(object):
         self.platforms = [MockPlatformInformation()]
         self.diff = ""
         self.user = "michaelpalin"
-        
-    @property
-    def label(self):
-        return "%s_%s" % (self.group, self.timestamp.strftime("%Y%m%d-%H%M%S"))
 
 class MockProject(object):
     name = "TestProject"
@@ -96,16 +96,16 @@ class MockProject(object):
 class BaseTestRecordStore(object):
     
     def add_some_records(self):
-        r1 = MockRecord(timestamp=datetime(2009, 1, 1), group="groupA")
-        r2 = MockRecord(timestamp=datetime(2009, 1, 2), group="groupA")
-        r3 = MockRecord(timestamp=datetime(2009, 1, 2), group="groupB")
+        r1 = MockRecord("record1")
+        r2 = MockRecord("record2")
+        r3 = MockRecord("record3")
         for r in r1, r2, r3:
-            print "saving record %s" % r.label
+            #print "saving record %s" % r.label
             self.store.save(self.project.name, r)
 
     def add_some_tags(self):
-        r1 = MockRecord(timestamp=datetime(2009, 1, 1), group="groupA")
-        r3 = MockRecord(timestamp=datetime(2009, 1, 2), group="groupB")
+        r1 = MockRecord("record1")
+        r3 = MockRecord("record3")
         r1.tags.add("tag1")
         r1.tags.add("tag2")
         r3.tags.add("tag1")
@@ -120,55 +120,41 @@ class BaseTestRecordStore(object):
     
     def test_get(self):
         self.add_some_records()
-        r = self.store.get(self.project.name, "groupA_20090101-000000")
+        r = self.store.get(self.project.name, "record1")
         assert isinstance(r, (MockRecord, SimRecord)), type(r)
-        assert r.label == "groupA_20090101-000000", r.label
+        assert r.label == "record1", r.label
         
     def test_get_nonexistent_record_raises_KeyError(self):
         self.assertRaises(KeyError, self.store.get, self.project.name, "foo")
 
-    def test_list_without_groups_should_return_all_records(self):
+    def test_list_without_tags_should_return_all_records(self):
         self.add_some_records()
-        records = self.store.list(self.project.name, [])
-        assert isinstance(records, list)
+        records = self.store.list(self.project.name)
+        assert isinstance(records, list), type(records)
         self.assertEqual(len(records), 3)
-        
-    def test_list_with_groups_should_return_subset_of_records(self):
-        self.add_some_records()
-        records = self.store.list(self.project.name, ["groupA"])
-        assert len(records) == 2
-        for record in records:
-            assert record.group == "groupA"
-        records = self.store.list(self.project.name, ["groupA", "groupB", "foo"])
-        assert len(records) == 3
     
     def test_list_for_tags_should_filter_records_appropriately(self):
         self.add_some_records()
         self.add_some_tags()
-        records = self.store.list_for_tags(self.project.name, "tag1")
+        records = self.store.list(self.project.name, "tag1")
         self.assertEqual(len(records), 2)
     
     def test_delete_removes_record(self):
         self.add_some_records()
-        key = "groupA_20090101-000000"
+        key = "record1"
         self.store.delete(self.project.name, key)
         self.assertRaises(KeyError, self.store.get, self.project.name, key)
 
-    def test_delete_group(self):
-        self.add_some_records()
-        assert self.store.delete_group(self.project.name, "groupA") == 2
-        self.assertEqual(len(self.store.list(self.project.name, ["groupA"])), 0)
-
     def test_delete_by_tag(self):
         self.add_some_records()
-        self.assertEqual(len(self.store.list(self.project.name, [])), 3)
+        self.assertEqual(len(self.store.list(self.project.name)), 3)
         self.add_some_tags()
-        r = self.store.get(self.project.name, "groupA_20090101-000000")
+        r = self.store.get(self.project.name, "record1")
         self.assertEqual(r.tags, set(['tag1', 'tag2']))
         n = self.store.delete_by_tag(self.project.name, "tag1")
         self.assertEqual(n, 2)
-        self.assertEqual(len(self.store.list(self.project.name, [])), 1)
-        self.assertRaises(KeyError, self.store.get, self.project.name, "groupA_20090101-000000")
+        self.assertEqual(len(self.store.list(self.project.name)), 1)
+        self.assertRaises(KeyError, self.store.get, self.project.name, "record1")
 
     def test_str(self):
         #this test is pointless, just to increase coverage
@@ -179,7 +165,7 @@ class TestShelveRecordStore(unittest.TestCase, BaseTestRecordStore):
     
     
     def setUp(self):
-        self.store = ShelveRecordStore(shelf_name="test_record_store")
+        self.store = shelve_store.ShelveRecordStore(shelf_name="test_record_store")
         self.project = MockProject()
         
     def tearDown(self):
@@ -194,14 +180,12 @@ class TestShelveRecordStore(unittest.TestCase, BaseTestRecordStore):
         assert unpickled._shelf_name == "test_record_store"
         assert os.path.exists(unpickled._shelf_name)
 
-    
-
 
 
 class TestDjangoRecordStore(unittest.TestCase, BaseTestRecordStore):
     
     def setUp(self):
-        self.store = DjangoRecordStore(db_file="test_record_store.db")
+        self.store = django_store.DjangoRecordStore(db_file="test_record_store.db")
         self.project = MockProject()
 
     def tearDown(self):
@@ -217,10 +201,92 @@ class TestDjangoRecordStore(unittest.TestCase, BaseTestRecordStore):
         #assert os.path.exists(unpickled._shelf_name)
 
 
+class MockResponse(object):
+    def __init__(self, status):
+        self.status = status
+
+def check_record(record):
+    # this is a rather basic test. Should also check the keys of the
+    # subsidiary dicts, and the types of the values
+    assert set(record.keys()) == set(["executable", "parameters", "repository",
+                                      "tags", "main_file", "label", "platforms",
+                                      "reason", "version", "user", "launch_mode",
+                                      "timestamp", "duration", "diff",
+                                      "datastore", "outcome", "data_key",
+                                      "dependencies"])
+
+class MockHttp(object):
+    def __init__(self, *args):
+        self.records = {}
+        self.debug = False
+    def add_credentials(self, *args, **kwargs):
+        pass
+    def request(self, uri, method="GET", body=None, headers=None, **kwargs):
+        u = urlparse.urlparse(uri)
+        parts = u.path.split("/")[1:-1]
+        if self.debug:
+            print "\n<<<<<", uri, u.path, len(parts), method, body, headers, u.params, u.query
+        if len(parts) == 2: # record uri
+            if method == "PUT":
+                record = json.loads(body)
+                check_record(record)
+                self.records[parts[1]] = record
+                content = ""
+                status = 200
+            elif method == "GET":
+                content = json.dumps(self.records[parts[1]])
+                status = 200
+            elif method == "DELETE":
+                self.records.pop(parts[1])
+                content = ""
+                status = 204
+        elif len(parts) == 1: # project uri
+            if u.query:
+                tags = u.query.split("=")[1].split(",")
+                records = set([])
+                for tag in tags:
+                    records = records.union(["%s://%s/%s/%s/" % (u.scheme, u.netloc, parts[0],
+                                               path) for path in self.records.keys() if tag in self.records[path]['tags']])
+                records = list(records)
+            else:
+                records = ["%s://%s/%s/%s/" % (u.scheme, u.netloc, parts[0],
+                                                    path) for path in self.records.keys()]
+            content = json.dumps({"records": records})
+            status = 200
+        elif len(parts) == 3: # tagged records uri
+            if method == "DELETE":
+                tag = parts[2]
+                n = 0
+                for key, record in self.records.items():
+                    if tag in record["tags"]:
+                        self.records.pop(key)
+                        n += 1
+                status = 200
+                content = str(n)
+        if self.debug:
+            print ">>>>>", status, content
+        return MockResponse(status), content
+    
+
+class MockHttpLib(object):
+    
+    @staticmethod
+    def Http(*args):
+        return MockHttp(*args)
+
+
 class TestHttpRecordStore(unittest.TestCase, BaseTestRecordStore):
     
+    def __init__(self, *args, **kwargs):
+        unittest.TestCase.__init__(self, *args, **kwargs)
+        self.real_httplib = http_store.httplib2
+        http_store.httplib2 = MockHttpLib()
+        
+    def __del__(self):
+        http_store.httplib2 = self.real_httplib
+    
     def setUp(self):
-        self.store = HttpRecordStore("http://127.0.0.1:8000/records/", "testuser", "z6Ty49HY")
+        self.store = http_store.HttpRecordStore("http://127.0.0.1:8000/", "testuser", "z6Ty49HY")
         self.project = MockProject()
         
     def tearDown(self):

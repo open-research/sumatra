@@ -75,9 +75,8 @@ class MockRecordStore(object):
             raise Exception()
     def delete(self, project_name, label):
         self.deleted = label
-    def delete_group(self, project_name, label):
-        return "".join(reversed(label))
-    delete_by_tag = delete_group
+    def delete_by_tag(self, project_name, tag):
+        return "".join(reversed(tag))
 
 
 class TestSimProject(unittest.TestCase):
@@ -138,11 +137,6 @@ class TestSimProject(unittest.TestCase):
                           record_store=MockRecordStore())
         proj.delete_record("foo")
         self.assertEqual(proj.record_store.deleted, "foo")
-        
-    def test__delete_group__calls_delete_group_on_the_record_store(self):
-        proj = SimProject("test_project",
-                          record_store=MockRecordStore())
-        self.assertEqual(proj.delete_group("foo"), "oof")
         
     def test__delete_by_tag__calls_delete_by_tag_on_the_record_store(self):
         proj = SimProject("test_project",

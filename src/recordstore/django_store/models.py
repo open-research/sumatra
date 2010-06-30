@@ -54,9 +54,6 @@ class Project(BaseModel):
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True)
 
-    def groups(self):
-        return set(rec.group for rec in self.simulationrecord_set.all())
-
 
 class Executable(BaseModel):
     path = models.CharField(max_length=200)
@@ -162,9 +159,8 @@ class PlatformInformation(BaseModel):
 
 
 class SimulationRecord(BaseModel):
-    id = models.CharField(max_length=100, unique=True)
+    label = models.CharField(max_length=100, unique=True) # make this a SlugField?
     db_id = models.AutoField(primary_key=True) # django-tagging needs an integer as primary key - see http://code.google.com/p/django-tagging/issues/detail?id=15
-    group = models.SlugField()
     reason = models.TextField(blank=True)
     duration = models.FloatField(null=True)
     executable = models.ForeignKey(Executable)
@@ -193,7 +189,7 @@ class SimulationRecord(BaseModel):
             self.parameters.to_sumatra(),
             self.launch_mode.to_sumatra(),
             self.datastore.to_sumatra(),
-            self.group,
+            self.label,
             self.reason,
             self.diff,
             self.user)
@@ -207,5 +203,5 @@ class SimulationRecord(BaseModel):
         return record
             
     def __unicode__(self):
-        return self.id
+        return self.label
     

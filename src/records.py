@@ -27,7 +27,8 @@ class SimRecord(object): # maybe just call this Simulation
     def __init__(self, executable, repository, main_file, version, parameters,
                  launch_mode, datastore, label=None, reason=None, diff='',
                  user='', on_changed='error'):
-        self.group = label
+        self.timestamp = datetime.now() # might need to allow for this to be set as argument to allow for distributed/batch simulations on machines with out-of-sync clocks
+        self.label = label or self.timestamp.strftime("%Y%m%d-%H%M%S")
         self.reason = reason
         self.duration = None
         self.executable = executable # an Executable object incorporating path, version, maybe system information
@@ -39,15 +40,10 @@ class SimRecord(object): # maybe just call this Simulation
         self.datastore = datastore
         self.outcome = None
         self.data_key = None
-        self.timestamp = datetime.now() # might need to allow for this to be set as argument to allow for distributed/batch simulations on machines with out-of-sync clocks
         self.tags = set()
         self.diff = diff
         self.user = user
-        self.on_changed = on_changed
-    
-    @property
-    def label(self):
-        return "%s_%s" % (self.group, self.timestamp.strftime("%Y%m%d-%H%M%S"))        
+        self.on_changed = on_changed  
     
     def register(self):
         """Record information about the simulation environment."""

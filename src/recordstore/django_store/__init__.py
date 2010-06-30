@@ -52,21 +52,17 @@ class DjangoRecordStore(RecordStore):
             self.__init__(db_file)
     
     def _get_db_record(self, project_name, record):
-        import models
         db_project = self._get_db_project(project_name)
         try:
-            db_record = models.SimulationRecord.objects.get(id=record.label,
-                                                            project=db_project,
-                                                            group=record.group,
-                                                            timestamp=record.timestamp)
+            db_record = models.SimulationRecord.objects.get(label=record.label,
+                                                            project=db_project)
         except models.SimulationRecord.DoesNotExist:
-            db_record = models.SimulationRecord(id=record.label,
-                                                project=db_project,
-                                                group=record.group,
-                                                timestamp=record.timestamp)
+            db_record = models.SimulationRecord(label=record.label,
+                                                project=db_project)
         return db_record
     
     def _get_db_project(self, project_name):
+        import models
         try:
             db_project = models.Project.objects.get(id=project_name)
         except models.Project.DoesNotExist:
@@ -75,7 +71,6 @@ class DjangoRecordStore(RecordStore):
         return db_project
                                                                      
     def _get_db_obj(self, db_class, obj):
-        import models
         cls = getattr(models, db_class)
         db_obj, created = cls.objects.get_or_create_from_sumatra_object(obj)
         if created:
@@ -84,7 +79,7 @@ class DjangoRecordStore(RecordStore):
     
     def save(self, project_name, record):
         db_record = self._get_db_record(project_name, record)
-        for attr in 'reason', 'duration', 'outcome', 'main_file', 'version':
+        for attr in 'reason', 'duration', 'outcome', 'main_file', 'version', 'timestamp':
             value = getattr(record, attr)
             if value is not None:
                 setattr(db_record, attr, value)
@@ -118,39 +113,25 @@ class DjangoRecordStore(RecordStore):
     def get(self, project_name, label):
         import models
         try:
-            db_record = models.SimulationRecord.objects.get(project__id=project_name, id=label)
+            db_record = models.SimulationRecord.objects.get(project__id=project_name, label=label)
         except models.SimulationRecord.DoesNotExist:
             raise KeyError(label)
         return db_record.to_sumatra()
     
-    def list(self, project_name, groups):
+    def list(self, project_name, tags=None):
         import models
         db_records = models.SimulationRecord.objects.filter(project__id=project_name)
-        if groups:
-            db_records = db_records.filter(group__in=groups)
+        if tags:
+            if not hasattr(tags, "__len__"):
+                tags = [tags]
+            for tag in tags:
+                db_records = db_records.filter(tags__contains=tag)
         return [db_record.to_sumatra() for db_record in db_records]
-    
-    def list_for_tags(self, project_name, tags):
-        import models
-        if not hasattr(tags, "__len__"):
-            tags = [tags]
-        db_records = models.SimulationRecord.objects.filter(project__id=project_name)
-        for tag in tags:
-            db_records = db_records.filter(tags__contains=tag)
-        return db_records
     
     def delete(self, project_name, label):
         import models
-        db_record = models.SimulationRecord.objects.get(id=label, project__id=project_name)
+        db_record = models.SimulationRecord.objects.get(label=label, project__id=project_name)
         db_record.delete()
-    
-    def delete_group(self, project_name, group_label):
-        import models
-        db_records = models.SimulationRecord.objects.filter(project__id=project_name, group=group_label)
-        n = db_records.count()
-        for db_record in db_records:
-            db_record.delete()
-        return n
         
     def delete_by_tag(self, project_name, tag):
         import models
