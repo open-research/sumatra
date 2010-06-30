@@ -1,0 +1,75 @@
+DELTA
+SVNENDREP
+DELTA
+SVNENDREP
+id: 2-3.0.r3/34
+type: file
+count: 0
+text: 3 0 4 0 d41d8cd98f00b204e9800998ecf8427e
+cpath: /subpackage/somemodule.py
+copyroot: 0 /
+
+id: 1-3.0.r3/165
+type: file
+count: 0
+text: 3 17 4 0 d41d8cd98f00b204e9800998ecf8427e
+cpath: /subpackage/__init__.py
+copyroot: 0 /
+
+PLAIN
+K 11
+__init__.py
+V 17
+file 1-3.0.r3/165
+K 13
+somemodule.py
+V 16
+file 2-3.0.r3/34
+END
+ENDREP
+id: 0-3.0.r3/394
+type: dir
+count: 0
+text: 3 296 85 85 5139eabba2ebd5ea82aaea463ec9e520
+cpath: /subpackage
+copyroot: 0 /
+
+PLAIN
+K 8
+EGG-INFO
+V 17
+dir 0-1.0.r1/1333
+K 13
+default.param
+V 16
+file 2-1.0.r2/51
+K 7
+main.py
+V 18
+file 3-1.0.r1/1454
+K 12
+romans.param
+V 18
+file 4-1.0.r1/1576
+K 10
+subpackage
+V 16
+dir 0-3.0.r3/394
+END
+ENDREP
+id: 0.0.r3/725
+type: dir
+pred: 0.0.r2/366
+count: 3
+text: 3 515 197 197 7cf3ac4f104b3787859eff8743970a5c
+cpath: /
+copyroot: 0 /
+
+_0.0.t2-2 add false false /subpackage
+
+_2.0.t2-2 add true false /subpackage/somemodule.py
+
+_1.0.t2-2 add true false /subpackage/__init__.py
+
+
+725 853

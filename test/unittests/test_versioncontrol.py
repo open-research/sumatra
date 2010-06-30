@@ -92,7 +92,7 @@ class TestSubversionWorkingCopy(unittest.TestCase, BaseTestWorkingCopy):
         self.tmpdir = tempfile.mkdtemp()
         self.repos.checkout(self.tmpdir)
         self.wc = SubversionWorkingCopy(self.tmpdir)
-        self.latest_version = "2"
+        self.latest_version = "3"
         self.previous_version = "1"
         
     def tearDown(self):
