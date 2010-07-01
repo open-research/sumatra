@@ -55,8 +55,8 @@ def list_records(request):
                                     'project_name': project_name,
                                     'search_form': search_form})  
 
-def record_detail(request, id):
-    record = models.Record.objects.get(id=id, project__id=project_name)
+def record_detail(request, label):
+    record = models.Record.objects.get(label=label, project__id=project_name)
     
     
     if request.method == 'POST':
@@ -95,7 +95,7 @@ def delete_records(request):
 
 DEFAULT_MAX_DISPLAY_LENGTH = 10*1024
 
-def show_file(request, id):
+def show_file(request, label):
     path = request.GET['path']
     if 'truncate' in request.GET:
         if request.GET['truncate'].lower() == 'false':
@@ -105,7 +105,7 @@ def show_file(request, id):
     else:
         max_display_length = DEFAULT_MAX_DISPLAY_LENGTH
     
-    record = models.Record.objects.get(id=id, project__id=project_name)
+    record = models.Record.objects.get(label=label, project__id=project_name)
     data_store = get_data_store(record.datastore.type, eval(record.datastore.parameters))
     # check the file is in the store for a given simulation/analysis
         
@@ -124,7 +124,7 @@ def show_file(request, id):
             reader = csv.reader(lines)
             
             return render_to_response("show_csv.html",
-                                      {'path': path, 'id': id,
+                                      {'path': path, 'label': label,
                                        'project_name': project_name,
                                        'reader': reader,
                                        'truncated':truncated
@@ -138,14 +138,14 @@ def show_file(request, id):
             if max_display_length is not None and len(content) >= max_display_length:
                 truncated = True
             return render_to_response("show_file.html",
-                                      {'path': path, 'id': id,
+                                      {'path': path, 'label': label,
                                        'project_name': project_name,
                                        'content': content,
                                        'truncated': truncated,
                                        })
         elif mimetype in ("image/png", "image/jpeg", "image/gif"):
             return render_to_response("show_image.html",
-                                      {'path': path, 'id': id,
+                                      {'path': path, 'label': label,
                                        'project_name': project_name,})
         #elif mimetype == 'application/zip':
         #    import zipfile
@@ -154,26 +154,26 @@ def show_file(request, id):
         #        contents = zf.namelist()
         #        zf.close()
         #        return render_to_response("show_file.html",
-        #                              {'path': path, 'id': id,
+        #                              {'path': path, 'label': label,
         #                               'content': "\n".join(contents)
         #                               })
         #    else:
         #        raise IOError("Not a valid zip file")
         else:
-            return render_to_response("show_file.html", {'path': path, 'id': id,
+            return render_to_response("show_file.html", {'path': path, 'label': label,
                                                          'project_name': project_name,
                                                          'content': "Can't display this file (mimetype assumed to be %s)" % mimetype})
     except IOError, e:
-        return render_to_response("show_file.html", {'path': path, 'id': id,
+        return render_to_response("show_file.html", {'path': path, 'label': label,
                                                      'project_name': project_name,
                                                      'content': "File not found.",
                                                      'errmsg': e})
     
-def show_image(request, id):
+def show_image(request, label):
     path = request.GET['path']
     mimetype, encoding = mimetypes.guess_type(path)
     if mimetype in ("image/png", "image/jpeg", "image/gif"):
-        record = models.Record.objects.get(id=id, project__id=project_name)
+        record = models.Record.objects.get(label=label, project__id=project_name)
         data_store = get_data_store(record.datastore.type, eval(record.datastore.parameters))
         content = data_store.get_content(record.data_key, path)
         response = HttpResponse(mimetype=mimetype)
@@ -182,14 +182,14 @@ def show_image(request, id):
     else:
         return HttpResponse(mimetype="image/png") # should return a placeholder image?
     
-def show_diff(request, id, package):
-    record = models.Record.objects.get(id=id, project__id=project_name)
+def show_diff(request, label, package):
+    record = models.Record.objects.get(label=label, project__id=project_name)
     if package:
         dependency = record.dependencies.get(name=package)
     else:
         package = "Main script"
         dependency = record
-    return render_to_response("show_diff.html", {'id': id,
+    return render_to_response("show_diff.html", {'label': label,
                                                  'project_name': project_name,
                                                  'package': package,
                                                  'parent_version': dependency.version,

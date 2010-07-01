@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 
-{% block title %}{{project_name}}: {{record.id}}{% endblock %}
+{% block title %}{{project_name}}: {{record.label}}{% endblock %}
 
 {% block header %}
 <form action='{{ request.path }}' method='POST'>
-<h1>{{project_name}}: <i>{{record.id}}</i></h1>
+<h1>{{project_name}}: <i>{{record.label}}</i></h1>
 <input type="submit" value='Save changes' class="headeritem">
 <input type="submit" value='Delete' class="headeritem" name="delete">
 {% endblock %}
@@ -16,7 +16,7 @@
 {{form.errors}}
 
 <table>
-    <tr><th>Label:</th><td>{{record.id}}</td></tr>
+    <tr><th>Label:</th><td>{{record.label}}</td></tr>
     <tr><th>Reason:</th><td>{{form.reason}}</td></tr>
     <tr><th>Outcome:</th><td>{{form.outcome}}</td></tr>
     <tr><th>Timestamp:</th><td>{{record.timestamp|date:"d/m/Y H:i:s"}}</td></tr>

@@ -3,15 +3,15 @@
 {% block title %}Show file:: {{path}}{% endblock %}
 
 {% block header %}
-<h1>{{id}}</h1>
+<h1>{{label}}</h1>
 {% endblock %}
 
 {% block content %}
-<p><a href="/{{id}}/">Return to record</a></p>
+<p><a href="/{{label}}/">Return to record</a></p>
 
 <h2>{{path}}</h2>
 
-<img src="/{{id}}/image?path={{path}}" alt="/{{id}}:{{path}}"/>
+<img src="/{{label}}/image?path={{path}}" alt="/{{label}}:{{path}}"/>
 
 
 {% endblock %}
