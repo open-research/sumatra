@@ -8,11 +8,11 @@ import os
 import webbrowser
 from django.core import management
 from django.conf import settings
-from sumatra.projects import load_simulation_project
+from sumatra.projects import load_project
 from sumatra.recordstore.django_store import DjangoRecordStore
 from sumatra.web import __file__ as sumatra_web
 
-project = load_simulation_project()
+project = load_project()
 if not isinstance(project.record_store, DjangoRecordStore):
     # should make the web interface independent of the record store, if possible
     print "This project cannot be accessed using the web interface."

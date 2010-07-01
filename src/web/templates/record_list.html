@@ -17,7 +17,7 @@
     <table class="simlist">
         <tr>
             <th rowspan="2"><input type="Submit" value="Delete"/></th>
-            <th rowspan="2">ID</th>
+            <th rowspan="2">Label</th>
             <th rowspan="2">Reason</th>
             <th rowspan="2">Outcome</th>
             <th rowspan="2">Duration</th>
@@ -37,8 +37,8 @@
         </tr>
         {% for record in object_list %}
         <tr class="{% cycle odd,even %}">
-            <td><input type="checkbox" name="delete" value="{{record.id}}"/></td>
-            <td><a href="/{{record.id}}/">{{record.id}}</a></td>
+            <td><input type="checkbox" name="delete" value="{{record.label}}"/></td>
+            <td><a href="/{{record.label}}/">{{record.label}}</a></td>
             <td>{{record.reason}}</td>
             <td>{{record.outcome}}</td>
             <td>{{record.duration|floatformat:2}}&nbsp;s</td>
