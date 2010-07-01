@@ -15,7 +15,7 @@ import socket
 import subprocess
 import os
 from sumatra.programs import Executable
-
+import warnings
 
 class PlatformInformation(object):
     
@@ -86,6 +86,19 @@ class LaunchMode(object):
     def __ne__(self, other):
         return not self.__eq__(other)
 
+    def get_platform_information(self):
+        network_name = platform.node()
+        bits, linkage = platform.architecture()
+        return [PlatformInformation(architecture_bits=bits,
+                                    architecture_linkage=linkage,
+                                    machine=platform.machine(),
+                                    network_name=network_name,
+                                    ip_addr=socket.gethostbyname(network_name),
+                                    processor=platform.processor(),
+                                    release=platform.release(),
+                                    system_name=platform.system(),
+                                    version=platform.version())]
+        # maybe add system time?
 
 class SerialLaunchMode(LaunchMode):
     
@@ -99,19 +112,6 @@ class SerialLaunchMode(LaunchMode):
         cmd = "%s "*len(paths) % tuple(paths)
         return cmd
     
-    def get_platform_information(self):
-        network_name = platform.node()
-        bits, linkage = platform.architecture()
-        return [PlatformInformation(architecture_bits=bits,
-                                    architecture_linkage=linkage,
-                                    machine=platform.machine(),
-                                    network_name=network_name,
-                                    ip_addr=socket.gethostbyname(network_name),
-                                    processor=platform.processor(),
-                                    release=platform.release(),
-                                    system_name=platform.system(),
-                                    version=platform.version())]
-
 
 class DistributedLaunchMode(LaunchMode):
     
@@ -146,10 +146,32 @@ class DistributedLaunchMode(LaunchMode):
         cmd += " %s"*len(paths) % tuple(paths)
         return cmd
     
-
-    
     def get_platform_information(self):
-        return []
+        """
+        requires the script pfi.py to be placed on the user's path on
+        each node of the machine.
+        
+        This is currently not useful, as I don't think there is any guarantee
+        that we get the same n nodes that the command is run on. Need to look
+        more into this.
+        """
+        try:
+            import mpi4py.MPI
+            MPI = mpi4py.MPI
+        except ImportError:
+            MPI = None
+            warnings.warn("mpi4py is not available, so Sumatra is not able to obtain platform information for remote nodes.")
+            platform_information = LaunchMode.get_platform_information()
+        if MPI:
+            import sys
+            comm = MPI.COMM_SELF.Spawn(sys.executable,
+                                       args=['pfi.py'],
+                                       maxprocs=self.n)
+            platform_information = []
+            for rank in range(self.n):
+                platform_information.append(comm.recv(source=rank, tag=rank))
+            comm.Disconnect()
+        return platform_information
 
     def get_state(self):
         return {'mpirun': self.mpirun, 'n': self.n, 'hosts': self.hosts}
