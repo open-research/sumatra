@@ -222,6 +222,9 @@ def delete(argv):
                           description=description)
     parser.add_option('-t', '--tag', action='store_true',
                       help="interpret LIST as containing tags. Records with any of these tags will be deleted.")
+    parser.add_option('-d', '--data', action='store_true',
+                      help="also delete any data associated with the record(s).")
+                      
     (options, args) = parser.parse_args(argv)
     if len(args) < 1:
         parser.error('Please specify a record or list of records to be deleted.')
@@ -229,13 +232,13 @@ def delete(argv):
     project = load_project()
     if options.tag:
         for tag in args:
-            n = project.delete_by_tag(tag)
+            n = project.delete_by_tag(tag, delete_data=options.data)
             print n, "records deleted."
     else:
         for label in args:
             if label == 'last':
                 label = project.most_recent().label
-            project.delete_record(label)
+            project.delete_record(label, delete_data=options.data)
             
 def comment(argv):
     """Add a comment to an existing record."""

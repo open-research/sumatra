@@ -30,6 +30,7 @@ class Record(object):
                  user='', on_changed='error'):
         self.timestamp = datetime.now() # might need to allow for this to be set as argument to allow for distributed/batch simulations on machines with out-of-sync clocks
         self.label = label or self.timestamp.strftime("%Y%m%d-%H%M%S")
+        assert len(self.label) > 0
         self.reason = reason
         self.duration = None
         self.executable = executable # an Executable object incorporating path, version, maybe system information
@@ -89,6 +90,13 @@ class Record(object):
         """
         return RecordDifference(self, other_record, ignore_mimetypes, ignore_filenames)
     
+    def delete_data(self):
+        """
+        Delete any data files associated with this record.
+        """
+        self.datastore.delete(self.data_key)
+        self.data_key = self.datastore.empty_key
+         
 
 class RecordDifference(object):
     """Represents the difference between two Record objects."""

@@ -140,18 +140,23 @@ class Project(object):
            Otherwise return None."""
         return self.record_store.get(self.name, label)
     
-    def delete_record(self, label):
+    def delete_record(self, label, delete_data=False):
         """Delete a record. Return 1 if the record is found.
            Otherwise return 0."""
+        if delete_data:
+            self.get_record(label).delete_data()
         self.record_store.delete(self.name, label)
     
-    def delete_by_tag(self, tag):
+    def delete_by_tag(self, tag, delete_data=False):
         """Delete all records with a given tag. Return the number of records deleted."""
+        if delete_data:
+            for record in self.record_store.list(self.name, tag):
+                record.delete_data()
         n = self.record_store.delete_by_tag(self.name, tag)
         return n
     
-    def format_records(self, format='text', mode='short', tag=None):
-        records = self.record_store.list(self.name, tag)
+    def format_records(self, format='text', mode='short', tags=None):
+        records = self.record_store.list(self.name, tags)
         formatter = get_formatter(format)(records)
         return formatter.format(mode) 
     

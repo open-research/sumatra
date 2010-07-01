@@ -25,6 +25,8 @@ import shutil
 import logging
 import mimetypes
 from subprocess import Popen
+import warnings
+
 
 class DataStore(object):
     
@@ -38,9 +40,12 @@ class DataStore(object):
 
 
 class FileSystemDataStore(DataStore):
+    empty_key = []
     
     def __init__(self, root):
-        self.root = root or "./Data"
+        if root and not isinstance(root, basestring):
+            raise TypeError("root must be a string")
+        self.root = os.path.abspath(root or "./Data")
         if not os.path.exists(self.root):
             os.mkdir(self.root)
 
@@ -70,7 +75,7 @@ class FileSystemDataStore(DataStore):
                     new_files.append(relative_path)
         return new_files
     
-    def archive(self, timestamp, label, key, delete_originals=False):
+    def archive(self, label, key, delete_originals=False):
         """Archives files based on an access key, and deletes the originals."""
         data_archive = tarfile.open(label + ".tar.gz",'w:gz')
         logging.info("Archiving data to file %s" % data_archive.name)
@@ -79,9 +84,8 @@ class FileSystemDataStore(DataStore):
         parameter_file = os.path.join(os.getcwd(), label + ".param")
         if os.path.exists(parameter_file):
             data_archive.add(parameter_file, os.path.join(label, label + ".param"))
-        # Find and add new data files
-        new_files = self.find_new_files(timestamp)
-        for file_path in new_files:
+        # Add data files
+        for file_path in key:
             archive_path = os.path.join(label, self.root[length_dataroot:], file_path)
             data_archive.add(os.path.join(self.root, file_path), archive_path)
         data_archive.close()
@@ -92,14 +96,13 @@ class FileSystemDataStore(DataStore):
         if delete_originals:
             if os.path.exists(parameter_file):
                 os.remove(parameter_file)
-            logging.debug("Deleting %s" % new_files)
-            for file in new_files:
-                os.remove(os.path.join(self.root, file))
+            self.delete(key)
                 
     def list_files(self, key):
         return [DataFile(path, self) for path in key]
     
     def get_content(self, key, path, max_length=None):
+        assert path in key
         full_path = os.path.join(self.root, path)
         f = open(full_path, 'r')
         # check the file size. Truncate if necessary
@@ -109,6 +112,20 @@ class FileSystemDataStore(DataStore):
             content = f.read()
         f.close()
         return content
+    
+    def delete(self, key, path=None):
+        def remove_file(path):
+            full_path = os.path.join(self.root, path)
+            if os.path.exists(full_path):
+                os.remove(full_path)
+            else:
+                warnings.warn("Tried to delete %s, but it did not exist." % full_path)
+        if path:
+            assert path in key
+            remove_file(path)
+        else:
+            for path in key:
+                remove_file(path)
     
     
 class DataFile(object):

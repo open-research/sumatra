@@ -82,8 +82,13 @@ def record_detail(request, id):
 
 def delete_records(request):
     records_to_delete = request.POST.getlist('delete')
-    records = models.Record.objects.filter(id__in=records_to_delete, project__id=project_name)
+    delete_data = 'delete_data' in request.POST
+    records = models.Record.objects.filter(label__in=records_to_delete, project__id=project_name)
     for record in records:
+        if delete_data:
+            datastore = record.datastore.to_sumatra()
+            data_key = eval(record.data_key)
+            datastore.delete(data_key)
         record.delete()
     return HttpResponseRedirect('/')  
     

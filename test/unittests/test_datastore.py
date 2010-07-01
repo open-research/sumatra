@@ -13,7 +13,7 @@ from sumatra.datastore import DataStore, FileSystemDataStore, DataFile, get_data
 class TestFileSystemDataStore(unittest.TestCase):
     
     def setUp(self):
-        self.root_dir = 'kusehgcfscuzhfqizuchgsireugvcsi'
+        self.root_dir = os.path.abspath('kusehgcfscuzhfqizuchgsireugvcsi')
         if os.path.exists(self.root_dir):
             shutil.rmtree(self.root_dir)
         assert not os.path.exists(self.root_dir)
@@ -49,12 +49,12 @@ class TestFileSystemDataStore(unittest.TestCase):
                          set([]))
         
     def test__archive__should_create_a_tarball(self):
-        self.ds.archive(self.now, 'test', 'key_is_not_used?')
+        self.ds.archive('test', self.test_files)
         self.assert_(os.path.exists(os.path.join(self.root_dir, 'test.tar.gz')))
         
     def test__archive__should_delete_original_files_if_requested(self):
         assert os.path.exists(os.path.join(self.root_dir, 'test_file1'))
-        self.ds.archive(self.now, 'test', 'key_is_not_used?', delete_originals=True)
+        self.ds.archive('test', self.test_files, delete_originals=True)
         self.assert_(not os.path.exists(os.path.join(self.root_dir, 'test_file1')))
         
     def test__list_files__should_return_a_list_of_found_files(self):
@@ -63,16 +63,24 @@ class TestFileSystemDataStore(unittest.TestCase):
         self.assert_(isinstance(datafile_list[0], DataFile))
         
     def test__get_content__should_return_short_file_content(self):
-        content = self.ds.get_content('key_not_used', 'test_file1')
+        content = self.ds.get_content(self.test_files, 'test_file1')
         self.assertEqual(content, self.test_data)
         
     def test__get_content__should_truncate_long_files(self):
-        content = self.ds.get_content('key_not_used', 'test_file1', max_length=10)
+        content = self.ds.get_content(self.test_files, 'test_file1', max_length=10)
         self.assertEqual(content, self.test_data[:10])
     
-    
+    def test__delete__should_remove_files(self):
+        assert os.path.exists(os.path.join(self.root_dir, 'test_file1'))
+        self.assertEqual(len(self.ds.list_files(key=self.test_files)), len(self.test_files))
+        self.ds.delete(key=self.test_files)
+        self.assertEqual(len(self.ds.list_files(key=[])), 0)
+        self.assert_(not os.path.exists(os.path.join(self.root_dir, 'test_file1')))
+
+
 class MockDataStore(object):
         root = os.getcwd()
+
         
 class TestDataFile(unittest.TestCase):   
     
