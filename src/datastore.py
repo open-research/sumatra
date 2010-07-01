@@ -43,17 +43,27 @@ class FileSystemDataStore(DataStore):
     empty_key = []
     
     def __init__(self, root):
-        if root and not isinstance(root, basestring):
-            raise TypeError("root must be a string")
-        self.root = os.path.abspath(root or "./Data")
-        if not os.path.exists(self.root):
-            os.mkdir(self.root)
+        self.root = root or "./Data"
 
     def __str__(self):
         return self.root
     
     def get_state(self):
         return {'root': self.root}
+    
+    def __get_root(self):
+        return self._root
+    def __set_root(self, value):
+        if not isinstance(value, basestring):
+            raise TypeError("root must be a string")
+        self._root = os.path.abspath(value)
+        if not os.path.exists(self._root):
+            os.makedirs(self._root)
+    root = property(fget=__get_root, fset=__set_root)
+    
+    def __del__(self):
+        if hasattr(self, "_root") and os.path.exists(self.root) and len(os.listdir(self.root)) == 0:
+            os.rmdir(self.root)
     
     def find_new_files(self, timestamp):
         """Finds newly created/changed files in dataroot."""

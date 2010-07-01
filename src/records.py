@@ -19,6 +19,7 @@ import getpass
 from operator import or_
 from formatting import get_formatter
 import dependency_finder
+from copy import copy
 
 def assert_equal(a, b, msg=''):
     assert a == b, "%s: %s %s != %s %s" % (msg, a, type(a), b, type(b))
@@ -39,7 +40,7 @@ class Record(object):
         self.version = version
         self.parameters = parameters # a ParameterSet object
         self.launch_mode = launch_mode # a LaunchMode object - basically, run serially or with MPI. If MPI, what configuration
-        self.datastore = datastore
+        self.datastore = copy(datastore)
         self.outcome = None
         self.data_key = None
         self.tags = set()
@@ -58,16 +59,34 @@ class Record(object):
         # Record platform information
         self.platforms = self.launch_mode.get_platform_information()
     
-    def run(self):
-        """Launch the simulation or analysis"""
+    def run(self, with_label=False):
+        """
+        Launch the simulation or analysis.
+        
+        with_label - adds the record label either to the parameter file
+                     (with_label="parameters") or to the end of the command
+                     line (with_label="cmdline"), and appends the label to the
+                     datastore root. This allows the program being run to
+                     create files in a directory specific to this run.
+        """
+        data_label = None
+        if with_label:
+            if with_label == 'parameters':
+                self.parameters.update({"sumatra_label": self.label})
+            elif with_label == 'cmdline':
+                data_label = self.label
+            else:
+                raise Exception("with_label must be either 'parameters' or 'cmdline'")
+            self.datastore.root  = os.path.join(self.datastore.root, self.label)
+        print "datastore.root = ", self.datastore.root
         # run pre-simulation/analysis tasks, e.g. nrnivmodl
         self.launch_mode.pre_run(self.executable)
         # Write the executable-specific parameter file
         parameter_file = "%s.param" % self.label
         self.executable.write_parameters(self.parameters, parameter_file)
         # Run simulation/analysis
-        start_time = time.time()        
-        result = self.launch_mode.run(self.executable, self.main_file, parameter_file)
+        start_time = time.time()
+        result = self.launch_mode.run(self.executable, self.main_file, parameter_file, data_label)
         self.duration = time.time() - start_time
         # Run post-processing scripts
         pass # skip this if there is an error

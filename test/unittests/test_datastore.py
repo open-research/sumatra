@@ -131,7 +131,6 @@ class TestModuleFunctions(unittest.TestCase):
         root_dir = 'kuqeyfgneuqygvn'
         ds = FileSystemDataStore(root_dir)
         self.assert_(isinstance(get_data_store('FileSystemDataStore', {'root': root_dir}), DataStore))
-        shutil.rmtree(root_dir)
         
     def test__get_data_store__should_raise_NameError_if_wrong_type(self):
         self.assertRaises(NameError, get_data_store, 'FooDataStore', {})

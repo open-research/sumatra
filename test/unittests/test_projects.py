@@ -46,7 +46,7 @@ class MockLaunchMode(object):
         return []
     def pre_run(self, prog):
         pass
-    def run(self, prog, script, params):
+    def run(self, prog, script, params, append_label):
         return True
     
     

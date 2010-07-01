@@ -38,7 +38,7 @@ class Project(object):
     def __init__(self, name, default_executable=None, default_repository=None,
                  default_main_file=None, default_launch_mode=None,
                  data_store='default', record_store='default',
-                 on_changed='error', description=''):
+                 on_changed='error', description='', data_label=None):
         if not os.path.exists(".smt"):
             os.mkdir(".smt")
         if os.path.exists(".smt/project"):
@@ -56,8 +56,16 @@ class Project(object):
         self.record_store = record_store
         self.on_changed = on_changed
         self.description = description
+        self.data_label = data_label
         self.save()
         print "Sumatra project successfully set up"
+    
+    def __set_data_label(self, value):
+        assert value in (None, 'parameters', 'cmdline')
+        self._data_label = value
+    def __get_data_label(self):
+        return self._data_label
+    data_label = property(fset=__set_data_label, fget=__get_data_label)
     
     def save(self):
         """Save state to some form of persistent storage. (file, database)."""
@@ -78,6 +86,7 @@ class Project(object):
         Data store          : %(data_store)s
         Record store        : %(record_store)s
         Code change policy  : %(on_changed)s
+        Append label to     : %(_data_label)s
         """
         return _remove_left_margin(template % self.__dict__)
     
@@ -106,7 +115,7 @@ class Project(object):
         record = self.new_record(parameters, executable, repository,
                                  main_file, version, launch_mode, label,
                                  reason)
-        record.run()
+        record.run(with_label=self.data_label)
         self.add_record(record)
         self.save()
         return record.label

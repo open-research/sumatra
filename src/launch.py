@@ -64,9 +64,11 @@ class LaunchMode(object):
     def generate_command(self, paths):
         raise NotImplementedError("must be impemented by sub-classes")
 
-    def run(self, executable, main_file, parameter_file=None):
+    def run(self, executable, main_file, parameter_file=None, append_label=None):
         paths = check_files_exist(executable, main_file, parameter_file)
         cmd = self.generate_command(paths)
+        if append_label:
+            cmd += append_label
         print "Sumatra is running the following command:", cmd
         #p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True)
         p = subprocess.Popen(cmd, shell=True, stdout=None, stderr=None, close_fds=True)
@@ -108,7 +110,7 @@ class SerialLaunchMode(LaunchMode):
     def __str__(self):
         return "serial"
     
-    def generate_command(self, paths):
+    def generate_command(self, paths, append_label=None):
         cmd = "%s "*len(paths) % tuple(paths)
         return cmd
     
