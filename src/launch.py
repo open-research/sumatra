@@ -115,7 +115,7 @@ class SerialLaunchMode(LaunchMode):
 
 class DistributedLaunchMode(LaunchMode):
     
-    def __init__(self, n, mpirun="mpiexec", hosts=[]):
+    def __init__(self, n, mpirun="mpiexec", hosts=[], pfi_path="/usr/local/bin/pfi.py"):
         LaunchMode.__init__(self)
         class MPI(Executable):
             name = mpirun
@@ -128,6 +128,7 @@ class DistributedLaunchMode(LaunchMode):
         self.hosts = hosts
         self.n = n
         self.mpi_info = {}
+        self.pfi_path = pfi_path
     
     def __str__(self):
         return "distributed (n=%d, mpiexec=%s, hosts=%s)" % (self.n, self.mpirun, self.hosts)
@@ -165,7 +166,7 @@ class DistributedLaunchMode(LaunchMode):
         if MPI:
             import sys
             comm = MPI.COMM_SELF.Spawn(sys.executable,
-                                       args=['pfi.py'],
+                                       args=[self.pfi_path],
                                        maxprocs=self.n)
             platform_information = []
             for rank in range(self.n):
