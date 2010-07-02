@@ -42,6 +42,8 @@ class MockFile(object):
 class MockDataStore(object):
     def list_files(self, key):
         return [MockFile("1.dat"), MockFile("2.dat")]
+    def copy(self):
+        return self
 
 class MockDependency(object):
     def __init__(self, name):
@@ -55,10 +57,10 @@ class TestRecordDifference(unittest.TestCase):
     
     def test__init(self):
         r1 = Record(MockExecutable(), MockRepository(), "test.py",
-                       999, {}, MockLaunchMode(), MockDataStore)
+                       999, {}, MockLaunchMode(), MockDataStore())
         time.sleep(1)
         r2 = Record(MockExecutable(), MockRepository(), "test.py",
-                       999, {}, MockLaunchMode(), MockDataStore)
+                       999, {}, MockLaunchMode(), MockDataStore())
         diff = RecordDifference(r1, r2)
         
     def test__nonzero__should_return_True__for_different_parameters(self):

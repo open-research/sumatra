@@ -47,6 +47,8 @@ class MockDataStore(object):
         pass
     def get_state(self):
         return {'root': "/tmp"}
+    def copy(self):
+        return self
 sumatra.datastore.MockDataStore = MockDataStore
 
 class MockDependency(object):
