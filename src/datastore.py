@@ -29,6 +29,7 @@ import warnings
 
 
 class DataStore(object):
+    """Base class for data storage abstractions."""
     
     def get_state(self):
         """
@@ -40,6 +41,10 @@ class DataStore(object):
 
 
 class FileSystemDataStore(DataStore):
+    """
+    Represents a locally-mounted filesystem. The root of the data store will
+    generally be a subdirectory of the real filesystem.
+    """
     empty_key = []
     
     def __init__(self, root):
@@ -70,7 +75,8 @@ class FileSystemDataStore(DataStore):
         # The timestamp-based approach creates problems when running several
         # experiments at once, since datafiles created by other experiments may
         # be mixed in with this one.
-        # THIS NEEDS FIXED!
+        # For this reason, concurrently running computations should each use
+        # their own datastore, each with a different root.
         timestamp = timestamp.replace(microsecond=0) # Round down to the nearest second
         # Find and add new data files
         length_dataroot = len(self.root) + len(os.path.sep)
@@ -109,9 +115,17 @@ class FileSystemDataStore(DataStore):
             self.delete(key)
                 
     def list_files(self, key):
+        """
+        Return a list of files that match the given key.
+        """
         return [DataFile(path, self) for path in key]
     
     def get_content(self, key, path, max_length=None):
+        """
+        Return the contents of a file identified by a key and path.
+        
+        If `max_length` is given, the return value will be truncated.
+        """
         assert path in key
         full_path = os.path.join(self.root, path)
         f = open(full_path, 'r')
@@ -124,6 +138,10 @@ class FileSystemDataStore(DataStore):
         return content
     
     def delete(self, key, path=None):
+        """
+        Delete a single file (if `path` is given) or all the files that match
+        a given key.
+        """
         def remove_file(path):
             full_path = os.path.join(self.root, path)
             if os.path.exists(full_path):
@@ -139,6 +157,7 @@ class FileSystemDataStore(DataStore):
     
     
 class DataFile(object):
+    """A file-like object, that may represent a real file or a database record."""
     
     def __init__(self, path, store):
         self.path = path

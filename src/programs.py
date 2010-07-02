@@ -111,6 +111,7 @@ registered_executables = {}
 registered_extensions = {}
     
 def register_executable(cls, name, executable, extensions):
+    """Register a new subclass of Executable that can be returned by get_executable()."""
     assert issubclass(cls, Executable)
     registered_program_names[name] = cls
     registered_executables[executable] = cls

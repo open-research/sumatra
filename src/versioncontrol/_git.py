@@ -26,7 +26,8 @@ def check_version():
         raise VersionControlError("Your Git Python binding is too old. You require at least version 0.2.0-beta1.")
 
 def may_have_working_copy(path=None):
-    #check_version()
+    """Test whether there is a Git working copy at the given path."""
+    check_version()
     path = path or os.getcwd()
     if git.repo.is_git_dir(os.path.join(path, ".git")):
         return os.path.exists(os.path.join(path, ".git"))
@@ -34,13 +35,19 @@ def may_have_working_copy(path=None):
         return False
 
 def get_working_copy(path=None):
+    """Return a GitWorkingCopy instance for the given path, or the current
+    directory if the path is not given."""
     return GitWorkingCopy(path)
 
 def get_repository(url):
+    """Return a GitRepository instance for the given url."""
     return GitRepository(url)
 
 
 class GitWorkingCopy(WorkingCopy):
+    """
+    An object which allows various operations on a Git working copy.
+    """
 
     def __init__(self, path=None, repository=None):
         check_version()
@@ -88,12 +95,6 @@ class GitRepository(Repository):
         if self.url == path:
             # already have a repository in the working directory
             pass
-        #elif os.path.exists(path):
-        #    # can't clone into an existing directory
-        #    # suggest we create an empty repository in
-        #    # path and then pull/fetch whatever from url into
-        #    # it.
-        #    raise NotImplementedError("TODO")
         else:
             g.clone(self.url, path)           
         self._repository = git.Repo(path)

@@ -18,6 +18,10 @@ from sumatra.programs import Executable
 import warnings
 
 class PlatformInformation(object):
+    """
+    A simple container for information about the machine and environment the
+    computations are being performed on/in.
+    """
     
     def __init__(self, **kwargs):
         for k,v in kwargs.items():
@@ -33,6 +37,12 @@ class PlatformInformation(object):
 
 
 def check_files_exist(executable, main_file, parameter_file):
+    """
+    Check that the given paths exist and return the list of paths.
+    
+    parameter_file may be None, in which case it is not included in the list of
+    paths.
+    """
     paths = [executable.path, main_file]
     if parameter_file:
         paths.append(parameter_file)
@@ -44,8 +54,7 @@ def check_files_exist(executable, main_file, parameter_file):
 
 class LaunchMode(object):
     """
-    Launch serially or in parallel with MPI.
-    If MPI store configuration (which nodes, etc)
+    Base class for launch modes (serial, distributed, batch, ...)
     """
     
     def get_state(self):
@@ -57,14 +66,21 @@ class LaunchMode(object):
         return {}
     
     def pre_run(self, executable):
-        #Run tasks before the simulation/analysis proper, e.g. nrnivmodl
+        """Run tasks before the simulation/analysis proper.""" # e.g. nrnivmodl
         #should get the tasks to run from the Executable 
         pass
 
     def generate_command(self, paths):
+        """Return a string containing the command to be launched."""
         raise NotImplementedError("must be impemented by sub-classes")
 
     def run(self, executable, main_file, parameter_file=None, append_label=None):
+        """
+        Run a computation in a shell, with the given executable, script and
+        parameter file. If `append_label` is provided, it is appended to the
+        command line. Return True if the computation finishes successfully,
+        False otherwise.
+        """
         paths = check_files_exist(executable, main_file, parameter_file)
         cmd = self.generate_command(paths)
         if append_label:
@@ -89,6 +105,11 @@ class LaunchMode(object):
         return not self.__eq__(other)
 
     def get_platform_information(self):
+        """
+        Return a list of `PlatformInformation` objects, containing information
+        about the machine(s) and environment(s) the computations are being
+        performed on/in. 
+        """
         network_name = platform.node()
         bits, linkage = platform.architecture()
         return [PlatformInformation(architecture_bits=bits,
@@ -102,22 +123,39 @@ class LaunchMode(object):
                                     version=platform.version())]
         # maybe add system time?
 
+
 class SerialLaunchMode(LaunchMode):
-    
-    def __init__(self):
-        LaunchMode.__init__(self)
+    """
+    Enable running serial computations.
+    """
         
     def __str__(self):
         return "serial"
     
     def generate_command(self, paths, append_label=None):
+        __doc__ = LaunchMode.__doc__
         cmd = "%s "*len(paths) % tuple(paths)
         return cmd
     
 
 class DistributedLaunchMode(LaunchMode):
+    """
+    Enable running distributed computations using MPI.
+    
+    The current implementation is specific to MPICH2, but this will be
+    generalised in future releases.
+    """
     
     def __init__(self, n, mpirun="mpiexec", hosts=[], pfi_path="/usr/local/bin/pfi.py"):
+        """
+        `n` - the number of hosts to run on.
+        `mpirun` - the path to the mpirun or mpiexec executable. If a full path
+                 is not given, the user's PATH will be searched.
+        `hosts` - a list of host names to run on. **Currently not used.**
+        `pfi_path` - the path to the pfi.py script provided with Sumatra, which
+                     should be installed on every node and is used to obtain
+                    platform information.
+        """
         LaunchMode.__init__(self)
         class MPI(Executable):
             name = mpirun
@@ -136,6 +174,7 @@ class DistributedLaunchMode(LaunchMode):
         return "distributed (n=%d, mpiexec=%s, hosts=%s)" % (self.n, self.mpirun, self.hosts)
     
     def generate_command(self, paths):
+        __doc__ = LaunchMode.__doc__
         #cmd = "%s -np %d -host %s %s %s %s" % (self.mpirun,
         #                                       self.n,
         #                                       ",".join(hosts),
@@ -150,8 +189,8 @@ class DistributedLaunchMode(LaunchMode):
         return cmd
     
     def get_platform_information(self):
-        """
-        requires the script pfi.py to be placed on the user's path on
+        __doc__ = LaunchMode.__doc__ + """
+        Requires the script pfi.py to be placed on the user's path on
         each node of the machine.
         
         This is currently not useful, as I don't think there is any guarantee
@@ -177,5 +216,6 @@ class DistributedLaunchMode(LaunchMode):
         return platform_information
 
     def get_state(self):
+        """Return a dict containing the values needed to recreate this instance."""
         return {'mpirun': self.mpirun, 'n': self.n, 'hosts': self.hosts}
     
