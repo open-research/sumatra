@@ -82,7 +82,7 @@ class Record(object):
         # run pre-simulation/analysis tasks, e.g. nrnivmodl
         self.launch_mode.pre_run(self.executable)
         # Write the executable-specific parameter file
-        parameter_file = "%s.param" % self.label
+        parameter_file = "%s.param" % self.label.replace("/", "_")
         self.executable.write_parameters(self.parameters, parameter_file)
         # Run simulation/analysis
         start_time = time.time()
