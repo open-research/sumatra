@@ -38,7 +38,7 @@
         {% for record in object_list %}
         <tr class="{% cycle odd,even %}">
             <td><input type="checkbox" name="delete" value="{{record.label}}"/></td>
-            <td><a href="/{{record.label}}/">{{record.label}}</a></td>
+            <td><a href="/{{record.label|escapeslash}}/">{{record.label}}</a></td>
             <td>{{record.reason}}</td>
             <td>{{record.outcome}}</td>
             <td>{{record.duration|floatformat:2}}&nbsp;s</td>

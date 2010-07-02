@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load filters %}
 
 {% block title %}{{project_name}}: {{record.label}}{% endblock %}
 
@@ -11,7 +12,11 @@
 
 {% block content %}
 
-<p><a href="previous"><</a> <a href="/">Return to record list</a> <a href="next">></a></p>
+{% with record.get_previous_by_timestamp as previous %}{% with record.get_next_by_timestamp as next %}
+<p>{% if previous %}<a href="../{{previous|escapeslash}}/"><img src="/media/Go-previous.png" alt="previous record"/></a> {% endif %}
+{% if next %}<a href="../{{next|escapeslash}}/"><img src="/media/Go-next.png" alt="next record"/></a> {% endif %}
+<a href="/">Return to record list</a></p>
+{% endwith %}{% endwith %}
 
 {{form.errors}}
 
@@ -33,8 +38,9 @@
 
 <h2>Data files</h2>
 <table>
+  <tr><td colspan="3">{{record.datastore.access_parameters.root}}</td></tr>
 {% for file in datafiles %}
-  <tr class="{% cycle odd,even %}"><td><a href="datafile?path={{file}}">{{file}}</a></td>
+  <tr class="{% cycle odd even %}"><td><a href="datafile?path={{file}}">{{file}}</a></td>
                                    <td>{{file.mimetype|default:""}}</td>
                                    <td>{{file.size|filesizeformat}}</td></tr>
 {% endfor %}

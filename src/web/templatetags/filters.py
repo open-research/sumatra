@@ -11,6 +11,7 @@ def link(text):
     tags = parse_tag_input(text)
     return mark_safe(" ".join('<a href="/tag/%s/">%s</a>' % (tag,tag) for tag in tags))
     
-    
-    
-    
+@register.filter
+@stringfilter
+def escapeslash(text):
+    return mark_safe(text.replace("/","||"))

@@ -29,6 +29,8 @@ del _project
 
 # A much simpler idea: we put the project in the URL for smtweb as well.
 
+def unescape(label):
+    return label.replace("||", "/")
 
 class TagSearch(forms.Form):
     search = forms.CharField() 
@@ -56,8 +58,8 @@ def list_records(request):
                                     'search_form': search_form})  
 
 def record_detail(request, label):
+    label = unescape(label)
     record = models.Record.objects.get(label=label, project__id=project_name)
-    
     
     if request.method == 'POST':
         if request.POST.has_key('delete'):
@@ -96,6 +98,7 @@ def delete_records(request):
 DEFAULT_MAX_DISPLAY_LENGTH = 10*1024
 
 def show_file(request, label):
+    label = unescape(label)
     path = request.GET['path']
     if 'truncate' in request.GET:
         if request.GET['truncate'].lower() == 'false':
@@ -170,6 +173,7 @@ def show_file(request, label):
                                                      'errmsg': e})
     
 def show_image(request, label):
+    label = unescape(label)
     path = request.GET['path']
     mimetype, encoding = mimetypes.guess_type(path)
     if mimetype in ("image/png", "image/jpeg", "image/gif"):
@@ -183,6 +187,7 @@ def show_image(request, label):
         return HttpResponse(mimetype="image/png") # should return a placeholder image?
     
 def show_diff(request, label, package):
+    label = unescape(label)
     record = models.Record.objects.get(label=label, project__id=project_name)
     if package:
         dependency = record.dependencies.get(name=package)

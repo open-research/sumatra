@@ -7,11 +7,11 @@
 {% endblock %}
 
 {% block content %}
-<p><a href="/{{label}}/">Return to record</a></p>
+<p><a href=".">Return to record</a></p>
 
 <h2>{{path}}</h2>
 
-<img src="/{{label}}/image?path={{path}}" alt="/{{label}}:{{path}}"/>
+<img src="/{{label|escapeslash}}/image?path={{path}}" alt="/{{label}}:{{path}}"/>
 
 
 {% endblock %}

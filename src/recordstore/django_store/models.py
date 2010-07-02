@@ -139,6 +139,9 @@ class Datastore(BaseModel):
             raise Exception("Unknown datastore type '%s' stored in database" % self.type)
         return ds
 
+    def access_parameters(self):
+        return eval(self.parameters)
+
 
 class PlatformInformation(BaseModel):
     architecture_bits = models.CharField(max_length=10)
