@@ -69,6 +69,23 @@ class SimpleParameterSet(object):
     def __getitem__(self, name):
         return self.values[name]
     
+    def __eq__(self, other):
+        return ((self.values == other.values) and (self.types == other.types))
+    
+    def __ne__(self, other):
+        return not self.__eq__(other)
+    
+    def pop(self, k, d=None):
+        if k in self.values:
+            v = self.values.pop(k)
+            self.types.pop(k)
+            self.comments.pop(k, None)
+            return v
+        elif d:
+            return d
+        else:
+            raise KeyError("%s not found" % k)
+    
     def pretty(self, expand_urls=False):
         """
         Return a string representation of the parameter set, suitable for
@@ -146,6 +163,12 @@ class ConfigParserParameterSet(SafeConfigParser):
             return self.get(section, option)
         else:
             return dict(self.items(name))
+    
+    def __eq__(self, other):
+        return self.as_dict() == other.as_dict()
+    
+    def __ne__(self, other):
+        return not self.__eq__(other)
     
     def pretty(self, expand_urls=False):
         """

@@ -190,10 +190,13 @@ class Project(object):
         record.tags.remove(tag)
         self.record_store.save(self.name, record)
     
-    def show_diff(self, label1, label2, mode='short', ignore_mimetypes=[], ignore_filenames=[]):
+    def compare(self, label1, label2, ignore_mimetypes=[], ignore_filenames=[]):
         record1 = self.record_store.get(self.name, label1)
         record2 = self.record_store.get(self.name, label2)
-        diff = record1.difference(record2, ignore_mimetypes, ignore_filenames)
+        return record1.difference(record2, ignore_mimetypes, ignore_filenames)        
+    
+    def show_diff(self, label1, label2, mode='short', ignore_mimetypes=[], ignore_filenames=[]):
+        diff = self.compare(label1, label2, ignore_mimetypes, ignore_filenames)
         formatter = get_diff_formatter()(diff)
         return formatter.format(mode)
 

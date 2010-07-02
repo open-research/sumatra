@@ -17,6 +17,7 @@ from launch import SerialLaunchMode, DistributedLaunchMode
 from parameters import build_parameters
 from recordstore import RecordStore
 from versioncontrol import get_working_copy, get_repository
+from formatting import get_diff_formatter
 
 def _process_plugins(plugin_module):
     # current only handles RecordStore subclasses, but eventually should also
@@ -321,7 +322,10 @@ def repeat(argv):
     else:
         original_label = args[0]
     project = load_project()
-    tmp = project.get_record(original_label)
+    if original_label == 'last':
+        tmp = project.most_recent()
+    else:
+        tmp = project.get_record(original_label)
     original = deepcopy(tmp)
     if hasattr(tmp.parameters, '_url'): # for some reason, _url is not copied.
         original.parameters._url = tmp.parameters._url # this is a hackish solution - needs fixed properly
@@ -332,9 +336,19 @@ def repeat(argv):
                                repository=original.repository,
                                version=original.version,
                                launch_mode=original.launch_mode,
-                               label="%s_repeat" % original_label,
-                               reason="Repeat experiment %s" % original_label)
-    #project.compare(original.label, new_label)
+                               label="%s_repeat" % original.label,
+                               reason="Repeat experiment %s" % original.label)
+    diff = project.compare(original.label, new_label)
+    if diff:
+        formatter = get_diff_formatter()(diff)
+        msg = ["The new record does not matches the original. It differs as follows.",
+               formatter.format('short'),
+               "run smt diff --long %s %s to see the differences in detail." % (original.label, new_label)]
+        msg = "\n".join(msg)
+    else:
+        msg = "The new record exactly matches the original."
+    print msg
+    project.add_comment(new_label, msg)    
 
 def diff(argv):
     """Show the differences, if any, between two records."""
