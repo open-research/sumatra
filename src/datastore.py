@@ -39,6 +39,9 @@ class DataStore(object):
         """
         raise NotImplementedError
 
+    def copy(self):
+        return self.__class__(**self.get_state())
+    
 
 class FileSystemDataStore(DataStore):
     """

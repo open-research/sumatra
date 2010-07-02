@@ -19,7 +19,6 @@ import getpass
 from operator import or_
 from formatting import get_formatter
 import dependency_finder
-from copy import copy
 
 def assert_equal(a, b, msg=''):
     assert a == b, "%s: %s %s != %s %s" % (msg, a, type(a), b, type(b))
@@ -40,7 +39,7 @@ class Record(object):
         self.version = version
         self.parameters = parameters # a ParameterSet object
         self.launch_mode = launch_mode # a LaunchMode object - basically, run serially or with MPI. If MPI, what configuration
-        self.datastore = copy(datastore)
+        self.datastore = datastore.copy()
         self.outcome = None
         self.data_key = None
         self.tags = set()
