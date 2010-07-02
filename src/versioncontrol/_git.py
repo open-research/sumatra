@@ -43,7 +43,7 @@ def get_repository(url):
 class GitWorkingCopy(WorkingCopy):
 
     def __init__(self, path=None, repository=None):
-        #check_version()
+        check_version()
         WorkingCopy.__init__(self)
         self.path = path or os.getcwd()
         self.repository = repository or GitRepository(self.path)
@@ -59,24 +59,24 @@ class GitWorkingCopy(WorkingCopy):
         g.checkout(version)
 
     def use_latest_version(self):
-        self.use_version('HEAD')
+        self.use_version('master') # note that we are assuming all code is in the 'master' branch
         
     def status(self):
-        # We don't need to use this. 
-        pass            
+        raise NotImplementedError()   
 
     def has_changed(self):
         return self.repository._repository.is_dirty()
     
     def diff(self):
         """Difference between working copy and repository."""
-        return self.repository._repository.commit_diff('HEAD')
+        g = git.Git(self.path)
+        return g.diff('HEAD')
         
 
 class GitRepository(Repository):
     
     def __init__(self, url):
-        #check_version()
+        check_version()
         Repository.__init__(self, url)
         self.working_copy = None
         self.checkout(url)
@@ -88,12 +88,12 @@ class GitRepository(Repository):
         if self.url == path:
             # already have a repository in the working directory
             pass
-        elif os.path.exists(path):
-            # can't clone into an existing directory
-            # suggest we create an empty repository in
-            # path and then pull/fetch whatever from url into
-            # it.
-            raise NotImplementedError("TODO")
+        #elif os.path.exists(path):
+        #    # can't clone into an existing directory
+        #    # suggest we create an empty repository in
+        #    # path and then pull/fetch whatever from url into
+        #    # it.
+        #    raise NotImplementedError("TODO")
         else:
             g.clone(self.url, path)           
         self._repository = git.Repo(path)

@@ -10,6 +10,7 @@ import tempfile
 import shutil
 from sumatra.versioncontrol._mercurial import MercurialRepository, MercurialWorkingCopy, may_have_working_copy
 from sumatra.versioncontrol._subversion import SubversionRepository, SubversionWorkingCopy
+from sumatra.versioncontrol._git import GitRepository, GitWorkingCopy
 from sumatra.versioncontrol import get_repository
 
 class BaseTestWorkingCopy(object):
@@ -84,6 +85,23 @@ class TestMercurialWorkingCopy(unittest.TestCase, BaseTestWorkingCopy):
                                             'deleted': [], 'unknown': []})
 
 
+class TestGitWorkingCopy(unittest.TestCase, BaseTestWorkingCopy):
+    
+    def setUp(self):
+        self.repository_path = os.path.abspath("../example_repositories/git")
+        os.symlink("%s/git" % self.repository_path, "%s/.git" % self.repository_path)
+        self.repos = GitRepository(self.repository_path)
+        self.tmpdir = tempfile.mkdtemp()
+        self.repos.checkout(self.tmpdir)
+        self.wc = GitWorkingCopy(self.tmpdir)
+        self.latest_version = "38598c93c7036a1c44bbb6075517243edfa88860"
+        self.previous_version = "3491ce1d9a66abc9d49d5844ee05167c6a854ad9"
+        
+    def tearDown(self):
+        os.unlink("%s/.git" % self.repository_path)
+        shutil.rmtree(self.tmpdir)
+
+
 class TestSubversionWorkingCopy(unittest.TestCase, BaseTestWorkingCopy):
     
     def setUp(self):
@@ -147,6 +165,52 @@ class TestMercurialRepository(unittest.TestCase):
         r1 = MercurialRepository("file://%s" % self.repository_path)
         r2 = MercurialRepository("file://%s" % self.repository_path)
         self.assertEqual(r1, r2)
+
+
+class TestGitRepository(unittest.TestCase):
+    
+    def setUp(self):
+        self.repository_path = os.path.abspath("../example_repositories/git")
+        os.symlink("%s/git" % self.repository_path, "%s/.git" % self.repository_path)
+        
+    def tearDown(self):
+        os.unlink("%s/.git" % self.repository_path)
+        pass
+        
+    def test__init(self):
+        r = GitRepository(self.repository_path)
+        self.assertEqual(r.url, self.repository_path)
+
+    def test__init__with_nonexistent_repos__should_raise_Exception(self):
+        self.assertRaises(Exception, GitRepository, "/tmp/")
+
+    def test__pickling(self):
+        r = GitRepository(self.repository_path)
+        dump = pickle.dumps(r)
+        r2 = pickle.loads(dump)
+        self.assertEqual(r.url, r2.url)
+        self.assertEqual(r.working_copy, r2.working_copy)
+        
+    def test__checkout_of_remote_repos(self):
+        tmpdir = tempfile.mkdtemp()
+        r = GitRepository(self.repository_path)
+        r.checkout(path=tmpdir)
+        repos_files = os.listdir(tmpdir)
+        repos_files.remove(".git")
+        project_files = os.listdir("../example_projects/python")
+        if "main.pyc" in project_files:
+            project_files.remove("main.pyc")
+        self.assertEqual(repos_files, project_files)
+        shutil.rmtree(tmpdir)
+
+    def test__str(self):
+        r = GitRepository(self.repository_path)
+        str(r)
+        
+    def test__eq(self):
+        r1 = GitRepository(self.repository_path)
+        r2 = GitRepository(self.repository_path)
+        self.assertEqual(r1, r2)
         
 
 class TestSubversionRepository(unittest.TestCase):
@@ -185,6 +249,7 @@ class TestSubversionRepository(unittest.TestCase):
         self.assertRaises(Exception, r.checkout, path="file:///tmp/")
         shutil.rmtree("file:") # this is not quite what's supposed to happen
 
+
 class TestMercurialModuleFunctions(unittest.TestCase):
     
     def setUp(self):
@@ -210,6 +275,7 @@ class TestMercurialModuleFunctions(unittest.TestCase):
 
 class TestSubversionModuleFunctions(unittest.TestCase):
     pass
+
 
 class TestPackageFunctions(unittest.TestCase):
     

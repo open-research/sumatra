@@ -23,7 +23,14 @@ class Repository(object):
     def __ne__(self, other):
         return not self.__eq__(other)
 
+
 class WorkingCopy(object):
-    pass
+    
+    def __eq__(self, other):
+        return (self.repository == other.repository) and (self.path == other.path) \
+               and (self.current_version() == other.current_version()) #and (self.diff() == other.diff())
+            
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
 
