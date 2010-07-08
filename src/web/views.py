@@ -133,8 +133,6 @@ def show_file(request, label):
                                        'truncated':truncated
                                        })
 
-            print content
-
         elif mimetype == None or mimetype.split("/")[0] == "text":
             content = data_store.get_content(record.data_key, path, max_length=max_display_length)
             truncated = False

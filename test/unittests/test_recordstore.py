@@ -13,6 +13,7 @@ from sumatra.recordstore import shelve_store, django_store, http_store
 from sumatra.versioncontrol import vcs_list
 import sumatra.launch
 import sumatra.datastore
+import sumatra.parameters
 try:
     import json
 except ImportError:
@@ -69,6 +70,13 @@ class MockPlatformInformation(object):
     system_name = ""
     version = ""
 
+class MockParameterSet(object):
+    def __init__(self, initialiser):
+        pass
+    def as_dict(self):
+        return {}
+sumatra.parameters.MockParameterSet = MockParameterSet
+
 class MockRecord(object):
     
     def __init__(self, label):
@@ -84,7 +92,7 @@ class MockRecord(object):
         self.repository = MockRepository()
         self.launch_mode = MockLaunchMode()
         self.datastore = MockDataStore()
-        self.parameters = {}
+        self.parameters = MockParameterSet({})
         self.tags = set([])
         self.dependencies = [MockDependency(), MockDependency()]
         self.platforms = [MockPlatformInformation()]
