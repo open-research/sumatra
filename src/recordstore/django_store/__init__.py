@@ -140,5 +140,14 @@ class DjangoRecordStore(RecordStore):
             db_record.delete()
         return n
     
-
-    
+    def _dump(self, indent=2):
+        """
+        Dump the database contents to a JSON-encoded string
+        """
+        import sys, StringIO
+        data = StringIO.StringIO()
+        sys.stdout = data
+        management.call_command('dumpdata', indent=indent)
+        sys.stdout = sys.__stdout__
+        data.seek(0)
+        return data.read()

@@ -137,7 +137,7 @@ class RecordDifference(object):
         self.main_file_differs = recordA.main_file != recordB.main_file
         self.version_differs = recordA.version != recordB.version
         for rec in recordA, recordB:
-            rec.parameters.pop("sumatra_label", None)
+            rec.parameters.pop("sumatra_label", 1)
         self.parameters_differ = recordA.parameters != recordB.parameters
         self.launch_mode_differs = recordA.launch_mode != recordB.launch_mode
         #self.platforms
