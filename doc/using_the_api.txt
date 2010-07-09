@@ -5,7 +5,7 @@ Using the Sumatra API within your own scripts
 Using the ``smt run`` command is quick and convenient, but it does require you to
 change the way you launch your simulations/analyses.
 
-One way to avoid this is to use the ``sumatra`` package within your own
+One way to avoid this, if you use Python, is to use the ``sumatra`` package within your own
 scripts to perform the record-keeping tasks performed by ``smt run``.
 
 You may also wish to write your own custom script for creating a Sumatra project,

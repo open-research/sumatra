@@ -133,7 +133,7 @@ def configure(argv):
 def info(argv):
     """Print information about the current project."""
     usage = "%prog info"
-    description = __doc__
+    description = """Print information about the current project."""
     parser = OptionParser(usage=usage,
                           description=description)
     (options, args) = parser.parse_args(argv)

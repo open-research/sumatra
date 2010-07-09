@@ -11,6 +11,14 @@ To install it, first unpack the tar archive::
     
 The last step may need to be run as root, or using sudo.
 
+Alternatively, you can install directly from the Python Package Index::
+
+    $ pip install sumatra
+
+or::
+
+    $ easy_install sumatra
+
 Installing Django
 -----------------
 

@@ -18,7 +18,7 @@ setup(
     scripts= ['src/smt', 'src/smtweb'],
     author = "Andrew P. Davison",
     author_email = "andrewpdavison@gmail.com",
-    description = "A tool for managing computation-based scientific projects",
+    description = "A tool for automated tracking of computation-based scientific projects",
     long_description = """Sumatra is a tool for managing and tracking projects based on numerical
 simulation and/or analysis, with the aim of supporting reproducible research. It can be thought
 of as an automated electronic lab notebook for computational projects.
