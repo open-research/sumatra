@@ -17,16 +17,18 @@ parameter file, generates some random numbers, and writes some data to file::
     import numpy
     import sys
     
+    def main(parameters):
+        numpy.random.seed(parameters["seed"])
+        distr = getattr(numpy.random, parameters["distr"])
+        data = distr(size=parameters["n"])    
+        output_file = "example.dat"
+        numpy.savetxt(output_file, data)
+    
     parameter_file = sys.argv[1]
     parameters = {}
     execfile(parameter_file, parameters) # this way of reading parameters
                                          # is not necessarily recommended
-    numpy.random.seed(parameters["seed"])
-    distr = getattr(numpy.random, parameters["distr"])
-    data = distr(size=parameters["n"])
-    
-    output_file = "example.dat"
-    numpy.savetxt(output_file, data)
+    main(parameters)
     
 Let's suppose this script is in a file named ``myscript.py``, and that we have a
 parameter file named ``defaults.param``, which contains::
@@ -73,13 +75,13 @@ current file; this automatically registers information about the simulation envi
     
     record = project.new_record(parameters=parameters,
                                 main_file=__file__,
-                                label="api_example",
                                 reason="reason for running this simulation")
 
 Now comes the main body of the simulation, which is unchanged except that we
-take the opportunity to give the output data file a more informative name::
+take the opportunity to give the output data file a more informative name by
+adding the record label to the parameter file::
 
-    output_file = "%s.dat" % record.label
+    output_file = "%s.dat" % parameters["sumatra_label"]
 
 At the end of the simulation, we
 calculate the simulation duration and search for newly created files::
@@ -100,24 +102,25 @@ Putting this all together::
     from sumatra.projects import load_project
     from sumatra.parameters import build_parameters
     
-    project = load_project()
-    start_time = time.time()
-        
+    def main(parameters):
+        numpy.random.seed(parameters["seed"])
+        distr = getattr(numpy.random, parameters["distr"])
+        data = distr(size=parameters["n"])    
+        output_file = "%s.dat" % parameters["sumatra_label"]
+        numpy.savetxt(output_file, data)
+    
     parameter_file = sys.argv[1]
     parameters = build_parameters(parameter_file)
-        
+    
+    project = load_project()    
     record = project.new_record(parameters=parameters,
                                 main_file=__file__,
-                                label="api_example",
                                 reason="reason for running this simulation")
+    parameters.update({"sumatra_label": record.label})
+    start_time = time.time()
     
-    numpy.random.seed(parameters["seed"])
-    distr = getattr(numpy.random, parameters["distr"])
-    data = distr(size=parameters["n"])
+    main(parameters)
     
-    output_file = "%s.dat" % record.label
-    numpy.savetxt(output_file, data)
-        
     record.duration = time.time() - start_time
     record.data_key = record.datastore.find_new_files(record.timestamp)
     project.add_record(record)
@@ -133,3 +136,26 @@ simple script and simple run environment there is no advantage to doing it this
 way: ``smt run`` is much simpler. However, if you already have a fairly complex run
 environment, this provides a straightforward way to integrate Sumatra's
 functionality into your existing system.
+
+You will have noticed that much of the Sumatra code you have to add is
+effectively boilerplate, which will be the same for all your scripts. To save time,
+and typing therefore, Sumatra provides a ``@capture`` decorator for your
+``main()`` function::
+
+    import numpy
+    import sys
+    from sumatra.parameters import build_parameters
+    from sumatra.decorators import capture
+    
+    @capture
+    def main(parameters):
+        numpy.random.seed(parameters["seed"])
+        distr = getattr(numpy.random, parameters["distr"])
+        data = distr(size=parameters["n"])
+        numpy.savetxt("%s.dat" % parameters["sumatra_label"], data)
+  
+    parameter_file = sys.argv[1]
+    parameters = build_parameters(parameter_file)
+    main(parameters)
+
+This is now hardly any longer than the original script.
