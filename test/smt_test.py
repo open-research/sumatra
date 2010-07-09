@@ -94,8 +94,7 @@ def getting_started(plugins):
     run("smt run --reason='test effect of a smaller time constant' default.param tau_m=10.0")
     run("smt repeat %s" % id1)
     run("smt delete %s" % id0)
-    run("smt delete --group default")
-    #run("smt delete --tag foobar")
+    run("smt delete --tag foobar")
     try:
         run("smt")
     except subprocess.CalledProcessError: # smt without any arguments returns a non-zero exit status

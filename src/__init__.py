@@ -1,4 +1,5 @@
 __all__ = ['commands', 'datastore', 'formatting', 'launch', 'parameters',
-           'programs', 'projects', 'records', 'recordstore', 'versioncontrol']
+           'programs', 'projects', 'records', 'recordstore', 'versioncontrol',
+           'dependency_finder', 'external', 'web']
 
-__version__ = "0.2alpha"    
+__version__ = "0.2"    

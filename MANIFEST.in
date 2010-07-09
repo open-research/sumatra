@@ -2,5 +2,8 @@ include doc/*.txt
 include COPYING
 include src/web/media/smt.css
 include src/web/templates/*.html
-
-
+recursive-include test/example_projects *
+recursive-include test/example_repositories *
+include test/unittests/*.py
+include test/unittests/all_tests.sh
+include test/*.py

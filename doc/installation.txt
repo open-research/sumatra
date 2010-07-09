@@ -39,8 +39,8 @@ package is sufficient. For Git, you need to install the GitPython_ library.
 .. _Mercurial: http://www.selenic.com/mercurial/
 .. _Subversion: http://subversion.tigris.org/
 .. _Git: http://git-scm.com/
-.. _`Python Package Index`: http://pypi.python.org/pypi/sumatra/
-.. _`INCF Software Centre`: http://software.incf.org/software/sumatra/home/download/
+.. _`Python Package Index`: http://pypi.python.org/pypi/Sumatra/
+.. _`INCF Software Centre`: http://software.incf.org/software/sumatra/download
 .. _`django-tagging`: http://pypi.python.org/pypi/django-tagging/
 .. _`pysvn bindings`: http://pysvn.tigris.org/project_downloads.html
 .. _`GitPython`: http://pypi.python.org/pypi/GitPython/
