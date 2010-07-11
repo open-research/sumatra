@@ -147,7 +147,7 @@ class DjangoRecordStore(RecordStore):
         import sys, StringIO
         data = StringIO.StringIO()
         sys.stdout = data
-        management.call_command('dumpdata', indent=indent)
+        management.call_command('dumpdata', 'django_store', 'tagging', indent=indent)
         sys.stdout = sys.__stdout__
         data.seek(0)
         return data.read()

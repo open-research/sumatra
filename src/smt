@@ -4,16 +4,17 @@ Command-line interface to the Sumatra simulation management tool.
 """
 
 import sys
-from sumatra import commands
+from sumatra import commands, __version__
 
 modes = ("init", "configure", "info", "run", "list", "delete", "comment", "tag", "repeat")
 
 usage = """Usage: smt <subcommand> [options] [args]
         
-Simulation management tool, version 0.1
+Simulation/analysis management tool version %s 
 
 Available subcommands:  
-  """ + "\n  ".join(modes)
+  """ % __version__ 
+usage += "\n  ".join(modes)
 
 if len(sys.argv) < 2:
     print usage
