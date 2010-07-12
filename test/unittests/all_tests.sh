@@ -1,5 +1,5 @@
 #/bin/bash
-COVERAGE=coverage
+COVERAGE=python-coverage
 $COVERAGE -e
 
 for file in test_*.py; do

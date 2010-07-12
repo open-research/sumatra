@@ -154,7 +154,7 @@ class TestMercurialRepository(unittest.TestCase):
         project_files = os.listdir("../example_projects/python")
         if "main.pyc" in project_files:
             project_files.remove("main.pyc")
-        self.assertEqual(repos_files, project_files)
+        self.assertEqual(set(repos_files), set(project_files))
         shutil.rmtree(tmpdir)
 
     def test__str(self):
@@ -175,7 +175,6 @@ class TestGitRepository(unittest.TestCase):
         
     def tearDown(self):
         os.unlink("%s/.git" % self.repository_path)
-        pass
         
     def test__init(self):
         r = GitRepository(self.repository_path)
@@ -200,7 +199,7 @@ class TestGitRepository(unittest.TestCase):
         project_files = os.listdir("../example_projects/python")
         if "main.pyc" in project_files:
             project_files.remove("main.pyc")
-        self.assertEqual(repos_files, project_files)
+        self.assertEqual(set(repos_files), set(project_files))
         shutil.rmtree(tmpdir)
 
     def test__str(self):
@@ -241,7 +240,7 @@ class TestSubversionRepository(unittest.TestCase):
         project_files = os.listdir("../example_projects/python")
         if "main.pyc" in project_files:
             project_files.remove("main.pyc")
-        self.assertEqual(repos_files, project_files)
+        self.assertEqual(set(repos_files), set(project_files))
         shutil.rmtree(tmpdir)
         
     def test__checkout__with_nonexistent_repos__should_raise_Exception(self):

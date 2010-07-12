@@ -18,6 +18,7 @@ get_repository()        - return a GitRepository object for a given URL.
 
 import git
 import os
+import shutil
 
 from base import Repository, WorkingCopy, VersionControlError
 
@@ -58,7 +59,10 @@ class GitWorkingCopy(WorkingCopy):
 
     def current_version(self):
         head = self.repository._repository.head
-        return head.commit.sha
+        try:
+            return head.commit.hexsha
+        except AttributeError:
+            return head.commit.sha
     
     def use_version(self, version):
         assert not self.has_changed()
@@ -96,7 +100,11 @@ class GitRepository(Repository):
             # already have a repository in the working directory
             pass
         else:
-            g.clone(self.url, path)           
+            tmpdir = os.path.join(path, "tmp_git")
+            g.clone(self.url, tmpdir)
+            for file in os.listdir(tmpdir):
+                shutil.move(os.path.join(tmpdir,file), path)
+            shutil.rmtree(tmpdir)
         self._repository = git.Repo(path)
         self.working_copy = GitWorkingCopy(path, repository=self)
     
