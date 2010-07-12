@@ -84,6 +84,15 @@ class GitWorkingCopy(WorkingCopy):
         return g.diff('HEAD')
         
 
+def move_contents(src, dst):
+    for file in os.listdir(src):
+        src_path = os.path.join(src, file)
+        if os.path.isdir(src_path):
+            shutil.copytree(src_path, os.path.join(dst, file))    
+        else:
+            shutil.copy2(src_path, dst)
+    shutil.rmtree(src)
+
 class GitRepository(Repository):
     
     def __init__(self, url):
@@ -102,9 +111,7 @@ class GitRepository(Repository):
         else:
             tmpdir = os.path.join(path, "tmp_git")
             g.clone(self.url, tmpdir)
-            for file in os.listdir(tmpdir):
-                shutil.move(os.path.join(tmpdir,file), path)
-            shutil.rmtree(tmpdir)
+            move_contents(tmpdir, path)
         self._repository = git.Repo(path)
         self.working_copy = GitWorkingCopy(path, repository=self)
     
