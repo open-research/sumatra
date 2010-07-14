@@ -90,10 +90,11 @@ class Record(object):
         # Run post-processing scripts
         pass # skip this if there is an error
         # Search for newly-created datafiles
-        self.data_key = self.datastore.find_new_files(self.timestamp)
-        print "Data key is", self.data_key
         if os.path.exists(parameter_file):
             os.remove(parameter_file)
+        self.data_key = self.datastore.find_new_files(self.timestamp)
+        print "Data key is", self.data_key
+        
     
     def describe(self, format='text', mode='long'):
         formatter = get_formatter(format)([self])
