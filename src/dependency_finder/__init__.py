@@ -29,7 +29,7 @@ def find_dependencies(filename, executable, on_changed='error'):
     if executable.name == "Python":
         return python.find_dependencies(filename, on_changed)
     elif executable.name == "NEURON":
-        return neuron.find_dependencies(filename, on_changed)
+        return neuron.find_dependencies(filename, on_changed, executable.path)
     else:
         raise Exception("find_dependencies() not yet implemented for %s" % executable.name)
 
