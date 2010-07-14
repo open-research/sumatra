@@ -27,6 +27,7 @@ from records import Record
 from formatting import get_formatter, get_diff_formatter
 from recordstore import DefaultRecordStore
 from versioncontrol import UncommittedModificationsError, get_working_copy
+import mimetypes
 
 def _remove_left_margin(s): # replace this by textwrap.dedent?
     lines = s.strip().split('\n')
@@ -57,6 +58,7 @@ class Project(object):
         self.on_changed = on_changed
         self.description = description
         self.data_label = data_label
+        self.path = os.getcwd()
         self.save()
         print "Sumatra project successfully set up"
     
@@ -69,7 +71,7 @@ class Project(object):
     
     def save(self):
         """Save state to some form of persistent storage. (file, database)."""
-        f = open('.smt/project', 'w') # should check if file exists?
+        f = open(os.path.join(self.path, '.smt', 'project'), 'w') # should check if file exists?
         pickle.dump(self, f)
         f.close()
     
@@ -202,11 +204,14 @@ class Project(object):
 
     
 def load_project():
-    if os.path.exists(".smt"):
-        f = open(".smt/project", 'r')
-        prj = pickle.load(f)
-        f.close()
-        return prj
-    else:
-        raise Exception("No Sumatra project exists in the current directory")
-        
+    p = os.getcwd()
+    while not os.path.isdir(os.path.join(p, ".smt")):
+        oldp, p = p, os.path.dirname(p)
+        if p == oldp:
+            raise Exception("No Sumatra project exists in the current directory or above it.")
+    f = open(os.path.join(p, ".smt", "project"), 'r')
+    prj = pickle.load(f)
+    f.close()
+    mimetypes.init([os.path.join(p, ".smt", "mime.types")])
+    return prj
+
