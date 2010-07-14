@@ -37,8 +37,9 @@ def may_have_working_copy(path=None):
     return bool(findrepo(path))
 
 def get_working_copy(path=None):
-    if may_have_working_copy(path):
-        return MercurialWorkingCopy(path)
+    repo_dir = findrepo(path or os.getcwd())
+    if repo_dir:
+        return MercurialWorkingCopy(repo_dir)
     else:
         raise VersionControlError("No Mercurial working copy found at %s" % path)
 
