@@ -44,6 +44,8 @@ class Dependency(core.BaseDependency):
             self.path = path
         else:
             self.path = os.path.abspath(name)
+        if not os.path.exists(self.path):
+            raise IOError("File %s does not exist." % self.path)
         self.diff = ''
         if version:
             self.version = version
