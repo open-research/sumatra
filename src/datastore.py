@@ -26,7 +26,7 @@ import logging
 import mimetypes
 from subprocess import Popen
 import warnings
-
+    
 
 class DataStore(object):
     """Base class for data storage abstractions."""
@@ -64,8 +64,7 @@ class FileSystemDataStore(DataStore):
     def __set_root(self, value):
         if not isinstance(value, basestring):
             raise TypeError("root must be a string")
-        #self._root = os.path.abspath(value)
-        self._root = value
+        self._root = os.path.abspath(value)
         if not os.path.exists(self._root):
             os.makedirs(self._root)
     root = property(fget=__get_root, fset=__set_root)
@@ -74,7 +73,7 @@ class FileSystemDataStore(DataStore):
         if hasattr(self, "_root") and os.path.exists(self.root) and len(os.listdir(self.root)) == 0:
             os.rmdir(self.root)
     
-    def find_new_files(self, timestamp):
+    def find_new_files(self, timestamp, ignoredirs=[".hg", ".svn", ".git"]):
         """Finds newly created/changed files in dataroot."""
         # The timestamp-based approach creates problems when running several
         # experiments at once, since datafiles created by other experiments may
@@ -86,7 +85,9 @@ class FileSystemDataStore(DataStore):
         length_dataroot = len(self.root) + len(os.path.sep)
         new_files = []
         for root, dirs, files in os.walk(self.root):
-            #print root, dirs, files
+            for igdir in ignoredirs:
+                if igdir in dirs:
+                    dirs.remove(igdir)
             for file in files:
                 full_path = os.path.join(root, file)
                 relative_path = os.path.join(root[length_dataroot:],file)
@@ -169,8 +170,11 @@ class DataFile(object):
         self.name = os.path.basename(self.full_path)
         self.extension = os.path.splitext(self.full_path)
         self.mimetype, self.encoding = mimetypes.guess_type(self.full_path)
-        stats = os.stat(self.full_path)
-        self.size = stats.st_size
+        if os.path.exists(self.full_path):
+            stats = os.stat(self.full_path)
+            self.size = stats.st_size
+        else:
+            self.size = None
         
     def __str__(self):
         return self.path
