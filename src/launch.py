@@ -36,14 +36,14 @@ class PlatformInformation(object):
     # get_info('blas_opt')
 
 
-def check_files_exist(executable, main_file, parameter_file):
+def check_files_exist(executable_path, main_file, parameter_file):
     """
     Check that the given paths exist and return the list of paths.
     
     parameter_file may be None, in which case it is not included in the list of
     paths.
     """
-    paths = [executable.path, main_file]
+    paths = [executable_path, main_file]
     if parameter_file:
         paths.append(parameter_file)
     for path in paths:
@@ -81,8 +81,7 @@ class LaunchMode(object):
         command line. Return True if the computation finishes successfully,
         False otherwise.
         """
-        paths = check_files_exist(executable, main_file, parameter_file)
-        cmd = self.generate_command(paths)
+        cmd = self.generate_command(executable, main_file, parameter_file)
         if append_label:
             cmd += append_label
         print "Sumatra is running the following command:", cmd
@@ -132,8 +131,9 @@ class SerialLaunchMode(LaunchMode):
     def __str__(self):
         return "serial"
     
-    def generate_command(self, paths, append_label=None):
+    def generate_command(self, executable, main_file, parameter_file):
         __doc__ = LaunchMode.__doc__
+        paths = check_files_exist(executable.path, main_file, parameter_file)
         cmd = "%s "*len(paths) % tuple(paths)
         return cmd
     
@@ -173,8 +173,11 @@ class DistributedLaunchMode(LaunchMode):
     def __str__(self):
         return "distributed (n=%d, mpiexec=%s, hosts=%s)" % (self.n, self.mpirun, self.hosts)
     
-    def generate_command(self, paths):
+    def generate_command(self, executable, main_file, parameter_file):
         __doc__ = LaunchMode.__doc__
+        paths = check_files_exist(executable.path, main_file, parameter_file)
+        if hasattr(executable, "mpi_flags"):
+            paths.insert(1, executable.mpi_flags)
         #cmd = "%s -np %d -host %s %s %s %s" % (self.mpirun,
         #                                       self.n,
         #                                       ",".join(hosts),
@@ -211,7 +214,7 @@ class DistributedLaunchMode(LaunchMode):
                                        maxprocs=self.n)
             platform_information = []
             for rank in range(self.n):
-                platform_information.append(comm.recv(source=rank, tag=rank))
+                platform_information.append(PlatformInformation(**comm.recv(source=rank, tag=rank).values()[0]))
             comm.Disconnect()
         return platform_information
 

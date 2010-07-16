@@ -140,31 +140,67 @@ class Dependency(core.BaseDependency):
         self.import_error = None
         try:
             m = __import__(self.name)
-        except ImportError, e:
+        except Exception, e:
             self.import_error = e
             m = None
         return m
 
 
-def find_imported_packages(filename):
+def find_imported_packages(filename, debug=0):
     """Find all imported top-level packages for a given Python file."""
     # if using a different Python as the executable from the one used to run Sumatra,
     # there is a strong risk that different packages will be found. This is a major bug.
-    finder = ModuleFinder(path=sys.path[1:], debug=2)
-    # note that we remove the first element of sys.path to stop modules in the
-    # sumatra source directory with the same name as standard library modules,
-    # e.g. "commands", being loaded when the standard library module was wanted.
-    finder_output = open("module_finder_output.txt", "w")
-    sys.stdout = finder_output
+    sumatra_path = os.path.realpath(os.path.join(os.path.dirname(__file__), os.pardir))
+    path = [p for p in sys.path if p != sumatra_path]
+    # this is to stop modules in the sumatra source directory with the same name
+    # as standard library modules, e.g. "commands", being loaded when the
+    # standard library module was wanted.
+    finder = ModuleFinder(path, debug=debug)
+    if debug:
+        finder_output = open("module_finder_output.txt", "w")
+        sys.stdout = finder_output
     finder.run_script(os.path.abspath(filename))
-    sys.stdout = sys.__stdout__
-    finder_output.close()
-    os.remove("module_finder_output.txt")
+    if debug:
+        sys.stdout = sys.__stdout__
+        finder_output.close()
+        os.remove("module_finder_output.txt")
     top_level_packages = {}
     for name, module in finder.modules.items():
         if module.__path__ and "." not in name:
             top_level_packages[name] = module
     return top_level_packages
+
+def find_imported_packages2(filename, executable_path):
+    """
+    Find all imported top-level packages for a given Python file.
+    
+    We cannot assume that the version of Python being used to run Sumatra is the
+    same as that used to run the simulation/analysis. Therefore we need to run
+    all the dependency finding and version checking in a subprocess with the
+    correct version of Python.
+    
+    This is the beginning of an attempt to do this. The various
+    find_version_from_X() functions will also need to be modified appropriately.
+    """
+    #Actually, we could check whether executable_path matches sys.executable, and
+    #then do it in this process. On the other hand, the dependency finding
+    #could run in parallel with the simulation (could for multicore): we could
+    #move setting of dependencies to after the simulation, rather than having it
+    #in record.register()
+    import textwrap
+    import subprocess
+    p = subprocess.Popen(executable_path, shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
+    output,err = p.communicate(textwrap.dedent("""
+                    from modulefinder import ModuleFinder
+                    import sys
+                    finder = ModuleFinder(path=sys.path)
+                    finder.run_script("%s")
+                    top_level_packages = {}
+                    for name, module in finder.modules.items():
+                        if module.__path__ and "." not in name:
+                            top_level_packages[name] = module
+                    print top_level_packages""" % filename))
+    print output
 
 def find_dependencies(filename, on_changed):
     """Return a list of Dependency objects representing all the top-level

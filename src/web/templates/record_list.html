@@ -42,7 +42,7 @@
             <td>{{record.reason}}</td>
             <td>{{record.outcome}}</td>
             <td>{{record.duration|floatformat:2}}&nbsp;s</td>
-            <td>{{record.launch_mode.get_parameters.n}}</td>
+            <td>{{record.launch_mode.get_parameters.n|default:"1"}}</td>
             <td>{{record.executable.name}}</td>
             <td>{{record.executable.version}}</td>
             <td>{{record.repository.url}}</td>

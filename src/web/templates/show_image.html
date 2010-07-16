@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 {% load filters %}
 
-{% block title %}Show file:: {{path}}{% endblock %}
+{% block title %}{{project_name}}: {{label}}: file::{{path}}{% endblock %}
 
 {% block header %}
-<h1>{{label}}</h1>
+<h1>{{project_name}}: <i>{{label}}</i></h1>
 {% endblock %}
 
 {% block content %}

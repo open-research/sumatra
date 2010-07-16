@@ -114,7 +114,6 @@ def find_loaded_files(file_path, executable_path):
     else:
         prefix = _nrn_install_prefix(executable_path)
         search_dirs.append(op.join(prefix, "share/nrn/lib/hoc"))
-    print "SEARCH_DIRS", search_dirs
     load_file_pattern = re.compile(r'load_file\("(?P<path>[\w\.\/]+)"\)')
     all_paths = []
     def find_file(path, current_directory):

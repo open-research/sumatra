@@ -81,21 +81,22 @@ class Executable(VersionedProgram):
     def __ne__(self, other):
         return not self.__eq__(other)
     
+    @staticmethod
+    def write_parameters(parameters, filename):
+        parameters.save(filename)
+
 
 class NEURONSimulator(Executable):
     
     name = "NEURON"
     default_executable_name = "nrniv"
-    
+    mpi_flags = "-mpi"
+
 
 class PythonExecutable(Executable):
     
     name = "Python"
-    default_executable_name = "python"
-    
-    @staticmethod
-    def write_parameters(parameters, filename):
-        parameters.save(filename)
+    default_executable_name = "python" 
 
 
 class NESTSimulator(Executable):

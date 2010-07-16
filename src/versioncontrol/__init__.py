@@ -52,7 +52,7 @@ def get_working_copy(path=None):
     for vcs in vcs_list:
         if vcs.may_have_working_copy(path):
             return vcs.get_working_copy(path)
-    raise VersionControlError("No working copy found") # add some diagnostic information
+    raise VersionControlError("No working copy found at %s" % path) # add some diagnostic information
             
 def get_repository(url):
     if url:
