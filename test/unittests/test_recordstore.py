@@ -25,6 +25,7 @@ class MockExecutable(Executable):
     name = "a.out"
     path = "/usr/local/bin/a.out"
     version = "999"
+    options = "-v"
     def __init__(self, *args, **kwargs):
         pass
 register_executable(MockExecutable, "a.out", "/usr/local/bin/a.out", [])

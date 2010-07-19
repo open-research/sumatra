@@ -49,7 +49,6 @@ def check_files_exist(executable_path, main_file, parameter_file):
     for path in paths:
         if not os.path.exists(path):
             raise IOError("%s does not exist." % path)
-    return paths
 
 
 class LaunchMode(object):
@@ -133,8 +132,10 @@ class SerialLaunchMode(LaunchMode):
     
     def generate_command(self, executable, main_file, parameter_file):
         __doc__ = LaunchMode.__doc__
-        paths = check_files_exist(executable.path, main_file, parameter_file)
-        cmd = "%s "*len(paths) % tuple(paths)
+        check_files_exist(executable.path, main_file, parameter_file)
+        cmd = "%s %s %s" % (executable.path, executable.options, main_file)
+        if parameter_file:
+            cmd += " %s" % parameter_file
         return cmd
     
 
@@ -175,9 +176,11 @@ class DistributedLaunchMode(LaunchMode):
     
     def generate_command(self, executable, main_file, parameter_file):
         __doc__ = LaunchMode.__doc__
-        paths = check_files_exist(executable.path, main_file, parameter_file)
-        if hasattr(executable, "mpi_flags"):
-            paths.insert(1, executable.mpi_flags)
+        check_files_exist(executable.path, main_file, parameter_file)
+        if hasattr(executable, "mpi_options"):
+            mpi_options = executable.mpi_options
+        else:
+            mpi_options = ""
         #cmd = "%s -np %d -host %s %s %s %s" % (self.mpirun,
         #                                       self.n,
         #                                       ",".join(hosts),
@@ -188,7 +191,9 @@ class DistributedLaunchMode(LaunchMode):
             self.mpirun,
             self.n
         )
-        cmd += " %s"*len(paths) % tuple(paths)
+        cmd += " %s %s %s %s" % (executable.path, mpi_options, executable.options, main_file)
+        if parameter_file:
+            cmd += " %s" % parameter_file
         return cmd
     
     def get_platform_information(self):

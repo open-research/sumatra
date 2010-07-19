@@ -28,15 +28,11 @@ import subprocess
 
 version_pattern = re.compile(r'\b(?P<version>\d[\.\d]*([a-z]*\d)*)\b')
 
-class VersionedProgram(object):
-    pass
-    
-        
-class Executable(VersionedProgram):
-    # store compilation/configuration options?
 
-    def __init__(self, path, version=None):
-        VersionedProgram.__init__(self)
+class Executable(object):
+    # store compilation/configuration options? yes, if we can determine them
+
+    def __init__(self, path, version=None, options=""):
         if not hasattr(self, 'name'):
             self.name = os.path.basename(path)
         if path and os.path.exists(path):
@@ -46,9 +42,10 @@ class Executable(VersionedProgram):
         if not hasattr(self, 'name'):
             self.name = os.path.basename(self.path)
         self.version = version or self._get_version()
+        self.options = options
 
     def __str__(self):
-        return "%s (version: %s) at %s" % (self.name, self.version, self.path)
+        return "%s (version: %s) at %s, options %s" % (self.name, self.version, self.path, self.options)
 
     def _find_executable(self, executable_name):
         found = []
@@ -76,7 +73,7 @@ class Executable(VersionedProgram):
         return version
 
     def __eq__(self, other):
-        return type(self) == type(other) and self.path == other.path and self.name == other.name and self.version == other.version
+        return type(self) == type(other) and self.path == other.path and self.name == other.name and self.version == other.version and self.options == other.options
     
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -90,7 +87,7 @@ class NEURONSimulator(Executable):
     
     name = "NEURON"
     default_executable_name = "nrniv"
-    mpi_flags = "-mpi"
+    mpi_options = "-mpi"
 
 
 class PythonExecutable(Executable):

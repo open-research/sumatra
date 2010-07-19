@@ -54,15 +54,19 @@ class Project(BaseModel):
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True)
 
+    def get_name(self):
+        return self.name or self.id
+
 
 class Executable(BaseModel):
     path = models.CharField(max_length=200)
     name = models.CharField(max_length=50)
     version = models.CharField(max_length=20)
+    options = models.CharField(max_length=50)
 
     def to_sumatra(self):
         cls = programs.registered_program_names.get(self.name, programs.Executable)
-        ex = cls(self.path, self.version)
+        ex = cls(self.path, self.version, self.options)
         ex.name = self.name
         return ex
 

@@ -12,6 +12,7 @@ import os
 class MockExecutable(object):
     def __init__(self, path):
         self.path = path
+        self.options = "-t"
 
 
 class TestPlatformInformation(unittest.TestCase):
