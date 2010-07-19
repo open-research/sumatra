@@ -5,6 +5,7 @@ shelve module.
 
 from sumatra.recordstore import RecordStore
 import shelve
+from datetime import datetime
 
 
 class ShelveRecordStore(RecordStore):
@@ -58,3 +59,12 @@ class ShelveRecordStore(RecordStore):
         for record in for_deletion:
             self.delete(project_name, record.label)
         return len(for_deletion)
+        
+    def most_recent(self, project_name):
+        most_recent = None
+        most_recent_timestamp = datetime.min
+        for record in self.shelf[project_name].itervalues():
+            if record.timestamp > most_recent_timestamp:
+                most_recent_timestamp = record.timestamp
+                most_recent = record.label
+        return most_recent

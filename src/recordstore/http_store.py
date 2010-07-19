@@ -36,6 +36,7 @@ def encode_record(record):
             "path": record.executable.path,
             "version": record.executable.version,
             "name": record.executable.name,
+            "options": record.executable.options,
          },
         "repository": {
             "url": record.repository.url,
@@ -96,7 +97,7 @@ def decode_record(content):
     data = json.loads(content)
     edata = data["executable"]
     cls = programs.registered_program_names.get(edata["name"], programs.Executable)
-    executable = cls(edata["path"], edata["version"])
+    executable = cls(edata["path"], edata["version"], edata["options"])
     executable.name = edata["name"]
     rdata = data["repository"]
     repos_cls = None
@@ -202,3 +203,6 @@ class  HttpRecordStore(RecordStore):
             raise Exception("%d\n%s" % (response.status, n_records))
         return int(n_records)
     
+    def most_recent(self, project_name):
+        url = "%s%s/last/" % (self.server_url, project_name)
+        return self._get_record(url).label

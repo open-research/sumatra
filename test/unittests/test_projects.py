@@ -77,6 +77,8 @@ class MockRecordStore(object):
         self.deleted = label
     def delete_by_tag(self, project_name, tag):
         return "".join(reversed(tag))
+    def most_recent(self, project):
+        return "last"
 
 
 class TestProject(unittest.TestCase):
@@ -165,6 +167,17 @@ class TestProject(unittest.TestCase):
         proj = Project("test_project",
                        record_store=MockRecordStore())
         proj.show_diff("foo", "bar")
+
+    def delete_record__should_update_most_recent(self):
+        """see ticket:36."""
+        proj = Project("test_project",
+                       record_store=MockRecordStore())
+        proj.add_record(MockRecord("record1"))
+        self.assertEqual(proj._most_recent, "record1")
+        proj.add_record(MockRecord("record2"))
+        self.assertEqual(proj._most_recent, "record2")
+        proj.delete_record("record2")
+        self.assertEqual(proj._most_recent, "last") # should really be "record1", but we are not testing RecordStore here
 
 
 class TestModuleFunctions(unittest.TestCase):

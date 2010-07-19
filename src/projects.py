@@ -59,6 +59,7 @@ class Project(object):
         self.description = description
         self.data_label = data_label
         self.path = os.getcwd()
+        self._most_recent = None
         self.save()
         print "Sumatra project successfully set up"
     
@@ -157,6 +158,7 @@ class Project(object):
         if delete_data:
             self.get_record(label).delete_data()
         self.record_store.delete(self.name, label)
+        self._most_recent = self.record_store.most_recent(self.name)
     
     def delete_by_tag(self, tag, delete_data=False):
         """Delete all records with a given tag. Return the number of records deleted."""
@@ -164,6 +166,7 @@ class Project(object):
             for record in self.record_store.list(self.name, tag):
                 record.delete_data()
         n = self.record_store.delete_by_tag(self.name, tag)
+        self._most_recent = self.record_store.most_recent(self.name)
         return n
     
     def format_records(self, format='text', mode='short', tags=None):

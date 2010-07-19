@@ -140,6 +140,9 @@ class DjangoRecordStore(RecordStore):
             db_record.delete()
         return n
     
+    def most_recent(self, project_name):
+        return models.Record.objects.filter(project__id=project_name).latest('timestamp').label
+    
     def _dump(self, indent=2):
         """
         Dump the database contents to a JSON-encoded string

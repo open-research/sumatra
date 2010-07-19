@@ -82,7 +82,7 @@ class MockRecord(object):
     
     def __init__(self, label):
         self.label = label
-        self.timestamp = datetime(1901, 6, 1, 12, 0, 0)
+        self.timestamp = datetime.now() #datetime(1901, 6, 1, 12, 0, 0)
         self.reason = "because"
         self.duration = 7543.2
         self.outcome = None
@@ -171,6 +171,12 @@ class BaseTestRecordStore(object):
         #this test is pointless, just to increase coverage
         assert isinstance(str(self.store), basestring)
 
+    def test_most_recent(self):
+        self.add_some_records()
+        self.assertEqual(self.store.most_recent(self.project.name), "record3")
+        self.store.delete(self.project.name, "record3")
+        self.assertEqual(self.store.most_recent(self.project.name), "record2")
+
 
 class TestShelveRecordStore(unittest.TestCase, BaseTestRecordStore):
     
@@ -233,6 +239,7 @@ class MockHttp(object):
     def __init__(self, *args):
         self.records = {}
         self.debug = False
+        self.last_record = None
     def add_credentials(self, *args, **kwargs):
         pass
     def request(self, uri, method="GET", body=None, headers=None, **kwargs):
@@ -247,11 +254,21 @@ class MockHttp(object):
                 self.records[parts[1]] = record
                 content = ""
                 status = 200
+                self.last_record = record
             elif method == "GET":
-                content = json.dumps(self.records[parts[1]])
+                label = parts[1]
+                if label == "last":
+                    content = json.dumps(self.last_record)
+                else:
+                    content = json.dumps(self.records[label])
                 status = 200
             elif method == "DELETE":
                 self.records.pop(parts[1])
+                most_recent = u""
+                for record in self.records.itervalues():
+                    if record["timestamp"] > most_recent:
+                        most_recent = record["timestamp"]
+                        self.last_record = record
                 content = ""
                 status = 204
         elif len(parts) == 1: # project uri
