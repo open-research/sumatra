@@ -25,7 +25,7 @@ string_table      - Convert a table written as a multi-line string into a dict o
 
 """
 
-import urllib, copy, warnings, numpy, numpy.random  # to be replaced with srblib
+import urllib, copy, warnings, math, numpy.random
 from urlparse import urlparse
 from sumatra.external.NeuroTools.random import ParameterDist, GammaDist, UniformDist, NormalDist
 
@@ -104,7 +104,7 @@ class ParameterRange(Parameter):
         Parameter.__init__(self, value.__iter__().next(), units, name)
         self._iter_values = value.__iter__()
         if shuffle:
-            self._values = numpy.random.permutation(value)
+            self._values = numpy.random.permutation(value) # replace by random.shuffle from stdlib?
         else:
             self._values = value
     
@@ -185,7 +185,7 @@ class ParameterSet(dict):
                                 GammaDist=GammaDist,
                                 UniformDist=UniformDist,
                                 NormalDist=NormalDist,
-                                pi=numpy.pi))            
+                                pi=math.pi))            
         try:
             D = eval(s, global_dict)
         except SyntaxError, e:

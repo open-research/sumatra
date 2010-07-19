@@ -123,7 +123,10 @@ def decode_record(content):
                        data["version"], parameter_set, launch_mode, data_store,
                        data["label"], data["reason"], data["diff"],
                        data["user"])
-    record.tags = set(data["tags"])
+    tags = data["tags"]
+    if not hasattr(tags, "__iter__"):
+        tags = (tags,)
+    record.tags = set(tags)
     record.timestamp = datetime.strptime(data["timestamp"], "%Y-%m-%d %H:%M:%S")
     record.data_key = data["data_key"]
     record.duration = data["duration"]
@@ -178,7 +181,8 @@ class  HttpRecordStore(RecordStore):
                 tags=[tags]
             project_url += "?tags=%s" % ",".join(tags)
         response, content = self.client.request(project_url)
-        assert response.status == 200
+        if response.status != 200:
+            raise Exception("Error in accessing %s\n%s: %s" % (project_url, response.status, content))
         record_urls = decode_record_list(content)["records"]
         records = []
         for record_url in record_urls:

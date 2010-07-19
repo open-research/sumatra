@@ -28,7 +28,7 @@ def _process_plugins(plugin_module):
     #print plugin
     #print plugin.__dict__.keys()
     for obj in plugin.__dict__.values():
-        if isinstance(obj, type) and issubclass(obj, RecordStore):
+        if isinstance(obj, type) and issubclass(obj, RecordStore) and obj is not RecordStore:
             print "Loading %s from plug-in module %s" % (obj, plugin)
             return obj
     raise Exception("No plug-ins found in module %s" % plugin_module)

@@ -8,9 +8,13 @@ import os
 from sumatra import commands
 
 
+class MockDataStore(object):
+    def __init__(self, root):
+        self.root = root
+
 class MockProject(object):
     instances = []
-    data_store = type("MockDataStore", (object,), {"root": "/path/to/root"})
+    data_store = MockDataStore("/path/to/root")
     default_repository = "some repository"
     default_main_file = "walk_silly.py"
     default_executable = "a.out"
@@ -46,6 +50,7 @@ class MockWorkingCopy(object):
 commands.get_executable = MockExecutable
 commands.get_repository = MockRepository 
 commands.get_working_copy = MockWorkingCopy
+commands.FileSystemDataStore = MockDataStore
 
 def no_project():
     raise Exception("There is no Sumatra project here")
