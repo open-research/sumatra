@@ -21,7 +21,7 @@ get_executable()      - Return an appropriate subclass of Executable, given
 register_executable() - Register new subclasses of Executable that can be
                         returned by get_executable().
 """
-
+from __future__ import with_statement
 import os.path
 import re
 import subprocess
@@ -45,7 +45,10 @@ class Executable(object):
         self.options = options
 
     def __str__(self):
-        return "%s (version: %s) at %s, options %s" % (self.name, self.version, self.path, self.options)
+        s = "%s (version: %s) at %s" % (self.name, self.version, self.path)
+        if self.options:
+            s += "options: %s" % self.options
+        return s
 
     def _find_executable(self, executable_name):
         found = []
@@ -101,8 +104,28 @@ class NESTSimulator(Executable):
     name = "NEST"
     default_executable_name = 'nest'
     
-    
 
+class GENESISSimulator(Executable):
+    
+    name = "GENESIS"
+    default_executable_name = "genesis"
+
+    def _get_version(self):
+        print "Writing genesis version script"
+        with open("genesis_version.g", "w") as fd:
+            fd.write("""openfile genesis_version.out w
+                        writefile genesis_version.out {version}
+                        closefile genesis_version.out
+                        quit
+                    """)
+        p = subprocess.Popen("%s genesis_version.g" % self.path, shell=True) #stdout=subprocess.PIPE, stderr=subprocess.STDOUT, stdin=subprocess.PIPE, shell=True)
+        returncode = p.wait()
+        print returncode
+        with open("genesis_version.out") as fd:
+            version = fd.read()
+        os.remove("genesis_version.g")
+        os.remove("genesis_version.out")
+        return version.strip()
     
 registered_program_names = {}
 registered_executables = {}
@@ -119,6 +142,7 @@ def register_executable(cls, name, executable, extensions):
 register_executable(NEURONSimulator, 'NEURON', 'nrniv', ('.hoc', '.oc'))
 register_executable(PythonExecutable, 'Python', 'python', ('.py',))
 register_executable(NESTSimulator, 'NEST', 'nest', ('.sli',))
+register_executable(GENESISSimulator, 'GENESIS', 'genesis', ('.g',))
     
 def get_executable(path=None, script_file=None):
     """

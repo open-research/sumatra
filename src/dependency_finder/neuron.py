@@ -116,19 +116,6 @@ def find_loaded_files(file_path, executable_path):
         search_dirs.append(op.join(prefix, "share/nrn/lib/hoc"))
     load_file_pattern = re.compile(r'load_file\("(?P<path>[\w\.\/]+)"\)')
     all_paths = []
-    def find_file(path, current_directory):
-        """
-        Look for path as an absolute path then relative to the current directory,
-        then relative to search_dirs.
-        Return the absolute path.
-        """
-        if op.exists(path):
-            return op.abspath(path)
-        for dir in [current_directory] + search_dirs:
-            search_path = op.join(dir, path)
-            if op.exists(search_path):
-                return search_path
-        raise Exception("File %s does not exist" % path)
     def find(start_path, paths):
         """
         Recursively look for files loaded by start_path, add them to paths.
@@ -136,7 +123,7 @@ def find_loaded_files(file_path, executable_path):
         with open(start_path) as f:
             new_paths = load_file_pattern.findall(f.read())
         curdir = op.dirname(start_path)
-        new_paths = [find_file(p, curdir) for p in new_paths]
+        new_paths = [core.find_file(p, curdir, search_dirs) for p in new_paths]
         #if new_paths:
         #    print start_path, "loads the following:\n ", "\n  ".join(new_paths)
         #else:

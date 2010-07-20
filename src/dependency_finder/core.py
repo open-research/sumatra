@@ -17,6 +17,7 @@ find_version()                   - tries to find version information by calling 
 
 """
 
+import os
 from sumatra import versioncontrol
 
 def find_version_from_versioncontrol(path):
@@ -57,6 +58,23 @@ def find_version(component, heuristics):
     return str(version)
 
 
+def find_file(path, current_directory, search_dirs):
+    """
+    Look for path as an absolute path then relative to the current directory,
+    then relative to search_dirs.
+    Return the absolute path.
+    """
+    op = os.path
+    if op.exists(path):
+        return op.abspath(path)
+    for dir in [current_directory] + search_dirs:
+        search_path = op.join(dir, path)
+        if op.exists(search_path):
+            return search_path
+    raise Exception("File %s does not exist" % path)
+
+
+
 class BaseDependency(object):
     """
     Contains information about a program component, and tries to determine version information.
@@ -74,3 +92,4 @@ class BaseDependency(object):
         
     def __ne__(self, other):
         return not self.__eq__(other)
+

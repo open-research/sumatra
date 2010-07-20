@@ -124,7 +124,6 @@ def configure(argv):
     parser.add_option('-m', '--main', help="the name of the script that would be supplied on the command line if running the simulator normally, e.g. init.hoc.")
     parser.add_option('-c', '--on-changed', help="the action to take if the code in the repository or any of the depdendencies has changed. Defaults to %default", choices=['store-diff', 'error'])
     (options, args) = parser.parse_args(argv)
-    print options, args, "******"
     if len(args) != 0:
         parser.error('configure does not take any arguments')
     project = load_project()

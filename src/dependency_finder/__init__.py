@@ -19,8 +19,9 @@ find_dependencies - returns a list of dependencies for a given script and
 from __future__ import with_statement
 import os
 import sys
+import warnings
 
-from sumatra.dependency_finder import core, neuron, python
+from sumatra.dependency_finder import core, neuron, python, genesis
     
 
 def find_dependencies(filename, executable, on_changed='error'):
@@ -30,8 +31,10 @@ def find_dependencies(filename, executable, on_changed='error'):
         return python.find_dependencies(filename, on_changed)
     elif executable.name == "NEURON":
         return neuron.find_dependencies(filename, on_changed, executable.path)
+    elif executable.name == "GENESIS":
+        return genesis.find_dependencies(filename, on_changed)
     else:
-        raise Exception("find_dependencies() not yet implemented for %s" % executable.name)
-
+        warnings.warn("find_dependencies() not yet implemented for %s" % executable.name)
+        return []
         
 
