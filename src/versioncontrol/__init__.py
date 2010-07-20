@@ -44,25 +44,29 @@ for vcs in ['mercurial', 'subversion', 'git']:
     except ImportError:
         pass
     
-if len(vcs_list) == 0:
-    raise VersionControlError("No version control systems found.")
-        
+    
 def get_working_copy(path=None):
     path = path or os.getcwd()
-    for vcs in vcs_list:
-        if vcs.may_have_working_copy(path):
-            return vcs.get_working_copy(path)
-    raise VersionControlError("No working copy found at %s" % path) # add some diagnostic information
+    if vcs_list:
+        for vcs in vcs_list:
+            if vcs.may_have_working_copy(path):
+                return vcs.get_working_copy(path)
+        raise VersionControlError("No working copy found at %s" % path) # add some diagnostic information
+    else:
+        raise VersionControlError("No version control systems found.")
             
 def get_repository(url):
     if url:
         repos = None
-        for vcs in vcs_list:
-            try:
-                repos =  vcs.get_repository(url)
-                break
-            except Exception, e:
-                print e
+        if vcs_list:
+            for vcs in vcs_list:
+                try:
+                    repos =  vcs.get_repository(url)
+                    break
+                except Exception, e:
+                    print e
+        else:
+            raise VersionControlError("No version control systems found.")
         if repos is None:
             raise Exception("Can't find repository at URL '%s'" % url)
         else:

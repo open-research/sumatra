@@ -5,6 +5,7 @@ Command-line interface to the Sumatra simulation management tool.
 
 import sys
 from sumatra import commands, __version__
+from sumatra.versioncontrol.base import VersionControlError
 
 modes = ("init", "configure", "info", "run", "list", "delete", "comment", "tag", "repeat")
 
@@ -26,5 +27,9 @@ try:
 except AttributeError:
     print usage
     sys.exit(1)
-    
-main(sys.argv[2:])
+
+try:
+    main(sys.argv[2:])
+except VersionControlError, err:
+    print "Error:", err.message
+    sys.exit(1)
