@@ -23,7 +23,7 @@ def capture(main):
         project = sumatra.projects.load_project()
         main_file = os.path.abspath(sys.modules['__main__'].__file__)
         executable = PythonExecutable(path=sys.executable)
-        record = project.new_record(inputs=[parameters,],
+        record = project.new_record(parameters=parameters,
                                     main_file=main_file,
                                     executable=executable)
         parameters.update({"sumatra_label": record.label})
