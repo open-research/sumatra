@@ -1,5 +1,6 @@
 """
-This file is taken from NeuroTools trunk revision 445.
+This file was originally taken from NeuroTools trunk revision 445.
+It has been modified to remove numpy dependencies.
 
 NeuroTools.parameters
 =====================
@@ -25,7 +26,7 @@ string_table      - Convert a table written as a multi-line string into a dict o
 
 """
 
-import urllib, copy, warnings, math, numpy.random
+import urllib, copy, warnings, math
 from urlparse import urlparse
 from sumatra.external.NeuroTools.random import ParameterDist, GammaDist, UniformDist, NormalDist
 
@@ -104,7 +105,9 @@ class ParameterRange(Parameter):
         Parameter.__init__(self, value.__iter__().next(), units, name)
         self._iter_values = value.__iter__()
         if shuffle:
-            self._values = numpy.random.permutation(value) # replace by random.shuffle from stdlib?
+            self._values = value
+            random.shuffle(self._values)
+            #self._values = numpy.random.permutation(value)
         else:
             self._values = value
     

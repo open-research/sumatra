@@ -1,5 +1,8 @@
 """
-This file is taken from NeuroTools trunk revision 445.
+This file was originally taken from NeuroTools trunk revision 445.
+It has been modified to make numpy optional (it won't work without numpy, but
+it won't produce ImportErrors either, and will produce sensible error messages
+if numpy-dependent functionality is accessed).
 
 NeuroTools.random
 =====================
@@ -16,13 +19,17 @@ UniformDist - uniform distribution
 
 """
 
-import numpy, numpy.random
+try:
+    import numpy, numpy.random
+    have_numpy = True
+except ImportError:
+    have_numpy = False
 try:
     import scipy.stats
     have_scipy = True
 except ImportError:
     have_scipy = False
-
+import math
     
 class ParameterDist(object):
 
@@ -42,7 +49,10 @@ class ParameterDist(object):
         raise NotImplementedError('This is an abstract base class and cannot be used directly')
 
     def from_stats(self,vals,bias=0.0,expand=1.0):
-        self.__init__(mean=numpy.mean(vals)+bias, std=numpy.std(vals)*expand)
+        if have_numpy:
+            self.__init__(mean=numpy.mean(vals)+bias, std=numpy.std(vals)*expand)
+        else:
+            raise Exception("Error: numpy was not found at import time.")
 
     def __eq__(self, o):
         # should we track the state of the rng and return False if it is different between self and o?
@@ -75,7 +85,7 @@ class GammaDist(ParameterDist):
         if 's' in params and std==None:
             std = params['s']
 
-        # both mean and std not specified
+        # neither mean nor std specified
         if (mean,std)==(None,None):
             if 'a' in params:
                 a = params['a']
@@ -100,13 +110,13 @@ class GammaDist(ParameterDist):
             return scipy.stats.gamma.rvs(self.params['a'],size=n)*self.params['b']
     else:
         def next(self,n=1):
-            raise Exception('Error scipy was not found at import time.  GammaDist realization disabled.')
+            raise Exception('Error: scipy was not found at import time.  GammaDist realization disabled.')
         
     def mean(self):
         return self.params['a']*self.params['b']
 
     def std(self):
-        return self.params['b']*numpy.sqrt(self.params['a'])
+        return self.params['b']*math.sqrt(self.params['a'])
 
     def __repr__(self):
         if self.repr_mode == 'ms':
@@ -119,22 +129,19 @@ class NormalDist(ParameterDist):
     """
     normal distribution with parameters
     mean + std
-    
-    Generally the distribution is implemented
-    by scipy.stats.gamma.pdf(x/b,a)/b
-
-    For more info, in ipython type:
-    >>> ? scipy.stats.gamma 
-
     """
     
     def __init__(self,mean=0.0,std=1.0):
         ParameterDist.__init__(self,mean=mean,std=std)
         self.dist_name = 'NormalDist'
         
-    def next(self,n=1):
-        return numpy.random.normal(loc=self.params['mean'],scale=self.params['std'],size=n)
-        
+    if have_numpy:
+        def next(self,n=1):
+            return numpy.random.normal(loc=self.params['mean'],scale=self.params['std'],size=n)
+    else:
+        def next(self,n=1):
+            raise Exception('Error: numpy was not found at import time.  NormalDist realization disabled.')
+
 
 class UniformDist(ParameterDist):
     """
@@ -145,16 +152,20 @@ class UniformDist(ParameterDist):
         ParameterDist.__init__(self,min=min,max=max)
         self.dist_name = 'UniformDist'
         self.return_type = return_type
-        
-    def next(self,n=1):
-        vals = numpy.random.uniform(low=self.params['min'],high=self.params['max'],size=n)
-        if self.return_type != float:
-            vals = vals.astype(self.return_type)
-        return vals
+    
+    if have_numpy:
+        def next(self,n=1):
+            vals = numpy.random.uniform(low=self.params['min'],high=self.params['max'],size=n)
+            if self.return_type != float:
+                vals = vals.astype(self.return_type)
+            return vals
+    else:
+        def next(self,n=1):
+            raise Exception('Error: numpy was not found at import time.  UniformDist realization disabled.')
 
     def from_stats(self,vals,bias=0.0,expand=1.0):
-        mn = numpy.min(vals)
-        mx = numpy.max(vals)
+        mn = min(vals)
+        mx = max(vals)
         center = 0.5*(mx+mn)+bias
         hw = 0.5*(mx-mn)*expand
         self.__init__(min=center-hw,max=center+hw)
