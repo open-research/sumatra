@@ -6,6 +6,8 @@ Web interface to the Sumatra simulation management tool.
 import sys
 import os
 import webbrowser
+import thread
+import time
 from django.core import management
 from django.conf import settings
 from sumatra.projects import load_project
@@ -33,8 +35,18 @@ if len(sys.argv) > 1:
     port = sys.argv[1]
 else:
     port = "8000"
+    
+def delayed_new_tab(url, delay):
+    """
+    Open a new browser tab with a time delay, to give the server enough
+    time to start up.
+    """
+    time.sleep(delay)
+    webbrowser.open_new_tab(url)
+    
+thread.start_new_thread(delayed_new_tab, ("http://127.0.0.1:%s" % port, 3))
 management.call_command('runserver', port)
 
-#webbrowser.open_new_tab("http://127.0.0.1:%s" % port)
+
 
 
