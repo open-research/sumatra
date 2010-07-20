@@ -2,6 +2,12 @@
 Installation
 ============
 
+To run Sumatra you will need Python installed on your machine. If you are running
+Linux or OS X, you almost certainly already have it. If you don't have Python,
+you can install it from `<http://www.python.org>`_, or install one of the
+"value-added" distributions aimed at scientific users of Python: `Enthought`_ or
+`Python(x,y)`_.
+
 Sumatra may be downloaded from the `Python Package Index`_ (PyPI) or from the `INCF Software Centre`_.
 To install it, first unpack the tar archive::
 
@@ -52,3 +58,5 @@ package is sufficient. For Git, you need to install the GitPython_ library.
 .. _`django-tagging`: http://pypi.python.org/pypi/django-tagging/
 .. _`pysvn bindings`: http://pysvn.tigris.org/project_downloads.html
 .. _`GitPython`: http://pypi.python.org/pypi/GitPython/
+.. _`Enthought`: http://www.enthought.com/products/epd.php
+.. _`Python(x,y)`: http://code.google.com/p/pythonxy/
