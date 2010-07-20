@@ -10,6 +10,11 @@ from sumatra.recordstore import RecordStore
 from django.conf import settings
 from django.core import management
 import os
+import imp
+
+# Check that django-tagging is available. It would be better to try importing
+# it, but that seems to mess with Django's internals.
+imp.find_module("tagging")
 
 recordstore_settings = {
     'DEBUG': True,
