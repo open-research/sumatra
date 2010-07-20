@@ -9,6 +9,7 @@ import os
 import numpy
 import tempfile
 import shutil
+import warnings
 
 class MockExecutable(object):
     def __init__(self, name):
@@ -84,8 +85,9 @@ class TestMainModuleFunctions(unittest.TestCase):
                                     MockExecutable("NEURON"))
         self.assertEqual(os.path.basename(deps[0].path), "dependency.hoc")  
         
-    def test__find_dependencies_with_unsupported_executable__should_raise_exception(self):
-        self.assertRaises(Exception,
+    def test__find_dependencies_with_unsupported_executable__should_raise_warning(self):
+        warnings.filters.append(('error', None, UserWarning, None, 0)) # ought to remove this again afterwards
+        self.assertRaises(UserWarning,
                           df.find_dependencies,
                           os.path.join(tmpdir, "python", "main.py"),
                           MockExecutable("Perl")) # I'm not saying Perl shouldn't be supported, it just isn't at present

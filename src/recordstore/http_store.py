@@ -48,6 +48,8 @@ def encode_record(record):
             "content": str(record.parameters),
             "type": record.parameters.__class__.__name__,
         },
+        "input_data": str(record.input_data),
+        "script_arguments": record.script_arguments,
         "launch_mode": {
             "type": record.launch_mode.__class__.__name__, 
             "parameters": str(record.launch_mode.get_state()),
@@ -121,7 +123,8 @@ def decode_record(content):
     ds_parameters = eval(ddata["parameters"])
     data_store = getattr(datastore, ddata["type"])(**ds_parameters)
     record = Record(executable, repository, data["main_file"],
-                       data["version"], parameter_set, launch_mode, data_store,
+                       data["version"], launch_mode, data_store, parameter_set,
+                       data["input_data"], data["script_arguments"], 
                        data["label"], data["reason"], data["diff"],
                        data["user"])
     tags = data["tags"]

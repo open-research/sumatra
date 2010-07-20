@@ -36,16 +36,13 @@ class PlatformInformation(object):
     # get_info('blas_opt')
 
 
-def check_files_exist(executable_path, main_file, parameter_file):
+def check_files_exist(*paths):
     """
     Check that the given paths exist and return the list of paths.
     
     parameter_file may be None, in which case it is not included in the list of
     paths.
     """
-    paths = [executable_path, main_file]
-    if parameter_file:
-        paths.append(parameter_file)
     for path in paths:
         if not os.path.exists(path):
             raise IOError("%s does not exist." % path)
@@ -73,16 +70,16 @@ class LaunchMode(object):
         """Return a string containing the command to be launched."""
         raise NotImplementedError("must be impemented by sub-classes")
 
-    def run(self, executable, main_file, parameter_file=None, append_label=None):
+    def run(self, executable, main_file, arguments, append_label=None):
         """
         Run a computation in a shell, with the given executable, script and
-        parameter file. If `append_label` is provided, it is appended to the
+        arguments. If `append_label` is provided, it is appended to the
         command line. Return True if the computation finishes successfully,
         False otherwise.
         """
-        cmd = self.generate_command(executable, main_file, parameter_file)
+        cmd = self.generate_command(executable, main_file, arguments)
         if append_label:
-            cmd += append_label
+            cmd += " " + append_label
         print "Sumatra is running the following command:", cmd
         #p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True)
         p = subprocess.Popen(cmd, shell=True, stdout=None, stderr=None, close_fds=True)
@@ -130,12 +127,10 @@ class SerialLaunchMode(LaunchMode):
     def __str__(self):
         return "serial"
     
-    def generate_command(self, executable, main_file, parameter_file):
+    def generate_command(self, executable, main_file, arguments):
         __doc__ = LaunchMode.__doc__
-        check_files_exist(executable.path, main_file, parameter_file)
-        cmd = "%s %s %s" % (executable.path, executable.options, main_file)
-        if parameter_file:
-            cmd += " %s" % parameter_file
+        check_files_exist(executable.path, main_file)
+        cmd = "%s %s %s %s" % (executable.path, executable.options, main_file, arguments)
         return cmd
     
 
@@ -174,9 +169,9 @@ class DistributedLaunchMode(LaunchMode):
     def __str__(self):
         return "distributed (n=%d, mpiexec=%s, hosts=%s)" % (self.n, self.mpirun, self.hosts)
     
-    def generate_command(self, executable, main_file, parameter_file):
+    def generate_command(self, executable, main_file, arguments):
         __doc__ = LaunchMode.__doc__
-        check_files_exist(executable.path, main_file, parameter_file)
+        check_files_exist(executable.path, main_file)
         if hasattr(executable, "mpi_options"):
             mpi_options = executable.mpi_options
         else:
@@ -191,9 +186,8 @@ class DistributedLaunchMode(LaunchMode):
             self.mpirun,
             self.n
         )
-        cmd += " %s %s %s %s" % (executable.path, mpi_options, executable.options, main_file)
-        if parameter_file:
-            cmd += " %s" % parameter_file
+        cmd += " %s %s %s %s %s" % (executable.path, mpi_options,
+                                    executable.options, main_file, arguments)
         return cmd
     
     def get_platform_information(self):

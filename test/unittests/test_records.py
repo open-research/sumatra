@@ -57,18 +57,18 @@ class TestRecordDifference(unittest.TestCase):
     
     def test__init(self):
         r1 = Record(MockExecutable(), MockRepository(), "test.py",
-                       999, {}, MockLaunchMode(), MockDataStore())
+                       999, MockLaunchMode(), MockDataStore())
         time.sleep(1)
         r2 = Record(MockExecutable(), MockRepository(), "test.py",
-                       999, {}, MockLaunchMode(), MockDataStore())
+                       999, MockLaunchMode(), MockDataStore())
         diff = RecordDifference(r1, r2)
         
     def test__nonzero__should_return_True__for_different_parameters(self):
         r1 = Record(MockExecutable(), MockRepository(), "test.py",
-                       999, {"a": 2}, MockLaunchMode(), MockDataStore())
+                       999, MockLaunchMode(), MockDataStore(), {"a": 2})
         time.sleep(1)
         r2 = Record(MockExecutable(), MockRepository(), "test.py",
-                       999, {"a": 3}, MockLaunchMode(), MockDataStore())
+                       999, MockLaunchMode(), MockDataStore(), {"a": 3}, )
         r1.dependencies = []
         r2.dependencies = []
         diff = RecordDifference(r1, r2)
@@ -80,10 +80,10 @@ class TestRecordDifference(unittest.TestCase):
         
     def test__nonzero__should_return_True__for_identical_parameters(self):
         r1 = Record(MockExecutable(), MockRepository(), "test.py",
-                       999, {"a": 2}, MockLaunchMode(), MockDataStore())
+                       999, MockLaunchMode(), MockDataStore(), {"a": 2})
         time.sleep(1)
         r2 = Record(MockExecutable(), MockRepository(), "test.py",
-                       999, {"a": 2}, MockLaunchMode(), MockDataStore())
+                       999, MockLaunchMode(), MockDataStore(), {"a": 2})
         r1.dependencies = []
         r2.dependencies = []
         diff = RecordDifference(r1, r2)
@@ -95,10 +95,10 @@ class TestRecordDifference(unittest.TestCase):
 
     def test__dependency_differences(self):
         r1 = Record(MockExecutable(), MockRepository(), "test.py",
-                       999, {}, MockLaunchMode(), MockDataStore())
+                       999, MockLaunchMode(), MockDataStore())
         time.sleep(1)
         r2 = Record(MockExecutable(), MockRepository(), "test.py",
-                       999, {}, MockLaunchMode(), MockDataStore())
+                       999, MockLaunchMode(), MockDataStore())
         r1.dependencies = [MockDependency("foo"), MockDependency("bar")]
         r2.dependencies = [MockDependency("bar"), MockDependency("eric")]
         diff = RecordDifference(r1, r2)
@@ -106,10 +106,10 @@ class TestRecordDifference(unittest.TestCase):
 
     def test__data_differences(self):
         r1 = Record(MockExecutable(), MockRepository(), "test.py",
-                       999, {}, MockLaunchMode(), MockDataStore())
+                       999, MockLaunchMode(), MockDataStore())
         time.sleep(1)
         r2 = Record(MockExecutable(), MockRepository(), "test.py",
-                       999, {}, MockLaunchMode(), MockDataStore())
+                       999, MockLaunchMode(), MockDataStore())
         diff = RecordDifference(r1, r2)
         diff.data_differences
 

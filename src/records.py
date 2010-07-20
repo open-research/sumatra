@@ -24,10 +24,13 @@ def assert_equal(a, b, msg=''):
     assert a == b, "%s: %s %s != %s %s" % (msg, a, type(a), b, type(b))
 
 class Record(object):
+    """
     
-    def __init__(self, executable, repository, main_file, version, parameters,
-                 launch_mode, datastore, label=None, reason=None, diff='',
-                 user='', on_changed='error'):
+    """
+    
+    def __init__(self, executable, repository, main_file, version, launch_mode,
+                 datastore, parameters=None, input_data=[], script_arguments="", 
+                 label=None, reason=None, diff='', user='', on_changed='error'):
         self.timestamp = datetime.now() # might need to allow for this to be set as argument to allow for distributed/batch simulations on machines with out-of-sync clocks
         self.label = label or self.timestamp.strftime("%Y%m%d-%H%M%S")
         assert len(self.label) > 0
@@ -37,7 +40,9 @@ class Record(object):
         self.repository = repository # a Repository object
         self.main_file = main_file
         self.version = version
-        self.parameters = parameters # a ParameterSet object
+        self.parameters = parameters
+        self.input_data = input_data # a list containing strings (in future - DataFile objects)
+        self.script_arguments = script_arguments
         self.launch_mode = launch_mode # a LaunchMode object - basically, run serially or with MPI. If MPI, what configuration
         self.datastore = datastore.copy()
         self.outcome = None
@@ -81,16 +86,20 @@ class Record(object):
         # run pre-simulation/analysis tasks, e.g. nrnivmodl
         self.launch_mode.pre_run(self.executable)
         # Write the executable-specific parameter file
-        parameter_file = "%s.param" % self.label.replace("/", "_")
-        self.executable.write_parameters(self.parameters, parameter_file)
+        script_arguments = self.script_arguments
+        if self.parameters:
+            parameter_file = "%s.param" % self.label.replace("/", "_")
+            self.executable.write_parameters(self.parameters, parameter_file)
+            script_arguments = script_arguments.replace("<parameters>", parameter_file)
         # Run simulation/analysis
         start_time = time.time()
-        result = self.launch_mode.run(self.executable, self.main_file, parameter_file, data_label)
+        result = self.launch_mode.run(self.executable, self.main_file,
+                                      script_arguments, data_label)
         self.duration = time.time() - start_time
         # Run post-processing scripts
         pass # skip this if there is an error
         # Search for newly-created datafiles
-        if os.path.exists(parameter_file):
+        if self.parameters and os.path.exists(parameter_file):
             os.remove(parameter_file)
         self.data_key = self.datastore.find_new_files(self.timestamp)
         print "Data key is", self.data_key
@@ -138,7 +147,8 @@ class RecordDifference(object):
         self.main_file_differs = recordA.main_file != recordB.main_file
         self.version_differs = recordA.version != recordB.version
         for rec in recordA, recordB:
-            rec.parameters.pop("sumatra_label", 1)
+            if rec.parameters:
+                rec.parameters.pop("sumatra_label", 1)
         self.parameters_differ = recordA.parameters != recordB.parameters
         self.launch_mode_differs = recordA.launch_mode != recordB.launch_mode
         #self.platforms

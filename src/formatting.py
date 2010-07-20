@@ -19,7 +19,7 @@ get_formatter() - return an approriate Formatter object for a given requested
 import textwrap
 
 fields = ['label', 'reason', 'outcome', 'duration', 'repository', 'main_file',
-          'version', 'executable', 'timestamp', 'tags']
+          'version', 'script_arguments', 'executable', 'timestamp', 'tags']
 
 class Formatter(object):
     
@@ -35,8 +35,7 @@ class TextFormatter(Formatter):
     def short(self):
         return "\n".join(record.label for record in self.records)
             
-    def long(self):
-        text_width = 80; indent = 13
+    def long(self, text_width=80, indent=17):
         output = ""
         for record in self.records:
             output += "-" * text_width + "\n"

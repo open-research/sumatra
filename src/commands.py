@@ -9,15 +9,16 @@ import sys
 from optparse import OptionParser
 from textwrap import dedent
 from copy import deepcopy
+import re
 
-from programs import get_executable
-from datastore import FileSystemDataStore
-from projects import Project, load_project
-from launch import SerialLaunchMode, DistributedLaunchMode
-from parameters import build_parameters
-from recordstore import RecordStore
-from versioncontrol import get_working_copy, get_repository
-from formatting import get_diff_formatter
+from sumatra.programs import get_executable
+from sumatra.datastore import FileSystemDataStore
+from sumatra.projects import Project, load_project
+from sumatra.launch import SerialLaunchMode, DistributedLaunchMode
+from sumatra.parameters import build_parameters
+from sumatra.recordstore import RecordStore
+from sumatra.versioncontrol import get_working_copy, get_repository
+from sumatra.formatting import get_diff_formatter
 
 def _process_plugins(plugin_module):
     # current only handles RecordStore subclasses, but eventually should also
@@ -41,7 +42,54 @@ def parse_executable_str(exec_str):
     first_space = exec_str.find(" ")
     if first_space == -1: first_space = len(exec_str)
     return exec_str[:first_space], exec_str[first_space:]
-        
+
+
+list_pattern = re.compile(r'^\s*\[.*\]\s*$')
+tuple_pattern = re.compile(r'^\s*\(.*\)\s*$')
+
+def parse_command_line_parameter(p):
+    name, value = p.split("=")
+    if list_pattern.match(value) or tuple_pattern.match(value):
+        value = eval(value)
+    else:
+        for cast in int, float:
+            try:
+                value = cast(value)
+                break
+            except ValueError:
+                pass
+    return {name: value}
+
+def parse_arguments(args):  
+    cmdline_parameters = {}
+    script_args = []
+    parameter_sets = []
+    input_data = []
+    ##datastore = FileSystemDataStore("/") # temporary
+    for arg in args:
+        if os.path.exists(arg): # either a parameter file or a data file
+                                # should perhaps use DataStore.exists() instead of os.path.exists()
+                                # to allow for inputs from databases, etc.
+            try:
+                parameter_sets.append(build_parameters(arg))
+                script_args.append("<parameters>")
+            except SyntaxError:
+                ##input_data.append(DataFile(arg, datastore)) # need to determine if path is absolute or relative
+                input_data.append(arg)
+                script_args.append(arg)
+        elif "=" in arg: # cmdline parameter 
+            cmdline_parameters.update(parse_command_line_parameter(arg))
+        else: # a flag or something, passed on unchanged
+            script_args.append(arg)
+    assert len(parameter_sets) < 2, "No more than one parameter file may be supplied." # temporary restriction
+    if cmdline_parameters:
+        if parameter_sets:
+            parameter_sets[0].update(cmdline_parameters)
+        else:
+            raise Exception("Command-line parameters supplied but without a parameter file to put them into.")
+    
+    return parameter_sets, input_data, " ".join(script_args)
+
 
 def init(argv):
     """Create a new project in the current directory."""
@@ -160,16 +208,20 @@ def info(argv):
     
 def run(argv):
     """Run a simulation or analysis."""
-    usage = "%prog run [options] PARAMFILE [param=value, ...]"
+    usage = "%prog run [options] [arg1, ...] [param=value, ...]"
     description = dedent("""\
-      PARAMFILE is the name of the parameter file to be used for this simulation
-      or analysis.
+      The list of arguments will be passed on to the simulation/analysis script.
+      It should normally contain at least the name of a parameter file, but
+      can also contain input files, flags, etc.
+      
+      If the parameter file should be in a format that Sumatra understands (see
+      documentation), then the parameters will be stored to allow future
+      searching, comparison, etc. of records.
+      
       For convenience, it is possible to specify a file with default parameters
       and then specify those parameters that are different from the default values
       on the command line with any number of param=value pairs (note no space
-      around the equals sign). The parameter file should also consist of
-      param=value pairs, one per line, although here spaces are allowed around the
-      equals sign. Comments may be included using #.""")
+      around the equals sign).""")
     parser = OptionParser(usage=usage,
                           description=description)
     parser.add_option('-v', '--version', metavar='REV',
@@ -183,15 +235,17 @@ def run(argv):
     parser.add_option('-t', '--tag', help="tag you want to add to the project")
     
     (options, args) = parser.parse_args(argv)
-    if len(args) < 1:
-        parser.error('A parameter file must be specified.')
-    parameter_file = args[0]
-    cmdline_parameters = args[1:]
+    parameters, input_data, script_args = parse_arguments(args)
+    if len(parameters) == 0:
+        parameters = None
+    elif len(parameters) == 1:
+        parameters = parameters[0]
+    else:
+        parser.error("Only a single parameter file allowed.") # for now
+    
     
     project = load_project()
     
-    parameters = build_parameters(parameter_file, cmdline_parameters)
-    print "Parameters for this experiment:\n", parameters.pretty(expand_urls=True)
     if options.executable:
         executable_path, executable_options = parse_executable_str(options.executable)
         executable = get_executable(path=executable_path)
@@ -206,7 +260,8 @@ def run(argv):
         launch_mode = SerialLaunchMode()
     
     label = options.label
-    run_label = project.launch(parameters, label=label, reason=options.reason,
+    run_label = project.launch(parameters, input_data, script_args,
+                               label=label, reason=options.reason,
                                executable=executable,
                                main_file=options.main or 'default',
                                version=options.version or 'latest',

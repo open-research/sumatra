@@ -20,6 +20,7 @@ class MockRecord(Record):
         self.version = "5.4.3"
         self.executable = "brian"
         self.tags = ["splitters",]
+        self.script_arguments = "arg1 arg2"
 
 class MockRecordDifference(object):
     recordA = MockRecord()

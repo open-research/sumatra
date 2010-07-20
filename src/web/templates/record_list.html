@@ -23,7 +23,7 @@
             <th rowspan="2">Duration</th>
             <th rowspan="2">Processes</th>
             <th colspan="2">Simulator</th>
-            <th colspan="3">Script</th>
+            <th colspan="4">Script</th>
             <th rowspan="2">Date</th>
             <th rowspan="2">Time</th>
             <th rowspan="2">Tags</th>
@@ -34,6 +34,7 @@
             <th>Repository</th>
             <th>Main file</th>
             <th>Version</th>
+            <th>Arguments</th>
         </tr>
         {% for record in object_list %}
         <tr class="{% cycle odd,even %}">
@@ -48,6 +49,7 @@
             <td>{{record.repository.url}}</td>
             <td>{{record.main_file}}</td>
             <td>{{record.version}}{% if record.diff %}*{% endif %}</td>
+            <td>{{record.script_arguments}}</td>
             <td>{{record.timestamp|date:"d/m/Y"}}</td>
             <td>{{record.timestamp|date:"H:i:s"}}</td>
             <td>{{record.tags|link}}</td>

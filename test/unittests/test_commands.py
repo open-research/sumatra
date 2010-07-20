@@ -28,9 +28,11 @@ class MockProject(object):
             self.__dict__[k] = v
     def save(self): self.saved = True
     def info(self): self.info_called = True
-    def launch(self, parameters, **kwargs):
+    def launch(self, parameters, input_data, script_args, **kwargs):
         self.launch_args = kwargs
-        self.launch_args.update(parameters=parameters)
+        self.launch_args.update(parameters=parameters,
+                                input_data=input_data,
+                                script_args=script_args)
     def format_records(self, tags, mode, format):
         self.format_args = {"tags": tags, "mode": mode, "format": format}
 
@@ -122,9 +124,10 @@ class TestRunCommand(unittest.TestCase):
         commands.load_project = lambda: self.prj
         
     def test_with_no_args(self):
-        self.assertRaises(SystemExit, commands.run, [])
+        commands.run([])
+        # need some assertion about self.prj.launch_args
 
-    def test_with_single_args(self):
+    def test_with_single_arg(self):
         commands.run(["some_parameter_file"])
         # need some assertion about self.prj.launch_args
 

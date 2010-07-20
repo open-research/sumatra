@@ -144,40 +144,41 @@ class TestModuleFunctions(unittest.TestCase):
         os.remove("test_file")
         os.remove("test_file2")
         os.remove("test_file3")
-            
-    def test__build_parameters__should_add_new_command_line_parameters_to_the_file_parameters(self):
-        P = build_parameters("test_file", ["z=42", "foo=bar"])
-        self.assertEqual(P.values, {"x": 2, "y": 3, "z": 42, "foo": "bar"})
-        P = build_parameters("test_file3", ["sectionA.c=42", "sectionC.foo=bar"])
-        self.assertEqual(P["sectionA.c"], "42")
-        self.assertEqual(P["sectionC.foo"], "bar")
-                
-    def test__build_parameters__should_overwrite_file_parameters_if_command_line_parameters_have_the_same_name(self):
-        P = build_parameters("test_file", ["x=12", "y=13"])
-        self.assertEqual(P.values, {"x": 12, "y": 13})
-        P = build_parameters("test_file3", ["sectionA.a=999"])
-        self.assertEqual(P["sectionA.a"], "999")
         
-    def test__build_parameters__should_insert_dotted_parameters_in_the_appropriate_place_in_the_hierarchy(self):
-        P = build_parameters("test_file2", ["z=100", "y.c=5", "y.a=-2"])
-        assert isinstance(P, NTParameterSet), type(P)
-        self.assertEqual(P.as_dict(), {
-                                        "y": {
-                                            "a": -2,
-                                            "b": 4,
-                                            "c": 5,
-                                        },
-                                        "x": 2,
-                                        "z": 100,
-                                      })
-        
-        
-    def test__build_parameters__should_cast_string_representations_of_numbers_within_lists_to_numeric_type(self):
-        # unless they are in quotes
-        # also applies to tuples
-        # what about dicts or sets?
-        P = build_parameters("test_file", ["M=[1,2,3,4,5]", "N=['1', '2', 3, 4, '5']"])
-        self.assertEqual(P.values, {"x": 2, "y": 3, "M": [1,2,3,4,5], "N": ['1', '2', 3, 4, '5']})
+# these tests should now be applied to commands.parse_arguments and/or commands.parse_command_line_parameter()
+    #def test__build_parameters__should_add_new_command_line_parameters_to_the_file_parameters(self):
+    #    P = build_parameters("test_file", ["z=42", "foo=bar"])
+    #    self.assertEqual(P.values, {"x": 2, "y": 3, "z": 42, "foo": "bar"})
+    #    P = build_parameters("test_file3", ["sectionA.c=42", "sectionC.foo=bar"])
+    #    self.assertEqual(P["sectionA.c"], "42")
+    #    self.assertEqual(P["sectionC.foo"], "bar")
+    #            
+    #def test__build_parameters__should_overwrite_file_parameters_if_command_line_parameters_have_the_same_name(self):
+    #    P = build_parameters("test_file", ["x=12", "y=13"])
+    #    self.assertEqual(P.values, {"x": 12, "y": 13})
+    #    P = build_parameters("test_file3", ["sectionA.a=999"])
+    #    self.assertEqual(P["sectionA.a"], "999")
+    #    
+    #def test__build_parameters__should_insert_dotted_parameters_in_the_appropriate_place_in_the_hierarchy(self):
+    #    P = build_parameters("test_file2", ["z=100", "y.c=5", "y.a=-2"])
+    #    assert isinstance(P, NTParameterSet), type(P)
+    #    self.assertEqual(P.as_dict(), {
+    #                                    "y": {
+    #                                        "a": -2,
+    #                                        "b": 4,
+    #                                        "c": 5,
+    #                                    },
+    #                                    "x": 2,
+    #                                    "z": 100,
+    #                                  })
+    #    
+    #    
+    #def test__build_parameters__should_cast_string_representations_of_numbers_within_lists_to_numeric_type(self):
+    #    # unless they are in quotes
+    #    # also applies to tuples
+    #    # what about dicts or sets?
+    #    P = build_parameters("test_file", ["M=[1,2,3,4,5]", "N=['1', '2', 3, 4, '5']"])
+    #    self.assertEqual(P.values, {"x": 2, "y": 3, "M": [1,2,3,4,5], "N": ['1', '2', 3, 4, '5']})
     
 
 

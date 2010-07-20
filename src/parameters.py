@@ -24,7 +24,6 @@ ConfigParserParameterSet - handles parameter files in traditional config file
 from __future__ import with_statement
 import os.path
 import shutil
-import re
 from ConfigParser import SafeConfigParser, MissingSectionHeaderError
 from cStringIO import StringIO
 from sumatra.external import NeuroTools
@@ -214,10 +213,7 @@ class ConfigParserParameterSet(SafeConfigParser):
             _update(name, value)
 
 
-list_pattern = re.compile(r'^\s*\[.*\]\s*$')
-tuple_pattern = re.compile(r'^\s*\(.*\)\s*$')
-
-def build_parameters(filename, cmdline_parameters=[]):
+def build_parameters(filename):
     try:
         parameters = NTParameterSet("file://%s" % os.path.abspath(filename))
     except SyntaxError:
@@ -225,16 +221,4 @@ def build_parameters(filename, cmdline_parameters=[]):
             parameters = ConfigParserParameterSet(filename)
         except SyntaxError:
             parameters = SimpleParameterSet(filename)
-    for p in cmdline_parameters:
-        name, value = p.split("=")
-        if list_pattern.match(value) or tuple_pattern.match(value):
-            value = eval(value)
-        else:
-            for cast in int, float:
-                try:
-                    value = cast(value)
-                    break
-                except ValueError:
-                    pass
-        parameters.update({name: value})
     return parameters

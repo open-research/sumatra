@@ -99,6 +99,8 @@ class MockRecord(object):
         self.platforms = [MockPlatformInformation()]
         self.diff = ""
         self.user = "michaelpalin"
+        self.input_data = "[]"
+        self.script_arguments = "arg1 arg2"
 
 class MockProject(object):
     name = "TestProject"
@@ -233,7 +235,8 @@ def check_record(record):
                                       "reason", "version", "user", "launch_mode",
                                       "timestamp", "duration", "diff",
                                       "datastore", "outcome", "data_key",
-                                      "dependencies"])
+                                      "dependencies", "input_data",
+                                      "script_arguments"])
 
 class MockHttp(object):
     def __init__(self, *args):

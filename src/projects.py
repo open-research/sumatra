@@ -93,7 +93,8 @@ class Project(object):
         """
         return _remove_left_margin(template % self.__dict__)
     
-    def new_record(self, parameters, executable='default', repository='default',
+    def new_record(self, parameters=None, input_data=[], script_args="",
+                   executable='default', repository='default',
                    main_file='default', version='latest', launch_mode='default',
                    label=None, reason=None):
         if executable == 'default':
@@ -105,19 +106,20 @@ class Project(object):
         if launch_mode == 'default':
             launch_mode = deepcopy(self.default_launch_mode)
         version, diff = self.update_code(repository.working_copy, version)
-        record = Record(executable, repository, main_file, version, parameters,
-                        launch_mode, self.data_store, label=label, reason=reason,
-                        diff=diff, on_changed=self.on_changed)
+        record = Record(executable, repository, main_file, version, launch_mode,
+                        self.data_store, parameters, input_data, script_args, 
+                        label=label, reason=reason, diff=diff,
+                        on_changed=self.on_changed)
         record.register()
         return record
     
-    def launch(self, parameters, executable='default', repository='default',
-               main_file='default', version='latest', launch_mode='default',
-               label=None, reason=None):
+    def launch(self, parameters=None, input_data=[], script_args="",
+               executable='default', repository='default', main_file='default',
+               version='latest', launch_mode='default', label=None, reason=None):
         """Launch a new simulation or analysis."""
-        record = self.new_record(parameters, executable, repository,
-                                 main_file, version, launch_mode, label,
-                                 reason)
+        record = self.new_record(parameters, input_data, script_args,
+                                 executable, repository, main_file, version,
+                                 launch_mode, label, reason)
         record.run(with_label=self.data_label)
         self.add_record(record)
         self.save()

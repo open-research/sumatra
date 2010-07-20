@@ -175,6 +175,7 @@ class Record(BaseModel):
     main_file = models.CharField(max_length=100)
     version = models.CharField(max_length=50)
     parameters = models.ForeignKey(ParameterSet)
+    input_data = models.TextField(blank=True)
     launch_mode = models.ForeignKey(LaunchMode)
     datastore = models.ForeignKey(Datastore)
     outcome = models.TextField(blank=True)
@@ -186,6 +187,7 @@ class Record(BaseModel):
     diff = models.TextField(blank=True)
     user = models.CharField(max_length=30)
     project = models.ForeignKey(Project, null=True)
+    script_arguments = models.TextField(blank=True)
 
     def to_sumatra(self):
         record = records.Record(
@@ -193,9 +195,11 @@ class Record(BaseModel):
             self.repository.to_sumatra(),
             self.main_file,
             self.version,
-            self.parameters.to_sumatra(),
             self.launch_mode.to_sumatra(),
             self.datastore.to_sumatra(),
+            self.parameters.to_sumatra(),
+            eval(self.input_data),
+            self.script_arguments,
             self.label,
             self.reason,
             self.diff,

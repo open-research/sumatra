@@ -50,11 +50,6 @@ class BaseTestLaunchMode(object):
         prog = MockExecutable(sys.executable)
         self.assertRaises(IOError, self.lm.run, prog, "foo_script.py", "test_parameters") 
         
-    def test__run__should_raise_an_Exception_if_the_parameter_file_does_not_exist(self):
-        prog = MockExecutable(sys.executable)
-        self.write_valid_test_script()
-        self.assertRaises(IOError, self.lm.run, prog, "valid_test_script.py", "foo_parameters") 
-        
     def test__run__should_accept_None_for_the_parameter_file(self):
         prog = MockExecutable(sys.executable)
         self.write_valid_test_script()

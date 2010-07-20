@@ -113,7 +113,7 @@ class TestProject(unittest.TestCase):
                        default_executable=MockExecutable(),
                        default_launch_mode=MockLaunchMode(),
                        default_repository=MockRepository())
-        rec = proj.new_record({})
+        rec = proj.new_record()
         self.assertEqual(rec.repository, proj.default_repository)
         self.assertEqual(rec.main_file, "test.py")
 
@@ -130,7 +130,7 @@ class TestProject(unittest.TestCase):
                        default_repository=MockRepository(),
                        default_launch_mode=MockLaunchMode(),
                        record_store=MockRecordStore())
-        proj.launch({}, main_file="test.py")
+        proj.launch(main_file="test.py")
 
     def test__get_record__calls_get_on_the_record_store(self):
         proj = Project("test_project",
