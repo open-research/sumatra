@@ -7,9 +7,10 @@ register = template.Library()
 
 @register.filter
 @stringfilter
-def link(text):
+def link(text, url):
     tags = parse_tag_input(text)
-    return mark_safe(" ".join('<a href="/tag/%s/">%s</a>' % (tag,tag) for tag in tags))
+    template = '<a href="%s">%%s</a>' % url
+    return mark_safe(" ".join(template % (tag,tag) for tag in tags))
     
 @register.filter
 @stringfilter

@@ -52,7 +52,7 @@
             <td>{{record.script_arguments}}</td>
             <td>{{record.timestamp|date:"d/m/Y"}}</td>
             <td>{{record.timestamp|date:"H:i:s"}}</td>
-            <td>{{record.tags|link}}</td>
+            <td>{{record.tags|link:"/tag/%s/"}}</td>
         </tr>
         {% endfor %}
     </table>
