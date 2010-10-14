@@ -50,6 +50,6 @@ For documentation, see http://neuralensemble.org/trac/sumatra/""",
                    'Operating System :: OS Independent',
                    'Programming Language :: Python',
                    'Topic :: Scientific/Engineering'],
-    requires = ['Django (>=1.1)', 'tagging'],
+    requires = ['Django (>=1.1)'],
 )
 
