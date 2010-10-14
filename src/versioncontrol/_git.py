@@ -22,6 +22,15 @@ import shutil
 
 from base import Repository, WorkingCopy, VersionControlError
 
+def findrepo(path):
+    try:
+        repo = git.Repo(path)
+    except git.exc.InvalidGitRepositoryError:
+        return
+    else:
+        return os.path.dirname(repo.git_dir)
+        
+
 def check_version():
     if git.__version__.split(".")[1] < 2:
         raise VersionControlError("Your Git Python binding is too old. You require at least version 0.2.0-beta1.")
@@ -30,17 +39,19 @@ def may_have_working_copy(path=None):
     """Test whether there is a Git working copy at the given path."""
     check_version()
     path = path or os.getcwd()
-    try:
-        git.Repo(path)
-    except git.exc.InvalidGitRepositoryError:
-        return False
-    else:
+    if findrepo(path):
         return True
+    else:
+        return False
 
 def get_working_copy(path=None):
     """Return a GitWorkingCopy instance for the given path, or the current
     directory if the path is not given."""
-    return GitWorkingCopy(path)
+    repo_dir = findrepo(path or os.getcwd())
+    if repo_dir:
+        return GitWorkingCopy(repo_dir)
+    else:
+        raise VersionControlError("No Git working copy found at %s" % path)
 
 def get_repository(url):
     """Return a GitRepository instance for the given url."""

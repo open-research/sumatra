@@ -157,6 +157,14 @@ class TestMercurialRepository(unittest.TestCase):
         self.assertEqual(set(repos_files), set(project_files))
         shutil.rmtree(tmpdir)
 
+    def test__can_create_project_in_subdir(self):
+        tmpdir = tempfile.mkdtemp()
+        r = MercurialRepository("file://%s" % self.repository_path)
+        r.checkout(path=tmpdir)
+        wc = get_working_copy(os.path.join(tmpdir, 'subpackage')).repository.url
+        self.assertEqual(wc, tmpdir)
+        shutil.rmtree(tmpdir)
+    
     def test__str(self):
         r = MercurialRepository("file://%s" % self.repository_path)
         str(r)
@@ -203,10 +211,15 @@ class TestGitRepository(unittest.TestCase):
         shutil.rmtree(tmpdir)
     
     def test__can_create_project_in_subdir(self):
+        """test if a sumatra project can be created in on of the
+        subdirectories of git repository"""
+
         tmpdir = tempfile.mkdtemp()
         r = GitRepository(self.repository_path)
         r.checkout(path=tmpdir)
-        wc = get_working_copy(tmpdir).repository.url
+        # get a working copy from the subdirectory
+        wc = get_working_copy(os.path.join(tmpdir, 'subpackage')).repository.url
+        # is the working copy path same as the repo path?
         self.assertEqual(wc, tmpdir)
         shutil.rmtree(tmpdir)
 
@@ -251,6 +264,14 @@ class TestSubversionRepository(unittest.TestCase):
         self.assertEqual(set(repos_files), set(project_files))
         shutil.rmtree(tmpdir)
         
+    def test__can_create_project_in_subdir(self):
+        tmpdir = tempfile.mkdtemp()
+        r = SubversionRepository("file://%s" % self.repository_path)
+        r.checkout(path=tmpdir)
+        wc = get_working_copy(os.path.join(tmpdir, 'subpackage')).repository.url
+        self.assertEqual(wc, tmpdir)
+        shutil.rmtree(tmpdir)
+   
     def test__checkout__with_nonexistent_repos__should_raise_Exception(self):
         r = SubversionRepository("file://%s" % self.repository_path)
         self.assertRaises(Exception, r.checkout, path="file:///tmp/")
