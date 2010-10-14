@@ -11,7 +11,7 @@ import shutil
 from sumatra.versioncontrol._mercurial import MercurialRepository, MercurialWorkingCopy, may_have_working_copy
 from sumatra.versioncontrol._subversion import SubversionRepository, SubversionWorkingCopy
 from sumatra.versioncontrol._git import GitRepository, GitWorkingCopy
-from sumatra.versioncontrol import get_repository
+from sumatra.versioncontrol import get_repository, get_working_copy
 
 class BaseTestWorkingCopy(object):
     
@@ -200,6 +200,14 @@ class TestGitRepository(unittest.TestCase):
         if "main.pyc" in project_files:
             project_files.remove("main.pyc")
         self.assertEqual(set(repos_files), set(project_files))
+        shutil.rmtree(tmpdir)
+    
+    def test__can_create_project_in_subdir(self):
+        tmpdir = tempfile.mkdtemp()
+        r = GitRepository(self.repository_path)
+        r.checkout(path=tmpdir)
+        wc = get_working_copy(tmpdir).repository.url
+        self.assertEqual(wc, tmpdir)
         shutil.rmtree(tmpdir)
 
     def test__str(self):

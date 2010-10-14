@@ -30,14 +30,12 @@ def may_have_working_copy(path=None):
     """Test whether there is a Git working copy at the given path."""
     check_version()
     path = path or os.getcwd()
-    if hasattr(git.repo, 'is_git_dir'): # GitPython 0.2
-        is_git_dir = git.repo.is_git_dir
-    else: # GitPython 0.3
-        is_git_dir = git.repo.fun.is_git_dir
-    if is_git_dir(os.path.join(path, ".git")):
-        return os.path.exists(os.path.join(path, ".git"))
-    else:
+    try:
+        git.Repo(path)
+    except git.exc.InvalidGitRepositoryError:
         return False
+    else:
+        return True
 
 def get_working_copy(path=None):
     """Return a GitWorkingCopy instance for the given path, or the current
