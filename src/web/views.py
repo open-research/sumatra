@@ -10,6 +10,7 @@ from sumatra.recordstore.django_store import models
 from sumatra.projects import load_project
 from sumatra.datastore import get_data_store
 import mimetypes
+mimetypes.init()
 import csv
 
 _project = load_project()

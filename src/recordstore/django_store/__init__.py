@@ -148,6 +148,7 @@ class DjangoRecordStore(RecordStore):
         return n
     
     def most_recent(self, project_name):
+        import models
         return models.Record.objects.filter(project__id=project_name).latest('timestamp').label
     
     def _dump(self, indent=2):
