@@ -25,7 +25,7 @@ from base import Repository, WorkingCopy, VersionControlError
 def findrepo(path):
     try:
         repo = git.Repo(path)
-    except git.exc.InvalidGitRepositoryError:
+    except git.errors.InvalidGitRepositoryError:
         return
     else:
         return os.path.dirname(repo.git_dir)
