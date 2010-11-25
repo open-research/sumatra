@@ -75,10 +75,12 @@ def record_detail(request, label):
     data_store = get_data_store(record.datastore.type, eval(record.datastore.parameters))
     datafiles = data_store.list_files(eval(record.data_key))
     assert isinstance(datafiles, list), type(datafiles)
-    parameter_set = record.parameters.to_sumatra()    
+    parameter_set = record.parameters.to_sumatra()
+    if parameter_set is not None:
+        parameter_set = parameter_set.as_dict()
     return render_to_response('record_detail.html', {'record': record,
                                                      'project_name': project_name,
-                                                     'parameters': parameter_set.as_dict(),
+                                                     'parameters': parameter_set,
                                                      'datafiles': datafiles,
                                                      'form': form
                                                      })

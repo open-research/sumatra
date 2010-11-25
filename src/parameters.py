@@ -61,7 +61,12 @@ class SimpleParameterSet(object):
                     self.comments[name] = comment
                 self.values[name] = eval(value)
                 self.types[name] = type(self.values[name])   
-    
+            elif line:
+                if line.strip()[0] == "#":
+                    pass
+                else:
+                    raise SyntaxError("File is not a valid simple parameter file. This line caused the error: %s" % line)
+            
     def __str__(self):
         return self.pretty()
     

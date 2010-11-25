@@ -110,6 +110,8 @@ class ParameterSet(BaseModel):
     def to_sumatra(self):
         if hasattr(parameters, self.type):
             ps = getattr(parameters, self.type)(self.content)
+        elif self.content == u'None':
+            ps = None
         else:
             ps = self.content
         return ps
