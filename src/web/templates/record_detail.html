@@ -37,7 +37,12 @@
 
 </form>
 
-<h2>Data files</h2>
+{% if record.input_data %}
+<h2>Input files</h2>
+{{record.input_data}}
+{% endif %}
+
+<h2>Output files</h2>
 <table>
   <tr><td colspan="3">{{record.datastore.access_parameters.root}}</td></tr>
 {% for file in datafiles %}
