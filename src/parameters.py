@@ -47,26 +47,32 @@ class SimpleParameterSet(object):
         self.values = {}
         self.types = {}
         self.comments = {}
-        if os.path.exists(initialiser):
-            with open(initialiser) as f:
-                content = f.readlines()
+        if isinstance(initialiser, dict):
+            for name, value in initialiser.items():
+                self.values[name] = value
+                self.types[name] = type(value)
         else:
-            content = initialiser.split("\n")
-        for line in content:
-            if "=" in line:
-                name, value = line.split("=")[:2]
-                name = name.strip()
-                if "#" in value:
-                    value, comment = value.split("#")[:2]
-                    self.comments[name] = comment
-                self.values[name] = eval(value)
-                self.types[name] = type(self.values[name])   
-            elif line:
-                if line.strip()[0] == "#":
-                    pass
-                else:
-                    raise SyntaxError("File is not a valid simple parameter file. This line caused the error: %s" % line)
-            
+            if os.path.exists(initialiser):
+                with open(initialiser) as f:
+                    content = f.readlines()
+            else:
+                content = initialiser.split("\n")
+            for line in content:
+                line = line.strip()
+                if "=" in line:
+                    name, value = line.split("=")[:2]
+                    name = name.strip()
+                    if "#" in value:
+                        value, comment = value.split("#")[:2]
+                        self.comments[name] = comment
+                    self.values[name] = eval(value)
+                    self.types[name] = type(self.values[name])   
+                elif line:
+                    if line.strip()[0] == "#":
+                        pass
+                    else:
+                        raise SyntaxError("File is not a valid simple parameter file. This line caused the error: %s" % line)
+
     def __str__(self):
         return self.pretty()
     
