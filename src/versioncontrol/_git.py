@@ -19,13 +19,18 @@ get_repository()        - return a GitRepository object for a given URL.
 import git
 import os
 import shutil
+try:
+    from git.errors import InvalidGitRepositoryError
+except:
+    from git.exc import InvalidGitRepositoryError
+
 
 from base import Repository, WorkingCopy, VersionControlError
 
 def findrepo(path):
     try:
         repo = git.Repo(path)
-    except git.errors.InvalidGitRepositoryError:
+    except InvalidGitRepositoryError:
         return
     else:
         return os.path.dirname(repo.git_dir)
