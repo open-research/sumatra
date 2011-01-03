@@ -206,10 +206,16 @@ class Project(object):
         diff = self.compare(label1, label2, ignore_mimetypes, ignore_filenames)
         formatter = get_diff_formatter()(diff)
         return formatter.format(mode)
-
     
-def load_project():
-    p = os.getcwd()
+def load_project(path=None):
+    """Read project from directory passed as the argument and return
+    Project object. If no argument is given, the project is read from
+    the current directory"""
+
+    if not path:
+        p = os.getcwd()
+    else:
+        p = path
     while not os.path.isdir(os.path.join(p, ".smt")):
         oldp, p = p, os.path.dirname(p)
         if p == oldp:
