@@ -12,6 +12,7 @@ from sumatra.datastore import get_data_store
 import mimetypes
 mimetypes.init()
 import csv
+import os
 
 _project = load_project()
 project_name = _project.name
@@ -172,7 +173,30 @@ def show_file(request, label):
                                                      'project_name': project_name,
                                                      'content': "File not found.",
                                                      'errmsg': e})
+
+def download_file(request, label):
+    label = unescape(label)
+    path = request.GET['path']
+    if 'truncate' in request.GET:
+        if request.GET['truncate'].lower() == 'false':
+            max_display_length = None
+        else:
+            max_display_length = int(request.GET['truncate'])*1024
+    else:
+        max_display_length = DEFAULT_MAX_DISPLAY_LENGTH
     
+    record = models.Record.objects.get(label=label, project__id=project_name)
+    data_store = get_data_store(record.datastore.type, eval(record.datastore.parameters))
+
+    mimetype, encoding = mimetypes.guess_type(path)
+    content = data_store.get_content(record.data_key, path)
+    
+    dir, fname = os.path.split(path) 
+    response = HttpResponse(mimetype='text/csv')
+    response['Content-Disposition'] =  'attachment; filename=%s' % fname
+    response.write(content)
+    return response 
+
 def show_image(request, label):
     label = unescape(label)
     path = request.GET['path']
