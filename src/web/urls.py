@@ -42,6 +42,7 @@ urlpatterns = patterns('',
     (r'^tag/(?P<tag>.*)/$', 'tagging.views.tagged_object_list', tagged_records),
     (r'^(?P<label>\w+[\w|\-\.]*)/$', 'sumatra.web.views.record_detail'),
     (r'^(?P<label>\w+[\w|\-\.]*)/datafile$', 'sumatra.web.views.show_file'),
+    (r'^(?P<label>\w+[\w|\-\.]*)/download$', 'sumatra.web.views.download_file'),
     (r'^(?P<label>\w+[\w|\-\.]*)/image$', 'sumatra.web.views.show_image'),
     (r'^(?P<label>\w+[\w|\-\.]*)/diff/(?P<package>[\w_]+)*$', 'sumatra.web.views.show_diff'),
 )
