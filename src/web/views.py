@@ -177,13 +177,6 @@ def show_file(request, label):
 def download_file(request, label):
     label = unescape(label)
     path = request.GET['path']
-    if 'truncate' in request.GET:
-        if request.GET['truncate'].lower() == 'false':
-            max_display_length = None
-        else:
-            max_display_length = int(request.GET['truncate'])*1024
-    else:
-        max_display_length = DEFAULT_MAX_DISPLAY_LENGTH
     
     record = models.Record.objects.get(label=label, project__id=project_name)
     data_store = get_data_store(record.datastore.type, eval(record.datastore.parameters))
