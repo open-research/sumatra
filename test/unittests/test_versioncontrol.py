@@ -179,7 +179,10 @@ class TestGitRepository(unittest.TestCase):
     
     def setUp(self):
         self.repository_path = os.path.abspath("../example_repositories/git")
-        os.symlink("%s/git" % self.repository_path, "%s/.git" % self.repository_path)
+        try:
+            os.symlink("%s/git" % self.repository_path, "%s/.git" % self.repository_path)
+        except OSError:
+            pass
         
     def tearDown(self):
         os.unlink("%s/.git" % self.repository_path)
@@ -282,7 +285,10 @@ class TestMercurialModuleFunctions(unittest.TestCase):
     
     def setUp(self):
         self.repository_path = os.path.abspath("../example_repositories/mercurial")
-        os.symlink("%s/hg" % self.repository_path, "%s/.hg" % self.repository_path)
+        try:
+            os.symlink("%s/hg" % self.repository_path, "%s/.hg" % self.repository_path)
+        except OSError:
+            pass
         self.repos = MercurialRepository("file://%s" % self.repository_path)
         self.tmpdir = tempfile.mkdtemp()
         self.repos.checkout(self.tmpdir)
@@ -309,7 +315,10 @@ class TestPackageFunctions(unittest.TestCase):
     
     def setUp(self):
         self.hg_repos_path = os.path.abspath("../example_repositories/mercurial")
-        os.symlink("%s/hg" % self.hg_repos_path, "%s/.hg" % self.hg_repos_path)
+        try:
+            os.symlink("%s/hg" % self.hg_repos_path, "%s/.hg" % self.hg_repos_path)
+        except OSError:
+            pass
         self.basepath = os.path.abspath("%s/../example_repositories/" % os.getcwd())
         
     def tearDown(self):

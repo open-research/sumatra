@@ -7,6 +7,7 @@ import unittest
 import os
 from sumatra import commands
 
+originals = [] # use for storing originals of mocked objects
 
 class MockDataStore(object):
     def __init__(self, root):
@@ -36,7 +37,6 @@ class MockProject(object):
     def format_records(self, tags, mode, format):
         self.format_args = {"tags": tags, "mode": mode, "format": format}
 
-    
 class MockExecutable(object):
     def __init__(self, path=None, script_file=None):
         self.path = path
@@ -49,17 +49,12 @@ class MockRepository(object):
 class MockWorkingCopy(object):
     repository = MockRepository("http://mock_repository")
 
-commands.get_executable = MockExecutable
-commands.get_repository = MockRepository 
-commands.get_working_copy = MockWorkingCopy
-commands.FileSystemDataStore = MockDataStore
-
 def no_project():
     raise Exception("There is no Sumatra project here")
     
 def mock_mkdir(path):
     print "Pretending to create directory %s" % path
-os.mkdir = mock_mkdir    
+    
     
 def mock_build_parameters(filename, cmdline):
     ps = type("MockParameterSet", (dict,),
@@ -67,8 +62,25 @@ def mock_build_parameters(filename, cmdline):
                "cmdline_parameters": cmdline,
                "pretty": lambda self, expand_urls: ""})
     return ps()
-commands.build_parameters = mock_build_parameters
-    
+
+def store_original(module, name):
+    global originals
+    originals.append((module, name, getattr(module, name)))
+
+def setup():
+    store_original(os, "mkdir")
+    os.mkdir = mock_mkdir
+    for name in ("build_parameters", "get_executable", "get_repository", "get_working_copy", "FileSystemDataStore"):
+        store_original(commands, name)
+    commands.build_parameters = mock_build_parameters
+    commands.get_executable = MockExecutable
+    commands.get_repository = MockRepository 
+    commands.get_working_copy = MockWorkingCopy
+    commands.FileSystemDataStore = MockDataStore
+
+def teardown():
+    for item in originals:
+        setattr(*item)
 
 class InitCommandTests(unittest.TestCase):
     
@@ -207,4 +219,7 @@ class HelpCommandTests(unittest.TestCase):
 
 
 if __name__ == '__main__':
+    setup()
     unittest.main()
+    teardown()
+

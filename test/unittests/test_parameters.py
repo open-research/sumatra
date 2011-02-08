@@ -41,7 +41,23 @@ class TestSimpleParameterSet(unittest.TestCase):
         
     def test__init__should_raise_a_TypeError_if_initializer_is_not_a_filename_or_string(self):
         self.assertRaises(TypeError, SimpleParameterSet, [])
+    
+    def test__init__should_ignore_empty_lines(self):
+        init = "x = 2\n\n\r   \ny = 3\n\n\r\t\t  \n"
+        P = SimpleParameterSet(init)
+        self.assertEqual(P["x"], 2)
+        self.assertEqual(P["y"], 3)
         
+    def test__init__should_ignore_comment_lines(self):
+        init = "#some parameters\nx = 2\n# this is a comment at column 0\n  # this is an indented comment\n  y = 3"
+        P = SimpleParameterSet(init)
+        self.assertEqual(P["x"], 2)
+        self.assertEqual(P["y"], 3)
+        
+    def test__init__should_raise_syntaxerror_if_line_doesnt_contain_param_or_comment(self):
+        init = "# some data\n1.0 2.0 3.0\n4.0 5.0 6.0"
+        self.assertRaises(SyntaxError, SimpleParameterSet, init)
+    
     def test__getitem__should_give_access_to_parameters(self):
         P = SimpleParameterSet("x = 2\ny = 3")
         self.assertEqual(P["x"], 2)

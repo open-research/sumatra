@@ -94,21 +94,23 @@ class TestProject(unittest.TestCase):
     def write_test_script(self, filename):
         with open(filename, "w") as f:
             f.write("a=2\n")
+    write_test_script.__test__ = False # stop nose treating this as a test
     
     def test__init__with_minimal_arguments(self):
-        proj = Project("test_project")
+        proj = Project("test_project", record_store=MockRecordStore())
         
     def test__creating_a_second_project_in_the_same_dir_should_raise_an_exception(self):
-        proj1 = Project("test_project1")
+        proj1 = Project("test_project1", record_store=MockRecordStore())
         self.assertRaises(Exception,Project, "test_project2")
 
     def test__info(self):
-        proj = Project("test_project")
+        proj = Project("test_project", record_store=MockRecordStore())
         proj.info()
         
     def test_new_record_with_minimal_args_should_set_defaults(self):
         self.write_test_script("test.py")
         proj = Project("test_project",
+                       record_store=MockRecordStore(),
                        default_main_file="test.py",
                        default_executable=MockExecutable(),
                        default_launch_mode=MockLaunchMode(),
@@ -119,6 +121,7 @@ class TestProject(unittest.TestCase):
 
     def test__update_code(self):
         proj = Project("test_project",
+                       record_store=MockRecordStore(),
                        default_repository=MockRepository())
         wc = proj.default_repository.working_copy
         proj.update_code(wc, version=9369835)
@@ -189,7 +192,7 @@ class TestModuleFunctions(unittest.TestCase):
             os.rmdir("Data")
     
     def test__load_project__should_return_Project(self):
-        proj1 = Project("test_project")
+        proj1 = Project("test_project", record_store=MockRecordStore())
         proj2 = load_project()
         self.assertEqual(proj1.name, proj2.name)
 

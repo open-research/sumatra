@@ -4,29 +4,49 @@ Unit tests for the sumatra.web module
 
 import unittest
 import os
+from pprint import pprint
 
 import sumatra.web
 from django.core.exceptions import ObjectDoesNotExist
-from django.conf import settings
 from django.core import management
 from django.core.urlresolvers import reverse
-
 from sumatra.recordstore.django_store import DjangoRecordStore
-store = DjangoRecordStore(db_file="test_web.db")
 
-settings.ROOT_URLCONF = 'sumatra.web.urls'
-settings.INSTALLED_APPS = list(settings.INSTALLED_APPS) + ['sumatra.web']
-management.setup_environ(settings)
-
-from django.test.client import Client
-from django.test.utils import setup_test_environment
-from test_recordstore import MockRecord
+from test_recordstore import MockRecord, setup as recordstore_setup, teardown as recordstore_teardown
 import sumatra.projects
+
+def setup():
+    global store, orig_load_project, Client
+    import django.conf
+    settings = django.conf.settings
+    store = DjangoRecordStore(db_file="test.db")
+    settings.ROOT_URLCONF = 'sumatra.web.urls'
+    settings.INSTALLED_APPS = list(settings.INSTALLED_APPS) + ['sumatra.web']
+    management.setup_environ(settings)
+    import django.test.client
+    Client = django.test.client.Client
+    import django.test.utils
+    django.test.utils.setup_test_environment()
+    
+    recordstore_setup()
+    orig_load_project = sumatra.projects.load_project
+    sumatra.projects.load_project = lambda: MockProject()
+
+def clean_up():
+    if os.path.exists("test.db"):
+        os.remove("test.db")    
+
+def teardown():
+    recordstore_teardown()
+    sumatra.projects.load_project = orig_load_project
+    clean_up()
+
 
 class MockProject(object):
     name = "TestProject"
 
 def add_some_records():
+    global store
     r1 = MockRecord("record1")
     r2 = MockRecord("record2")
     r3 = MockRecord("record3")
@@ -40,13 +60,6 @@ class MockDataStore(object):
             raise IOError()
         else:
             return ""
-
-
-sumatra.projects.load_project = lambda: MockProject()
-
-setup_test_environment()
-
-from pprint import pprint
 
 
 class TestWebInterface(unittest.TestCase):
@@ -116,4 +129,6 @@ class TestWebInterface(unittest.TestCase):
 
 
 if __name__ == '__main__':
+    setup()
     unittest.main()
+    teardown()

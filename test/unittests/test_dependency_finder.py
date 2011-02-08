@@ -159,12 +159,22 @@ class TestNEURONDependency(unittest.TestCase):
         
     def test__init__with_nonexistent_path(self):
         self.assertRaises(IOError, df.neuron.Dependency, "foo.hoc")
-       
-if __name__ == '__main__':
+
+def setup():
+    global tmpdir
     tmpdir = tempfile.mkdtemp()
     shutil.rmtree(tmpdir)
     shutil.copytree(os.path.join(os.path.pardir, "example_projects"), tmpdir)
     print os.listdir(tmpdir)
-    unittest.main()
+
+def teardown():
+    global tmpdir
     print "removing tmpdir"
-    shutil.rmtree(tmpdir) # this never gets called. Perhaps use atexit, or do this on a class-by-class basis and use __del__
+    shutil.rmtree(tmpdir) # this only gets called when running with nose. Perhaps use atexit, or do this on a class-by-class basis and use __del__
+
+
+if __name__ == '__main__':
+    setup()
+    unittest.main()
+    teardown()
+    

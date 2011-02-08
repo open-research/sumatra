@@ -21,11 +21,11 @@ class TestPlatformInformation(unittest.TestCase):
 
 class BaseTestLaunchMode(object):
     
-    def write_valid_test_script(self):
+    def write_valid_script(self):
         with open("valid_test_script.py", "w") as f:
             f.write("a = 2\n")
         
-    def write_invalid_test_script(self):
+    def write_invalid_script(self):
         with open("invalid_test_script.py", "w") as f:
             f.write("@@@\n")
                   
@@ -34,13 +34,13 @@ class BaseTestLaunchMode(object):
             f.write("b = 3\n")
 
     def test__run__should_return_True_if_the_command_completed_successfully(self):
-        self.write_valid_test_script()
+        self.write_valid_script()
         self.write_parameter_file()
         prog = MockExecutable(sys.executable)
         self.assertEqual(True, self.lm.run(prog, "valid_test_script.py", "test_parameters"))
 
     def test__run__should_raise_an_Exception_if_the_executable_does_not_exist(self):
-        self.write_valid_test_script()
+        self.write_valid_script()
         self.write_parameter_file()
         prog = MockExecutable("/this/path/does/not/exist")
         self.assertRaises(IOError, self.lm.run, prog, "valid_test_script.py", "test_parameters")
@@ -52,11 +52,11 @@ class BaseTestLaunchMode(object):
         
     def test__run__should_accept_None_for_the_parameter_file(self):
         prog = MockExecutable(sys.executable)
-        self.write_valid_test_script()
+        self.write_valid_script()
         self.lm.run(prog, "valid_test_script.py", None)
     
     def test__run__should_return_False_if_the_command_failed(self):
-        self.write_invalid_test_script()
+        self.write_invalid_script()
         self.write_parameter_file()
         prog = MockExecutable(sys.executable)
         self.assertEqual(False, self.lm.run(prog, "invalid_test_script.py", "test_parameters"))

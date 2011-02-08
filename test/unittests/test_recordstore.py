@@ -7,6 +7,7 @@ import os
 import sys
 from datetime import datetime
 from django.core import management
+
 from sumatra.records import Record
 from sumatra.programs import register_executable, Executable
 from sumatra.recordstore import shelve_store, django_store, http_store
@@ -20,6 +21,7 @@ except ImportError:
     import simplejson as json
 import urlparse
     
+originals = []
 
 class MockExecutable(Executable):
     name = "a.out"
@@ -41,7 +43,6 @@ class MockLaunchMode(object):
     type = "SerialLaunchMode"
     def get_state(self):
         return {}
-sumatra.launch.MockLaunchMode = MockLaunchMode
 
 class MockDataStore(object):
     type = "FileSystemDataStore"
@@ -51,7 +52,6 @@ class MockDataStore(object):
         return {'root': "/tmp"}
     def copy(self):
         return self
-sumatra.datastore.MockDataStore = MockDataStore
 
 class MockDependency(object):
     name = "some_module"
@@ -76,7 +76,6 @@ class MockParameterSet(object):
         pass
     def as_dict(self):
         return {}
-sumatra.parameters.MockParameterSet = MockParameterSet
 
 class MockRecord(object):
     
@@ -104,6 +103,21 @@ class MockRecord(object):
 
 class MockProject(object):
     name = "TestProject"
+
+def clean_up():
+    if os.path.exists("test_record_store.db"):
+        os.remove("test_record_store.db")
+
+def setup():
+    clean_up()
+    sumatra.launch.MockLaunchMode = MockLaunchMode
+    sumatra.datastore.MockDataStore = MockDataStore
+    sumatra.parameters.MockParameterSet = MockParameterSet
+
+def teardown():
+    del sumatra.launch.MockLaunchMode
+    del sumatra.datastore.MockDataStore
+    del sumatra.parameters.MockParameterSet
 
 
 class BaseTestRecordStore(object):
@@ -204,7 +218,7 @@ class TestShelveRecordStore(unittest.TestCase, BaseTestRecordStore):
 class TestDjangoRecordStore(unittest.TestCase, BaseTestRecordStore):
     
     def setUp(self):
-        self.store = django_store.DjangoRecordStore(db_file="test_record_store.db")
+        self.store = django_store.DjangoRecordStore(db_file="test.db")
         self.project = MockProject()
 
     def tearDown(self):
@@ -334,10 +348,7 @@ class TestHttpRecordStore(unittest.TestCase, BaseTestRecordStore):
         unpickled = pickle.loads(s)
 
 
-def clean_up():
-    if os.path.exists("test_record_store.db"):
-        os.remove("test_record_store.db")
-
 if __name__ == '__main__':
-    clean_up()
+    setup()
     unittest.main()
+    teardown()
