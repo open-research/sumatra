@@ -29,7 +29,7 @@ class Record(object):
     """
     
     def __init__(self, executable, repository, main_file, version, launch_mode,
-                 datastore, parameters=None, input_data=[], script_arguments="", 
+                 datastore, parameters={}, input_data=[], script_arguments="",
                  label=None, reason=None, diff='', user='', on_changed='error'):
         self.timestamp = datetime.now() # might need to allow for this to be set as argument to allow for distributed/batch simulations on machines with out-of-sync clocks
         self.label = label or self.timestamp.strftime("%Y%m%d-%H%M%S")

@@ -7,7 +7,7 @@ SQLite.
 
 
 from sumatra.recordstore import RecordStore
-from django.conf import settings
+import django.conf as django_conf
 from django.core import management
 import os
 import imp
@@ -18,16 +18,16 @@ imp.find_module("tagging")
 
 recordstore_settings = {
     'DEBUG': True,
-    'DATABASE_ENGINE': 'sqlite3',
+    'DATABASE_ENGINE': 'django.db.backends.sqlite3',
     'INSTALLED_APPS': ('sumatra.recordstore.django_store',
                        'django.contrib.contenttypes', # needed for tagging
                        'tagging'),
 }
 
-
 class DjangoRecordStore(RecordStore):
     
     def __init__(self, db_file='.smt/smt.db'):
+        settings = django_conf.settings
         self._db_file = os.path.abspath(db_file)
         recordstore_settings['DATABASE_NAME'] = self._db_file
         if not settings.configured:
@@ -51,6 +51,7 @@ class DjangoRecordStore(RecordStore):
     
     def _switch_db(self, db_file):
         # for testing
+        settings = django_conf.settings
         settings._wrapped = None
         assert settings.configured == False
         if db_file:

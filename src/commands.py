@@ -237,7 +237,7 @@ def run(argv):
     (options, args) = parser.parse_args(argv)
     parameters, input_data, script_args = parse_arguments(args)
     if len(parameters) == 0:
-        parameters = None
+        parameters = {}
     elif len(parameters) == 1:
         parameters = parameters[0]
     else:
@@ -403,7 +403,9 @@ def repeat(argv):
     if hasattr(tmp.parameters, '_url'): # for some reason, _url is not copied.
         original.parameters._url = tmp.parameters._url # this is a hackish solution - needs fixed properly
     original.repository.checkout() # should do nothing if there is already a checkout
-    new_label = project.launch(original.parameters,
+    new_label = project.launch(parameters=original.parameters,
+                               input_data=original.input_data,
+                               script_args=original.script_arguments,
                                executable=original.executable,
                                main_file=original.main_file,
                                repository=original.repository,
@@ -414,7 +416,7 @@ def repeat(argv):
     diff = project.compare(original.label, new_label)
     if diff:
         formatter = get_diff_formatter()(diff)
-        msg = ["The new record does not matches the original. It differs as follows.",
+        msg = ["The new record does not match the original. It differs as follows.",
                formatter.format('short'),
                "run smt diff --long %s %s to see the differences in detail." % (original.label, new_label)]
         msg = "\n".join(msg)

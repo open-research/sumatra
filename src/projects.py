@@ -93,7 +93,7 @@ class Project(object):
         """
         return _remove_left_margin(template % self.__dict__)
     
-    def new_record(self, parameters=None, input_data=[], script_args="",
+    def new_record(self, parameters={}, input_data=[], script_args="",
                    executable='default', repository='default',
                    main_file='default', version='latest', launch_mode='default',
                    label=None, reason=None):
@@ -113,7 +113,7 @@ class Project(object):
         record.register()
         return record
     
-    def launch(self, parameters=None, input_data=[], script_args="",
+    def launch(self, parameters={}, input_data=[], script_args="",
                executable='default', repository='default', main_file='default',
                version='latest', launch_mode='default', label=None, reason=None):
         """Launch a new simulation or analysis."""
