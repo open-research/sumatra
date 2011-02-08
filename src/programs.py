@@ -91,6 +91,7 @@ class NEURONSimulator(Executable):
     name = "NEURON"
     default_executable_name = "nrniv"
     mpi_options = "-mpi"
+    pre_run = "nrnivmodl"
 
 
 class PythonExecutable(Executable):

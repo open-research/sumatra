@@ -16,6 +16,7 @@ import subprocess
 import os
 from sumatra.programs import Executable
 import warnings
+import cmd
 
 class PlatformInformation(object):
     """
@@ -63,8 +64,10 @@ class LaunchMode(object):
     
     def pre_run(self, executable):
         """Run tasks before the simulation/analysis proper.""" # e.g. nrnivmodl
-        #should get the tasks to run from the Executable 
-        pass
+        # this implementation is a temporary hack. "pre_run" should probably be an Executable instance, not a string
+        if hasattr(executable, "pre_run"):
+            p = subprocess.Popen(executable.pre_run, shell=True, stdout=None, stderr=None, close_fds=True)
+            result = p.wait()
 
     def generate_command(self, paths):
         """Return a string containing the command to be launched."""
