@@ -11,6 +11,7 @@ import shutil
 from sumatra.versioncontrol._mercurial import MercurialRepository, MercurialWorkingCopy, may_have_working_copy
 from sumatra.versioncontrol._subversion import SubversionRepository, SubversionWorkingCopy
 from sumatra.versioncontrol._git import GitRepository, GitWorkingCopy
+from sumatra.versioncontrol._bazaar import BazaarRepository, BazaarWorkingCopy
 from sumatra.versioncontrol import get_repository, get_working_copy
 
 class BaseTestWorkingCopy(object):
@@ -120,105 +121,54 @@ class TestSubversionWorkingCopy(unittest.TestCase, BaseTestWorkingCopy):
         self.assertEqual(self.wc.status()['modified'], [])
         self.change_file()
         self.assertEqual(os.path.basename(self.wc.status()['modified'][0]), 'romans.param')
-        
 
-class TestMercurialRepository(unittest.TestCase):
+
+class TestBazaarWorkingCopy(unittest.TestCase, BaseTestWorkingCopy):
     
     def setUp(self):
-        self.repository_path = os.path.abspath("../example_repositories/mercurial")
-        os.symlink("%s/hg" % self.repository_path, "%s/.hg" % self.repository_path)
+        self.repository_path = os.path.abspath("../example_repositories/bazaar")
+        os.symlink("%s/bzr" % self.repository_path, "%s/.bzr" % self.repository_path)
+        self.repos = BazaarRepository(self.repository_path)
+        self.tmpdir = tempfile.mkdtemp()
+        self.repos.checkout(self.tmpdir)
+        self.wc = BazaarWorkingCopy(self.tmpdir)
+        self.latest_version = "4"
+        self.previous_version = "1"
         
     def tearDown(self):
-        os.unlink("%s/.hg" % self.repository_path)
-        
-    def test__init(self):
-        r = MercurialRepository("file://%s" % self.repository_path)
-        self.assertEqual(r._repository.url(), "file:%s" % self.repository_path)
+        os.unlink("%s/.bzr" % self.repository_path)
+        shutil.rmtree(self.tmpdir)
 
-    def test__init__with_nonexistent_repos__should_raise_Exception(self):
-        self.assertRaises(Exception, MercurialRepository, "file:///tmp/")
 
+class BaseTestRepository(object):
+    
     def test__pickling(self):
-        r = MercurialRepository("file://%s" % self.repository_path)
+        r = self._create_repository()
         dump = pickle.dumps(r)
         r2 = pickle.loads(dump)
         self.assertEqual(r.url, r2.url)
         self.assertEqual(r.working_copy, r2.working_copy)
-        
-    def test__checkout_of_remote_repos(self):
-        tmpdir = tempfile.mkdtemp()
-        r = MercurialRepository("file://%s" % self.repository_path)
-        r.checkout(path=tmpdir)
-        repos_files = os.listdir(tmpdir)
-        repos_files.remove(".hg")
-        project_files = os.listdir("../example_projects/python")
-        if "main.pyc" in project_files:
-            project_files.remove("main.pyc")
-        self.assertEqual(set(repos_files), set(project_files))
-        shutil.rmtree(tmpdir)
-
-    def test__can_create_project_in_subdir(self):
-        tmpdir = tempfile.mkdtemp()
-        r = MercurialRepository("file://%s" % self.repository_path)
-        r.checkout(path=tmpdir)
-        wc = get_working_copy(os.path.join(tmpdir, 'subpackage')).repository.url
-        self.assertEqual(wc, tmpdir)
-        shutil.rmtree(tmpdir)
     
-    def test__str(self):
-        r = MercurialRepository("file://%s" % self.repository_path)
-        str(r)
-        
-    def test__eq(self):
-        r1 = MercurialRepository("file://%s" % self.repository_path)
-        r2 = MercurialRepository("file://%s" % self.repository_path)
-        self.assertEqual(r1, r2)
-
-
-class TestGitRepository(unittest.TestCase):
-    
-    def setUp(self):
-        self.repository_path = os.path.abspath("../example_repositories/git")
-        try:
-            os.symlink("%s/git" % self.repository_path, "%s/.git" % self.repository_path)
-        except OSError:
-            pass
-        
-    def tearDown(self):
-        os.unlink("%s/.git" % self.repository_path)
-        
     def test__init(self):
-        r = GitRepository(self.repository_path)
+        r = self._create_repository()
         self.assertEqual(r.url, self.repository_path)
 
-    def test__init__with_nonexistent_repos__should_raise_Exception(self):
-        self.assertRaises(Exception, GitRepository, "/tmp/")
-
-    def test__pickling(self):
-        r = GitRepository(self.repository_path)
-        dump = pickle.dumps(r)
-        r2 = pickle.loads(dump)
-        self.assertEqual(r.url, r2.url)
-        self.assertEqual(r.working_copy, r2.working_copy)
-        
     def test__checkout_of_remote_repos(self):
         tmpdir = tempfile.mkdtemp()
-        r = GitRepository(self.repository_path)
+        r = self._create_repository()
         r.checkout(path=tmpdir)
         repos_files = os.listdir(tmpdir)
-        repos_files.remove(".git")
+        repos_files.remove(self.special_dir)
         project_files = os.listdir("../example_projects/python")
         if "main.pyc" in project_files:
             project_files.remove("main.pyc")
         self.assertEqual(set(repos_files), set(project_files))
         shutil.rmtree(tmpdir)
-    
-    def test__can_create_project_in_subdir(self):
-        """test if a sumatra project can be created in on of the
-        subdirectories of git repository"""
 
+    def test__can_create_project_in_subdir(self):
+        #Test if a Sumatra project can be created in one of the subdirectories of a repository
         tmpdir = tempfile.mkdtemp()
-        r = GitRepository(self.repository_path)
+        r = self._create_repository()
         r.checkout(path=tmpdir)
         # get a working copy from the subdirectory
         wc = get_working_copy(os.path.join(tmpdir, 'subpackage')).repository.url
@@ -227,58 +177,108 @@ class TestGitRepository(unittest.TestCase):
         shutil.rmtree(tmpdir)
 
     def test__str(self):
-        r = GitRepository(self.repository_path)
+        r = self._create_repository()
         str(r)
-        
-    def test__eq(self):
-        r1 = GitRepository(self.repository_path)
-        r2 = GitRepository(self.repository_path)
-        self.assertEqual(r1, r2)
-        
 
-class TestSubversionRepository(unittest.TestCase):
+    def test__eq(self):
+        r1 = self._create_repository()
+        r2 = self._create_repository()
+        self.assertEqual(r1, r2)
+
+class TestMercurialRepository(unittest.TestCase, BaseTestRepository):
+    
+    def setUp(self):
+        self.repository_path = os.path.abspath("../example_repositories/mercurial")
+        os.symlink("%s/hg" % self.repository_path, "%s/.hg" % self.repository_path)
+        self.special_dir = ".hg"
+        
+    def tearDown(self):
+        os.unlink("%s/.hg" % self.repository_path)
+    
+    def _create_repository(self):
+        return MercurialRepository("file://%s" % self.repository_path)
+        
+    def test__init(self):
+        r = self._create_repository()
+        self.assertEqual(r._repository.url(), "file:%s" % self.repository_path)
+
+    def test__init__with_nonexistent_repos__should_raise_Exception(self):
+        self.assertRaises(Exception, MercurialRepository, "file:///tmp/")
+    
+
+class TestGitRepository(unittest.TestCase, BaseTestRepository):
+    
+    def setUp(self):
+        self.repository_path = os.path.abspath("../example_repositories/git")
+        try:
+            os.symlink("%s/git" % self.repository_path, "%s/.git" % self.repository_path)
+        except OSError:
+            pass
+        self.special_dir = ".git"
+        
+    def tearDown(self):
+        os.unlink("%s/.git" % self.repository_path)
+    
+    def _create_repository(self):
+        return GitRepository(self.repository_path)
+
+    def test__init__with_nonexistent_repos__should_raise_Exception(self):
+        self.assertRaises(Exception, GitRepository, "/tmp/")
+
+
+class TestSubversionRepository(unittest.TestCase, BaseTestRepository):
     
     def setUp(self):
         self.repository_path = os.path.abspath("../example_repositories/subversion")
+        self.special_dir = ".svn"
+        
+    def _create_repository(self):
+        return SubversionRepository("file://%s" % self.repository_path)
     
     def test__init(self):
-        r = SubversionRepository("file://%s" % self.repository_path)
+        r = self._create_repository()
         assert hasattr(r._client, "checkout")
         
     def test__init__with_nonexistent_repos__should_raise_Exception(self):
         self.assertRaises(Exception, SubversionRepository, "file:///tmp/")
+   
+    def test__checkout__with_nonexistent_repos__should_raise_Exception(self):
+        r = self._create_repository()
+        self.assertRaises(Exception, r.checkout, path="file:///tmp/")
+        shutil.rmtree("file:") # this is not quite what's supposed to happen
 
-    def test__pickling(self):
-        r = SubversionRepository("file://%s" % self.repository_path)
-        dump = pickle.dumps(r)
-        r2 = pickle.loads(dump)
-        self.assertEqual(r.url, r2.url)
-        self.assertEqual(r.working_copy, r2.working_copy)
+
+class TestBazaarRepository(unittest.TestCase, BaseTestRepository):
+    
+    def setUp(self):
+        self.repository_path = os.path.abspath("../example_repositories/bazaar")
+        try:
+            os.symlink("%s/bzr" % self.repository_path, "%s/.bzr" % self.repository_path)
+        except OSError:
+            pass
+        self.special_dir = ".bzr"
         
+    def tearDown(self):
+        os.unlink("%s/.bzr" % self.repository_path)
+    
+    def _create_repository(self):
+        return BazaarRepository(self.repository_path)
+
+    def test__init__with_nonexistent_repos__should_raise_Exception(self):
+        self.assertRaises(Exception, BazaarRepository, "/tmp/")
+
     def test__checkout_of_remote_repos(self):
         tmpdir = tempfile.mkdtemp()
-        r = SubversionRepository("file://%s" % self.repository_path)
+        r = self._create_repository()
         r.checkout(path=tmpdir)
         repos_files = os.listdir(tmpdir)
-        repos_files.remove(".svn")
+        repos_files.remove(self.special_dir)
         project_files = os.listdir("../example_projects/python")
+        project_files.remove('EGG-INFO')
         if "main.pyc" in project_files:
             project_files.remove("main.pyc")
         self.assertEqual(set(repos_files), set(project_files))
         shutil.rmtree(tmpdir)
-        
-    def test__can_create_project_in_subdir(self):
-        tmpdir = tempfile.mkdtemp()
-        r = SubversionRepository("file://%s" % self.repository_path)
-        r.checkout(path=tmpdir)
-        wc = get_working_copy(os.path.join(tmpdir, 'subpackage')).repository.url
-        self.assertEqual(wc, tmpdir)
-        shutil.rmtree(tmpdir)
-   
-    def test__checkout__with_nonexistent_repos__should_raise_Exception(self):
-        r = SubversionRepository("file://%s" % self.repository_path)
-        self.assertRaises(Exception, r.checkout, path="file:///tmp/")
-        shutil.rmtree("file:") # this is not quite what's supposed to happen
 
 
 class TestMercurialModuleFunctions(unittest.TestCase):

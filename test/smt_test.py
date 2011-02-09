@@ -55,6 +55,7 @@ def create_subversion_repos(repos_dir):
     run("svn commit -m 'Creating example project'")
 
 def copy_example_project(working_dir):
+    print "Copying example project to", working_dir
     for file in os.listdir("example_projects/python"):
         if os.path.isfile("example_projects/python/"+file):
             shutil.copy("example_projects/python/"+file, working_dir)
@@ -110,12 +111,14 @@ def create_temporary_directories():
     return working_dir, repos_dir
 
 def run_test(repos, plugins, working_dir, repos_dir):
+    print "*"*60
+    print "Running tests with %s and plugins: %s" % (repos, plugins)
+    print "*"*60 + "\n"
     cwd = os.getcwd()
     
     copy_example_project(working_dir)
     os.chdir(working_dir)
-    
-    repos_dir = os.path.realpath(tempfile.mkdtemp())
+
     exec("create_%s_repos('%s')" % (repos, repos_dir))
 
     getting_started(plugins)

@@ -12,6 +12,8 @@ base        - defines the base WorkingCopy and Repository classes
 _mercurial  - defines MercurialWorkingCopy and MercurialRepository classes
 _subversion - defines SubversionWorkingCopy and SubversionRepository classes
 _git        - defines GitWorkingCopy and GitRepository classes
+_bazaar     - defines BazaarWorkingCopy and BazaarRepository classes
+
 Exceptions
 ----------
 
@@ -37,11 +39,11 @@ class UncommittedModificationsError(Exception):
 
 vcs_list = []
 
-for vcs in ['mercurial', 'subversion', 'git']:
+for vcs in ['mercurial', 'subversion', 'git', 'bazaar']:
     try:
         __import__('sumatra.versioncontrol._%s' % vcs)
         vcs_list.append(sys.modules['sumatra.versioncontrol._%s' % vcs])
-    except ImportError:
+    except ImportError, err:
         pass
     
     
@@ -51,7 +53,7 @@ def get_working_copy(path=None):
         for vcs in vcs_list:
             if vcs.may_have_working_copy(path):
                 return vcs.get_working_copy(path)
-        raise VersionControlError("No working copy found at %s" % path) # add some diagnostic information
+        raise VersionControlError("No working copy found at %s. Tried %s." % (path, ", ".join(vcs.__name__ for vcs in vcs_list))) # add some diagnostic information
     else:
         raise VersionControlError("No version control systems found.")
             
