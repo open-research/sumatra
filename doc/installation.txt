@@ -43,16 +43,18 @@ your package management system, otherwise it can be installed from PyPI::
 Installing Python bindings for your version control system
 ----------------------------------------------------------
 
-Sumatra currently supports Mercurial_,  Subversion_ and Git_. If you are using Subversion,
-you will need to install the `pysvn bindings`_.
-Since Mercurial is mostly written in Python, just installing the main Mercurial
-package is sufficient. For Git, you need to install the GitPython_ library.
+Sumatra currently supports Mercurial_, Subversion_, Git_ and Bazaar_.
+If you are using Subversion, you will need to install the `pysvn bindings`_.
+Since Mercurial and Bazaar are mostly written in Python, just installing the
+main Mercurial/Bazaar package is sufficient. For Git, you need to install the
+GitPython_ library.
 
 
 .. _Django: http://www.djangoproject.com
 .. _Mercurial: http://www.selenic.com/mercurial/
 .. _Subversion: http://subversion.tigris.org/
 .. _Git: http://git-scm.com/
+.. _Bazaar: http://bazaar.canonical.com/
 .. _`Python Package Index`: http://pypi.python.org/pypi/Sumatra/
 .. _`INCF Software Centre`: http://software.incf.org/software/sumatra/download
 .. _`django-tagging`: http://pypi.python.org/pypi/django-tagging/

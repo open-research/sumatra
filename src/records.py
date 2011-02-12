@@ -103,11 +103,19 @@ class Record(object):
             os.remove(parameter_file)
         self.data_key = self.datastore.find_new_files(self.timestamp)
         print "Data key is", self.data_key
-        
+    
+    def __repr__(self):
+        return "Record #%s" % self.label
     
     def describe(self, format='text', mode='long'):
         formatter = get_formatter(format)([self])
         return formatter.format(mode)
+    
+    def __ne__(self, other):
+        return bool(self.difference(other))
+    
+    def __eq__(self, other):
+        return not self.__ne__(other)
     
     def difference(self, other_record, ignore_mimetypes=[], ignore_filenames=[]):
         """
@@ -135,7 +143,6 @@ class RecordDifference(object):
     def __init__(self, recordA, recordB,
                  ignore_mimetypes=[],
                  ignore_filenames=[]):
-        assert recordA.label != recordB.label
         self.recordA = recordA
         self.recordB = recordB
         assert not isinstance(ignore_mimetypes, basestring) # catch a 
@@ -168,6 +175,18 @@ class RecordDifference(object):
         return reduce(or_, (self.executable_differs, self.code_differs,
                             self.parameters_differ, self.data_differs))
     
+    def __repr__(self):
+        s = "RecordDifference(%s, %s):" % (self.recordA.label, self.recordB.label)
+        if self.executable_differs:
+            s += 'X'
+        if self.code_differs:
+            s += 'C'
+        if self.parameters_differ:
+            s += 'P'
+        if self.data_differs:
+            s += 'D'
+        return s
+    
     @property
     def code_differs(self):
         return reduce(or_, (self.repository_differs, self.main_file_differs,
@@ -176,12 +195,7 @@ class RecordDifference(object):
     
     @property
     def dependencies_differ(self):
-        if len(self.recordA.dependencies) != len(self.recordB.dependencies):
-            return True
-        for depA,depB in zip(self.recordA.dependencies, self.recordB.dependencies):
-            if depA != depB:
-                return True
-        return False
+        return set(self.recordA.dependencies) != set(self.recordB.dependencies)
     
     @property
     def dependency_differences(self):

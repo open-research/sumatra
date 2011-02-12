@@ -113,7 +113,7 @@ class ParameterSet(BaseModel):
         elif self.content == u'None':
             ps = None
         else:
-            ps = parameters.SimpleParameterSet(self.content)
+            ps = self.content
         return ps
 
 

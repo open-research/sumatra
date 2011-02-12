@@ -18,13 +18,16 @@ class ShelveRecordStore(RecordStore):
         self.shelf.close()
         
     def __str__(self):
-        return "shelve"
+        return "Record store using the shelve package (database file=%s)" % self._shelf_name
         
     def __getstate__(self):
         return self._shelf_name
     
     def __setstate__(self, state):
         self.__init__(state)
+
+    def list_projects(self):
+        return self.shelf.keys()
 
     def save(self, project_name, record):
         if self.shelf.has_key(project_name):
@@ -48,6 +51,9 @@ class ShelveRecordStore(RecordStore):
         else:
             records = self.shelf[project_name].values()
         return records
+    
+    def labels(self, project_name):
+        return self.shelf[project_name].keys()
     
     def delete(self, project_name, label):
         records = self.shelf[project_name]

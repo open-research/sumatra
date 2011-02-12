@@ -26,7 +26,7 @@ recordstore_settings = {
 
 class DjangoRecordStore(RecordStore):
     
-    def __init__(self, db_file='.smt/smt.db'):
+    def __init__(self, db_file='.smt/records'):
         settings = django_conf.settings
         self._db_file = os.path.abspath(db_file)
         recordstore_settings['DATABASE_NAME'] = self._db_file
@@ -82,6 +82,10 @@ class DjangoRecordStore(RecordStore):
             db_obj.save()
         return db_obj        
     
+    def list_projects(self):
+        import models
+        return [project.id for project in models.Project.objects.all()]
+    
     def save(self, project_name, record):
         db_record = self._get_db_record(project_name, record)
         for attr in 'reason', 'duration', 'outcome', 'main_file', 'version', 'timestamp':
@@ -134,6 +138,10 @@ class DjangoRecordStore(RecordStore):
             for tag in tags:
                 db_records = db_records.filter(tags__contains=tag)
         return [db_record.to_sumatra() for db_record in db_records]
+    
+    def labels(self, project_name):
+        import models
+        return [record.label for record in models.Record.objects.filter(project__id=project_name)]
     
     def delete(self, project_name, label):
         import models

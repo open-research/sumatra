@@ -116,6 +116,8 @@ def run_test(repos, plugins, working_dir, repos_dir):
     print "*"*60 + "\n"
     cwd = os.getcwd()
     
+    if not os.path.exists(working_dir):
+        os.mkdir(working_dir)
     copy_example_project(working_dir)
     os.chdir(working_dir)
 
@@ -136,5 +138,6 @@ def main():
             shutil.rmtree(repos_dir)
             
 if __name__ == "__main__":
-    #run_test('mercurial', None, "/Users/andrew/tmp/SumatraTest", "/Users/andrew/tmp/smt_example_repos")
+    #run_test('mercurial', None, "/Users/andrew/tmp/SumatraTestDj", "/Users/andrew/tmp/smt_example_repos")
+    #run_test('mercurial', "sumatra.recordstore.shelve_store", "/Users/andrew/tmp/SumatraTest", "/Users/andrew/tmp/smt_example_repos")
     main()
