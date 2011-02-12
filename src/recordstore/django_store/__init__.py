@@ -44,10 +44,10 @@ class DjangoRecordStore(RecordStore):
         return "Relational database record store using the Django ORM (database file=%s)" % self._db_file
         
     def __getstate__(self):
-        return self._db_file
+        return {'db_file': self._db_file}
     
     def __setstate__(self, state):
-        self.__init__(state)
+        self.__init__(**state)
     
     def _switch_db(self, db_file):
         # for testing

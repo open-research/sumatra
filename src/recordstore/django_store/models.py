@@ -26,7 +26,7 @@ class SumatraObjectsManager(models.Manager):
                 attributes[name] = getattr(obj, name)
             except AttributeError:
                 if name == 'parameters':
-                    attributes[name] = str(obj.get_state())
+                    attributes[name] = str(obj.__getstate__())
                 elif name == 'type':
                     attributes[name] = obj.__class__.__name__
                 elif name == 'content':
