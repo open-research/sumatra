@@ -21,10 +21,10 @@ class ShelveRecordStore(RecordStore):
         return "Record store using the shelve package (database file=%s)" % self._shelf_name
         
     def __getstate__(self):
-        return self._shelf_name
+        return {'shelf_name': self._shelf_name}
     
     def __setstate__(self, state):
-        self.__init__(state)
+        self.__init__(**state)
 
     def list_projects(self):
         return self.shelf.keys()

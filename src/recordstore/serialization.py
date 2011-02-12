@@ -36,11 +36,11 @@ def encode_record(record, indent=None):
         "script_arguments": record.script_arguments, # added in 0.3
         "launch_mode": {
             "type": record.launch_mode.__class__.__name__, 
-            "parameters": str(record.launch_mode.get_state()),
+            "parameters": str(record.launch_mode.__getstate__()),
         },
         "datastore": {
             "type": record.datastore.__class__.__name__,
-            "parameters": str(record.datastore.get_state()),
+            "parameters": str(record.datastore.__getstate__()),
         },
         "outcome": record.outcome or "",
         "data_key": str(record.data_key),

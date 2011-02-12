@@ -68,12 +68,11 @@ class GitWorkingCopy(WorkingCopy):
     An object which allows various operations on a Git working copy.
     """
 
-    def __init__(self, path=None, repository=None):
+    def __init__(self, path=None):
         check_version()
         WorkingCopy.__init__(self)
         self.path = path or os.getcwd()
-        self.repository = repository or GitRepository(self.path)
-        self.repository.working_copy = self
+        self.repository = GitRepository(self.path)
 
     def current_version(self):
         head = self.repository._repository.head
@@ -111,13 +110,13 @@ def move_contents(src, dst):
             shutil.copy2(src_path, dst)
     shutil.rmtree(src)
 
+
 class GitRepository(Repository):
     
     def __init__(self, url):
         check_version()
         Repository.__init__(self, url)
-        self.working_copy = None
-        self.checkout(url)
+        self.checkout(url) # should remove this line
             
     def checkout(self, path="."):
         """Clone a repository."""
@@ -131,13 +130,6 @@ class GitRepository(Repository):
             g.clone(self.url, tmpdir)
             move_contents(tmpdir, path)
         self._repository = git.Repo(path)
-        self.working_copy = GitWorkingCopy(path, repository=self)
-    
-    def __getstate__(self):
-        """For pickling"""
-        return {'url': self.url, 'wc': self.working_copy}
-    
-    def __setstate__(self, state):
-        """For unpickling"""
-        self.__init__(state['url'])
-        self.working_copy = state['wc']
+
+    def get_working_copy(self, path=None):
+        return get_working_copy(path)

@@ -53,7 +53,6 @@ class MercurialWorkingCopy(WorkingCopy):
         WorkingCopy.__init__(self)
         self.path = path or os.getcwd()
         self.repository = MercurialRepository(self.path)
-        self.repository.working_copy = self
 
     def current_version(self):
         if hasattr(self.repository._repository, 'workingctx'): # handle different versions of Mercurial 
@@ -100,9 +99,8 @@ class MercurialRepository(Repository):
             self._repository = hg.repository(self._ui, url)
         # need to add a check that this actually is a Mercurial repository
         except (RepoError, Exception), err:
-            raise VersionControlError("%s" % err)
-        self.working_copy = None
-            
+            raise VersionControlError("Cannot access repository at %s: %s" % (url, err))
+
     def checkout(self, path="."):
         """Clone a repository."""
         path = os.path.abspath(path)
@@ -115,13 +113,6 @@ class MercurialRepository(Repository):
             local_repos = hg.repository(self._ui, path, create=True)
             local_repos.pull(self._repository)
             hg.update(local_repos, None)
-        self.working_copy = MercurialWorkingCopy(path)
-    
-    def __getstate__(self):
-        """For pickling"""
-        return {'url': self.url, 'wc': self.working_copy}
-    
-    def __setstate__(self, state):
-        """For unpickling"""
-        self.__init__(state['url'])
-        self.working_copy = state['wc']
+
+    def get_working_copy(self, path=None):
+        return get_working_copy(path)

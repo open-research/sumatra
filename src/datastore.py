@@ -31,7 +31,7 @@ import warnings
 class DataStore(object):
     """Base class for data storage abstractions."""
     
-    def get_state(self):
+    def __getstate__(self):
         """
         Since each subclass has different attributes, we provide this method
         as a standard way of obtaining these attributes, for database storage,
@@ -40,7 +40,7 @@ class DataStore(object):
         raise NotImplementedError
 
     def copy(self):
-        return self.__class__(**self.get_state())
+        return self.__class__(**self.__getstate__())
     
 
 class FileSystemDataStore(DataStore):
@@ -56,8 +56,11 @@ class FileSystemDataStore(DataStore):
     def __str__(self):
         return self.root
     
-    def get_state(self):
+    def __getstate__(self):
         return {'root': self.root}
+    
+    def __setstate__(self, state):
+        self.__init__(**state)
     
     def __get_root(self):
         return self._root

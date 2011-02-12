@@ -41,14 +41,14 @@ vcs_list.append(sys.modules[__name__])
 
 class MockLaunchMode(object):
     type = "SerialLaunchMode"
-    def get_state(self):
+    def __getstate__(self):
         return {}
 
 class MockDataStore(object):
     type = "FileSystemDataStore"
     def __init__(self, **parameters):
         pass
-    def get_state(self):
+    def __getstate__(self):
         return {'root': "/tmp"}
     def copy(self):
         return self
@@ -252,11 +252,15 @@ def check_record(record):
                                       "dependencies", "input_data",
                                       "script_arguments"])
 
+class MockCredentials(object):
+        credentials = [['domain', 'username', 'password']]
+
 class MockHttp(object):
     def __init__(self, *args):
         self.records = {}
         self.debug = False
         self.last_record = None
+        self.credentials = MockCredentials()
     def add_credentials(self, *args, **kwargs):
         pass
     def request(self, uri, method="GET", body=None, headers=None, **kwargs):

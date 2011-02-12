@@ -37,7 +37,7 @@ class TestFileSystemDataStore(unittest.TestCase):
         self.assertEqual(str(self.ds), self.root_dir)
         
     def test__get_state__should_return_dict_containing_root(self):
-        self.assertEqual(self.ds.get_state(), {'root': self.root_dir})
+        self.assertEqual(self.ds.__getstate__(), {'root': self.root_dir})
         
     def test__find_new_files__should_return_list_of_new_files(self):
         self.assertEqual(set(self.ds.find_new_files(self.now)),

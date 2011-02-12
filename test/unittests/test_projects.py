@@ -17,10 +17,7 @@ class MockDiffFormatter(object):
         return ""
 sumatra.projects.get_diff_formatter = lambda: MockDiffFormatter
 
-
-class MockRepository(object):
-    url = "http://svn.example.com"
-    class WorkingCopy(object):
+class MockWorkingCopy(object):
         def has_changed(self):
             return False
         def use_latest_version(self):
@@ -29,16 +26,26 @@ class MockRepository(object):
             return 999
         def use_version(self, v):
             pass
-    working_copy = WorkingCopy()
+        
+class MockRepository(object):
+    url = "http://svn.example.com"
     
     def __eq__(self, other):
         return self.url == other.url
+
+    def __getstate__(self):
+        return {}
+
+    def get_working_copy(self):
+        return MockWorkingCopy()
 
 
 class MockExecutable(object):
     name = "Python"
     def write_parameters(self, params, filename):
         pass
+    def __getstate__(self):
+        return {}
 
 
 class MockLaunchMode(object):
@@ -48,6 +55,8 @@ class MockLaunchMode(object):
         pass
     def run(self, prog, script, params, append_label):
         return True
+    def __getstate__(self):
+        return {}
     
     
 class MockSet(object):
@@ -79,6 +88,8 @@ class MockRecordStore(object):
         return "".join(reversed(tag))
     def most_recent(self, project):
         return "last"
+    def __getstate__(self):
+        return {}
 
 
 class TestProject(unittest.TestCase):
@@ -123,7 +134,7 @@ class TestProject(unittest.TestCase):
         proj = Project("test_project",
                        record_store=MockRecordStore(),
                        default_repository=MockRepository())
-        wc = proj.default_repository.working_copy
+        wc = proj.default_repository.get_working_copy()
         proj.update_code(wc, version=9369835)
 
     def test_launch(self):
@@ -193,6 +204,7 @@ class TestModuleFunctions(unittest.TestCase):
     
     def test__load_project__should_return_Project(self):
         proj1 = Project("test_project", record_store=MockRecordStore())
+        assert os.path.exists(".smt/project")
         proj2 = load_project()
         self.assertEqual(proj1.name, proj2.name)
 

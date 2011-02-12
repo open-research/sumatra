@@ -20,19 +20,28 @@ load_project() - read project information from the working directory and return
 """
 
 import os
+import sys
 import cPickle as pickle
 from copy import deepcopy
-from datastore import FileSystemDataStore
-from records import Record
-from formatting import get_formatter, get_diff_formatter
-from recordstore import DefaultRecordStore
-from versioncontrol import UncommittedModificationsError, get_working_copy
+from sumatra.records import Record
+from sumatra import programs, datastore
+from sumatra.formatting import get_formatter, get_diff_formatter
+from sumatra.recordstore import DefaultRecordStore
+from sumatra.versioncontrol import UncommittedModificationsError, get_working_copy
 import mimetypes
+try:
+    import json
+except ImportError:
+    import simplejson as json
+
+DEFAULT_PROJECT_FILE = "project"
 
 def _remove_left_margin(s): # replace this by textwrap.dedent?
     lines = s.strip().split('\n')
     return "\n".join(line.strip() for line in lines)
 
+def _get_project_file(path):
+    return os.path.join(path, ".smt", DEFAULT_PROJECT_FILE)
 
 class Project(object):
 
@@ -40,9 +49,10 @@ class Project(object):
                  default_main_file=None, default_launch_mode=None,
                  data_store='default', record_store='default',
                  on_changed='error', description='', data_label=None):
+        self.path = os.getcwd()
         if not os.path.exists(".smt"):
             os.mkdir(".smt")
-        if os.path.exists(".smt/project"):
+        if os.path.exists(_get_project_file(self.path)):
             raise Exception("Sumatra project already exists in this directory.")
         self.name = name
         self.default_executable = default_executable
@@ -50,7 +60,7 @@ class Project(object):
         self.default_main_file = default_main_file
         self.default_launch_mode = default_launch_mode
         if data_store == 'default':
-            data_store = FileSystemDataStore(None)
+            data_store = datastore.FileSystemDataStore(None)
         self.data_store = data_store # a data store object
         if record_store == 'default':
             record_store = DefaultRecordStore(".smt/records")
@@ -58,7 +68,6 @@ class Project(object):
         self.on_changed = on_changed
         self.description = description
         self.data_label = data_label
-        self.path = os.getcwd()
         self._most_recent = None
         self.save()
         print "Sumatra project successfully set up"
@@ -72,8 +81,20 @@ class Project(object):
     
     def save(self):
         """Save state to some form of persistent storage. (file, database)."""
-        f = open(os.path.join(self.path, '.smt', 'project'), 'w') # should check if file exists?
-        pickle.dump(self, f)
+        state = {}
+        for name in ('name', 'default_executable', 'default_repository',
+                     'default_launch_mode', 'data_store', 'record_store',
+                     'default_main_file', 'on_changed', 'description',
+                     'data_label', '_most_recent'):
+            attr = getattr(self, name)
+            if hasattr(attr, "__getstate__"):
+                state[name] = {'type': attr.__class__.__module__ + "." + attr.__class__.__name__}
+                for key, value in attr.__getstate__().items():
+                    state[name][key] = value
+            else:
+                state[name] = attr
+        f = open(_get_project_file(self.path), 'w') # should check if file exists?
+        json.dump(state, f, indent=2)
         f.close()
     
     def info(self):
@@ -105,12 +126,13 @@ class Project(object):
             main_file = self.default_main_file
         if launch_mode == 'default':
             launch_mode = deepcopy(self.default_launch_mode)
-        version, diff = self.update_code(repository.working_copy, version)
+        working_copy = repository.get_working_copy()
+        version, diff = self.update_code(working_copy, version)
         record = Record(executable, repository, main_file, version, launch_mode,
                         self.data_store, parameters, input_data, script_args, 
                         label=label, reason=reason, diff=diff,
                         on_changed=self.on_changed)
-        record.register()
+        record.register(working_copy)
         return record
     
     def launch(self, parameters={}, input_data=[], script_args="",
@@ -206,12 +228,39 @@ class Project(object):
         diff = self.compare(label1, label2, ignore_mimetypes, ignore_filenames)
         formatter = get_diff_formatter()(diff)
         return formatter.format(mode)
-    
-def load_project(path=None):
-    """Read project from directory passed as the argument and return
-    Project object. If no argument is given, the project is read from
-    the current directory"""
 
+def _load_project_from_json(path):
+    f = open(_get_project_file(path), 'r')
+    data = json.load(f)
+    f.close()
+    prj = Project.__new__(Project)
+    prj.path = path
+    for key, value in data.items():
+        if isinstance(value, dict) and "type" in value:
+            parts = value["type"].split(".")
+            module_name = ".".join(parts[:-1])
+            class_name = parts[-1]
+            _temp = __import__(module_name, globals(), locals(), [class_name], -1) # from <module_name> import <class_name>
+            cls = getattr(_temp, class_name)
+            value.pop('type')
+            setattr(prj, key, cls(**value))
+        else:
+            setattr(prj, key, value)
+    return prj
+
+def _load_project_from_pickle(path):
+    # earlier versions of Sumatra saved Projects using pickle
+    f = open(_get_project_file(path), 'r')
+    prj = pickle.load(f)
+    f.close()
+    return prj
+
+def load_project(path=None):
+    """
+    Read project from directory passed as the argument and return Project
+    object. If no argument is given, the project is read from the current
+    directory.
+    """
     if not path:
         p = os.getcwd()
     else:
@@ -220,9 +269,9 @@ def load_project(path=None):
         oldp, p = p, os.path.dirname(p)
         if p == oldp:
             raise Exception("No Sumatra project exists in the current directory or above it.")
-    f = open(os.path.join(p, ".smt", "project"), 'r')
-    prj = pickle.load(f)
-    f.close()
     mimetypes.init([os.path.join(p, ".smt", "mime.types")])
+    #try:
+    prj = _load_project_from_json(p)
+    #except Exception:
+    #    prj = _load_project_from_pickle(p)
     return prj
-

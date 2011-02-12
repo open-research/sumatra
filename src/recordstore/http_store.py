@@ -35,6 +35,16 @@ class  HttpRecordStore(RecordStore):
     def __str__(self):
         return "Interface to remote record store at %s using HTTP" % self.server_url
 
+    def __getstate__(self):
+        return {
+            'server_url': self.server_url,
+            'username': self.client.credentials.credentials[0][1],
+            'password': self.client.credentials.credentials[0][2],
+        }
+    
+    def __setstate__(self, state):
+        self.__init__(state['server_url'], state['username'], state['password'])
+
     def list_projects(self):
         response, content = self.client.request(self.server_url)
         if response.status != 200:

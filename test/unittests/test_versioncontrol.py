@@ -30,9 +30,6 @@ class BaseTestWorkingCopy(object):
                 name, value = line.split("=")
                 P[name.strip()] = eval(value)
         return P
-    
-    def test__init(self):
-        self.assertEqual(self.wc.repository.working_copy, self.wc)
         
     def test__has_changed(self):
         self.assertEqual(self.wc.has_changed(), False)
@@ -147,7 +144,6 @@ class BaseTestRepository(object):
         dump = pickle.dumps(r)
         r2 = pickle.loads(dump)
         self.assertEqual(r.url, r2.url)
-        self.assertEqual(r.working_copy, r2.working_copy)
     
     def test__init(self):
         r = self._create_repository()
@@ -163,17 +159,6 @@ class BaseTestRepository(object):
         if "main.pyc" in project_files:
             project_files.remove("main.pyc")
         self.assertEqual(set(repos_files), set(project_files))
-        shutil.rmtree(tmpdir)
-
-    def test__can_create_project_in_subdir(self):
-        #Test if a Sumatra project can be created in one of the subdirectories of a repository
-        tmpdir = tempfile.mkdtemp()
-        r = self._create_repository()
-        r.checkout(path=tmpdir)
-        # get a working copy from the subdirectory
-        wc = get_working_copy(os.path.join(tmpdir, 'subpackage')).repository.url
-        # is the working copy path same as the repo path?
-        self.assertEqual(wc, tmpdir)
         shutil.rmtree(tmpdir)
 
     def test__str(self):
@@ -205,6 +190,17 @@ class TestMercurialRepository(unittest.TestCase, BaseTestRepository):
     def test__init__with_nonexistent_repos__should_raise_Exception(self):
         self.assertRaises(Exception, MercurialRepository, "file:///tmp/")
     
+    def test__can_create_project_in_subdir(self):
+        #Test if a Sumatra project can be created in one of the subdirectories of a repository
+        tmpdir = tempfile.mkdtemp()
+        r = self._create_repository()
+        r.checkout(path=tmpdir)
+        # get a working copy from the subdirectory
+        wc = get_working_copy(os.path.join(tmpdir, 'subpackage')).repository.url
+        # is the working copy path same as the repo path?
+        self.assertEqual(wc, tmpdir)
+        shutil.rmtree(tmpdir)
+        
 
 class TestGitRepository(unittest.TestCase, BaseTestRepository):
     
@@ -224,6 +220,17 @@ class TestGitRepository(unittest.TestCase, BaseTestRepository):
 
     def test__init__with_nonexistent_repos__should_raise_Exception(self):
         self.assertRaises(Exception, GitRepository, "/tmp/")
+
+    def test__can_create_project_in_subdir(self):
+        #Test if a Sumatra project can be created in one of the subdirectories of a repository
+        tmpdir = tempfile.mkdtemp()
+        r = self._create_repository()
+        r.checkout(path=tmpdir)
+        # get a working copy from the subdirectory
+        wc = get_working_copy(os.path.join(tmpdir, 'subpackage')).repository.url
+        # is the working copy path same as the repo path?
+        self.assertEqual(wc, tmpdir)
+        shutil.rmtree(tmpdir)
 
 
 class TestSubversionRepository(unittest.TestCase, BaseTestRepository):

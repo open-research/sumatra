@@ -38,7 +38,11 @@ class Executable(object):
         if path and os.path.exists(path):
             self.path = path
         else:
-            self.path = self._find_executable(path or self.default_executable_name)    
+            try:
+                self.path = self._find_executable(path or self.default_executable_name)
+            except Warning, errmsg:
+                print errmsg
+                self.path = path
         if not hasattr(self, 'name'):
             self.name = os.path.basename(self.path)
         self.version = version or self._get_version()
@@ -56,7 +60,7 @@ class Executable(object):
             if os.path.exists(os.path.join(path, executable_name)):
                 found += [path] 
         if not found:
-            raise Exception('%s could not be found. Please supply the path to the %s executable.' % (self.name, executable_name))
+            raise Warning('%s could not be found. Please supply the path to the %s executable.' % (self.name, executable_name))
         else:
             executable = os.path.join(found[0], executable_name) 
             if len(found) == 1:
@@ -80,6 +84,9 @@ class Executable(object):
     
     def __ne__(self, other):
         return not self.__eq__(other)
+    
+    def __getstate__(self):
+        return {'path': self.path, 'version': self.version, 'options': self.options}
     
     @staticmethod
     def write_parameters(parameters, filename):

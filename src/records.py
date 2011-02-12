@@ -52,12 +52,12 @@ class Record(object):
         self.user = user
         self.on_changed = on_changed  
     
-    def register(self):
+    def register(self, working_copy):
         """Record information about the environment."""
         # Check the code hasn't changed and the version is correct
         if len(self.diff) == 0:
-            assert not self.repository.working_copy.has_changed()
-        assert_equal(self.repository.working_copy.current_version(), self.version, "version")
+            assert not working_copy.has_changed()
+        assert_equal(working_copy.current_version(), self.version, "version")
         # Record dependencies
         self.dependencies = dependency_finder.find_dependencies(self.main_file, self.executable, self.on_changed)
         # Record platform information
@@ -132,7 +132,7 @@ class Record(object):
         """
         self.datastore.delete(self.data_key)
         self.data_key = self.datastore.empty_key
-         
+
 
 class RecordDifference(object):
     """Represents the difference between two Record objects."""

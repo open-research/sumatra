@@ -31,7 +31,6 @@ def may_have_working_copy(path=None):
     path = path or os.getcwd()
     return os.path.exists(os.path.join(path, ".bzr"))
 
-
 def get_working_copy(path=None):
     try:
         return BazaarWorkingCopy(path)
@@ -49,7 +48,7 @@ class BazaarWorkingCopy(WorkingCopy):
         self.path = path or os.getcwd()
         self.workingtree = WorkingTree.open(self.path)
         self.repository = BazaarRepository(self.workingtree.branch.user_url)
-        self.repository.working_copy = self
+        #self.repository.working_copy = self
         self._current_version = self.repository._repository.revno()
 
     def _get_revision_tree(self, version):
@@ -95,14 +94,6 @@ class BazaarWorkingCopy(WorkingCopy):
         # textstream
         return iostream.getvalue()
 
-    def __getstate__(self):
-        """For pickling"""
-        return {'path': self.path}
-    
-    def __setstate__(self, state):
-        """For unpickling"""
-        self.__init__(state['path'])
-    
 
 class BazaarRepository(Repository):
     
@@ -111,21 +102,15 @@ class BazaarRepository(Repository):
         self.url = url
         try:
             self._repository = Branch.open(url)
-        except:
-            raise VersionControlError("%s" % "Error opening BzrDir")
-        self.working_copy = None
+        except Exception, errmsg:
+            raise VersionControlError("Error opening BzrDir: %s" % errmsg)
+        #self.working_copy = None
             
     def checkout(self, path="."):
         """Clone a repository."""
         path = os.path.abspath(path)
         self._repository.create_checkout(path, lightweight=True)
-        self.working_copy = BazaarWorkingCopy(path)
-    
-    def __getstate__(self):
-        """For pickling"""
-        return {'url': self.url, 'wc': self.working_copy}
-    
-    def __setstate__(self, state):
-        """For unpickling"""
-        self.__init__(state['url'])
-        self.working_copy = state['wc']
+        #self.working_copy = BazaarWorkingCopy(path)
+
+    def get_working_copy(self, path=None):
+        return get_working_copy(path)

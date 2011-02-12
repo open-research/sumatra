@@ -41,7 +41,6 @@ class SubversionWorkingCopy(WorkingCopy):
         client = pysvn.Client()
         url = client.info(self.path).url
         self.repository = SubversionRepository(url)
-        self.repository.working_copy = self
 
     def current_version(self):
         return str(self.repository._client.info(self.path).revision.number)
@@ -90,7 +89,6 @@ class SubversionRepository(Repository):
             self._client.ls(url)
         except pysvn._pysvn.ClientError, errmsg:
             raise VersionControlError(errmsg)
-        self.working_copy = None
     
     def checkout(self, path='.'):
         try:
@@ -103,14 +101,6 @@ class SubversionRepository(Repository):
                 if os.path.exists(filename):
                     os.rename(filename,os.path.join(".smt_backup", filename))
             self._client.checkout(self.url, path)
-        self.working_copy = SubversionWorkingCopy(path)
 
-    def __getstate__(self):
-        """For pickling"""
-        return {'url': self.url, 'wc': self.working_copy}
-    
-    def __setstate__(self, state):
-        """For unpickling"""
-        self.__init__(state['url'])
-        self.working_copy = state['wc']
-        
+    def get_working_copy(self, path=None):
+        return get_working_copy(path)

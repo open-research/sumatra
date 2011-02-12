@@ -54,7 +54,7 @@ class LaunchMode(object):
     Base class for launch modes (serial, distributed, batch, ...)
     """
     
-    def get_state(self):
+    def __getstate__(self):
         """
         Since each subclass has different attributes, we provide this method
         as a standard way of obtaining these attributes, for database storage,
@@ -97,7 +97,7 @@ class LaunchMode(object):
             return False
 
     def __eq__(self, other):
-        return self.__class__ == other.__class__ and self.get_state() == other.get_state()
+        return self.__class__ == other.__class__ and self.__getstate__() == other.__getstate__()
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -129,6 +129,9 @@ class SerialLaunchMode(LaunchMode):
         
     def __str__(self):
         return "serial"
+    
+    def __getstate__(self):
+        return {}
     
     def generate_command(self, executable, main_file, arguments):
         __doc__ = LaunchMode.__doc__
@@ -164,6 +167,7 @@ class DistributedLaunchMode(LaunchMode):
         else:
             mpi_cmd = MPI(path=None)
         self.mpirun = mpi_cmd.path #"/usr/local/bin/mpiexec"
+        # should warn if mpirun not found
         self.hosts = hosts
         self.n = n
         self.mpi_info = {}
@@ -174,7 +178,7 @@ class DistributedLaunchMode(LaunchMode):
     
     def generate_command(self, executable, main_file, arguments):
         __doc__ = LaunchMode.__doc__
-        check_files_exist(executable.path, main_file)
+        check_files_exist(self.mpirun, executable.path, main_file)
         if hasattr(executable, "mpi_options"):
             mpi_options = executable.mpi_options
         else:
@@ -220,7 +224,7 @@ class DistributedLaunchMode(LaunchMode):
             comm.Disconnect()
         return platform_information
 
-    def get_state(self):
+    def __getstate__(self):
         """Return a dict containing the values needed to recreate this instance."""
-        return {'mpirun': self.mpirun, 'n': self.n, 'hosts': self.hosts}
+        return {'mpirun': self.mpirun, 'n': self.n, 'hosts': self.hosts, 'pfi_path': self.pfi_path}
     

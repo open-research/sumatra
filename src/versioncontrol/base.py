@@ -4,8 +4,10 @@ Define the base classes for the Sumatra version control abstraction layer.
 
 import os.path
 
+
 class VersionControlError(Exception):
     pass
+
 
 class Repository(object):
     
@@ -23,6 +25,13 @@ class Repository(object):
     def __ne__(self, other):
         return not self.__eq__(other)
 
+    def __getstate__(self):
+        """For pickling"""
+        return {'url': self.url}
+
+    def __setstate__(self, state):
+        """For unpickling"""
+        self.__init__(state['url'])
 
 class WorkingCopy(object):
     
