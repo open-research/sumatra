@@ -39,8 +39,8 @@ class TestExecutable(unittest.TestCase):
         self.assertEqual(prog.path, "/bin/ls")
         
     def test__init__should_find_version_if_possible(self):
-        prog = Executable("/bin/ls")
-        self.assertEqual(prog.version, None) # this is true on Darwin, but not on Ubuntu
+        #prog = Executable("/bin/ls")
+        #self.assertEqual(prog.version, None) # this is true on Darwin, but not on Ubuntu
         prog = Executable(sys.executable)
         python_version = "%d.%d.%d" % tuple(sys.version_info[:3])
         self.assertEqual(prog.version, python_version)
