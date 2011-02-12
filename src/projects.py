@@ -242,8 +242,11 @@ def _load_project_from_json(path):
             class_name = parts[-1]
             _temp = __import__(module_name, globals(), locals(), [class_name], -1) # from <module_name> import <class_name>
             cls = getattr(_temp, class_name)
-            value.pop('type')
-            setattr(prj, key, cls(**value))
+            args = {}
+            for k,v in value.items():
+                if k != 'type':
+                    args[str(k)] = v # need to use str() as json module uses all unicode
+            setattr(prj, key, cls(**args))
         else:
             setattr(prj, key, value)
     return prj
