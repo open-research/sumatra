@@ -1,0 +1,64 @@
+=======================
+Upgrading your projects
+=======================
+
+Since new versions of Sumatra extend its capabilities, and may change the way
+records are stored, when you install a new version of Sumatra you will need to
+upgrade your existing Sumatra projects to work with the new version.
+
+In future, this will probably be done automatically, but while Sumatra is still
+rapidly evolving we are keeping it as a simple manual process to minimize the
+risk of data loss.
+
+First export using the old version
+----------------------------------
+
+Before installing the new version of Sumatra, you must export your project to a
+file.
+
+For Sumatra 0.1 and 0.2
+~~~~~~~~~~~~~~~~~~~~~~~
+
+First, download export.py_ to your project directory, then run::
+
+    $ python export.py
+    
+This will export your project in JSON format to two files in the ".smt" directory:
+"records_export.json" and "project_export.json".
+
+You can now delete export.py
+
+For Sumatra 0.3 and later
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Run::
+
+    $ smt export
+
+This will export your project in JSON format to two files in the ".smt" directory:
+"records_export.json" and "project_export.json".
+
+
+Now install the new version and upgrade
+---------------------------------------
+
+Now you can install the new version, e.g. with::
+
+    $ easy_install -U sumatra
+    
+or
+
+    $ pip install --upgrade sumatra
+
+(or you can install from source, as explained in the Installation section).
+
+
+Then run::
+
+    $ smt upgrade
+    
+In either case, the original .smt directory will be copied to a time-stamped
+directory, e.g. .smt_backup_20110209132422
+
+
+.. _export.py: http://neuralensemble.org/trac/sumatra/export/201%3Ae779a7bb1c7a/src/tools/export.py

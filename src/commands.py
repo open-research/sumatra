@@ -461,3 +461,31 @@ def help(argv):
     except KeyError:
         parser.error('"%s" is not an smt command.' % cmd)
     
+def upgrade(argv):
+    usage = "%prog upgrade"
+    description = dedent("""\
+        Upgrade an existing Sumatra project. You must have previously run
+        "smt export" or the standalone 'export.py' script.""")
+    parser = OptionParser(usage=usage,
+                          description=description)
+    (options, args) = parser.parse_args(argv)
+    if len(args) != 0:
+        parser.error('%prog upgrade does not take any arguments.')
+    
+    import shutil
+    from datetime import datetime
+    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+    shutil.copytree(".smt", ".smt_backup_%s" % timestamp)
+    # upgrade the project data
+    shutil.copy(".smt/project_export.json", ".smt/project")
+    project = load_project()
+    project.save()
+    # upgrade the record store
+    filename = ".smt/records_export.json"
+    if os.path.exists(filename):
+        f = open(filename)
+        project.record_store.import_(project.name, f.read())
+        f.close()
+    else:
+        print "Record file not found"
+        sys.exit(1)
