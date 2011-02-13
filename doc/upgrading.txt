@@ -61,4 +61,4 @@ In either case, the original .smt directory will be copied to a time-stamped
 directory, e.g. .smt_backup_20110209132422
 
 
-.. _export.py: http://neuralensemble.org/trac/sumatra/export/201%3Ae779a7bb1c7a/src/tools/export.py
+.. _export.py: http://neuralensemble.org/trac/sumatra/export/207%3Ae05eb98721da/tools/export.py

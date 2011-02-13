@@ -474,14 +474,15 @@ def upgrade(argv):
     
     import shutil
     from datetime import datetime
-    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-    shutil.copytree(".smt", ".smt_backup_%s" % timestamp)
+    backup_dir = ".smt_backup_%s" % datetime.now().strftime("%Y%m%d%H%M%S")
+    shutil.move(".smt", backup_dir)
     # upgrade the project data
-    shutil.copy(".smt/project_export.json", ".smt/project")
+    os.mkdir(".smt")
+    shutil.copy("%s/project_export.json" % backup_dir, ".smt/project")
     project = load_project()
     project.save()
     # upgrade the record store
-    filename = ".smt/records_export.json"
+    filename = "%s/records_export.json" % backup_dir
     if os.path.exists(filename):
         f = open(filename)
         project.record_store.import_(project.name, f.read())
