@@ -14,6 +14,7 @@ setup(
                 'sumatra.versioncontrol',
                 'sumatra.web', 'sumatra.web.templatetags'],
     package_data = {'sumatra': ['web/media/smt.css',
+                                'web/media/*.png',
                                 'web/templates/*.html']},
     scripts= ['src/smt', 'src/smtweb'],
     author = "Andrew P. Davison",
