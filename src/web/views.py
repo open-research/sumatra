@@ -77,7 +77,7 @@ def record_detail(request, label):
     datafiles = data_store.list_files(eval(record.data_key))
     assert isinstance(datafiles, list), type(datafiles)
     parameter_set = record.parameters.to_sumatra()
-    if parameter_set is not None:
+    if hasattr(parameter_set, "as_dict"):
         parameter_set = parameter_set.as_dict()
     return render_to_response('record_detail.html', {'record': record,
                                                      'project_name': project_name,

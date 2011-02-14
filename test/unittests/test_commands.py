@@ -5,7 +5,7 @@ Unit tests for the sumatra.commands module
 
 import unittest
 import os
-from sumatra import commands
+from sumatra import commands,launch
 
 originals = [] # use for storing originals of mocked objects
 
@@ -41,6 +41,8 @@ class MockExecutable(object):
     def __init__(self, path=None, script_file=None):
         self.path = path
         self.script_file = script_file
+    def __eq__(self, other):
+        return self.path == other.path and self.script_file == other.script_file
 
 class MockRepository(object):
     def __init__(self, url):
@@ -56,12 +58,14 @@ def mock_mkdir(path):
     print "Pretending to create directory %s" % path
     
     
-def mock_build_parameters(filename, cmdline):
-    ps = type("MockParameterSet", (dict,),
-              {"parameter_file": filename,
-               "cmdline_parameters": cmdline,
-               "pretty": lambda self, expand_urls: ""})
-    return ps()
+def mock_build_parameters(filename):
+    if filename != "this.is.not.a.parameter.file":
+        ps = type("MockParameterSet", (dict,),
+                  {"parameter_file": filename,
+                   "pretty": lambda self, expand_urls: str(self)})
+        return ps(this="mock")
+    else:
+        raise SyntaxError
 
 def store_original(module, name):
     global originals
@@ -116,6 +120,16 @@ class ConfigureCommandTests(unittest.TestCase):
         assert self.prj.saved
         self.assertEqual(self.prj.default_executable.path, "python")
 
+    def test_set_default_script(self):
+        commands.configure(["-m", "norwegian.py"])
+        assert self.prj.saved
+        self.assertEqual(self.prj.default_main_file, "norwegian.py")
+
+    def test_set_default_script_multiple(self):
+        commands.configure(["-m", "norwegian.sli mauve.sli"])
+        assert self.prj.saved
+        self.assertEqual(self.prj.default_main_file, "norwegian.sli mauve.sli")
+
 
 class InfoCommandTests(unittest.TestCase):
     
@@ -129,6 +143,70 @@ class InfoCommandTests(unittest.TestCase):
         self.assertTrue(self.prj.info_called)
 
 
+class TestParseArguments(unittest.TestCase):
+    
+    def test_with_no_args(self):
+        parameter_sets, input_data, script_args = commands.parse_arguments([])
+        self.assertEqual(parameter_sets, [])
+        self.assertEqual(input_data, [])
+        self.assertEqual(script_args, "")
+
+    def test_with_nonfile_arg(self):
+        parameter_sets, input_data, script_args = commands.parse_arguments(["foo"])
+        self.assertEqual(parameter_sets, [])
+        self.assertEqual(input_data, [])
+        self.assertEqual(script_args, "foo")
+    
+    def test_with_nonfile_args(self):
+        parameter_sets, input_data, script_args = commands.parse_arguments(["spam", "eggs"])
+        self.assertEqual(parameter_sets, [])
+        self.assertEqual(input_data, [])
+        self.assertEqual(script_args, "spam eggs")
+        
+    def test_with_single_parameter_file_and_nonfile_arg(self):
+        f = open("test.param", 'w')
+        f.write("a = 2\nb = 3\n")
+        f.close()
+        parameter_sets, input_data, script_args = commands.parse_arguments(["spam", "test.param"])
+        self.assertEqual(parameter_sets, [{'this': 'mock'}])
+        self.assertEqual(input_data, [])
+        self.assertEqual(script_args, "spam <parameters>")
+        os.remove("test.param")
+    
+    def test_with_single_datafile(self):
+        f = open("this.is.not.a.parameter.file", 'w')
+        f.write("23496857243968b24cbc4275dc82470a\n")
+        f.close()
+        parameter_sets, input_data, script_args = commands.parse_arguments(
+            ["this.is.not.a.parameter.file"])
+        self.assertEqual(parameter_sets, [])
+        self.assertEqual(input_data, ["this.is.not.a.parameter.file"])
+        self.assertEqual(script_args, "this.is.not.a.parameter.file")
+        os.remove("this.is.not.a.parameter.file")
+
+    def test_with_cmdline_parameters(self):
+        f = open("test.param", 'w')
+        f.write("a = 2\nb = 3\n")
+        f.close()
+        parameter_sets, input_data, script_args = commands.parse_arguments(["test.param", "a=17", "umlue=43"])
+        self.assertEqual(parameter_sets, [{'this': 'mock', 'a': 17, 'umlue': 43}])
+        self.assertEqual(input_data, [])
+        self.assertEqual(script_args, "<parameters>")
+        os.remove("test.param")
+
+    def test_with_everything(self):
+        f = open("test.param", 'w')
+        f.write("a = 2\nb = 3\n")
+        f.close()
+        f = open("this.is.not.a.parameter.file", 'w')
+        f.write("23496857243968b24cbc4275dc82470a\n")
+        f.close()
+        parameter_sets, input_data, script_args = commands.parse_arguments(["spam", "test.param", "eggs", "this.is.not.a.parameter.file", "a=17", "umlue=43", "beans"])
+        self.assertEqual(parameter_sets, [{'this': 'mock', 'a': 17, 'umlue': 43}])
+        self.assertEqual(input_data, ["this.is.not.a.parameter.file"])
+        self.assertEqual(script_args, "spam <parameters> eggs this.is.not.a.parameter.file beans")
+
+
 class TestRunCommand(unittest.TestCase):
     
     def setUp(self):
@@ -137,11 +215,70 @@ class TestRunCommand(unittest.TestCase):
         
     def test_with_no_args(self):
         commands.run([])
-        # need some assertion about self.prj.launch_args
+        self.assertEqual(self.prj.launch_args,
+                        {'executable': 'default',
+                         'parameters': {},
+                         'main_file': 'default',
+                         'label': None,
+                         'input_data': [],
+                         'reason': None,
+                         'version': 'latest',
+                         'launch_mode': launch.SerialLaunchMode(),
+                         'script_args': ''})
 
-    def test_with_single_arg(self):
-        commands.run(["some_parameter_file"])
-        # need some assertion about self.prj.launch_args
+    def test_with_single_script_arg(self):
+        commands.run(["some_parameter_file"]) # file doesn't exist so is treated as argument
+        self.assertEqual(self.prj.launch_args,
+                         {'executable': 'default',
+                         'parameters': {},
+                         'main_file': 'default',
+                         'label': None,
+                         'input_data': [],
+                         'reason': None,
+                         'version': 'latest',
+                         'launch_mode': launch.SerialLaunchMode(),
+                         'script_args': 'some_parameter_file'})
+    
+    def test_with_single_input_file(self):
+        f = open("this.is.not.a.parameter.file", 'w')
+        f.write("0.0 242\n0.1 2345\n0.2 42451\n")
+        f.close()
+        commands.run(["this.is.not.a.parameter.file"]) # file exists but is not a parameter file so is treated as input data
+        self.assertEqual(self.prj.launch_args,
+                         {'executable': 'default',
+                         'parameters': {},
+                         'main_file': 'default',
+                         'label': None,
+                         'input_data': ['this.is.not.a.parameter.file'],
+                         'reason': None,
+                         'version': 'latest',
+                         'launch_mode': launch.SerialLaunchMode(),
+                         'script_args': 'this.is.not.a.parameter.file'})
+        os.remove("this.is.not.a.parameter.file")
+
+    def test_with_everything(self):
+        f = open("test.param", 'w')
+        f.write("a = 2\nb = 3\n")
+        f.close()
+        f = open("this.is.not.a.parameter.file", 'w')
+        f.write("23496857243968b24cbc4275dc82470a\n")
+        f.close()
+        commands.run(["-l", "vikings", "-v", "234", "--reason='test'",
+                      "-e", "python", "--main=main.py", "spam", "test.param",
+                      "eggs", "this.is.not.a.parameter.file", "a=17",
+                      "umlue=43", "beans"])
+        self.assertEqual(self.prj.launch_args,
+                         {'executable': MockExecutable('python'),
+                         'parameters': {'this': 'mock', 'a': 17, 'umlue': 43},
+                         'main_file': 'main.py',
+                         'label': 'vikings',
+                         'input_data': ['this.is.not.a.parameter.file'],
+                         'reason': 'test',
+                         'version': '234',
+                         'launch_mode': launch.SerialLaunchMode(),
+                         'script_args': "spam <parameters> eggs this.is.not.a.parameter.file beans"})
+        os.remove("this.is.not.a.parameter.file")
+        os.remove("test.param")
 
 
 class ListCommandTests(unittest.TestCase):

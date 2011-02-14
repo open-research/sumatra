@@ -258,10 +258,13 @@ def run(argv):
         launch_mode = DistributedLaunchMode(n=options.num_processes)
     else:
         launch_mode = SerialLaunchMode()
+    reason = options.reason
+    if reason:
+        reason = reason.strip('\'"')
     
     label = options.label
     run_label = project.launch(parameters, input_data, script_args,
-                               label=label, reason=options.reason,
+                               label=label, reason=reason,
                                executable=executable,
                                main_file=options.main or 'default',
                                version=options.version or 'latest',

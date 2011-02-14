@@ -135,7 +135,7 @@ class SerialLaunchMode(LaunchMode):
     
     def generate_command(self, executable, main_file, arguments):
         __doc__ = LaunchMode.__doc__
-        check_files_exist(executable.path, main_file)
+        check_files_exist(executable.path, *main_file.split())
         cmd = "%s %s %s %s" % (executable.path, executable.options, main_file, arguments)
         return cmd
     
@@ -178,7 +178,7 @@ class DistributedLaunchMode(LaunchMode):
     
     def generate_command(self, executable, main_file, arguments):
         __doc__ = LaunchMode.__doc__
-        check_files_exist(self.mpirun, executable.path, main_file)
+        check_files_exist(self.mpirun, executable.path, *main_file.split())
         if hasattr(executable, "mpi_options"):
             mpi_options = executable.mpi_options
         else:
