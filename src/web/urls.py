@@ -6,43 +6,20 @@ from django.conf.urls.defaults import *
 from django.views.generic import list_detail
 from django.conf import settings
 
-from sumatra.recordstore.django_store.models import Record
-from sumatra.projects import load_project
+urlpatterns = patterns('sumatra.web.views',
+    (r'^$', 'list_projects'),
+    (r'^(?P<project>\w+)/$', 'list_records'),
+    (r'^(?P<project>\w+)/about/$', 'show_project'),
+    (r'^(?P<project>\w+)/delete/$', 'delete_records'),
+    (r'^(?P<project>\w+)/tag/$', 'list_tags'),
+    (r'^(?P<project>\w+)/tag/(?P<tag>.*)/$', 'list_tagged_records'),
+    (r'^(?P<project>\w+)/(?P<label>\w+[\w|\-\.]*)/$', 'record_detail'),
+    (r'^(?P<project>\w+)/(?P<label>\w+[\w|\-\.]*)/datafile$', 'show_file'),
+    (r'^(?P<project>\w+)/(?P<label>\w+[\w|\-\.]*)/download$', 'download_file'),
+    (r'^(?P<project>\w+)/(?P<label>\w+[\w|\-\.]*)/image$', 'show_image'),
+    (r'^(?P<project>\w+)/(?P<label>\w+[\w|\-\.]*)/diff/(?P<package>[\w_]+)*$', 'show_diff'),
+)
 
-from tagging.models import Tag
-
-from copy import deepcopy
-
-_project = load_project()
-project_name = _project.name
-del _project
-
-records = {
-    "queryset": Record.objects.filter(project=project_name),
-    "template_name": "record_list.html",
-    "extra_context": { 'project_name': project_name }
-}
-
-tagged_records = deepcopy(records)
-tagged_records["queryset_or_model"] = Record
-tagged_records.pop("queryset")
-
-tags = {
-    "extra_context": { 'project_name': project_name },
-    "queryset": Tag.objects.all(),
-    "template_name": "tag_list.html",
-}
-
-urlpatterns = patterns('',
-    (r'^$', 'sumatra.web.views.list_records'),
-    (r'^project/$', 'sumatra.web.views.show_project'),
+urlpatterns += patterns('',
     (r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT, 'show_indexes': True}),
-    (r'^delete/$', 'sumatra.web.views.delete_records'),
-    (r'^tag/$', list_detail.object_list, tags),
-    (r'^tag/(?P<tag>.*)/$', 'tagging.views.tagged_object_list', tagged_records),
-    (r'^(?P<label>\w+[\w|\-\.]*)/$', 'sumatra.web.views.record_detail'),
-    (r'^(?P<label>\w+[\w|\-\.]*)/datafile$', 'sumatra.web.views.show_file'),
-    (r'^(?P<label>\w+[\w|\-\.]*)/download$', 'sumatra.web.views.download_file'),
-    (r'^(?P<label>\w+[\w|\-\.]*)/image$', 'sumatra.web.views.show_image'),
-    (r'^(?P<label>\w+[\w|\-\.]*)/diff/(?P<package>[\w_]+)*$', 'sumatra.web.views.show_diff'),
 )

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Command-line interface to the Sumatra simulation management tool.
+Command-line interface to the Sumatra computational experiment management tool.
 """
 
 import sys

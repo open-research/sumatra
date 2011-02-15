@@ -15,7 +15,7 @@
 {% with record.get_previous_by_timestamp as previous %}{% with record.get_next_by_timestamp as next %}
 <p>{% if previous %}<a href="../{{previous|escapeslash}}/"><img src="/media/Go-previous.png" alt="previous record"/></a> {% endif %}
 {% if next %}<a href="../{{next|escapeslash}}/"><img src="/media/Go-next.png" alt="next record"/></a> {% endif %}
-<a href="/">Return to record list</a></p>
+<a href="..">Return to record list</a></p>
 {% endwith %}{% endwith %}
 
 {{form.errors}}

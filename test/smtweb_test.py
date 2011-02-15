@@ -22,11 +22,12 @@ def terminate(process):
 def visit_page(url, browser, results):
     go(url)
     results[url] = browser.get_code()
-    for link in showlinks():
-        full_url = urljoin(link.base_url, link.url) 
-        if full_url not in results:
-            visit_page(full_url, browser, results)
-            browser.back()
+    if browser._browser.viewing_html():
+        for link in showlinks():
+            full_url = urljoin(link.base_url, link.url) 
+            if full_url not in results:
+                visit_page(full_url, browser, results)
+                browser.back()
     return results
 
 
@@ -38,6 +39,7 @@ def sort_by_code(results):
         else:
             sorted_results[code] = [url]
     return sorted_results
+
 
 if __name__ == "__main__":
     cwd = os.getcwd()
@@ -51,7 +53,7 @@ if __name__ == "__main__":
     
     getting_started(None)
         
-    server = run_in_background("smtweb 8009")
+    server = run_in_background("smtweb -p 8009")
     time.sleep(10)
     print "Server running"
     

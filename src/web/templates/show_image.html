@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% load filters %}
 
 {% block title %}{{project_name}}: {{label}}: file::{{path}}{% endblock %}
 
@@ -12,7 +11,7 @@
 
 <h2>{{path}}</h2>
 
-<img src="/{{label|escapeslash}}/image?path={{path}}" alt="/{{label}}:{{path}}"/>
+<img src="image?path={{path}}" alt="/{{label}}:{{path}}"/>
 
 <p><a href="download?path={{path}}">Download image</a></p>
 

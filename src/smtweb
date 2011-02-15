@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Web interface to the Sumatra simulation management tool.
+Web interface to the Sumatra computational experiment management tool.
 """
 
 import sys
@@ -13,29 +13,10 @@ from django.conf import settings
 from sumatra.projects import load_project
 from sumatra.recordstore.django_store import DjangoRecordStore
 from sumatra.web import __file__ as sumatra_web
+from optparse import OptionParser
+from textwrap import dedent
 
-project = load_project()
-if not isinstance(project.record_store, DjangoRecordStore):
-    # should make the web interface independent of the record store, if possible
-    print "This project cannot be accessed using the web interface."
-    sys.exit(1)
-del project
 
-root_dir = os.path.dirname(sumatra_web)
-settings.ROOT_URLCONF = 'sumatra.web.urls'
-settings.ADMIN_MEDIA_PREFIX = '/media/admin/' # seems we need to define this even though we're not using the admin application
-settings.MEDIA_ROOT = os.path.join(root_dir, "media")
-settings.TEMPLATE_DIRS = (os.path.join(os.getcwd(), ".smt", "templates"),
-                          os.path.join(root_dir, "templates"),)
-settings.INSTALLED_APPS = list(settings.INSTALLED_APPS) + ['sumatra.web']
-settings.MIDDLEWARE_CLASSES = tuple()
-
-management.setup_environ(settings)
-if len(sys.argv) > 1:
-    port = sys.argv[1]
-else:
-    port = "8000"
-    
 def delayed_new_tab(url, delay):
     """
     Open a new browser tab with a time delay, to give the server enough
@@ -43,10 +24,48 @@ def delayed_new_tab(url, delay):
     """
     time.sleep(delay)
     webbrowser.open_new_tab(url)
-    
-thread.start_new_thread(delayed_new_tab, ("http://127.0.0.1:%s" % port, 3))
-management.call_command('runserver', port)
 
+
+def main(argv):
+    """Launch the Sumatra web interface"""
+    usage = "%prog [options] [PATH]"
+    description = dedent("""\
+        Launch the Sumatra web interface. If PATH is provided, it is taken as
+        the location of the record store. Otherwise, there must be a Sumatra
+        project in the working directory and the record store for that project
+        will be used.""")
+    parser = OptionParser(usage=usage,
+                          description=description)
+    parser.add_option('-p', '--port', metavar='PORT', default="8000",
+                      help="run server on this port number PORT")
+    (options, args) = parser.parse_args(argv)
+
+    if args:
+        recordstore = DjangoRecordStore(db_file=args[0])
+    else:
+        project = load_project()
+        if not isinstance(project.record_store, DjangoRecordStore):
+            # should make the web interface independent of the record store, if possible
+            print "This project cannot be accessed using the web interface."
+            sys.exit(1)
+        del project
+    
+    root_dir = os.path.dirname(sumatra_web)
+    settings.ROOT_URLCONF = 'sumatra.web.urls'
+    settings.ADMIN_MEDIA_PREFIX = '/media/admin/' # seems we need to define this even though we're not using the admin application
+    settings.MEDIA_ROOT = os.path.join(root_dir, "media")
+    settings.TEMPLATE_DIRS = (os.path.join(os.getcwd(), ".smt", "templates"),
+                              os.path.join(root_dir, "templates"),)
+    settings.INSTALLED_APPS = list(settings.INSTALLED_APPS) + ['sumatra.web']
+    settings.MIDDLEWARE_CLASSES = tuple()
+    
+    management.setup_environ(settings)
+    thread.start_new_thread(delayed_new_tab, ("http://127.0.0.1:%s" % options.port, 3))
+    management.call_command('runserver', options.port)
+    
+
+if __name__ == "__main__":
+    main(sys.argv[1:])
 
 
 

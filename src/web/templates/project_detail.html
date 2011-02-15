@@ -1,30 +1,21 @@
 {% extends "base.html" %}
 
-{% block title %}{{project.name}}: Settings{% endblock %}
+{% block title %}{{project.id}}: About{% endblock %}
 
 {% block header %}
-<form action='{{ request.path }}' method='POST'>
-<h1>{{project.name}}: Settings</h1>
-
+<h1>{{project.id}}: About</h1>
 {% endblock %}
 
 {% block content %}
 
+<p><a href="/">Return to list of projects</a></p>
 <p><a href="/">Simulation list</a></p>
 
 
 <table>
+    <tr><th>Name:</th><td>{{project.name}}</td></tr>
     <tr><th>Description:</th><td>{{project.description}}</td></tr>
-    <tr><th>Default executable:</th><td>{{project.default_executable}}</td></tr>
-    <tr><th>Default repository:</th><td>{{project.default_repository}}</td></tr>
-    <tr><th>Default main file:</th><td>{{project.default_main_file}}</td></tr>
-    {{form}}
-    <tr><th>Default launch mode:</th><td>{{project.default_launch_mode}}</td></tr>
-    <tr><th>Data store:</th><td>{{project.data_store}}</td></tr>
-    <tr><th>Record store:</th><td>{{project.record_store}}</td></tr>
 </table>
-
-<input type="submit" value='Save changes' class="headeritem">
 
 </form>
 

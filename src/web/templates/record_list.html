@@ -7,13 +7,14 @@
 
 {% block content %}
 
+<p><a href="/">Return to list of projects</a></p>
 {% if tag %}
-<p><a href="/">Return to full record list</a></p>
-<p><a href="/tag/">Return to list of tags</a></p>
+<p><a href="/{{project_name}}/">Return to full record list</a></p>
+<p><a href="/{{project_name}}/tag/">Return to list of tags</a></p>
 {% endif %}
 
 {% if object_list %}
-    <form method="POST" action="/delete/">
+    <form method="POST" action="/{{project_name}}/delete/">
     <table class="simlist">
         <tr>
             <th rowspan="2"><input type="Submit" value="Delete"/><br/><small>include data&nbsp;</small><input type="checkbox" name="delete_data" value="True"/></th>
@@ -22,7 +23,7 @@
             <th rowspan="2">Outcome</th>
             <th rowspan="2">Duration</th>
             <th rowspan="2">Processes</th>
-            <th colspan="2">Simulator</th>
+            <th colspan="2">Executable</th>
             <th colspan="4">Script</th>
             <th rowspan="2">Date</th>
             <th rowspan="2">Time</th>
@@ -39,7 +40,7 @@
         {% for record in object_list %}
         <tr class="{% cycle odd,even %}">
             <td><input type="checkbox" name="delete" value="{{record.label}}"/></td>
-            <td><a href="/{{record.label|escapeslash}}/">{{record.label}}</a></td>
+            <td><a href="/{{project_name}}/{{record.label|escapeslash}}/">{{record.label}}</a></td>
             <td>{{record.reason}}</td>
             <td>{{record.outcome}}</td>
             <td>{{record.duration|floatformat:2}}&nbsp;s</td>
@@ -52,7 +53,11 @@
             <td>{{record.script_arguments}}</td>
             <td>{{record.timestamp|date:"d/m/Y"}}</td>
             <td>{{record.timestamp|date:"H:i:s"}}</td>
-            <td>{{record.tags|link:"/tag/%s/"}}</td>
+            {% if tag %}
+            <td>{{record.tags|link:"../%s/"}}</td>
+            {% else %}
+            <td>{{record.tags|link:"tag/%s/"}}</td>
+            {% endif %}
         </tr>
         {% endfor %}
     </table>

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}List of projects{% endblock %}
+
+{% block header %}<h1>List of projects</h1>{% endblock %}
+
+{% block content %}
+
+
+{% if object_list %}
+    <table class="simlist">
+        <tr>
+            <th>ID</th><th>Name</th><th>Description</th><th>Records</th>
+        </tr>
+        {% for project in object_list %}
+        <tr class="{% cycle odd,even %}">
+            <td><a href="/{{project.id}}/">{{project.id}}</a></td>
+            <td>{{project.name}}</td>
+            <td>{{project.description}}</td>
+            <td>{{project.record_set.count}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <p class="warning"><strong>No projects found</strong></p>
+{% endif %}
+
+{% endblock %}

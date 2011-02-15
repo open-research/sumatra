@@ -170,7 +170,7 @@ def configure(argv):
     parser.add_option('-e', '--executable', metavar='PATH', help="set the path to the executable.")
     parser.add_option('-r', '--repository', help="the URL of a Subversion or Mercurial repository containing the code. This will be checked out/cloned into the current directory.")
     parser.add_option('-m', '--main', help="the name of the script that would be supplied on the command line if running the simulator normally, e.g. init.hoc.")
-    parser.add_option('-c', '--on-changed', help="the action to take if the code in the repository or any of the depdendencies has changed. Defaults to %default", choices=['store-diff', 'error'])
+    parser.add_option('-c', '--on-changed', help="may be 'store-diff' or 'error': the action to take if the code in the repository or any of the dependencies has changed. Defaults to 'error'", choices=['store-diff', 'error'])
     (options, args) = parser.parse_args(argv)
     if len(args) != 0:
         parser.error('configure does not take any arguments')

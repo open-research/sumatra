@@ -5,6 +5,9 @@ Using the web interface
 The web interface is built using the Django_  web
 framework, and requires that Django be installed (see :doc:`installation`).
 
+For a single project
+--------------------
+
 Before using the web interface, you must have created a Sumatra project using
 ``smt init``.
 
@@ -12,16 +15,27 @@ To launch the web interface, in your project directory run::
 
     $ smtweb &
     
-This will launch a simple web server that listens on port 8000. Now open your
-browser and navigate to http://localhost:8000/
+This will launch a simple web server that listens on port 8000, and will
+automatically open a new tab in your browser at http://127.0.0.1:8000/.
 
-(If ``localhost`` doesn't work, try ``127.0.0.1``)
+If port 8000 is already in use, you can specify a different port with the ``-p``
+option to ``smtweb``, e.g.::
 
-If port 8000 is already in use, you can specify a different port as an argument
-to ``smtweb``.
+    $ smtweb -p 8001
 
-DESCRIPTION OF USING THE WEB INTERFACE GOES HERE
 
+For multiple projects
+---------------------
+
+If you are using a single record store for multiple projects, you can start
+``smtweb`` with the path to your record store database file, e.g.::
+
+    $ smtweb ~/sumatra.db
+    
+You can also use the ``-p`` option here.
+
+Finishing up
+------------
 
 Don't forget to kill the webserver process (e.g. with ``fg``, ``Ctrl-C``) when you are
 finished with it.
