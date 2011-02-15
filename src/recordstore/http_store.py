@@ -14,7 +14,8 @@ and should both accept and return JSON-encoded data when the Accept header is
 DESCRIBE HERE THE JSON STRUCTURE
 """
 
-from sumatra.recordstore import RecordStore, serialization
+from sumatra.recordstore.base import RecordStore
+from sumatra.recordstore import serialization
 import httplib2
 from urlparse import urlparse
 
@@ -23,7 +24,7 @@ def domain(url):
     return urlparse(url).netloc
 
 
-class  HttpRecordStore(RecordStore):
+class HttpRecordStore(RecordStore):
     
     def __init__(self, server_url, username, password):
         self.server_url = server_url

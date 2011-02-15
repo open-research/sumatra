@@ -64,19 +64,19 @@ def get_last_record_id():
     project = load_project()
     return project._most_recent
 
-def initialize_sumatra_project(plugins=None):
-    if plugins:
-        run("smt init TestProject --plugins=%s" % plugins)
-    else:
-        run("smt init TestProject")
+def initialize_sumatra_project(**options):
+    cmd = "smt init TestProject"
+    if options:
+        cmd += " " + " ".join("--%s=%s" % item for item in options.items())
+    run(cmd)
 
 def reset_django_settings():
     project = load_project()
     if hasattr(project.record_store, "_switch_db"):
         project.record_store._switch_db(None)
 
-def getting_started(plugins):
-    initialize_sumatra_project(plugins)
+def getting_started(options):
+    initialize_sumatra_project(**options)
         
     run("smt run --executable=python --main=main.py default.param")
     id0 = get_last_record_id()
@@ -110,9 +110,9 @@ def create_temporary_directories():
     repos_dir = os.path.realpath(tempfile.mkdtemp())
     return working_dir, repos_dir
 
-def run_test(repos, plugins, working_dir, repos_dir):
+def run_test(repos, options, working_dir, repos_dir):
     print "*"*60
-    print "Running tests with %s and plugins: %s" % (repos, plugins)
+    print "Running tests with %s and options: %s" % (repos, options)
     print "*"*60 + "\n"
     cwd = os.getcwd()
     
@@ -123,21 +123,21 @@ def run_test(repos, plugins, working_dir, repos_dir):
 
     exec("create_%s_repos('%s')" % (repos, repos_dir))
 
-    getting_started(plugins)
+    getting_started(options)
 
     reset_django_settings()
     os.chdir(cwd)
     
 def main():    
     for repos in 'subversion', 'mercurial':  
-        for plugins in ("sumatra.recordstore.shelve_store",  None):
+        for options in ({}, {'store': ".smt/records.shelf"}):
             working_dir, repos_dir = create_temporary_directories()
             print working_dir, repos_dir
-            run_test(repos, plugins, working_dir, repos_dir)
+            run_test(repos, options, working_dir, repos_dir)
             shutil.rmtree(working_dir)
             shutil.rmtree(repos_dir)
             
 if __name__ == "__main__":
-    #run_test('mercurial', None, "/Users/andrew/tmp/SumatraTestDj", "/Users/andrew/tmp/smt_example_repos")
-    #run_test('mercurial', "sumatra.recordstore.shelve_store", "/Users/andrew/tmp/SumatraTest", "/Users/andrew/tmp/smt_example_repos")
+    #run_test('mercurial', {}, "/Users/andrew/tmp/SumatraTestDj", "/Users/andrew/tmp/smt_example_repos")
+    #run_test('mercurial', {'store': ".smt/records.shelf"}, "/Users/andrew/tmp/SumatraTest", "/Users/andrew/tmp/smt_example_repos")
     main()

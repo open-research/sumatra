@@ -16,23 +16,9 @@ from sumatra.datastore import FileSystemDataStore
 from sumatra.projects import Project, load_project
 from sumatra.launch import SerialLaunchMode, DistributedLaunchMode
 from sumatra.parameters import build_parameters
-from sumatra.recordstore import RecordStore
+from sumatra.recordstore import get_record_store
 from sumatra.versioncontrol import get_working_copy, get_repository
 from sumatra.formatting import get_diff_formatter
-
-def _process_plugins(plugin_module):
-    # current only handles RecordStore subclasses, but eventually should also
-    # handle DataStore, Repository, LaunchMode, Executable, etc., subclasses as well
-    # maybe should use zope.component
-    __import__(plugin_module)
-    plugin = sys.modules[plugin_module]
-    #print plugin
-    #print plugin.__dict__.keys()
-    for obj in plugin.__dict__.values():
-        if isinstance(obj, type) and issubclass(obj, RecordStore) and obj is not RecordStore:
-            print "Loading %s from plug-in module %s" % (obj, plugin)
-            return obj
-    raise Exception("No plug-ins found in module %s" % plugin_module)
 
 def parse_executable_str(exec_str):
     """
@@ -104,7 +90,7 @@ def init(argv):
     parser.add_option('-r', '--repository', help="the URL of a Subversion or Mercurial repository containing the code. This will be checked out/cloned into the current directory.")
     parser.add_option('-m', '--main', help="the name of the script that would be supplied on the command line if running the simulation or analysis normally, e.g. init.hoc.")
     parser.add_option('-c', '--on-changed', default='error', help="the action to take if the code in the repository or any of the depdendencies has changed. Defaults to %default") # need to add list of allowed values
-    parser.add_option('--plugins', metavar='MODULE', help="(advanced) specify the Python path of a module containing plug-ins. These allow Sumatra's functionality to be customized.")
+    parser.add_option('-s', '--store', help="specify the path to the record store, either an existing one or one to be created.")
     parser.add_option('-D', '--debug', action='store_true', help="print debugging information.")
     
     (options, args) = parser.parse_args(argv)
@@ -139,11 +125,8 @@ def init(argv):
         executable = get_executable(script_file=options.main)
     else:
         executable = None
-    if options.plugins:
-        try:
-            record_store = _process_plugins(options.plugins)()
-        except Exception, e:
-            parser.error(e)
+    if options.store:
+        record_store = get_record_store(options.store)
     else:
         record_store = 'default'
     

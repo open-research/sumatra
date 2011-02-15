@@ -6,7 +6,8 @@ SQLite.
 """
 
 
-from sumatra.recordstore import RecordStore
+from sumatra.recordstore.base import RecordStore
+from sumatra.recordstore import serialization
 import django.conf as django_conf
 from django.core import management
 import os

@@ -3,7 +3,8 @@ Handles storage of simulation/analysis records based on the Python standard
 shelve module.
 """
 
-from sumatra.recordstore import RecordStore
+from sumatra.recordstore.base import RecordStore
+from sumatra.recordstore import serialization
 import shelve
 from datetime import datetime
 
