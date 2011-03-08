@@ -10,8 +10,8 @@ In future, this will probably be done automatically, but while Sumatra is still
 rapidly evolving we are keeping it as a simple manual process to minimize the
 risk of data loss.
 
-First export using the old version
-----------------------------------
+Export using the old version
+----------------------------
 
 Before installing the new version of Sumatra, you must export your project to a
 file.
@@ -39,8 +39,8 @@ This will export your project in JSON format to two files in the ".smt" director
 "records_export.json" and "project_export.json".
 
 
-Now install the new version and upgrade
----------------------------------------
+Install the new version and upgrade
+-----------------------------------
 
 Now you can install the new version, e.g. with::
 
@@ -57,8 +57,8 @@ Then run::
 
     $ smt upgrade
     
-In either case, the original .smt directory will be copied to a time-stamped
-directory, e.g. .smt_backup_20110209132422
+The original .smt directory will be copied to a time-stamped directory, e.g.
+.smt_backup_20110209132422
 
 
 .. _export.py: http://neuralensemble.org/trac/sumatra/browser/tools/export.py?format=txt

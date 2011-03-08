@@ -1,8 +1,31 @@
 #!/usr/bin/env python
 
-from distutils.core import setup
+import distribute_setup
+distribute_setup.use_setuptools()
+#from distutils.core import setup
+from setuptools import setup
+from distutils.command.sdist import sdist
 from src.__init__ import __version__
-      
+import os
+
+
+class sdist_hg(sdist):
+    """Add revision number to version for development releases."""
+
+    def run(self):
+        if "dev" in self.distribution.metadata.version:
+            self.distribution.metadata.version += self.get_tip_revision()
+        sdist.run(self)
+
+    def get_tip_revision(self, path=os.getcwd()):
+        from mercurial.hg import repository
+        from mercurial.ui import ui
+        from mercurial import node
+        repo = repository(ui(), path)
+        tip = repo.changelog.tip()
+        return str(repo.changelog.rev(tip))
+
+
 setup(
     name = "Sumatra",
     version = __version__,
@@ -16,14 +39,14 @@ setup(
     package_data = {'sumatra': ['web/media/smt.css',
                                 'web/media/*.png',
                                 'web/templates/*.html']},
-    scripts= ['src/smt', 'src/smtweb'],
+    scripts = ['bin/smt', 'bin/smtweb'],
     author = "Andrew P. Davison",
     author_email = "andrewpdavison@gmail.com",
     description = "A tool for automated tracking of computation-based scientific projects",
     long_description = open('README').read(),
     license = "CeCILL http://www.cecill.info",
     keywords = "computational science neuroscience simulation analysis project-management",
-    url = "http://neuralensemble.org/trac/sumatra/",
+    url = "http://neuralensemble.org/sumatra/",
     classifiers = ['Development Status :: 3 - Alpha',
                    'Environment :: Console',
                    'Environment :: Web Environment',
@@ -33,6 +56,14 @@ setup(
                    'Operating System :: OS Independent',
                    'Programming Language :: Python',
                    'Topic :: Scientific/Engineering'],
-    requires = ['Django (>=1.1)', 'tagging'],
+    cmdclass = {'sdist': sdist_hg},
+    install_requires = ['Django>=1.2', 'django-tagging'],
+    extras_require = {'svn': 'pysvn',
+                      'hg': 'mercurial',
+                      'git': 'GitPython',
+                      'bzr': 'bzrlib'},
+    #test_suite = ?,
+    #tests_require = ?,
+    #use_2to3 = True,
 )
 

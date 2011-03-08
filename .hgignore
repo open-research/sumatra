@@ -5,4 +5,7 @@ _build
 dist/*
 *.py,cover
 bulbNet
+*.orig
+.tox
+.cache
 

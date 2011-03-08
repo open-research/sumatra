@@ -9,3 +9,4 @@ recursive-include test/example_repositories *
 include test/unittests/*.py
 include test/unittests/all_tests.sh
 include test/*.py
+include distribute_setup.py

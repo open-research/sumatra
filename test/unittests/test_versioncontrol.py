@@ -3,16 +3,30 @@ Unit tests for the sumatra.versioncontrol package
 """
 
 from __future__ import with_statement
-import unittest
+import unittest2 as unittest
 import os
 import pickle
 import tempfile
 import shutil
+
 from sumatra.versioncontrol._mercurial import MercurialRepository, MercurialWorkingCopy, may_have_working_copy
-from sumatra.versioncontrol._subversion import SubversionRepository, SubversionWorkingCopy
-from sumatra.versioncontrol._git import GitRepository, GitWorkingCopy
-from sumatra.versioncontrol._bazaar import BazaarRepository, BazaarWorkingCopy
+try:
+    from sumatra.versioncontrol._subversion import SubversionRepository, SubversionWorkingCopy
+    have_pysvn = True
+except ImportError:
+    have_pysvn = False
+try:
+    from sumatra.versioncontrol._git import GitRepository, GitWorkingCopy
+    have_git = True
+except ImportError:
+    have_git = False
+try:
+    from sumatra.versioncontrol._bazaar import BazaarRepository, BazaarWorkingCopy
+    have_bzr = True
+except ImportError:
+    have_bzr = False
 from sumatra.versioncontrol import get_repository, get_working_copy
+
 
 class BaseTestWorkingCopy(object):
     
@@ -82,7 +96,7 @@ class TestMercurialWorkingCopy(unittest.TestCase, BaseTestWorkingCopy):
         self.assertEqual(self.wc.status(), {'modified': ['romans.param'], 'removed': [],
                                             'deleted': [], 'unknown': []})
 
-
+@unittest.skipUnless(have_git, "Could not import git")
 class TestGitWorkingCopy(unittest.TestCase, BaseTestWorkingCopy):
     
     def setUp(self):
@@ -99,7 +113,7 @@ class TestGitWorkingCopy(unittest.TestCase, BaseTestWorkingCopy):
         os.unlink("%s/.git" % self.repository_path)
         shutil.rmtree(self.tmpdir)
 
-
+@unittest.skipUnless(have_pysvn, "Could not import pysvn")
 class TestSubversionWorkingCopy(unittest.TestCase, BaseTestWorkingCopy):
     
     def setUp(self):
@@ -120,6 +134,7 @@ class TestSubversionWorkingCopy(unittest.TestCase, BaseTestWorkingCopy):
         self.assertEqual(os.path.basename(self.wc.status()['modified'][0]), 'romans.param')
 
 
+@unittest.skipUnless(have_bzr, "Could not import bzrlib")
 class TestBazaarWorkingCopy(unittest.TestCase, BaseTestWorkingCopy):
     
     def setUp(self):
@@ -202,6 +217,7 @@ class TestMercurialRepository(unittest.TestCase, BaseTestRepository):
         shutil.rmtree(tmpdir)
         
 
+@unittest.skipUnless(have_git, "Could not import git")
 class TestGitRepository(unittest.TestCase, BaseTestRepository):
     
     def setUp(self):
@@ -233,6 +249,7 @@ class TestGitRepository(unittest.TestCase, BaseTestRepository):
         shutil.rmtree(tmpdir)
 
 
+@unittest.skipUnless(have_pysvn, "Could not import pysvn")
 class TestSubversionRepository(unittest.TestCase, BaseTestRepository):
     
     def setUp(self):
@@ -255,6 +272,7 @@ class TestSubversionRepository(unittest.TestCase, BaseTestRepository):
         shutil.rmtree("file:") # this is not quite what's supposed to happen
 
 
+@unittest.skipUnless(have_bzr, "Could not import bzrlib")
 class TestBazaarRepository(unittest.TestCase, BaseTestRepository):
     
     def setUp(self):
@@ -314,6 +332,7 @@ class TestMercurialModuleFunctions(unittest.TestCase):
         assert have_wc == True
 
 
+@unittest.skipUnless(have_pysvn, "Could not import pysvn")
 class TestSubversionModuleFunctions(unittest.TestCase):
     pass
 
@@ -332,14 +351,16 @@ class TestPackageFunctions(unittest.TestCase):
         os.unlink("%s/.hg" % self.hg_repos_path)
     
     def test__get_repository__from_url(self):
-        repos = get_repository("file://%s/subversion" % self.basepath)
-        assert isinstance(repos, SubversionRepository)
+        if have_pysvn:
+            repos = get_repository("file://%s/subversion" % self.basepath)
+            assert isinstance(repos, SubversionRepository)
         repos = get_repository("file://%s/mercurial" % self.basepath)
         assert isinstance(repos, MercurialRepository), type(repos)
         
     def test__get_repository__from_invalid_url_should_raise_Exception(self):
         self.assertRaises(Exception, get_repository, "file:///tmp/")
 
+    @unittest.skipUnless(have_pysvn, "Could not import pysvn")
     def test__get_repository_from_working_copy(self):
         repos = SubversionRepository("file://%s/subversion" % self.basepath)
         tmpdir = tempfile.mkdtemp()

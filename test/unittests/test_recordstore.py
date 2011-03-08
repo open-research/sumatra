@@ -2,7 +2,7 @@
 Unit tests for the sumatra.recordstore package
 """
 
-import unittest
+import unittest2 as unittest
 import os
 import sys
 from datetime import datetime
@@ -38,6 +38,9 @@ class MockRepository(object):
     def __init__(self, *args, **kwargs):
         pass
 vcs_list.append(sys.modules[__name__])
+
+def tearDownModule():
+    vcs_list.remove(sys.modules[__name__])
 
 class MockLaunchMode(object):
     type = "SerialLaunchMode"

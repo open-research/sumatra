@@ -16,7 +16,8 @@ class ShelveRecordStore(RecordStore):
         self.shelf = shelve.open(shelf_name)
         
     def __del__(self):
-        self.shelf.close()
+        if hasattr(self, "shelf"):
+            self.shelf.close()
         
     def __str__(self):
         return "Record store using the shelve package (database file=%s)" % self._shelf_name

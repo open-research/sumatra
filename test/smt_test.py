@@ -127,6 +127,7 @@ def run_test(repos, options, working_dir, repos_dir):
 
     reset_django_settings()
     os.chdir(cwd)
+run_test.__test__ = False # nose should not treat this as a test
     
 def main():    
     for repos in 'subversion', 'mercurial':  
