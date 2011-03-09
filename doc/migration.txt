@@ -1,0 +1,60 @@
+=======================================
+Migrating records between record stores
+=======================================
+
+Sumatra supports multiple back-ends for storing records, ``ShelveRecordStore``,
+based on the ``shelve`` module from the Python standard library,
+``DjangoRecordStore``, based on a relational database accessed via the Django_
+ORM_, and ``HttpRecordStore``, which stores records on a remote database
+with communication based on JSON over HTTP.
+
+Suppose you created a Sumatra project using the ``ShelveRecordStore`` since you
+didn't want to install Django, then decided you'd like to change to
+``DjangoRecordStore``. This is what the project looks like at the beginning::
+
+    $ smt info
+    Sumatra project
+    ---------------
+    Name                : MyProject
+    Default executable  : Python (version: 2.5.2) at /usr/local/bin/python
+    Default repository  : MercurialRepository at /path/to/working/directory
+    Default main file   : main.py
+    Default launch mode : serial
+    Data store          : /path/to/data
+    Record store        : Record store using the shelve package (database file=.smt/records)
+    Code change policy  : store-diff
+    Append label to     : cmdline
+    $ smt list
+    20110309-141853
+    20110309-141849
+
+First, rename the ".smt" directory, and then create a new project::
+
+    $ mv .smt .smt_orig
+    $ smt init MyProject --addlabel cmdline --executable=python --on-changed=store-diff --main=main.py
+
+Now we synchronize the old and new databases::
+
+    $ smt sync .smt_orig/records
+    
+and just to check it worked:
+
+    $ smt info
+    Sumatra project
+    ---------------
+    Name                : MyProject
+    Default executable  : Python (version: 2.5.2) at /usr/local/bin/python
+    Default repository  : MercurialRepository at /path/to/working/directory
+    Default main file   : main.py
+    Default launch mode : serial
+    Data store          : /path/to/data
+    Record store        : Relational database record store using the Django ORM (database file=.smt/records)
+    Code change policy  : store-diff
+    Append label to     : cmdline
+    $ smt list
+    20110309-141853
+    20110309-141849
+
+.. _Django: xxx
+.. _ORM: xxx
+ 

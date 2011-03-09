@@ -16,6 +16,7 @@ Contents:
    parameter_files
    command_reference
    upgrading
+   migration
    developers_guide
 
 Indices and tables
