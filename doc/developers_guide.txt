@@ -1,0 +1,133 @@
+=================
+Developers' guide
+=================
+
+These instructions are for developing on a Unix-like platform, e.g. Linux or
+Mac OS X, with the bash shell.
+
+
+Requirements
+------------
+
+    * Python_ 2.5, 2.6 and/or 2.7
+    * Django_ >= 1.2
+    * django-tagging_ >= 0.3  ##CHECK
+    * nose_ >= ???
+    * if using Python 2.5 or 2.6, unittest2_ >= ???
+    * Distribute_ >= ???
+    * (optional) tox_ >= ??? (makes it easier to test with multiple Python versions)
+    * (optional) twill_ >= ??? (needed for testing web interface)
+    * (optional) coverage_ >= ??? (for measuring test coverage)
+    
+.. can setup.py install all these?
+
+
+Getting the source code
+-----------------------
+
+We use the Mercurial version control system. To get a copy of the code::
+
+    $ cd /some/directory
+    $ hg clone https://neuralensemble.org/hg/sumatra sumatra_src
+    
+Now you need to make sure that the ``sumatra`` package is on your PYTHONPATH and
+that the ``smt`` and ``smtweb`` scripts are on your PATH. You can do this either
+by installing Sumatra::
+
+    $ cd sumatra_src
+    $ python setup.py install
+
+(if you do this, you will have to re-run ``setup.py install`` any time you make
+changes to the code) *or* by creating symbolic links from somewhere on your PATH
+and PYTHONPATH, for example::
+
+    $ cd /some/directory
+    $ ln -s sumatra_src/src sumatra
+    $ export PYTHONPATH=/some/directory:${PYTHONPATH}
+    $ export PATH=/some/directory/sumatra_src/bin:${PATH}
+
+To update to the latest version from the repository::
+
+    $ hg pull -u
+
+
+Running the test suite
+----------------------
+
+Before you make any changes, run the test suite to make sure all the tests pass
+on your system::
+
+    $ cd sumatra_src/test/unittests
+    $ nosetests
+
+You will see some error messages, but don't worry - these are just tests of
+Sumatra's error handling. At the end, if you see "OK", then all the tests
+passed, otherwise it will report how many tests failed or produced errors.
+
+::
+
+    $ cd ..
+    $ python smt_test.py
+    $ python smtweb_test.py
+    
+.. [say what should happen here...]
+
+
+Writing tests
+-------------
+
+You should try to write automated tests for any new code that you add. If you
+have found a bug and want to fix it, first write a test that isolates the bug
+(and that therefore fails with the existing codebase). Then apply your fix and
+check that the test now passes.
+
+To see how well the tests cover the code base, run::
+
+    $ nosetests --coverage --cover-package=sumatra --cover-erase
+
+
+Committing your changes
+-----------------------
+
+Once you are happy with your changes, you can commit them to your local copy of
+the repository::
+
+    $ hg commit -m 'informative commit message'
+    
+If you have a NeuralEnsemble account, you can now push your changes to the
+central repository::
+
+    $ hg push https://neuralensemble.org/hg/sumatra
+    
+Otherwise, you can create a patch::
+
+    $ hg export tip > descriptive_name.patch
+    
+and attach it to a ticket in the `issue tracker`_. If you have made more than
+one commit, determine the revision number of when you cloned or last updated
+from the central repository (using ``hg log``), and then give a range of
+revisions to include in the patch::
+
+    $ hg export start-revision:tip > descriptive_name.patch
+
+Before either pushing or creating a patch, run the test suite again to check
+that you have not introduced any new bugs.
+
+
+Coding standards and style
+--------------------------
+
+All code should conform as much as possible to `PEP 8`_, and should run with
+Python 2.5, 2.6 and 2.7.
+
+.. _Python: xxx
+.. _Django: xxx
+.. _django-tagging: xxx
+.. _nose: xxx
+.. _unittest2: xxx
+.. _Distribute: xxx
+.. _tox: xxx
+.. _twill: xxx
+.. _coverage: xxx
+.. _`PEP 8`: xxx
+.. _`issue tracker`: http://neuralensemble.org/trac/sumatra
