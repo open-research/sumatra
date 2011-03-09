@@ -10,16 +10,19 @@ import sumatra.web
 from django.core.exceptions import ObjectDoesNotExist
 from django.core import management
 from django.core.urlresolvers import reverse
-from sumatra.recordstore.django_store import DjangoRecordStore
+from sumatra.recordstore.django_store import DjangoRecordStore, db_config
 
-from test_recordstore import MockRecord, setup as recordstore_setup, teardown as recordstore_teardown
+import test_recordstore
 import sumatra.projects
 
 def setup():
     global store, orig_load_project, Client
     import django.conf
     settings = django.conf.settings
-    store = DjangoRecordStore(db_file="test.db")
+    #store = DjangoRecordStore(db_file="test.db")
+    test_recordstore.setup()
+    store = test_recordstore.django_store1
+    #db_config.configure()
     settings.ROOT_URLCONF = 'sumatra.web.urls'
     settings.INSTALLED_APPS = list(settings.INSTALLED_APPS) + ['sumatra.web']
     management.setup_environ(settings)
@@ -28,7 +31,7 @@ def setup():
     import django.test.utils
     django.test.utils.setup_test_environment()
     
-    recordstore_setup()
+    #recordstore_setup()
     orig_load_project = sumatra.projects.load_project
     sumatra.projects.load_project = lambda: MockProject()
 
@@ -37,7 +40,7 @@ def clean_up():
         os.remove("test.db")    
 
 def teardown():
-    recordstore_teardown()
+    test_recordstore.teardown()
     sumatra.projects.load_project = orig_load_project
     clean_up()
 
@@ -47,9 +50,9 @@ class MockProject(object):
 
 def add_some_records():
     global store
-    r1 = MockRecord("record1")
-    r2 = MockRecord("record2")
-    r3 = MockRecord("record3")
+    r1 = test_recordstore.MockRecord("record1")
+    r2 = test_recordstore.MockRecord("record2")
+    r3 = test_recordstore.MockRecord("record3")
     for r in r1, r2, r3:
         #print "saving record %s" % r.label
         store.save(MockProject.name, r)

@@ -476,3 +476,32 @@ def upgrade(argv):
     else:
         print "Record file not found"
         sys.exit(1)
+
+def sync(argv):
+    usage = "%prog sync PATH1 [PATH2]"
+    description = dedent("""\
+        Synchronize two record stores. If both PATH1 and PATH2 are given, the
+        record stores at those locations will be synchronized. If only PATH1 is
+        given, and the command is run in a directory containing a Sumatra
+        project, only that project's records be synchronized with the store at
+        PATH1. Note that PATH1 and PATH2 may be either filesystem paths or URLs.
+        """) # need to say what happens if the sync is incomplete due to label collisions
+    parser = OptionParser(usage=usage,
+                          description=description)
+    (options, args) = parser.parse_args(argv)
+    
+    if len(args) == 2:
+        store1 = get_record_store(args[0])
+        store2 = get_record_store(args[1])
+        collisions = store1.sync_all(store2)
+    elif len(args) == 1:
+        store1 = get_record_store(args[0])
+        project = load_project()
+        store2 = project.record_store
+        collisions = store1.sync(store2, project.name)
+    else:
+        parser.error('%prog sync requires either one or two arguments.')
+    
+    if collisions:
+        print "Synchronization incomplete: there are two records with the same name for the following: %s" % ", ".join(collisions)
+        sys.exit(1)

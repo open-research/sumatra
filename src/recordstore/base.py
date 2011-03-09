@@ -1,4 +1,8 @@
+"""
+Provides base RecordStore class.
+"""
 
+from sumatra.recordstore import serialization
 
 class RecordStore(object):
     
@@ -40,10 +44,8 @@ class RecordStore(object):
 
     def sync(self, other, project_name):
         """
-        Synchronize two record stores so that they contain the same records.
-        
-        #If project_name is given, only records for that project are synchronized,
-        #otherwise all projects are synchronized.
+        Synchronize two record stores so that they contain the same records for
+        a given project.
         
         Where the two stores have the same label (within a project) for
         different records, those records will not be synced. The method
@@ -68,5 +70,6 @@ class RecordStore(object):
         return non_synchronizable
     
     def sync_all(self, other):
-        for project_name in self.list_projects():
+        all_projects = set(self.list_projects()).union(other.list_projects())
+        for project_name in all_projects:
             self.sync(other, project_name)

@@ -11,7 +11,7 @@ from tagging.models import Tag
 
 class SumatraObjectsManager(models.Manager):
     
-    def get_or_create_from_sumatra_object(self, obj):
+    def get_or_create_from_sumatra_object(self, obj, using='default'):
         # automatically retrieving the field names is nice, but leads
         # to all the special cases below when we have subclasses that we
         # want to store in a single table in the database.
@@ -33,7 +33,7 @@ class SumatraObjectsManager(models.Manager):
                     attributes[name] = str(obj) # ParameterSet
                 else:
                     raise
-        return self.get_or_create(**attributes)            
+        return self.using(using).get_or_create(**attributes)            
         
 
 class BaseModel(models.Model):

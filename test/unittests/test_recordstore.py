@@ -22,6 +22,8 @@ except ImportError:
 import urlparse
     
 originals = []
+django_store1 = None
+django_store2 = None
 
 class MockExecutable(Executable):
     name = "a.out"
@@ -79,6 +81,8 @@ class MockParameterSet(object):
         pass
     def as_dict(self):
         return {}
+    def pop(self, k, d):
+        return None
 
 class MockRecord(object):
     
@@ -104,6 +108,10 @@ class MockRecord(object):
         self.input_data = "[]"
         self.script_arguments = "arg1 arg2"
 
+    def __eq__(self, other):
+        return self.label == other.label and self.duration == other.duration
+    
+
 class MockProject(object):
     name = "TestProject"
 
@@ -112,18 +120,33 @@ def clean_up():
         os.remove("test_record_store.db")
 
 def setup():
+    global django_store1, django_store2
     clean_up()
     sumatra.launch.MockLaunchMode = MockLaunchMode
     sumatra.datastore.MockDataStore = MockDataStore
     sumatra.parameters.MockParameterSet = MockParameterSet
+    if django_store1 is None:
+        django_store1 = django_store.DjangoRecordStore(db_file="test.db")
+    if django_store2 is None:
+        django_store2 = django_store.DjangoRecordStore(db_file="test2.db")
+    django_store.db_config.configure()
 
 def teardown():
     del sumatra.launch.MockLaunchMode
     del sumatra.datastore.MockDataStore
     del sumatra.parameters.MockParameterSet
-
+    for filename in (django_store1._db_file, django_store2._db_file):
+        if os.path.exists(filename):
+            os.remove(filename)
 
 class BaseTestRecordStore(object):
+    
+    def tearDown(self):
+        django_store1.delete_all()
+        django_store2.delete_all()
+        for filename in ("test_record_store2",):
+            if os.path.exists(filename):
+                os.remove(filename)
     
     def add_some_records(self):
         r1 = MockRecord("record1")
@@ -196,15 +219,31 @@ class BaseTestRecordStore(object):
         self.store.delete(self.project.name, "record3")
         self.assertEqual(self.store.most_recent(self.project.name), "record2")
 
+    def test_sync_with_shelve_store(self):
+        self.add_some_records()
+        other_store = shelve_store.ShelveRecordStore(shelf_name="test_record_store2")
+        self.assertEqual(len(other_store.list(self.project.name)), 0)
+        self.store.sync(other_store, self.project.name)
+        self.assertEqual(sorted(rec.label for rec in self.store.list(self.project.name)),
+                         sorted(rec.label for rec in other_store.list(self.project.name)))
+
+    def test_sync_with_django_store(self):
+        other_store = django_store2
+        self.add_some_records()
+        self.assertEqual(len(other_store.list(self.project.name)), 0)
+        self.store.sync(other_store, self.project.name)
+        self.assertEqual(sorted(rec.label for rec in self.store.list(self.project.name)),
+                         sorted(rec.label for rec in other_store.list(self.project.name)))
+
 
 class TestShelveRecordStore(unittest.TestCase, BaseTestRecordStore):
-    
-    
+       
     def setUp(self):
         self.store = shelve_store.ShelveRecordStore(shelf_name="test_record_store")
         self.project = MockProject()
         
     def tearDown(self):
+        BaseTestRecordStore.tearDown(self)
         os.remove("test_record_store")
 
     def test_record_store_is_pickleable(self):
@@ -217,15 +256,14 @@ class TestShelveRecordStore(unittest.TestCase, BaseTestRecordStore):
         assert os.path.exists(unpickled._shelf_name)
 
 
-
 class TestDjangoRecordStore(unittest.TestCase, BaseTestRecordStore):
     
     def setUp(self):
-        self.store = django_store.DjangoRecordStore(db_file="test.db")
+        self.store = django_store1
         self.project = MockProject()
 
     def tearDown(self):
-        management.call_command("reset", "django_store", interactive=False)
+        BaseTestRecordStore.tearDown(self)
 
     def __del__(self):
         clean_up()
@@ -235,6 +273,8 @@ class TestDjangoRecordStore(unittest.TestCase, BaseTestRecordStore):
         self.add_some_records()
         s = pickle.dumps(self.store)
         del self.store
+        django_store.db_config.configured = False
+        django_store.db_config._settings['DATABASES'] = {}
         unpickled = pickle.loads(s)
         #assert unpickled._shelf_name == "test_record_store"
         #assert os.path.exists(unpickled._shelf_name)
@@ -343,9 +383,6 @@ class TestHttpRecordStore(unittest.TestCase, BaseTestRecordStore):
     def setUp(self):
         self.store = http_store.HttpRecordStore("http://127.0.0.1:8000/", "testuser", "z6Ty49HY")
         self.project = MockProject()
-        
-    def tearDown(self):
-        pass
     
     def test_record_store_is_pickleable(self):
         import pickle

@@ -90,7 +90,7 @@ class HttpRecordStore(RecordStore):
         return records
     
     def labels(self, project_name):
-        raise NotImplementedError # TODO
+        return [record.label for record in self.list(project_name)] # probably inefficient
     
     def delete(self, project_name, label):
         url = "%s%s/%s/" % (self.server_url, project_name, label)

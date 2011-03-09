@@ -11,7 +11,7 @@ import time
 from django.core import management
 from django.conf import settings
 from sumatra.projects import load_project
-from sumatra.recordstore.django_store import DjangoRecordStore
+from sumatra.recordstore.django_store import DjangoRecordStore, db_config
 from sumatra.web import __file__ as sumatra_web
 from optparse import OptionParser
 from textwrap import dedent
@@ -49,7 +49,7 @@ def main(argv):
             print "This project cannot be accessed using the web interface."
             sys.exit(1)
         del project
-    
+    db_config.configure()
     root_dir = os.path.dirname(sumatra_web)
     settings.ROOT_URLCONF = 'sumatra.web.urls'
     settings.ADMIN_MEDIA_PREFIX = '/media/admin/' # seems we need to define this even though we're not using the admin application

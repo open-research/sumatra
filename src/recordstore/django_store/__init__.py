@@ -17,29 +17,78 @@ import imp
 # it, but that seems to mess with Django's internals.
 imp.find_module("tagging")
 
-recordstore_settings = {
-    'DEBUG': True,
-    'DATABASE_ENGINE': 'django.db.backends.sqlite3',
-    'INSTALLED_APPS': ('sumatra.recordstore.django_store',
-                       'django.contrib.contenttypes', # needed for tagging
-                       'tagging'),
-}
+class DjangoConfiguration(object):
+    """
+    To allow more than one DjangoRecordStore instances to exist at the same
+    time, this class allows the database configuration to be built up in several
+    steps, only actually doing the Django configuration step at the last
+    possible moment.
+    """
+   
+    def __init__(self):
+        self._settings = {
+            'DEBUG': True,
+            'DATABASES': {},
+            'INSTALLED_APPS': ('sumatra.recordstore.django_store',
+                               'django.contrib.contenttypes', # needed for tagging
+                               'tagging'),
+        }
+        self._n_databases = 0
+        self.configured = False
+   
+    def add_database(self, db_file):
+        if self.configured:
+            raise Exception("Django already configured: you cannot create any more DjangoRecordStores. You must create all stores before using any of them.")
+        if self.contains_database(db_file):
+            raise Exception("Database %s already in use." % db_file)
+        if self._n_databases == 0:
+            label = 'default'
+        else:
+            label = 'database%g' % self._n_databases
+        self._settings['DATABASES'][label] = {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.abspath(db_file)
+        }
+        self._n_databases += 1
+        return label
+    
+    def contains_database(self, db_file):
+        return os.path.abspath(db_file) in self.get_db_files()
+    
+    def get_db_files(self):
+        return [D['NAME'] for D in self._settings['DATABASES'].values()]
+
+    def _create_databases(self):
+        #    for db_file in self.get_db_files():
+        #        if not os.path.exists(os.path.dirname(db_file)):
+        #            os.makedirs(os.path.dirname(db_file))
+        #    for label in self._settings['DATABASES']:
+        #        #print "syncdb %s" % label
+        #        management.call_command('syncdb', database=label, verbosity=0)
+        for label, db in self._settings['DATABASES'].items():
+            db_file = db['NAME']
+            if not os.path.exists(os.path.dirname(db_file)):
+                os.makedirs(os.path.dirname(db_file))
+            if not os.path.exists(db_file):
+                management.call_command('syncdb', database=label, verbosity=1)
+
+    def configure(self):
+        settings = django_conf.settings
+        if not settings.configured:
+            settings.configure(**self._settings)
+            management.setup_environ(settings)
+            if not self.configured:
+                self._create_databases()
+            self.configured = True
+
+db_config = DjangoConfiguration()
+
 
 class DjangoRecordStore(RecordStore):
     
-    def __init__(self, db_file='.smt/records'):
-        settings = django_conf.settings
-        self._db_file = os.path.abspath(db_file)
-        recordstore_settings['DATABASE_NAME'] = self._db_file
-        if not settings.configured:
-            settings.configure(**recordstore_settings)
-            management.setup_environ(settings)
-            if not os.path.exists(os.path.dirname(self._db_file)):
-                os.makedirs(os.path.dirname(self._db_file))
-            if not os.path.exists(self._db_file):
-                management.call_command('syncdb')
-        else:
-            assert settings.DATABASE_NAME == self._db_file, "%s != %s" % (settings.DATABASE_NAME, self._db_file)
+    def __init__(self, db_file='.smt/records'):    
+        self._db_label = db_config.add_database(db_file)
+        self._db_file = db_file
                 
     def __str__(self):
         return "Relational database record store using the Django ORM (database file=%s)" % self._db_file
@@ -48,44 +97,64 @@ class DjangoRecordStore(RecordStore):
         return {'db_file': self._db_file}
     
     def __setstate__(self, state):
-        self.__init__(**state)
+        self._db_file = state['db_file']
+        try:
+            self._db_label = db_config.add_database(self._db_file)
+        except:
+            pass
+        
+    
+    def _get_models(self):
+        if not db_config.configured:
+            db_config.configure()
+        import models
+        return models
     
     def _switch_db(self, db_file):
         # for testing
+        global db_config
         settings = django_conf.settings
         settings._wrapped = None
         assert settings.configured == False
+        db_config = DjangoConfiguration()
         if db_file:
             self.__init__(db_file)
     
+    @property
+    def _manager(self):
+        models = self._get_models()
+        return models.Record.objects.using(self._db_label)
+    
     def _get_db_record(self, project_name, record):
+        models = self._get_models()
         db_project = self._get_db_project(project_name)
         try:
-            db_record = models.Record.objects.get(label=record.label,
-                                                  project=db_project)
+            db_record = self._manager.get(label=record.label, project=db_project)
         except models.Record.DoesNotExist:
             db_record = models.Record(label=record.label, project=db_project)
+            db_record._state.db = self._db_label
         return db_record
     
     def _get_db_project(self, project_name):
-        import models
+        models = self._get_models()
         try:
-            db_project = models.Project.objects.get(id=project_name)
+            db_project = models.Project.objects.using(self._db_label).get(id=project_name)
         except models.Project.DoesNotExist:
             db_project = models.Project(id=project_name)
             db_project.save()
         return db_project
-                                                                     
+
     def _get_db_obj(self, db_class, obj):
+        models = self._get_models()
         cls = getattr(models, db_class)
-        db_obj, created = cls.objects.get_or_create_from_sumatra_object(obj)
+        db_obj, created = cls.objects.get_or_create_from_sumatra_object(obj, using=self._db_label)
         if created:
-            db_obj.save()
+            db_obj.save(using=self._db_label)
         return db_obj        
     
     def list_projects(self):
-        import models
-        return [project.id for project in models.Project.objects.all()]
+        models = self._get_models()
+        return [project.id for project in models.Project.objects.using(self._db_label).all()]
     
     def save(self, project_name, record):
         db_record = self._get_db_record(project_name, record)
@@ -120,19 +189,18 @@ class DjangoRecordStore(RecordStore):
         #        return f(model, values, **kwargs)
         #    return _debug
         #django.db.models.manager.insert_query = debug(django.db.models.manager.insert_query)
-        db_record.save()
+        db_record.save(using=self._db_label)
         
     def get(self, project_name, label):
-        import models
+        models = self._get_models()
         try:
-            db_record = models.Record.objects.get(project__id=project_name, label=label)
+            db_record = self._manager.get(project__id=project_name, label=label)
         except models.Record.DoesNotExist:
             raise KeyError(label)
         return db_record.to_sumatra()
     
     def list(self, project_name, tags=None):
-        import models
-        db_records = models.Record.objects.filter(project__id=project_name)
+        db_records = self._manager.filter(project__id=project_name)
         if tags:
             if not hasattr(tags, "__len__"):
                 tags = [tags]
@@ -141,25 +209,27 @@ class DjangoRecordStore(RecordStore):
         return [db_record.to_sumatra() for db_record in db_records]
     
     def labels(self, project_name):
-        import models
-        return [record.label for record in models.Record.objects.filter(project__id=project_name)]
+        return [record.label for record in self._manager.filter(project__id=project_name)]
     
     def delete(self, project_name, label):
-        import models
-        db_record = models.Record.objects.get(label=label, project__id=project_name)
+        db_record = self._manager.get(label=label, project__id=project_name)
         db_record.delete()
         
     def delete_by_tag(self, project_name, tag):
-        import models
-        db_records = models.Record.objects.filter(project__id=project_name, tags__contains=tag)
+        db_records = self._manager.filter(project__id=project_name, tags__contains=tag)
         n = db_records.count()
         for db_record in db_records:
             db_record.delete()
         return n
     
     def most_recent(self, project_name):
-        import models
-        return models.Record.objects.filter(project__id=project_name).latest('timestamp').label
+        models = self._get_models()
+        return self._manager.filter(project__id=project_name).latest('timestamp').label
+    
+    def delete_all(self):
+        """Delete everything from the database."""
+        management.call_command('flush', database=self._db_label,
+                                interactive=False, verbosity=0)
     
     def _dump(self, indent=2):
         """
