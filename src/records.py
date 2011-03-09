@@ -163,6 +163,8 @@ class RecordDifference(object):
             if rec.parameters:
                 rec.parameters.pop("sumatra_label", 1)
         self.parameters_differ = recordA.parameters != recordB.parameters
+        self.input_data_differ = recordA.input_data != recordB.input_data
+        self.script_arguments_differ = recordA.script_arguments != recordB.script_arguments
         self.launch_mode_differs = recordA.launch_mode != recordB.launch_mode
         #self.platforms
         #self.datastore = datastore
@@ -179,6 +181,7 @@ class RecordDifference(object):
         practice, but then the output data will be different).
         """
         return reduce(or_, (self.executable_differs, self.code_differs,
+                            self.input_data_differ, self.script_arguments_differ,
                             self.parameters_differ, self.data_differs))
     
     def __repr__(self):
@@ -191,6 +194,10 @@ class RecordDifference(object):
             s += 'P'
         if self.data_differs:
             s += 'D'
+        if self.input_data_differ:
+            s += 'I'
+        if self.script_arguments_differ:
+            s += 'S'
         return s
     
     @property

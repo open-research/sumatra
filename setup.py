@@ -2,7 +2,6 @@
 
 import distribute_setup
 distribute_setup.use_setuptools()
-#from distutils.core import setup
 from setuptools import setup
 from distutils.command.sdist import sdist
 from src.__init__ import __version__

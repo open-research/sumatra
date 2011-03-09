@@ -21,6 +21,9 @@ class MockRecord(Record):
         self.executable = "brian"
         self.tags = ["splitters",]
         self.script_arguments = "arg1 arg2"
+        self.input_data = ['somefile', 'anotherfile']
+        self.diff = 'iuefciaeufhmc'
+        self.parameters = {'a': 2, 'b': 4}
 
 class MockRecordDifference(object):
     recordA = MockRecord()
@@ -38,6 +41,8 @@ class MockRecordDifference(object):
     version_differs = True
     diff_differs = True
     parameters_differ = True
+    input_data_differ = True
+    script_arguments_differ = True
     
 
 class TestTextFormatter(unittest.TestCase):

@@ -112,6 +112,8 @@ class ParameterSet(BaseModel):
             ps = getattr(parameters, self.type)(self.content)
         elif self.content == u'None':
             ps = None
+        elif self.content == u'{}':
+            ps = {}
         else:
             ps = self.content
         return ps
