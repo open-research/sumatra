@@ -51,7 +51,7 @@ if __name__ == "__main__":
     repos_dir = os.path.realpath(tempfile.mkdtemp())        
     create_mercurial_repos(repos_dir)
     
-    getting_started(None)
+    getting_started({})
         
     server = run_in_background("smtweb -p 8009")
     time.sleep(10)

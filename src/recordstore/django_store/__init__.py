@@ -37,19 +37,28 @@ class DjangoConfiguration(object):
         self.configured = False
    
     def add_database(self, db_file):
-        if self.configured:
-            raise Exception("Django already configured: you cannot create any more DjangoRecordStores. You must create all stores before using any of them.")
+        """
+        Add a database to the configuration and return a label. If the database
+        already exists in the configuration, just return the existing label.
+        """
+        db_file = os.path.abspath(db_file)
         if self.contains_database(db_file):
-            raise Exception("Database %s already in use." % db_file)
-        if self._n_databases == 0:
-            label = 'default'
+            for key, db in self._settings['DATABASES'].items():
+                if db_file == db['NAME']:
+                    label = key
+                    break
         else:
-            label = 'database%g' % self._n_databases
-        self._settings['DATABASES'][label] = {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': os.path.abspath(db_file)
-        }
-        self._n_databases += 1
+            if self.configured:
+                raise Exception("Django already configured: you cannot create any more DjangoRecordStores. You must create all stores before using any of them.")
+            if self._n_databases == 0:
+                label = 'default'
+            else:
+                label = 'database%g' % self._n_databases
+            self._settings['DATABASES'][label] = {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': os.path.abspath(db_file)
+            }
+            self._n_databases += 1
         return label
     
     def contains_database(self, db_file):
@@ -59,12 +68,6 @@ class DjangoConfiguration(object):
         return [D['NAME'] for D in self._settings['DATABASES'].values()]
 
     def _create_databases(self):
-        #    for db_file in self.get_db_files():
-        #        if not os.path.exists(os.path.dirname(db_file)):
-        #            os.makedirs(os.path.dirname(db_file))
-        #    for label in self._settings['DATABASES']:
-        #        #print "syncdb %s" % label
-        #        management.call_command('syncdb', database=label, verbosity=0)
         for label, db in self._settings['DATABASES'].items():
             db_file = db['NAME']
             if not os.path.exists(os.path.dirname(db_file)):
@@ -180,15 +183,6 @@ class DjangoRecordStore(RecordStore):
         for pi in record.platforms:
             db_record.platforms.add(self._get_db_obj('PlatformInformation', pi))
         db_record.diff = record.diff
-        #import django.db.models.manager
-        #def debug(f):
-        #    def _debug(model, values, **kwargs):
-        #        print "model = ", model
-        #        print "values = ", values
-        #        print "kwargs = ", kwargs
-        #        return f(model, values, **kwargs)
-        #    return _debug
-        #django.db.models.manager.insert_query = debug(django.db.models.manager.insert_query)
         db_record.save(using=self._db_label)
         
     def get(self, project_name, label):
