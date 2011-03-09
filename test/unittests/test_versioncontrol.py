@@ -96,7 +96,7 @@ class TestMercurialWorkingCopy(unittest.TestCase, BaseTestWorkingCopy):
         self.assertEqual(self.wc.status(), {'modified': ['romans.param'], 'removed': [],
                                             'deleted': [], 'unknown': []})
 
-@unittest.skipUnless(have_git, "Could not import git")
+#@unittest.skipUnless(have_git, "Could not import git") # 
 class TestGitWorkingCopy(unittest.TestCase, BaseTestWorkingCopy):
     
     def setUp(self):
@@ -112,8 +112,10 @@ class TestGitWorkingCopy(unittest.TestCase, BaseTestWorkingCopy):
     def tearDown(self):
         os.unlink("%s/.git" % self.repository_path)
         shutil.rmtree(self.tmpdir)
+TestGitWorkingCopy = unittest.skipUnless(have_git, "Could not import git")(TestGitWorkingCopy) # not using as class decorator for the sake of Python 2.5
 
-@unittest.skipUnless(have_pysvn, "Could not import pysvn")
+
+#@unittest.skipUnless(have_pysvn, "Could not import pysvn")
 class TestSubversionWorkingCopy(unittest.TestCase, BaseTestWorkingCopy):
     
     def setUp(self):
@@ -132,9 +134,10 @@ class TestSubversionWorkingCopy(unittest.TestCase, BaseTestWorkingCopy):
         self.assertEqual(self.wc.status()['modified'], [])
         self.change_file()
         self.assertEqual(os.path.basename(self.wc.status()['modified'][0]), 'romans.param')
+TestSubversionWorkingCopy = unittest.skipUnless(have_pysvn, "Could not import pysvn")(TestSubversionWorkingCopy)
 
 
-@unittest.skipUnless(have_bzr, "Could not import bzrlib")
+#@unittest.skipUnless(have_bzr, "Could not import bzrlib")
 class TestBazaarWorkingCopy(unittest.TestCase, BaseTestWorkingCopy):
     
     def setUp(self):
@@ -150,6 +153,7 @@ class TestBazaarWorkingCopy(unittest.TestCase, BaseTestWorkingCopy):
     def tearDown(self):
         os.unlink("%s/.bzr" % self.repository_path)
         shutil.rmtree(self.tmpdir)
+TestBazaarWorkingCopy = unittest.skipUnless(have_bzr, "Could not import bzrlib")(TestBazaarWorkingCopy)
 
 
 class BaseTestRepository(object):
@@ -185,6 +189,7 @@ class BaseTestRepository(object):
         r2 = self._create_repository()
         self.assertEqual(r1, r2)
 
+
 class TestMercurialRepository(unittest.TestCase, BaseTestRepository):
     
     def setUp(self):
@@ -217,7 +222,7 @@ class TestMercurialRepository(unittest.TestCase, BaseTestRepository):
         shutil.rmtree(tmpdir)
         
 
-@unittest.skipUnless(have_git, "Could not import git")
+#@unittest.skipUnless(have_git, "Could not import git")
 class TestGitRepository(unittest.TestCase, BaseTestRepository):
     
     def setUp(self):
@@ -247,9 +252,10 @@ class TestGitRepository(unittest.TestCase, BaseTestRepository):
         # is the working copy path same as the repo path?
         self.assertEqual(wc, tmpdir)
         shutil.rmtree(tmpdir)
+TestGitRepository = unittest.skipUnless(have_git, "Could not import git")(TestGitRepository)
 
 
-@unittest.skipUnless(have_pysvn, "Could not import pysvn")
+#@unittest.skipUnless(have_pysvn, "Could not import pysvn")
 class TestSubversionRepository(unittest.TestCase, BaseTestRepository):
     
     def setUp(self):
@@ -270,9 +276,10 @@ class TestSubversionRepository(unittest.TestCase, BaseTestRepository):
         r = self._create_repository()
         self.assertRaises(Exception, r.checkout, path="file:///tmp/")
         shutil.rmtree("file:") # this is not quite what's supposed to happen
+TestSubversionRepository = unittest.skipUnless(have_pysvn, "Could not import pysvn")(TestSubversionRepository)
 
 
-@unittest.skipUnless(have_bzr, "Could not import bzrlib")
+#@unittest.skipUnless(have_bzr, "Could not import bzrlib")
 class TestBazaarRepository(unittest.TestCase, BaseTestRepository):
     
     def setUp(self):
@@ -304,6 +311,7 @@ class TestBazaarRepository(unittest.TestCase, BaseTestRepository):
             project_files.remove("main.pyc")
         self.assertEqual(set(repos_files), set(project_files))
         shutil.rmtree(tmpdir)
+TestBazaarRepository = unittest.skipUnless(have_bzr, "Could not import bzrlib")(TestBazaarRepository)
 
 
 class TestMercurialModuleFunctions(unittest.TestCase):
@@ -332,7 +340,7 @@ class TestMercurialModuleFunctions(unittest.TestCase):
         assert have_wc == True
 
 
-@unittest.skipUnless(have_pysvn, "Could not import pysvn")
+#@unittest.skipUnless(have_pysvn, "Could not import pysvn")
 class TestSubversionModuleFunctions(unittest.TestCase):
     pass
 
