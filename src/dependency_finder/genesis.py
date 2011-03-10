@@ -30,7 +30,6 @@ from sumatra.dependency_finder import core
 from sumatra import versioncontrol
 import subprocess
 
-heuristics = [core.find_version_from_versioncontrol,]
 
 class Dependency(core.BaseDependency):
     """
@@ -38,7 +37,7 @@ class Dependency(core.BaseDependency):
     """
     module = 'genesis'
     
-    def __init__(self, name, path=None, version=None, on_changed='error'):
+    def __init__(self, name, path=None, version='unknown', diff=''):
         self.name = os.path.basename(name) # or maybe should be path relative to main file?
         if path:
             self.path = path
@@ -46,22 +45,8 @@ class Dependency(core.BaseDependency):
             self.path = os.path.abspath(name)
         if not os.path.exists(self.path):
             raise IOError("File %s does not exist." % self.path)
-        self.diff = ''
-        if version:
-            self.version = version
-        else:
-            self.version = "unknown"
-            try:
-                self.version = core.find_version(self.path, heuristics)
-            except versioncontrol.UncommittedModificationsError:
-                if on_changed == 'error':
-                    raise
-                elif on_changed == 'store-diff':
-                    wc = versioncontrol.get_working_copy(self.path)
-                    self.version = wc.current_version()
-                    self.diff = wc.diff()
-                else:
-                    raise Exception("Only 'error' and 'store-diff' are currently supported for on_changed.")
+        self.diff = diff
+        self.version = version
 
 
 def get_sim_path():
@@ -112,11 +97,13 @@ def find_included_files(file_path):
     return set(all_paths)
 
 
-
-def find_dependencies(filename, executable_path, on_changed):
-    """Return a list of Dependency objects representing all Hoc files imported
-    (directly or indirectly) by a given Hoc file."""
+def find_dependencies(filename, executable_path):
+    """
+    Return a list of Dependency objects representing all files included,
+    whether directly or indirectly, by a given .g file. 
+    """
+    heuristics = [core.find_versions_from_versioncontrol,]
     paths = find_included_files(filename)
     # also need to find .p files
-    dependencies = [Dependency(name, on_changed=on_changed) for name in paths]
-    return dependencies
+    dependencies = [Dependency(name) for name in paths]
+    return core.find_versions(dependencies, heuristics)

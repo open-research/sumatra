@@ -24,15 +24,15 @@ import warnings
 from sumatra.dependency_finder import core, neuron, python, genesis
     
 
-def find_dependencies(filename, executable, on_changed='error'):
+def find_dependencies(filename, executable):
     """Return a list of dependencies for a given script and programming
        language."""
     if executable.name == "Python":
-        return python.find_dependencies(filename, executable.path, on_changed)
+        return python.find_dependencies(filename, executable.path)
     elif executable.name == "NEURON":
-        return neuron.find_dependencies(filename, executable.path, on_changed)
+        return neuron.find_dependencies(filename, executable.path)
     elif executable.name == "GENESIS":
-        return genesis.find_dependencies(filename, executable.path, on_changed)
+        return genesis.find_dependencies(filename, executable.path)
     else:
         warnings.warn("find_dependencies() not yet implemented for %s" % executable.name)
         return []

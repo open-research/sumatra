@@ -23,24 +23,26 @@ class TestPythonModuleFunctions(unittest.TestCase):
     def setUp(self):
         self.saved_path = sys.path[:]
         self.cwd = os.getcwd()
-        example_project = os.path.join(tmpdir, "python")
-        assert os.path.exists(example_project)
-        sys.path.append(os.path.abspath(example_project))
-        os.chdir(example_project)
+        self.example_project = os.path.join(tmpdir, "python")
+        assert os.path.exists(self.example_project)
+        sys.path.append(os.path.abspath(self.example_project))
+        os.chdir(self.example_project)
     
     def tearDown(self):
         sys.path = self.saved_path
         os.chdir(self.cwd)
     
-    def test__find_version_by_attribute(self):
+    def test__find_versions_by_attribute(self):
         import main
-        self.assertEqual(df.python.find_version_by_attribute(main, sys.executable), "1.2.3b")
-        #del main.get_version
-        #self.assertEqual(df.python.find_version_by_attribute(main, sys.executable), "1.2.3a")
+        self.assertEqual(df.python.find_version_by_attribute(main), "1.2.3b")
+        del main.get_version
+        self.assertEqual(df.python.find_version_by_attribute(main), "1.2.3a")
         
-    def test__find_version_from_egg(self):
-        import main
-        self.assertEqual(df.python.find_version_from_egg(main, sys.executable), "1.2.3egg")
+    def test__find_versions_from_egg(self):
+        dep = df.python.Dependency("main", os.path.join(self.example_project, "main.py"))
+        self.assertEqual(dep.version, 'unknown')
+        df.python.find_versions_from_egg([dep])
+        self.assertEqual(dep.version, "1.2.3egg")
     
     def test__find_imported_packages(self):
         # the example project has numpy as its only import
@@ -56,17 +58,14 @@ class TestPythonModuleFunctions(unittest.TestCase):
 class TestCoreModuleFunctions(unittest.TestCase):
     
     def setUp(self):
-        self.saved_path = sys.path[:]
-        example_project = os.path.join(tmpdir, "python")
-        assert os.path.exists(example_project)
-        sys.path.append(os.path.abspath(example_project))
-    
-    def tearDown(self):
-        sys.path = self.saved_path
-        
-    def test__find_version(self):
-        import main
-        self.assertEqual(df.core.find_version(main, df.python.heuristics), "1.2.3b")
+        self.example_project = os.path.join(tmpdir, "python")
+        assert os.path.exists(self.example_project)
+
+    def test__find_versions(self):
+        #better to test this using mocks
+        dep = df.python.Dependency("main", os.path.join(self.example_project, "main.py"))
+        df.core.find_versions([dep], [df.python.find_versions_from_egg])
+        self.assertEqual(dep.version, "1.2.3egg")
         
         
 class TestMainModuleFunctions(unittest.TestCase):
@@ -101,37 +100,34 @@ class TestPythonDependency(unittest.TestCase):
     
     def setUp(self):
         self.saved_path = sys.path[:]
-        example_project = os.path.join(tmpdir, "python")
-        assert os.path.exists(example_project)
-        sys.path.append(os.path.abspath(example_project))
+        self.example_project = os.path.join(tmpdir, "python")
+        assert os.path.exists(self.example_project)
+        sys.path.append(os.path.abspath(self.example_project))
     
     def tearDown(self):
         sys.path = self.saved_path
     
     def test__init(self):
-        dep = df.python.Dependency("main")
+        dep = df.python.Dependency("main", os.path.join(self.example_project, "main.py"), version="1.2.3b")
         self.assertEqual(dep.version, "1.2.3b")
 
     def test__str(self):
-        dep = df.python.Dependency("main")
+        dep = df.python.Dependency("main", "/some/path")
         str(dep)
         
     def test_eq(self):
-        dep1 = df.python.Dependency("main")
-        dep2 = df.python.Dependency("main")
+        path = os.path.join(self.example_project, "main.py")
+        dep1 = df.python.Dependency("main", path)
+        dep2 = df.python.Dependency("main", path)
         self.assertEqual(dep1, dep2)
 
     def test_ne(self):
-        dep1 = df.python.Dependency("main")
-        dep2 = df.python.Dependency("unittest")
+        path = "/some/path"
+        dep1 = df.python.Dependency("main", path)
+        dep2 = df.python.Dependency("unittest", path)
         self.assertNotEqual(dep1, dep2)
-        
-    def test__init__with_nonexistent_module(self):
-        dep = df.python.Dependency("foo")
-        assert isinstance(dep.import_error, ImportError)
-        assert dep.version == 'unknown'
-        
-        
+
+
 class TestNEURONDependency(unittest.TestCase):
     
     def setUp(self):

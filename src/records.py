@@ -60,12 +60,13 @@ class Record(object):
         assert_equal(working_copy.current_version(), self.version, "version")
         # Record dependencies
         if len(self.main_file.split()) == 1: # this assumes filenames cannot contain spaces
-            self.dependencies = dependency_finder.find_dependencies(self.main_file, self.executable, self.on_changed)
+            self.dependencies = dependency_finder.find_dependencies(self.main_file, self.executable)
         else: # if self.main_file contains multiple file names
             # this seems a bit hacky. Should perhaps store a list self.main_files, _and_ check that all files exist.
             self.dependencies = []
             for main_file in self.main_file.split():
-                self.dependencies.extend(dependency_finder.find_dependencies(main_file, self.executable, self.on_changed))
+                self.dependencies.extend(dependency_finder.find_dependencies(main_file, self.executable))
+        # if self.on_changed is 'error', should check that all the dependencies have empty diffs and raise an UncommittedChangesError otherwise
         # Record platform information
         self.platforms = self.launch_mode.get_platform_information()
     

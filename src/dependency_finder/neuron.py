@@ -30,7 +30,6 @@ import os
 from sumatra.dependency_finder import core
 from sumatra import versioncontrol
 
-heuristics = [core.find_version_from_versioncontrol,]
 
 class Dependency(core.BaseDependency):
     """
@@ -38,7 +37,7 @@ class Dependency(core.BaseDependency):
     """
     module = 'neuron'
     
-    def __init__(self, name, path=None, version=None, on_changed='error'):
+    def __init__(self, name, path=None, version='unknown', diff=''):
         self.name = os.path.basename(name) # or maybe should be path relative to main file?
         if path:
             self.path = path
@@ -47,22 +46,8 @@ class Dependency(core.BaseDependency):
         if not os.path.exists(self.path):
             raise IOError("File %s does not exist." % self.path)
         self.diff = ''
-        if version:
-            self.version = version
-        else:
-            self.version = "unknown"
-            try:
-                self.version = core.find_version(self.path, heuristics)
-            except versioncontrol.UncommittedModificationsError:
-                if on_changed == 'error':
-                    raise
-                elif on_changed == 'store-diff':
-                    wc = versioncontrol.get_working_copy(self.path)
-                    self.version = wc.current_version()
-                    self.diff = wc.diff()
-                else:
-                    raise Exception("Only 'error' and 'store-diff' are currently supported for on_changed.")
-    
+        self.version = version
+
     def in_stdlib(self, executable_path):
         stdlib_path = _nrn_install_prefix(executable_path)
         return self.path.find(stdlib_path) == 0
@@ -135,9 +120,11 @@ def find_loaded_files(file_path, executable_path):
     return set(all_paths)
 
 
-def find_dependencies(filename, executable_path, on_changed):
+def find_dependencies(filename, executable_path):
     """Return a list of Dependency objects representing all Hoc files imported
     (directly or indirectly) by a given Hoc file."""
+    heuristics = [core.find_versions_from_versioncontrol,]
     paths = find_xopened_files(filename).union(find_loaded_files(filename, executable_path))
-    dependencies = [Dependency(name, on_changed=on_changed) for name in paths]
-    return [d for d in dependencies if not d.in_stdlib(executable_path)]
+    dependencies = [Dependency(name) for name in paths]
+    dependencies = [d for d in dependencies if not d.in_stdlib(executable_path)]
+    return core.find_versions(dependencies, heuristics)

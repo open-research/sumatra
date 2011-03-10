@@ -3,6 +3,7 @@ Functions for finding the version of a dependency.
 
 Classes
 -------
+
 BaseDependency - base class for holding information about a program component.
 
 Functions
@@ -20,20 +21,21 @@ find_version()                   - tries to find version information by calling 
 import os
 from sumatra import versioncontrol
 
-def find_version_from_versioncontrol(path):
+
+def find_versions_from_versioncontrol(dependencies):
     """Determine whether a file is under version control, and if so,
        obtain version information from this."""
-    #print "Looking for working copy at %s" % path
-    try:
-        wc = versioncontrol.get_working_copy(path)
-    except versioncontrol.VersionControlError:
-        version = 'unknown'
-    else:
-        if wc.has_changed():
-            msg = "Working copy at %s has uncommitted modifications. It is therefore not possible to determine the code version. Please commit your modifications." % path
-            raise versioncontrol.UncommittedModificationsError(msg)
-        version = wc.current_version()
-    return version
+    for dependency in dependencies:
+        if dependency.version == "unknown":
+            try:
+                wc = versioncontrol.get_working_copy(dependency.path)
+            except versioncontrol.VersionControlError:
+                pass # dependency.version remains "unknown"
+            else:
+                if wc.has_changed():
+                    dependency.diff = wc.diff()
+                dependency.version = wc.current_version()
+    return dependencies
 
 
 # add support for using packaging systems, e.g. apt, to find versions.
@@ -41,21 +43,19 @@ def find_version_from_versioncontrol(path):
 # add support for looking for Subversion $Id:$ tags, etc.
 
 
-def find_version(component, heuristics, executable_path):
+def find_versions(dependencies, heuristics):
     """
     Try to find version information by calling a series of functions in turn.
     
-    `component` - type depends on the language, e.g. a module for Python, a
-                  filesystem path for NEURON.
-    `heuristics` - a list of functions that accept a component as the single
-                   argument and return a version number or 'unknown'.
+    `dependencies` - a list of Dependency objects.
+    `heuristics`   - a list of functions that accept a component as the single
+                     argument and return a version number or 'unknown'.
+                   
+    Returns a possibly modified list of dependencies
     """
-    errors = []
     for heuristic in heuristics:
-        version = heuristic(component, executable_path)
-        if version is not 'unknown':
-            break
-    return str(version)
+        dependencies = heuristic(dependencies)
+    return dependencies
 
 
 def find_file(path, current_directory, search_dirs):
