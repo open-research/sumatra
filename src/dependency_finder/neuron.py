@@ -135,7 +135,7 @@ def find_loaded_files(file_path, executable_path):
     return set(all_paths)
 
 
-def find_dependencies(filename, on_changed, executable_path):
+def find_dependencies(filename, executable_path, on_changed):
     """Return a list of Dependency objects representing all Hoc files imported
     (directly or indirectly) by a given Hoc file."""
     paths = find_xopened_files(filename).union(find_loaded_files(filename, executable_path))

@@ -42,6 +42,7 @@ class MockRepository(object):
 
 class MockExecutable(object):
     name = "Python"
+    path = "/usr/local/bin/python"
     def write_parameters(self, params, filename):
         pass
     def __getstate__(self):

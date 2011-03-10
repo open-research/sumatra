@@ -113,7 +113,7 @@ def find_included_files(file_path):
 
 
 
-def find_dependencies(filename, on_changed):
+def find_dependencies(filename, executable_path, on_changed):
     """Return a list of Dependency objects representing all Hoc files imported
     (directly or indirectly) by a given Hoc file."""
     paths = find_included_files(filename)

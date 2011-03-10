@@ -41,7 +41,7 @@ def find_version_from_versioncontrol(path):
 # add support for looking for Subversion $Id:$ tags, etc.
 
 
-def find_version(component, heuristics):
+def find_version(component, heuristics, executable_path):
     """
     Try to find version information by calling a series of functions in turn.
     
@@ -52,7 +52,7 @@ def find_version(component, heuristics):
     """
     errors = []
     for heuristic in heuristics:
-        version = heuristic(component)
+        version = heuristic(component, executable_path)
         if version is not 'unknown':
             break
     return str(version)

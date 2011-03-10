@@ -11,38 +11,42 @@ import tempfile
 import shutil
 import warnings
 
+
 class MockExecutable(object):
     def __init__(self, name):
         self.name = name
         self.path = name
-                
+        
 
 class TestPythonModuleFunctions(unittest.TestCase):
     
     def setUp(self):
         self.saved_path = sys.path[:]
+        self.cwd = os.getcwd()
         example_project = os.path.join(tmpdir, "python")
         assert os.path.exists(example_project)
         sys.path.append(os.path.abspath(example_project))
+        os.chdir(example_project)
     
     def tearDown(self):
         sys.path = self.saved_path
+        os.chdir(self.cwd)
     
     def test__find_version_by_attribute(self):
         import main
-        self.assertEqual(df.python.find_version_by_attribute(main), "1.2.3b")
-        del main.get_version
-        self.assertEqual(df.python.find_version_by_attribute(main), "1.2.3a")
+        self.assertEqual(df.python.find_version_by_attribute(main, sys.executable), "1.2.3b")
+        #del main.get_version
+        #self.assertEqual(df.python.find_version_by_attribute(main, sys.executable), "1.2.3a")
         
     def test__find_version_from_egg(self):
         import main
-        self.assertEqual(df.python.find_version_from_egg(main), "1.2.3egg")
+        self.assertEqual(df.python.find_version_from_egg(main, sys.executable), "1.2.3egg")
     
     def test__find_imported_packages(self):
         # the example project has numpy as its only import
-        example_project_imports = df.python.find_imported_packages(os.path.join(tmpdir, "python", "main.py"))
+        example_project_imports = df.python.find_imported_packages(os.path.join(tmpdir, "python", "main.py"), sys.executable)
         assert "numpy" in example_project_imports.keys()
-        numpy_imports = df.python.find_imported_packages(numpy.__file__.replace(".pyc", ".py"))
+        numpy_imports = df.python.find_imported_packages(numpy.__file__.replace(".pyc", ".py"), sys.executable)
         assert len(example_project_imports) == len(numpy_imports)
         for key in numpy_imports:
             self.assertEqual(str(numpy_imports[key]),
