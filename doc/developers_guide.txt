@@ -11,13 +11,14 @@ Requirements
 
     * Python_ 2.5, 2.6 and/or 2.7
     * Django_ >= 1.2
-    * django-tagging_ >= 0.3  ##CHECK
-    * nose_ >= ???
-    * if using Python 2.5 or 2.6, unittest2_ >= ???
-    * Distribute_ >= ???
-    * (optional) tox_ >= ??? (makes it easier to test with multiple Python versions)
-    * (optional) twill_ >= ??? (needed for testing web interface)
-    * (optional) coverage_ >= ??? (for measuring test coverage)
+    * django-tagging_ >= 0.3
+    * nose_ >= 0.11.4
+    * if using Python 2.5 or 2.6, unittest2_ >= 0.5.1
+    * Distribute_ >= 0.6.14
+    * (optional) mpi4py_ >= 1.2.2
+    * (optional) tox_ >= 0.9 (makes it easier to test with multiple Python versions)
+    * (optional) twill_ >= 0.9 (needed for testing web interface)
+    * (optional) coverage_ >= 3.3.1 (for measuring test coverage)
     
 .. can setup.py install all these?
 
@@ -120,14 +121,15 @@ Coding standards and style
 All code should conform as much as possible to `PEP 8`_, and should run with
 Python 2.5, 2.6 and 2.7.
 
-.. _Python: xxx
-.. _Django: xxx
-.. _django-tagging: xxx
-.. _nose: xxx
-.. _unittest2: xxx
-.. _Distribute: xxx
-.. _tox: xxx
-.. _twill: xxx
+.. _Python: http://www.python.org
+.. _Django: http://www.djangoproject.com/
+.. _django-tagging: http://code.google.com/p/django-tagging/
+.. _nose: http://somethingaboutorange.com/mrl/projects/nose/
+.. _unittest2: http://pypi.python.org/pypi/unittest2
+.. _Distribute: http://pypi.python.org/pypi/distribute
+.. _mpi4py: http://mpi4py.scipy.org/
+.. _tox: http://codespeak.net/tox/
+.. _twill: http://twill.idyll.org/
 .. _coverage: xxx
 .. _`PEP 8`: xxx
 .. _`issue tracker`: http://neuralensemble.org/trac/sumatra

@@ -4,12 +4,32 @@ Unit tests for the sumatra.parameters module
 from __future__ import with_statement
 import unittest
 import os
+try:
+    import json
+except ImportError:
+    import simplejson as json
 from textwrap import dedent
 from sumatra.parameters import SimpleParameterSet, NTParameterSet, ConfigParserParameterSet, build_parameters
 
 
 class TestNTParameterSet(unittest.TestCase):
-    pass
+    
+    def test__json_should_be_accepted(self):
+        example = {
+                    "y": {
+                        "a": -2,
+                        "b": [4, 5, 6],
+                        "c": 5,
+                    },
+                    "x": 2.9,
+                    "z": 100,
+                    "mylabel": "camelot"
+        }
+        P = NTParameterSet(json.dumps(example))
+        self.assertEqual(P.y.a, -2)
+        self.assertEqual(P.y.b, [4, 5, 6])
+        self.assertEqual(P.x, 2.9)
+        self.assertEqual(P.mylabel, "camelot")
 
 class TestSimpleParameterSet(unittest.TestCase):
     
@@ -107,12 +127,15 @@ class TestSimpleParameterSet(unittest.TestCase):
 
 class TestConfigParserParameterSet(unittest.TestCase):
     test_parameters = dedent("""
+        # this is a comment
+        
         [sectionA]
-        a = 2
-        b = 3
+        a: 2
+        b: 3
+        
         [sectionB]
-        c = hello
-        d = world
+        c: hello
+        d: world
         """)
     
     def test__init__should_accept_an_empty_initializer(self):

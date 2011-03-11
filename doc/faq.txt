@@ -1,0 +1,11 @@
+=========================
+Frequently asked question
+=========================
+
+* Where does the name "Sumatra" come from?
+
+It is based on the initial letters of "Simulation Management Tool".
+(Sumatra was originally conceived for tracking simulations, it was only later
+that I realized it could equally well be used for any command-line driven
+computation). Despite a certain geographical proximity, it has nothing to do
+with Java :-)

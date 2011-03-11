@@ -47,7 +47,7 @@ Sumatra currently supports Mercurial_, Subversion_, Git_ and Bazaar_.
 If you are using Subversion, you will need to install the `pysvn bindings`_.
 Since Mercurial and Bazaar are mostly written in Python, just installing the
 main Mercurial/Bazaar package is sufficient. For Git, you need to install the
-GitPython_ library.
+GitPython_ package.
 
 
 .. _Django: http://www.djangoproject.com

@@ -103,8 +103,7 @@ After the simulation is complete, you can add a description of the outcome::
     $ smt comment "apparently, it is worth NaN shekels."
     
 This adds the comment to the most recent simulation. You may also describe the outcome
-of an earlier simulation, by specifying its ID (made up from the label and the
-timestamp)::
+of an earlier simulation, by specifying its label::
 
     $ smt comment 20090930-174949 "Eureka! Nobel prize here we come."
     
@@ -148,12 +147,13 @@ It is also possible to delete all simulations with a given tag::
     
 Most of the commands described here have further options that we have not
 described. A full description of the options for each command is given in the
-[command reference]. The full list of commands is available by running ``smt`` by itself::
+:doc:`command reference <command_reference>`. The full list of commands is
+available by running ``smt`` by itself::
 
     $ smt
     Usage: smt <subcommand> [options] [args]
         
-    Simulation management tool, version 0.2.1
+    Simulation management tool, version 0.3.0
 
     Available subcommands:  
       init
@@ -165,6 +165,8 @@ described. A full description of the options for each command is given in the
       comment
       tag
       repeat
+      diff
+      upgrade
 
 and help on a given command is available by running the command with the ``--help``
 option, e.g.::
@@ -188,8 +190,7 @@ option, e.g.::
 or ``smt help CMD``, where ``CMD`` is the name of the command.
 
 This tutorial has covered using ``smt`` for serial simulations/analyses. A further tutorial
-covers :doc:`using smt for parallel computations <parallel_computations>`, whether batch or distributed
-(using MPI_).
+covers :doc:`using smt for parallel computations <parallel_computations>` (using MPI_).
 
 Also see :doc:`smtweb <web_interface>`, which provides a more graphical interface to viewing lists
 of records than ``smt list``.

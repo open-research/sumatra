@@ -1,0 +1,19 @@
+======
+launch
+======
+
+.. automodule:: sumatra.launch
+
+.. autoclass:: SerialLaunchMode
+    :members:
+    :inherited-members:
+    :undoc-members:
+    
+.. autoclass:: DistributedLaunchMode
+    :members:
+    :inherited-members:
+    :undoc-members:
+    
+.. autoclass:: PlatformInformation
+    :members:
+

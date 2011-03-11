@@ -1,3 +1,133 @@
 ===============
 Parameter files
 ===============
+
+There is no requirement to put parameters in a separate file to use Sumatra,
+nor is it required to use a particular parameter file format. However, if you
+do use one of the formats Sumatra supports then you will gain extra
+functionality: currently, the ability to modify/add parameters on the command
+line and to have Sumatra automatically add the record label to the parameter
+file; in future versions, the ability to search and filter your records based
+on parameters.
+
+Supported formats
+=================
+
+Simple
+------
+
+Each parameter on a separate line, in "name = value" format. Values may be
+numbers, strings or lists (denoted with square brackets, comma-separated).
+Comments are indicated by a leading "#". Example::
+
+    # Example parameter file
+    nx = 10   # } grid
+    ny = 12   # } size
+    inputs = [1e-3, 2e-3, 5e-3, 1e-2]
+    label = "default"
+    
+
+Config/ini-style
+----------------
+
+Traditional config file format, as parsed by the standard Python ConfigParser_
+module. Note that this format does not distinguish numbers from string
+representations of those numbers, so all parameter values are treated as
+strings. This format allows one level of nesting: you can create sections within
+which you can define parameters. Comments are indicated by a leading "#".
+Example::
+
+    [sectionA]
+        a: 2
+        b: 3
+    
+    [sectionB]
+        c: hello
+        d: world
+        
+See the ConfigParser_ docs for more details.
+
+JSON
+----
+
+See http://www.json.org/.
+
+
+NeuroTools format
+-----------------
+
+`NeuroTools parameter format`_ is essentially the same as JSON, but with the
+addition of a ``url()`` function which allows sub-parameter sets to be
+included from other files. Example::
+
+    {
+      "network": {
+        "excitatory_cells": url("https://neuralensemble.org/svn/NeuroTools/trunk/doc/example.param")
+        "inhibitory_cells": {
+          "tau_m": 15.0,
+          "cm": 0.75,
+        },
+      },
+      "sim": {
+        "tstop": 1000.0,
+        "dt": 0.11,
+      }
+    }
+
+Adding new formats
+==================
+
+If your parameter file format is not supported by Sumatra, there is no problem:
+Sumatra will treat your parameter file as any other input data file and pass it
+directly through to your simulation/analysis script.
+
+However, it is fairly straightforward to add support for a new format. You will
+need to write a Python class according to the following skeleton::
+
+    class MyParameterSet(object):
+    
+        def __init__(self, initialiser):
+            # initialiser could be either a filesystem path or a string containing
+            # the contents of your parameter file, and should raise a SyntaxError
+            # if it cannot make sense of the contents.
+        
+        def __getitem__(self, name):
+            # return the parameter or sub-parameter set with the given name
+        
+        def __eq__(self, other):
+            # must be implemented
+            
+        def __ne__(self, other):
+            # must be implemented
+            
+        def as_dict(self):
+            # return the parameter set as a Python dict containing only numerical
+            # types, lists, or other dicts.
+            
+        def save(self, filename):
+            # self-explanatory
+        
+        def pop(self, k, d=None):
+            # same behaviour as Python dict
+            
+        def update(self, E, **F):
+            # same behaviour as Python dict
+            
+        def pretty(self, expand_urls=False):
+            # Return a string representation of the parameter set, suitable for
+            # creating a new, identical parameter set.
+            # expand_urls is present for compatibility with NTParameterSet, and need
+            # not be used.
+
+
+For this version of Sumatra, you will have to include this class within the
+file ``parameters.py`` of your Sumatra installation, or send it to the
+developers to include in the Sumatra repository (see :doc:`developers_guide`),
+as well as editing the ``build_parameters()`` function within ``parameters.py``
+so that it tries to use your class. In the next version of Sumatra, we plan to
+include a plugin system which will greatly simplify adding your own
+customizations.
+    
+
+.. _ConfigParser: http://docs.python.org/library/configparser.html
+.. _`NeuroTools parameter format`: http://neuralensemble.org/trac/NeuroTools/wiki/parameters

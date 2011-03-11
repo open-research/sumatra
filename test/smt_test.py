@@ -3,6 +3,7 @@ import os
 import subprocess
 import shutil
 from sumatra.projects import load_project
+from sumatra.versioncontrol import vcs_list
 
 def split(s):
     """
