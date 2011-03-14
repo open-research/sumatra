@@ -9,14 +9,14 @@ projects.
 
 It consists of:
 
- * a command-line interface, smt, for launching simulations/analyses with
-   automatic recording of information about the experiment, annotating these
-   records, linking to data files, etc.
- * a web interface with a built-in web-server, smtweb, for browsing and
-   annotating simulation/analysis results.
- * a Python API, on which smt and smtweb are based, that can be used in your own
-   scripts in place of using smt, or could be integrated into a GUI-based
-   application.
+* a command-line interface, smt, for launching simulations/analyses with
+  automatic recording of information about the experiment, annotating these
+  records, linking to data files, etc.
+* a web interface with a built-in web-server, smtweb, for browsing and
+  annotating simulation/analysis results.
+* a Python API, on which smt and smtweb are based, that can be used in your own
+  scripts in place of using smt, or could be integrated into a GUI-based
+  application.
 
 Sumatra is currently alpha code, and should be used with caution and frequent
 backups of your records.
@@ -28,6 +28,7 @@ Intended functionality (not all implemented yet):
 
     * launch simulations and analyses, and record various pieces of information,
       including:
+      
         - the executable (identity, version)
         - the script (identity, version)
         - the parameters
@@ -37,6 +38,7 @@ Intended functionality (not all implemented yet):
           the simulation/analysis
         - the reason for doing the simulation/analysis
         - the outcome of the simulation/analysis
+        
     * allow browsing/searching/visualising the results of previous experiments
     * allow the re-running of previous simulations/analyses with automatic
       verification that the results are unchanged
@@ -63,10 +65,10 @@ Installation
 These instructions are for Unix, Mac OS X. They may work on Windows as well, but
 it hasn't been tested.
 
-If you have downloaded the source package, Sumatra-0.3.tar.gz::
+If you have downloaded the source package, Sumatra-0.3.0.tar.gz::
 
-    $ tar xzf Sumatra-0.3.tar.gz
-    $ cd Sumatra-0.3
+    $ tar xzf Sumatra-0.3.0.tar.gz
+    $ cd Sumatra-0.3.0
     # python setup.py install
 
 The last step may have to be done as root.
