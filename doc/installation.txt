@@ -4,7 +4,7 @@ Installation
 
 To run Sumatra you will need Python installed on your machine. If you are running
 Linux or OS X, you almost certainly already have it. If you don't have Python,
-you can install it from `<http://www.python.org>`_, or install one of the
+you can install it from `python.org`_, or install one of the
 "value-added" distributions aimed at scientific users of Python: `Enthought`_ or
 `Python(x,y)`_.
 
@@ -46,10 +46,10 @@ Installing Python bindings for your version control system
 Sumatra currently supports Mercurial_, Subversion_, Git_ and Bazaar_.
 If you are using Subversion, you will need to install the `pysvn bindings`_.
 Since Mercurial and Bazaar are mostly written in Python, just installing the
-main Mercurial/Bazaar package is sufficient. For Git, you need to install the
+main Mercurial/Bazaar packages is sufficient. For Git, you need to install the
 GitPython_ package.
 
-
+.. _python.org: http://www.python.org
 .. _Django: http://www.djangoproject.com
 .. _Mercurial: http://www.selenic.com/mercurial/
 .. _Subversion: http://subversion.tigris.org/

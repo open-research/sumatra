@@ -1,3 +1,22 @@
 ====================
 Parallel simulations
 ====================
+
+As well as launching computations on your local machine, Sumatra can launch
+distributed, MPI-based computations on a cluster, at least for simple use-cases.
+We assume you already have your hosts files, etc. set up. Then, to run your
+simulation on 17 nodes, run::
+
+    $ smt run -n 17 default.param
+    
+(assuming you have already configured your default executable and main script
+file). This will call ``mpiexec`` for you with the appropriate arguments.
+
+If this is non sufficiently configurable for you, please take a look at the
+:class:`DistributedLaunchMode` class in ``launch.py`` within the source
+distribution, and get in touch with the Sumatra developers, for example by
+`creating a ticket`_ or asking a question on the `mailing list`_.
+
+.. _`creating a ticket`: https://neuralensemble.org/trac/sumatra/newticket
+.. _`mailing list`: http://groups.google.com/group/sumatra-users
+

@@ -37,7 +37,7 @@ Now we synchronize the old and new databases::
 
     $ smt sync .smt_orig/records
     
-and just to check it worked:
+and just to check it worked::
 
     $ smt info
     Sumatra project
@@ -55,6 +55,6 @@ and just to check it worked:
     20110309-141853
     20110309-141849
 
-.. _Django: xxx
-.. _ORM: xxx
+.. _Django: http://www.djangoproject.com/
+.. _ORM: http://en.wikipedia.org/wiki/Object-relational_mapping
  

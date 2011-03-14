@@ -40,10 +40,10 @@ Table of Contents
    upgrading
    migration
    developers_guide
-   reference/launch
    faq
+   support
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+.. * :ref:`genindex`
+.. * :ref:`modindex`
+.. * :ref:`search`
 

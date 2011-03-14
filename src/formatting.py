@@ -175,9 +175,9 @@ class TextDiffFormatter(Formatter):
                     output += "    B: version=%s\n" % depB.version
                     output += "       %s\n" % depA.diff.replace("\n", "\n       ")
                 elif depB is None:
-                    output += "  %s is a dependency of %s but not of %s" % (name, self.diff.recordA.label, self.diff.recordB.label)
+                    output += "  %s is a dependency of %s but not of %s\n" % (name, self.diff.recordA.label, self.diff.recordB.label)
                 elif depA is None:
-                    output += "  %s is a dependency of %s but not of %s" % (name, self.diff.recordB.label, self.diff.recordA.label)
+                    output += "  %s is a dependency of %s but not of %s\n" % (name, self.diff.recordB.label, self.diff.recordA.label)
                     
         diffs = self.diff.launch_mode_differences
         if diffs:

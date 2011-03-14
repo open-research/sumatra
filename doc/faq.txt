@@ -1,6 +1,6 @@
-=========================
-Frequently asked question
-=========================
+==========================
+Frequently asked questions
+==========================
 
 * Where does the name "Sumatra" come from?
 
@@ -9,3 +9,40 @@ It is based on the initial letters of "Simulation Management Tool".
 that I realized it could equally well be used for any command-line driven
 computation). Despite a certain geographical proximity, it has nothing to do
 with Java :-)
+
+* When I run more than one simulation at once, Sumatra mixes up the output
+  files. How can I make it associate the right files with the right simulation?
+  
+When you run a simulation/analysis, Sumatra looks for any new files within your
+datastore root directory, and associates them with your computation. This means
+that if you launch a second computation before the first one has finished
+Sumatra can't distinguish which files were produced by which computation. The
+solution is to save the results for a given computation in a subdirectory whose
+name is a unique id, and for Sumatra to look only in this subdirectory for
+output files.
+
+The easiest way to do this is to use the record label. First run::
+
+    $ smt configure --addlabel=cmdline
+    
+or::
+
+    $ smt configure --addlabel=parameters
+    
+Then Sumatra will add the record label (which is generated from the timestamp
+unless you use the '``--label``' option to ``smt run``) to either the command
+line or the parameter file for your script. It is then up to your script to
+read this value and use it to name your output files accordingly. Here is an
+example for a Python script, using the ``cmdline`` option and "./Data" set as
+the datastore root::
+
+    import sys
+    import os.path
+    options = sys.argv[1:]
+    label = options[-1] # label is added to the end of the command line
+    
+    # computations happen here, results stored in `output_data`
+    
+    output_dir = os.path.join("Data", label)
+    with open(os.path.join(output_dir, "mydata.txt"), 'w') as fp:
+        fp.write(output_data)

@@ -130,6 +130,6 @@ Python 2.5, 2.6 and 2.7.
 .. _mpi4py: http://mpi4py.scipy.org/
 .. _tox: http://codespeak.net/tox/
 .. _twill: http://twill.idyll.org/
-.. _coverage: xxx
-.. _`PEP 8`: xxx
+.. _coverage: http://nedbatchelder.com/code/coverage/
+.. _`PEP 8`: http://www.python.org/dev/peps/pep-0008/
 .. _`issue tracker`: http://neuralensemble.org/trac/sumatra

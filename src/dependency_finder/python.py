@@ -51,11 +51,12 @@ def run_script(executable_path, script):
     # process-creation overhead.
     import textwrap
     import subprocess
+    script = str(script) # get problems if script is is unicode
     p = subprocess.Popen(executable_path, shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
     output,err = p.communicate(textwrap.dedent(script)) # should handle err
     try:
         return_value = eval(output)
-    except SyntaxError, err:
+    except SyntaxError, errmsg:
         warnings.warn("Error in evaluating script output\n. Executable: %s\nScript: %s\nOutput: '%s'\nError: %s" % (executable_path, script, output, err))
         return_value = {}
     return return_value

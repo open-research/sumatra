@@ -20,12 +20,8 @@ and, if it doesn't already exist, a sub-directory named ``Data``.
 Sumatra tracks data files created by your simulation by searching for newly
 created files within a given directory tree. By default, it assumes that your
 simulation will create files in a sub-directory ``Data`` of your working directory.
-You can change this by providing the ``--datapath`` option to ``smt init``, e.g.::
-
-    $ smt init --datapath=/data/myproject MyProject
-    
-Now Sumatra will look for new files within ``/data/myproject``.
-
+(You can change this by providing the ``--datapath`` option to ``smt init`` or
+``smt configure``.)
 
 Now let's run a simulation. We will assume that your simulation code is written
 in Python_, and that you run the simulation by executing a file called ``main.py``,
@@ -41,7 +37,7 @@ To run it using Sumatra, you would use::
 Now we can see a list of the simulations we have run::
 
     $ smt list
-    20090930-174949
+    20110314-132438
     
 This shows the label for each simulation we have run. Since we did not specify
 a label, one was automatically generated from the timestamp. To see more detail,
@@ -49,16 +45,17 @@ use the ``--long`` option::
 
     $ smt list --long
     --------------------------------------------------------------------------------
-    Label        : 20090930-174949
-    Reason       :
-    Outcome      :
-    Duration     : 0.0548920631409
-    Script       : MercurialRepository at /path/to/myproject rf9ab74313efe
-                   (main file is main.py)
-    Executable   : Python (version: 2.6.2) at python
-    Timestamp    : 2009-09-30 17:49:49.235772
-    Tags         :
-
+    Label            : 20110314-132438
+    Reason           :
+    Outcome          :
+    Duration         : 0.669460058212
+    Repository       : MercurialRepository at /path/to/myproject
+    Main_File        : main.py
+    Version          : 2dfa0e27c514
+    Script_Arguments : <parameters>
+    Executable       : Python (version: 2.5.2) at /usr/local/bin/python
+    Timestamp        : 2011-03-14 13:24:38.924926
+    Tags             :
     
 (most options also have a short form, ``-l`` in this case.)
 
@@ -81,13 +78,16 @@ To see the current configuration of your project, use the ``info`` command::
 
     $ smt info
     Sumatra project
-    ------------------
+    ---------------
     Name                : MyProject
-    Default executable  : Python (version: 2.6.2) at python
-    Default script      : MercurialRepository at /path/to/myproject rf9ab74313efe (main file is main.py)
+    Default executable  : Python (version: 2.5.2) at /usr/local/bin/python
+    Default repository  : MercurialRepository at /path/to/myproject
+    Default main file   : main.py
     Default launch mode : serial
-    Data store          : ./Data
-    Record store        : Relational database record store using the Django ORM (database file=.smt/simulation_records)
+    Data store          : /path/to/myproject/Data
+    Record store        : Relational database record store using the Django ORM (database file=.smt/records)
+    Code change policy  : error
+    Append label to     : None
     
 Sumatra automatically records the identity and versions of the simulation files
 and the simulator executable, stores links to any files created by the
@@ -105,7 +105,7 @@ After the simulation is complete, you can add a description of the outcome::
 This adds the comment to the most recent simulation. You may also describe the outcome
 of an earlier simulation, by specifying its label::
 
-    $ smt comment 20090930-174949 "Eureka! Nobel prize here we come."
+    $ smt comment 20110314-132438 "Eureka! Nobel prize here we come."
     
 You can also tag a simulation record with one or more short keywords::
 
@@ -139,7 +139,7 @@ output is identical to that of the original run::
 Although it is better not to delete simulation records (so as to preserve a full
 record of the project, false starts and all), it is possible::
 
-    $ smt delete 2009101003-174949
+    $ smt delete 20110314-132438
     
 It is also possible to delete all simulations with a given tag::
 
@@ -167,6 +167,7 @@ available by running ``smt`` by itself::
       repeat
       diff
       upgrade
+      sync
 
 and help on a given command is available by running the command with the ``--help``
 option, e.g.::
