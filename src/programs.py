@@ -100,6 +100,16 @@ class NEURONSimulator(Executable):
     mpi_options = "-mpi"
     pre_run = "nrnivmodl"
 
+    @staticmethod
+    def write_parameters(parameters, filename):
+        with open(filename, 'w') as fp:
+            for name, value in parameters.as_dict().items():
+                if isinstance(value, basestring):
+                    fp.write('strdef %s\n' % name)
+                    fp.write('%s = "%s"\n' % (name, value))
+                else:
+                    fp.write('%s = %g\n' % (name, value))
+
 
 class PythonExecutable(Executable):
     
