@@ -59,14 +59,14 @@ setup(
                    'Programming Language :: Python :: 2.7',
                    'Topic :: Scientific/Engineering'],
     cmdclass = {'sdist': sdist_hg},
-    install_requires = ['Django>=1.2', 'django-tagging'],
+    install_requires = ['Django>=1.2', 'django-tagging', 'httplib2', 'simplejson'],
     extras_require = {'svn': 'pysvn',
                       'hg': 'mercurial',
                       'git': 'GitPython',
                       'bzr': 'bzrlib',
                       'mpi': 'mpi4py'},
     #test_suite = ?,
-    #tests_require = ?,
+    tests_requires = ['twill'],
     #use_2to3 = True,
 )
 

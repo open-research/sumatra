@@ -21,7 +21,7 @@ It consists of:
 Sumatra is currently alpha code, and should be used with caution and frequent
 backups of your records.
 
-For documentation, see http://neuralensemble.org/sumatra/
+For documentation, see http://packages.python.org/Sumatra/ and http://neuralensemble.org/sumatra/
 
     
 Intended functionality (not all implemented yet):
