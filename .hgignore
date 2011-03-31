@@ -2,6 +2,7 @@ syntax: glob
 
 *.pyc
 _build
+build
 dist/*
 *.py,cover
 bulbNet
