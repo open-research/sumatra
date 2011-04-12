@@ -23,7 +23,8 @@ class TestNTParameterSet(unittest.TestCase):
                     },
                     "x": 2.9,
                     "z": 100,
-                    "mylabel": "camelot"
+                    "mylabel": "camelot",
+                    "have_horse": False,
         }
         P = NTParameterSet(json.dumps(example))
         self.assertEqual(P.y.a, -2)

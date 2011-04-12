@@ -188,7 +188,10 @@ class ParameterSet(dict):
                                 GammaDist=GammaDist,
                                 UniformDist=UniformDist,
                                 NormalDist=NormalDist,
-                                pi=math.pi))            
+                                pi=math.pi,
+                                true=True,    # these are for reading JSON 
+                                false=False,  # files
+                                ))            
         try:
             D = eval(s, global_dict)
         except SyntaxError, e:

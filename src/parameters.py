@@ -227,7 +227,7 @@ class ConfigParserParameterSet(SafeConfigParser):
 def build_parameters(filename):
     try:
         parameters = NTParameterSet("file://%s" % os.path.abspath(filename))
-    except SyntaxError:
+    except (SyntaxError, NameError):
         try:
             parameters = ConfigParserParameterSet(filename)
         except SyntaxError:
