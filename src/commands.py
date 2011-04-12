@@ -34,7 +34,11 @@ list_pattern = re.compile(r'^\s*\[.*\]\s*$')
 tuple_pattern = re.compile(r'^\s*\(.*\)\s*$')
 
 def parse_command_line_parameter(p):
-    name, value = p.split("=")
+    pos = p.find('=')
+    if pos == -1:
+        raise Exception("Not a valid command line parameter. String must be of form 'name=value'")
+    name = p[:pos]
+    value = p[pos+1:]
     if list_pattern.match(value) or tuple_pattern.match(value):
         value = eval(value)
     else:

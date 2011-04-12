@@ -4,7 +4,7 @@ Unit tests for the sumatra.projects module
 
 from __future__ import with_statement
 import shutil
-import os
+import os, sys
 import unittest
 import sumatra.projects
 from sumatra.projects import Project, load_project
@@ -42,7 +42,7 @@ class MockRepository(object):
 
 class MockExecutable(object):
     name = "Python"
-    path = "/usr/local/bin/python"
+    path = sys.executable #"/usr/local/bin/python"
     def write_parameters(self, params, filename):
         pass
     def __getstate__(self):

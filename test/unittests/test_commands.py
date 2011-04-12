@@ -355,6 +355,15 @@ class HelpCommandTests(unittest.TestCase):
         self.assertRaises(SystemExit, commands.help, [])
 
 
+class ArgumentParsingTests(unittest.TestCase):
+
+    def test_parse_command_line_parameter_should_accept_equals_in_parameter(self):
+        # because the parameter value could be a string containing "="
+        value = "save=Data/result.uwsize=48.setsize=1"
+        result = commands.parse_command_line_parameter(value)
+        self.assertEqual(result, {'save': 'Data/result.uwsize=48.setsize=1'})
+
+
 if __name__ == '__main__':
     setup()
     unittest.main()
