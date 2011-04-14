@@ -47,6 +47,15 @@ def create_mercurial_repos(repos_dir):
     run("hg commit -m 'Creating example project'")
     run("hg push %s" % repos_dir)
 
+def create_git_repos(repos_dir):
+    orig_wd = os.getcwd()
+    run("git init")
+    run("git add .")
+    run("git commit -m 'Creating example project'")
+    os.chdir(repos_dir)
+    run("git clone %s" % orig_wd)
+    os.chdir(orig_wd)
+
 def create_subversion_repos(repos_dir):
     run("svnadmin create %s" % repos_dir)
     run("svn checkout file://%s ." % repos_dir)
@@ -131,7 +140,7 @@ def run_test(repos, options, working_dir, repos_dir):
 run_test.__test__ = False # nose should not treat this as a test
     
 def main():    
-    for repos in 'subversion', 'mercurial':  
+    for repos in ('git', 'subversion', 'mercurial'):  
         for options in ({}, {'store': ".smt/records.shelf"}):
             working_dir, repos_dir = create_temporary_directories()
             print working_dir, repos_dir

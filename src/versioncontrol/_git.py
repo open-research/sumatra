@@ -116,7 +116,7 @@ class GitRepository(Repository):
     def __init__(self, url):
         check_version()
         Repository.__init__(self, url)
-        self.checkout(url) # should remove this line - other repos don't call checkout on init
+        self._repository = git.Repo(url)    
             
     def checkout(self, path="."):
         """Clone a repository."""
