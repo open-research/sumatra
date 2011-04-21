@@ -9,7 +9,8 @@ try:
 except ImportError:
     import simplejson as json
 from textwrap import dedent
-from sumatra.parameters import SimpleParameterSet, NTParameterSet, ConfigParserParameterSet, build_parameters
+from sumatra.parameters import SimpleParameterSet, JSONParameterSet, \
+        NTParameterSet, ConfigParserParameterSet, build_parameters
 
 
 class TestNTParameterSet(unittest.TestCase):
@@ -166,7 +167,43 @@ class TestConfigParserParameterSet(unittest.TestCase):
                                        "sectionB": dict(c="hello", d="world"),
                                        "sectionC": dict(e="9")})
 
+class TestJSONParameterSet(unittest.TestCase):
+    test_parameters = dedent("""
+        {
+            "a" : 2,
+            "b" : "hello",
+            "c" : {"a":1, "b":2},
+            "d" : [1, 2, 3, 4]
+        }
+        """)
+    
+    def test__init__should_accept_an_empty_initializer(self):
+        P = JSONParameterSet("")
+        self.assertEqual(P.as_dict(), {})
+        
+    def test__init__should_accept_a_filename_or_string(self):
+        init = self.__class__.test_parameters
+        P1 = JSONParameterSet(init)
+        with open("test_file", "w") as f:
+            f.write(init)
+        P2 = JSONParameterSet("test_file")
+        self.assertEqual(P1.as_dict(), P2.as_dict())
+        os.remove("test_file")
+    
+    def test_save(self):
+        init = self.__class__.test_parameters
+        P1 = JSONParameterSet(init)
+        P1.save("test_file")
+        P2 = JSONParameterSet("test_file")
+        self.assertEqual(P1.as_dict(), P2.as_dict())
+        os.remove("test_file")
 
+    def test__pretty__output_should_be_useable_to_create_an_identical_parameterset(self):
+        init = self.__class__.test_parameters
+        P1 = JSONParameterSet(init)
+        P2 = JSONParameterSet(P1.pretty())
+        self.assertEqual(P1.as_dict(), P2.as_dict())
+        
 class TestModuleFunctions(unittest.TestCase):
     
     def setUp(self):

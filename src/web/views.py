@@ -189,7 +189,7 @@ def download_file(request, project, label):
     content = data_store.get_content(record.data_key, path)
     
     dir, fname = os.path.split(path) 
-    response = HttpResponse(mimetype='text/csv')
+    response = HttpResponse(mimetype=mimetype)
     response['Content-Disposition'] =  'attachment; filename=%s' % fname
     response.write(content)
     return response 

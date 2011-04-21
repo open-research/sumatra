@@ -27,7 +27,7 @@ import shutil
 from ConfigParser import SafeConfigParser, MissingSectionHeaderError
 from cStringIO import StringIO
 from sumatra.external import NeuroTools
-
+import json
 
 class NTParameterSet(NeuroTools.parameters.ParameterSet):
     # just a re-name, to clarify things
@@ -223,13 +223,82 @@ class ConfigParserParameterSet(SafeConfigParser):
         for name,value in F.items():
             _update(name, value)
 
+class JSONParameterSet(object):
+    """
+    Handles parameter files in JSON format, as parsed by the
+    standard Python json module.
+    """
+    
+    def __init__(self, initialiser):
+        """
+        Create a new parameter set from a file or string.
+        """
+        try:
+            if os.path.exists(initialiser):
+                with open(initialiser) as fid:
+                    self.values = json.load(fid)
+            else:
+                if initialiser:
+                    self.values = json.loads(initialiser)
+                else:
+                    self.values = {}
+        except ValueError:
+            raise SyntaxError("Misformatted JSON file")
+
+    def __str__(self):
+        return self.pretty()
+    
+    def __getitem__(self, name):
+        return self.values[name] 
+    
+    def __eq__(self, other):
+        return self.as_dict() == other.as_dict()
+    
+    def __ne__(self, other):
+        return not self.__eq__(other)
+    
+    def pretty(self, expand_urls=False):
+        """
+        Return a string representation of the parameter set, suitable for
+        creating a new, identical parameter set.
+        
+        expand_urls is present for compatibility with NTParameterSet, and is
+                    not used.
+        """
+        
+        output = json.dumps(self.values, sort_keys=True, indent=4)
+        return output
+    
+    def as_dict(self):
+        return self.values
+    
+    def save(self, filename):
+        with open(filename, "w") as f:
+            json.dump(self.values, f)
+
+    def update(self, E, **F):
+        __doc__ = dict.update.__doc__
+        self.value.update(E, **F)
 
 def build_parameters(filename):
+    
+    try: 
+        parameters = JSONParameterSet(filename)
+        return parameters
+    except SyntaxError:
+        pass
+
     try:
         parameters = NTParameterSet("file://%s" % os.path.abspath(filename))
+        return parameters 
     except (SyntaxError, NameError):
-        try:
-            parameters = ConfigParserParameterSet(filename)
-        except SyntaxError:
-            parameters = SimpleParameterSet(filename)
+        pass
+    
+    try:
+        parameters = ConfigParserParameterSet(filename)
+        return parameters
+    except SyntaxError:
+        pass
+
+    parameters = SimpleParameterSet(filename)
     return parameters
