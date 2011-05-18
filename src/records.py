@@ -30,7 +30,7 @@ class Record(object):
     
     def __init__(self, executable, repository, main_file, version, launch_mode,
                  datastore, parameters={}, input_data=[], script_arguments="",
-                 label=None, reason=None, diff='', user='', on_changed='error'):
+                 label=None, reason=None, diff='', user='', on_changed='error', stdout_stderr='Not launched.'):
         self.timestamp = datetime.now() # might need to allow for this to be set as argument to allow for distributed/batch simulations on machines with out-of-sync clocks
         self.label = label or self.timestamp.strftime("%Y%m%d-%H%M%S")
         assert len(self.label) > 0
@@ -50,7 +50,8 @@ class Record(object):
         self.tags = set()
         self.diff = diff
         self.user = user
-        self.on_changed = on_changed  
+        self.on_changed = on_changed
+        self.stdout_stderr = stdout_stderr
     
     def register(self, working_copy):
         """Record information about the environment."""
@@ -103,6 +104,16 @@ class Record(object):
         result = self.launch_mode.run(self.executable, self.main_file,
                                       script_arguments, data_label)
         self.duration = time.time() - start_time
+
+        # try to get stdout_stderr from lauch_mode
+        try:
+            if self.launch_mode.stdout_stderr not in (None,""):
+                self.stdout_stderr = self.launch_mode.stdout_stderr
+            else:
+                self.stdout_stderr = "No output."
+        except:
+            self.stdout_stderr = "Not available."
+        
         # Run post-processing scripts
         pass # skip this if there is an error
         # Search for newly-created datafiles

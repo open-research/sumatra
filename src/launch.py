@@ -17,6 +17,8 @@ import os
 from sumatra.programs import Executable
 import warnings
 import cmd
+import tempfile
+import tee
 
 class PlatformInformation(object):
     """
@@ -85,12 +87,17 @@ class LaunchMode(object):
             cmd += " " + append_label
         print "Sumatra is running the following command:", cmd
         #p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True)
-        p = subprocess.Popen(cmd, shell=True, stdout=None, stderr=None, close_fds=True)
-        result = p.wait()
+
+        
+        #p = subprocess.Popen(cmd , shell=True, stdout=None, stderr=None, close_fds=True)
+        #result = p.wait()
         #self.errors = p.stderr.read()
         #self.output = p.stdout.read()
         #sys.stdout.write(self.output)
         #sys.stderr.write(self.errors)
+
+        result, self.stdout_stderr = tee.system2(cmd, stdout=True)
+        
         if result == 0:
             return True
         else:

@@ -192,6 +192,7 @@ class Record(BaseModel):
     user = models.CharField(max_length=30)
     project = models.ForeignKey(Project, null=True)
     script_arguments = models.TextField(blank=True)
+    stdout_stderr = models.TextField(blank=True)
 
     def to_sumatra(self):
         record = records.Record(
@@ -208,6 +209,8 @@ class Record(BaseModel):
             self.reason,
             self.diff,
             self.user)
+
+        record.stdout_stderr = self.stdout_stderr
         record.duration = self.duration
         record.outcome = self.outcome
         record.data_key = eval(self.data_key)

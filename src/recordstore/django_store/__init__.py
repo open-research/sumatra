@@ -175,6 +175,7 @@ class DjangoRecordStore(RecordStore):
         db_record.script_arguments = record.script_arguments
         db_record.user = record.user
         db_record.tags = ",".join(record.tags)
+        db_record.stdout_stderr = record.stdout_stderr
         # should perhaps check here for any orphan Tags, i.e., those that are no longer associated with any records, and delete them
         db_record.save() # need to save before using many-to-many relationship
         for dep in record.dependencies:
