@@ -40,6 +40,18 @@ def quote_command(cmd):
 	else:
 		return cmd
 
+
+def system3(cmd):
+    import tempfile
+
+    tf = tempfile.NamedTemporaryFile(mode="w+")
+    result = os.system(cmd+" 2>&1 | tee %s" % tf.name)
+    tf.flush()
+    tf.seek(0)
+    stdout_stderr = tf.readlines()
+    tf.close()
+    return result, stdout_stderr
+
 def system2(cmd, cwd=None, logger=_sentinel, stdout=_sentinel, log_command=_sentinel, timing=_sentinel):
 	#def tee(cmd, cwd=None, logger=tee_logger, console=tee_console):
 	""" This is a simple placement for os.system() or subprocess.Popen()
