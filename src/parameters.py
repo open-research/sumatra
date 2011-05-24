@@ -27,7 +27,10 @@ import shutil
 from ConfigParser import SafeConfigParser, MissingSectionHeaderError
 from cStringIO import StringIO
 from sumatra.external import NeuroTools
-import json
+try:
+    import json
+except ImportError:
+    import simplejson as json
 
 class NTParameterSet(NeuroTools.parameters.ParameterSet):
     # just a re-name, to clarify things
