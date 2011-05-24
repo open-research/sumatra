@@ -18,8 +18,9 @@ get_formatter() - return an approriate Formatter object for a given requested
 
 import textwrap
 
-fields = ['label', 'reason', 'outcome', 'duration', 'repository', 'main_file',
-          'version', 'script_arguments', 'executable', 'timestamp', 'tags']
+fields = ['label', 'timestamp', 'reason', 'outcome', 'duration', 'repository',
+          'main_file', 'version', 'script_arguments', 'executable',
+          'parameters', 'input_data', 'launch_mode', 'data_key', 'tags']
 
 class Formatter(object):
     
@@ -35,24 +36,39 @@ class TextFormatter(Formatter):
     def short(self):
         return "\n".join(record.label for record in self.records)
             
-    def long(self, text_width=80, indent=17):
+    def long(self, text_width=80, left_column_width=17):
         output = ""
         for record in self.records:
             output += "-" * text_width + "\n"
+            left_column = []
+            right_column = []
             for field in fields:
-                entryStr = "%s%d%s" % ("%-",indent,"s: ") % field.title()
+                left_column.append("%s%ds" % ("%-",left_column_width) % field.title())
                 entry = getattr(record,field)
-                if callable(entry):
-                    entryStr += str(entry())
-                elif hasattr(entry, "items"):
-                    entryStr += ", ".join(["%s=%s" % item for item in entry.items()])
-                elif isinstance(entry, set):
-                    entryStr += ", ".join(entry)
+                if hasattr(entry, "pretty"):
+                    new_lines = entry.pretty().split("\n")
                 else:
-                    entryStr += str(entry)
-                output += textwrap.fill(entryStr, width=text_width,
-                                        replace_whitespace=False,
-                                        subsequent_indent=' '*(indent+2)) + "\n"
+                    if callable(entry):
+                        entryStr = str(entry())
+                    elif hasattr(entry, "items"):
+                        entryStr = ", ".join(["%s=%s" % item for item in entry.items()])
+                    elif isinstance(entry, set):
+                        entryStr = ", ".join(entry)
+                    else:
+                        entryStr = str(entry)
+                        if field == 'version' and getattr(record, 'diff'):
+                            # if there is a diff, append '*' to the version
+                            entryStr += "*"
+                    new_lines = textwrap.wrap(entryStr, width=text_width,
+                                              replace_whitespace=False)
+                if len(new_lines) == 0:
+                    new_lines = ['']
+                right_column.extend(new_lines)
+                if len(new_lines) > 1:
+                    left_column.extend([' '*left_column_width]*(len(new_lines)-1))
+                #import pdb; pdb.set_trace()
+            for left, right in zip(left_column, right_column):
+                output += left + ": " + right + "\n"
         return output
     
     def table(self):
