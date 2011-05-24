@@ -43,6 +43,7 @@ def encode_record(record, indent=None):
             "parameters": str(record.datastore.__getstate__()),
         },
         "outcome": record.outcome or "",
+        "stdout_stderr": record.stdout_stderr, # added in 0.4
         "data_key": str(record.data_key),
         "tags": list(record.tags), # not sure if tags should be PUT, perhaps have separate URL for this?
         "diff": record.diff,
@@ -120,6 +121,7 @@ def build_record(data):
     record.data_key = data["data_key"]
     record.duration = data["duration"]
     record.outcome = data["outcome"]
+    record.stdout_stderr = data.get("stdout_stderr", "")
     record.platforms = [launch.PlatformInformation(**keys2str(pldata)) for pldata in data["platforms"]]
     record.dependencies = []
     for depdata in data["dependencies"]:

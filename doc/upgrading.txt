@@ -46,7 +46,7 @@ Now you can install the new version, e.g. with::
 
     $ easy_install -U sumatra
     
-or
+or::
 
     $ pip install --upgrade sumatra
 

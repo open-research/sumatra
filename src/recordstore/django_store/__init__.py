@@ -11,6 +11,7 @@ from sumatra.recordstore import serialization
 import django.conf as django_conf
 from django.core import management
 import os
+from textwrap import dedent
 import imp
 
 # Check that django-tagging is available. It would be better to try importing
@@ -201,8 +202,17 @@ class DjangoRecordStore(RecordStore):
                 tags = [tags]
             for tag in tags:
                 db_records = db_records.filter(tags__contains=tag)
-        return [db_record.to_sumatra() for db_record in db_records]
-    
+        try:
+            records = [db_record.to_sumatra() for db_record in db_records]
+        except Exception, err:
+            errmsg = dedent("""\
+                Sumatra could not retrieve the record from the record store.
+                Possibly your record store was created with an older version of Sumatra.
+                Please see http://packages.python.org/Sumatra/upgrading.html for information on upgrading.
+                The original error message was: '%s'""" % err)
+            raise Exception(errmsg)
+        return records
+
     def labels(self, project_name):
         return [record.label for record in self._manager.filter(project__id=project_name)]
     
