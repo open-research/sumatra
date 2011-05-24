@@ -85,7 +85,7 @@ def system2(cmd, cwd=None, logger=_sentinel, stdout=_sentinel, log_command=_sent
 	#logging.debug("logger=%s stdout=%s" % (logger, stdout))
 
 	f = sys.stdout
-	if not f.encoding or f.encoding == 'ascii':
+	if not hasattr(f, 'encoding') or not f.encoding or f.encoding == 'ascii':
 	# `ascii` is not a valid encoding by our standards, it's better to output to UTF-8 because it can encoding any Unicode text
 		encoding = 'utf_8'
 	else:
