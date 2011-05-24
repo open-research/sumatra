@@ -92,6 +92,7 @@ class MockRecord(object):
         self.reason = "because"
         self.duration = 7543.2
         self.outcome = None
+        self.stdout_stderr = "ok"
         self.main_file = "test"
         self.version = "99863a9dc5f"
         self.data_key = "[]"
@@ -293,7 +294,7 @@ def check_record(record):
                                       "timestamp", "duration", "diff",
                                       "datastore", "outcome", "data_key",
                                       "dependencies", "input_data",
-                                      "script_arguments"])
+                                      "script_arguments", "stdout_stderr"])
 
 class MockCredentials(object):
         credentials = [['domain', 'username', 'password']]
