@@ -63,8 +63,9 @@ class SimpleParameterSet(object):
             for line in content:
                 line = line.strip()
                 if "=" in line:
-                    name, value = line.split("=")[:2]
-                    name = name.strip()
+                    parts = line.split("=")
+                    name = parts[0].strip()
+                    value = "=".join(parts[1:]) 
                     if "#" in value:
                         value, comment = value.split("#")[:2]
                         self.comments[name] = comment

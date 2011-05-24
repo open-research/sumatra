@@ -80,6 +80,10 @@ class TestSimpleParameterSet(unittest.TestCase):
         init = "# some data\n1.0 2.0 3.0\n4.0 5.0 6.0"
         self.assertRaises(SyntaxError, SimpleParameterSet, init)
     
+    def test__string_parameters_should_be_able_to_contain_equals_signs(self):
+        init = 'equation = "e = mc^2"'
+        P = SimpleParameterSet(init)
+    
     def test__getitem__should_give_access_to_parameters(self):
         P = SimpleParameterSet("x = 2\ny = 3")
         self.assertEqual(P["x"], 2)
