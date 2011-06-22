@@ -82,7 +82,8 @@ class GitWorkingCopy(WorkingCopy):
             return head.commit.sha
     
     def use_version(self, version):
-        assert not self.has_changed()
+        if version is not 'master':
+            assert not self.has_changed()
         g = git.Git(self.path)
         g.checkout(version)
 

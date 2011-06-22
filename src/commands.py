@@ -17,7 +17,7 @@ from sumatra.projects import Project, load_project
 from sumatra.launch import SerialLaunchMode, DistributedLaunchMode
 from sumatra.parameters import build_parameters
 from sumatra.recordstore import get_record_store
-from sumatra.versioncontrol import get_working_copy, get_repository
+from sumatra.versioncontrol import get_working_copy, get_repository, UncommittedModificationsError
 from sumatra.formatting import get_diff_formatter
 
 def parse_executable_str(exec_str):
@@ -181,6 +181,7 @@ def configure(argv):
         project.data_label = options.addlabel
     project.save()
 
+
 def info(argv):
     """Print information about the current project."""
     usage = "%prog info"
@@ -190,9 +191,14 @@ def info(argv):
     (options, args) = parser.parse_args(argv)
     if len(args) != 0:
         parser.error('info does not take any arguments')
-    project = load_project()
+    try:
+        project = load_project()
+    except IOError, err:
+        print err
+        sys.exit(1)
     print project.info()
-    
+
+
 def run(argv):
     """Run a simulation or analysis."""
     usage = "%prog run [options] [arg1, ...] [param=value, ...]"
@@ -250,15 +256,20 @@ def run(argv):
         reason = reason.strip('\'"')
     
     label = options.label
-    run_label = project.launch(parameters, input_data, script_args,
-                               label=label, reason=reason,
-                               executable=executable,
-                               main_file=options.main or 'default',
-                               version=options.version or 'latest',
-                               launch_mode=launch_mode)
+    try:
+        run_label = project.launch(parameters, input_data, script_args,
+                                   label=label, reason=reason,
+                                   executable=executable,
+                                   main_file=options.main or 'default',
+                                   version=options.version or 'latest',
+                                   launch_mode=launch_mode)
+    except UncommittedModificationsError, err:
+        print err
+        sys.exit(1)
     if options.tag:
         project.add_tag(run_label, options.tag)
-    
+
+
 def list(argv):
     """List records belonging to the current project."""
     usage = "%prog list [options] [TAGS]"
