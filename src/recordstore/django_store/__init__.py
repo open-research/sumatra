@@ -209,7 +209,7 @@ class DjangoRecordStore(RecordStore):
                 Sumatra could not retrieve the record from the record store.
                 Possibly your record store was created with an older version of Sumatra.
                 Please see http://packages.python.org/Sumatra/upgrading.html for information on upgrading.
-                The original error message was: '%s'""" % err)
+                The original error message was: '%s: %s'""" % (err.__class__.__name__, err))
             raise Exception(errmsg)
         return records
 

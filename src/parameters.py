@@ -162,7 +162,7 @@ class ConfigParserParameterSet(SafeConfigParser):
             if os.path.exists(initialiser):
                 self.read(initialiser)
             else:
-                input = StringIO(initialiser)
+                input = StringIO(str(initialiser)) # configparser has some problems with unicode. This is a crude, and probably partial fix.
                 input.seek(0)
                 self.readfp(input)
         except MissingSectionHeaderError:
