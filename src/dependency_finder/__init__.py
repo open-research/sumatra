@@ -28,11 +28,11 @@ def find_dependencies(filename, executable):
     """Return a list of dependencies for a given script and programming
        language."""
     if executable.name == "Python":
-        return python.find_dependencies(filename, executable.path)
+        return python.find_dependencies(filename, executable)
     elif executable.name == "NEURON":
-        return neuron.find_dependencies(filename, executable.path)
+        return neuron.find_dependencies(filename, executable)
     elif executable.name == "GENESIS":
-        return genesis.find_dependencies(filename, executable.path)
+        return genesis.find_dependencies(filename, executable)
     else:
         warnings.warn("find_dependencies() not yet implemented for %s" % executable.name)
         return []

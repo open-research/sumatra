@@ -120,12 +120,12 @@ def find_loaded_files(file_path, executable_path):
     return set(all_paths)
 
 
-def find_dependencies(filename, executable_path):
+def find_dependencies(filename, executable):
     """Return a list of Dependency objects representing all Hoc files imported
     (directly or indirectly) by a given Hoc file."""
-    executable_path = os.path.realpath(executable_path)
+    executable_path = os.path.realpath(executable.path)
     heuristics = [core.find_versions_from_versioncontrol,]
-    paths = find_xopened_files(filename).union(find_loaded_files(filename, executable_path))
+    paths = find_xopened_files(filename).union(find_loaded_files(filename, executable.path))
     dependencies = [Dependency(name) for name in paths]
-    dependencies = [d for d in dependencies if not d.in_stdlib(executable_path)]
+    dependencies = [d for d in dependencies if not d.in_stdlib(executable.path)]
     return core.find_versions(dependencies, heuristics)

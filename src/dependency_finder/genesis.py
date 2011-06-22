@@ -97,7 +97,7 @@ def find_included_files(file_path):
     return set(all_paths)
 
 
-def find_dependencies(filename, executable_path):
+def find_dependencies(filename, executable):
     """
     Return a list of Dependency objects representing all files included,
     whether directly or indirectly, by a given .g file. 

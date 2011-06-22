@@ -84,29 +84,32 @@ def find_version_by_attribute(module):
 
 
 find_versions_by_attribute_template = """
+import sys
 %(def_find_version_by_attribute)s
 module_names = %(module_names)s
 versions = []
 for name in module_names:
     try:
         module = __import__(name)
-    except ImportError, err: # should do something with this # should also change to be Python 3-compatible ("as")
+    except ImportError as err: # should do something with err
         module = None
     version = 'unknown'
     if module:
         version = find_version_by_attribute(module)
     versions.append(version)
-print versions
+sys.stdout.write(str(versions))
 """
 
-def find_versions_by_attribute(dependencies, executable_path):
+def find_versions_by_attribute(dependencies, executable):
     """Try to find version information from the attributes of a Python module."""
     context = {
         'module_names': [d.name for d in dependencies if d.version == 'unknown'],
         'def_find_version_by_attribute': inspect.getsource(find_version_by_attribute),
     }
     script = find_versions_by_attribute_template % context
-    versions = run_script(executable_path, script)
+    if executable.version[0] == '2':
+        script = script.replace(' as', ',')  # Python 2.5 and earlier do not have the 'as' keyword
+    versions = run_script(executable.path, script)
     i = 0
     for d in dependencies:
         if d.version == 'unknown':
@@ -189,18 +192,18 @@ def find_imported_packages(filename, executable_path, debug=0, exclude_stdlib=Tr
             if module.__path__ and "." not in name:
                 if not(exclude_stdlib and os.path.dirname(module.__path__[0]) == stdlib_path): # doesn't work for platform-specific modules, e.g. 'Finder', 'Carbon'
                     top_level_packages[name] = module
-        print top_level_packages""" % (exclude_stdlib, int(debug), filename)
+        sys.stdout.write(str(top_level_packages))""" % (exclude_stdlib, int(debug), filename)
     return run_script(executable_path, script)
 
 
-def find_dependencies(filename, executable_path):
+def find_dependencies(filename, executable):
     """Return a list of Dependency objects representing all the top-level
        modules or packages imported (directly or indirectly) by a given Python file."""
     heuristics = [core.find_versions_from_versioncontrol,
-                  lambda deps: find_versions_by_attribute(deps, executable_path),
+                  lambda deps: find_versions_by_attribute(deps, executable),
                   find_versions_from_egg]
-    packages = find_imported_packages(filename, executable_path, exclude_stdlib=True)
-    dependencies = [Dependency.from_module(module, executable_path) for module in packages.values()]
+    packages = find_imported_packages(filename, executable.path, exclude_stdlib=True)
+    dependencies = [Dependency.from_module(module, executable.path) for module in packages.values()]
     return core.find_versions(dependencies, heuristics)
 
 
