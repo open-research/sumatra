@@ -149,18 +149,19 @@ registered_program_names = {}
 registered_executables = {}
 registered_extensions = {}
     
-def register_executable(cls, name, executable, extensions):
+def register_executable(cls, name, executables, extensions):
     """Register a new subclass of Executable that can be returned by get_executable()."""
     assert issubclass(cls, Executable)
     registered_program_names[name] = cls
-    registered_executables[executable] = cls
+    for executable in executables:
+        registered_executables[executable] = cls
     for ext in extensions:
         registered_extensions[ext] = cls
     
-register_executable(NEURONSimulator, 'NEURON', 'nrniv', ('.hoc', '.oc'))
-register_executable(PythonExecutable, 'Python', 'python', ('.py',))
-register_executable(NESTSimulator, 'NEST', 'nest', ('.sli',))
-register_executable(GENESISSimulator, 'GENESIS', 'genesis', ('.g',))
+register_executable(NEURONSimulator, 'NEURON', ('nrniv', 'nrngui'), ('.hoc', '.oc'))
+register_executable(PythonExecutable, 'Python', ('python', 'python2', 'python3'), ('.py',))
+register_executable(NESTSimulator, 'NEST', ('nest',), ('.sli',))
+register_executable(GENESISSimulator, 'GENESIS', ('genesis',), ('.g',))
     
 def get_executable(path=None, script_file=None):
     """
