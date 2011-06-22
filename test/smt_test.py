@@ -39,13 +39,12 @@ def run(cmd):
 
 def create_mercurial_repos(repos_dir):
     orig_wd = os.getcwd()
-    os.chdir(repos_dir)
-    run("hg init")
-    os.chdir(orig_wd)
     run("hg init")
     run("hg add")
     run("hg commit -m 'Creating example project'")
-    run("hg push %s" % repos_dir)
+    os.chdir(repos_dir)
+    run("hg clone %s" % orig_wd)
+    os.chdir(orig_wd)
 
 def create_git_repos(repos_dir):
     orig_wd = os.getcwd()
