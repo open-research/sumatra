@@ -14,8 +14,7 @@ project in this directory using the ``smt init`` command::
     $ cd myproject
     $ smt init MyProject
     
-where ``MyProject`` is the project name. This creates a sub-directory named ``.smt``
-and, if it doesn't already exist, a sub-directory named ``Data``.
+where ``MyProject`` is the project name. This creates a sub-directory named ``.smt``.
 
 Sumatra tracks data files created by your simulation by searching for newly
 created files within a given directory tree. By default, it assumes that your
