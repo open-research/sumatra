@@ -117,11 +117,15 @@ class LaunchMode(object):
         """
         network_name = platform.node()
         bits, linkage = platform.architecture()
+        try:
+            ip_addr = socket.gethostbyname(network_name)
+        except socket.gaierror: # see http://stackoverflow.com/questions/166506/finding-local-ip-addresses-in-python
+            ip_addr = "127.0.0.1"
         return [PlatformInformation(architecture_bits=bits,
                                     architecture_linkage=linkage,
                                     machine=platform.machine(),
                                     network_name=network_name,
-                                    ip_addr=socket.gethostbyname(network_name),
+                                    ip_addr=ip_addr,
                                     processor=platform.processor(),
                                     release=platform.release(),
                                     system_name=platform.system(),

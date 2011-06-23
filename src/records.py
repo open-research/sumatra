@@ -90,7 +90,6 @@ class Record(object):
             else:
                 raise Exception("with_label must be either 'parameters' or 'cmdline'")
             self.datastore.root  = os.path.join(self.datastore.root, self.label)
-        print "datastore.root = ", self.datastore.root
         # run pre-simulation/analysis tasks, e.g. nrnivmodl
         self.launch_mode.pre_run(self.executable)
         # Write the executable-specific parameter file
