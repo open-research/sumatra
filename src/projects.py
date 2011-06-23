@@ -43,6 +43,7 @@ def _remove_left_margin(s): # replace this by textwrap.dedent?
 def _get_project_file(path):
     return os.path.join(path, ".smt", DEFAULT_PROJECT_FILE)
 
+
 class Project(object):
 
     def __init__(self, name, default_executable=None, default_repository=None,
@@ -271,7 +272,7 @@ def load_project(path=None):
     while not os.path.isdir(os.path.join(p, ".smt")):
         oldp, p = p, os.path.dirname(p)
         if p == oldp:
-            raise Exception("No Sumatra project exists in the current directory or above it.")
+            raise IOError("No Sumatra project exists in the current directory or above it.")
     mimetypes.init([os.path.join(p, ".smt", "mime.types")])
     #try:
     prj = _load_project_from_json(p)
