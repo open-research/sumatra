@@ -62,6 +62,17 @@
         {% endfor %}
     </table>
     </form>
+    {% if is_paginated %}
+    <p>
+    {% if page_obj.has_previous %}<a href="?page={{page_obj.previous_page_number}}&per_page={{records_per_page}}"><img src="/media/Go-previous.png" alt="previous page"/></a>{% else %}&nbsp;&nbsp;&nbsp;{% endif %}
+    {% if page_obj.has_next %}<a href="?page={{page_obj.next_page_number}}&per_page={{records_per_page}}"><img src="/media/Go-next.png" alt="next page"/></a>{% endif %}
+    Records {{page_obj.start_index}}-{{page_obj.end_index}} of {{paginator.count}}
+    <form method="GET" action=".">
+        <label for="per_page">Records per page: </label><input type="text" id="per_page" name="per_page" value="{{records_per_page}}" />
+        <input type="submit" value="Update"/>
+    </form>
+    </p>
+    {% endif %}
 {% else %}
     <p class="warning"><strong>No records found</strong></p>
 {% endif %}
