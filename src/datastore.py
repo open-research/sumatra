@@ -72,10 +72,6 @@ class FileSystemDataStore(DataStore):
             os.makedirs(self._root)
     root = property(fget=__get_root, fset=__set_root)
     
-    def __del__(self):
-        if hasattr(self, "_root") and os.path.exists(self.root) and len(os.listdir(self.root)) == 0:
-            os.rmdir(self.root)
-    
     def find_new_files(self, timestamp, ignoredirs=[".smt", ".hg", ".svn", ".git"]):
         """Finds newly created/changed files in dataroot."""
         # The timestamp-based approach creates problems when running several
