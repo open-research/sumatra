@@ -43,7 +43,7 @@ def list_records(request, project):
     search_form = TagSearch()
     records_per_page = int(request.GET.get("per_page", RECORDS_PER_PAGE))
     return list_detail.object_list(request,
-                                   queryset=models.Record.objects.filter(project__id=project),
+                                   queryset=models.Record.objects.filter(project__id=project).order_by('-timestamp'),
                                    template_name="record_list.html",
                                    paginate_by=records_per_page,
                                    extra_context={
