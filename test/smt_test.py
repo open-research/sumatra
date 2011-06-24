@@ -130,7 +130,7 @@ def run_test(repos, options, working_dir, repos_dir):
     copy_example_project(working_dir)
     os.chdir(working_dir)
 
-    exec("create_%s_repos('%s')" % (repos, repos_dir))
+    exec("create%s_repos('%s')" % (repos, repos_dir))
 
     getting_started(options)
 
@@ -138,8 +138,8 @@ def run_test(repos, options, working_dir, repos_dir):
     os.chdir(cwd)
 run_test.__test__ = False # nose should not treat this as a test
     
-def main():    
-    for repos in ('git', 'subversion', 'mercurial'):  
+def main():
+    for repos in [m.__name__.split('.')[-1] for m in vcs_list]:#('git', 'subversion', 'mercurial'):  
         for options in ({}, {'store': ".smt/records.shelf"}):
             working_dir, repos_dir = create_temporary_directories()
             print working_dir, repos_dir
