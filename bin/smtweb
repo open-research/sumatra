@@ -38,6 +38,8 @@ def main(argv):
                           description=description)
     parser.add_option('-p', '--port', metavar='PORT', default="8000",
                       help="run server on this port number PORT")
+    parser.add_option('-n', '--no-browser', default=False, action="store_true",
+                      help="do not open browser")
     (options, args) = parser.parse_args(argv)
 
     if args:
@@ -60,7 +62,8 @@ def main(argv):
     settings.MIDDLEWARE_CLASSES = tuple()
     
     management.setup_environ(settings)
-    thread.start_new_thread(delayed_new_tab, ("http://127.0.0.1:%s" % options.port, 3))
+    if not options.no_browser:
+        thread.start_new_thread(delayed_new_tab, ("http://127.0.0.1:%s" % options.port, 3))
     management.call_command('runserver', options.port)
     
 
