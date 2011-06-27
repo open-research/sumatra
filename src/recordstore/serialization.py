@@ -125,11 +125,11 @@ def build_record(data):
     record.data_keys = []
     if "data_keys" in data:
         for keydata in data["data_keys"]:
-            data_key = DataKey(keydata["path"], keydata["digest"], **keydata["metadata"])
+            data_key = datastore.DataKey(keydata["path"], keydata["digest"], **keydata["metadata"])
             record.data_keys.append(data_key)
     elif "data_key" in data: # (versions prior to 0.3)
         for path in eval(data["data_key"]):
-            data_key = DataKey(path, digest="0"*40)
+            data_key = datastore.DataKey(path, digest=datastore.IGNORE_DIGEST)
             record.data_keys.append(data_key)
     record.duration = data["duration"]
     record.outcome = data["outcome"]

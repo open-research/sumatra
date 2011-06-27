@@ -28,6 +28,8 @@ from subprocess import Popen
 import warnings
 import hashlib        
 
+IGNORE_DIGEST = "0"*40
+
 
 class DataStore(object):
     """Base class for data storage abstractions."""
@@ -126,7 +128,7 @@ class FileSystemDataStore(DataStore):
             df = DataFile(key.path, self)
         except IOError:
             raise KeyError("File %s does not exist." % key.path)
-        if df.digest != key.digest:
+        if key.digest != IGNORE_DIGEST and df.digest != key.digest:
             raise KeyError("Digests do not match.") # add info about file sizes?
         return df
     
@@ -160,7 +162,7 @@ class DataKey(object):
         self.metadata = metadata
     
     def __repr__(self):
-        return "%s(%s) % (self.path, self.digest)"
+        return "%s(%s)" % (self.path, self.digest)
 
 
 class DataFile(object):
