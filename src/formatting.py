@@ -20,7 +20,7 @@ import textwrap
 
 fields = ['label', 'timestamp', 'reason', 'outcome', 'duration', 'repository',
           'main_file', 'version', 'script_arguments', 'executable',
-          'parameters', 'input_data', 'launch_mode', 'data_key', 'tags']
+          'parameters', 'input_data', 'launch_mode', 'data_keys', 'tags']
 
 class Formatter(object):
     

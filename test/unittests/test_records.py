@@ -40,8 +40,8 @@ class MockFile(object):
         return not self.__eq__(other)
 
 class MockDataStore(object):
-    def list_files(self, key):
-        return [MockFile("1.dat"), MockFile("2.dat")]
+    #def list_files(self, key):
+    #    return [MockFile("1.dat"), MockFile("2.dat")]
     def copy(self):
         return self
 

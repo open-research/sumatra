@@ -44,11 +44,12 @@
 
 <h2>Output files</h2>
 <table>
-  <tr><td colspan="3">{{record.datastore.access_parameters.root}}</td></tr>
-{% for file in datafiles %}
-  <tr class="{% cycle odd even %}"><td><a href="datafile?path={{file}}">{{file}}</a></td>
-                                   <td>{{file.mimetype|default:""}}</td>
-                                   <td>{{file.size|filesizeformat}}</td></tr>
+  <tr><td colspan="4">{{record.datastore.access_parameters.root}}</td></tr>
+{% for file in record.data_keys.all %}
+  <tr class="{% cycle odd even %}"><td><a href="datafile?path={{file.path}}&digest={{file.digest}}">{{file.path}}</a></td>
+                                   <td>{{file.digest}}</td>
+                                   <td>{{file.metadata.mimetype|default:""}}</td>
+                                   <td>{{file.metadata.size|filesizeformat}}</td></tr>
 {% endfor %}
 </table>
 

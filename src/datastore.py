@@ -26,7 +26,8 @@ import logging
 import mimetypes
 from subprocess import Popen
 import warnings
-    
+import hashlib        
+
 
 class DataStore(object):
     """Base class for data storage abstractions."""
@@ -41,14 +42,13 @@ class DataStore(object):
 
     def copy(self):
         return self.__class__(**self.__getstate__())
-    
+
 
 class FileSystemDataStore(DataStore):
     """
     Represents a locally-mounted filesystem. The root of the data store will
     generally be a subdirectory of the real filesystem.
     """
-    empty_key = []
     
     def __init__(self, root):
         self.root = root or "./Data"
@@ -72,7 +72,7 @@ class FileSystemDataStore(DataStore):
             os.makedirs(self._root)
     root = property(fget=__get_root, fset=__set_root)
     
-    def find_new_files(self, timestamp, ignoredirs=[".smt", ".hg", ".svn", ".git"]):
+    def find_new_data(self, timestamp, ignoredirs=[".smt", ".hg", ".svn", ".git"]):
         """Finds newly created/changed files in dataroot."""
         # The timestamp-based approach creates problems when running several
         # experiments at once, since datafiles created by other experiments may
@@ -92,11 +92,11 @@ class FileSystemDataStore(DataStore):
                 relative_path = os.path.join(root[length_dataroot:],file)
                 last_modified = datetime.datetime.fromtimestamp(os.stat(full_path).st_mtime)
                 if  last_modified >= timestamp:
-                    new_files.append(relative_path)
-        return new_files
+                    new_files.append(DataFile(relative_path, self))
+        return [new_file.generate_key() for new_file in new_files]
     
-    def archive(self, label, key, delete_originals=False):
-        """Archives files based on an access key, and deletes the originals."""
+    def archive(self, label, keys, delete_originals=False):
+        """Archives files based on a set of access keys, and deletes the originals."""
         data_archive = tarfile.open(label + ".tar.gz",'w:gz')
         logging.info("Archiving data to file %s" % data_archive.name)
         length_dataroot = len(self.root) + 1 # +1 for the "/"
@@ -105,9 +105,9 @@ class FileSystemDataStore(DataStore):
         if os.path.exists(parameter_file):
             data_archive.add(parameter_file, os.path.join(label, label + ".param"))
         # Add data files
-        for file_path in key:
-            archive_path = os.path.join(label, self.root[length_dataroot:], file_path)
-            data_archive.add(os.path.join(self.root, file_path), archive_path)
+        for key in keys:
+            archive_path = os.path.join(label, self.root[length_dataroot:], key.path) # we don't check digests here. Probably we should.
+            data_archive.add(os.path.join(self.root, key.path), archive_path)
         data_archive.close()
         # Move the archive to dataroot
         shutil.copy(data_archive.name, self.root) # shutil.move() doesn't work as expected if dataroot is a symbolic link
@@ -116,35 +116,31 @@ class FileSystemDataStore(DataStore):
         if delete_originals:
             if os.path.exists(parameter_file):
                 os.remove(parameter_file)
-            self.delete(key)
-                
-    def list_files(self, key):
-        """
-        Return a list of files that match the given key.
-        """
-        return [DataFile(path, self) for path in key]
+            self.delete(*keys)
     
-    def get_content(self, key, path, max_length=None):
+    def get_data_item(self, key):
         """
-        Return the contents of a file identified by a key and path.
+        Return the file that matches the given key.
+        """
+        try:
+            df = DataFile(key.path, self)
+        except IOError:
+            raise KeyError("File %s does not exist." % key.path)
+        if df.digest != key.digest:
+            raise KeyError("Digests do not match.") # add info about file sizes?
+        return df
+    
+    def get_content(self, key, max_length=None):
+        """
+        Return the contents of a file identified by a key.
         
         If `max_length` is given, the return value will be truncated.
         """
-        assert path in key
-        full_path = os.path.join(self.root, path)
-        f = open(full_path, 'r')
-        # check the file size. Truncate if necessary
-        if max_length:
-            content = f.read(max_length)
-        else:
-            content = f.read()
-        f.close()
-        return content
+        return self.get_data_item(key).get_content(max_length)
     
-    def delete(self, key, path=None):
+    def delete(self, *keys):
         """
-        Delete a single file (if `path` is given) or all the files that match
-        a given key.
+        Delete the files corresponding to the given keys.
         """
         def remove_file(path):
             full_path = os.path.join(self.root, path)
@@ -152,38 +148,49 @@ class FileSystemDataStore(DataStore):
                 os.remove(full_path)
             else:
                 warnings.warn("Tried to delete %s, but it did not exist." % full_path)
-        if path:
-            assert path in key
-            remove_file(path)
-        else:
-            for path in key:
-                remove_file(path)
+        for key in keys:
+            remove_file(key.path)
     
+
+class DataKey(object):
     
+    def __init__(self, path, digest, **metadata):
+        self.path = path
+        self.digest = digest
+        self.metadata = metadata
+    
+    def __repr__(self):
+        return "%s(%s) % (self.path, self.digest)"
+
+
 class DataFile(object):
     """A file-like object, that may represent a real file or a database record."""
     
     def __init__(self, path, store):
         self.path = path
         self.full_path = os.path.join(store.root, path)
-        self.name = os.path.basename(self.full_path)
-        self.extension = os.path.splitext(self.full_path)
-        self.mimetype, self.encoding = mimetypes.guess_type(self.full_path)
         if os.path.exists(self.full_path):
             stats = os.stat(self.full_path)
             self.size = stats.st_size
         else:
-            self.size = None
-        
+            raise IOError("File %s does not exist" % self.full_path)
+            #self.size = None
+        self.name = os.path.basename(self.full_path)
+        self.extension = os.path.splitext(self.full_path)
+        self.mimetype, self.encoding = mimetypes.guess_type(self.full_path)
+
     def __str__(self):
         return self.path
     
-    @property
-    def content(self):
+    def get_content(self, max_length=None):
         f = open(self.full_path, 'r')
-        content = f.read()
+        if max_length:
+            content = f.read(max_length)
+        else:
+            content = f.read()
         f.close()
         return content
+    content = property(fget=get_content)
     
     @property
     def sorted_content(self):
@@ -203,13 +210,21 @@ class DataFile(object):
     def __eq__(self, other):
         if self.size != other.size:
             return False
-        elif self.content == other.content:
+        elif self.content == other.content: # use digest here?
             return True
         else:
             return self.sorted_content == other.sorted_content
         
     def __ne__(self, other):
         return not self.__eq__(other)
+    
+    @property
+    def digest(self):
+        return hashlib.sha1(self.content).hexdigest()
+    
+    def generate_key(self):    
+        return DataKey(self.path, self.digest, mimetype=self.mimetype,
+                       encoding=self.encoding, size=self.size)
         
     
 def get_data_store(type, parameters):

@@ -9,6 +9,7 @@ import os.path
 import tagging.fields
 from tagging.models import Tag
 
+
 class SumatraObjectsManager(models.Manager):
     
     def get_or_create_from_sumatra_object(self, obj, using='default'):
@@ -29,7 +30,7 @@ class SumatraObjectsManager(models.Manager):
                     attributes[name] = str(obj.__getstate__())
                 elif name == 'type':
                     attributes[name] = obj.__class__.__name__
-                elif name == 'content':
+                elif name in ('content', 'metadata'):
                     attributes[name] = str(obj) # ParameterSet
                 else:
                     raise
@@ -151,6 +152,16 @@ class Datastore(BaseModel):
         return eval(self.parameters)
 
 
+class DataKey(BaseModel):
+    path = models.CharField(max_length=200)
+    digest = models.CharField(max_length=40)
+    metadata = models.TextField(blank=True)
+    
+    def to_sumatra(self):
+        metadata = eval(self.metadata)
+        return datastore.DataKey(self.path, self.digest, **metadata)
+
+
 class PlatformInformation(BaseModel):
     architecture_bits = models.CharField(max_length=10)
     architecture_linkage = models.CharField(max_length=10)
@@ -186,6 +197,7 @@ class Record(BaseModel):
     data_key = models.TextField(blank=True)
     timestamp = models.DateTimeField()
     tags = tagging.fields.TagField()
+    data_keys = models.ManyToManyField(DataKey)
     dependencies = models.ManyToManyField(Dependency)
     platforms = models.ManyToManyField(PlatformInformation)
     diff = models.TextField(blank=True)
@@ -213,9 +225,9 @@ class Record(BaseModel):
         record.stdout_stderr = self.stdout_stderr
         record.duration = self.duration
         record.outcome = self.outcome
-        record.data_key = eval(self.data_key)
         record.timestamp = self.timestamp
         record.tags = set(tag.name for tag in Tag.objects.get_for_object(self))
+        record.data_keys = [key.to_sumatra() for key in self.data_keys.all()]
         record.dependencies = [dep.to_sumatra() for dep in self.dependencies.all()]
         record.platforms = [pi.to_sumatra() for pi in self.platforms.all()]
         return record

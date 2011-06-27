@@ -166,7 +166,6 @@ class DjangoRecordStore(RecordStore):
             value = getattr(record, attr)
             if value is not None:
                 setattr(db_record, attr, value)
-        db_record.data_key = str(record.data_key)
         db_record.executable = self._get_db_obj('Executable', record.executable)
         db_record.repository = self._get_db_obj('Repository', record.repository)
         db_record.launch_mode = self._get_db_obj('LaunchMode', record.launch_mode)
@@ -179,6 +178,8 @@ class DjangoRecordStore(RecordStore):
         db_record.stdout_stderr = "\n".join(record.stdout_stderr)
         # should perhaps check here for any orphan Tags, i.e., those that are no longer associated with any records, and delete them
         db_record.save() # need to save before using many-to-many relationship
+        for key in record.data_keys:
+            db_record.data_keys.add(self._get_db_obj('DataKey', key))
         for dep in record.dependencies:
             #print "Adding dependency %s to db_record" % dep
             db_record.dependencies.add(self._get_db_obj('Dependency', dep))

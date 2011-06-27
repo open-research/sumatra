@@ -8,7 +8,8 @@ import tempfile
 import shutil
 import os
 import datetime
-from sumatra.datastore import DataStore, FileSystemDataStore, DataFile, get_data_store
+import hashlib
+from sumatra.datastore import DataStore, FileSystemDataStore, DataFile, get_data_store, DataKey
 
 class TestFileSystemDataStore(unittest.TestCase):
     
@@ -39,42 +40,42 @@ class TestFileSystemDataStore(unittest.TestCase):
     def test__get_state__should_return_dict_containing_root(self):
         self.assertEqual(self.ds.__getstate__(), {'root': self.root_dir})
         
-    def test__find_new_files__should_return_list_of_new_files(self):
-        self.assertEqual(set(self.ds.find_new_files(self.now)),
+    def test__find_new_data__should_return_list_of_keys_matching_new_files(self):
+        self.assertEqual(set(key.path for key in self.ds.find_new_data(self.now)),
                          self.test_files)
         
-    def test__find_new_files_with_future_timestamp__should_return_empty_list(self):
+    def test__find_new_data_with_future_timestamp__should_return_empty_list(self):
         tomorrow = self.now + datetime.timedelta(1)
-        self.assertEqual(set(self.ds.find_new_files(tomorrow)),
+        self.assertEqual(set(self.ds.find_new_data(tomorrow)),
                          set([]))
         
     def test__archive__should_create_a_tarball(self):
-        self.ds.archive('test', self.test_files)
+        keys = [DataKey(path, "fake_digest") for path in self.test_files]
+        self.ds.archive('test', keys)
         self.assert_(os.path.exists(os.path.join(self.root_dir, 'test.tar.gz')))
         
     def test__archive__should_delete_original_files_if_requested(self):
         assert os.path.exists(os.path.join(self.root_dir, 'test_file1'))
-        self.ds.archive('test', self.test_files, delete_originals=True)
+        keys = [DataKey(path, "fake_digest") for path in self.test_files]
+        self.ds.archive('test', keys, delete_originals=True)
         self.assert_(not os.path.exists(os.path.join(self.root_dir, 'test_file1')))
-        
-    def test__list_files__should_return_a_list_of_found_files(self):
-        datafile_list = self.ds.list_files(key=self.test_files)
-        self.assertEqual(len(datafile_list), len(self.test_files))
-        self.assert_(isinstance(datafile_list[0], DataFile))
-        
+
     def test__get_content__should_return_short_file_content(self):
-        content = self.ds.get_content(self.test_files, 'test_file1')
+        digest = hashlib.sha1(self.test_data).hexdigest()
+        key = DataKey('test_file1', digest)
+        content = self.ds.get_content(key)
         self.assertEqual(content, self.test_data)
         
     def test__get_content__should_truncate_long_files(self):
-        content = self.ds.get_content(self.test_files, 'test_file1', max_length=10)
+        digest = hashlib.sha1(self.test_data).hexdigest()
+        key = DataKey('test_file1', digest)
+        content = self.ds.get_content(key, max_length=10)
         self.assertEqual(content, self.test_data[:10])
     
     def test__delete__should_remove_files(self):
         assert os.path.exists(os.path.join(self.root_dir, 'test_file1'))
-        self.assertEqual(len(self.ds.list_files(key=self.test_files)), len(self.test_files))
-        self.ds.delete(key=self.test_files)
-        self.assertEqual(len(self.ds.list_files(key=[])), 0)
+        keys = [DataKey(path, "fake_digest") for path in self.test_files]
+        self.ds.delete(*keys)
         self.assert_(not os.path.exists(os.path.join(self.root_dir, 'test_file1')))
 
 

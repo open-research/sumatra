@@ -2,13 +2,13 @@
 Defines view functions and forms for the Sumatra web interface.
 """
 
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response
 from django.views.generic import list_detail
 from django import forms
 from tagging.views import tagged_object_list
 from sumatra.recordstore.django_store import models
-from sumatra.datastore import get_data_store
+from sumatra.datastore import get_data_store, DataKey
 import mimetypes
 mimetypes.init()
 import csv
@@ -78,15 +78,12 @@ def record_detail(request, project, label):
     else:
         form = RecordUpdateForm(instance=record)
     data_store = get_data_store(record.datastore.type, eval(record.datastore.parameters))
-    datafiles = data_store.list_files(eval(record.data_key))
-    assert isinstance(datafiles, list), type(datafiles)
     parameter_set = record.parameters.to_sumatra()
     if hasattr(parameter_set, "as_dict"):
         parameter_set = parameter_set.as_dict()
     return render_to_response('record_detail.html', {'record': record,
                                                      'project_name': project,
                                                      'parameters': parameter_set,
-                                                     'datafiles': datafiles,
                                                      'form': form
                                                      })
 
@@ -116,6 +113,8 @@ DEFAULT_MAX_DISPLAY_LENGTH = 10*1024
 def show_file(request, project, label):
     label = unescape(label)
     path = request.GET['path']
+    digest = request.GET['digest']
+    data_key = DataKey(path, digest)
     if 'truncate' in request.GET:
         if request.GET['truncate'].lower() == 'false':
             max_display_length = None
@@ -126,13 +125,11 @@ def show_file(request, project, label):
     
     record = models.Record.objects.get(label=label, project__id=project)
     data_store = get_data_store(record.datastore.type, eval(record.datastore.parameters))
-    # check the file is in the store for a given simulation/analysis
-        
+    truncated = False
+    mimetype, encoding = mimetypes.guess_type(path)
     try:
-        mimetype, encoding = mimetypes.guess_type(path)
         if mimetype  == "text/csv":
-            content = data_store.get_content(record.data_key, path, max_length=max_display_length)
-            truncated = False
+            content = data_store.get_content(data_key, max_length=max_display_length)
             if max_display_length is not None and len(content) >= max_display_length:
                 truncated = True
                 
@@ -144,23 +141,24 @@ def show_file(request, project, label):
             
             return render_to_response("show_csv.html",
                                       {'path': path, 'label': label,
+                                       'digest': digest,
                                        'project_name': project,
                                        'reader': reader,
                                        'truncated':truncated
                                        })
 
         elif mimetype == None or mimetype.split("/")[0] == "text":
-            content = data_store.get_content(record.data_key, path, max_length=max_display_length)
-            truncated = False
+            content = data_store.get_content(data_key, max_length=max_display_length)
             if max_display_length is not None and len(content) >= max_display_length:
                 truncated = True
             return render_to_response("show_file.html",
                                       {'path': path, 'label': label,
+                                       'digest': digest,
                                        'project_name': project,
                                        'content': content,
                                        'truncated': truncated,
                                        })
-        elif mimetype in ("image/png", "image/jpeg", "image/gif"):
+        elif mimetype in ("image/png", "image/jpeg", "image/gif"): # need to check digests match
             return render_to_response("show_image.html",
                                       {'path': path, 'label': label,
                                        'project_name': project,})
@@ -180,7 +178,7 @@ def show_file(request, project, label):
             return render_to_response("show_file.html", {'path': path, 'label': label,
                                                          'project_name': project,
                                                          'content': "Can't display this file (mimetype assumed to be %s)" % mimetype})
-    except IOError, e:
+    except (IOError, KeyError), e:
         return render_to_response("show_file.html", {'path': path, 'label': label,
                                                      'project_name': project,
                                                      'content': "File not found.",
@@ -189,13 +187,16 @@ def show_file(request, project, label):
 def download_file(request, project, label):
     label = unescape(label)
     path = request.GET['path']
-    
+    digest = request.GET['digest']
+    data_key = DataKey(path, digest)
     record = models.Record.objects.get(label=label, project__id=project)
     data_store = get_data_store(record.datastore.type, eval(record.datastore.parameters))
 
     mimetype, encoding = mimetypes.guess_type(path)
-    content = data_store.get_content(record.data_key, path)
-    
+    try:
+        content = data_store.get_content(data_key)
+    except (IOError, KeyError):
+        raise Http404
     dir, fname = os.path.split(path) 
     response = HttpResponse(mimetype=mimetype)
     response['Content-Disposition'] =  'attachment; filename=%s' % fname
@@ -205,11 +206,16 @@ def download_file(request, project, label):
 def show_image(request, project, label):
     label = unescape(label)
     path = request.GET['path']
+    digest = request.GET['digest']
+    data_key = DataKey(path, digest)
     mimetype, encoding = mimetypes.guess_type(path)
     if mimetype in ("image/png", "image/jpeg", "image/gif"):
         record = models.Record.objects.get(label=label, project__id=project)
         data_store = get_data_store(record.datastore.type, eval(record.datastore.parameters))
-        content = data_store.get_content(record.data_key, path)
+        try:
+            content = data_store.get_content(data_key)
+        except (IOError, KeyError):
+            raise Http404
         response = HttpResponse(mimetype=mimetype)
         response.write(content)
         return response

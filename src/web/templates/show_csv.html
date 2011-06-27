@@ -26,10 +26,10 @@
 
 
 {% if truncated %}
-<p>File contents truncated. <a href="datafile?path={{path}}&truncate=false">Show entire contents</a></p>
+<p>File contents truncated. <a href="datafile?path={{path}}&digest={{digest}}&truncate=false">Show entire contents</a></p>
 {% endif %}
 
-<p><a href="download?path={{path}}">Download content</a></p>
+<p><a href="download?path={{path}}&digest={{digest}}">Download content</a></p>
 
 {{errmsg}}
 

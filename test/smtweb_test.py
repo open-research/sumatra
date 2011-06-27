@@ -70,5 +70,5 @@ if __name__ == "__main__":
         terminate(server)
         
     os.chdir(cwd)
-    shutil.rmtree(working_dir)
-    shutil.rmtree(repos_dir)
+    #shutil.rmtree(working_dir)
+    #shutil.rmtree(repos_dir)

@@ -25,7 +25,7 @@ class MockRecord(Record):
         self.diff = 'iuefciaeufhmc'
         self.parameters = {'a': 2, 'b': 4}
         self.launch_mode = 'serial'
-        self.data_key = "['some_file']"
+        self.data_keys = []
 
 class MockRecordDifference(object):
     recordA = MockRecord()

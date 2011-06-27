@@ -46,7 +46,7 @@ class Record(object):
         self.launch_mode = launch_mode # a LaunchMode object - basically, run serially or with MPI. If MPI, what configuration
         self.datastore = datastore.copy()
         self.outcome = None
-        self.data_key = None
+        self.data_keys = []
         self.tags = set()
         self.diff = diff
         self.user = user
@@ -118,8 +118,8 @@ class Record(object):
         # Search for newly-created datafiles
         if self.parameters and os.path.exists(parameter_file):
             os.remove(parameter_file)
-        self.data_key = self.datastore.find_new_files(self.timestamp)
-        print "Data key is", self.data_key
+        self.data_keys = self.datastore.find_new_data(self.timestamp)
+        print "Data keys are", self.data_keys
     
     def __repr__(self):
         return "Record #%s" % self.label
@@ -147,8 +147,8 @@ class Record(object):
         """
         Delete any data files associated with this record.
         """
-        self.datastore.delete(self.data_key)
-        self.data_key = self.datastore.empty_key
+        self.datastore.delete(*self.data_keys)
+        self.data_keys = []
 
 
 class RecordDifference(object):
@@ -179,7 +179,7 @@ class RecordDifference(object):
         self.launch_mode_differs = recordA.launch_mode != recordB.launch_mode
         #self.platforms
         #self.datastore = datastore
-        #self.data_key = None
+        #self.data_keys = None
         self.diff_differs = recordA.diff != recordB.diff
     
     def __nonzero__(self):
@@ -241,47 +241,48 @@ class RecordDifference(object):
                 diffs[name] = (None, depsB[name])
         return diffs
     
-    def _list_datafiles(self):
-        files = {self.recordA.label: {}, self.recordB.label: {}}
+    def _list_datakeys(self):
+        keys = {self.recordA.label: {}, self.recordB.label: {}}
         for rec in self.recordA, self.recordB:
-            for file in rec.datastore.list_files(rec.data_key):
+            for key in rec.data_keys:
                 ignore = False
-                if file.mimetype:
+                name = os.path.basename(key.path)
+                if key.metadata['mimetype']:
                     for pattern in self.ignore_mimetypes:
-                        if re.match(pattern, file.mimetype):
+                        if re.match(pattern, key.metadata['mimetype']):
                             ignore = True
                             break
                 for pattern in self.ignore_filenames:
-                    if re.search(pattern, file.name):
+                    if re.search(pattern, name):
                         ignore = True
                         break
                 if not ignore:
-                    files[rec.label][file.name] = file
-        return files
+                    keys[rec.label][name] = key
+        return keys
                     
     @property
     def data_differs(self):
-        files = self._list_datafiles()
-        filenamesA = set(files[self.recordA.label].keys())
-        filenamesB = set(files[self.recordB.label].keys())
+        keys = self._list_datakeys()
+        filenamesA = set(keys[self.recordA.label].keys())
+        filenamesB = set(keys[self.recordB.label].keys())
         if len(filenamesA) == len(filenamesB) == 0:
             return False
         if filenamesA.difference(filenamesB):
             return True
         differs = {}
         for filename in filenamesA:
-            differs[filename] = files[self.recordA.label][filename] != files[self.recordB.label][filename]
+            differs[filename] = keys[self.recordA.label][filename].digest != keys[self.recordB.label][filename].digest # doesn't account for same-after-sorting
         return reduce(or_, differs.values())
         
     @property
     def data_differences(self):
-        files = self._list_datafiles()
-        A = files[self.recordA.label]
-        B = files[self.recordB.label]
+        keys = self._list_datakeys()
+        A = keys[self.recordA.label]
+        B = keys[self.recordB.label]
         diffs = {}
         for name in A:
             if name in B:
-                if A[name] != B[name]:
+                if A[name].digest != B[name].digest:
                     diffs[name] = (A[name], B[name])
             else:
                 diffs[name] = (A[name], None)

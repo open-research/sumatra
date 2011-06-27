@@ -11,7 +11,7 @@ The server should support the following URL structure and HTTP methods:
 and should both accept and return JSON-encoded data when the Accept header is
 "application/json".
 
-DESCRIBE HERE THE JSON STRUCTURE
+The required JSON structure can be seen in recordstore.serialization.
 """
 
 from sumatra.recordstore.base import RecordStore
