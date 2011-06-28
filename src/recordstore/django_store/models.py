@@ -196,7 +196,7 @@ class Record(BaseModel):
     data_key = models.TextField(blank=True)
     timestamp = models.DateTimeField()
     tags = tagging.fields.TagField()
-    data_keys = models.ManyToManyField(DataKey, related_name="output_from_records")
+    output_data = models.ManyToManyField(DataKey, related_name="output_from_records")
     dependencies = models.ManyToManyField(Dependency)
     platforms = models.ManyToManyField(PlatformInformation)
     diff = models.TextField(blank=True)
@@ -226,7 +226,7 @@ class Record(BaseModel):
         record.outcome = self.outcome
         record.timestamp = self.timestamp
         record.tags = set(tag.name for tag in Tag.objects.get_for_object(self))
-        record.data_keys = [key.to_sumatra() for key in self.data_keys.all()]
+        record.output_data = [key.to_sumatra() for key in self.output_data.all()]
         record.dependencies = [dep.to_sumatra() for dep in self.dependencies.all()]
         record.platforms = [pi.to_sumatra() for pi in self.platforms.all()]
         return record

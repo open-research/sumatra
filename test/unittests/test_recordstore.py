@@ -95,7 +95,7 @@ class MockRecord(object):
         self.stdout_stderr = "ok"
         self.main_file = "test"
         self.version = "99863a9dc5f"
-        self.data_keys = []
+        self.output_data = []
         self.executable = MockExecutable()
         self.repository = MockRepository()
         self.launch_mode = MockLaunchMode()
@@ -292,7 +292,7 @@ def check_record(record):
                                       "tags", "main_file", "label", "platforms",
                                       "reason", "version", "user", "launch_mode",
                                       "timestamp", "duration", "diff",
-                                      "datastore", "outcome", "data_keys",
+                                      "datastore", "outcome", "output_data",
                                       "dependencies", "input_data",
                                       "script_arguments", "stdout_stderr"])
 

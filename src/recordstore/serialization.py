@@ -48,11 +48,11 @@ def encode_record(record, indent=None):
         },
         "outcome": record.outcome or "",
         "stdout_stderr": record.stdout_stderr, # added in 0.4
-        "data_keys": [{  # added in 0.4 (replaced 'data_key', which was a string)
+        "output_data": [{  # added in 0.4 (replaced 'data_key', which was a string)
             "path": key.path,
             "digest": key.digest,
             "metadata": key.metadata,
-            } for key in record.data_keys],
+            } for key in record.output_data],
         "tags": list(record.tags), # not sure if tags should be PUT, perhaps have separate URL for this?
         "diff": record.diff,
         "user": record.user, # added in 0.2
@@ -134,15 +134,15 @@ def build_record(data):
         tags = (tags,)
     record.tags = set(tags)
     record.timestamp = datetime.strptime(data["timestamp"], "%Y-%m-%d %H:%M:%S")
-    record.data_keys = []
-    if "data_keys" in data:
-        for keydata in data["data_keys"]:
+    record.output_data = []
+    if "output_data" in data:
+        for keydata in data["output_data"]:
             data_key = datastore.DataKey(keydata["path"], keydata["digest"], **keydata["metadata"])
-            record.data_keys.append(data_key)
+            record.output_data.append(data_key)
     elif "data_key" in data: # (versions prior to 0.4)
         for path in eval(data["data_key"]):
             data_key = datastore.DataKey(path, digest=datastore.IGNORE_DIGEST)
-            record.data_keys.append(data_key)
+            record.output_data.append(data_key)
     record.duration = data["duration"]
     record.outcome = data["outcome"]
     record.stdout_stderr = data.get("stdout_stderr", "")

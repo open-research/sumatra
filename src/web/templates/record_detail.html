@@ -50,7 +50,7 @@
 <h2>Output files</h2>
 <table>
   <tr><td colspan="4">{{record.datastore.access_parameters.root}}</td></tr>
-{% for file in record.data_keys.all %}
+{% for file in record.output_data.all %}
   <tr class="{% cycle odd even %}"><td><a href="datafile?path={{file.path}}&digest={{file.digest}}">{{file.path}}</a></td>
                                    <td>{{file.digest}}</td>
                                    <td>{{file.metadata.mimetype|default:""}}</td>

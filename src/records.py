@@ -46,7 +46,7 @@ class Record(object):
         self.launch_mode = launch_mode # a LaunchMode object - basically, run serially or with MPI. If MPI, what configuration
         self.datastore = datastore.copy()
         self.outcome = None
-        self.data_keys = []
+        self.output_data = []
         self.tags = set()
         self.diff = diff
         self.user = user
@@ -118,8 +118,8 @@ class Record(object):
         # Search for newly-created datafiles
         if self.parameters and os.path.exists(parameter_file):
             os.remove(parameter_file)
-        self.data_keys = self.datastore.find_new_data(self.timestamp)
-        print "Data keys are", self.data_keys
+        self.output_data = self.datastore.find_new_data(self.timestamp)
+        print "Data keys are", self.output_data
     
     def __repr__(self):
         return "Record #%s" % self.label
@@ -147,8 +147,8 @@ class Record(object):
         """
         Delete any data files associated with this record.
         """
-        self.datastore.delete(*self.data_keys)
-        self.data_keys = []
+        self.datastore.delete(*self.output_data)
+        self.output_data = []
 
 
 class RecordDifference(object):
@@ -179,7 +179,7 @@ class RecordDifference(object):
         self.launch_mode_differs = recordA.launch_mode != recordB.launch_mode
         #self.platforms
         #self.datastore = datastore
-        #self.data_keys = None
+        #self.output_data = None
         self.diff_differs = recordA.diff != recordB.diff
     
     def __nonzero__(self):
@@ -244,7 +244,7 @@ class RecordDifference(object):
     def _list_datakeys(self):
         keys = {self.recordA.label: {}, self.recordB.label: {}}
         for rec in self.recordA, self.recordB:
-            for key in rec.data_keys:
+            for key in rec.output_data:
                 ignore = False
                 name = os.path.basename(key.path)
                 if key.metadata['mimetype']:
