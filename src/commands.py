@@ -12,7 +12,7 @@ from copy import deepcopy
 import re
 
 from sumatra.programs import get_executable
-from sumatra.datastore import FileSystemDataStore
+from sumatra.datastore import FileSystemDataStore, generate_data_keys
 from sumatra.projects import Project, load_project
 from sumatra.launch import SerialLaunchMode, DistributedLaunchMode
 from sumatra.parameters import build_parameters
@@ -55,7 +55,7 @@ def parse_arguments(args):
     script_args = []
     parameter_sets = []
     input_data = []
-    ##datastore = FileSystemDataStore("/") # temporary
+    input_datastore = FileSystemDataStore("/") # temporary - should be user configurable
     for arg in args:
         if os.path.exists(arg): # either a parameter file or a data file
                                 # should perhaps use DataStore.exists() instead of os.path.exists()
@@ -64,8 +64,8 @@ def parse_arguments(args):
                 parameter_sets.append(build_parameters(arg))
                 script_args.append("<parameters>")
             except SyntaxError:
-                ##input_data.append(DataFile(arg, datastore)) # need to determine if path is absolute or relative
-                input_data.append(arg)
+                data_key = generate_data_keys(input_datastore, [os.path.abspath(arg)]) # temporary. When user configurable,
+                input_data.extend(data_key)                                            # need to determine if path is absolute or relative
                 script_args.append(arg)
         elif "=" in arg: # cmdline parameter 
             cmdline_parameters.update(parse_command_line_parameter(arg))

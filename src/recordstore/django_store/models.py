@@ -18,9 +18,8 @@ class SumatraObjectsManager(models.Manager):
         # want to store in a single table in the database.
         # might be better to specify the list of field names explicitly
         # as an argument to the Manager __init__().
-        field_names = self.model._meta.get_all_field_names()
-        field_names.remove('id')
-        field_names.remove('record')
+        excluded_fields = ('id', 'record', 'input_to_records', 'output_from_records')
+        field_names = set(self.model._meta.get_all_field_names()).difference(excluded_fields)
         attributes = {}
         for name in field_names:
             try:
@@ -31,7 +30,7 @@ class SumatraObjectsManager(models.Manager):
                 elif name == 'type':
                     attributes[name] = obj.__class__.__name__
                 elif name in ('content', 'metadata'):
-                    attributes[name] = str(obj) # ParameterSet
+                    attributes[name] = str(obj) # ParameterSet, DataKey
                 else:
                     raise
         return self.using(using).get_or_create(**attributes)            
@@ -190,14 +189,14 @@ class Record(BaseModel):
     main_file = models.CharField(max_length=100)
     version = models.CharField(max_length=50)
     parameters = models.ForeignKey(ParameterSet)
-    input_data = models.TextField(blank=True)
+    input_data = models.ManyToManyField(DataKey, related_name="input_to_records")
     launch_mode = models.ForeignKey(LaunchMode)
     datastore = models.ForeignKey(Datastore)
     outcome = models.TextField(blank=True)
     data_key = models.TextField(blank=True)
     timestamp = models.DateTimeField()
     tags = tagging.fields.TagField()
-    data_keys = models.ManyToManyField(DataKey)
+    data_keys = models.ManyToManyField(DataKey, related_name="output_from_records")
     dependencies = models.ManyToManyField(Dependency)
     platforms = models.ManyToManyField(PlatformInformation)
     diff = models.TextField(blank=True)
@@ -215,7 +214,7 @@ class Record(BaseModel):
             self.launch_mode.to_sumatra(),
             self.datastore.to_sumatra(),
             self.parameters.to_sumatra(),
-            eval(self.input_data),
+            [key.to_sumatra() for key in self.input_data.all()],
             self.script_arguments,
             self.label,
             self.reason,

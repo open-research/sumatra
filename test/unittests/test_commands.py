@@ -5,7 +5,8 @@ Unit tests for the sumatra.commands module
 
 import unittest
 import os
-from sumatra import commands,launch
+import hashlib
+from sumatra import commands, launch, datastore
 
 originals = [] # use for storing originals of mocked objects
 
@@ -174,13 +175,15 @@ class TestParseArguments(unittest.TestCase):
         os.remove("test.param")
     
     def test_with_single_datafile(self):
+        data_content = "23496857243968b24cbc4275dc82470a\n"
         f = open("this.is.not.a.parameter.file", 'w')
-        f.write("23496857243968b24cbc4275dc82470a\n")
+        f.write(data_content)
         f.close()
         parameter_sets, input_data, script_args = commands.parse_arguments(
             ["this.is.not.a.parameter.file"])
         self.assertEqual(parameter_sets, [])
-        self.assertEqual(input_data, ["this.is.not.a.parameter.file"])
+        self.assertEqual(os.path.basename(input_data[0].path), "this.is.not.a.parameter.file")
+        self.assertEqual(input_data[0].digest, hashlib.sha1(data_content).hexdigest())
         self.assertEqual(script_args, "this.is.not.a.parameter.file")
         os.remove("this.is.not.a.parameter.file")
 
@@ -198,12 +201,14 @@ class TestParseArguments(unittest.TestCase):
         f = open("test.param", 'w')
         f.write("a = 2\nb = 3\n")
         f.close()
+        data_content = "23496857243968b24cbc4275dc82470a\n"
         f = open("this.is.not.a.parameter.file", 'w')
-        f.write("23496857243968b24cbc4275dc82470a\n")
+        f.write(data_content)
         f.close()
         parameter_sets, input_data, script_args = commands.parse_arguments(["spam", "test.param", "eggs", "this.is.not.a.parameter.file", "a=17", "umlue=43", "beans"])
         self.assertEqual(parameter_sets, [{'this': 'mock', 'a': 17, 'umlue': 43}])
-        self.assertEqual(input_data, ["this.is.not.a.parameter.file"])
+        self.assertEqual(os.path.basename(input_data[0].path), "this.is.not.a.parameter.file")
+        self.assertEqual(input_data[0].digest, hashlib.sha1(data_content).hexdigest())
         self.assertEqual(script_args, "spam <parameters> eggs this.is.not.a.parameter.file beans")
 
 
@@ -240,8 +245,9 @@ class TestRunCommand(unittest.TestCase):
                          'script_args': 'some_parameter_file'})
     
     def test_with_single_input_file(self):
+        data_content = "0.0 242\n0.1 2345\n0.2 42451\n"
         f = open("this.is.not.a.parameter.file", 'w')
-        f.write("0.0 242\n0.1 2345\n0.2 42451\n")
+        f.write(data_content)
         f.close()
         commands.run(["this.is.not.a.parameter.file"]) # file exists but is not a parameter file so is treated as input data
         self.assertEqual(self.prj.launch_args,
@@ -249,7 +255,7 @@ class TestRunCommand(unittest.TestCase):
                          'parameters': {},
                          'main_file': 'default',
                          'label': None,
-                         'input_data': ['this.is.not.a.parameter.file'],
+                         'input_data': [datastore.DataKey(os.path.abspath('this.is.not.a.parameter.file'), hashlib.sha1(data_content).hexdigest())],
                          'reason': None,
                          'version': 'latest',
                          'launch_mode': launch.SerialLaunchMode(),
@@ -260,8 +266,9 @@ class TestRunCommand(unittest.TestCase):
         f = open("test.param", 'w')
         f.write("a = 2\nb = 3\n")
         f.close()
+        data_content = "23496857243968b24cbc4275dc82470a\n"
         f = open("this.is.not.a.parameter.file", 'w')
-        f.write("23496857243968b24cbc4275dc82470a\n")
+        f.write(data_content)
         f.close()
         commands.run(["-l", "vikings", "-v", "234", "--reason='test'",
                       "-e", "python", "--main=main.py", "spam", "test.param",
@@ -272,7 +279,7 @@ class TestRunCommand(unittest.TestCase):
                          'parameters': {'this': 'mock', 'a': 17, 'umlue': 43},
                          'main_file': 'main.py',
                          'label': 'vikings',
-                         'input_data': ['this.is.not.a.parameter.file'],
+                         'input_data': [datastore.DataKey(os.path.abspath('this.is.not.a.parameter.file'), hashlib.sha1(data_content).hexdigest())],
                          'reason': 'test',
                          'version': '234',
                          'launch_mode': launch.SerialLaunchMode(),

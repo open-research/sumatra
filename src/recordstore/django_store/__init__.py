@@ -171,13 +171,14 @@ class DjangoRecordStore(RecordStore):
         db_record.launch_mode = self._get_db_obj('LaunchMode', record.launch_mode)
         db_record.datastore = self._get_db_obj('Datastore', record.datastore)
         db_record.parameters = self._get_db_obj('ParameterSet', record.parameters)
-        db_record.input_data = str(record.input_data)
         db_record.script_arguments = record.script_arguments
         db_record.user = record.user
         db_record.tags = ",".join(record.tags)
         db_record.stdout_stderr = "\n".join(record.stdout_stderr)
         # should perhaps check here for any orphan Tags, i.e., those that are no longer associated with any records, and delete them
         db_record.save() # need to save before using many-to-many relationship
+        for key in record.input_data:
+            db_record.input_data.add(self._get_db_obj('DataKey', key))
         for key in record.data_keys:
             db_record.data_keys.add(self._get_db_obj('DataKey', key))
         for dep in record.dependencies:

@@ -37,9 +37,14 @@
 
 </form>
 
-{% if record.input_data %}
+{% if record.input_data.count %}
 <h2>Input files</h2>
-{{record.input_data}}
+{% for file in record.input_data.all %}
+  <tr class="{% cycle odd even %}"><td><a href="datafile?path={{file.path}}&digest={{file.digest}}">{{file.path}}</a></td>
+                                   <td>{{file.digest}}</td>
+                                   <td>{{file.metadata.mimetype|default:""}}</td>
+                                   <td>{{file.metadata.size|filesizeformat}}</td></tr>
+{% endfor %}
 {% endif %}
 
 <h2>Output files</h2>

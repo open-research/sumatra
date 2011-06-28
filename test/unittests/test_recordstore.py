@@ -106,7 +106,7 @@ class MockRecord(object):
         self.platforms = [MockPlatformInformation()]
         self.diff = ""
         self.user = "michaelpalin"
-        self.input_data = "[]"
+        self.input_data = []
         self.script_arguments = "arg1 arg2"
 
     def __eq__(self, other):

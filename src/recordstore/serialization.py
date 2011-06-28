@@ -32,7 +32,11 @@ def encode_record(record, indent=None):
             "content": str(record.parameters),
             "type": record.parameters.__class__.__name__,
         },
-        "input_data": str(record.input_data), # added in 0.3
+        "input_data": [{  # changed in 0.4 (previously a list of strings)
+            "path": key.path,
+            "digest": key.digest,
+            "metadata": key.metadata,
+            } for key in record.input_data],
         "script_arguments": record.script_arguments, # added in 0.3
         "launch_mode": {
             "type": record.launch_mode.__class__.__name__, 
@@ -112,9 +116,17 @@ def build_record(data):
     ddata = data["datastore"]
     ds_parameters = eval(ddata["parameters"])
     data_store = getattr(datastore, ddata["type"])(**ds_parameters)
+    input_data = data.get("input_data", [])
+    if input_data:
+        if isinstance(input_data[0], str): # versions prior to 0.4
+            input_data = [datastore.DataKey(path, digest=datastore.IGNORE_DIGEST)
+                          for path in input_data]
+        else:
+            input_data = [datastore.DataKey(keydata["path"], keydata["digest"], **keydata["metadata"])
+                          for keydata in input_data]
     record = Record(executable, repository, data["main_file"],
                        data["version"], launch_mode, data_store, parameter_set,
-                       data.get("input_data", []), data.get("script_arguments", ""), 
+                       input_data, data.get("script_arguments", ""), 
                        data["label"], data["reason"], data["diff"],
                        data.get("user", ""))
     tags = data["tags"]
@@ -127,7 +139,7 @@ def build_record(data):
         for keydata in data["data_keys"]:
             data_key = datastore.DataKey(keydata["path"], keydata["digest"], **keydata["metadata"])
             record.data_keys.append(data_key)
-    elif "data_key" in data: # (versions prior to 0.3)
+    elif "data_key" in data: # (versions prior to 0.4)
         for path in eval(data["data_key"]):
             data_key = datastore.DataKey(path, digest=datastore.IGNORE_DIGEST)
             record.data_keys.append(data_key)

@@ -41,7 +41,7 @@ class Record(object):
         self.main_file = main_file
         self.version = version
         self.parameters = parameters
-        self.input_data = input_data # a list containing strings (in future - DataFile objects)
+        self.input_data = input_data # a list containing DataKey objects
         self.script_arguments = script_arguments
         self.launch_mode = launch_mode # a LaunchMode object - basically, run serially or with MPI. If MPI, what configuration
         self.datastore = datastore.copy()
@@ -174,7 +174,7 @@ class RecordDifference(object):
             if rec.parameters:
                 rec.parameters.pop("sumatra_label", 1)
         self.parameters_differ = recordA.parameters != recordB.parameters
-        self.input_data_differ = recordA.input_data != recordB.input_data
+        self.input_data_differ = recordA.input_data != recordB.input_data  # now that input_data is a list of DataKeys, need to make this a property, like data_differ
         self.script_arguments_differ = recordA.script_arguments != recordB.script_arguments
         self.launch_mode_differs = recordA.launch_mode != recordB.launch_mode
         #self.platforms
@@ -261,7 +261,7 @@ class RecordDifference(object):
         return keys
                     
     @property
-    def data_differs(self):
+    def data_differs(self):  # rename to "output_data_differs"
         keys = self._list_datakeys()
         filenamesA = set(keys[self.recordA.label].keys())
         filenamesB = set(keys[self.recordB.label].keys())
@@ -275,7 +275,7 @@ class RecordDifference(object):
         return reduce(or_, differs.values())
         
     @property
-    def data_differences(self):
+    def data_differences(self): # rename to "output_data_differences"
         keys = self._list_datakeys()
         A = keys[self.recordA.label]
         B = keys[self.recordB.label]

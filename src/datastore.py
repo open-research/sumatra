@@ -164,6 +164,12 @@ class DataKey(object):
     def __repr__(self):
         return "%s(%s)" % (self.path, self.digest)
 
+    def __eq__(self, other):
+        return self.path == other.path and self.digest == other.digest
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
 
 class DataFile(object):
     """A file-like object, that may represent a real file or a database record."""
@@ -232,3 +238,8 @@ class DataFile(object):
 def get_data_store(type, parameters):
     cls = eval(type)
     return cls(**parameters)
+
+
+def generate_data_keys(store, paths):
+    return [DataFile(path, store).generate_key() for path in paths]
+    
