@@ -17,21 +17,36 @@ The required JSON structure can be seen in recordstore.serialization.
 from sumatra.recordstore.base import RecordStore
 from sumatra.recordstore import serialization
 import httplib2
-from urlparse import urlparse
+from urlparse import urlparse, urlunparse
 
 
 def domain(url):
     return urlparse(url).netloc
 
 
+def process_url(url):
+    """Strip out username and password if included in URL"""
+    username = None; password = None
+    if '@' in url: # allow encoding username and password in URL - deprecated in RFC 3986, but useful on the command-line
+        parts = urlparse(url)
+        username = parts.username
+        password = parts.password
+        hostname = parts.hostname
+        url = urlunparse((parts.scheme, hostname, parts.path, parts.params, parts.query, parts.fragment))
+    return url, username, password
+
+
 class HttpRecordStore(RecordStore):
     
-    def __init__(self, server_url, username, password):
-        self.server_url = server_url
+    def __init__(self, server_url, username=None, password=None):
+        self.server_url, _username, _password = process_url(server_url)
+        username = username or _username
+        password = password or _password
         if self.server_url[-1] != "/":
             self.server_url += "/"
         self.client = httplib2.Http('.cache')
-        self.client.add_credentials(username, password, domain(server_url))
+        if username:
+            self.client.add_credentials(username, password, domain(server_url))
         
     def __str__(self):
         return "Interface to remote record store at %s using HTTP" % self.server_url

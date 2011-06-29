@@ -193,7 +193,6 @@ class Record(BaseModel):
     launch_mode = models.ForeignKey(LaunchMode)
     datastore = models.ForeignKey(Datastore)
     outcome = models.TextField(blank=True)
-    data_key = models.TextField(blank=True)
     timestamp = models.DateTimeField()
     tags = tagging.fields.TagField()
     output_data = models.ManyToManyField(DataKey, related_name="output_from_records")
