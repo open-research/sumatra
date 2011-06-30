@@ -13,10 +13,16 @@ originals = [] # use for storing originals of mocked objects
 class MockDataStore(object):
     def __init__(self, root):
         self.root = root
+    def generate_keys(self, *paths):
+        return [datastore.DataKey(path, datastore.IGNORE_DIGEST) for path in paths]
+    def contains_path(self, path):
+        return os.path.exists(path)
+    
 
 class MockProject(object):
     instances = []
     data_store = MockDataStore("/path/to/root")
+    input_datastore = MockDataStore("/path/to/root")
     default_repository = "some repository"
     default_main_file = "walk_silly.py"
     default_executable = "a.out"
@@ -146,20 +152,24 @@ class InfoCommandTests(unittest.TestCase):
 
 class TestParseArguments(unittest.TestCase):
     
+    def setUp(self):
+        self.input_datastore = MockDataStore('/path/to/root')
+    
     def test_with_no_args(self):
-        parameter_sets, input_data, script_args = commands.parse_arguments([])
+        parameter_sets, input_data, script_args = commands.parse_arguments([], self.input_datastore)
         self.assertEqual(parameter_sets, [])
         self.assertEqual(input_data, [])
         self.assertEqual(script_args, "")
 
     def test_with_nonfile_arg(self):
-        parameter_sets, input_data, script_args = commands.parse_arguments(["foo"])
+        parameter_sets, input_data, script_args = commands.parse_arguments(["foo"], self.input_datastore)
         self.assertEqual(parameter_sets, [])
         self.assertEqual(input_data, [])
         self.assertEqual(script_args, "foo")
     
     def test_with_nonfile_args(self):
-        parameter_sets, input_data, script_args = commands.parse_arguments(["spam", "eggs"])
+        parameter_sets, input_data, script_args = commands.parse_arguments(["spam", "eggs"],
+                                                                           self.input_datastore)
         self.assertEqual(parameter_sets, [])
         self.assertEqual(input_data, [])
         self.assertEqual(script_args, "spam eggs")
@@ -168,7 +178,7 @@ class TestParseArguments(unittest.TestCase):
         f = open("test.param", 'w')
         f.write("a = 2\nb = 3\n")
         f.close()
-        parameter_sets, input_data, script_args = commands.parse_arguments(["spam", "test.param"])
+        parameter_sets, input_data, script_args = commands.parse_arguments(["spam", "test.param"], self.input_datastore)
         self.assertEqual(parameter_sets, [{'this': 'mock'}])
         self.assertEqual(input_data, [])
         self.assertEqual(script_args, "spam <parameters>")
@@ -180,10 +190,9 @@ class TestParseArguments(unittest.TestCase):
         f.write(data_content)
         f.close()
         parameter_sets, input_data, script_args = commands.parse_arguments(
-            ["this.is.not.a.parameter.file"])
+            ["this.is.not.a.parameter.file"], self.input_datastore)
         self.assertEqual(parameter_sets, [])
         self.assertEqual(os.path.basename(input_data[0].path), "this.is.not.a.parameter.file")
-        self.assertEqual(input_data[0].digest, hashlib.sha1(data_content).hexdigest())
         self.assertEqual(script_args, "this.is.not.a.parameter.file")
         os.remove("this.is.not.a.parameter.file")
 
@@ -191,7 +200,7 @@ class TestParseArguments(unittest.TestCase):
         f = open("test.param", 'w')
         f.write("a = 2\nb = 3\n")
         f.close()
-        parameter_sets, input_data, script_args = commands.parse_arguments(["test.param", "a=17", "umlue=43"])
+        parameter_sets, input_data, script_args = commands.parse_arguments(["test.param", "a=17", "umlue=43"], self.input_datastore)
         self.assertEqual(parameter_sets, [{'this': 'mock', 'a': 17, 'umlue': 43}])
         self.assertEqual(input_data, [])
         self.assertEqual(script_args, "<parameters>")
@@ -205,14 +214,15 @@ class TestParseArguments(unittest.TestCase):
         f = open("this.is.not.a.parameter.file", 'w')
         f.write(data_content)
         f.close()
-        parameter_sets, input_data, script_args = commands.parse_arguments(["spam", "test.param", "eggs", "this.is.not.a.parameter.file", "a=17", "umlue=43", "beans"])
+        parameter_sets, input_data, script_args = commands.parse_arguments(["spam", "test.param", "eggs", "this.is.not.a.parameter.file", "a=17", "umlue=43", "beans"],
+                                                                           self.input_datastore)
         self.assertEqual(parameter_sets, [{'this': 'mock', 'a': 17, 'umlue': 43}])
         self.assertEqual(os.path.basename(input_data[0].path), "this.is.not.a.parameter.file")
-        self.assertEqual(input_data[0].digest, hashlib.sha1(data_content).hexdigest())
         self.assertEqual(script_args, "spam <parameters> eggs this.is.not.a.parameter.file beans")
 
 
 class TestRunCommand(unittest.TestCase):
+    maxDiff = None
     
     def setUp(self):
         self.prj = MockProject()
@@ -255,7 +265,7 @@ class TestRunCommand(unittest.TestCase):
                          'parameters': {},
                          'main_file': 'default',
                          'label': None,
-                         'input_data': [datastore.DataKey(os.path.abspath('this.is.not.a.parameter.file'), hashlib.sha1(data_content).hexdigest())],
+                         'input_data': [datastore.DataKey('this.is.not.a.parameter.file', hashlib.sha1(data_content).hexdigest())],
                          'reason': None,
                          'version': 'latest',
                          'launch_mode': launch.SerialLaunchMode(),
@@ -279,7 +289,7 @@ class TestRunCommand(unittest.TestCase):
                          'parameters': {'this': 'mock', 'a': 17, 'umlue': 43},
                          'main_file': 'main.py',
                          'label': 'vikings',
-                         'input_data': [datastore.DataKey(os.path.abspath('this.is.not.a.parameter.file'), hashlib.sha1(data_content).hexdigest())],
+                         'input_data': [datastore.DataKey('this.is.not.a.parameter.file', hashlib.sha1(data_content).hexdigest())],
                          'reason': 'test',
                          'version': '234',
                          'launch_mode': launch.SerialLaunchMode(),

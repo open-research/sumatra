@@ -192,6 +192,7 @@ class Record(BaseModel):
     input_data = models.ManyToManyField(DataKey, related_name="input_to_records")
     launch_mode = models.ForeignKey(LaunchMode)
     datastore = models.ForeignKey(Datastore)
+    input_datastore = models.ForeignKey(Datastore, related_name="input_to_records")
     outcome = models.TextField(blank=True)
     timestamp = models.DateTimeField()
     tags = tagging.fields.TagField()
@@ -218,7 +219,8 @@ class Record(BaseModel):
             self.label,
             self.reason,
             self.diff,
-            self.user)
+            self.user,
+            input_datastore=self.input_datastore.to_sumatra())
 
         record.stdout_stderr = self.stdout_stderr
         record.duration = self.duration

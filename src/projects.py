@@ -49,7 +49,8 @@ class Project(object):
     def __init__(self, name, default_executable=None, default_repository=None,
                  default_main_file=None, default_launch_mode=None,
                  data_store='default', record_store='default',
-                 on_changed='error', description='', data_label=None):
+                 on_changed='error', description='', data_label=None,
+                 input_datastore=None):
         self.path = os.getcwd()
         if not os.path.exists(".smt"):
             os.mkdir(".smt")
@@ -63,6 +64,7 @@ class Project(object):
         if data_store == 'default':
             data_store = datastore.FileSystemDataStore(None)
         self.data_store = data_store # a data store object
+        self.input_datastore = input_datastore or self.data_store
         if record_store == 'default':
             record_store = DefaultRecordStore(".smt/records")
         self.record_store = record_store
@@ -86,7 +88,7 @@ class Project(object):
         for name in ('name', 'default_executable', 'default_repository',
                      'default_launch_mode', 'data_store', 'record_store',
                      'default_main_file', 'on_changed', 'description',
-                     'data_label', '_most_recent'):
+                     'data_label', '_most_recent', 'input_datastore'):
             attr = getattr(self, name)
             if hasattr(attr, "__getstate__"):
                 state[name] = {'type': attr.__class__.__module__ + "." + attr.__class__.__name__}
@@ -108,7 +110,8 @@ class Project(object):
         Default repository  : %(default_repository)s
         Default main file   : %(default_main_file)s
         Default launch mode : %(default_launch_mode)s
-        Data store          : %(data_store)s
+        Data store (output) : %(data_store)s
+        .          (input)  : %(input_datastore)s
         Record store        : %(record_store)s
         Code change policy  : %(on_changed)s
         Append label to     : %(_data_label)s
@@ -132,7 +135,8 @@ class Project(object):
         record = Record(executable, repository, main_file, version, launch_mode,
                         self.data_store, parameters, input_data, script_args, 
                         label=label, reason=reason, diff=diff,
-                        on_changed=self.on_changed)
+                        on_changed=self.on_changed,
+                        input_datastore=self.input_datastore)
         record.register(working_copy)
         return record
     
@@ -229,6 +233,7 @@ class Project(object):
         diff = self.compare(label1, label2, ignore_mimetypes, ignore_filenames)
         formatter = get_diff_formatter()(diff)
         return formatter.format(mode)
+
 
 def _load_project_from_json(path):
     f = open(_get_project_file(path), 'r')

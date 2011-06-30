@@ -170,6 +170,7 @@ class DjangoRecordStore(RecordStore):
         db_record.repository = self._get_db_obj('Repository', record.repository)
         db_record.launch_mode = self._get_db_obj('LaunchMode', record.launch_mode)
         db_record.datastore = self._get_db_obj('Datastore', record.datastore)
+        db_record.input_datastore = self._get_db_obj('Datastore', record.input_datastore)
         db_record.parameters = self._get_db_obj('ParameterSet', record.parameters)
         db_record.script_arguments = record.script_arguments
         db_record.user = record.user

@@ -100,6 +100,7 @@ class MockRecord(object):
         self.repository = MockRepository()
         self.launch_mode = MockLaunchMode()
         self.datastore = MockDataStore()
+        self.input_datastore = MockDataStore()
         self.parameters = MockParameterSet({})
         self.tags = set([])
         self.dependencies = [MockDependency(), MockDependency()]
@@ -294,7 +295,8 @@ def check_record(record):
                                       "timestamp", "duration", "diff",
                                       "datastore", "outcome", "output_data",
                                       "dependencies", "input_data",
-                                      "script_arguments", "stdout_stderr"])
+                                      "script_arguments", "stdout_stderr",
+                                      "input_datastore"])
 
 class MockCredentials(object):
         credentials = [['domain', 'username', 'password']]

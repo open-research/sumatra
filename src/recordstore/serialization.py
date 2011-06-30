@@ -46,6 +46,10 @@ def encode_record(record, indent=None):
             "type": record.datastore.__class__.__name__,
             "parameters": str(record.datastore.__getstate__()),
         },
+        "input_datastore": { # added in 0.4
+            "type": record.input_datastore.__class__.__name__,
+            "parameters": str(record.input_datastore.__getstate__()),
+        },
         "outcome": record.outcome or "",
         "stdout_stderr": record.stdout_stderr, # added in 0.4
         "output_data": [{  # added in 0.4 (replaced 'data_key', which was a string)
@@ -113,9 +117,14 @@ def build_record(data):
     ldata = data["launch_mode"]
     lm_parameters = eval(ldata["parameters"])
     launch_mode = getattr(launch, ldata["type"])(**lm_parameters)
-    ddata = data["datastore"]
-    ds_parameters = eval(ddata["parameters"])
-    data_store = getattr(datastore, ddata["type"])(**ds_parameters)
+    def build_data_store(ddata):
+        ds_parameters = eval(ddata["parameters"])
+        return getattr(datastore, ddata["type"])(**ds_parameters)
+    data_store = build_data_store(data["datastore"])
+    if "input_data_store" in data: # 0.4 onwards
+        input_datastore = build_data_store(data["input_data_store"])
+    else:
+        input_datastore = datastore.FileSystemDataStore("/")
     input_data = data.get("input_data", [])
     if input_data:
         if isinstance(input_data[0], str): # versions prior to 0.4
@@ -128,7 +137,7 @@ def build_record(data):
                        data["version"], launch_mode, data_store, parameter_set,
                        input_data, data.get("script_arguments", ""), 
                        data["label"], data["reason"], data["diff"],
-                       data.get("user", ""))
+                       data.get("user", ""), input_datastore=input_datastore)
     tags = data["tags"]
     if not hasattr(tags, "__iter__"):
         tags = (tags,)

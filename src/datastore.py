@@ -153,6 +153,12 @@ class FileSystemDataStore(DataStore):
         for key in keys:
             remove_file(key.path)
     
+    def generate_keys(self, *paths):
+        return [DataFile(path, self).generate_key() for path in paths]
+
+    def contains_path(self, path):
+        return os.path.exists(os.path.join(self.root, path))
+        
 
 class DataKey(object):
     
@@ -165,7 +171,7 @@ class DataKey(object):
         return "%s(%s)" % (self.path, self.digest)
 
     def __eq__(self, other):
-        return self.path == other.path and self.digest == other.digest
+        return self.path == other.path and (self.digest == other.digest or IGNORE_DIGEST in (self.digest, other.digest))
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -238,8 +244,3 @@ class DataFile(object):
 def get_data_store(type, parameters):
     cls = eval(type)
     return cls(**parameters)
-
-
-def generate_data_keys(store, paths):
-    return [DataFile(path, store).generate_key() for path in paths]
-    
