@@ -74,7 +74,8 @@ class DjangoConfiguration(object):
             if not os.path.exists(os.path.dirname(db_file)):
                 os.makedirs(os.path.dirname(db_file))
             if not os.path.exists(db_file):
-                management.call_command('syncdb', database=label, verbosity=1)
+                management.call_command('syncdb', database=label, verbosity=0)
+                print "Created record store"
 
     def configure(self):
         settings = django_conf.settings
