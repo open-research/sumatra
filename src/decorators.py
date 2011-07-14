@@ -30,7 +30,7 @@ def capture(main):
         start_time = time.time()
         main(parameters, *args, **kwargs)
         record.duration = time.time() - start_time
-        record.output_data = record.datastore.find_new_files(record.timestamp)
+        record.output_data = record.datastore.find_new_data(record.timestamp)
         project.add_record(record)
         project.save()
     return wrapped_main
