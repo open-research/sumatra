@@ -24,7 +24,7 @@ start_time = time.time()
 main(parameters)
 
 record.duration = time.time() - start_time
-record.data_key = record.datastore.find_new_files(record.timestamp)
+record.output_data = record.datastore.find_new_data(record.timestamp)
 project.add_record(record)
 
 project.save()

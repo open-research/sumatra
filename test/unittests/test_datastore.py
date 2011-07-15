@@ -56,7 +56,8 @@ class TestFileSystemDataStore(unittest.TestCase):
         
     def test__archive__should_delete_original_files_if_requested(self):
         assert os.path.exists(os.path.join(self.root_dir, 'test_file1'))
-        keys = [DataKey(path, "fake_digest") for path in self.test_files]
+        digest = hashlib.sha1(self.test_data).hexdigest()
+        keys = [DataKey(path, digest) for path in self.test_files]
         self.ds.archive('test', keys, delete_originals=True)
         self.assert_(not os.path.exists(os.path.join(self.root_dir, 'test_file1')))
 
@@ -74,7 +75,8 @@ class TestFileSystemDataStore(unittest.TestCase):
     
     def test__delete__should_remove_files(self):
         assert os.path.exists(os.path.join(self.root_dir, 'test_file1'))
-        keys = [DataKey(path, "fake_digest") for path in self.test_files]
+        digest = hashlib.sha1(self.test_data).hexdigest()
+        keys = [DataKey(path, digest) for path in self.test_files]
         self.ds.delete(*keys)
         self.assert_(not os.path.exists(os.path.join(self.root_dir, 'test_file1')))
 

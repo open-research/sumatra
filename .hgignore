@@ -9,4 +9,4 @@ bulbNet
 *.orig
 .tox
 .cache
-
+htmlcov

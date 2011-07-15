@@ -144,14 +144,14 @@ class FileSystemDataStore(DataStore):
         """
         Delete the files corresponding to the given keys.
         """
-        def remove_file(path):
-            full_path = os.path.join(self.root, path)
-            if os.path.exists(full_path):
-                os.remove(full_path)
-            else:
-                warnings.warn("Tried to delete %s, but it did not exist." % full_path)
         for key in keys:
-            remove_file(key.path)
+            try:
+                data_item = self.get_data_item(key)
+            except KeyError:
+                warnings.warn("Tried to delete %s, but it did not exist." % key)
+            else:
+                os.remove(data_item.full_path)
+
     
     def generate_keys(self, *paths):
         return [DataFile(path, self).generate_key() for path in paths]

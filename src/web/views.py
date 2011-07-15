@@ -69,7 +69,7 @@ def record_detail(request, project, label):
     
     if request.method == 'POST':
         if request.POST.has_key('delete'):
-            record.delete()
+            record.delete() # need to add option to delete data
             return HttpResponseRedirect('/')
         else:
             form = RecordUpdateForm(request.POST, instance=record)
@@ -94,8 +94,8 @@ def delete_records(request, project):
     for record in records:
         if delete_data:
             datastore = record.datastore.to_sumatra()
-            data_key = eval(record.data_key)
-            datastore.delete(data_key)
+            datastore.delete(*[data_key.to_sumatra()
+                               for data_key in record.output_data.all()])
         record.delete()
     return HttpResponseRedirect('/')  
 
