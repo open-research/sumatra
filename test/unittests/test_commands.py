@@ -1,7 +1,6 @@
 """
 Unit tests for the sumatra.commands module
 """
-# just a skeleton for now. Lots more tests needed.
 
 import unittest
 import os
@@ -17,23 +16,45 @@ class MockDataStore(object):
         return [datastore.DataKey(path, datastore.IGNORE_DIGEST) for path in paths]
     def contains_path(self, path):
         return os.path.exists(path)
-    
+
+
+class MockExecutable(object):
+    def __init__(self, path=None, script_file=None):
+        self.path = path
+        self.script_file = script_file
+    def __eq__(self, other):
+        return type(self) == type(other) and self.path == other.path and self.script_file == other.script_file
+
+
+def mock_get_executable(path=None, script_file=None):
+    if path:
+        return MockExecutable(path)
+    elif script_file:
+        if script_file == "file_with_registered_extension":
+            return MockExecutable(script_file=script_file)
+        else:
+            # or return None? advantage of Exception is that calling code has to deal with inability to find executable
+            raise Exception("Extension not recognized.")
+    else:
+        raise Exception('Either path or script_file must be specified')
+
 
 class MockProject(object):
     instances = []
-    data_store = MockDataStore("/path/to/root")
-    input_datastore = MockDataStore("/path/to/root")
     default_repository = "some repository"
     default_main_file = "walk_silly.py"
-    default_executable = "a.out"
+    default_executable = MockExecutable(path="a.out")
     on_changed = "sound the alarm"
     data_label = "pluck from the ether"
     saved = False
     info_called = False
     def __init__(self, **kwargs):
+        self.data_store = MockDataStore("/path/to/root")
+        self.input_datastore = MockDataStore("/path/to/root")
         self.__class__.instances.append(self)
         for k,v in kwargs.items():
             self.__dict__[k] = v
+        self._records_deleted = []
     def save(self): self.saved = True
     def info(self): self.info_called = True
     def launch(self, parameters, input_data, script_args, **kwargs):
@@ -43,17 +64,21 @@ class MockProject(object):
                                 script_args=script_args)
     def format_records(self, tags, mode, format):
         self.format_args = {"tags": tags, "mode": mode, "format": format}
+    def delete_record(self, label, delete_data=False):
+        if "nota" in label:
+            raise KeyError # or just emit a warning?
+        else:
+            self._records_deleted.append(label)
+    def delete_by_tag(self, tag, delete_data=False):
+        self._records_deleted.append("records_tagged_with_%s" % tag)
 
-class MockExecutable(object):
-    def __init__(self, path=None, script_file=None):
-        self.path = path
-        self.script_file = script_file
-    def __eq__(self, other):
-        return self.path == other.path and self.script_file == other.script_file
 
 class MockRepository(object):
     def __init__(self, url):
-        pass
+        self.url = url
+        self._checkout_called = False
+    def checkout(self):
+        self._checkout_called = True
     
 class MockWorkingCopy(object):
     repository = MockRepository("http://mock_repository")
@@ -74,6 +99,9 @@ def mock_build_parameters(filename):
     else:
         raise SyntaxError
 
+def mock_get_repository(path):
+    return MockRepository(path)
+
 def store_original(module, name):
     global originals
     originals.append((module, name, getattr(module, name)))
@@ -84,7 +112,7 @@ def setup():
     for name in ("build_parameters", "get_executable", "get_repository", "get_working_copy", "FileSystemDataStore"):
         store_original(commands, name)
     commands.build_parameters = mock_build_parameters
-    commands.get_executable = MockExecutable
+    commands.get_executable = mock_get_executable
     commands.get_repository = MockRepository 
     commands.get_working_copy = MockWorkingCopy
     commands.FileSystemDataStore = MockDataStore
@@ -92,6 +120,7 @@ def setup():
 def teardown():
     for item in originals:
         setattr(*item)
+
 
 class InitCommandTests(unittest.TestCase):
     
@@ -105,6 +134,59 @@ class InitCommandTests(unittest.TestCase):
         commands.init(["NewProject"])
         self.assertEqual(MockProject.instances[-1].name, "NewProject")
     
+    def test_with_existing_project_should_return_error(self):
+        commands.load_project = lambda: True
+        self.assertRaises(SystemExit, commands.init, ["NotSoNewProject"])
+
+    def test_with_repository_option_should_perform_checkout(self):
+        commands.load_project = no_project
+        commands.Project = MockProject
+        commands.init(["NewProject", "--repository", "/path/to/repos"])
+        self.assertEqual(MockProject.instances[-1].default_repository.url, "/path/to/repos")
+        self.assert_(MockProject.instances[-1].default_repository._checkout_called, "/path/to/repos")
+
+    def test_set_executable_no_options(self):
+        commands.load_project = no_project
+        commands.Project = MockProject
+        commands.init(["NewProject", "-e", "fooble"])
+        prj = MockProject.instances[-1]
+        assert prj.saved
+        self.assertEqual(prj.default_executable.path, "fooble")
+
+    def test_set_main_no_executable_unregistered_extension_should_set_executable_to_None(self):
+        commands.load_project = no_project
+        commands.Project = MockProject
+        commands.init(["NewProject", "-m", "main.foo"])
+        prj = MockProject.instances[-1]
+        self.assertEqual(prj.default_main_file, "main.foo")
+        self.assertEqual(prj.default_executable, None)
+        
+    def test_set_main_no_executable_registered_extension_should_set_executable(self):
+        commands.load_project = no_project
+        commands.Project = MockProject
+        commands.init(["NewProject", "-m", "file_with_registered_extension"])
+        prj = MockProject.instances[-1]
+        self.assertEqual(prj.default_main_file, "file_with_registered_extension")
+        self.assertEqual(prj.default_executable.script_file, "file_with_registered_extension")    
+
+    def test_set_executable_and_main(self):
+        commands.load_project = no_project
+        commands.Project = MockProject
+        commands.init(["NewProject", "-m", "main.foo", "-e", "fooble"])
+        prj = MockProject.instances[-1]
+        self.assertEqual(prj.default_main_file, "main.foo")
+        self.assertEqual(prj.default_executable.path, "fooble")
+
+    def test_set_incompatible_executable_and_main(self):
+        # not really sure what should happen here. Raise exception or just warning?
+        # for now compatibility is not checked
+        commands.load_project = no_project
+        commands.Project = MockProject
+        commands.init(["NewProject", "-m", "main.sli", "-e", "python"])
+        prj = MockProject.instances[-1]
+        self.assertEqual(prj.default_main_file, "main.sli")
+        self.assertEqual(prj.default_executable.path, "python")
+
 
 class ConfigureCommandTests(unittest.TestCase):
     
@@ -117,10 +199,13 @@ class ConfigureCommandTests(unittest.TestCase):
         assert self.prj.saved
         self.assertEqual(self.prj.default_repository, "some repository")
         self.assertEqual(self.prj.default_main_file, "walk_silly.py")
-        self.assertEqual(self.prj.default_executable, "a.out")
+        self.assertEqual(self.prj.default_executable.path, "a.out")
         self.assertEqual(self.prj.on_changed, "sound the alarm")
         self.assertEqual(self.prj.data_label, "pluck from the ether")
         self.assertEqual(self.prj.data_store.root, "/path/to/root")
+
+    def test_with_an_arg(self):
+        self.assertRaises(SystemExit, commands.configure, ["foo"])
 
     def test_set_executable_no_options(self):
         commands.configure(["-e", "python"])
@@ -137,6 +222,37 @@ class ConfigureCommandTests(unittest.TestCase):
         assert self.prj.saved
         self.assertEqual(self.prj.default_main_file, "norwegian.sli mauve.sli")
 
+    def test_set_datastores(self):
+        commands.configure(["--datapath", "/path/to/data",
+                            "--input", "/path/to/input/data"])
+        self.assertEqual(self.prj.data_store.root, "/path/to/data")
+        self.assertEqual(self.prj.input_datastore.root, "/path/to/input/data")
+
+    def test_set_on_changed_with_valid_value(self):
+        for value in "error", "store-diff":
+            commands.configure(["-c", value])
+            self.assertEqual(self.prj.on_changed, value)
+
+    def test_set_on_changed_with_invalid_value(self):
+        self.assertRaises(SystemExit,
+                          commands.configure,
+                          ["-c", "runforthehills"])
+
+    def test_set_add_label_with_valid_value(self):
+        for value in "cmdline", "parameters":
+            commands.configure(["-l", value])
+            self.assertEqual(self.prj.data_label, value)
+
+    def test_set_add_label_with_invalid_value(self):
+        self.assertRaises(SystemExit,
+                          commands.configure,
+                          ["-l", "andaprettybow"])
+
+    def test_with_repository_option_should_perform_checkout(self):
+        commands.configure(["--repository", "/path/to/another/repos"])
+        self.assertEqual(self.prj.default_repository.url, "/path/to/another/repos")
+        self.assert_(self.prj.default_repository._checkout_called, "/path/to/repos")
+
 
 class InfoCommandTests(unittest.TestCase):
     
@@ -148,6 +264,11 @@ class InfoCommandTests(unittest.TestCase):
         self.assertFalse(self.prj.info_called)
         commands.info([])
         self.assertTrue(self.prj.info_called)
+
+    def test_with_args(self):
+        self.assertRaises(SystemExit,
+                          commands.info,
+                          ["foo"])
 
 
 class TestParseArguments(unittest.TestCase):
@@ -206,6 +327,9 @@ class TestParseArguments(unittest.TestCase):
         self.assertEqual(script_args, "<parameters>")
         os.remove("test.param")
 
+    def test_with_cmdline_parameters_but_no_parameter_set(self):
+        self.assertRaises(Exception, commands.parse_arguments, ["a=17", "yagri=43"])
+
     def test_with_everything(self):
         f = open("test.param", 'w')
         f.write("a = 2\nb = 3\n")
@@ -221,7 +345,7 @@ class TestParseArguments(unittest.TestCase):
         self.assertEqual(script_args, "spam <parameters> eggs this.is.not.a.parameter.file beans")
 
 
-class TestRunCommand(unittest.TestCase):
+class RunCommandTests(unittest.TestCase):
     maxDiff = None
     
     def setUp(self):
@@ -297,6 +421,10 @@ class TestRunCommand(unittest.TestCase):
         os.remove("this.is.not.a.parameter.file")
         os.remove("test.param")
 
+    def test_with_command_line_params_but_no_parameter_file(self):
+        # ought really to have a more specific Exception and to catch it so as to give a helpful error message to user
+        self.assertRaises(Exception, commands.run, ["a=17", "umlue=43"])
+
 
 class ListCommandTests(unittest.TestCase):
     
@@ -318,6 +446,22 @@ class DeleteCommandTests(unittest.TestCase):
     def test_with_no_args(self):
         self.assertRaises(SystemExit, commands.delete, [])
 
+    def test_with_valid_record_labels(self):
+        commands.delete(["recordA", "recordB"])
+        self.assertEqual(self.prj._records_deleted,
+                         ["recordA", "recordB"])
+
+    def test_with_invalid_record_labels(self):
+        commands.delete(["recordA", "notarecordB", "recordC"])
+        self.assertEqual(self.prj._records_deleted,
+                         ["recordA", "recordC"])
+
+    def test_with_valid_tag(self):
+        commands.delete(["--tag", "tagA", "tagB"])
+        self.assertEqual(self.prj._records_deleted,
+                         ["records_tagged_with_tagA",
+                          "records_tagged_with_tagB"])
+        
 
 class CommentCommandTests(unittest.TestCase):
     
@@ -328,7 +472,22 @@ class CommentCommandTests(unittest.TestCase):
     def test_with_no_args(self):
         self.assertRaises(SystemExit, commands.comment, [])
         
-        
+    #def test_single_arg_interpreted_as_comment_on_last_record(self):
+    #    self.fail()
+    #    
+    #def test_two_args_interpreted_as_label_and_comment(self):
+    #    self.fail()
+    #   
+    #def test_invalid_label(self):
+    #    self.fail()
+    #    
+    #def test_with_file_option(self):
+    #    self.fail()
+    #    
+    #def test_with_nonexistent_file(self):
+    #    self.fail()
+
+
 class TestTagCommand(unittest.TestCase):
     
     def setUp(self):
@@ -373,6 +532,27 @@ class HelpCommandTests(unittest.TestCase):
 
 
 class ArgumentParsingTests(unittest.TestCase):
+
+    def test_parse_command_line_parameter_arg_must_contain_equals(self):
+        self.assertRaises(Exception, commands.parse_command_line_parameter, "foobar")
+
+    def test_parse_command_line_parameter_with_int(self):
+        result = commands.parse_command_line_parameter("a=2")
+        self.assertEqual(result, {'a': 2})
+        assert isinstance(result['a'], int)
+
+    def test_parse_command_line_parameter_with_float(self):
+        result = commands.parse_command_line_parameter("b=2.0")
+        self.assertEqual(result, {'b': 2.0})
+        assert isinstance(result['b'], float)
+
+    def test_parse_command_line_parameter_with_list(self):
+        result = commands.parse_command_line_parameter("c=[1,2,3,4,5]")
+        self.assertEqual(result, {'c': range(1,6)})
+
+    def test_parse_command_line_parameter_with_tuple(self):
+        result = commands.parse_command_line_parameter("d=('a','b','c')")
+        self.assertEqual(result, {'d': ('a', 'b', 'c')})
 
     def test_parse_command_line_parameter_should_accept_equals_in_parameter(self):
         # because the parameter value could be a string containing "="

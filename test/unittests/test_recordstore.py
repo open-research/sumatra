@@ -211,6 +211,14 @@ class BaseTestRecordStore(object):
         self.assertEqual(len(self.store.list(self.project.name)), 1)
         self.assertRaises(KeyError, self.store.get, self.project.name, "record1")
 
+    def test_delete_nonexistent_label(self):
+        self.add_some_records()
+        self.assertRaises(Exception, # could be KeyError or DoesNotExist
+                          self.store.delete,
+                          self.project.name,
+                          "notarecord")
+        # should emit warning but not exception
+
     def test_str(self):
         #this test is pointless, just to increase coverage
         assert isinstance(str(self.store), basestring)

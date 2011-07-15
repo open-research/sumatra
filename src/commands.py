@@ -9,6 +9,7 @@ import sys
 from optparse import OptionParser
 from textwrap import dedent
 from copy import deepcopy
+import warnings
 import re
 
 from sumatra.programs import get_executable
@@ -23,7 +24,7 @@ from sumatra.formatting import get_diff_formatter
 def parse_executable_str(exec_str):
     """
     Split the string describing the executable into a path part and an
-    optiosn part.
+    options part.
     """
     first_space = exec_str.find(" ")
     if first_space == -1: first_space = len(exec_str)
@@ -79,6 +80,7 @@ def parse_arguments(args, input_datastore):
             parameter_sets[0].update(cmdline_parameters)
         else:
             raise Exception("Command-line parameters supplied but without a parameter file to put them into.")
+            # ought really to have a more specific Exception and to catch it so as to give a helpful error message to user
     return parameter_sets, input_data, " ".join(script_args)
 
 
@@ -123,12 +125,16 @@ def init(argv):
     else:
         repository = get_working_copy().repository # if no repository is specified, we assume there is a working copy in the current directory.        
 
-    if options.executable or options.main:
+    if options.executable:
         executable_path, executable_options = parse_executable_str(options.executable)
         executable = get_executable(path=executable_path)
         executable.options = executable_options
     elif options.main:
-        executable = get_executable(script_file=options.main)
+        try:
+            executable = get_executable(script_file=options.main)
+        except Exception: # assume unrecognized extension - really need more specific exception type
+            # should warn that extension unrecognized
+            executable = None
     else:
         executable = None
     if options.store:
@@ -142,7 +148,7 @@ def init(argv):
     project = Project(name=project_name,
                       default_executable=executable,
                       default_repository=repository,
-                      default_main_file=options.main,
+                      default_main_file=options.main, # what if incompatible with executable?
                       default_launch_mode=SerialLaunchMode(),
                       data_store=output_datastore,
                       record_store=record_store,
@@ -328,7 +334,10 @@ def delete(argv):
         for label in args:
             if label == 'last':
                 label = project.most_recent().label
-            project.delete_record(label, delete_data=options.data)
+            try:
+                project.delete_record(label, delete_data=options.data)
+            except Exception: # could be KeyError or DoesNotExist: should create standard NoSuchRecord or RecordDoesNotExist exception
+                warnings.warn("Could not delete record '%s' because it does not exist" % label)
             
 def comment(argv):
     """Add a comment to an existing record."""

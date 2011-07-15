@@ -162,7 +162,7 @@ class ConfigParserParameterSet(SafeConfigParser):
             if os.path.exists(initialiser):
                 self.read(initialiser)
             else:
-                input = StringIO(str(initialiser)) # configparser has some problems with unicode. This is a crude, and probably partial fix.
+                input = StringIO(str(initialiser)) # configparser has some problems with unicode. Using str() is a crude, and probably partial fix.
                 input.seek(0)
                 self.readfp(input)
         except MissingSectionHeaderError:
@@ -227,6 +227,7 @@ class ConfigParserParameterSet(SafeConfigParser):
         for name,value in F.items():
             _update(name, value)
 
+
 class JSONParameterSet(object):
     """
     Handles parameter files in JSON format, as parsed by the
@@ -283,6 +284,7 @@ class JSONParameterSet(object):
     def update(self, E, **F):
         __doc__ = dict.update.__doc__
         self.value.update(E, **F)
+
 
 def build_parameters(filename):
     
