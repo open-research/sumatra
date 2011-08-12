@@ -8,6 +8,11 @@ from sumatra.launch import SerialLaunchMode, DistributedLaunchMode, PlatformInfo
 import sys
 import os
 
+try:
+    import mpi4py.MPI
+    have_mpi = True
+except ImportError:
+    have_mpi = False
 
 class MockExecutable(object):
     def __init__(self, path):
@@ -90,6 +95,7 @@ class TestSerialLaunchMode(unittest.TestCase, BaseTestLaunchMode):
 
 class TestDistributedLaunchMode(unittest.TestCase, BaseTestLaunchMode):
     
+    @unittest.skipUnless(have_mpi, "Need to install mpi4py")
     def setUp(self):
         self.lm = DistributedLaunchMode(2, "mpiexec", ["node1", "node2"])
 
