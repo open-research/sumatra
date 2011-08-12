@@ -39,10 +39,6 @@ class MockRepository(object):
     type = "MockRepository"
     def __init__(self, *args, **kwargs):
         pass
-vcs_list.append(sys.modules[__name__])
-
-def tearDownModule():
-    vcs_list.remove(sys.modules[__name__])
 
 class MockLaunchMode(object):
     type = "SerialLaunchMode"
@@ -132,6 +128,7 @@ def setup():
     if django_store2 is None:
         django_store2 = django_store.DjangoRecordStore(db_file="test2.db")
     django_store.db_config.configure()
+    vcs_list.append(sys.modules[__name__])
 
 def teardown():
     del sumatra.launch.MockLaunchMode
@@ -140,6 +137,7 @@ def teardown():
     for filename in (django_store1._db_file, django_store2._db_file):
         if os.path.exists(filename):
             os.remove(filename)
+    vcs_list.remove(sys.modules[__name__])
 
 class BaseTestRecordStore(object):
     
