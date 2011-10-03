@@ -25,7 +25,7 @@
     <tr><th>Reason:</th><td>{{form.reason}}</td></tr>
     <tr><th>Outcome:</th><td>{{form.outcome}}</td></tr>
     <tr><th>Timestamp:</th><td>{{record.timestamp|date:"d/m/Y H:i:s"}}</td></tr>
-    <tr><th>Duration:</th><td>{{record.duration|floatformat:"2"}}&nbsp;s</td></tr>
+    <tr><th>Duration:</th><td>{{record.duration|human_readable_duration}}</td></tr>
     <tr><th>Executable:</th><td>{{record.executable.name}} version {{record.executable.version}} ({{record.executable.path}})</td></tr>
     <tr><th>Launch mode:</th><td>{% ifequal record.launch_mode.type "SerialLaunchMode" %}serial{% else %}distributed, n={{record.launch_mode.get_parameters.n}}{% endifequal %}</td></tr>
     <tr><th>Repository:</th><td>{{record.repository.url}}</td></tr>

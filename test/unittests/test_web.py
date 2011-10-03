@@ -131,6 +131,18 @@ class TestWebInterface(unittest.TestCase):
         assert 'show_diff.html' in [t.name for t in response.template]
 
 
+class TestFilters(unittest.TestCase):
+
+    def test__human_readable_duration(self):
+        from sumatra.web.templatetags import filters
+        self.assertEqual(filters.human_readable_duration(((6 * 60 + 32) * 60 + 12)), '6h 32m 12.00s')
+        self.assertEqual(filters.human_readable_duration((((8 * 24 + 7) * 60 + 6) * 60 + 5)), '8d 7h 6m 5.00s')
+        self.assertEqual(filters.human_readable_duration((((8 * 24 + 7) * 60 + 6) * 60)), '8d 7h 6m')
+        self.assertEqual(filters.human_readable_duration((((8 * 24 + 7) * 60) * 60)), '8d 7h')
+        self.assertEqual(filters.human_readable_duration((((8 * 24) * 60) * 60)), '8d')
+        self.assertEqual(filters.human_readable_duration((((8 * 24) * 60) * 60) + 0.12), '8d 0.12s')
+
+
 if __name__ == '__main__':
     setup()
     unittest.main()

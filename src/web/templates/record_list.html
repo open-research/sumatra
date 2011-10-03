@@ -43,7 +43,7 @@
             <td><a href="/{{project_name}}/{{record.label|escapeslash}}/">{{record.label}}</a></td>
             <td>{{record.reason}}</td>
             <td>{{record.outcome}}</td>
-            <td>{{record.duration|floatformat:2}}&nbsp;s</td>
+            <td>{{record.duration|human_readable_duration}}</td>
             <td>{{record.launch_mode.get_parameters.n|default:"1"}}</td>
             <td>{{record.executable.name}}</td>
             <td>{{record.executable.version}}</td>
