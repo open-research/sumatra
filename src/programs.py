@@ -159,7 +159,9 @@ def register_executable(cls, name, executables, extensions):
         registered_extensions[ext] = cls
     
 register_executable(NEURONSimulator, 'NEURON', ('nrniv', 'nrngui'), ('.hoc', '.oc'))
-register_executable(PythonExecutable, 'Python', ('python', 'python2', 'python3'), ('.py',))
+register_executable(PythonExecutable, 'Python', ('python', 'python2', 'python3',
+                                                 'python2.5', 'python2.6', 'python2.7',
+                                                 'python3.1', 'python3.2'), ('.py',))
 register_executable(NESTSimulator, 'NEST', ('nest',), ('.sli',))
 register_executable(GENESISSimulator, 'GENESIS', ('genesis',), ('.g',))
     

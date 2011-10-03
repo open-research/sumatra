@@ -70,7 +70,7 @@ the ``execfile()`` call with a ``build_parameters()`` call::
     from sumatra.parameters import build_parameters
     parameters = build_parameters(parameter_file)
     
-Now we create a new ``SimRecord`` object, telling it that the script is the
+Now we create a new ``Record`` object, telling it that the script is the
 current file; this automatically registers information about the simulation environment::
     
     record = project.new_record(parameters=parameters,
