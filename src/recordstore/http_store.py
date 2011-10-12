@@ -69,7 +69,28 @@ class HttpRecordStore(RecordStore):
             raise Exception("Error in accessing %s\n%s: %s" % (self.server_url, response.status, content))
         return serialization.decode_project_list(content)
 
+    def create_project(self, project_name):
+        url = "%s%s/" % (self.server_url, project_name)
+        data = "" # could add long name and description here
+        headers = {'Content-Length': '0'}
+        response, content = self.client.request(url, 'PUT', data,
+                                                headers=headers)
+        if response.status not in (200, 201):
+            raise Exception("%d\n%s" % (response.status, content))
+    
+    def has_project(self, project_name):
+        project_url = "%s%s/" % (self.server_url, project_name)
+        response, content = self.client.request(project_url)
+        if response.status == 200:
+            return True
+        elif response.status in (401, 404):
+            return False
+        else:
+            raise Exception("%d\n%s" % (response.status, content))
+    
     def save(self, project_name, record):
+        if not self.has_project(project_name):
+            self.create_project(project_name)
         url = "%s%s/%s/" % (self.server_url, project_name, record.label)
         headers = {'Content-Type': 'application/json'}
         data = serialization.encode_record(record)

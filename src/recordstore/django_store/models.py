@@ -57,6 +57,9 @@ class Project(BaseModel):
     def get_name(self):
         return self.name or self.id
 
+    def __unicode__(self):
+        return self.id
+
 
 class Executable(BaseModel):
     path = models.CharField(max_length=200)

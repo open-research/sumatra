@@ -66,7 +66,7 @@ setup(
                       'bzr': 'bzrlib',
                       'mpi': 'mpi4py'},
     #test_suite = ?,
-    tests_requires = ['twill'],
+    tests_require = ['twill'],
     #use_2to3 = True,
 )
 
