@@ -32,6 +32,8 @@ def process_url(url):
         username = parts.username
         password = parts.password
         hostname = parts.hostname
+        if parts.port:
+            hostname += ":%s" % parts.port
         url = urlunparse((parts.scheme, hostname, parts.path, parts.params, parts.query, parts.fragment))
     return url, username, password
 

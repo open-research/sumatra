@@ -265,7 +265,7 @@ def run(argv):
         launch_mode = DistributedLaunchMode(n=options.num_processes)
     else:
         launch_mode = SerialLaunchMode()
-    reason = options.reason
+    reason = options.reason or ''
     if reason:
         reason = reason.strip('\'"')
     

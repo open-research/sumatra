@@ -29,8 +29,8 @@ class Record(object):
     """
     
     def __init__(self, executable, repository, main_file, version, launch_mode,
-                 datastore, parameters={}, input_data=[], script_arguments="",
-                 label=None, reason=None, diff='', user='', on_changed='error',
+                 datastore, parameters={}, input_data=[], script_arguments='',
+                 label=None, reason='', diff='', user='', on_changed='error',
                  input_datastore=None, stdout_stderr='Not launched.'):
         self.timestamp = datetime.now() # might need to allow for this to be set as argument to allow for distributed/batch simulations on machines with out-of-sync clocks
         self.label = label or self.timestamp.strftime("%Y%m%d-%H%M%S")
@@ -47,7 +47,7 @@ class Record(object):
         self.launch_mode = launch_mode # a LaunchMode object - basically, run serially or with MPI. If MPI, what configuration
         self.datastore = datastore.copy()
         self.input_datastore = input_datastore or self.datastore
-        self.outcome = None
+        self.outcome = ''
         self.output_data = []
         self.tags = set()
         self.diff = diff
