@@ -9,7 +9,9 @@ import shutil
 import os
 import datetime
 import hashlib
-from sumatra.datastore import DataStore, FileSystemDataStore, DataFile, get_data_store, DataKey
+from sumatra.datastore import FileSystemDataStore, ArchivingFileSystemDataStore, get_data_store, DataKey
+from sumatra.datastore.base import DataStore
+from sumatra.datastore.filesystem import DataFile
 
 class TestFileSystemDataStore(unittest.TestCase):
     
@@ -48,18 +50,6 @@ class TestFileSystemDataStore(unittest.TestCase):
         tomorrow = self.now + datetime.timedelta(1)
         self.assertEqual(set(self.ds.find_new_data(tomorrow)),
                          set([]))
-        
-    def test__archive__should_create_a_tarball(self):
-        keys = [DataKey(path, "fake_digest") for path in self.test_files]
-        self.ds.archive('test', keys)
-        self.assert_(os.path.exists(os.path.join(self.root_dir, 'test.tar.gz')))
-        
-    def test__archive__should_delete_original_files_if_requested(self):
-        assert os.path.exists(os.path.join(self.root_dir, 'test_file1'))
-        digest = hashlib.sha1(self.test_data).hexdigest()
-        keys = [DataKey(path, digest) for path in self.test_files]
-        self.ds.archive('test', keys, delete_originals=True)
-        self.assert_(not os.path.exists(os.path.join(self.root_dir, 'test_file1')))
 
     def test__get_content__should_return_short_file_content(self):
         digest = hashlib.sha1(self.test_data).hexdigest()
@@ -81,10 +71,78 @@ class TestFileSystemDataStore(unittest.TestCase):
         self.assert_(not os.path.exists(os.path.join(self.root_dir, 'test_file1')))
 
 
+class TestArchivingFileSystemDataStore(unittest.TestCase):
+    
+    def setUp(self):
+        self.root_dir = os.path.abspath('zusehgcfscuzhfqizuchgsireugvcsi')
+        self.archive_dir = os.path.abspath("test_archive")
+        # remove root and archive directories
+        for path in (self.root_dir, self.archive_dir):
+            if os.path.exists(path):
+                shutil.rmtree(path)
+            assert not os.path.exists(path)
+            
+        self.ds = ArchivingFileSystemDataStore(self.root_dir, self.archive_dir)
+        self.now = datetime.datetime.now()
+        os.mkdir(os.path.join(self.root_dir, 'test_dir'))
+        self.test_files = set(['test_file1', 'test_file2', 'test_dir/test_file3'])
+        self.test_data = 'licgsnireugcsenrigucsic\ncrgqgjch,kgch'
+        for filename in self.test_files:
+            with open(os.path.join(self.root_dir, filename), 'w') as f:
+                f.write(self.test_data)
+    
+    def tearDown(self):
+        for path in (self.root_dir, self.archive_dir):
+            shutil.rmtree(path)
+        del self.ds
+    
+    def test__init__should_create_root_and_archive_if_they_dont_exist(self):
+        self.assert_(os.path.exists(self.root_dir))
+        
+    def test__str__should_return_root(self):
+        self.assertEqual(str(self.ds), self.root_dir)
+        
+    def test__get_state__should_return_dict_containing_root_and_archive_store(self):
+        self.assertEqual(self.ds.__getstate__(),
+                         {'root': self.root_dir, 'archive': self.archive_dir})
+        
+    def test__find_new_data__should_return_list_of_keys_matching_new_files(self):
+        self.assertEqual(set("/".join(key.path.split("/")[1:]) for key in self.ds.find_new_data(self.now)),
+                         self.test_files)
+        
+    def test__find_new_data_with_future_timestamp__should_return_empty_list(self):
+        tomorrow = self.now + datetime.timedelta(1)
+        self.assertEqual(set(self.ds.find_new_data(tomorrow)),
+                         set([]))
+        
+    def test__archive__should_create_a_tarball(self):
+        self.ds._archive('test', self.test_files)
+        self.assert_(os.path.exists(os.path.join(self.archive_dir, 'test.tar.gz')))
+        self.assert_(not os.path.exists(os.path.join(self.root_dir, 'test.tar.gz')))
+        
+    def test__archive__should_delete_original_files_if_requested(self):
+        assert os.path.exists(os.path.join(self.root_dir, 'test_file1'))
+        self.ds._archive('test', self.test_files, delete_originals=True)
+        self.assert_(not os.path.exists(os.path.join(self.root_dir, 'test_file1')))
+
+    def test__get_content__should_return_short_file_content(self):
+        self.ds.find_new_data(self.now)
+        digest = hashlib.sha1(self.test_data).hexdigest()
+        key = DataKey('%s/test_file1' % self.now.strftime("%Y%M%d-%H%m%S"), digest)
+        content = self.ds.get_content(key)
+        self.assertEqual(content, self.test_data)
+        
+    def test__get_content__should_truncate_long_files(self):
+        self.ds.find_new_data(self.now)
+        digest = hashlib.sha1(self.test_data).hexdigest()
+        key = DataKey('%s/test_file1' % self.now.strftime("%Y%M%d-%H%m%S"), digest)
+        content = self.ds.get_content(key, max_length=10)
+        self.assertEqual(content, self.test_data[:10])
+
+
 class MockDataStore(object):
         root = os.getcwd()
 
-        
 class TestDataFile(unittest.TestCase):   
     
     def setUp(self):
@@ -127,13 +185,16 @@ class TestDataFile(unittest.TestCase):
         other_data_file = DataFile("test_file3", MockDataStore())
         self.assertNotEqual(self.data_file, other_data_file)
         os.remove("test_file3")
-        
+
+
 class TestModuleFunctions(unittest.TestCase):
-    
+        
     def test__get_data_store__should_return_DataStore_object(self):
         root_dir = 'kuqeyfgneuqygvn'
         ds = FileSystemDataStore(root_dir)
         self.assert_(isinstance(get_data_store('FileSystemDataStore', {'root': root_dir}), DataStore))
+        if os.path.exists(root_dir):
+            os.rmdir(root_dir)
         
     def test__get_data_store__should_raise_NameError_if_wrong_type(self):
         self.assertRaises(NameError, get_data_store, 'FooDataStore', {})
@@ -141,6 +202,7 @@ class TestModuleFunctions(unittest.TestCase):
     def test__get_data_store__should_raise_Exception_if_wrong_parameters(self):
         self.assertRaises(TypeError, get_data_store, 'FileSystemDataStore', {'foo': 'kcjghnqlecg'})
         self.assertRaises(TypeError, get_data_store, 'FileSystemDataStore', {'root': 42})
-        
+
+
 if __name__ == '__main__':
     unittest.main()
