@@ -13,7 +13,7 @@ import warnings
 import re
 
 from sumatra.programs import get_executable
-from sumatra.datastore import FileSystemDataStore
+from sumatra.datastore import FileSystemDataStore, ArchivingFileSystemDataStore
 from sumatra.projects import Project, load_project
 from sumatra.launch import SerialLaunchMode, DistributedLaunchMode
 from sumatra.parameters import build_parameters
@@ -100,6 +100,7 @@ def init(argv):
     parser.add_option('-c', '--on-changed', default='error', help="the action to take if the code in the repository or any of the depdendencies has changed. Defaults to %default") # need to add list of allowed values
     parser.add_option('-s', '--store', help="specify the path to the record store, either an existing one or one to be created.")
     parser.add_option('-D', '--debug', action='store_true', help="print debugging information.")
+    parser.add_option('-A', '--archive', metavar='PATH', help="specify a directory in which to archive output datafiles. If not specified, datafiles are not archived.")
     
     (options, args) = parser.parse_args(argv)
     
@@ -142,7 +143,12 @@ def init(argv):
     else:
         record_store = 'default'
     
-    output_datastore = FileSystemDataStore(options.datapath)
+    if options.archive and options.archive.lower() != 'false':
+        if options.archive.lower() == "true":
+            options.archive = ".smt/archive"
+        output_datastore = ArchivingFileSystemDataStore(options.datapath, options.archive)
+    else:
+        output_datastore = FileSystemDataStore(options.datapath)
     input_datastore = FileSystemDataStore(options.input)
 
     project = Project(name=project_name,
@@ -171,10 +177,23 @@ def configure(argv):
     parser.add_option('-r', '--repository', help="the URL of a Subversion or Mercurial repository containing the code. This will be checked out/cloned into the current directory.")
     parser.add_option('-m', '--main', help="the name of the script that would be supplied on the command line if running the simulator normally, e.g. init.hoc.")
     parser.add_option('-c', '--on-changed', help="may be 'store-diff' or 'error': the action to take if the code in the repository or any of the dependencies has changed. Defaults to 'error'", choices=['store-diff', 'error'])
+    parser.add_option('-A', '--archive', metavar='PATH', help="specify a directory in which to archive output datafiles. If not specified, or if 'false', datafiles are not archived.")
+ 
     (options, args) = parser.parse_args(argv)
     if len(args) != 0:
         parser.error('configure does not take any arguments')
     project = load_project()
+    if options.archive:
+        if options.archive.lower() == "true":
+            options.archive = ".smt/archive"
+        if hasattr(project.data_store, 'archive_store'): # current data store is archiving
+            if options.archive.lower() == 'false':
+                project.data_store = FileSystemDataStore(project.data_store.root)
+            else:
+                project.data_store.archive_store = options.archive
+        else: # current data store is not archiving
+            if options.archive.lower() != 'false':
+                project.data_store = ArchivingFileSystemDataStore(options.datapath, options.archive)
     if options.datapath:
         project.data_store.root = options.datapath
     if options.input:

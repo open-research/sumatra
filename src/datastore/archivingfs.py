@@ -74,9 +74,9 @@ class ArchivingFileSystemDataStore(FileSystemDataStore):
         return [ArchivedDataFile(path, self).generate_key()
                 for path in archive_paths]
     
-    def _archive(self, label, files, delete_originals=False):
+    def _archive(self, label, files, delete_originals=True):
         """
-        Archives files and, optionally, deletes the originals.
+        Archives files and, by default, deletes the originals.
         """
         tf = tarfile.open(label + ".tar.gz",'w:gz')
         logging.info("Archiving data to file %s" % tf.name)

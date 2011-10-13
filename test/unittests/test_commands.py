@@ -86,7 +86,7 @@ class MockWorkingCopy(object):
 def no_project():
     raise Exception("There is no Sumatra project here")
     
-def mock_mkdir(path):
+def mock_mkdir(path, mode=0777):
     print "Pretending to create directory %s" % path
     
     
@@ -187,6 +187,25 @@ class InitCommandTests(unittest.TestCase):
         self.assertEqual(prj.default_main_file, "main.sli")
         self.assertEqual(prj.default_executable.path, "python")
 
+    def test_archive_option_set_to_true(self):
+        commands.load_project = no_project
+        commands.Project = MockProject
+        commands.init(["NewProject", "--archive", "true"])
+        prj = MockProject.instances[-1]
+        self.assertIsInstance(prj.data_store, datastore.ArchivingFileSystemDataStore)
+        self.assertEqual(prj.data_store.archive_store, ".smt/archive")
+
+    def test_archive_option_set_to_path(self):
+        some_path = "./test_commands_archive_option"
+        commands.load_project = no_project
+        commands.Project = MockProject
+        commands.init(["NewProject", "--archive", some_path])
+        prj = MockProject.instances[-1]
+        self.assertIsInstance(prj.data_store, datastore.ArchivingFileSystemDataStore)
+        self.assertEqual(prj.data_store.archive_store, some_path)
+        if os.path.exists(some_path):
+            os.rmdir(some_path)
+
 
 class ConfigureCommandTests(unittest.TestCase):
     
@@ -252,6 +271,28 @@ class ConfigureCommandTests(unittest.TestCase):
         commands.configure(["--repository", "/path/to/another/repos"])
         self.assertEqual(self.prj.default_repository.url, "/path/to/another/repos")
         self.assert_(self.prj.default_repository._checkout_called, "/path/to/repos")
+
+    def test_archive_option_set_to_true(self):
+        commands.configure(["--archive", "true"])
+        self.assertIsInstance(self.prj.data_store, datastore.ArchivingFileSystemDataStore)
+        self.assertEqual(self.prj.data_store.archive_store, ".smt/archive")
+        self.prj.data_store = MockDataStore("/path/to/root")
+
+    def test_archive_option_set_to_path(self):
+        some_path = "./test_commands_archive_option"
+        commands.configure(["--archive", some_path])
+        self.assertIsInstance(self.prj.data_store, datastore.ArchivingFileSystemDataStore)
+        self.assertEqual(self.prj.data_store.archive_store, some_path)
+        if os.path.exists(some_path):
+            os.rmdir(some_path)
+        self.prj.data_store = MockDataStore("/path/to/root")
+
+    def test_archive_option_set_to_false(self):
+        commands.configure(["--archive", "true"])
+        self.assertIsInstance(self.prj.data_store, datastore.ArchivingFileSystemDataStore)
+        commands.configure(["--archive", "false"])
+        self.assert_(not hasattr(self.prj.data_store, "archive_store"))
+        self.prj.data_store = MockDataStore("/path/to/root")
 
 
 class InfoCommandTests(unittest.TestCase):
