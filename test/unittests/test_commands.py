@@ -354,16 +354,16 @@ class RunCommandTests(unittest.TestCase):
         
     def test_with_no_args(self):
         commands.run([])
-        self.assertEqual(self.prj.launch_args,
-                        {'executable': 'default',
-                         'parameters': {},
-                         'main_file': 'default',
-                         'label': None,
-                         'input_data': [],
-                         'reason': None,
-                         'version': 'latest',
-                         'launch_mode': launch.SerialLaunchMode(),
-                         'script_args': ''})
+        expected = {'executable': 'default',
+                    'parameters': {},
+                    'main_file': 'default',
+                    'label': None,
+                    'input_data': [],
+                    'reason': '',
+                    'version': 'latest',
+                    'launch_mode': launch.SerialLaunchMode(),
+                    'script_args': ''}
+        self.assertEqual(self.prj.launch_args, expected)
 
     def test_with_single_script_arg(self):
         commands.run(["some_parameter_file"]) # file doesn't exist so is treated as argument
@@ -373,7 +373,7 @@ class RunCommandTests(unittest.TestCase):
                          'main_file': 'default',
                          'label': None,
                          'input_data': [],
-                         'reason': None,
+                         'reason': '',
                          'version': 'latest',
                          'launch_mode': launch.SerialLaunchMode(),
                          'script_args': 'some_parameter_file'})
@@ -390,7 +390,7 @@ class RunCommandTests(unittest.TestCase):
                          'main_file': 'default',
                          'label': None,
                          'input_data': [datastore.DataKey('this.is.not.a.parameter.file', hashlib.sha1(data_content).hexdigest())],
-                         'reason': None,
+                         'reason': '',
                          'version': 'latest',
                          'launch_mode': launch.SerialLaunchMode(),
                          'script_args': 'this.is.not.a.parameter.file'})

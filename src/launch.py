@@ -103,11 +103,23 @@ class LaunchMode(object):
         else:
             return False
 
+    def __key(self):
+        state = self.__getstate__()
+        state_keys = state.keys()
+        state_keys.sort()
+        return tuple([self.__class__] + [(k, state[k]) for k in state_keys])
+
     def __eq__(self, other):
-        return self.__class__ == other.__class__ and self.__getstate__() == other.__getstate__()
+        if type(self) == type(other):
+            return self.__key() == other.__key()
+        else:
+            return False
 
     def __ne__(self, other):
         return not self.__eq__(other)
+
+    def __hash__(self):
+        return hash(self.__key())
 
     def get_platform_information(self):
         """
