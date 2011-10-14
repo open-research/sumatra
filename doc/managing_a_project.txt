@@ -1,0 +1,34 @@
+========================================
+Managing a research project with Sumatra
+========================================
+
+
+Setting up your project
+=======================
+
+
+Telling Sumatra about your code
+-------------------------------
+
+
+Handling input and output data
+------------------------------
+
+
+Storing Sumatra records
+-----------------------
+
+
+Running your code
+=================
+
+
+
+
+Viewing and searching results
+=============================
+
+
+
+
+

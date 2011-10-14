@@ -31,6 +31,7 @@ Table of Contents
    introduction
    installation
    getting_started
+   managing_a_project
    web_interface
    gui
    parallel_computations

@@ -40,15 +40,15 @@ def encode_record(record, indent=None):
         "script_arguments": record.script_arguments, # added in 0.3
         "launch_mode": {
             "type": record.launch_mode.__class__.__name__, 
-            "parameters": str(record.launch_mode.__getstate__()),
+            "parameters": record.launch_mode.__getstate__(),
         },
         "datastore": {
             "type": record.datastore.__class__.__name__,
-            "parameters": str(record.datastore.__getstate__()),
+            "parameters": record.datastore.__getstate__(),
         },
         "input_datastore": { # added in 0.4
             "type": record.input_datastore.__class__.__name__,
-            "parameters": str(record.input_datastore.__getstate__()),
+            "parameters": record.input_datastore.__getstate__(),
         },
         "outcome": record.outcome or "",
         "stdout_stderr": record.stdout_stderr, # added in 0.4
@@ -115,10 +115,10 @@ def build_record(data):
     else:
         parameter_set = getattr(parameters, pdata["type"])(pdata["content"])
     ldata = data["launch_mode"]
-    lm_parameters = eval(ldata["parameters"])
+    lm_parameters = ldata["parameters"]
     launch_mode = getattr(launch, ldata["type"])(**lm_parameters)
     def build_data_store(ddata):
-        ds_parameters = eval(ddata["parameters"])
+        ds_parameters = ddata["parameters"]
         return getattr(datastore, ddata["type"])(**ds_parameters)
     data_store = build_data_store(data["datastore"])
     if "input_data_store" in data: # 0.4 onwards
