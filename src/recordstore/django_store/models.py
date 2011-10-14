@@ -238,3 +238,5 @@ class Record(BaseModel):
     def __unicode__(self):
         return self.label
     
+    def tag_objects(self):
+        return Tag.objects.get_for_object(self)

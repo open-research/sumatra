@@ -8,7 +8,7 @@ from sumatra import commands, __version__
 from sumatra.versioncontrol.base import VersionControlError
 
 modes = ("init", "configure", "info", "run", "list", "delete", "comment", "tag",
-         "repeat", "diff", "upgrade", "sync")
+         "repeat", "diff", "export", "upgrade", "sync")
 
 usage = """Usage: smt <subcommand> [options] [args]
         

@@ -106,8 +106,7 @@ class DjangoRecordStore(RecordStore):
         try:
             self._db_label = db_config.add_database(self._db_file)
         except:
-            pass
-        
+            pass        
     
     def _get_models(self):
         if not db_config.configured:

@@ -54,7 +54,7 @@
             <td>{{record.timestamp|date:"d/m/Y"}}</td>
             <td>{{record.timestamp|date:"H:i:s"}}</td>
             {% if tag %}
-            <td>{{record.tags|link:"../%s/"}}</td>
+            <td>{% for other_tag in record.tag_objects %}{% if tag == other_tag %}{{tag}} {% else %}<a href="/{{project_name}}/tag/{{other_tag.name}}/">{{other_tag.name}}</a> {% endif %}{% endfor %}</td>
             {% else %}
             <td>{{record.tags|link:"tag/%s/"}}</td>
             {% endif %}
