@@ -60,7 +60,11 @@ def get_working_copy(path=None):
 
 def get_repository(url):
     """Return a GitRepository instance for the given url."""
-    return GitRepository(url)
+    repos = GitRepository(url)
+    if repos.exists:
+        return repos
+    else:
+        raise VersionControlError("Cannot access Mercurial repository at %s" % self.url)   
 
 
 class GitWorkingCopy(WorkingCopy):
@@ -117,8 +121,22 @@ class GitRepository(Repository):
     def __init__(self, url):
         check_version()
         Repository.__init__(self, url)
-        self._repository = git.Repo(url)    
-            
+        self.__repository = None
+    
+    @property
+    def exists(self):
+        if self._repository:
+            return True
+    
+    @property
+    def _repository(self):
+        if self.__repository is None:
+            try:
+                self.__repository = git.Repo(self.url)   
+            except InvalidGitRepositoryError, err:
+                raise VersionControlError("Cannot access Git repository at %s: %s" % (self.url, err))    
+        return self.__repository    
+    
     def checkout(self, path="."):
         """Clone a repository."""
         path = os.path.abspath(path)
@@ -130,7 +148,7 @@ class GitRepository(Repository):
             tmpdir = os.path.join(path, "tmp_git")
             g.clone(self.url, tmpdir)
             move_contents(tmpdir, path)
-        self._repository = git.Repo(path)
+        self.__repository = git.Repo(path)
 
     def get_working_copy(self, path=None):
         return get_working_copy(path)

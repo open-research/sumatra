@@ -66,7 +66,7 @@ def get_repository(url):
                     repos =  vcs.get_repository(url)
                     break
                 except Exception, e:
-                    print e
+                    pass
         else:
             raise VersionControlError("No version control systems found.")
         if repos is None:

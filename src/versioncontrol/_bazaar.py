@@ -38,7 +38,11 @@ def get_working_copy(path=None):
         raise VersionControlError("No Bazaar working copy found at %s" % path)
 
 def get_repository(url):
-    return BazaarRepository(url)
+    repos = BazaarRepository(url)
+    if repos.exists:
+        return repos
+    else:
+        raise VersionControlError("Cannot access Bazaar repository at %s" % self.url)   
 
 
 class BazaarWorkingCopy(WorkingCopy):
@@ -100,12 +104,22 @@ class BazaarRepository(Repository):
     def __init__(self, url):
         Repository.__init__(self, url)
         self.url = url
-        try:
-            self._repository = Branch.open(url)
-        except Exception, errmsg:
-            raise VersionControlError("Error opening BzrDir: %s" % errmsg)
-        #self.working_copy = None
-            
+        self.__repository = None
+    
+    @property
+    def exists(self):
+        if self._repository:
+            return True
+    
+    @property
+    def _repository(self):
+        if self.__repository is None:
+            try:
+                self.__repository = Branch.open(self.url)
+            except Exception, err:
+                raise VersionControlError("Cannot access Bazaar repository at %s: %s" % (self.url, err))    
+        return self.__repository
+    
     def checkout(self, path="."):
         """Clone a repository."""
         path = os.path.abspath(path)

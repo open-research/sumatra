@@ -43,8 +43,13 @@ def get_working_copy(path=None):
     else:
         raise VersionControlError("No Mercurial working copy found at %s" % path)
 
+
 def get_repository(url):
-    return MercurialRepository(url)
+    repos = MercurialRepository(url)
+    if repos.exists:
+        return repos
+    else:
+        raise VersionControlError("Cannot access Mercurial repository at %s" % self.url)    
 
 
 class MercurialWorkingCopy(WorkingCopy):
@@ -95,11 +100,22 @@ class MercurialRepository(Repository):
     def __init__(self, url):
         Repository.__init__(self, url)
         self._ui = ui.ui()  # get a ui object
-        try:
-            self._repository = hg.repository(self._ui, url)
-        # need to add a check that this actually is a Mercurial repository
-        except (RepoError, Exception), err:
-            raise VersionControlError("Cannot access repository at %s: %s" % (url, err))
+        self.__repository = None
+
+    @property
+    def exists(self):
+        if self._repository:
+            return True
+
+    @property
+    def _repository(self):
+        if self.__repository is None:
+            try:
+                self.__repository = hg.repository(self._ui, self.url)
+                # need to add a check that this actually is a Mercurial repository
+            except (RepoError, Exception), err:
+                raise VersionControlError("Cannot access Mercurial repository at %s: %s" % (self.url, err))    
+        return self.__repository    
 
     def checkout(self, path="."):
         """Clone a repository."""
