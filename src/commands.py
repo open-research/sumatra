@@ -20,6 +20,7 @@ from sumatra.parameters import build_parameters
 from sumatra.recordstore import get_record_store
 from sumatra.versioncontrol import get_working_copy, get_repository, UncommittedModificationsError
 from sumatra.formatting import get_diff_formatter
+from sumatra.records import MissingInformationError
 
 def parse_executable_str(exec_str):
     """
@@ -296,7 +297,7 @@ def run(argv):
                                    main_file=options.main or 'default',
                                    version=options.version or 'latest',
                                    launch_mode=launch_mode)
-    except UncommittedModificationsError, err:
+    except (UncommittedModificationsError, MissingInformationError), err:
         print err
         sys.exit(1)
     if options.tag:

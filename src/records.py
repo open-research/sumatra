@@ -23,6 +23,11 @@ import dependency_finder
 def assert_equal(a, b, msg=''):
     assert a == b, "%s: %s %s != %s %s" % (msg, a, type(a), b, type(b))
 
+
+class MissingInformationError(Exception):
+    pass
+
+
 class Record(object):
     """
     
@@ -62,6 +67,8 @@ class Record(object):
             assert not working_copy.has_changed()
         assert_equal(working_copy.current_version(), self.version, "version")
         # Record dependencies
+        if self.main_file is None:
+            raise MissingInformationError("main script file not specified")
         if len(self.main_file.split()) == 1: # this assumes filenames cannot contain spaces
             self.dependencies = dependency_finder.find_dependencies(self.main_file, self.executable)
         else: # if self.main_file contains multiple file names
