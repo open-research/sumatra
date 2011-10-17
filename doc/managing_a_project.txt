@@ -32,3 +32,13 @@ Viewing and searching results
 
 
 
+Relocating a project
+====================
+
+For Mercurial, Git and Bazaar::
+
+    $ smt configure -r .
+
+If you are also moving the data, i.e. your datastore was the same as, or a
+subdirectory of your working directory, there is at present no easy way to handle this,
+since each record contains the absolute path to the original datastore.

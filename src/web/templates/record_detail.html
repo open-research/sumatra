@@ -4,11 +4,12 @@
 {% block title %}{{project_name}}: {{record.label}}{% endblock %}
 
 {% block header %}
-<form action='{{ request.path }}' method='POST'>
+<form action='{{ request.path }}' method='POST' onsubmit="return confirm('Please confirm.')">
 <h1>{{project_name}}: <i>{{record.label}}</i></h1>
 <input type="submit" value='Save changes' class="headeritem">
 <input type="submit" value='Delete' class="headeritem" name="delete">
 {% endblock %}
+
 
 {% block content %}
 
