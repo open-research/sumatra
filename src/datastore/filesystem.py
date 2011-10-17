@@ -80,7 +80,7 @@ class FileSystemDataStore(DataStore):
     def __set_root(self, value):
         if not isinstance(value, basestring):
             raise TypeError("root must be a string")
-        self._root = os.path.abspath(value)
+        self._root = value
         if not os.path.exists(self._root):
             os.makedirs(self._root)
     root = property(fget=__get_root, fset=__set_root)
