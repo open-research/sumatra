@@ -2,14 +2,19 @@
 {% load filters %}
 
 {% block title %}{{project_name}}: {{record.label}}{% endblock %}
+{% block extrahead %}
+    <link rel="stylesheet" type="text/css" href="/media/jquery-ui-1.8.16.custom.css">
+    <script type="text/javascript" src="/media/jquery-1.6.4.min.js"></script>
+    <script type="text/javascript" src="/media/jquery-ui-1.8.16.custom.min.js"></script>
+    <script type="text/javascript" src="/media/smt.js"></script>    
+{% endblock %}
 
 {% block header %}
-<form action='{{ request.path }}' method='POST' onsubmit="return confirm('Please confirm.')">
+<form action='{{ request.path }}' method='POST' id="actions" name="actions">
 <h1>{{project_name}}: <i>{{record.label}}</i></h1>
 <input type="submit" value='Save changes' class="headeritem">
 <input type="submit" value='Delete' class="headeritem" name="delete">
 {% endblock %}
-
 
 {% block content %}
 
@@ -37,6 +42,13 @@
 </table>
 
 </form>
+
+
+<!-- Content for confirm-delete dialog box -->
+<div id="dialog" title="Please confirm">
+<p>Are you sure you want to delete this record?</p>
+</div>
+
 
 {% if record.input_data.count %}
 <h2>Input files</h2>
