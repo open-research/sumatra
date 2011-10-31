@@ -10,6 +10,7 @@ from datetime import datetime
 from sumatra import programs, launch, datastore, versioncontrol, parameters, dependency_finder
 from sumatra.records import Record
 
+
 def encode_record(record, indent=None):
     data = {
         "label": record.label, # 0.1: 'group'
@@ -83,6 +84,10 @@ def encode_record(record, indent=None):
     return json.dumps(data, indent=indent)
 
 def keys2str(D):
+    """
+    Return a new dictionary whose keys are the same as in `D`, but converted
+    to strings.
+    """
     E = {}
     for k,v in D.items():
         E[str(k)] = v
@@ -116,10 +121,10 @@ def build_record(data):
         parameter_set = getattr(parameters, pdata["type"])(pdata["content"])
     ldata = data["launch_mode"]
     lm_parameters = ldata["parameters"]
-    launch_mode = getattr(launch, ldata["type"])(**lm_parameters)
+    launch_mode = getattr(launch, ldata["type"])(**keys2str(lm_parameters))
     def build_data_store(ddata):
         ds_parameters = ddata["parameters"]
-        return getattr(datastore, ddata["type"])(**ds_parameters)
+        return getattr(datastore, ddata["type"])(**keys2str(ds_parameters))
     data_store = build_data_store(data["datastore"])
     if "input_data_store" in data: # 0.4 onwards
         input_datastore = build_data_store(data["input_data_store"])
@@ -131,7 +136,7 @@ def build_record(data):
             input_data = [datastore.DataKey(path, digest=datastore.IGNORE_DIGEST)
                           for path in input_data]
         else:
-            input_data = [datastore.DataKey(keydata["path"], keydata["digest"], **keydata["metadata"])
+            input_data = [datastore.DataKey(keydata["path"], keydata["digest"], **keys2str(keydata["metadata"]))
                           for keydata in input_data]
     record = Record(executable, repository, data["main_file"],
                        data["version"], launch_mode, data_store, parameter_set,
@@ -146,7 +151,7 @@ def build_record(data):
     record.output_data = []
     if "output_data" in data:
         for keydata in data["output_data"]:
-            data_key = datastore.DataKey(keydata["path"], keydata["digest"], **keydata["metadata"])
+            data_key = datastore.DataKey(keydata["path"], keydata["digest"], **keys2str(keydata["metadata"]))
             record.output_data.append(data_key)
     elif "data_key" in data: # (versions prior to 0.4)
         for path in eval(data["data_key"]):
