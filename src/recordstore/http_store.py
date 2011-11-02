@@ -40,15 +40,17 @@ def process_url(url):
 
 class HttpRecordStore(RecordStore):
     
-    def __init__(self, server_url, username=None, password=None):
+    def __init__(self, server_url, username=None, password=None,
+                 disable_ssl_certificate_validation=True):
         self.server_url, _username, _password = process_url(server_url)
         username = username or _username
         password = password or _password
         if self.server_url[-1] != "/":
             self.server_url += "/"
-        self.client = httplib2.Http('.cache')
+        self.client = httplib2.Http('.cache',
+                                    disable_ssl_certificate_validation=disable_ssl_certificate_validation)
         if username:
-            self.client.add_credentials(username, password, domain(server_url))
+            self.client.add_credentials(username, password, domain(self.server_url))
         
     def __str__(self):
         return "Interface to remote record store at %s using HTTP" % self.server_url
