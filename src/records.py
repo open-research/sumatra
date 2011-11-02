@@ -121,7 +121,6 @@ class Record(object):
                 self.stdout_stderr = "No output."
         except:
             self.stdout_stderr = "Not available."
-        
         # Run post-processing scripts
         pass # skip this if there is an error
         # Search for newly-created datafiles
