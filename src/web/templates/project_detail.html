@@ -9,14 +9,16 @@
 {% block content %}
 
 <p><a href="/">Return to list of projects</a></p>
-<p><a href="/">Simulation list</a></p>
+<p><a href="">Record list</a></p>
 
+<form action='.' method='POST'>
+    
+{{form.errors}}
 
 <table>
-    <tr><th>Name:</th><td>{{project.name}}</td></tr>
-    <tr><th>Description:</th><td>{{project.description}}</td></tr>
+    {{form}}
 </table>
-
+<input type="submit" value='Save changes'/>
 </form>
 
 {% endblock %}

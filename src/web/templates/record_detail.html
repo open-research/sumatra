@@ -67,7 +67,7 @@
 <table>
   <tr><td colspan="4">{{record.datastore.access_parameters.root}}</td></tr>
 {% for file in record.output_data.all %}
-  <tr class="{% cycle odd even %}"><td><a href="datafile?path={{file.path}}&digest={{file.digest}}">{{file.path}}</a></td>
+  <tr class="{% cycle "odd" "even" %}"><td><a href="datafile?path={{file.path}}&digest={{file.digest}}">{{file.path}}</a></td>
                                    <td>{{file.digest}}</td>
                                    <td>{{file.metadata.mimetype|default:""}}</td>
                                    <td>{{file.metadata.size|filesizeformat}}</td></tr>
@@ -82,7 +82,7 @@
 <table>
 <tr><th>Name</th><th>Path</th><th>Version</th></tr>
 {% for dep in record.dependencies.all %}
-<tr><td>{{dep.name}}</td><td>{{dep.path}}</td><td>{{dep.version}}{% if dep.diff %}* (<a href="diff/{{dep.name}}">diff</a>){% endif %}</td></tr>{% endfor %}
+<tr class="{% cycle "odd" "even" %}"><td>{{dep.name}}</td><td>{{dep.path}}</td><td>{{dep.version}}{% if dep.diff %}* (<a href="diff/{{dep.name}}">diff</a>){% endif %}</td></tr>{% endfor %}
 </table>
 
 <h2>Platform information</h2>
@@ -92,7 +92,8 @@
     <th>Release</th><th>Version</th>
 </tr>
 {% for platform in record.platforms.all %}
-<tr><td>{{platform.network_name}}</td>
+<tr class="{% cycle "odd" "even" %}">
+    <td>{{platform.network_name}}</td>
     <td>{{platform.ip_addr}}</td>
     <td>{{platform.processor}} {{platform.machine}}</td>
     <td>{{platform.architecture_bits}}</td>
@@ -103,8 +104,11 @@
 </tr>{% endfor %}
 </table>
 
+{% if record.stdout_stderr %}
 <h2>Stdout & Stderr</h2>
 <pre>
 {{ record.stdout_stderr }}
 </pre>
+{% endif %}
+
 {% endblock %}

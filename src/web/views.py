@@ -31,13 +31,27 @@ class RecordUpdateForm(forms.ModelForm):
         model = models.Record
         fields=('reason', 'outcome', 'tags')
 
+class ProjectUpdateForm(forms.ModelForm):
+    
+    class Meta:
+        model = models.Project
+        fields = ('name', 'description')
+
+
 def list_projects(request):
     return list_detail.object_list(request, queryset=models.Project.objects.all(),
                                    template_name="project_list.html")
 
 def show_project(request, project):
     project = models.Project.objects.get(id=project)
-    return render_to_response('project_detail.html', {'project': project})
+    if request.method == 'POST':
+        form = ProjectUpdateForm(request.POST, instance=project)
+        if form.is_valid():
+            form.save()
+    else:
+        form = ProjectUpdateForm(instance=project)
+    return render_to_response('project_detail.html',
+                              {'project': project, 'form': form})
    
 def list_records(request, project):
     search_form = TagSearch()
