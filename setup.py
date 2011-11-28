@@ -30,7 +30,7 @@ setup(
     version = __version__,
     package_dir={'sumatra': 'src'},
     packages = ['sumatra', 'sumatra.dependency_finder',
-                'sumatra.external',
+                'sumatra.external', 'sumatra.datastore',
                 'sumatra.external.NeuroTools',
                 'sumatra.recordstore', 'sumatra.recordstore.django_store',
                 'sumatra.versioncontrol',

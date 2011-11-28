@@ -19,7 +19,7 @@ find_version_from_versioncontrol() - determines whether a Python module is
                                      version information from this.
 find_imported_packages()    - finds all imported top-level packages for a given
                               Python file.
-find_dependencies           - returns a list of Dependency objects representing
+find_dependencies()         - returns a list of Dependency objects representing
                               all the top-level modules or packages imported
                               (directly or indirectly) by a given Python file.
 
