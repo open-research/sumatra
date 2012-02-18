@@ -128,7 +128,7 @@ class TestArchivingFileSystemDataStore(unittest.TestCase):
     def test__get_content__should_return_short_file_content(self):
         self.ds.find_new_data(self.now)
         digest = hashlib.sha1(self.test_data).hexdigest()
-        key = DataKey('%s/test_file1' % self.now.strftime("%Y%M%d-%H%m%S"), digest)
+        key = DataKey('%s/test_file1' % self.now.strftime("%Y%m%d-%H%m%S"), digest)
         content = self.ds.get_content(key)
         self.assertEqual(content, self.test_data)
         

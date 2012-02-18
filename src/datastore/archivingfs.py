@@ -69,7 +69,7 @@ class ArchivingFileSystemDataStore(FileSystemDataStore):
     def find_new_data(self, timestamp):
         """Finds newly created/changed data items"""
         new_files = self._find_new_data_files(timestamp)
-        label = timestamp.strftime("%Y%M%d-%H%m%S")
+        label = timestamp.strftime("%Y%m%d-%H%m%S")
         archive_paths = self._archive(label, new_files)
         return [ArchivedDataFile(path, self).generate_key()
                 for path in archive_paths]
