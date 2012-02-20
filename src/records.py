@@ -165,7 +165,7 @@ class Record(object):
 class RecordDifference(object):
     """Represents the difference between two Record objects."""
     
-    ignore_mimetypes = [r'image/\w+', r'video/\w+']
+    ignore_mimetypes = [] #r'image/\w+', r'video/\w+']
     ignore_filenames = [r'\.log', r'^log']
     
     def __init__(self, recordA, recordB,
@@ -257,7 +257,7 @@ class RecordDifference(object):
         for rec in self.recordA, self.recordB:
             for key in rec.output_data:
                 ignore = False
-                name = os.path.basename(key.path)
+                name = os.path.basename(key.path) # not sure this makes sense for archive data store
                 if key.metadata['mimetype']:
                     for pattern in self.ignore_mimetypes:
                         if re.match(pattern, key.metadata['mimetype']):
