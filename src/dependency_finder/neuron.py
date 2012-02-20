@@ -78,8 +78,8 @@ def _nrn_install_prefix(executable_path):
     Determine the install location based on the executable path. Can think of
     lots of ways this could go wrong.
     """
-    executable_dir = os.path.dirname(executable_path)
-    return os.path.realpath(os.path.join(executable_dir, "../.."))
+    executable_dir = os.path.dirname(os.path.realpath(executable_path))
+    return os.path.join(executable_dir, "../..")
 
 
 def find_loaded_files(file_path, executable_path):
