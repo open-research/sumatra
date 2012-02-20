@@ -179,6 +179,7 @@ def show_file(request, project, label):
         elif mimetype in ("image/png", "image/jpeg", "image/gif"): # need to check digests match
             return render_to_response("show_image.html",
                                       {'path': path, 'label': label,
+                                       'digest': digest,
                                        'project_name': project,})
         #elif mimetype == 'application/zip':
         #    import zipfile

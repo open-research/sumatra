@@ -159,6 +159,9 @@ class DataKey(BaseModel):
     digest = models.CharField(max_length=40)
     metadata = models.TextField(blank=True)
     
+    def get_metadata(self):
+        return eval(self.metadata) # should probably use json.decode
+    
     def to_sumatra(self):
         metadata = eval(self.metadata)
         return datastore.DataKey(self.path, self.digest, **metadata)
