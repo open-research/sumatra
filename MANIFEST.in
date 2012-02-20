@@ -1,8 +1,11 @@
 include doc/*.txt
 include COPYING
 include src/web/media/smt.css
+include src/web/media/smt.js
 include src/web/media/*.png
 include src/web/media/license.txt
+include src/web/media/images/*.png
+include src/web/media/jquery*
 include src/web/templates/*.html
 recursive-include test/example_projects *
 recursive-include test/example_repositories *
