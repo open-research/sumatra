@@ -127,7 +127,7 @@ def system2(cmd, cwd=None, logger=_sentinel, stdout=_sentinel, log_command=_sent
 	if cwd is not None and not os.path.isdir(cwd):
 		os.makedirs(cwd) # this throws exception if fails
 	
-	cmd = quote_command(cmd) # to prevent _popen() bug
+	#cmd = quote_command(cmd) # to prevent _popen() bug
 	p = subprocess.Popen(cmd, cwd=cwd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 	if(log_command):
 		mylogger("Running: %s" % cmd)

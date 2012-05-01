@@ -25,6 +25,7 @@ from __future__ import with_statement
 import os.path
 import re
 import subprocess
+import sys
 
 version_pattern = re.compile(r'\b(?P<version>\d[\.\d]*([a-z]*\d)*)\b')
 
@@ -56,7 +57,9 @@ class Executable(object):
 
     def _find_executable(self, executable_name):
         found = []
-        for path in os.getenv('PATH').split(':'):
+        if sys.platform == 'win32' or sys.platform == 'win64':
+            executable_name = executable_name+'.exe'
+        for path in os.getenv('PATH').split(';'):
             if os.path.exists(os.path.join(path, executable_name)):
                 found += [path] 
         if not found:
