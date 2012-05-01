@@ -58,8 +58,11 @@ class Executable(object):
     def _find_executable(self, executable_name):
         found = []
         if sys.platform == 'win32' or sys.platform == 'win64':
-            executable_name = executable_name+'.exe'
-        for path in os.getenv('PATH').split(';'):
+            executable_name = executable_name + '.exe'
+            path_token = ';'
+        else:
+            path_token = ':'
+        for path in os.getenv('PATH').split(path_token):
             if os.path.exists(os.path.join(path, executable_name)):
                 found += [path] 
         if not found:
