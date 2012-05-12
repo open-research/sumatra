@@ -11,7 +11,6 @@ from textwrap import dedent
 from copy import deepcopy
 import warnings
 import re
-from git import *
 
 from sumatra.programs import get_executable
 from sumatra.datastore import FileSystemDataStore, ArchivingFileSystemDataStore
@@ -19,7 +18,7 @@ from sumatra.projects import Project, load_project
 from sumatra.launch import SerialLaunchMode, DistributedLaunchMode
 from sumatra.parameters import build_parameters
 from sumatra.recordstore import get_record_store
-from sumatra.versioncontrol import *
+from sumatra.versioncontrol import get_working_copy, get_repository, UncommittedModificationsError
 from sumatra.formatting import get_diff_formatter
 from sumatra.records import MissingInformationError
 
@@ -85,6 +84,7 @@ def parse_arguments(args, input_datastore):
             # ought really to have a more specific Exception and to catch it so as to give a helpful error message to user
     return parameter_sets, input_data, " ".join(script_args)
 
+
 def init(argv):
     """Create a new project in the current directory."""
     usage = "%prog init [options] NAME"
@@ -126,7 +126,7 @@ def init(argv):
         repository.checkout()
     else:
         repository = get_working_copy().repository # if no repository is specified, we assume there is a working copy in the current directory.        
-        make_commit('initialization') # make commit (initialization of a 'master' branch. Only in GIT)       
+
     if options.executable:
         executable_path, executable_options = parse_executable_str(options.executable)
         executable = get_executable(path=executable_path)
@@ -216,6 +216,7 @@ def configure(argv):
         project.data_label = options.addlabel
     project.save()
 
+
 def info(argv):
     """Print information about the current project."""
     usage = "%prog info"
@@ -231,6 +232,7 @@ def info(argv):
         print err
         sys.exit(1)
     print project.info()
+
 
 def run(argv):
     """Run a simulation or analysis."""
@@ -300,9 +302,7 @@ def run(argv):
         sys.exit(1)
     if options.tag:
         project.add_tag(run_label, options.tag)
-    # automatically commit the changes within Data directory (only in GIT)
-    commited_dir = '%s\\%s' %(os.getcwd(), str(project.data_store.root)[2:])
-    make_commit('simulation', [commited_dir]) 
+
 
 def list(argv):
     """List records belonging to the current project."""
@@ -461,8 +461,8 @@ def repeat(argv):
     else:
         msg = "The new record exactly matches the original."
     print msg
-    project.add_comment(new_label, msg)  
-        
+    project.add_comment(new_label, msg)    
+
 def diff(argv):
     """Show the differences, if any, between two records."""
     usage = "%prog diff [options] LABEL1 LABEL2"

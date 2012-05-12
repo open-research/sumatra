@@ -33,7 +33,7 @@ import sys
 import os
 
 from base import VersionControlError
- 
+
 class UncommittedModificationsError(Exception):
     pass
 
@@ -45,12 +45,8 @@ for vcs in ['mercurial', 'subversion', 'git', 'bazaar']:
         vcs_list.append(sys.modules['sumatra.versioncontrol._%s' % vcs])
     except ImportError, err:
         pass
-
-def make_commit(message, file=[]):
-    if 'git' in str(vcs_list[0]):
-        obGit = _git.GitWorkingCopy()
-        obGit.commit(message, file)
-
+    
+    
 def get_working_copy(path=None):
     path = path or os.getcwd()
     if vcs_list:

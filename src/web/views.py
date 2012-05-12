@@ -9,6 +9,7 @@ from django import forms
 from tagging.views import tagged_object_list
 from sumatra.recordstore.django_store import models
 from sumatra.datastore import get_data_store, DataKey
+from sumatra.commands import run
 import mimetypes
 mimetypes.init()
 import csv
@@ -254,4 +255,8 @@ def show_diff(request, project, label, package):
                                                  'package': package,
                                                  'parent_version': dependency.version,
                                                  'diff': dependency.diff})
+                                                 
+def run_sim(request, project):
+    run(['in.param'])
+    return HttpResponse('ok')
     

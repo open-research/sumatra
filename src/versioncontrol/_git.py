@@ -104,12 +104,6 @@ class GitWorkingCopy(WorkingCopy):
         """Difference between working copy and repository."""
         g = git.Git(self.path)
         return g.diff('HEAD')
-    
-    def commit(self, message, file):
-        repo = git.Repo(self.path)
-        index = repo.index
-        index.add(file) 
-        index.commit(message)
         
 
 def move_contents(src, dst):
