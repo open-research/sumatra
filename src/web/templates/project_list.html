@@ -2,13 +2,54 @@
 
 {% block title %}List of projects{% endblock %}
 
-{% block header %}<h1>List of projects</h1>{% endblock %}
+{% block header %}
+<div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <h1><div id = "name_project">
+            <div id = 'name_page'>List of projects</div></h1>
+            <div id='sumatra_logo'><a href="http://neuralensemble.org/trac/sumatra">
+            <img src='/media/Sumatra_logo.png'/></a></div>
+            <!--div class="nav-collapse">
+            <ul class="nav">
+              <li><a href="#">File</a></li>
+              <li><a href="#about">Settings</a></li>
+            </ul>
+            </div-->
+        </div>
+    </div>
+</div> 
+{% endblock %}
+
+{% block sidebar %}
+    <div class="container-fluid">
+      <div class="row-fluid">  
+              <div class="well sidebar-nav" id = 'side_projectDetail'>
+                <ul class="nav nav-list">    
+                    <li>
+                        <a href="project/about/">About</a>
+                    </li>
+                    <li class="active">
+                        <a href="/">List of projects</a>
+                    </li>
+                    <li>
+                        <a href="project/">Record list</a>
+                    </li>
+                                  
+                </ul>
+              </div>
+        </div>
+   </div>
+
+{% endblock %}
+
 
 {% block content %}
 
 
 {% if object_list %}
-    <table class="simlist">
+<div id = 'div_listOfprojects'>
+    <table class="table table-bordered" >
         <tr>
             <th>ID</th><th>Name</th><th>Description</th><th>Records</th>
         </tr>
@@ -21,6 +62,7 @@
         </tr>
         {% endfor %}
     </table>
+</div>
 {% else %}
     <p class="warning"><strong>No projects found</strong></p>
 {% endif %}

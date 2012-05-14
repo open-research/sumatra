@@ -210,7 +210,6 @@ class Record(BaseModel):
     project = models.ForeignKey(Project, null=True)
     script_arguments = models.TextField(blank=True)
     stdout_stderr = models.TextField(blank=True)
-
     def to_sumatra(self):
         record = records.Record(
             self.executable.to_sumatra(),

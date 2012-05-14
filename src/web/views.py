@@ -61,14 +61,24 @@ def list_records(request, project):
         assert records_per_page > 0
     except (ValueError, AssertionError):
         records_per_page = RECORDS_PER_PAGE
+    # list containing simulations: 
+    sim_list = models.Record.objects.filter(project__id=project).order_by('-timestamp') 
+    simulations = dict(zip(xrange(len(sim_list)), sim_list))
+    sims_dict = {}
+    for key, item in simulations.items():
+        sims_dict[key] = [item, ['%s...' %(item.version[:5]), 
+                                 '%s\%s' %(item.repository.url.split('\\')[-2], 
+                                           item.repository.url.split('\\')[-1])]]
     return list_detail.object_list(request,
-                                   queryset=models.Record.objects.filter(project__id=project).order_by('-timestamp'),
+                                   queryset=sim_list,
                                    template_name="record_list.html",
                                    paginate_by=records_per_page,
                                    extra_context={
                                     'project_name': project,
                                     'search_form': search_form,
-                                    'records_per_page': records_per_page})  
+                                    'records_per_page': records_per_page,
+                                    'simulations': sims_dict,
+                                   })  
 
 def list_tagged_records(request, project, tag):
     queryset = models.Record.objects.filter(project__id=project)

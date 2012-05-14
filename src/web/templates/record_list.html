@@ -1,19 +1,224 @@
 {% extends "base.html" %}
+
 {% load filters %}
 
-{% block title %}{{project_name}}: List of records{% if tag %} tagged with {{tag}}{% endif %}{% endblock %}
+{% block header %}
+<div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <h1><div id = "name_project">
+            <a href="about/">{{project_name}}:{% if tag %} tagged with {{tag}}{% endif %}</a></div>
+            <div id = 'name_page'>list of records</div></h1>
+            <div id='sumatra_logo'><a href="http://neuralensemble.org/trac/sumatra">
+            <img src='/media/Sumatra_logo.png'/></a></div>
+            <!--div class="nav-collapse">
+            <ul class="nav">
+              <li><a href="#">File</a></li>
+              <li><a href="#about">Settings</a></li>
+            </ul>
+            </div-->
+        </div>
+    </div>
+</div> 
+{% endblock %}
+ 
 
-{% block header %}<h1><a href="about/">{{project_name}}</a>: List of records{% if tag %} tagged with <em>{{tag}}</em>{% endif %}</h1>{% endblock %}
+{% block sidebar %}
+    <div class="container-fluid">
+      <div class="row-fluid">  
+              <div class="well sidebar-nav">
+                <ul class="nav nav-list">  
+                    <li>
+                        <a href="about/">About</a>
+                    </li>
+                    <li>
+                        <a href="/">List of projects</a>
+                    </li>                
+                    <li class="active">
+                       <a href="">Record list</a>
+                    </li>
+                  <table id ='table_sidebar'>
+                      <thead>
+                          <tr>
+                              <th class="green header" align='left'><li>id</li></th>
+                              <th class="green header"><li>label</li></th>
+                              <th class="green header"><li>time</li></th>
+                              <th><input type="checkbox" checked='false'></th>
+                          </tr>
+                      </thead>
+                      <tbody>
+                        {% for key, item in simulations.items %}
+                            <tr align='center' class='tr_sidebar' id = 'label{{key}}'>
+                                <th align='left' style = 'min-width:20px'>
+                                    {{key}} 
+                                </th>
+                                <th align='center' style = 'min-width:140px'>
+                                    {{item.0.label}} 
+                                </th>
+                                <th align='center' style='min-width:70px'>
+                                    {{item.0.timestamp|date:"H:i:s"}}
+                                </th>
+                                <th><input class = 'checkbox' type="checkbox" checked='false'></th>
+                            </tr>  
+                        {% endfor %}
+                      </tbody>
+                  </table>
+                </ul>
+            <div style='overflow:hidden;'>
+                <button class='btn btn-danger' id = 'btn_delete' href='#'>Delete all selected</button>
+            </div>
+          </div><!--/.well sidebar-->
+      </div><!--/row-fluid-->
+    </div><!--/container-fluid-->  
+{% endblock %}
 
-{% block content %}
-
-<p><a href="/">Return to list of projects</a></p>
-<link rel="stylesheet" href='/media/jquery.fancybox-1.3.4.css'>
-<script type = 'text/javascript' src='/media/jquery-1.6.4.min.js'></script>
-<script type="text/javascript" src="/media/jquery.fancybox-1.3.4.pack.js"></script>
-<div id="fancybox-loading"><div></div></div>
+                                      
+{% block content %} 
+    <table class="table table-bordered" id = 'table_out'>
+        <thead>
+          <tr>
+            <th class="blue header" rowspan="2" id = 'cell_id'>id</th>
+            <th class="blue header" rowspan="2">Reason</th>
+            <th class="blue header" rowspan="2">Outcome</th>
+            <th class="blue header" rowspan="2">Duration</th>
+            <th class="blue header" rowspan="2">Processes</th>
+            <th colspan="2">Executable</th>
+            <th colspan="4">Script</th>
+            <th class="blue header" rowspan="2">Date</th>
+            <th class="blue header" rowspan="2">Tags</th>
+          </tr>
+          <tr>
+            <th class="blue header" rowspan="1">Name</th>
+            <th class="blue header" rowspan="1">Version</th>
+            <th class="blue header" rowspan="1">Repository</th>
+            <th class="blue header" rowspan="1">Main file</th>
+            <th class="blue header" rowspan="1">Version</th>
+            <th class="blue header" rowspan="1">Arguments</th>
+         </tr>
+        </thead> 
+        <tbody> 
+            {% for key, item in simulations.items %}
+                <tr id = 'simulation{{key}}' class='simulations'>
+                    <td>{{key}}</td>
+                    <td>{{item.0.reason}}</td>
+                    <td>{{item.0.outcome}}</td>
+                    <td>{{item.0.duration|human_readable_duration}}</td>
+                    <td>{{item.0.launch_mode.get_parameters.n|default:"1"}}</td>
+                    <td>{{item.0.executable.name}}</td>
+                    <td>{{item.0.executable.version}}</td>
+                    <td>{{item.1.1}}</td>
+                    <td>{{item.0.main_file}}</td>
+                    <td style='width:10px;overflow: hidden;'>{{item.1.0}}{% if item.diff %}*{% endif %}</td>
+                    <td>{{item.0.script_arguments}}</td>
+                    <td>{{item.0.timestamp|date:"d/m/Y"}}</td>
+                    {% if tag %}
+                    <td>{% for other_tag in item.0.tag_objects %}{% if tag == other_tag %}{{tag}} {% else %}<a href="/{{project_name}}/tag/{{other_tag.name}}/">{{other_tag.name}}</a> {% endif %}{% endfor %}</td>
+                    {% else %}
+                    <td>{{item.0.tags|link:"tag/%s/"}}</td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+        </tbody>                            
+    </table>     
+<!--p><a href="/">Return to list of projects</a></p-->
 <script type = 'text/javascript'>
 $(document).ready(function(){
+        
+    $('#table_out').tablesorter({});
+    $('#table_sidebar').tablesorter({
+        headers: { 
+                // assign the secound column (start counting from zero) 
+            3: { 
+                sorter: false 
+               }
+        }
+    });
+            
+    //$('#pageBody').css('margin-left', parseInt($('div.span3').css('width'))+15); // left border
+    $('#table_out tr:gt(2)').hide();
+    $('#label0').addClass('active');
+    
+    $.contextMenu({
+    // define which elements trigger this menu
+    selector: ".tr_sidebar.active",
+    // define the elements of the menu
+        items: {
+            show: {name: "show", icon: "edit", callback: function(key, opt){ }},
+            delete: {name: "delete", icon: "delete", callback: function(key, opt){  }}
+        }
+    });
+ 
+    $.contextMenu({
+    // define which elements trigger this menu
+    selector: ".tr_sidebar",
+    // define the elements of the menu
+        items: {
+            select: {name: "select", icon: "select", callback: function(key, opt){
+                var n = this.attr('id').match(/\d/g); //find any digits
+                this.addClass('active');
+                $('#simulation' + n).show();
+                this.find('th input:checkbox').attr('checked', true);
+            }},
+            show: {name: "show", icon: "edit", callback: function(key, opt){ }},
+        }
+    });
+        
+    
+    $("#table_sidebar thead tr th input:checkbox").click(function() {
+        var checkedStatus = this.checked;
+        
+        $(".checkbox").each(function() {
+            this.checked = checkedStatus;
+        });
+
+        if (this.checked){
+            $('.simulations').show();
+            $('#table_sidebar tr:gt(0)').addClass('active');
+            $('#btn_delete').removeClass('disabled');
+        }else{
+            $('.simulations').hide();
+            $('#table_sidebar tr:gt(0)').removeClass('active');
+            $('#btn_delete').addClass('disabled');
+        }
+        
+    });
+
+    $('#table_sidebar tr:gt(0)').mouseenter(function(){
+        $(this).addClass('sidebar_hover');
+    }).mouseleave(function(){
+        $(this).removeClass('sidebar_hover');
+    });
+    
+    $('#table_sidebar tr:gt(1)').find('th input:checkbox').attr('checked',false);
+    $("#table_sidebar thead tr th input:checkbox").attr('checked', false);
+    $("#table_sidebar tr:eq(1)").find('th input:checkbox').attr('checked', true);
+    
+    $('#table_sidebar tr:gt(0)').click(function(event){
+        var n = $(this).attr('id').match(/\d/g); //find any digits
+        if ($(this).hasClass('active')){
+            $(this).removeClass('active');
+            $('#simulation' + n).hide();
+            $(this).closest('tr').find('th input:checkbox').attr('checked',false);
+            $("#table_sidebar thead tr th input:checkbox").attr('checked',false);
+      
+        }else{
+            $(this).addClass('active');
+            $('#simulation' + n).show();  
+            $(this).closest('tr').find('th input:checkbox').attr('checked',true);
+            $('#btn_delete').removeClass('disabled');
+            
+            if ($("input[type=checkbox]:checked").length == $("#table_sidebar tr").length-1){
+                $("#table_sidebar thead tr").find('th input:checkbox').attr('checked',true);
+            }
+        }
+        
+        if ($("input[type=checkbox]:checked").length == 0){
+            $('#btn_delete').addClass('disabled');
+        } 
+
+        
+    });
+    
     $('#but_run').click(function(){
         $.ajax({
           type: 'POST',
@@ -27,76 +232,7 @@ $(document).ready(function(){
     });
    $('#fancybox-loading').hide().ajaxStart(function() { $.fancybox.showActivity() }).ajaxStop(function() {$.fancybox.hideActivity();});
 });
+
 </script>
-
-{% if tag %}
-<p><a href="/{{project_name}}/">Return to full record list</a></p>
-<p><a href="/{{project_name}}/tag/">Return to list of tags</a></p>
-{% endif %}
-
-{% if object_list %}
-    <form method="POST" action="/{{project_name}}/delete/">
-    <table class="simlist">
-        <tr>
-            <th rowspan="2"><input type="Submit" value="Delete"/><br/><small>include data&nbsp;</small><input type="checkbox" name="delete_data" value="True"/></th>
-            <th rowspan="2">Label</th>
-            <th rowspan="2">Reason</th>
-            <th rowspan="2">Outcome</th>
-            <th rowspan="2">Duration</th>
-            <th rowspan="2">Processes</th>
-            <th colspan="2">Executable</th>
-            <th colspan="4">Script</th>
-            <th rowspan="2">Date</th>
-            <th rowspan="2">Time</th>
-            <th rowspan="2">Tags</th>
-        </tr>
-        <tr>
-            <th>Name</th>
-            <th>Version</th>
-            <th>Repository</th>
-            <th>Main file</th>
-            <th>Version</th>
-            <th>Arguments</th>
-        </tr>
-        {% for record in object_list %}
-        <tr class="{% cycle odd,even %}">
-            <td><input type="checkbox" name="delete" value="{{record.label}}"/></td>
-            <td><a href="/{{project_name}}/{{record.label|escapeslash}}/">{{record.label}}</a></td>
-            <td>{{record.reason}}</td>
-            <td>{{record.outcome}}</td>
-            <td>{{record.duration|human_readable_duration}}</td>
-            <td>{{record.launch_mode.get_parameters.n|default:"1"}}</td>
-            <td>{{record.executable.name}}</td>
-            <td>{{record.executable.version}}</td>
-            <td>{{record.repository.url}}</td>
-            <td>{{record.main_file}}</td>
-            <td>{{record.version}}{% if record.diff %}*{% endif %}</td>
-            <td>{{record.script_arguments}}</td>
-            <td>{{record.timestamp|date:"d/m/Y"}}</td>
-            <td>{{record.timestamp|date:"H:i:s"}}</td>
-            {% if tag %}
-            <td>{% for other_tag in record.tag_objects %}{% if tag == other_tag %}{{tag}} {% else %}<a href="/{{project_name}}/tag/{{other_tag.name}}/">{{other_tag.name}}</a> {% endif %}{% endfor %}</td>
-            {% else %}
-            <td>{{record.tags|link:"tag/%s/"}}</td>
-            {% endif %}
-        </tr>
-        {% endfor %}
-    </table>
-    </form>
-    {% if is_paginated %}
-    <p>
-    {% if page_obj.has_previous %}<a href="?page={{page_obj.previous_page_number}}&per_page={{records_per_page}}"><img src="/media/Go-previous.png" alt="previous page"/></a>{% else %}&nbsp;&nbsp;&nbsp;{% endif %}
-    {% if page_obj.has_next %}<a href="?page={{page_obj.next_page_number}}&per_page={{records_per_page}}"><img src="/media/Go-next.png" alt="next page"/></a>{% endif %}
-    Records {{page_obj.start_index}}-{{page_obj.end_index}} of {{paginator.count}}
-    <form method="GET" action=".">
-        <label for="per_page">Records per page: </label><input type="text" id="per_page" name="per_page" value="{{records_per_page}}" />
-        <input type="submit" value="Update"/>
-    </form>
-    </p>
-    {% endif %}
-    <input type="button" value="run sumatra" id='but_run' /> 
-{% else %}
-    <p class="warning"><strong>No records found</strong></p>
-{% endif %}
 
 {% endblock %}

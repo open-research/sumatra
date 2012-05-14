@@ -3,22 +3,71 @@
 {% block title %}{{project.id}}: About{% endblock %}
 
 {% block header %}
-<h1>{{project.id}}: About</h1>
+<div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <h1><div id = "name_project">
+            <a href="../">{{project.id}}:</a></div>
+            <div id = 'name_page'>About</div></h1>
+            <div id='sumatra_logo'><a href="http://neuralensemble.org/trac/sumatra">
+            <img src='/media/Sumatra_logo.png'/></a></div>
+            <!--div class="nav-collapse">
+            <ul class="nav">
+              <li><a href="#">File</a></li>
+              <li><a href="#about">Settings</a></li>
+            </ul>
+            </div-->
+        </div>
+    </div>
+</div> 
+{% endblock %}
+
+{% block sidebar %}
+    <div class="container-fluid">
+      <div class="row-fluid">  
+              <div class="well sidebar-nav" id = 'side_projectDetail'>
+                <ul class="nav nav-list">    
+                    <li class="active">
+                        <a href="">About</a>
+                    </li>
+                    <li>
+                        <a href="/">List of projects</a>
+                    </li>
+                    <li>
+                        <a href="../">Record list</a>
+                    </li>
+                                  
+                </ul>
+              </div>
+        </div>
+   </div>
+
 {% endblock %}
 
 {% block content %}
 
-<p><a href="/">Return to list of projects</a></p>
-<p><a href="">Record list</a></p>
+<div id = 'side_projectDetail'>
+    <form id = 'target' action='.' method='POST'>
+        
+    {{form.errors}}
 
-<form action='.' method='POST'>
-    
-{{form.errors}}
+    <table>
+        {{form}}
+    </table>
+    <input type="submit" value='Save changes' class="btn-success" style='float:left; margin-left:71px; width: 220px'/>
+    </form>
+</div>
 
-<table>
-    {{form}}
-</table>
-<input type="submit" value='Save changes'/>
-</form>
+<script type="text/javascript">
+  $(document).ready(function() {
+      $('#target').submit(function() {
+          $.jGrowl('All changes were stored',{
+          theme:  'success',
+          position:  'bottom-left'
+      });
+        return false;
+    });
+  });
+</script>
 
 {% endblock %}
