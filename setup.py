@@ -38,7 +38,8 @@ setup(
     package_data = {'sumatra': ['web/media/*.css', 'web/media/*.js',
                                 'web/media/*.png', 'web/media/images/*.png',
                                 'web/media/css/*.css', 'web/media/extras/fontawesome/css/*.css',
-                                'web/media/fancybox/*.gif', 'web/media/fancybox/*.png',             
+                                'web/media/extras/fontawesome/font/*','web/media/extras/fontawesome/sass/*',
+                                'web/media/fancybox/*.gif', 'web/media/fancybox/*.png',
                                 'web/templates/*.html']},
     scripts = ['bin/smt', 'bin/smtweb'],
     author = "Andrew P. Davison",
@@ -71,4 +72,3 @@ setup(
     tests_require = ['twill'],
     #use_2to3 = True,
 )
-

@@ -22,203 +22,220 @@
 </div> 
 {% endblock %}
  
-
-{% block sidebar %}
-    <div class="container-fluid">
-      <div class="row-fluid">  
-              <div class="well sidebar-nav">
-                <ul class="nav nav-list">  
-                    <li>
-                        <a href="about/">About</a>
-                    </li>
-                    <li>
-                        <a href="/">List of projects</a>
-                    </li>                
-                    <li class="active">
-                       <a href="">Record list</a>
-                    </li>
-                  <table id ='table_sidebar'>
-                      <thead>
-                          <tr>
-                              <th class="green header" align='left'><li>id</li></th>
-                              <th class="green header"><li>label</li></th>
-                              <th class="green header"><li>time</li></th>
-                              <th><input type="checkbox" checked='false'></th>
-                          </tr>
-                      </thead>
-                      <tbody>
-                        {% for key, item in simulations.items %}
-                            <tr align='center' class='tr_sidebar' id = 'label{{key}}'>
-                                <th align='left' style = 'min-width:20px'>
-                                    {{key}} 
-                                </th>
-                                <th align='center' style = 'min-width:140px'>
-                                    {{item.0.label}} 
-                                </th>
-                                <th align='center' style='min-width:70px'>
-                                    {{item.0.timestamp|date:"H:i:s"}}
-                                </th>
-                                <th><input class = 'checkbox' type="checkbox" checked='false'></th>
-                            </tr>  
-                        {% endfor %}
-                      </tbody>
-                  </table>
-                </ul>
-            <div style='overflow:hidden;'>
-                <button class='btn btn-danger' id = 'btn_delete' href='#'>Delete all selected</button>
-            </div>
-          </div><!--/.well sidebar-->
-      </div><!--/row-fluid-->
-    </div><!--/container-fluid-->  
-{% endblock %}
-
-                                      
+                                    
 {% block content %} 
+
+
+<div id = 'header_menu'>
+    <div class="btn-group">
+        <a class="btn btn-large dropdown-toggle" data-toggle="dropdown" href="#" id = 'settings_but'>
+        <i class="icon-cog"></i> Settings
+        <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu" id = 'dropdown_menu'>
+            <li><a href="#" id='settings_density'>Display density:</a></li> 
+            <li><a href="#" class='menu-rsettigns active_settings_row' id='button_comfortable'>Comfortable</a></li>
+            <li><a href="#" class='menu-rsettigns' id='button_compact'>Compact</a></li>
+            <li class="divider"></li>
+            <li><a id='button_settings' class='menu-rsettigns'>Settings</a></li>
+        </ul>
+    </div>
+</div>
+<div id = 'main_content'>
     <table class="table table-bordered" id = 'table_out'>
         <thead>
           <tr>
-            <th class="blue header" rowspan="2" id = 'cell_id'>id</th>
-            <th class="blue header" rowspan="2">Reason</th>
-            <th class="blue header" rowspan="2">Outcome</th>
-            <th class="blue header" rowspan="2">Duration</th>
-            <th class="blue header" rowspan="2">Processes</th>
-            <th colspan="2">Executable</th>
-            <th colspan="4">Script</th>
-            <th class="blue header" rowspan="2">Date</th>
-            <th class="blue header" rowspan="2">Tags</th>
+            <th class="blue header Label-t" rowspan="2">Label</th>
+            <th class="blue header Tag-t" rowspan="2">Tag</th>
+            <th class="blue header Reason-t" rowspan="2">Reason</th>
+            <th class="blue header Outcome-t" rowspan="2">Outcome</th>
+            <th class="blue header Duration-t" rowspan="2">Duration</th>
+            <th class="blue header Processes-t" rowspan="2">Processes</th>
+            <th class='Executable-t' colspan="2">Executable</th>
+            <th class='Script-t' colspan="4">Script</th>
+            <th class="blue header Date-t" rowspan="2">Date</th>
+            <th class="blue header Time-t" rowspan="2">Time</th> 
           </tr>
           <tr>
-            <th class="blue header" rowspan="1">Name</th>
-            <th class="blue header" rowspan="1">Version</th>
-            <th class="blue header" rowspan="1">Repository</th>
-            <th class="blue header" rowspan="1">Main file</th>
-            <th class="blue header" rowspan="1">Version</th>
-            <th class="blue header" rowspan="1">Arguments</th>
+            <th class="green header Name-t parentExecutabble" rowspan="1">Name</th>
+            <th class="green header Version-t parentExecutabble" rowspan="1">Version</th>
+            <th class="green header Repository-t parentScript" rowspan="1">Repository</th>
+            <th class="green header Main_file-t parentScript" rowspan="1">Main file</th>
+            <th class="green header S-Version-t parentScript" rowspan="1">Version</th>
+            <th class="green header Arguments-t parentScript" rowspan="1">Arguments</th>
          </tr>
         </thead> 
         <tbody> 
             {% for key, item in simulations.items %}
                 <tr id = 'simulation{{key}}' class='simulations'>
-                    <td>{{key}}</td>
-                    <td>{{item.0.reason}}</td>
-                    <td>{{item.0.outcome}}</td>
-                    <td>{{item.0.duration|human_readable_duration}}</td>
-                    <td>{{item.0.launch_mode.get_parameters.n|default:"1"}}</td>
-                    <td>{{item.0.executable.name}}</td>
-                    <td>{{item.0.executable.version}}</td>
-                    <td>{{item.1.1}}</td>
-                    <td>{{item.0.main_file}}</td>
-                    <td style='width:10px;overflow: hidden;'>{{item.1.0}}{% if item.diff %}*{% endif %}</td>
-                    <td>{{item.0.script_arguments}}</td>
-                    <td>{{item.0.timestamp|date:"d/m/Y"}}</td>
+                    <td class="Label-t">{{item.0.label}}</td>
                     {% if tag %}
-                    <td>{% for other_tag in item.0.tag_objects %}{% if tag == other_tag %}{{tag}} {% else %}<a href="/{{project_name}}/tag/{{other_tag.name}}/">{{other_tag.name}}</a> {% endif %}{% endfor %}</td>
+                    <td class="Tag-t">{% for other_tag in item.0.tag_objects %}{% if tag == other_tag %}{{tag}} {% else %}<a href="/{{project_name}}/tag/{{other_tag.name}}/">{{other_tag.name}}</a> {% endif %}{% endfor %}</td>
                     {% else %}
-                    <td>{{item.0.tags|link:"tag/%s/"}}</td>
+                    <td class="Tag-t">{{item.0.tags|link:"tag/%s/"}}</td>
                     {% endif %}
+                    <td class="Reason-t">{{item.0.reason}}</td>
+                    <td class="Outcome-t">{{item.0.outcome}}</td>
+                    <td class="Duration-t">{{item.0.duration|human_readable_duration}}</td>
+                    <td class="Processes-t">{{item.0.launch_mode.get_parameters.n|default:"1"}}</td>
+                    <td class="Name-t parentExecutabble">{{item.0.executable.name}}</td>
+                    <td class="Version-t parentExecutabble">{{item.0.executable.version}}</td>
+                    <td class="Repository-t parentScript">{{item.1.1}}</td> <!-- repository path: shorten -->
+                    <td class="Main_file-t parentScript">{{item.0.main_file}}</td>
+                    <td class="S-Version-t parentScript" style='width:10px;overflow: hidden;'>{{item.1.0}}{% if item.diff %}*{% endif %}</td> <!-- version: shorten -->
+                    <td class="Arguments-t parentScript">{{item.0.script_arguments}}</td>
+                    <td class="Date-t">{{item.0.timestamp|date:"d/m/Y"}}</td>
+                    <td class="Time-t">{{record.timestamp|date:"H:i:s"}}</td>
                 </tr>
             {% endfor %}
         </tbody>                            
-    </table>     
+    </table>   
+</div><!-- main_content -->    
 <!--p><a href="/">Return to list of projects</a></p-->
 <script type = 'text/javascript'>
 $(document).ready(function(){
-        
-    $('#table_out').tablesorter({});
-    $('#table_sidebar').tablesorter({
-        headers: { 
-                // assign the secound column (start counting from zero) 
-            3: { 
-                sorter: false 
-               }
-        }
-    });
-            
-    //$('#pageBody').css('margin-left', parseInt($('div.span3').css('width'))+15); // left border
-    $('#table_out tr:gt(2)').hide();
-    $('#label0').addClass('active');
+    $('#settings_but').dropdown();   // dropdown menu for the settings button   
+    $('#table_out').tablesorter({}); // use tablesorter.min.js
+    $('#myModal').hide();            // #myModal is the settings popup window
     
-    $.contextMenu({
-    // define which elements trigger this menu
-    selector: ".tr_sidebar.active",
-    // define the elements of the menu
-        items: {
-            show: {name: "show", icon: "edit", callback: function(key, opt){ }},
-            delete: {name: "delete", icon: "delete", callback: function(key, opt){  }}
-        }
-    });
- 
-    $.contextMenu({
-    // define which elements trigger this menu
-    selector: ".tr_sidebar",
-    // define the elements of the menu
-        items: {
-            select: {name: "select", icon: "select", callback: function(key, opt){
-                var n = this.attr('id').match(/\d/g); //find any digits
-                this.addClass('active');
-                $('#simulation' + n).show();
-                this.find('th input:checkbox').attr('checked', true);
-            }},
-            show: {name: "show", icon: "edit", callback: function(key, opt){ }},
-        }
-    });
-        
-    
-    $("#table_sidebar thead tr th input:checkbox").click(function() {
-        var checkedStatus = this.checked;
-        
-        $(".checkbox").each(function() {
-            this.checked = checkedStatus;
-        });
-
-        if (this.checked){
-            $('.simulations').show();
-            $('#table_sidebar tr:gt(0)').addClass('active');
-            $('#btn_delete').removeClass('disabled');
-        }else{
-            $('.simulations').hide();
-            $('#table_sidebar tr:gt(0)').removeClass('active');
-            $('#btn_delete').addClass('disabled');
-        }
-        
-    });
-
-    $('#table_sidebar tr:gt(0)').mouseenter(function(){
-        $(this).addClass('sidebar_hover');
-    }).mouseleave(function(){
-        $(this).removeClass('sidebar_hover');
+    $('#close_set').click(function(){
+        $('#myModal').modal('hide');
     });
     
-    $('#table_sidebar tr:gt(1)').find('th input:checkbox').attr('checked',false);
-    $("#table_sidebar thead tr th input:checkbox").attr('checked', false);
-    $("#table_sidebar tr:eq(1)").find('th input:checkbox').attr('checked', true);
-    
-    $('#table_sidebar tr:gt(0)').click(function(event){
-        var n = $(this).attr('id').match(/\d/g); //find any digits
-        if ($(this).hasClass('active')){
-            $(this).removeClass('active');
-            $('#simulation' + n).hide();
-            $(this).closest('tr').find('th input:checkbox').attr('checked',false);
-            $("#table_sidebar thead tr th input:checkbox").attr('checked',false);
-      
-        }else{
-            $(this).addClass('active');
-            $('#simulation' + n).show();  
-            $(this).closest('tr').find('th input:checkbox').attr('checked',true);
-            $('#btn_delete').removeClass('disabled');
-            
-            if ($("input[type=checkbox]:checked").length == $("#table_sidebar tr").length-1){
-                $("#table_sidebar thead tr").find('th input:checkbox').attr('checked',true);
+    /* Automatic check/uncheck of #Script and #Executable */
+    $(".check-item").click(function(){   // any checkbox in settings window         
+        /* #Script and #Executable have childrens, so if all the chilrens are checked,
+           the parents checkboxes will be checked automatically. */
+        if ($(this).attr('id') != 'Script'){  
+            if ($('.Script:checked').length == 4){ //get the number of childrens for #Script chbx
+                $('#Script').attr('checked', true);
+            }else{
+                $('#Script').attr('checked', false);
+            }
+        }
+        if ($(this).attr('id') != 'Executable'){
+            if ($('.Executable:checked').length == 2){
+                $('#Executable').attr('checked', true);
+            }else{
+                $('#Executable').attr('checked', false);
             }
         }
         
-        if ($("input[type=checkbox]:checked").length == 0){
-            $('#btn_delete').addClass('disabled');
-        } 
-
+        /* If user clicks checkbox Script/Executable, in the turn all the childrens for
+           Script/Executable will be checked automatically. */
+        if ($(this).attr('id') == 'Script'){
+            if ($(this).is(':checked')){
+                $('.Script').attr('checked', true);
+            }else{
+                $('.Script').attr('checked', false);
+            }   
+        }
         
+        if ($(this).attr('id') == 'Executable'){
+            if ($(this).is(':checked')){
+                $('.Executable').attr('checked', true);
+            }else{
+                $('.Executable').attr('checked', false);
+            }   
+        }
+        
+        /* if no checkboxes are checked the button 'save settings' will be disables */
+        if ($(".check-item:checked").length == 0){
+            $('#check_selectAll').attr('checked', false);
+            $('#save_set').addClass('disabled');
+        }else{
+            $('#save_set').removeClass('disabled');
+        }
+    }); /* End of automatic check/uncheck of #Script and #Executable */
+
+    $('#save_set').click(function(){ // button save settings
+        if (!$('#save_set').hasClass('disabled')){
+            /* delete columns from table */
+            $(".check-item").not(':checked').each(function() {
+                if ($(this).parent().attr('class') == 'subitems'){                       
+                    $checked = $(this).attr('class').split(" ").slice(-1); //last in class name  
+                    $colspan = $('.' + $checked + '-t').attr('colspan');    
+                    if ($('.'+$(this).attr('id')+'-t').is(':visible')){
+                        $('.' + $checked + '-t').attr('colspan', $colspan-1);
+                        if ($('.' + $checked + '-t').attr('colspan') == 0){
+                            $('.'+$checked+'-t').hide(); 
+                        }
+                        $('.'+$(this).attr('id')+'-t').hide(); 
+                    }
+                }else if ($(this).attr('id')!='Executable' && $(this).attr('id')!='Script'){
+                    $('.'+$(this).attr('id')+'-t').hide();
+                }   
+            });  /* end of delete columns from table */
+            
+            /* add items to the table */
+            $(".check-item:checked").each(function() {
+                    if ($(this).attr('id') == 'Executable') {  // parent chbx 'Executable'  
+                            // all the childrens of Executable has class '.parentExecutable'
+                            $('.parentExecutabble').show();    
+                            $('.'+$(this).attr('id')+'-t').show(); //parent
+                            $('.Executable-t').attr('colspan', 2);
+                    }else if ($(this).attr('id') == 'Script'){ // parent chbx 'Script'  
+                            $('.parentScript').show();
+                            $('.'+$(this).attr('id')+'-t').show();  
+                            $('.Script-t').attr('colspan', 4);
+                    }else {
+                        /* childrens (of 'Executable' of 'Scripts' headers) */
+                        if ($(this).parent().attr('class') == 'subitems'){  //.subitems == childrens
+                            /* get the last word in class name */
+                            $checked = $(this).attr('class').split(" ").slice(-1); 
+                            /* get the the number of childrens. After table will be rendered using
+                               this numbers */
+                            $colspan_script = $('.Script:checked').length;  
+                            $colspan_exec = $('.Executable:checked').length;  
+                            $('.'+$checked+'-t').show(); // show parent column even if it is not checked
+                            /* render number of columns */
+                            $('.Executable-t').attr('colspan', $colspan_exec); 
+                            $('.Script-t').attr('colspan', $colspan_script);
+                        }
+                        $('.'+$(this).attr('id')+'-t').show(); // show all childrens/elements
+                    }
+            });
+            $('#myModal').modal('hide'); // popup settings window
+        }
     });
     
+    /* chossing all checkboxes by clicking one 'choose all' */
+    $("#check_selectAll").click(function() { 
+        var checkedStatus = this.checked;
+        
+        $(".check-item").each(function() {
+            this.checked = checkedStatus;
+        });  
+        
+        if (!checkedStatus){
+            $('#save_set').addClass('disabled'); // in case all are unchecked
+        }else{
+            $('#save_set').removeClass('disabled');
+        }    
+    });
+    
+    /* Settings->Display density->compact */
+    $('#button_compact').click(function(){
+        $('#table_out').addClass('table-condensed'); // from kickstrap
+        $('#button_comfortable').removeClass('active_settings_row');
+        $(this).addClass('active_settings_row');
+    });
+    
+    $('#button_comfortable').click(function(){
+        $('#table_out').removeClass('table-condensed');
+        $(this).addClass('active_settings_row');
+        $('#button_compact').removeClass('active_settings_row');
+    });
+    
+   $('#button_settings').click(function(){
+        $('#myModal').modal('show');
+        $('#myModal').css('width', '70%')
+                     .css('left', '30%')
+                     .css('max-height', '80%')
+                     .css('top', '40%');
+        $('.tabs a:last').tab('show');
+   });
+    /*   
     $('#but_run').click(function(){
         $.ajax({
           type: 'POST',
@@ -228,11 +245,112 @@ $(document).ready(function(){
             window.open('http://127.0.0.1:8000/project/', "_self");
           },
         }).done(function(data) {
+        
         })
     });
+    */
    $('#fancybox-loading').hide().ajaxStart(function() { $.fancybox.showActivity() }).ajaxStop(function() {$.fancybox.hideActivity();});
 });
-
 </script>
+
+    
+<div class="modal" id="myModal">
+  <div class="modal-header">
+    <a class="close" data-dismiss="modal"></a>
+    <h3>Settings</h3>
+  </div>
+  <div class="modal-body">   
+    <ul class="nav nav-tabs"  id ='myTab'>
+      <li class="active"><a href="#home"  data-toggle="tab" >General</a></li>
+      <li><a href="#profile"  data-toggle="tab" >Another option 1</a></li>
+      <li><a href="#messages"  data-toggle="tab" >Another option 2</a></li>
+      <li><a href="#settings"  data-toggle="tab" >Another option 3</a></li>
+    </ul>
+    
+    <div class="tab-content">
+      <div class="tab-pane active" id="home">
+        <div id = 'tab_general_text'><p><b>Table:</b></p></div>
+        <div id = 'tab_general_content'>
+            <label class="checkbox">
+                <input type="checkbox" id='Label' checked="checked" class='check-item'> Label
+            </label>
+            <label class="checkbox">
+                <input type="checkbox" id='Tag' checked="checked" class='check-item'> Tag
+            </label>
+            <label class="checkbox">
+                <input type="checkbox" id='Reason' checked="checked" class='check-item'> Reason
+            </label>
+            <label class="checkbox">
+                <input type="checkbox" id='Outcome' checked="checked" class='check-item'> Outcome
+            </label>
+            <label class="checkbox">
+                <input type="checkbox" id='Duration' checked="checked" class='check-item'> Duration
+            </label>
+            <label class="checkbox">
+                <input type="checkbox" id='Processes' checked="checked" class='check-item'> Processes
+            </label>
+            <label class="checkbox">
+                <input type="checkbox" id='Executable' checked="checked" class='check-item'> Executable
+            </label>
+                <label class="checkbox">
+                    <div class = 'subitems'>
+                        <input type="checkbox" class='check-item Executable' id='Name' checked="checked"> Executable name
+                    </div>
+                </label>
+                <label class="checkbox">
+                    <div class = 'subitems'>
+                        <input type="checkbox" class='check-item Executable' id='Version' checked="checked"> Executable Version
+                    </div>
+                </label>
+            <label class="checkbox">
+                <input type="checkbox" id='Date' checked="checked" class='check-item'> Date
+            </label>
+            <label class="checkbox">
+                <input type="checkbox" id='Time' checked="checked" class='check-item'> Time
+            </label>
+            <label class="checkbox">
+                <input type="checkbox" id='Script' checked="checked" class='check-item'> Script
+            </label>
+            <label class="checkbox">
+                <div class = 'subitems'>
+                    <input type="checkbox" class='check-item Script' id='Repository' checked="checked"> Script repository
+                </div>
+            </label>
+            <label class="checkbox">
+                <div class = 'subitems'>
+                    <input type="checkbox" class='check-item Script' id='Main_file' checked="checked"> Script main file
+                </div>
+            </label>
+            <label class="checkbox">
+                <div class = 'subitems'>
+                    <input type="checkbox" class='check-item Script' id='S-Version' checked="checked"> Script version
+                </div>
+            </label>
+            <label class="checkbox">
+                <div class = 'subitems'>
+                    <input type="checkbox" class='check-item Script' id='Arguments' checked="checked"> Script arguments
+                </div>
+            </label>
+            <label class="checkbox">
+                <input type="checkbox" id = 'check_selectAll' checked="checked"><b style='font-size:14px'>Select all</b>
+            </label>
+        </div>
+      </div>
+      <div class="tab-pane" id="profile">
+        <div id = 'tab_general_text'><p><b>option2:</b></p></div>
+      </div>
+      <div class="tab-pane" id="messages">
+        <div id = 'tab_general_text'><p><b>option3:</b></p></div>
+      </div>
+      <div class="tab-pane" id="settings">
+        <div id = 'tab_general_text'><p><b>option4:</b></p></div>
+      </div>
+    </div>
+
+  <div class="modal-footer">
+    <a class="btn btn-primary" id='save_set'>Save changes</a>
+    <a class="btn" id='close_set'>Close</a>
+  </div>
+ </div>  
 
 {% endblock %}

@@ -32,11 +32,12 @@ padding-bottom: 40px;
     //table-layout: fixed;
 }
 
+#table_out th.green.header:first-child{border-left:1px solid #ddd}   
+#table_out th.blue.header:first-child{border-left: 0px;}   
 #table_out th,#table_out td{line-height:18px;text-align:center;}
-#table_out th{padding-top:9px;font-weight:bold;vertical-align:middle;}
+#table_out th{padding-top:9px;font-weight:bold;vertical-align:middle;padding-right:0px}
 #table_out td{vertical-align:top;border-top:1px solid #ddd;}
 #table_out tbody th{border-top:1px solid #ddd;vertical-align:top;}
-#cell_id{border-left: 0}
 .condensed-table th,.condensed-table td{padding:5px 5px 4px;}
 .bordered-table{border:1px solid #ddd;border-collapse:separate;*border-collapse:collapse;-webkit-border-radius:4px;-moz-border-radius:4px;border-radius:4px;}.bordered-table th+th,.bordered-table td+td,.bordered-table th+td{border-left:1px solid #ddd;}
 .bordered-table thead tr:first-child th:first-child,.bordered-table tbody tr:first-child td:first-child{-webkit-border-radius:4px 0 0 0;-moz-border-radius:4px 0 0 0;border-radius:4px 0 0 0;}
@@ -79,6 +80,56 @@ table .headerSortUp.orange,table .headerSortDown.orange{background-color:#fee9cc
 table .purple{color:#7a43b6;border-bottom-color:#7a43b6;}
 table .headerSortUp.purple,table .headerSortDown.purple{background-color:#e2d5f0;}
 
+#header_menu{
+    border-bottom:1px solid rgb(229, 229, 229);
+    background: none repeat scroll 0% 0% transparent;
+    margin-left: -20px;
+    height: 45px;
+    position: relative;
+}
+
+a.active_settings_row{
+    background-color: rgb(234, 234, 234);
+}
+
+.dropdown-menu a.active_settings_row:hover{
+    background-color: rgb(234, 234, 234);
+    color: #555555;
+    cursor: default; 
+}
+
+#settings_density:hover{
+    background-color:#ffffff;
+    color: #555555;
+    cursor: default; 
+}
+
+#container{
+    margin-top:-12px;
+}
+
+#main_content{
+    margin-top: 5px;   
+}
+
+.dropdown-menu a.menu-rsettigns{
+    padding: 3px 35px;
+    cursor: pointer;
+    cursor: hand; 
+}
+
+.btn-group{
+    float: right;
+    margin-right: 25px;
+}
+
+#dropdown_menu{
+    float: right;
+    margin-right: 50px;
+    right: 0;
+    left: -63px;
+}
+
 #btn_delete{
     float: right;
     margin-right: 15px;
@@ -86,13 +137,16 @@ table .headerSortUp.purple,table .headerSortDown.purple{background-color:#e2d5f0
 }
 
 #sidebar{
-    float: left;
-    width: 25%;
+    //float: left;
+    //width: 25%;
 }
 
 #pageBody{
-    float:right;
-    width: 75%;
+    //float:left;
+    //width: 100%;
+    //width: auto;
+    margin-left: 20px;
+    //margin-right: 20px;
 }
 
 #name_project{
@@ -124,3 +178,19 @@ table .headerSortUp.purple,table .headerSortDown.purple{background-color:#e2d5f0
 #side_projectDetail{
     height: 260px;
 }
+
+#tab_general_text{
+    float:left;
+    width: 10%;
+    height: 400px;
+}
+#tab_general_content{
+    float: left;
+    margin-left: 0;
+}
+
+.subitems{
+    margin-left: 20px;
+    font-size: 10px;
+}
+
