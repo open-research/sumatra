@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{project.id}}: About{% endblock %}
+{% block title %}{{project.id}}:About{% endblock %}
 
 {% block header %}
 <div class="navbar navbar-fixed-top">
@@ -8,7 +8,7 @@
         <div class="container-fluid">
             <h1><div id = "name_project">
             <a href="../">{{project.id}}:</a></div>
-            <div id = 'name_page'>About</div></h1>
+            <div id = 'name_page'>&nbsp about</div></h1>
             <div id='sumatra_logo'><a href="http://neuralensemble.org/trac/sumatra">
             <img src='/media/Sumatra_logo.png'/></a></div>
             <!--div class="nav-collapse">
@@ -22,39 +22,27 @@
 </div> 
 {% endblock %}
 
-{% block sidebar %}
-    <div class="container-fluid">
-      <div class="row-fluid">  
-              <div class="well sidebar-nav" id = 'side_projectDetail'>
-                <ul class="nav nav-list">    
-                    <li class="active">
-                        <a href="">About</a>
-                    </li>
-                    <li>
-                        <a href="/">List of projects</a>
-                    </li>
-                    <li>
-                        <a href="../">Record list</a>
-                    </li>
-                                  
-                </ul>
-              </div>
-        </div>
-   </div>
-
-{% endblock %}
 
 {% block content %}
+<div id = 'header_menu'>
+    <div class='subnav'>
+        <ul class='nav nav-pills'>
+            <li><a href='/' class='a-subnav'>List of projects</a></li>
+            <li><a href='../' class='a-subnav'>List of records</a></li>
+            <li class='active'><a class='a-subnav'>About</a></li>   
+        </ul>
+    </div>
+</div>
 
 <div id = 'side_projectDetail'>
-    <form id = 'target' action='.' method='POST'>
+    <form id = 'target' action='.' method='POST' style='margin-top:10px;'>
         
     {{form.errors}}
 
     <table>
         {{form}}
     </table>
-    <input type="submit" value='Save changes' class="btn-success" style='float:left; margin-left:71px; width: 220px'/>
+    <input type="submit" value='Save changes' class="btn btn-success" style='float:left; margin-left:71px; width: 220px'/>
     </form>
 </div>
 

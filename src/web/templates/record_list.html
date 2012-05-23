@@ -8,7 +8,7 @@
         <div class="container-fluid">
             <h1><div id = "name_project">
             <a href="about/">{{project_name}}:{% if tag %} tagged with {{tag}}{% endif %}</a></div>
-            <div id = 'name_page'>list of records</div></h1>
+            <div id = 'name_page'>&nbsp list of records</div></h1>
             <div id='sumatra_logo'><a href="http://neuralensemble.org/trac/sumatra">
             <img src='/media/Sumatra_logo.png'/></a></div>
             <!--div class="nav-collapse">
@@ -22,11 +22,169 @@
 </div> 
 {% endblock %}
  
-                                    
+ 
 {% block content %} 
-
-
+<div id="fancybox-loading"><div></div></div>
 <div id = 'header_menu'>
+    <div class='subnav'>
+        <ul class='nav nav-pills'>
+            <li><a href='..' class='a-subnav'>List of projects</a></li>
+            <li class='active'><a  class='a-subnav'>List of records</a></li>
+            <li><a href='about/' class='a-subnav'>About</a></li>   
+        </ul>
+    </div>
+   <div id = 'div_menu_search' class='span5'>
+       <ul class="dropdown-menu" id = 'menu_search'>
+            <a class="close" id='close_menu'>&times;</a>
+            
+            <div class='controls'>
+                <label class='control-label'>Label</label> 
+                <select data-placeholder=" " multiple class="chzn-select">
+                    <option value=""></option> 
+                    <option value="United States">United States</option>
+                    <option value="United States">France</option>
+                    <option value="United States">Russia</option>
+                    <option value="United States">UK</option>
+                </select>
+            </div>
+            
+            <div class='controls'>
+                <label class='control-label'>Tag</label>
+                <select data-placeholder=" " multiple class="chzn-select">
+                    <option value=""></option> 
+                    <option value="United States">United States</option>
+                    <option value="United States">France</option>
+                    <option value="United States">Russia</option>
+                    <option value="United States">UK</option>
+                </select>
+            </div>
+            
+            <div class='controls'>
+                <label class='control-label'>Reason</label>
+                <select data-placeholder=" " multiple class="chzn-select">
+                </select>
+            </div>
+            
+            <div class='controls'>
+                <label class='control-label'>Outcome</label>
+                <select data-placeholder=" " multiple class="chzn-select">
+                    <option value=""></option> 
+                    <option value="United States">United States</option>
+                    <option value="United States">France</option>
+                    <option value="United States">Russia</option>
+                    <option value="United States">UK</option>
+                </select>
+            </div>
+            
+            <div class='controls'>
+                <label class='control-label'>Processes</label>
+                <select data-placeholder=" " multiple class="chzn-select">
+                    <option value=""></option> 
+                    <option value="United States">United States</option>
+                    <option value="United States">France</option>
+                    <option value="United States">Russia</option>
+                    <option value="United States">UK</option>
+                </select>
+            </div>
+            
+            <div class='controls'>
+                <label class='control-label'>Executable name</label>
+                <select data-placeholder=" " multiple class="chzn-select">
+                    <option value=""></option> 
+                    <option value="United States">United States</option>
+                    <option value="United States">France</option>
+                    <option value="United States">Russia</option>
+                    <option value="United States">UK</option>
+                </select>
+            </div>
+            
+            <div class='controls'>
+                <label class='control-label'>Repository</label>
+                <select data-placeholder=" " multiple class="chzn-select">
+                    <option value=""></option> 
+                    <option value="United States">United States</option>
+                    <option value="United States">France</option>
+                    <option value="United States">Russia</option>
+                    <option value="United States">UK</option>
+                </select>
+            </div>
+            
+            <div class='controls'>
+                <label class='control-label'>Main file</label>
+                <select data-placeholder=" " multiple class="chzn-select">
+                    <option value=""></option> 
+                    <option value="United States">United States</option>
+                    <option value="United States">France</option>
+                    <option value="United States">Russia</option>
+                    <option value="United States">UK</option>
+                </select>
+            </div>
+            
+            <div class='controls'>
+                <label class='control-label'>Arguments</label>
+                <select data-placeholder=" " multiple class="chzn-select">
+                    <option value=""></option> 
+                    <option value="United States">United States</option>
+                    <option value="United States">France</option>
+                    <option value="United States">Russia</option>
+                    <option value="United States">UK</option>
+                </select>
+            </div>
+             
+            
+            <div class='controls'>
+                <label class='control-label'>Date</label>
+                <div class='controls'><input id='idate' class='date input-large it' type='text'></div>
+            </div>
+            
+            <div class='controls'>
+                <label class='control-label'>Time</label>
+                <div class='controls'><input id='itime' class='input-large it' type='text'></div>
+            
+            
+            <div class='controls'>
+                <label class='control-label' style='width:15%'>Date within</label>
+            </div>   
+                
+            <div id='idatewith'><span id='sdate'>1 day</span>
+                <span id='span_icon'>
+                    <i class="icon-chevron-up" style='margin-top:0px'></i>  
+                    <i class="icon-chevron-down" style='margin-top:15px'></i>
+                </span>  
+            </div>
+            
+            <ul class="dropdown-menu" id = 'menu_datewith'>
+                <li><a href='' >1 day</a></li>
+                <li><a href='' >3 days</a></li>
+                <li><a href='' >1 week</a></li>
+                <li><a href='' >2 weeks</a></li>
+                <li><a href='' >1 month</a></li>
+                <li><a href='' >2 months</a></li>
+                <li><a href='' >6 months</a></li>
+                <li><a href='' >1 year</a></li>
+            </ul>
+            
+            <label id='t_id'>of</label>
+            <div><input class='date input-large it' type='text' style='width:180px'>
+            
+
+            </div>
+ 
+            <a class='btn btn-info btn-large' style='padding: 5px 15px;margin-left:10px;margin-right:10px;color:#ffffff;margin-top:50px'><i class="icon-search">
+            </i>&nbsp Search
+            </a>
+            
+        </ul>
+    </div>
+    
+   <input class='span5' type='text' id="text_subnav"/>
+
+
+   <span id="icon_cdown"<i class="icon-chevron-down"></i></span>       
+        <a class='btn btn-info btn-large' id='btn_search'><i class="icon-search">
+        </i>&nbsp Search
+        </a>
+
     <div class="btn-group">
         <a class="btn btn-large dropdown-toggle" data-toggle="dropdown" href="#" id = 'settings_but'>
         <i class="icon-cog"></i> Settings
@@ -41,6 +199,13 @@
         </ul>
     </div>
 </div>
+
+<div id='newrecord'>
+        <a id='btn_newrec' class='btn btn-danger btn-large' style='width:100px'>
+            <i class="icon-file"></i> New record
+        </a>
+</div>
+
 <div id = 'main_content'>
     <table class="table table-bordered" id = 'table_out'>
         <thead>
@@ -85,7 +250,7 @@
                     <td class="S-Version-t parentScript" style='width:10px;overflow: hidden;'>{{item.1.0}}{% if item.diff %}*{% endif %}</td> <!-- version: shorten -->
                     <td class="Arguments-t parentScript">{{item.0.script_arguments}}</td>
                     <td class="Date-t">{{item.0.timestamp|date:"d/m/Y"}}</td>
-                    <td class="Time-t">{{record.timestamp|date:"H:i:s"}}</td>
+                    <td class="Time-t">{{item.0.timestamp|date:"H:i:s"}}</td>
                 </tr>
             {% endfor %}
         </tbody>                            
@@ -94,9 +259,61 @@
 <!--p><a href="/">Return to list of projects</a></p-->
 <script type = 'text/javascript'>
 $(document).ready(function(){
+    $('#btn_run').click(function(){
+        $('#mod_newrec').modal('hide');
+    });
+    $('#btn_newrec').click(function(){
+        //alert('here');
+        $('#mod_newrec').css('visibility','visible').modal('show');
+    });
+    
+    $('#menu_datewith > li').click(function(){
+        $('#menu_datewith').hide();
+        $('#sdate').text($(this).text());       
+    });
+    
+    $('#idatewith, #up_icon, #low_icon').click(function(event){
+        event.stopPropagation(); 
+        $('#menu_datewith').show();
+        $('#menu_datewith').offset({left: $('#idatewith').offset().left});
+    });
+    
+    $('.date').datepicker();
+    $(".chzn-select").chosen(); $(".chzn-select-deselect").chosen({allow_single_deselect:true});
+    // #menu_search will inherit the offsetLength from this div
+    $('#div_menu_search').offset({left: $('#text_subnav').offset().left});
+    
+    $('#icon_cdown').tooltip({
+        title: 'show search options',
+        placement: 'bottom'
+    });
+    
+    $('#icon_cdown').mouseenter(function(){
+        $(this).css('opacity','1.0');
+    }).mouseleave(function(){
+        $(this).css('opacity','0.2');
+    }).click(function(event){   
+        //event.stopPropagation();  //if not it will never let to open the search menu
+        parentWidth = $('input.span5')[0].offsetWidth - 2;
+        $('#menu_search').css('width', parentWidth)
+                         .show();
+    });
+    
+    // prevent closing the search menu when clicking on it
+    $('#menu_search, #icon_cdown, #ui-datepicker-div').click(function(event){
+        event.stopPropagation(); 
+        $('#menu_datewith').hide();
+        return false; 
+    });
+    
+    $('#close_menu, html').click(function() {
+        $('#menu_search').hide();
+        $('#menu_datewith').hide();
+    });
+    
     $('#settings_but').dropdown();   // dropdown menu for the settings button   
     $('#table_out').tablesorter({}); // use tablesorter.min.js
-    $('#myModal').hide();            // #myModal is the settings popup window
+    //$('#myModal').hide();            // #myModal is the settings popup window
     
     $('#close_set').click(function(){
         $('#myModal').modal('hide');
@@ -228,32 +445,60 @@ $(document).ready(function(){
     });
     
    $('#button_settings').click(function(){
-        $('#myModal').modal('show');
-        $('#myModal').css('width', '70%')
-                     .css('left', '30%')
-                     .css('max-height', '80%')
-                     .css('top', '40%');
+        $('#myModal').css('visibility','visible').modal('show');
         $('.tabs a:last').tab('show');
    });
-    /*   
-    $('#but_run').click(function(){
+
+     
+    $('#btn_run').click(function(){
+        $.fancybox.showActivity(); 
         $.ajax({
           type: 'POST',
           url: 'simulation',
           async: true,
           success: function(){  
-            window.open('http://127.0.0.1:8000/project/', "_self");
+            window.open('http://localhost:8000/myprj/', "_self");
           },
         }).done(function(data) {
-        
+            $.fancybox.hideActivity();
         })
     });
-    */
-   $('#fancybox-loading').hide().ajaxStart(function() { $.fancybox.showActivity() }).ajaxStop(function() {$.fancybox.hideActivity();});
+    
+  // $('#fancybox-loading').ajaxStart(function() { $.fancybox.showActivity() }).ajaxStop(function() {$.fancybox.hideActivity();});
 });
 </script>
 
-    
+<div class="modal" id="mod_newrec">
+    <div class='d-mod'>
+        <label class='control-label' for='mLabel'>Label</label> 
+        <div class='mod_input'>
+            <input id='mLabel' class='input-xlarge' type='text'></input>
+        </div>
+        <label class='control-label' for='mReason'>Reason</label> 
+        <div class='mod_input'>
+            <textarea id='mReason' class='input-xlarge' type='text'></textarea>
+        </div>
+        <label class='control-label' for='mTag'>Tag</label> 
+        <div class='mod_input'>
+            <input id='mTag' class='input-xlarge' type='text'></input>
+        </div>
+        <label class='control-label' for='mExec'>Executable</label> 
+        <div class='mod_input'>
+            <input id='mExec' class='input-xlarge' type='text'></input>
+        </div>
+        <label class='control-label' for='mFile'>Main file</label> 
+        <div class='mod_input'>
+            <input id='mFile' class='input-xlarge' type='text'></input>
+        </div>
+        <label class='control-label' for='mArg'>Arguments</label> 
+        <div class='mod_input'>
+            <input id='mArg' class='input-xlarge' type='text'></input>
+        </div>
+        <button id='btn_run' class='btn btn-success btn-large' style='width:150px; display: block ;margin-left: auto; margin-right: auto;'>Run</button>
+    </div>
+</div>
+
+   
 <div class="modal" id="myModal">
   <div class="modal-header">
     <a class="close" data-dismiss="modal"></a>

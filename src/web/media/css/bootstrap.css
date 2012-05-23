@@ -4786,7 +4786,7 @@ ol.linenums li {
   border-top-color: #4183c4 !important;
 }
 .subnav .nav > li > a {
-  font-weight: bold;
+  //font-weight: bold;
   color: #777;
 }
 .subnav .nav > li > a:hover {

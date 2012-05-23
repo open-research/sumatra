@@ -21,31 +21,18 @@
 </div> 
 {% endblock %}
 
-{% block sidebar %}
-    <div class="container-fluid">
-      <div class="row-fluid">  
-              <div class="well sidebar-nav" id = 'side_projectDetail'>
-                <ul class="nav nav-list">    
-                    <li>
-                        <a href="project/about/">About</a>
-                    </li>
-                    <li class="active">
-                        <a href="/">List of projects</a>
-                    </li>
-                    <li>
-                        <a href="project/">Record list</a>
-                    </li>
-                                  
-                </ul>
-              </div>
-        </div>
-   </div>
-
-{% endblock %}
-
-
 {% block content %}
-
+{% for project in object_list %}
+<div id = 'header_menu'>
+    <div class='subnav'>
+        <ul class='nav nav-pills'>
+            <li class='active'><a class='a-subnav'>List of projects</a></li>
+            <li><a href="/{{project.id}}/" class='a-subnav'>List of records</a></li>
+            <li><a href="/{{project.id}}/about/" class='a-subnav'>About</a></li>   
+        </ul>
+    </div>
+</div>
+{% endfor %}
 
 {% if object_list %}
 <div id = 'div_listOfprojects'>
