@@ -10,10 +10,13 @@ from tagging.views import tagged_object_list
 from sumatra.recordstore.django_store import models
 from sumatra.datastore import get_data_store, DataKey
 from sumatra.commands import run
+from sumatra.web.templatetags import filters
+from datetime import date
 import mimetypes
 mimetypes.init()
 import csv
 import os
+import json
 
 RECORDS_PER_PAGE = 10
 
@@ -66,9 +69,7 @@ def list_records(request, project):
     simulations = dict(zip(xrange(len(sim_list)), sim_list))
     sims_dict = {}
     for key, item in simulations.items():
-        sims_dict[key] = [item, ['%s...' %(item.version[:5]), 
-                                 '%s\%s' %(item.repository.url.split('\\')[-2], 
-                                           item.repository.url.split('\\')[-1])]]
+        sims_dict[key] = [item, [short_version(item.version), short_repo(item.repository.url)]]
     return list_detail.object_list(request,
                                    queryset=sim_list,
                                    template_name="record_list.html",
@@ -268,5 +269,34 @@ def show_diff(request, project, label, package):
                                                  
 def run_sim(request, project):
     run(['in.param'])
-    return HttpResponse('ok')
+    record = models.Record.objects.order_by('-db_id')[0]
+    if not(len(record.launch_mode.get_parameters())):
+        nbproc = 1
+    repo_short = short_repo(record.repository.url)
+    version_short = short_version(record.version)
+    timestamp = record.timestamp
+    print timestamp
+    date = timestamp.strftime("%d/%m/%Y")
+    time = timestamp.strftime("%H:%M:%S")
+    print time
+    return HttpResponse(json.dumps({'label':record.label,
+                                    'tag':record.tags,
+                                    'reason':record.reason,
+                                    'outcome':record.outcome,
+                                    'duration':filters.human_readable_duration(record.duration),
+                                    'processes':nbproc,
+                                    'name':record.executable.name,
+                                    'version':record.executable.version,
+                                    'repository':repo_short,
+                                    'main':record.main_file,
+                                    's_version':version_short,
+                                    'arguments':record.script_arguments,
+                                    'date':date,
+                                    'time':time}))
     
+def short_repo(url_repo):
+    return '%s\%s' %(url_repo.split('\\')[-2], 
+                     url_repo.split('\\')[-1])
+                     
+def short_version(version_name):
+    return '%s...' %(version_name[:5])

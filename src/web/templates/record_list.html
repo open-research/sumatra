@@ -24,7 +24,7 @@
  
  
 {% block content %} 
-<div id="fancybox-loading"><div></div></div>
+
 <div id = 'header_menu'>
     <div class='subnav'>
         <ul class='nav nav-pills'>
@@ -232,7 +232,7 @@
         </thead> 
         <tbody> 
             {% for key, item in simulations.items %}
-                <tr id = 'simulation{{key}}' class='simulations'>
+                <tr class='simulations'>
                     <td class="Label-t">{{item.0.label}}</td>
                     {% if tag %}
                     <td class="Tag-t">{% for other_tag in item.0.tag_objects %}{% if tag == other_tag %}{{tag}} {% else %}<a href="/{{project_name}}/tag/{{other_tag.name}}/">{{other_tag.name}}</a> {% endif %}{% endfor %}</td>
@@ -259,6 +259,7 @@
 <!--p><a href="/">Return to list of projects</a></p-->
 <script type = 'text/javascript'>
 $(document).ready(function(){
+    
     $('#btn_run').click(function(){
         $('#mod_newrec').modal('hide');
     });
@@ -448,7 +449,6 @@ $(document).ready(function(){
         $('#myModal').css('visibility','visible').modal('show');
         $('.tabs a:last').tab('show');
    });
-
      
     $('#btn_run').click(function(){
         $.fancybox.showActivity(); 
@@ -456,17 +456,35 @@ $(document).ready(function(){
           type: 'POST',
           url: 'simulation',
           async: true,
+          dataType: 'json',
           success: function(){  
-            window.open('http://localhost:8000/myprj/', "_self");
+             $.fancybox.hideActivity();
           },
         }).done(function(data) {
-            $.fancybox.hideActivity();
-        })
+            $('#table_out tbody').prepend('<tr>\
+               <td>'+data.label+'</td>\
+               <td>'+data.tag+'</td>\
+               <td>'+data.reason+'</td>\
+               <td>'+data.outcome+'</td>\
+               <td>'+data.duration+'</td>\
+               <td>'+data.processes+'</td>\
+               <td>'+data.name+'</td>\
+               <td>'+data.version+'</td>\
+               <td>'+data.repository+'</td>\
+               <td>'+data.main+'</td>\
+               <td>'+data.s_version+'</td>\
+               <td>'+data.arguments+'</td>\
+               <td>'+data.date+'</td>\
+               <td>'+data.time+'</td></tr>');
+            $('#table_out tbody tr:eq(0)').effect("highlight", {}, 5000);     
+        }); // done
     });
     
   // $('#fancybox-loading').ajaxStart(function() { $.fancybox.showActivity() }).ajaxStop(function() {$.fancybox.hideActivity();});
 });
 </script>
+
+
 
 <div class="modal" id="mod_newrec">
     <div class='d-mod'>

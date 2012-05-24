@@ -110,7 +110,8 @@ a.active_settings_row{
 }
 
 #main_content{
-    margin-top: 5px;   
+    margin-top: 5px; 
+    position:relative;
 }
 
 .dropdown-menu a.menu-rsettigns{
@@ -427,10 +428,16 @@ a.close{
 #mReason{
     resize: vertical;
 }
-
-
-
-
+/*
+#status_div{
+    visibility:visible;
+    position:fixed;
+    bottom:0px;
+    right:200px;
+    width:200px;
+    //height:100px;
+}
+*/
 
 
 
