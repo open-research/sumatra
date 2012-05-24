@@ -5981,6 +5981,7 @@ li[class*=" icomoon-"].icon-large:before {
 .chzn-container-multi .chzn-choices .search-choice-focus {
   background: #d4d4d4;
 }
+
 .chzn-container-multi .chzn-choices .search-choice .search-choice-close {
   display: block;
   position: absolute;
@@ -5989,11 +5990,14 @@ li[class*=" icomoon-"].icon-large:before {
   width: 12px;
   height: 13px;
   font-size: 1px;
-  background: url(../extras/chosen/chosen-sprite.png) right top no-repeat;
+  //background: url(../extras/chosen/chosen-sprite.png) right top no-repeat;
 }
+
 .chzn-container-multi .chzn-choices .search-choice .search-choice-close:hover {
   background-position: right -11px;
+  background-color:transparent;
 }
+
 .chzn-container-multi .chzn-choices .search-choice-focus .search-choice-close {
   background-position: right -11px;
 }

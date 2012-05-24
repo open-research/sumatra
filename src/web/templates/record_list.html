@@ -280,7 +280,9 @@ $(document).ready(function(){
     });
     
     $('.date').datepicker();
-    $(".chzn-select").chosen(); $(".chzn-select-deselect").chosen({allow_single_deselect:true});
+    $(".chzn-select").chosen();
+    $(".chzn-select-deselect").chosen({allow_single_deselect:true});
+    
     // #menu_search will inherit the offsetLength from this div
     $('#div_menu_search').offset({left: $('#text_subnav').offset().left});
     
@@ -365,7 +367,8 @@ $(document).ready(function(){
             $('#save_set').removeClass('disabled');
         }
     }); /* End of automatic check/uncheck of #Script and #Executable */
-
+    
+    //var uncheckedCol = new Array(); // contain the classes of unchecked columns (in settings)
     $('#save_set').click(function(){ // button save settings
         if (!$('#save_set').hasClass('disabled')){
             /* delete columns from table */
@@ -376,12 +379,15 @@ $(document).ready(function(){
                     if ($('.'+$(this).attr('id')+'-t').is(':visible')){
                         $('.' + $checked + '-t').attr('colspan', $colspan-1);
                         if ($('.' + $checked + '-t').attr('colspan') == 0){
-                            $('.'+$checked+'-t').hide(); 
+                            $('.'+$checked+'-t').addClass('hide_column').hide(); 
+                            //uncheckedCol.push('.'+$checked+'-t');
                         }
-                        $('.'+$(this).attr('id')+'-t').hide(); 
+                        $('.'+$(this).attr('id')+'-t').addClass('hide_column').hide(); 
+                        //uncheckedCol.push('.'+$(this).attr('id')+'-t');
                     }
                 }else if ($(this).attr('id')!='Executable' && $(this).attr('id')!='Script'){
-                    $('.'+$(this).attr('id')+'-t').hide();
+                    $('.'+$(this).attr('id')+'-t').addClass('hide_column').hide();
+                    //uncheckedCol.push('.'+$(this).attr('id')+'-t');
                 }   
             });  /* end of delete columns from table */
             
@@ -449,8 +455,15 @@ $(document).ready(function(){
         $('#myModal').css('visibility','visible').modal('show');
         $('.tabs a:last').tab('show');
    });
-     
+   
     $('#btn_run').click(function(){
+        $clone = $('#table_out tbody tr:eq(0)').clone(); //clone zero row
+        // remove the content from the clone
+        $clone.find('td').each(function(i, el) {
+            $(el).html('');
+        });
+        $('#table_out tbody').prepend($clone); // insert the clone after the head of table
+       
         $.fancybox.showActivity(); 
         $.ajax({
           type: 'POST',
@@ -459,24 +472,14 @@ $(document).ready(function(){
           dataType: 'json',
           success: function(){  
              $.fancybox.hideActivity();
+             $("#table_out").trigger("update");  //for tablesorter
           },
         }).done(function(data) {
-            $('#table_out tbody').prepend('<tr>\
-               <td>'+data.label+'</td>\
-               <td>'+data.tag+'</td>\
-               <td>'+data.reason+'</td>\
-               <td>'+data.outcome+'</td>\
-               <td>'+data.duration+'</td>\
-               <td>'+data.processes+'</td>\
-               <td>'+data.name+'</td>\
-               <td>'+data.version+'</td>\
-               <td>'+data.repository+'</td>\
-               <td>'+data.main+'</td>\
-               <td>'+data.s_version+'</td>\
-               <td>'+data.arguments+'</td>\
-               <td>'+data.date+'</td>\
-               <td>'+data.time+'</td></tr>');
-            $('#table_out tbody tr:eq(0)').effect("highlight", {}, 5000);     
+             $tableFirstrow = $('#table_out tbody tr:eq(0)');
+             $tableFirstrow.find('td').each(function(i, el) {
+                  $(el).html(data[$(el).attr('class').split(' ')[0]]);
+             });
+             $tableFirstrow.effect("highlight", {}, 5000);  
         }); // done
     });
     

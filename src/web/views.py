@@ -275,24 +275,22 @@ def run_sim(request, project):
     repo_short = short_repo(record.repository.url)
     version_short = short_version(record.version)
     timestamp = record.timestamp
-    print timestamp
     date = timestamp.strftime("%d/%m/%Y")
     time = timestamp.strftime("%H:%M:%S")
-    print time
-    return HttpResponse(json.dumps({'label':record.label,
-                                    'tag':record.tags,
-                                    'reason':record.reason,
-                                    'outcome':record.outcome,
-                                    'duration':filters.human_readable_duration(record.duration),
-                                    'processes':nbproc,
-                                    'name':record.executable.name,
-                                    'version':record.executable.version,
-                                    'repository':repo_short,
-                                    'main':record.main_file,
-                                    's_version':version_short,
-                                    'arguments':record.script_arguments,
-                                    'date':date,
-                                    'time':time}))
+    return HttpResponse(json.dumps({'Label-t':record.label,
+                                    'Tag-t':record.tags,
+                                    'Reason-t':record.reason,
+                                    'Outcome-t':record.outcome,
+                                    'Duration-t':filters.human_readable_duration(record.duration),
+                                    'Processes-t':nbproc,
+                                    'Name-t':record.executable.name,
+                                    'Version-t':record.executable.version,
+                                    'Repository-t':repo_short,
+                                    'Main_file-t':record.main_file,
+                                    'S-Version-t':version_short,
+                                    'Arguments-t':record.script_arguments,
+                                    'Date-t':date,
+                                    'Time-t':time}))
     
 def short_repo(url_repo):
     return '%s\%s' %(url_repo.split('\\')[-2], 

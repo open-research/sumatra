@@ -318,9 +318,10 @@ a.close{
 }
 #menu_search li a:hover{
     //background-color:white;
-    color:rgb(85, 85, 85);
-    cursor:default;
+    //color:transparent;
+    //cursor:default;
 }
+
 
 #menu_search label.control-label{
     width:35%;
@@ -427,6 +428,9 @@ a.close{
 
 #mReason{
     resize: vertical;
+}
+.hide_column{
+    display:none;
 }
 /*
 #status_div{
