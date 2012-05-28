@@ -259,6 +259,18 @@
 <!--p><a href="/">Return to list of projects</a></p-->
 <script type = 'text/javascript'>
 $(document).ready(function(){
+
+    $('#myTab li a').click(function(){
+        if ($(this).attr('href') == '#second'){
+            $.ajax({
+              type: 'GET',
+              url: 'getSettings',
+              async: true,
+            }).done(function(data) {
+                $('#input_nrec').val(data);
+            });   
+        }
+    });
     
     $('#btn_run').click(function(){
         $('#mod_newrec').modal('hide');
@@ -370,56 +382,71 @@ $(document).ready(function(){
     
     //var uncheckedCol = new Array(); // contain the classes of unchecked columns (in settings)
     $('#save_set').click(function(){ // button save settings
-        if (!$('#save_set').hasClass('disabled')){
-            /* delete columns from table */
-            $(".check-item").not(':checked').each(function() {
-                if ($(this).parent().attr('class') == 'subitems'){                       
-                    $checked = $(this).attr('class').split(" ").slice(-1); //last in class name  
-                    $colspan = $('.' + $checked + '-t').attr('colspan');    
-                    if ($('.'+$(this).attr('id')+'-t').is(':visible')){
-                        $('.' + $checked + '-t').attr('colspan', $colspan-1);
-                        if ($('.' + $checked + '-t').attr('colspan') == 0){
-                            $('.'+$checked+'-t').addClass('hide_column').hide(); 
-                            //uncheckedCol.push('.'+$checked+'-t');
+        if ($('#myTab li.active a').attr('href') == '#first'){
+            if (!$('#save_set').hasClass('disabled')){
+                /* delete columns from table */
+                $(".check-item").not(':checked').each(function() {
+                    if ($(this).parent().attr('class') == 'subitems'){                       
+                        $checked = $(this).attr('class').split(" ").slice(-1); //last in class name  
+                        $colspan = $('.' + $checked + '-t').attr('colspan');    
+                        if ($('.'+$(this).attr('id')+'-t').is(':visible')){
+                            $('.' + $checked + '-t').attr('colspan', $colspan-1);
+                            if ($('.' + $checked + '-t').attr('colspan') == 0){
+                                $('.'+$checked+'-t').addClass('hide_column').hide(); 
+                                //uncheckedCol.push('.'+$checked+'-t');
+                            }
+                            $('.'+$(this).attr('id')+'-t').addClass('hide_column').hide(); 
+                            //uncheckedCol.push('.'+$(this).attr('id')+'-t');
                         }
-                        $('.'+$(this).attr('id')+'-t').addClass('hide_column').hide(); 
+                    }else if ($(this).attr('id')!='Executable' && $(this).attr('id')!='Script'){
+                        $('.'+$(this).attr('id')+'-t').addClass('hide_column').hide();
                         //uncheckedCol.push('.'+$(this).attr('id')+'-t');
-                    }
-                }else if ($(this).attr('id')!='Executable' && $(this).attr('id')!='Script'){
-                    $('.'+$(this).attr('id')+'-t').addClass('hide_column').hide();
-                    //uncheckedCol.push('.'+$(this).attr('id')+'-t');
-                }   
-            });  /* end of delete columns from table */
-            
-            /* add items to the table */
-            $(".check-item:checked").each(function() {
-                    if ($(this).attr('id') == 'Executable') {  // parent chbx 'Executable'  
-                            // all the childrens of Executable has class '.parentExecutable'
-                            $('.parentExecutabble').show();    
-                            $('.'+$(this).attr('id')+'-t').show(); //parent
-                            $('.Executable-t').attr('colspan', 2);
-                    }else if ($(this).attr('id') == 'Script'){ // parent chbx 'Script'  
-                            $('.parentScript').show();
-                            $('.'+$(this).attr('id')+'-t').show();  
-                            $('.Script-t').attr('colspan', 4);
-                    }else {
-                        /* childrens (of 'Executable' of 'Scripts' headers) */
-                        if ($(this).parent().attr('class') == 'subitems'){  //.subitems == childrens
-                            /* get the last word in class name */
-                            $checked = $(this).attr('class').split(" ").slice(-1); 
-                            /* get the the number of childrens. After table will be rendered using
-                               this numbers */
-                            $colspan_script = $('.Script:checked').length;  
-                            $colspan_exec = $('.Executable:checked').length;  
-                            $('.'+$checked+'-t').show(); // show parent column even if it is not checked
-                            /* render number of columns */
-                            $('.Executable-t').attr('colspan', $colspan_exec); 
-                            $('.Script-t').attr('colspan', $colspan_script);
+                    }   
+                });  /* end of delete columns from table */
+                
+                /* add items to the table */
+                $(".check-item:checked").each(function() {
+                        if ($(this).attr('id') == 'Executable') {  // parent chbx 'Executable'  
+                                // all the childrens of Executable has class '.parentExecutable'
+                                $('.parentExecutabble').show();    
+                                $('.'+$(this).attr('id')+'-t').show(); //parent
+                                $('.Executable-t').attr('colspan', 2);
+                        }else if ($(this).attr('id') == 'Script'){ // parent chbx 'Script'  
+                                $('.parentScript').show();
+                                $('.'+$(this).attr('id')+'-t').show();  
+                                $('.Script-t').attr('colspan', 4);
+                        }else {
+                            /* childrens (of 'Executable' of 'Scripts' headers) */
+                            if ($(this).parent().attr('class') == 'subitems'){  //.subitems == childrens
+                                /* get the last word in class name */
+                                $checked = $(this).attr('class').split(" ").slice(-1); 
+                                /* get the the number of childrens. After table will be rendered using
+                                   this numbers */
+                                $colspan_script = $('.Script:checked').length;  
+                                $colspan_exec = $('.Executable:checked').length;  
+                                $('.'+$checked+'-t').show(); // show parent column even if it is not checked
+                                /* render number of columns */
+                                $('.Executable-t').attr('colspan', $colspan_exec); 
+                                $('.Script-t').attr('colspan', $colspan_script);
+                            }
+                            $('.'+$(this).attr('id')+'-t').show(); // show all childrens/elements
                         }
-                        $('.'+$(this).attr('id')+'-t').show(); // show all childrens/elements
-                    }
+                });
+                $('#myModal').modal('hide'); // popup settings window
+            }
+        }  // if ($('#myTab li.active a').attr('href') == '#first')
+        else if ($('#myTab li.active a').attr('href') == '#second'){
+            //alert($('#input_nrec').val());
+            $.ajax({
+              type: 'POST',
+              url: 'setSettings',
+              data: {'nb_records_per_page':$('#input_nrec').val()},
+              async: true,
+              dataType: 'html',
+            }).done(function(data) {
+                 //dataurl = '/first/'+data;
+                 $('#myModal').modal('hide');
             });
-            $('#myModal').modal('hide'); // popup settings window
         }
     });
     
@@ -527,14 +554,14 @@ $(document).ready(function(){
   </div>
   <div class="modal-body">   
     <ul class="nav nav-tabs"  id ='myTab'>
-      <li class="active"><a href="#home"  data-toggle="tab" >General</a></li>
-      <li><a href="#profile"  data-toggle="tab" >Another option 1</a></li>
+      <li class="active"><a href="#first"  data-toggle="tab" >General</a></li>
+      <li><a href="#second"  data-toggle="tab" >Another option 1</a></li>
       <li><a href="#messages"  data-toggle="tab" >Another option 2</a></li>
       <li><a href="#settings"  data-toggle="tab" >Another option 3</a></li>
     </ul>
     
     <div class="tab-content">
-      <div class="tab-pane active" id="home">
+      <div class="tab-pane active" id="first">
         <div id = 'tab_general_text'><p><b>Table:</b></p></div>
         <div id = 'tab_general_content'>
             <label class="checkbox">
@@ -602,8 +629,15 @@ $(document).ready(function(){
             </label>
         </div>
       </div>
-      <div class="tab-pane" id="profile">
-        <div id = 'tab_general_text'><p><b>option2:</b></p></div>
+      <div class="tab-pane" id="second">
+        <div id = 'tab_general_text'>
+            <div class="control-group">
+                <label class="control-label" for="input01">Text input</label>
+                <div class="controls">
+                    <input type="text" class="input-xlarge" id="input_nrec">
+                </div>
+            </div>
+        </div>
       </div>
       <div class="tab-pane" id="messages">
         <div id = 'tab_general_text'><p><b>option3:</b></p></div>

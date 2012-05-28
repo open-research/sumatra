@@ -22,6 +22,7 @@ from sumatra.versioncontrol import get_working_copy, get_repository, Uncommitted
 from sumatra.formatting import get_diff_formatter
 from sumatra.records import MissingInformationError
 
+
 def parse_executable_str(exec_str):
     """
     Split the string describing the executable into a path part and an

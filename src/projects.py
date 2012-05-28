@@ -35,6 +35,7 @@ except ImportError:
     import simplejson as json
 
 DEFAULT_PROJECT_FILE = "project"
+RECORDS_PER_PAGE = 50
 
 def _remove_left_margin(s): # replace this by textwrap.dedent?
     lines = s.strip().split('\n')
@@ -72,6 +73,7 @@ class Project(object):
         self.description = description
         self.data_label = data_label
         self._most_recent = None
+        self.web_settings = {'nb_records_per_page':RECORDS_PER_PAGE}
         self.save()
         print "Sumatra project successfully set up"
     
@@ -88,7 +90,7 @@ class Project(object):
         for name in ('name', 'default_executable', 'default_repository',
                      'default_launch_mode', 'data_store', 'record_store',
                      'default_main_file', 'on_changed', 'description',
-                     'data_label', '_most_recent', 'input_datastore'):
+                     'data_label', '_most_recent', 'input_datastore', 'web_settings'):
             attr = getattr(self, name)
             if hasattr(attr, "__getstate__"):
                 state[name] = {'type': attr.__class__.__module__ + "." + attr.__class__.__name__}

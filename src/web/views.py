@@ -11,6 +11,7 @@ from sumatra.recordstore.django_store import models
 from sumatra.datastore import get_data_store, DataKey
 from sumatra.commands import run
 from sumatra.web.templatetags import filters
+from sumatra.projects import load_project
 from datetime import date
 import mimetypes
 mimetypes.init()
@@ -18,7 +19,7 @@ import csv
 import os
 import json
 
-RECORDS_PER_PAGE = 10
+RECORDS_PER_PAGE = 50
 
 def unescape(label):
     return label.replace("||", "/")
@@ -291,6 +292,17 @@ def run_sim(request, project):
                                     'Arguments-t':record.script_arguments,
                                     'Date-t':date,
                                     'Time-t':time}))
+                                    
+def getSettings(request, project):
+    web_settings = load_project().web_settings
+    return HttpResponse(web_settings['nb_records_per_page'])
+    
+def setSettings(request, project):
+    nb_records_per_page = request.POST['nb_records_per_page']
+    project = load_project()
+    project.web_settings['nb_records_per_page'] = int(nb_records_per_page)
+    project.save()
+    return HttpResponse('ok')
     
 def short_repo(url_repo):
     return '%s\%s' %(url_repo.split('\\')[-2], 
