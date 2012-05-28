@@ -294,13 +294,21 @@ def run_sim(request, project):
                                     'Time-t':time}))
                                     
 def getSettings(request, project):
-    web_settings = load_project().web_settings
-    return HttpResponse(web_settings['nb_records_per_page'])
+    project = load_project()
+    try:
+        web_settings = project.web_settings
+        nb_rec = web_settings['nb_records_per_page']        
+    except AttributeError:
+        nb_rec = RECORDS_PER_PAGE
+    return HttpResponse(nb_rec)
     
 def setSettings(request, project):
     nb_records_per_page = request.POST['nb_records_per_page']
     project = load_project()
-    project.web_settings['nb_records_per_page'] = int(nb_records_per_page)
+    try:
+        project.web_settings['nb_records_per_page'] = int(nb_records_per_page)
+    except AttributeError: # project don't have web_settings
+        project.web_settings = {'nb_records_per_page':nb_records_per_page}
     project.save()
     return HttpResponse('ok')
     
