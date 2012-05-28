@@ -466,7 +466,7 @@ $(document).ready(function(){
         else if ($('#myTab li.active a').attr('href') == '#second'){
             $.ajax({
               type: 'POST',
-              url: 'setDisDens',
+              url: 'setSettings',
               data: {'nb_records_per_page':$('#input_nrec').val()},
               async: true,
               dataType: 'html',
@@ -497,7 +497,7 @@ $(document).ready(function(){
         $(this).addClass('active_settings_row');
             $.ajax({
               type: 'POST',
-              url: 'setDisDens',
+              url: 'setSettings',
               data: {'display_density':$density_set},
               async: true
             }).done(function(data) {
@@ -512,20 +512,6 @@ $(document).ready(function(){
             $('#table_out').addClass('table-condensed');
         }       
     });
-    
-    /*
-    $('#button_compact').click(function(){
-        $('#table_out').addClass('table-condensed'); // from kickstrap
-        $('#button_comfortable').removeClass('active_settings_row');
-        $(this).addClass('active_settings_row');
-    });
-    
-    $('#button_comfortable').click(function(){
-        $('#table_out').removeClass('table-condensed');
-        $(this).addClass('active_settings_row');
-        $('#button_compact').removeClass('active_settings_row');
-    });
-    */
     
    $('#button_settings').click(function(){
         $('#myModal').css('visibility','visible').modal('show');

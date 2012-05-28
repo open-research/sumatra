@@ -11,7 +11,7 @@ from sumatra.recordstore.django_store import models
 from sumatra.datastore import get_data_store, DataKey
 from sumatra.commands import run
 from sumatra.web.templatetags import filters
-from sumatra.projects import load_project
+from sumatra.projects import load_project, init_websettings
 from datetime import date
 import mimetypes
 mimetypes.init()
@@ -304,18 +304,20 @@ def getSettings(request, project):
         display_density = 'comfortable'
     settings = {'nb_records_per_page':nb_rec,'display_density':display_density}
     return HttpResponse(json.dumps(settings))
-    
-def setNbRec(request, project):
-    nb_records_per_page = request.POST['nb_records_per_page']
+  
+def setSettings(request, project):
+    web_settings = {'display_density':request.POST.get('display_density', False),
+                    'nb_records_per_page':request.POST.get('nb_records_per_page', False)
+                    }
     project = load_project()
-    project.web_settings['nb_records_per_page'] = int(nb_records_per_page)
-    project.save()
-    return HttpResponse('ok')
-    
-def setDisDens(request, project):
-    display_density = request.POST['display_density']
-    project = load_project()
-    project.web_settings['display_density'] = display_density
+    # upgrading of .smt/project: new supplementary settings entries
+    try:
+        project.web_settings
+    except(AttributeError, KeyError): # project don't have web_settings
+        project.web_settings = init_websettings()   
+    for key, item in web_settings.iteritems():
+        if item:
+            project.web_settings[key] = item
     project.save()
     return HttpResponse('ok')
     

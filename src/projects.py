@@ -51,7 +51,7 @@ class Project(object):
                  default_main_file=None, default_launch_mode=None,
                  data_store='default', record_store='default',
                  on_changed='error', description='', data_label=None,
-                 input_datastore=None):
+                 input_datastore=None, web_settings=None):
         self.path = os.getcwd()
         if not os.path.exists(".smt"):
             os.mkdir(".smt")
@@ -73,13 +73,14 @@ class Project(object):
         self.description = description
         self.data_label = data_label
         self._most_recent = None
-        self.web_settings = {'nb_records_per_page':RECORDS_PER_PAGE, 'display_density':'compact'}
+        self.web_settings = init_websettings()
         self.save()
         print "Sumatra project successfully set up"
-    
+        
     def __set_data_label(self, value):
         assert value in (None, 'parameters', 'cmdline')
         self._data_label = value
+        
     def __get_data_label(self):
         return self._data_label
     data_label = property(fset=__set_data_label, fget=__get_data_label)
@@ -286,3 +287,7 @@ def load_project(path=None):
     #except Exception:
     #    prj = _load_project_from_pickle(p)
     return prj
+
+def init_websettings():
+    web_settings = {'nb_records_per_page':RECORDS_PER_PAGE, 'display_density':'compact'}
+    return web_settings
