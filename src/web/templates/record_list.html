@@ -192,7 +192,7 @@
         </a>
         <ul class="dropdown-menu" id = 'dropdown_menu'>
             <li><a href="#" id='settings_density'>Display density:</a></li> 
-            <li><a href="#" class='menu-rsettigns active_settings_row' id='button_comfortable'>Comfortable</a></li>
+            <li><a href="#" class='menu-rsettigns' id='button_comfortable'>Comfortable</a></li>
             <li><a href="#" class='menu-rsettigns' id='button_compact'>Compact</a></li>
             <li class="divider"></li>
             <li><a id='button_settings' class='menu-rsettigns'>Settings</a></li>
@@ -259,6 +259,20 @@
 <!--p><a href="/">Return to list of projects</a></p-->
 <script type = 'text/javascript'>
 $(document).ready(function(){
+    // load of settings:
+    $.ajax({
+      type: 'GET',
+      url: 'getSettings',
+      async: true,
+      dataType: 'json'
+    }).done(function(data) {
+        //$('#input_nrec').val(data.nb_records_per_page);
+        if (data.display_density == 'compact'){
+            $('#table_out').addClass('table-condensed');
+        }else{
+            $('#table_out').removeClass('table-condensed');
+        }
+    }); // end of load of settings
 
     $('#myTab li a').click(function(){
         if ($(this).attr('href') == '#second'){
@@ -266,8 +280,9 @@ $(document).ready(function(){
               type: 'GET',
               url: 'getSettings',
               async: true,
+              dataType: 'json'
             }).done(function(data) {
-                $('#input_nrec').val(data);
+                $('#input_nrec').val(data.nb_records_per_page);
             });   
         }
     });
@@ -326,7 +341,20 @@ $(document).ready(function(){
         $('#menu_datewith').hide();
     });
     
-    $('#settings_but').dropdown();   // dropdown menu for the settings button   
+    $('#settings_but').dropdown();   // dropdown menu for the settings button 
+    $('#settings_but').click(function(){   
+    
+        $.ajax({
+          type: 'GET',
+          url: 'getSettings',
+          async: true,
+          dataType: 'json'
+        }).done(function(data) {
+            $('#button_' + data.display_density).addClass('active_settings_row');
+        });   
+        
+    });
+    
     $('#table_out').tablesorter({}); // use tablesorter.min.js
     //$('#myModal').hide();            // #myModal is the settings popup window
     
@@ -436,15 +464,13 @@ $(document).ready(function(){
             }
         }  // if ($('#myTab li.active a').attr('href') == '#first')
         else if ($('#myTab li.active a').attr('href') == '#second'){
-            //alert($('#input_nrec').val());
             $.ajax({
               type: 'POST',
-              url: 'setSettings',
+              url: 'setDisDens',
               data: {'nb_records_per_page':$('#input_nrec').val()},
               async: true,
               dataType: 'html',
             }).done(function(data) {
-                 //dataurl = '/first/'+data;
                  $('#myModal').modal('hide');
             });
         }
@@ -466,6 +492,28 @@ $(document).ready(function(){
     });
     
     /* Settings->Display density->compact */
+    $('#button_comfortable,#button_compact').click(function(){
+        $density_set = $(this).attr('id').split('_')[1]; // 'comfortable' or 'compact'
+        $(this).addClass('active_settings_row');
+            $.ajax({
+              type: 'POST',
+              url: 'setDisDens',
+              data: {'display_density':$density_set},
+              async: true
+            }).done(function(data) {
+                 $('#myModal').modal('hide');
+            });
+            
+        if ($density_set == 'comfortable'){
+            $('#button_compact').removeClass('active_settings_row');
+            $('#table_out').removeClass('table-condensed');
+        }else if ($density_set == 'compact'){
+            $('#button_comfortable').removeClass('active_settings_row');
+            $('#table_out').addClass('table-condensed');
+        }       
+    });
+    
+    /*
     $('#button_compact').click(function(){
         $('#table_out').addClass('table-condensed'); // from kickstrap
         $('#button_comfortable').removeClass('active_settings_row');
@@ -477,6 +525,7 @@ $(document).ready(function(){
         $(this).addClass('active_settings_row');
         $('#button_compact').removeClass('active_settings_row');
     });
+    */
     
    $('#button_settings').click(function(){
         $('#myModal').css('visibility','visible').modal('show');

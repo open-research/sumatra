@@ -73,7 +73,7 @@ class Project(object):
         self.description = description
         self.data_label = data_label
         self._most_recent = None
-        self.web_settings = {'nb_records_per_page':RECORDS_PER_PAGE}
+        self.web_settings = {'nb_records_per_page':RECORDS_PER_PAGE, 'display_density':'compact'}
         self.save()
         print "Sumatra project successfully set up"
     

@@ -297,18 +297,25 @@ def getSettings(request, project):
     project = load_project()
     try:
         web_settings = project.web_settings
-        nb_rec = web_settings['nb_records_per_page']        
-    except AttributeError:
+        nb_rec = web_settings['nb_records_per_page'] 
+        display_density = web_settings['display_density'] 
+    except (AttributeError, KeyError):
         nb_rec = RECORDS_PER_PAGE
-    return HttpResponse(nb_rec)
+        display_density = 'comfortable'
+    settings = {'nb_records_per_page':nb_rec,'display_density':display_density}
+    return HttpResponse(json.dumps(settings))
     
-def setSettings(request, project):
+def setNbRec(request, project):
     nb_records_per_page = request.POST['nb_records_per_page']
     project = load_project()
-    try:
-        project.web_settings['nb_records_per_page'] = int(nb_records_per_page)
-    except AttributeError: # project don't have web_settings
-        project.web_settings = {'nb_records_per_page':nb_records_per_page}
+    project.web_settings['nb_records_per_page'] = int(nb_records_per_page)
+    project.save()
+    return HttpResponse('ok')
+    
+def setDisDens(request, project):
+    display_density = request.POST['display_density']
+    project = load_project()
+    project.web_settings['display_density'] = display_density
     project.save()
     return HttpResponse('ok')
     

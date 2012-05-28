@@ -25,7 +25,8 @@ urlpatterns = patterns('sumatra.web.views',
     (r'^%(project)s/%(label)s/diff/(?P<package>[\w_]+)*$' % P, 'show_diff'),
     (r'^%(project)s/simulation$' % P, 'run_sim'),
     (r'^%(project)s/getSettings$' % P, 'getSettings'),
-    (r'^%(project)s/setSettings$' % P, 'setSettings'),
+    (r'^%(project)s/setNbRec$' % P, 'setNbRec'),
+    (r'^%(project)s/setDisDens$' % P, 'setDisDens'),
     
 )
 
