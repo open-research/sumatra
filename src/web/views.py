@@ -295,22 +295,18 @@ def run_sim(request, project):
                                     
 def getSettings(request, project):
     project = load_project()
-    try:
-        web_settings = project.web_settings
-        nb_rec = web_settings['nb_records_per_page'] 
-        display_density = web_settings['display_density'] 
-    except (AttributeError, KeyError):
-        nb_rec = RECORDS_PER_PAGE
-        display_density = 'comfortable'
-    settings = {'nb_records_per_page':nb_rec,'display_density':display_density}
-    return HttpResponse(json.dumps(settings))
+    web_settings = project.web_settings
+    return HttpResponse(json.dumps(web_settings))
   
 def setSettings(request, project):
     web_settings = {'display_density':request.POST.get('display_density', False),
-                    'nb_records_per_page':request.POST.get('nb_records_per_page', False)
+                    'nb_records_per_page':request.POST.get('nb_records_per_page', False),
+                    'table_HideColumns': request.POST.getlist('table_HideColumns[]')
                     }
     project = load_project()
     # upgrading of .smt/project: new supplementary settings entries
+    if len(web_settings['table_HideColumns']) == 0:  # empty set (all checkboxes are checked)
+        project.web_settings['table_HideColumns'] = None
     try:
         project.web_settings
     except(AttributeError, KeyError): # project don't have web_settings

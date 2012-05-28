@@ -222,8 +222,8 @@
             <th class="blue header Time-t" rowspan="2">Time</th> 
           </tr>
           <tr>
-            <th class="green header Name-t parentExecutabble" rowspan="1">Name</th>
-            <th class="green header Version-t parentExecutabble" rowspan="1">Version</th>
+            <th class="green header Name-t parentExecutable" rowspan="1">Name</th>
+            <th class="green header Version-t parentExecutable" rowspan="1">Version</th>
             <th class="green header Repository-t parentScript" rowspan="1">Repository</th>
             <th class="green header Main_file-t parentScript" rowspan="1">Main file</th>
             <th class="green header S-Version-t parentScript" rowspan="1">Version</th>
@@ -243,8 +243,8 @@
                     <td class="Outcome-t">{{item.0.outcome}}</td>
                     <td class="Duration-t">{{item.0.duration|human_readable_duration}}</td>
                     <td class="Processes-t">{{item.0.launch_mode.get_parameters.n|default:"1"}}</td>
-                    <td class="Name-t parentExecutabble">{{item.0.executable.name}}</td>
-                    <td class="Version-t parentExecutabble">{{item.0.executable.version}}</td>
+                    <td class="Name-t parentExecutable">{{item.0.executable.name}}</td>
+                    <td class="Version-t parentExecutable">{{item.0.executable.version}}</td>
                     <td class="Repository-t parentScript">{{item.1.1}}</td> <!-- repository path: shorten -->
                     <td class="Main_file-t parentScript">{{item.0.main_file}}</td>
                     <td class="S-Version-t parentScript" style='width:10px;overflow: hidden;'>{{item.1.0}}{% if item.diff %}*{% endif %}</td> <!-- version: shorten -->
@@ -266,13 +266,33 @@ $(document).ready(function(){
       async: true,
       dataType: 'json'
     }).done(function(data) {
-        //$('#input_nrec').val(data.nb_records_per_page);
+        
+        cols = data.table_HideColumns;
+        cols_span_execut = 2;
+        cols_span_script = 4;
+        if (cols){
+            cols = $.map(cols, function(value, i){
+                return value + '-t';
+            });
+            for (var item, i = -1; item = cols[++i];){
+                $('.' + item).hide();
+                check_class = $('.' + item).attr('class').split(" ").slice(-1) 
+                if (check_class == 'parentExecutable'){
+                    --cols_span_execut;
+                }else if(check_class == 'parentScript'){
+                    --cols_span_script;
+                }
+            }
+            $('.Script-t').attr('colspan', cols_span_script);
+            $('.Executable-t').attr('colspan', cols_span_execut);
+        }
+        
         if (data.display_density == 'compact'){
             $('#table_out').addClass('table-condensed');
         }else{
             $('#table_out').removeClass('table-condensed');
         }
-    }); // end of load of settings
+    }); // end load of settings
 
     $('#myTab li a').click(function(){
         if ($(this).attr('href') == '#second'){
@@ -364,105 +384,77 @@ $(document).ready(function(){
     
     /* Automatic check/uncheck of #Script and #Executable */
     $(".check-item").click(function(){   // any checkbox in settings window         
-        /* #Script and #Executable have childrens, so if all the chilrens are checked,
+        /* #Script and #Executable have childrens, so if at least one of the chilrens is checked,
            the parents checkboxes will be checked automatically. */
-        if ($(this).attr('id') != 'Script'){  
-            if ($('.Script:checked').length == 4){ //get the number of childrens for #Script chbx
-                $('#Script').attr('checked', true);
+        if ($(this).attr('id') != 'Script' && $(this).attr('id') != 'Executable'){
+            if ($('.check-item.Executable:checked').length == 0){
+                $('#Executable').attr('checked',false);
+            } else{
+                $('#Executable').attr('checked',true);
+            };
+            
+            if ($('.check-item.Script:checked').length == 0){
+                $('#Script').attr('checked',false);
             }else{
-                $('#Script').attr('checked', false);
+                $('#Script').attr('checked',true);
             }
-        }
-        if ($(this).attr('id') != 'Executable'){
-            if ($('.Executable:checked').length == 2){
-                $('#Executable').attr('checked', true);
+        }else if ($(this).attr('id') == 'Executable'){
+            if ($(this).attr('checked')=='checked'){
+                $('.Executable').attr('checked',true);
             }else{
-                $('#Executable').attr('checked', false);
+                $('.Executable').attr('checked',false);
             }
-        }
-        
-        /* If user clicks checkbox Script/Executable, in the turn all the childrens for
-           Script/Executable will be checked automatically. */
-        if ($(this).attr('id') == 'Script'){
-            if ($(this).is(':checked')){
-                $('.Script').attr('checked', true);
+        }else if ($(this).attr('id') == 'Script'){
+            if ($(this).attr('checked')=='checked'){
+                $('.Script').attr('checked',true);
             }else{
-                $('.Script').attr('checked', false);
-            }   
-        }
-        
-        if ($(this).attr('id') == 'Executable'){
-            if ($(this).is(':checked')){
-                $('.Executable').attr('checked', true);
-            }else{
-                $('.Executable').attr('checked', false);
-            }   
-        }
-        
-        /* if no checkboxes are checked the button 'save settings' will be disables */
+                $('.Script').attr('checked',false);
+            }
+        };
+
+        // if no checkboxes are checked the button 'save settings' will be disables 
         if ($(".check-item:checked").length == 0){
             $('#check_selectAll').attr('checked', false);
             $('#save_set').addClass('disabled');
         }else{
             $('#save_set').removeClass('disabled');
         }
+        
     }); /* End of automatic check/uncheck of #Script and #Executable */
-    
-    //var uncheckedCol = new Array(); // contain the classes of unchecked columns (in settings)
-    $('#save_set').click(function(){ // button save settings
+
+    $('#save_set').click(function(){ // button save settings   
         if ($('#myTab li.active a').attr('href') == '#first'){
+            var UncheckedItems = new Array();
             if (!$('#save_set').hasClass('disabled')){
-                /* delete columns from table */
-                $(".check-item").not(':checked').each(function() {
-                    if ($(this).parent().attr('class') == 'subitems'){                       
-                        $checked = $(this).attr('class').split(" ").slice(-1); //last in class name  
-                        $colspan = $('.' + $checked + '-t').attr('colspan');    
-                        if ($('.'+$(this).attr('id')+'-t').is(':visible')){
-                            $('.' + $checked + '-t').attr('colspan', $colspan-1);
-                            if ($('.' + $checked + '-t').attr('colspan') == 0){
-                                $('.'+$checked+'-t').addClass('hide_column').hide(); 
-                                //uncheckedCol.push('.'+$checked+'-t');
-                            }
-                            $('.'+$(this).attr('id')+'-t').addClass('hide_column').hide(); 
-                            //uncheckedCol.push('.'+$(this).attr('id')+'-t');
-                        }
-                    }else if ($(this).attr('id')!='Executable' && $(this).attr('id')!='Script'){
-                        $('.'+$(this).attr('id')+'-t').addClass('hide_column').hide();
-                        //uncheckedCol.push('.'+$(this).attr('id')+'-t');
-                    }   
-                });  /* end of delete columns from table */
+            
+                Exec_colspan = $('.Executable:checked').length;    
+                Script_colspan = $('.Script:checked').length;
+                $('.Script-t').attr('colspan', Script_colspan);
+                $('.Executable-t').attr('colspan', Exec_colspan);
                 
-                /* add items to the table */
-                $(".check-item:checked").each(function() {
-                        if ($(this).attr('id') == 'Executable') {  // parent chbx 'Executable'  
-                                // all the childrens of Executable has class '.parentExecutable'
-                                $('.parentExecutabble').show();    
-                                $('.'+$(this).attr('id')+'-t').show(); //parent
-                                $('.Executable-t').attr('colspan', 2);
-                        }else if ($(this).attr('id') == 'Script'){ // parent chbx 'Script'  
-                                $('.parentScript').show();
-                                $('.'+$(this).attr('id')+'-t').show();  
-                                $('.Script-t').attr('colspan', 4);
-                        }else {
-                            /* childrens (of 'Executable' of 'Scripts' headers) */
-                            if ($(this).parent().attr('class') == 'subitems'){  //.subitems == childrens
-                                /* get the last word in class name */
-                                $checked = $(this).attr('class').split(" ").slice(-1); 
-                                /* get the the number of childrens. After table will be rendered using
-                                   this numbers */
-                                $colspan_script = $('.Script:checked').length;  
-                                $colspan_exec = $('.Executable:checked').length;  
-                                $('.'+$checked+'-t').show(); // show parent column even if it is not checked
-                                /* render number of columns */
-                                $('.Executable-t').attr('colspan', $colspan_exec); 
-                                $('.Script-t').attr('colspan', $colspan_script);
-                            }
-                            $('.'+$(this).attr('id')+'-t').show(); // show all childrens/elements
-                        }
+                // hide columns:
+                $(".check-item").not(':checked').each(function() { 
+                    $unchecked = $(this).attr('id');
+                    $('.'+$unchecked+'-t').hide();
+                    UncheckedItems.push($(this).attr('id'));
                 });
-                $('#myModal').modal('hide'); // popup settings window
+                
+                // show columns:
+                $(".check-item:checked").each(function() { 
+                    $checked = $(this).attr('id');
+                    $('.'+$checked+'-t').show();
+                });
+ 
+                $.ajax({
+                  type: 'POST',
+                  url: 'setSettings',
+                  data: {'table_HideColumns':UncheckedItems},
+                  async: true,
+                }).done(function(data) {
+                     $('#myModal').modal('hide');// popup settings window
+                }); 
             }
-        }  // if ($('#myTab li.active a').attr('href') == '#first')
+        }  // if '#first' settings page
         else if ($('#myTab li.active a').attr('href') == '#second'){
             $.ajax({
               type: 'POST',
@@ -473,7 +465,7 @@ $(document).ready(function(){
             }).done(function(data) {
                  $('#myModal').modal('hide');
             });
-        }
+        }  // if '#second' settings page
     });
     
     /* chossing all checkboxes by clicking one 'choose all' */
@@ -516,7 +508,21 @@ $(document).ready(function(){
    $('#button_settings').click(function(){
         $('#myModal').css('visibility','visible').modal('show');
         $('.tabs a:last').tab('show');
-   });
+        // load checkboxes states from .smt/project:
+        $.ajax({
+          type: 'GET',
+          url: 'getSettings',
+          async: true,
+          dataType: 'json'
+        }).done(function(data) {   
+            cols = data.table_HideColumns;
+            if (cols){
+                for (var item, i = -1; item = cols[++i];){
+                    $('#' + item).attr('checked',false);
+                }
+            }
+        });
+    });
    
     $('#btn_run').click(function(){
         $clone = $('#table_out tbody tr:eq(0)').clone(); //clone zero row
