@@ -140,7 +140,7 @@
             <div class='controls'>
                 <label class='control-label'>Time</label>
                 <div class='controls'><input id='itime' class='input-large it' type='text'></div>
-            
+            </div>
             
             <div class='controls'>
                 <label class='control-label' style='width:15%'>Date within</label>
@@ -153,16 +153,18 @@
                 </span>  
             </div>
             
-            <ul class="dropdown-menu" id = 'menu_datewith'>
-                <li><a href='' >1 day</a></li>
-                <li><a href='' >3 days</a></li>
-                <li><a href='' >1 week</a></li>
-                <li><a href='' >2 weeks</a></li>
-                <li><a href='' >1 month</a></li>
-                <li><a href='' >2 months</a></li>
-                <li><a href='' >6 months</a></li>
-                <li><a href='' >1 year</a></li>
-            </ul>
+            <div>
+                <ul class="dropdown-menu" id = 'menu_datewith'>
+                    <li><a href='' >1 day</a></li>
+                    <li><a href='' >3 days</a></li>
+                    <li><a href='' >1 week</a></li>
+                    <li><a href='' >2 weeks</a></li>
+                    <li><a href='' >1 month</a></li>
+                    <li><a href='' >2 months</a></li>
+                    <li><a href='' >6 months</a></li>
+                    <li><a href='' >1 year</a></li>
+                </ul>
+            </div>
             
             <label id='t_id'>of</label>
             <div><input class='date input-large it' type='text' style='width:180px'>
@@ -258,7 +260,7 @@
 </div><!-- main_content -->    
 <!--p><a href="/">Return to list of projects</a></p-->
 <script type = 'text/javascript'>
-$(document).ready(function(){
+$(document).ready(function(){ 
     // load of settings:
     $.ajax({
       type: 'GET',
@@ -307,7 +309,7 @@ $(document).ready(function(){
         }
     });
     
-    $('#btn_run').click(function(){
+    $('#btn_run, #close_newrec').click(function(){
         $('#mod_newrec').modal('hide');
     });
     $('#btn_newrec').click(function(){
@@ -376,9 +378,8 @@ $(document).ready(function(){
     });
     
     $('#table_out').tablesorter({}); // use tablesorter.min.js
-    //$('#myModal').hide();            // #myModal is the settings popup window
     
-    $('#close_set').click(function(){
+    $('#close_set, #close_set').click(function(){
         $('#myModal').modal('hide');
     });
     
@@ -558,7 +559,8 @@ $(document).ready(function(){
 
 
 <div class="modal" id="mod_newrec">
-    <div class='d-mod'>
+    <a class="close s-close" id='close_newrec'>&times;</a>
+    <div class='d-mod'>     
         <label class='control-label' for='mLabel'>Label</label> 
         <div class='mod_input'>
             <input id='mLabel' class='input-xlarge' type='text'></input>
@@ -589,6 +591,7 @@ $(document).ready(function(){
 
    
 <div class="modal" id="myModal">
+  <a class="close s-close" id='close_set'>&times;</a>
   <div class="modal-header">
     <a class="close" data-dismiss="modal"></a>
     <h3>Settings</h3>
@@ -673,9 +676,9 @@ $(document).ready(function(){
       <div class="tab-pane" id="second">
         <div id = 'tab_general_text'>
             <div class="control-group">
-                <label class="control-label" for="input01">Text input</label>
-                <div class="controls">
-                    <input type="text" class="input-xlarge" id="input_nrec">
+                <label class="control-label" for="input_nrec" style='float:left;width:200px'>Number of records per page</label>
+                <div class="controls" style='float:left;'>
+                    <input type="text" class="input-small" id="input_nrec">
                 </div>
             </div>
         </div>

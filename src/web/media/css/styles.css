@@ -85,7 +85,6 @@ table .headerSortUp.purple,table .headerSortDown.purple{background-color:#e2d5f0
     background: #ffffff;
     margin-left: -20px;
     height: 45px;
-    //position: fixed;
     top: 50px;
 }
 
@@ -303,25 +302,11 @@ span#icon_cdown{
     left:-18px; 
     opacity: 0.2;
 }
-span#icon_clear{
-    //float:right;
-    //margin-right:-20px;
-}
-
-a.close{
-    width:0px;
-}
 
 #menu_search{
     left: inferit;
     margin-top: 35px;
 }
-#menu_search li a:hover{
-    //background-color:white;
-    //color:transparent;
-    //cursor:default;
-}
-
 
 #menu_search label.control-label{
     width:35%;
@@ -408,9 +393,9 @@ a.close{
 #mod_newrec{
     visibility: hidden;
     min-height: 50%;
+    width: 450px;
 }
 .control-label{
-    //margin-left:20px;
     padding: 3px 15px;
     width: 20%;
     float:left;
@@ -423,25 +408,25 @@ a.close{
 
 .d-mod{
     padding-top: 30px;
-    position: absolute;
+    //position: absolute;
 }
 
 #mReason{
     resize: vertical;
+    height: 100px;
 }
 .hide_column{
     display:none;
 }
-/*
-#status_div{
-    visibility:visible;
-    position:fixed;
-    bottom:0px;
-    right:200px;
-    width:200px;
-    //height:100px;
+#close_menu{
+    font-size: 20px;
+    padding-right:2px;
 }
-*/
+
+.s-close{
+    font-size: 40px;
+    padding: 5px 5px;
+}
 
 
 
