@@ -8,6 +8,11 @@ register = template.Library()
 
 @register.filter
 @stringfilter
+def cut(text):
+    return mark_safe('\\'.join(text.split('\\')[-2:]))
+    
+@register.filter
+@stringfilter
 def link(text, url):
     tags = parse_tag_input(text)
     template = '<a href="%s">%%s</a>' % url

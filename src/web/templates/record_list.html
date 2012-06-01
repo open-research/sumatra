@@ -206,7 +206,10 @@
         <a id='btn_newrec' class='btn btn-danger btn-large' style='width:100px'>
             <i class="icon-file"></i> New record
         </a>
-        <div style='float:right; margin-right:100px;'><b>1</b> - <b id='b_nbrec'>{{records_per_page}}</b> of <b id='b_nbsim'>{{nb_sim}}</b></div>
+        {% if is_paginated %}
+        <div style='float:right; margin-right:100px;'><b>{{page_obj.start_index}}</b> - <b id='b_nbrec'>{{page_obj.end_index}}</b> of <b id='b_nbsim'>{{paginator.count}}</b></div>
+        <div>{{paginator.count}}</div>
+        {% endif %}
 </div>
 
 <div id = 'main_content'>
@@ -234,26 +237,26 @@
          </tr>
         </thead> 
         <tbody> 
-            {% for key, item in simulations.items %}
+            {% for record in object_list %}
                 <tr class='simulations'>
-                    <td class="Label-t">{{item.0.label}}</td>
+                    <td class="Label-t">{{record.label}}</td>
                     {% if tag %}
-                    <td class="Tag-t">{% for other_tag in item.0.tag_objects %}{% if tag == other_tag %}{{tag}} {% else %}<a href="/{{project_name}}/tag/{{other_tag.name}}/">{{other_tag.name}}</a> {% endif %}{% endfor %}</td>
+                    <td class="Tag-t">{% for other_tag in record.tag_objects %}{% if tag == other_tag %}{{tag}} {% else %}<a href="/{{project_name}}/tag/{{other_tag.name}}/">{{other_tag.name}}</a> {% endif %}{% endfor %}</td>
                     {% else %}
-                    <td class="Tag-t">{{item.0.tags|link:"tag/%s/"}}</td>
+                    <td class="Tag-t">{{record.tags|link:"tag/%s/"}}</td>
                     {% endif %}
-                    <td class="Reason-t">{{item.0.reason}}</td>
-                    <td class="Outcome-t">{{item.0.outcome}}</td>
-                    <td class="Duration-t">{{item.0.duration|human_readable_duration}}</td>
-                    <td class="Processes-t">{{item.0.launch_mode.get_parameters.n|default:"1"}}</td>
-                    <td class="Name-t parentExecutable">{{item.0.executable.name}}</td>
-                    <td class="Version-t parentExecutable">{{item.0.executable.version}}</td>
-                    <td class="Repository-t parentScript">{{item.1.1}}</td> <!-- repository path: shorten -->
-                    <td class="Main_file-t parentScript">{{item.0.main_file}}</td>
-                    <td class="S-Version-t parentScript" style='width:10px;overflow: hidden;'>{{item.1.0}}{% if item.diff %}*{% endif %}</td> <!-- version: shorten -->
-                    <td class="Arguments-t parentScript">{{item.0.script_arguments}}</td>
-                    <td class="Date-t">{{item.0.timestamp|date:"d/m/Y"}}</td>
-                    <td class="Time-t">{{item.0.timestamp|date:"H:i:s"}}</td>
+                    <td class="Reason-t">{{record.reason}}</td>
+                    <td class="Outcome-t">{{record.outcome}}</td>
+                    <td class="Duration-t">{{record.duration|human_readable_duration}}</td>
+                    <td class="Processes-t">{{record.launch_mode.get_parameters.n|default:"1"}}</td>
+                    <td class="Name-t parentExecutable">{{record.executable.name}}</td>
+                    <td class="Version-t parentExecutable">{{record.executable.version}}</td>
+                    <td class="Repository-t parentScript">{{record.repository.url|cut}}<div class='h-text' style='display:none'>{{record.repository.url}}</div></td> <!-- repository path: shorten -->
+                    <td class="Main_file-t parentScript">{{record.main_file}}</td>
+                    <td class="S-Version-t parentScript" style='width:10px;overflow: hidden;'>{{record.version}}{% if record.diff %}*{% endif %}</td> <!-- version: shorten -->
+                    <td class="Arguments-t parentScript">{{record.script_arguments}}</td>
+                    <td class="Date-t">{{record.timestamp|date:"d/m/Y"}}</td>
+                    <td class="Time-t">{{record.timestamp|date:"H:i:s"}}</td>
                 </tr>
             {% endfor %}
         </tbody>                            
@@ -262,6 +265,15 @@
 <!--p><a href="/">Return to list of projects</a></p-->
 <script type = 'text/javascript'>
 $(document).ready(function(){ 
+
+    $('tbody .Repository-t').tooltip({
+        title: function(){
+            return $(this).children().html();
+        },
+        placement: 'bottom',
+    });
+
+    
     // load of settings:
     $.ajax({
       type: 'GET',

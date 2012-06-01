@@ -20,7 +20,7 @@ import os
 import json
 
 RECORDS_PER_PAGE = 50
-
+    
 def unescape(label):
     return label.replace("||", "/")
 
@@ -60,7 +60,7 @@ def show_project(request, project):
    
 def list_records(request, project):
     search_form = TagSearch()   
-    records_per_page = int(load_project().web_settings['nb_records_per_page'])
+    nb_per_page = int(load_project().web_settings['nb_records_per_page'])
     #print 'records_per_page %s' %records_per_page
     # list containing simulations: 
     sim_list = models.Record.objects.filter(project__id=project).order_by('-timestamp') 
@@ -71,14 +71,11 @@ def list_records(request, project):
     return list_detail.object_list(request,
                                    queryset=sim_list,
                                    template_name="record_list.html",
-                                   paginate_by=records_per_page,
+                                   paginate_by=nb_per_page,
                                    extra_context={
                                     'project_name': project,
                                     'search_form': search_form,
-                                    'records_per_page': records_per_page,
-                                    'simulations': sims_dict,
-                                    'nb_sim': len(sim_list),
-                                   })  
+                                    'records_per_page': nb_per_page})  
 
 def list_tagged_records(request, project, tag):
     queryset = models.Record.objects.filter(project__id=project)
