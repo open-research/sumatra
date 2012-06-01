@@ -206,6 +206,7 @@
         <a id='btn_newrec' class='btn btn-danger btn-large' style='width:100px'>
             <i class="icon-file"></i> New record
         </a>
+        <div style='float:right; margin-right:100px;'><b>1</b> - <b id='b_nbrec'>{{records_per_page}}</b> of <b id='b_nbsim'>{{nb_sim}}</b></div>
 </div>
 
 <div id = 'main_content'>
@@ -457,14 +458,16 @@ $(document).ready(function(){
             }
         }  // if '#first' settings page
         else if ($('#myTab li.active a').attr('href') == '#second'){
+            nb_rec = $('#input_nrec').val();
             $.ajax({
               type: 'POST',
               url: 'setSettings',
-              data: {'nb_records_per_page':$('#input_nrec').val()},
+              data: {'nb_records_per_page':nb_rec},
               async: true,
               dataType: 'html',
             }).done(function(data) {
                  $('#myModal').modal('hide');
+                 $('#b_nbrec').html(nb_rec);
             });
         }  // if '#second' settings page
     });
@@ -549,6 +552,8 @@ $(document).ready(function(){
                   $(el).html(data[$(el).attr('class').split(' ')[0]]);
              });
              $tableFirstrow.effect("highlight", {}, 5000);  
+             nb_sim = parseInt($('#b_nbsim').html());
+             $('#b_nbsim').html(nb_sim + 1);
         }); // done
     });
     

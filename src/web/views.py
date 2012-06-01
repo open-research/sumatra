@@ -59,12 +59,9 @@ def show_project(request, project):
                               {'project': project, 'form': form})
    
 def list_records(request, project):
-    search_form = TagSearch()
-    try:
-        records_per_page = int(request.GET.get("per_page", RECORDS_PER_PAGE))
-        assert records_per_page > 0
-    except (ValueError, AssertionError):
-        records_per_page = RECORDS_PER_PAGE
+    search_form = TagSearch()   
+    records_per_page = int(load_project().web_settings['nb_records_per_page'])
+    #print 'records_per_page %s' %records_per_page
     # list containing simulations: 
     sim_list = models.Record.objects.filter(project__id=project).order_by('-timestamp') 
     simulations = dict(zip(xrange(len(sim_list)), sim_list))
@@ -80,6 +77,7 @@ def list_records(request, project):
                                     'search_form': search_form,
                                     'records_per_page': records_per_page,
                                     'simulations': sims_dict,
+                                    'nb_sim': len(sim_list),
                                    })  
 
 def list_tagged_records(request, project, tag):
