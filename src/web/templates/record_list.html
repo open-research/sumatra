@@ -266,22 +266,26 @@
 <!--p><a href="/">Return to list of projects</a></p-->
 <script type = 'text/javascript'>
 $(document).ready(function(){ 
-    $('a[href="#second"]').click(function(){
-        $('#input_nrec').css('display','block').html('5');
-    });
     $('#input_nrec, #s_nbt').click(function(event){     
         event.stopPropagation();
         $(this).css('display','none');
-        $('#s_nbt').css('display','block').val('');
+        $val = $('#input_nrec').html();
+        $('#s_nbt').css('display','block').val($val);
           
     });
-    $('html').click(function(){   
-        $('#input_nrec').css('display','block');
-        $('#s_nbt').css('display','none');
-        if ($('#s_nbt').val() == ''){
-            $('.alert-error').css('visibility','visible');
-        }
-       
+    $('html').click(function(){ 
+        $val = $('#s_nbt').val(); 
+        if ($val > 0){    
+            $('#input_nrec').css('display','block').html($val);
+            $('#s_nbt').css('display','none');
+            $('#s_nbt').removeClass('err_border');
+            if ($('#myTab li.active a').attr('href') == '#second'){
+                $('#save_set').removeClass('disabled');
+            }
+        }else{
+            $('#s_nbt').addClass('err_border');
+            $('#save_set').addClass('disabled');
+        }   
     });
     
     $('tbody .Repository-t, tbody .S-Version-t').tooltip({
@@ -298,7 +302,6 @@ $(document).ready(function(){
       async: true,
       dataType: 'json'
     }).done(function(data) {
-        
         cols = data.table_HideColumns;
         cols_span_execut = 2;
         cols_span_script = 4;
@@ -325,25 +328,11 @@ $(document).ready(function(){
             $('#table_out').removeClass('table-condensed');
         }
     }); // end load of settings
-
-    $('#myTab li a').click(function(){
-        if ($(this).attr('href') == '#second'){
-            $.ajax({
-              type: 'GET',
-              url: 'getSettings',
-              async: true,
-              dataType: 'json'
-            }).done(function(data) {
-                $('#input_nrec').val(data.nb_records_per_page);
-            });   
-        }
-    });
-    
+  
     $('#btn_run, #close_newrec').click(function(){
         $('#mod_newrec').modal('hide');
     });
     $('#btn_newrec').click(function(){
-        //alert('here');
         $('#mod_newrec').css('visibility','visible').modal('show');
     });
     
@@ -453,7 +442,7 @@ $(document).ready(function(){
         
     }); /* End of automatic check/uncheck of #Script and #Executable */
 
-    $('#save_set').click(function(){ // button save settings   
+    $('#save_set').click(function(){ // button save settings 
         if ($('#myTab li.active a').attr('href') == '#first'){
             var UncheckedItems = new Array();
             if (!$('#save_set').hasClass('disabled')){
@@ -487,8 +476,8 @@ $(document).ready(function(){
             }
         }  // if '#first' settings page
         else if ($('#myTab li.active a').attr('href') == '#second'){
-            nb_rec = $('#input_nrec').val();
-            if (nb_rec > 0){
+            nb_rec = $('#input_nrec').html();
+            if (nb_rec > 0 && !$('#save_set').hasClass('disabled')){
                 $('#save_set').attr('href', '.');
                 $.ajax({
                   type: 'POST',
@@ -714,11 +703,8 @@ $(document).ready(function(){
       </div>
       <div class="tab-pane" id="second">
             <div style='float:left; padding:8px'>Number of records per page:</div>
-            <div id="input_nrec"></div>
-            <input id='s_nbt' class='span1' type='text' style='float:left;margin-bottom:0px' value='text'/>
-            <div class="alert alert-error" style='float:left;margin-left:30px;visibility:hidden'></div>
-            
-
+            <div id="input_nrec">{{records_per_page}}</div>
+            <input id='s_nbt' class='span1' type='text' style='float:left;margin-bottom:0px' value='{{records_per_page}}'/>     
       </div>
       <div class="tab-pane" id="messages">
         <div id = 'tab_general_text'><p><b>option3:</b></p></div>

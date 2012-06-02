@@ -442,6 +442,9 @@ span#icon_cdown{
     cursor:hand;
     background-color: rgb(255, 255, 204);
 }
+.err_border{
+    border-color: rgb(223, 56, 44);
+}
 
 
 
