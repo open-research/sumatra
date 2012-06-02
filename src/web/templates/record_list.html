@@ -8,7 +8,7 @@
         <div class="container-fluid">
             <h1><div id = "name_project">
             <a href="about/">{{project_name}}:{% if tag %} tagged with {{tag}}{% endif %}</a></div>
-            <div id = 'name_page'>&nbsp list of records</div></h1>
+            <div id = 'name_page'>&nbsp; list of records</div></h1>
             <div id='sumatra_logo'><a href="http://neuralensemble.org/trac/sumatra">
             <img src='/media/Sumatra_logo.png'/></a></div>
             <!--div class="nav-collapse">
@@ -173,7 +173,7 @@
             </div>
  
             <a class='btn btn-info btn-large' style='padding: 5px 15px;margin-left:10px;margin-right:10px;color:#ffffff;margin-top:50px'><i class="icon-search">
-            </i>&nbsp Search
+            </i>&nbsp; Search
             </a>
             
         </ul>
@@ -182,9 +182,9 @@
    <input class='span5' type='text' id="text_subnav"/>
 
 
-   <span id="icon_cdown"<i class="icon-chevron-down"></i></span>       
+   <span id="icon_cdown"><i class="icon-chevron-down"></i></span>       
         <a class='btn btn-info btn-large' id='btn_search'><i class="icon-search">
-        </i>&nbsp Search
+        </i>&nbsp; Search
         </a>
 
     <div class="btn-group">
@@ -194,8 +194,8 @@
         </a>
         <ul class="dropdown-menu" id = 'dropdown_menu'>
             <li><a href="#" id='settings_density'>Display density:</a></li> 
-            <li><a href="#" class='menu-rsettigns' id='button_comfortable'>Comfortable</a></li>
-            <li><a href="#" class='menu-rsettigns' id='button_compact'>Compact</a></li>
+            <li><a href="#" class='menu-rsettigns' id='button_null'>Comfortable</a></li>
+            <li><a href="#" class='menu-rsettigns' id='button_table-condensed'>Compact</a></li>
             <li class="divider"></li>
             <li><a id='button_settings' class='menu-rsettigns'>Settings</a></li>
         </ul>
@@ -214,7 +214,7 @@
 </div>
 
 <div id = 'main_content'>
-    <table class="table table-bordered" id = 'table_out'>
+    <table class="table table-bordered {{settings.display_density}}" id = 'table_out'>
         <thead>
           <tr>
             <th class="blue header Label-t" rowspan="2">Label</th>
@@ -286,14 +286,7 @@ $(document).ready(function(){
             $('#save_set').addClass('disabled');
         }   
     });
-    
-    $('tbody .Repository-t, tbody .S-Version-t').tooltip({
-        title: function(){
-            return $(this).children().html();
-        },
-        placement: 'bottom',
-    });
- 
+
     // load of settings:
     $.ajax({
       type: 'GET',
@@ -319,12 +312,6 @@ $(document).ready(function(){
             }
             $('.Script-t').attr('colspan', cols_span_script);
             $('.Executable-t').attr('colspan', cols_span_execut);
-        }
-        
-        if (data.display_density == 'compact'){
-            $('#table_out').addClass('table-condensed');
-        }else{
-            $('#table_out').removeClass('table-condensed');
         }
     }); // end load of settings
   
@@ -382,8 +369,8 @@ $(document).ready(function(){
     });
     
     $('#settings_but').dropdown();   // dropdown menu for the settings button 
-    $('#settings_but').click(function(){   
-    
+   
+    $('#settings_but').click(function(){         
         $.ajax({
           type: 'GET',
           url: 'getSettings',
@@ -393,7 +380,7 @@ $(document).ready(function(){
             $('#button_' + data.display_density).addClass('active_settings_row');
         });   
         
-    });
+    }); 
     
     $('#table_out').tablesorter({}); // use tablesorter.min.js
     
@@ -442,10 +429,10 @@ $(document).ready(function(){
     }); /* End of automatic check/uncheck of #Script and #Executable */
 
     $('#save_set').click(function(){ // button save settings 
-        if ($('#myTab li.active a').attr('href') == '#first'){
+        //if ($('#myTab li.active a').attr('href') == '#first'){
             var UncheckedItems = new Array();
             if (!$('#save_set').hasClass('disabled')){
-            
+                $('#save_set').attr('href', '.');
                 Exec_colspan = $('.Executable:checked').length;    
                 Script_colspan = $('.Script:checked').length;
                 $('.Script-t').attr('colspan', Script_colspan);
@@ -463,37 +450,22 @@ $(document).ready(function(){
                     $checked = $(this).attr('id');
                     $('.'+$checked+'-t').show();
                 });
- 
+                
+                nb_rec = $('#s_nbt').val();
                 $.ajax({
                   type: 'POST',
                   url: 'setSettings',
-                  data: {'table_HideColumns':UncheckedItems},
+                  data: {'table_HideColumns':UncheckedItems,
+                         'nb_records_per_page':nb_rec},
                   async: true,
-                }).done(function(data) {
-                }); 
+                })
             }
-        }  // if '#first' settings page
-        else if ($('#myTab li.active a').attr('href') == '#second'){
-            nb_rec = $('#s_nbt').val();
-            if (nb_rec > 0 && !$('#save_set').hasClass('disabled')){
-                //$('#save_set').attr('href', '.');
-                $.ajax({
-                  type: 'POST',
-                  url: 'setSettings',
-                  data: {'nb_records_per_page':nb_rec},
-                  async: true,
-                  dataType: 'html',
-                }).done(function(data) {  
-                    $("#table_out").fadeOut("quick"); 
-                    $('#main_content').fadeIn("quick").load(' #table_out')
-                });
-            }else{
-                   
-            }
-        }  // if '#second' settings page
     });
-
-    /* chossing all checkboxes by clicking one 'choose all' */
+    
+    $('#table_out').hover(function(){
+        //alert('erje');
+    });
+    /* selection of all checkboxes */
     $("#check_selectAll").click(function() { 
         var checkedStatus = this.checked;
         
@@ -509,7 +481,7 @@ $(document).ready(function(){
     });
     
     /* Settings->Display density->compact */
-    $('#button_comfortable,#button_compact').click(function(){
+    $('.menu-rsettigns').not('#button_settings').click(function(){
         $density_set = $(this).attr('id').split('_')[1]; // 'comfortable' or 'compact'
         $(this).addClass('active_settings_row');
             $.ajax({
@@ -520,14 +492,14 @@ $(document).ready(function(){
             }).done(function(data) {
                  $('#myModal').modal('hide');
             });
-            
-        if ($density_set == 'comfortable'){
-            $('#button_compact').removeClass('active_settings_row');
-            $('#table_out').removeClass('table-condensed');
-        }else if ($density_set == 'compact'){
-            $('#button_comfortable').removeClass('active_settings_row');
+
+        if ($density_set == 'table-condensed'){
             $('#table_out').addClass('table-condensed');
-        }       
+            $('#button_null').removeClass('active_settings_row');   
+        }else{
+            $('#table_out').removeClass('table-condensed');
+            $('#button_table-condensed').removeClass('active_settings_row');    
+        }        
     });
     
    $('#button_settings').click(function(){
@@ -589,7 +561,7 @@ $(document).ready(function(){
     <div class='d-mod'>     
         <label class='control-label' for='mLabel'>Label</label> 
         <div class='mod_input'>
-            <input id='mLabel' class='input-xlarge' type='text'></input>
+            <input id='mLabel' class='input-xlarge' type='text'>
         </div>
         <label class='control-label' for='mReason'>Reason</label> 
         <div class='mod_input'>
@@ -597,19 +569,19 @@ $(document).ready(function(){
         </div>
         <label class='control-label' for='mTag'>Tag</label> 
         <div class='mod_input'>
-            <input id='mTag' class='input-xlarge' type='text'></input>
+            <input id='mTag' class='input-xlarge' type='text'>
         </div>
         <label class='control-label' for='mExec'>Executable</label> 
         <div class='mod_input'>
-            <input id='mExec' class='input-xlarge' type='text'></input>
+            <input id='mExec' class='input-xlarge' type='text'>
         </div>
         <label class='control-label' for='mFile'>Main file</label> 
         <div class='mod_input'>
-            <input id='mFile' class='input-xlarge' type='text'></input>
+            <input id='mFile' class='input-xlarge' type='text'>
         </div>
         <label class='control-label' for='mArg'>Arguments</label> 
         <div class='mod_input'>
-            <input id='mArg' class='input-xlarge' type='text'></input>
+            <input id='mArg' class='input-xlarge' type='text'>
         </div>
         <button id='btn_run' class='btn btn-success btn-large' style='width:150px; display: block ;margin-left: auto; margin-right: auto;'>Run</button>
     </div>
