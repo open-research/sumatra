@@ -61,15 +61,8 @@ def show_project(request, project):
 def list_records(request, project):
     search_form = TagSearch()   
     nb_per_page = int(load_project().web_settings['nb_records_per_page'])
-    print 'here'
     # list containing simulations: 
     sim_list = models.Record.objects.filter(project__id=project).order_by('-timestamp')
-    '''
-    simulations = dict(zip(xrange(len(sim_list)), sim_list))
-    sims_dict = {}
-    for key, item in simulations.items():
-        sims_dict[key] = [item, [short_version(item.version), short_repo(item.repository.url)]]
-    '''
     web_settings = load_project().web_settings
     return list_detail.object_list(request,
                                    queryset=sim_list,

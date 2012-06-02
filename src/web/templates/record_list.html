@@ -223,10 +223,10 @@
             <th class="blue header Outcome-t" rowspan="2">Outcome</th>
             <th class="blue header Duration-t" rowspan="2">Duration</th>
             <th class="blue header Processes-t" rowspan="2">Processes</th>
-            <th class='Executable-t' colspan="{{settings.cols_span_execut}}">Executable</th>
-            <th class='Script-t' colspan="{{settings.cols_span_script}}">Script</th>
             <th class="blue header Date-t" rowspan="2">Date</th>
             <th class="blue header Time-t" rowspan="2">Time</th> 
+            <th class='Executable-t' colspan="{{settings.cols_span_execut}}">Executable</th>
+            <th class='Script-t' colspan="{{settings.cols_span_script}}">Script</th>
           </tr>
           <tr>
             <th class="green header Name-t parentExecutable" rowspan="1">Name</th>
@@ -250,14 +250,14 @@
                     <td class="Outcome-t">{{record.outcome}}</td>
                     <td class="Duration-t">{{record.duration|human_readable_duration}}</td>
                     <td class="Processes-t">{{record.launch_mode.get_parameters.n|default:"1"}}</td>
+                    <td class="Date-t">{{record.timestamp|date:"d/m/Y"}}</td>
+                    <td class="Time-t">{{record.timestamp|date:"H:i:s"}}</td>
                     <td class="Name-t parentExecutable">{{record.executable.name}}</td>
                     <td class="Version-t parentExecutable">{{record.executable.version}}</td>
                     <td class="Repository-t parentScript">{{record.repository.url|cut:"repo"}}<div style='display:none'>{{record.repository.url}}</div></td> <!-- repository path: shorten -->
                     <td class="Main_file-t parentScript">{{record.main_file}}</td>
                     <td class="S-Version-t parentScript" style='width:10px;overflow: hidden;'>{{record.version|cut:"vers"}}{% if record.diff %}*{% endif %}<div style='display:none'>{{record.version}}</div></td> <!-- version: shorten -->
                     <td class="Arguments-t parentScript">{{record.script_arguments}}</td>
-                    <td class="Date-t">{{record.timestamp|date:"d/m/Y"}}</td>
-                    <td class="Time-t">{{record.timestamp|date:"H:i:s"}}</td>
                 </tr>
             {% endfor %}
         </tbody>                            
@@ -266,7 +266,8 @@
 <!--p><a href="/">Return to list of projects</a></p-->
 <script type = 'text/javascript'>
 $(document).ready(function(){ 
-    $('#input_nrec, #s_nbt').click(function(event){     
+    $('#input_nrec, #s_nbt').click(function(event){  
+        $('#save_set').attr('href', '.'); // for reloading the page if nb of records will be changed
         event.stopPropagation();
         $(this).css('display','none');
         $('#s_nbt').css('display','block');     
@@ -369,7 +370,7 @@ $(document).ready(function(){
         
     }); 
     
-    $('#table_out').tablesorter({}); // use tablesorter.min.js
+    $('#table_out').tablesorter(); // use tablesorter.min.js
     
     $('#close_set, #close_set').click(function(){
         $('#myModal').modal('hide');
@@ -414,12 +415,12 @@ $(document).ready(function(){
         }
         
     }); /* End of automatic check/uncheck of #Script and #Executable */
-
+    
     $('#save_set').click(function(){ // button save settings 
             var UncheckedItems = new Array();
             
             if (!$('#save_set').hasClass('disabled')){
-                $('#save_set').attr('href', '.');
+                
                 Exec_colspan = $('.Executable:checked').length;    
                 Script_colspan = $('.Script:checked').length;
                 $('.Script-t').attr('colspan', Script_colspan);
@@ -447,7 +448,7 @@ $(document).ready(function(){
                          'cols_span_execut':Exec_colspan,
                          'cols_span_script':Script_colspan},
                   async: true,
-                })
+                }).done(function(){});
             }
     });
     
@@ -670,10 +671,12 @@ $(document).ready(function(){
       </div>
     </div>
 
-  <div class="modal-footer">
-    <a class="btn btn-primary" id='save_set'>Save changes</a>
-    <a class="btn" id='close_set'>Close</a>
-  </div>
+      <div class="modal-footer">
+        <a class="btn btn-primary" id='save_set'>Save changes</a>
+        <a class="btn" id='close_set'>Close</a>
+      </div>
+  
  </div>  
+ </div>
 
 {% endblock %}
