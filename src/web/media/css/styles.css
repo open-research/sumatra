@@ -428,6 +428,20 @@ span#icon_cdown{
     padding: 5px 5px;
 }
 
+#input_nrec{
+    float:left;
+    margin-left:5px;
+    margin:8px;
+    border-bottom:1px dashed rgb(52, 141, 181);
+    width:50px;
+    text-align:center;
+    font-weight:bold;
+}
+#input_nrec:hover{
+    cursor:pointer;
+    cursor:hand;
+    background-color: rgb(255, 255, 204);
+}
 
 
 

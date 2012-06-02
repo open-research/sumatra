@@ -8,8 +8,12 @@ register = template.Library()
 
 @register.filter
 @stringfilter
-def cut(text):
-    return mark_safe('\\'.join(text.split('\\')[-2:]))
+def cut(text, type):
+    if type == 'repo':
+        text_out = '\\'.join(text.split('\\')[-2:])
+    elif type == 'vers':
+        text_out = ''.join([text[:5], '...'])
+    return mark_safe(text_out)
     
 @register.filter
 @stringfilter

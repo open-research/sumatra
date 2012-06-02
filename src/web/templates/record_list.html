@@ -207,8 +207,9 @@
             <i class="icon-file"></i> New record
         </a>
         {% if is_paginated %}
-        <div style='float:right; margin-right:100px;'><b>{{page_obj.start_index}}</b> - <b id='b_nbrec'>{{page_obj.end_index}}</b> of <b id='b_nbsim'>{{paginator.count}}</b></div>
-        <div>{{paginator.count}}</div>
+            <div style='float:right; margin-right:100px;'>
+                <b>{{page_obj.start_index}}</b> - <b id='b_nbrec'>{{page_obj.end_index}}</b> of <b id='b_nbsim'>{{paginator.count}}</b>
+            </div>
         {% endif %}
 </div>
 
@@ -251,9 +252,9 @@
                     <td class="Processes-t">{{record.launch_mode.get_parameters.n|default:"1"}}</td>
                     <td class="Name-t parentExecutable">{{record.executable.name}}</td>
                     <td class="Version-t parentExecutable">{{record.executable.version}}</td>
-                    <td class="Repository-t parentScript">{{record.repository.url|cut}}<div class='h-text' style='display:none'>{{record.repository.url}}</div></td> <!-- repository path: shorten -->
+                    <td class="Repository-t parentScript">{{record.repository.url|cut:"repo"}}<div style='display:none'>{{record.repository.url}}</div></td> <!-- repository path: shorten -->
                     <td class="Main_file-t parentScript">{{record.main_file}}</td>
-                    <td class="S-Version-t parentScript" style='width:10px;overflow: hidden;'>{{record.version}}{% if record.diff %}*{% endif %}</td> <!-- version: shorten -->
+                    <td class="S-Version-t parentScript" style='width:10px;overflow: hidden;'>{{record.version|cut:"vers"}}{% if record.diff %}*{% endif %}<div style='display:none'>{{record.version}}</div></td> <!-- version: shorten -->
                     <td class="Arguments-t parentScript">{{record.script_arguments}}</td>
                     <td class="Date-t">{{record.timestamp|date:"d/m/Y"}}</td>
                     <td class="Time-t">{{record.timestamp|date:"H:i:s"}}</td>
@@ -265,15 +266,31 @@
 <!--p><a href="/">Return to list of projects</a></p-->
 <script type = 'text/javascript'>
 $(document).ready(function(){ 
-
-    $('tbody .Repository-t').tooltip({
+    $('a[href="#second"]').click(function(){
+        $('#input_nrec').css('display','block').html('5');
+    });
+    $('#input_nrec, #s_nbt').click(function(event){     
+        event.stopPropagation();
+        $(this).css('display','none');
+        $('#s_nbt').css('display','block').val('');
+          
+    });
+    $('html').click(function(){   
+        $('#input_nrec').css('display','block');
+        $('#s_nbt').css('display','none');
+        if ($('#s_nbt').val() == ''){
+            $('.alert-error').css('visibility','visible');
+        }
+       
+    });
+    
+    $('tbody .Repository-t, tbody .S-Version-t').tooltip({
         title: function(){
             return $(this).children().html();
         },
         placement: 'bottom',
     });
-
-    
+ 
     // load of settings:
     $.ajax({
       type: 'GET',
@@ -471,19 +488,24 @@ $(document).ready(function(){
         }  // if '#first' settings page
         else if ($('#myTab li.active a').attr('href') == '#second'){
             nb_rec = $('#input_nrec').val();
-            $.ajax({
-              type: 'POST',
-              url: 'setSettings',
-              data: {'nb_records_per_page':nb_rec},
-              async: true,
-              dataType: 'html',
-            }).done(function(data) {
-                 $('#myModal').modal('hide');
-                 $('#b_nbrec').html(nb_rec);
-            });
+            if (nb_rec > 0){
+                $('#save_set').attr('href', '.');
+                $.ajax({
+                  type: 'POST',
+                  url: 'setSettings',
+                  data: {'nb_records_per_page':nb_rec},
+                  async: true,
+                  dataType: 'html',
+                }).done(function(data) {
+                     $('#myModal').modal('hide');
+                     
+                });
+            }else{
+                   
+            }
         }  // if '#second' settings page
     });
-    
+
     /* chossing all checkboxes by clicking one 'choose all' */
     $("#check_selectAll").click(function() { 
         var checkedStatus = this.checked;
@@ -691,14 +713,12 @@ $(document).ready(function(){
         </div>
       </div>
       <div class="tab-pane" id="second">
-        <div id = 'tab_general_text'>
-            <div class="control-group">
-                <label class="control-label" for="input_nrec" style='float:left;width:200px'>Number of records per page</label>
-                <div class="controls" style='float:left;'>
-                    <input type="text" class="input-small" id="input_nrec">
-                </div>
-            </div>
-        </div>
+            <div style='float:left; padding:8px'>Number of records per page:</div>
+            <div id="input_nrec"></div>
+            <input id='s_nbt' class='span1' type='text' style='float:left;margin-bottom:0px' value='text'/>
+            <div class="alert alert-error" style='float:left;margin-left:30px;visibility:hidden'></div>
+            
+
       </div>
       <div class="tab-pane" id="messages">
         <div id = 'tab_general_text'><p><b>option3:</b></p></div>
