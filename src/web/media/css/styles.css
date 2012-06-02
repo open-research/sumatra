@@ -12,7 +12,6 @@ padding-bottom: 40px;
 }      
 #table_sidebar tr.active{
     background-color: #ffff80;
-    //color: #ffffff;
 }
 #table_sidebar tr.active:hover{
     background-color: #ffff34;
@@ -29,7 +28,6 @@ padding-bottom: 40px;
 #table_out{
 	margin-right: 20px;
     width: 98%;
-    //table-layout: fixed;
 }
 
 #table_out th.green.header:first-child{border-left:1px solid #ddd}   
@@ -444,6 +442,9 @@ span#icon_cdown{
 }
 .err_border{
     border-color: rgb(223, 56, 44);
+    -webkit-border-radius:4px 4px 4px 4px;
+    -moz-border-radius:4px 4px 4px 4px;
+    border-radius:4px 4px 4px 4px;
 }
 
 

@@ -269,10 +269,9 @@ $(document).ready(function(){
     $('#input_nrec, #s_nbt').click(function(event){     
         event.stopPropagation();
         $(this).css('display','none');
-        $val = $('#input_nrec').html();
-        $('#s_nbt').css('display','block').val($val);
-          
+        $('#s_nbt').css('display','block');     
     });
+    
     $('html').click(function(){ 
         $val = $('#s_nbt').val(); 
         if ($val > 0){    
@@ -471,23 +470,22 @@ $(document).ready(function(){
                   data: {'table_HideColumns':UncheckedItems},
                   async: true,
                 }).done(function(data) {
-                     $('#myModal').modal('hide');// popup settings window
                 }); 
             }
         }  // if '#first' settings page
         else if ($('#myTab li.active a').attr('href') == '#second'){
-            nb_rec = $('#input_nrec').html();
+            nb_rec = $('#s_nbt').val();
             if (nb_rec > 0 && !$('#save_set').hasClass('disabled')){
-                $('#save_set').attr('href', '.');
+                //$('#save_set').attr('href', '.');
                 $.ajax({
                   type: 'POST',
                   url: 'setSettings',
                   data: {'nb_records_per_page':nb_rec},
                   async: true,
                   dataType: 'html',
-                }).done(function(data) {
-                     $('#myModal').modal('hide');
-                     
+                }).done(function(data) {  
+                    $("#table_out").fadeOut("quick"); 
+                    $('#main_content').fadeIn("quick").load(' #table_out')
                 });
             }else{
                    

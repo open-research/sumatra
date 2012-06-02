@@ -310,7 +310,7 @@ def setSettings(request, project):
             project.web_settings[key] = item
     project.save()
     return HttpResponse('ok')
-    
+
 def short_repo(url_repo):
     return '%s\%s' %(url_repo.split('\\')[-2], 
                      url_repo.split('\\')[-1])
