@@ -223,8 +223,8 @@
             <th class="blue header Outcome-t" rowspan="2">Outcome</th>
             <th class="blue header Duration-t" rowspan="2">Duration</th>
             <th class="blue header Processes-t" rowspan="2">Processes</th>
-            <th class='Executable-t' colspan="2">Executable</th>
-            <th class='Script-t' colspan="4">Script</th>
+            <th class='Executable-t' colspan="{{settings.cols_span_execut}}">Executable</th>
+            <th class='Script-t' colspan="{{settings.cols_span_script}}">Script</th>
             <th class="blue header Date-t" rowspan="2">Date</th>
             <th class="blue header Time-t" rowspan="2">Time</th> 
           </tr>
@@ -295,23 +295,10 @@ $(document).ready(function(){
       dataType: 'json'
     }).done(function(data) {
         cols = data.table_HideColumns;
-        cols_span_execut = 2;
-        cols_span_script = 4;
         if (cols){
-            cols = $.map(cols, function(value, i){
-                return value + '-t';
-            });
             for (var item, i = -1; item = cols[++i];){
-                $('.' + item).hide();
-                check_class = $('.' + item).attr('class').split(" ").slice(-1) 
-                if (check_class == 'parentExecutable'){
-                    --cols_span_execut;
-                }else if(check_class == 'parentScript'){
-                    --cols_span_script;
-                }
+                $(['.', item, '-t'].join('')).hide();
             }
-            $('.Script-t').attr('colspan', cols_span_script);
-            $('.Executable-t').attr('colspan', cols_span_execut);
         }
     }); // end load of settings
   
@@ -429,8 +416,8 @@ $(document).ready(function(){
     }); /* End of automatic check/uncheck of #Script and #Executable */
 
     $('#save_set').click(function(){ // button save settings 
-        //if ($('#myTab li.active a').attr('href') == '#first'){
             var UncheckedItems = new Array();
+            
             if (!$('#save_set').hasClass('disabled')){
                 $('#save_set').attr('href', '.');
                 Exec_colspan = $('.Executable:checked').length;    
@@ -441,14 +428,14 @@ $(document).ready(function(){
                 // hide columns:
                 $(".check-item").not(':checked').each(function() { 
                     $unchecked = $(this).attr('id');
-                    $('.'+$unchecked+'-t').hide();
+                    $(['.', $unchecked, '-t'].join('')).hide();
                     UncheckedItems.push($(this).attr('id'));
                 });
                 
                 // show columns:
                 $(".check-item:checked").each(function() { 
                     $checked = $(this).attr('id');
-                    $('.'+$checked+'-t').show();
+                    $(['.', $checked, '-t'].join('')).show();
                 });
                 
                 nb_rec = $('#s_nbt').val();
@@ -456,15 +443,14 @@ $(document).ready(function(){
                   type: 'POST',
                   url: 'setSettings',
                   data: {'table_HideColumns':UncheckedItems,
-                         'nb_records_per_page':nb_rec},
+                         'nb_records_per_page':nb_rec,
+                         'cols_span_execut':Exec_colspan,
+                         'cols_span_script':Script_colspan},
                   async: true,
                 })
             }
     });
     
-    $('#table_out').hover(function(){
-        //alert('erje');
-    });
     /* selection of all checkboxes */
     $("#check_selectAll").click(function() { 
         var checkedStatus = this.checked;

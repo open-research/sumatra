@@ -291,5 +291,7 @@ def load_project(path=None):
 def init_websettings():
     web_settings = {'nb_records_per_page':RECORDS_PER_PAGE,
                     'display_density':'compact',
-                    'table_HideColumns':None}
+                    'table_HideColumns':None,
+                    'cols_span_script':4,
+                    'cols_span_execut':2}
     return web_settings
