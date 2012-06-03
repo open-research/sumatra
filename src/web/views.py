@@ -285,31 +285,32 @@ def run_sim(request, project):
                                     'Date-t':date,
                                     'Time-t':time}))
                                     
-def getSettings(request, project):
-    project = load_project()
-    web_settings = project.web_settings
-    return HttpResponse(json.dumps(web_settings))
-  
-def setSettings(request, project):
+def settings(request, project):
+    # if web_settings['saveSettings'] == True when save the settings to .smt/project
+    # else if False: send settings to record_list.html
     web_settings = {'display_density':request.POST.get('display_density', False),
                     'nb_records_per_page':request.POST.get('nb_records_per_page', False),
                     'cols_span_script':request.POST.get('cols_span_script', False),
                     'cols_span_execut':request.POST.get('cols_span_execut', False),
-                    'table_HideColumns': request.POST.getlist('table_HideColumns[]')
+                    'table_HideColumns': request.POST.getlist('table_HideColumns[]'),
+                    'saveSettings':request.POST.get('saveSettings', False), 
                     }
-    project = load_project()
-    # upgrading of .smt/project: new supplementary settings entries
-    if len(web_settings['table_HideColumns']) == 0:  # empty set (all checkboxes are checked)
-        project.web_settings['table_HideColumns'] = None
-    try:
-        project.web_settings
-    except(AttributeError, KeyError): # project don't have web_settings
-        project.web_settings = init_websettings()   
-    for key, item in web_settings.iteritems():
-        if item:
-            project.web_settings[key] = item
-    project.save()
-    return HttpResponse('ok')
+    project = load_project()     
+    if web_settings['saveSettings']:
+        if len(web_settings['table_HideColumns']) == 0:  # empty set (all checkboxes are checked)
+            project.web_settings['table_HideColumns'] = None
+        try:
+            project.web_settings
+        except(AttributeError, KeyError): # project doesn't have web_settings yet
+            # upgrading of .smt/project: new supplementary settings entries
+            project.web_settings = init_websettings()   
+        for key, item in web_settings.iteritems():
+            if item:
+                project.web_settings[key] = item
+        project.save()
+        return HttpResponse('')
+    else:
+        return HttpResponse(json.dumps(project.web_settings))
 
 def short_repo(url_repo):
     return '%s\%s' %(url_repo.split('\\')[-2], 

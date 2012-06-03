@@ -323,7 +323,7 @@ $(document).ready(function(){
     // load of settings:
     $.ajax({
       type: 'GET',
-      url: 'getSettings',
+      url: 'settings',
       async: true,
       dataType: 'json'
     }).done(function(data) {
@@ -394,7 +394,7 @@ $(document).ready(function(){
     $('#settings_but').click(function(){         
         $.ajax({
           type: 'GET',
-          url: 'getSettings',
+          url: 'settings',
           async: true,
           dataType: 'json'
         }).done(function(data) {
@@ -475,11 +475,12 @@ $(document).ready(function(){
                 nb_rec = $('#s_nbt').val();
                 $.ajax({
                   type: 'POST',
-                  url: 'setSettings',
+                  url: 'settings',
                   data: {'table_HideColumns':UncheckedItems,
                          'nb_records_per_page':nb_rec,
                          'cols_span_execut':Exec_colspan,
-                         'cols_span_script':Script_colspan},
+                         'cols_span_script':Script_colspan,
+                         'saveSettings':true},
                   async: true,
                 }).done(function(){});
             }
@@ -506,8 +507,9 @@ $(document).ready(function(){
         $(this).addClass('active_settings_row');
             $.ajax({
               type: 'POST',
-              url: 'setSettings',
-              data: {'display_density':$density_set},
+              url: 'settings',
+              data: {'display_density':$density_set,
+                     'saveSettings':true},
               async: true
             }).done(function(data) {
                  $('#myModal').modal('hide');
@@ -528,7 +530,7 @@ $(document).ready(function(){
         // load checkboxes states from .smt/project:
         $.ajax({
           type: 'GET',
-          url: 'getSettings',
+          url: 'settings',
           async: true,
           dataType: 'json'
         }).done(function(data) {   
