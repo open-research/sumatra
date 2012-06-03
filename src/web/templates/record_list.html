@@ -207,10 +207,36 @@
             <i class="icon-file"></i> New record
         </a>
         {% if is_paginated %}
-            <div style='float:right; margin-right:100px;'>
-                <b>{{page_obj.start_index}}</b> - <b id='b_nbrec'>{{page_obj.end_index}}</b> of <b id='b_nbsim'>{{paginator.count}}</b>
+            <div style='float:right; margin-right:25px'>
+            <div class="btn-group paginator">
+                <div id='pagin_info'>
+                    <b>{{page_obj.start_index}}</b> - <b id='b_nbrec'>{{page_obj.end_index}}</b> of <b id='b_nbsim'>{{paginator.count}}</b>
+                </div>
+                <ul class="dropdown-menu" style='min-width:0px'>
+                    <li>
+                        {% if page_obj.has_previous %}
+                            <a href="?page=1&per_page={{records_per_page}}">Newest</a>
+                        {% else %}
+                            <a class='p-inac'>Newest</a>
+                        {% endif %}
+                    </li>
+                    <li>
+                        {% if page_obj.has_next %}
+                            <a href="?page={{paginator.num_pages}}&per_page={{records_per_page}}">Oldest</a>
+                        {% else %}
+                            <a class='p-inac'>Oldest</a> 
+                        {% endif %}
+                    </li>
+                </ul>
+            </div>
+                 
+                <div style='float:left; margin-left:10px;'>
+                    {% if page_obj.has_previous %}<a href="?page={{page_obj.previous_page_number}}&per_page={{records_per_page}}" class="page gradient" id='older'>{% else %}<a class="page gradient inactive" id='older'>{% endif %}<i class="pagin icon-chevron-left"></i></a>
+                    {% if page_obj.has_next %}<a href="?page={{page_obj.next_page_number}}&per_page={{records_per_page}}" class="page gradient" id='newer'>{% else %}<a class="page gradient inactive" id='newer'>{% endif %}<i class="pagin icon-chevron-right"></i></a>
+                </div>
             </div>
         {% endif %}
+
 </div>
 
 <div id = 'main_content'>
@@ -266,8 +292,14 @@
 <!--p><a href="/">Return to list of projects</a></p-->
 <script type = 'text/javascript'>
 $(document).ready(function(){ 
+    $('.page.gradient').not('.inactive').mouseenter(function(){
+        $(this).children().css('opacity','1.0');
+    }).mouseleave(function(){
+        $(this).children().css('opacity','0.5');
+    });
+    
     $('#input_nrec, #s_nbt').click(function(event){  
-        $('#save_set').attr('href', '.'); // for reloading the page if nb of records will be changed
+        $('#save_set').attr('href', '.'); // for reloading the page if nb of records is changed
         event.stopPropagation();
         $(this).css('display','none');
         $('#s_nbt').css('display','block');     
@@ -357,6 +389,7 @@ $(document).ready(function(){
     });
     
     $('#settings_but').dropdown();   // dropdown menu for the settings button 
+    $('#pagin_info').dropdown();
    
     $('#settings_but').click(function(){         
         $.ajax({

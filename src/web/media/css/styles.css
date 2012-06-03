@@ -450,8 +450,65 @@ span#icon_cdown{
     text-align:center;
 }
 
+.page.gradient{
+    display: inline-block;
+    padding: 10px 10px;
+    margin-right: 0px;
+    border-radius: 3px;
+    border: solid 1px #c0c0c0;
+    background: #e9e9e9;
+    box-shadow: inset 0px 1px 0px rgba(255,255,255, .8), 0px 1px 3px rgba(0,0,0, .1);
+    background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#f8f8f8), to(#e9e9e9));
+    background: -moz-linear-gradient(0% 0% 270deg,#f8f8f8, #e9e9e9);
+    font-size: 20px;
+    font-weight: bold;
+    text-decoration: none;
+    color: #717171;
+    text-shadow: 0px 1px 0px rgba(255,255,255, 1);
+    cursor:pointer;
+    cursor:hand;
+}
+.page.gradient:hover {
+    background: #fefefe;
+    background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#FEFEFE), to(#f0f0f0));
+    background: -moz-linear-gradient(0% 0% 270deg,#FEFEFE, #f0f0f0);
+}
+.page.gradient:active:not(.inactive){
+    box-shadow: 0pt 1px 6px rgba(0, 0, 0, 0.15) inset, 0pt 1px 2px rgba(0, 0, 0, 0.05);
+}
+.pagin{
+    opacity:0.5;
+}
+.page.inactive{
+    opacity: 0.5;
+}
 
-
-
+#pagin_info{
+    float:left; 
+    margin-top:10px;
+    cursor:pointer;
+    padding-left:5px;
+    padding-right:5px;
+    border: 1px solid #ffffff;
+}
+#pagin_info:hover{
+    border:  1px solid #e5e5e5;
+}
+.btn-group.paginator{
+    float:left;
+    margin-right:0px;
+}
+#pagin_info ul li a{
+    font-size:12px; 
+    padding:3px 21px;
+}
+a.p-inac{
+    opacity: 0.5;
+}
+li a.p-inac:hover{
+    background-color:#ffffff;
+    color: rgb(85, 85, 85);
+    cursor:default;
+}
 
 

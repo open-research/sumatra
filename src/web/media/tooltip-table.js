@@ -5,4 +5,11 @@ $(window).ready(function(){
         },
         placement: 'bottom'
     });
+    
+    $('.page.gradient').tooltip({
+        title: function(){
+            return $(this).attr('id');    
+        },
+        placement: 'bottom'
+    });
 });
