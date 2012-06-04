@@ -268,8 +268,8 @@ def run_sim(request, project):
                '--tag':request.POST.get('tag', False),
                '--executable':request.POST.get('execut', False)                
               }
-    print run_opt
-    run(["in.param", "--label='testlabel'"])
+    # run(["in.param", "--label='testlabel'"])
+    run(["in.param"])
     record = models.Record.objects.order_by('-db_id')[0]
     if not(len(record.launch_mode.get_parameters())):
         nbproc = 1
@@ -311,6 +311,7 @@ def settings(request, project):
                     }
     project = load_project()     
     if web_settings['saveSettings']:
+        del web_settings['saveSettings']
         if len(web_settings['table_HideColumns']) == 0:  # empty set (all checkboxes are checked)
             project.web_settings['table_HideColumns'] = None
         try:

@@ -564,7 +564,6 @@ $(document).ready(function(){
         });
         $('#table_out tbody').prepend($clone); // insert the clone after the head of table
         $.fancybox.showActivity(); 
-        alert($('#mReason').val());
         $.ajax({
           type: 'POST',
           url: 'simulation',
