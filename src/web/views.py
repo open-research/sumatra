@@ -261,7 +261,15 @@ def show_diff(request, project, label, package):
                                                  'diff': dependency.diff})
                                                  
 def run_sim(request, project):
-    run(['in.param'])
+    args = request.POST.get('args', False)
+    main_file = request.POST.get('main_file', False)
+    run_opt = {'--label':request.POST.get('label', False),
+               '--reason':request.POST.get('reason', False),
+               '--tag':request.POST.get('tag', False),
+               '--executable':request.POST.get('execut', False)                
+              }
+    print run_opt
+    run(["in.param", "--label='testlabel'"])
     record = models.Record.objects.order_by('-db_id')[0]
     if not(len(record.launch_mode.get_parameters())):
         nbproc = 1
@@ -286,14 +294,20 @@ def run_sim(request, project):
                                     'Time-t':time}))
                                     
 def settings(request, project):
-    # if web_settings['saveSettings'] == True when save the settings to .smt/project
-    # else if False: send settings to record_list.html
+    ''' Only one of the following parameter can be True
+    web_settings['saveSettings'] == True: save the settings in .smt/project
+    web_settings['web'] == True: send project.web_settings to record_list.html
+    web_settings['sumatra'] = True: send some spacific settings to record_list.html (they will
+    be used in the popup window for the new record as the default values
+    '''
     web_settings = {'display_density':request.POST.get('display_density', False),
                     'nb_records_per_page':request.POST.get('nb_records_per_page', False),
                     'cols_span_script':request.POST.get('cols_span_script', False),
                     'cols_span_execut':request.POST.get('cols_span_execut', False),
                     'table_HideColumns': request.POST.getlist('table_HideColumns[]'),
                     'saveSettings':request.POST.get('saveSettings', False), 
+                    'web':request.POST.get('web', False), 
+                    'sumatra':request.POST.get('sumatra', False) 
                     }
     project = load_project()     
     if web_settings['saveSettings']:
@@ -309,8 +323,12 @@ def settings(request, project):
                 project.web_settings[key] = item
         project.save()
         return HttpResponse('')
-    else:
+    elif web_settings['web']:
         return HttpResponse(json.dumps(project.web_settings))
+    elif web_settings['sumatra']:
+        settings = {'execut':project.default_executable.path,
+                    'mfile':project.default_main_file}
+        return HttpResponse(json.dumps(settings))
 
 def short_repo(url_repo):
     return '%s\%s' %(url_repo.split('\\')[-2], 

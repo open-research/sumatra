@@ -322,9 +322,10 @@ $(document).ready(function(){
 
     // load of settings:
     $.ajax({
-      type: 'GET',
+      type: 'POST',
       url: 'settings',
       async: true,
+      data: {'web':true},
       dataType: 'json'
     }).done(function(data) {
         cols = data.table_HideColumns;
@@ -339,6 +340,16 @@ $(document).ready(function(){
         $('#mod_newrec').modal('hide');
     });
     $('#btn_newrec').click(function(){
+        $.ajax({
+          type: 'POST',
+          url: 'settings',
+          data: {'sumatra':true},
+          async: true,
+          dataType: 'json'
+        }).done(function(data) {
+             $('#mExec').val(data.execut);
+             $('#mFile').val(data.mfile);     
+        });
         $('#mod_newrec').css('visibility','visible').modal('show');
     });
     
@@ -393,9 +404,10 @@ $(document).ready(function(){
    
     $('#settings_but').click(function(){         
         $.ajax({
-          type: 'GET',
+          type: 'POST',
           url: 'settings',
           async: true,
+          data: {'web':true},
           dataType: 'json'
         }).done(function(data) {
             $('#button_' + data.display_density).addClass('active_settings_row');
@@ -529,9 +541,10 @@ $(document).ready(function(){
         $('.tabs a:last').tab('show');
         // load checkboxes states from .smt/project:
         $.ajax({
-          type: 'GET',
+          type: 'POST',
           url: 'settings',
           async: true,
+          data: {'web':true},
           dataType: 'json'
         }).done(function(data) {   
             cols = data.table_HideColumns;
@@ -550,12 +563,19 @@ $(document).ready(function(){
             $(el).html('');
         });
         $('#table_out tbody').prepend($clone); // insert the clone after the head of table
-       
         $.fancybox.showActivity(); 
+        alert($('#mReason').val());
         $.ajax({
           type: 'POST',
           url: 'simulation',
           async: true,
+          data: {'label':$('#mLabel').val(),
+                 'reason':$('#mReason').val(),
+                 'tag':$('#mTag').val(),
+                 'execut':$('#mExec').val(),
+                 'main_file':$('#mFile').val(),
+                 'args':$('#mArg').val()
+                },
           dataType: 'json',
           success: function(){  
              $.fancybox.hideActivity();
