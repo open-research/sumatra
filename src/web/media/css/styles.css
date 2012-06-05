@@ -382,30 +382,29 @@ span#icon_cdown{
     border: 1px solid #AAAAAA;
 }
 
-#myModal{
-    visibility: hidden;
+#setModal{
+    //visibility: hidden;
     width: 40%;
     max-height:80%;
 }
 
 #mod_newrec{
-    visibility: hidden;
-    min-height: 50%;
+    //visibility: hidden;
+    min-height: 400px;
     width: 450px;
 }
 .control-label{
     padding: 3px 15px;
-    width: 20%;
+    width: 100px;
     float:left;
 }
 
 .mod_input{
     float:left;
-    width: 70%;
 }
 
 .d-mod{
-    padding-top: 30px;
+    //padding-top: 30px;
     //position: absolute;
 }
 
@@ -511,4 +510,7 @@ li a.p-inac:hover{
     cursor:default;
 }
 
+#close_newrec{
+    margin-top:5px;
+}
 

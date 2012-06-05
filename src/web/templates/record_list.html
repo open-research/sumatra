@@ -191,13 +191,13 @@
             <li><a href="#" class='menu-rsettigns' id='button_null'>Comfortable</a></li>
             <li><a href="#" class='menu-rsettigns' id='button_table-condensed'>Compact</a></li>
             <li class="divider"></li>
-            <li><a id='button_settings' class='menu-rsettigns'>Settings</a></li>
+            <li><a id='button_settings' class='menu-rsettigns' data-toggle="modal" href="#setModal">Settings</a></li>
         </ul>
     </div>
 </div>
 
 <div id='newrecord'>
-        <a id='btn_newrec' class='btn btn-danger btn-large' style='width:100px'>
+        <a id='btn_newrec' class='btn btn-danger btn-large' style='width:100px' data-toggle="modal" href="#mod_newrec">
             <i class="icon-file"></i> New record
         </a>
             <div style='float:right; margin-right:25px'>
@@ -289,6 +289,8 @@ $(document).ready(function(){
         $(this).children().css('opacity','0.5');
     });
     
+    $('.modal').modal().modal('hide');
+    
     $('#input_nrec, #s_nbt').click(function(event){  
         $('#save_set').attr('href', '.'); // for reloading the page if nb of records is changed
         event.stopPropagation();
@@ -327,9 +329,23 @@ $(document).ready(function(){
         }
     }); // end load of settings
   
-    $('#btn_run, #close_newrec').click(function(){
-        $('#mod_newrec').modal('hide');
+    $('#btn_run, #close_newrec').click(function(e){
+        $('#mod_newrec').modal('hide');    
     });
+
+     // new record popup:
+     $(document).on('keyup keydown', function(e){
+        if (e.which == 13 && $('#mod_newrec').css('display')=='block'){
+            if (e.type == "keydown"){
+                $('#btn_run').addClass('active');
+                e.preventDefault();
+            }else{
+                $('#btn_run').removeClass('active');
+                $('#btn_run').trigger('click');
+            }  
+        }
+    });
+    
     $('#btn_newrec').click(function(){
         $.ajax({
           type: 'POST',
@@ -341,7 +357,7 @@ $(document).ready(function(){
              $('#mExec').val(data.execut);
              $('#mFile').val(data.mfile);     
         });
-        $('#mod_newrec').css('visibility','visible').modal('show');
+        //$('#mod_newrec').modal('show');
     });
     
     $('#menu_datewith > li').click(function(){
@@ -408,8 +424,9 @@ $(document).ready(function(){
     
     $('#table_out').tablesorter(); // use tablesorter.min.js
     
-    $('#close_set, #close_set').click(function(){
-        $('#myModal').modal('hide');
+    
+    $('#close_set, #close_set.btn').click(function(){
+        $('#setModal').modal('hide');
     });
     
     /* Automatic check/uncheck of #Script and #Executable */
@@ -515,7 +532,7 @@ $(document).ready(function(){
                      'saveSettings':true},
               async: true
             }).done(function(data) {
-                 $('#myModal').modal('hide');
+                 //$('#myModal').modal('hide');
             });
 
         if ($density_set == 'table-condensed'){
@@ -528,7 +545,7 @@ $(document).ready(function(){
     });
     
    $('#button_settings').click(function(){
-        $('#myModal').css('visibility','visible').modal('show');
+        //$('#myModal').modal('show');
         $('.tabs a:last').tab('show');
         // load checkboxes states from .smt/project:
         $.ajax({
@@ -588,39 +605,41 @@ $(document).ready(function(){
 
 
 
-<div class="modal" id="mod_newrec">
-    <a class="close s-close" id='close_newrec'>&times;</a>
-    <div class='d-mod'>     
-        <label class='control-label' for='mLabel'>Label</label> 
-        <div class='mod_input'>
-            <input id='mLabel' class='input-xlarge' type='text'>
+<div class="modal" id="mod_newrec"> 
+    <div class='d-mod'>  
+        <div style='float:left;padding:3px 15px;position:absolute; margin-top:5px'><h3>new record</h3></div><a class="close s-close" id='close_newrec'>&times;</a>
+        <div style='position:absolute; margin-top:50px'>
+            <label class='control-label' for='mLabel'>Label</label> 
+            <div class='mod_input'>
+                <input id='mLabel' class='input-xlarge' type='text'>
+            </div>
+            <label class='control-label' for='mReason'>Reason</label> 
+            <div class='mod_input'>
+                <textarea id='mReason' class='input-xlarge' type='text'></textarea>
+            </div>
+            <label class='control-label' for='mTag'>Tag</label> 
+            <div class='mod_input'>
+                <input id='mTag' class='input-xlarge' type='text'>
+            </div>
+            <label class='control-label' for='mExec'>Executable path</label> 
+            <div class='mod_input'>
+                <input id='mExec' class='input-xlarge' type='text'>
+            </div>
+            <label class='control-label' for='mFile'>Main file</label> 
+            <div class='mod_input'>
+                <input id='mFile' class='input-xlarge' type='text'>
+            </div>
+            <label class='control-label' for='mArg'>Arguments</label> 
+            <div class='mod_input'>
+                <input id='mArg' class='input-xlarge' type='text'>
+                <button id='btn_run' class='btn btn-success btn-large' style='width:150px; display: block ;margin-left: auto; margin-right: auto;'>Run</button>
+            </div>
         </div>
-        <label class='control-label' for='mReason'>Reason</label> 
-        <div class='mod_input'>
-            <textarea id='mReason' class='input-xlarge' type='text'></textarea>
-        </div>
-        <label class='control-label' for='mTag'>Tag</label> 
-        <div class='mod_input'>
-            <input id='mTag' class='input-xlarge' type='text'>
-        </div>
-        <label class='control-label' for='mExec'>Executable</label> 
-        <div class='mod_input'>
-            <input id='mExec' class='input-xlarge' type='text'>
-        </div>
-        <label class='control-label' for='mFile'>Main file</label> 
-        <div class='mod_input'>
-            <input id='mFile' class='input-xlarge' type='text'>
-        </div>
-        <label class='control-label' for='mArg'>Arguments</label> 
-        <div class='mod_input'>
-            <input id='mArg' class='input-xlarge' type='text'>
-        </div>
-        <button id='btn_run' class='btn btn-success btn-large' style='width:150px; display: block ;margin-left: auto; margin-right: auto;'>Run</button>
     </div>
 </div>
 
    
-<div class="modal" id="myModal">
+<div class="modal" id="setModal">
   <a class="close s-close" id='close_set'>&times;</a>
   <div class="modal-header">
     <a class="close" data-dismiss="modal"></a>
