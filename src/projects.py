@@ -35,7 +35,7 @@ except ImportError:
     import simplejson as json
 
 DEFAULT_PROJECT_FILE = "project"
-RECORDS_PER_PAGE = 50
+RECORDS_PER_PAGE = 10
 
 def _remove_left_margin(s): # replace this by textwrap.dedent?
     lines = s.strip().split('\n')
@@ -290,7 +290,7 @@ def load_project(path=None):
 
 def init_websettings():
     web_settings = {'nb_records_per_page':RECORDS_PER_PAGE,
-                    'display_density':'compact',
+                    'display_density':'table-condensed',
                     'table_HideColumns':None,
                     'cols_span_script':4,
                     'cols_span_execut':2}

@@ -206,7 +206,6 @@
         <a id='btn_newrec' class='btn btn-danger btn-large' style='width:100px'>
             <i class="icon-file"></i> New record
         </a>
-        {% if is_paginated %}
             <div style='float:right; margin-right:25px'>
             <div class="btn-group paginator">
                 <div id='pagin_info'>
@@ -235,8 +234,6 @@
                     {% if page_obj.has_next %}<a href="?page={{page_obj.next_page_number}}&per_page={{records_per_page}}" class="page gradient" id='newer'>{% else %}<a class="page gradient inactive" id='newer'>{% endif %}<i class="pagin icon-chevron-right"></i></a>
                 </div>
             </div>
-        {% endif %}
-
 </div>
 
 <div id = 'main_content'>
@@ -581,6 +578,7 @@ $(document).ready(function(){
              $("#table_out").trigger("update");  //for tablesorter
           },
         }).done(function(data) {
+             alert(data["Duration-t"]);
              $tableFirstrow = $('#table_out tbody tr:eq(0)');
              $tableFirstrow.find('td').each(function(i, el) {
                   $(el).html(data[$(el).attr('class').split(' ')[0]]);
