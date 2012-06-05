@@ -9,6 +9,7 @@ import tarfile
 import shutil
 import logging
 import mimetypes
+import sys
 
 
 from base import DataItem, DataKey
@@ -20,9 +21,15 @@ class ArchivedDataFile(DataItem):
     # current implementation just for real files
     
     def __init__(self, path, store):
-        self.path = path
-        archive_label = self.path.split("/")[0]
-        self.tarfile_path = os.path.join(store.archive_store, archive_label + ".tar.gz")
+        platform_info = sys.platform
+        if platform_info == 'win32' or platform_info == 'win64':
+            archive_label = path.split('\\')[0] # '20120605-110619
+            self.tarfile_path = os.path.join(os.getcwd(), store.archive_store, archive_label + ".tar.gz") # complete path
+            self.path = tarfile.open(self.tarfile_path, 'r').getnames()[0]  # '20120605-110619/out2.txt
+        else:
+            archive_label = self.path.split('/')[0]
+            self.tarfile_path = os.path.join(store.archive_store, archive_label + ".tar.gz")
+            self.path = path
         self.size = self._get_info().size
         self.name = os.path.basename(self.path)
         self.extension = os.path.splitext(self.name)
@@ -30,12 +37,12 @@ class ArchivedDataFile(DataItem):
 
     def _get_info(self):
         with tarfile.open(self.tarfile_path, 'r') as data_archive:
-            info = data_archive.getmember(self.path)
+            info = data_archive.getmember(data_archive.getnames()[0])
         return info
     
     def get_content(self, max_length=None):
         with tarfile.open(self.tarfile_path, 'r') as data_archive:
-            f = data_archive.extractfile(self.path)
+            f = data_archive.extractfile(data_archive.getnames()[0])   
             if max_length:
                 content = f.read(max_length)
             else:
