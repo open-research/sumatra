@@ -18,7 +18,6 @@
  
  
 {% block content %} 
-
 <div id = 'header_menu'>
     <div class='subnav'>
         <ul class='nav nav-pills'>
@@ -30,7 +29,6 @@
    <div id = 'div_menu_search' class='span5'>
        <ul class="dropdown-menu" id = 'menu_search'>
             <a class="close" id='close_menu'>&times;</a>
-            
             <div class='controls'>
                 <label class='control-label'>Label</label> 
                 <select data-placeholder=" " multiple class="chzn-select">
@@ -418,8 +416,7 @@ $(document).ready(function(){
           dataType: 'json'
         }).done(function(data) {
             $('#button_' + data.display_density).addClass('active_settings_row');
-        });   
-        
+        });    
     }); 
     
     $('#table_out').tablesorter(); // use tablesorter.min.js
@@ -591,14 +588,27 @@ $(document).ready(function(){
         }).done(function(data) {
              $tableFirstrow = $('#table_out tbody tr:eq(0)');
              $tableFirstrow.find('td').each(function(i, el) {
-                  $(el).html(data[$(el).attr('class').split(' ')[0]]);
+                       if ($(this).is(".Tag-t")) {
+                          $tag = data[$(el).attr('class').split(' ')[0]].split(',');
+                          length = $tag.length;
+                          for (var item, i = -1; item = $tag[++i];){
+                              item = item.replace(/\s/g, ""); // removing spaces
+                              $a = $(el).append('<a href=""></a>').find('a:last'); // get appended a
+                              $a.html(item) // set value for appended value
+                                .attr('href', ["/{{project_name}}/tag/", item, '/'].join('')) // set href      
+                              if ( i < length - 1){
+                                $(el).append(', '); // comma between the tag words
+                              }
+                            }
+                        }else{
+                            $(el).html(data[$(el).attr('class').split(' ')[0]]);
+                        }
              });
              $tableFirstrow.effect("highlight", {}, 5000);  
              nb_sim = parseInt($('#b_nbsim').html());
              $('#b_nbsim').html(nb_sim + 1);
         }); // done
-    });
-    
+    }); 
   // $('#fancybox-loading').ajaxStart(function() { $.fancybox.showActivity() }).ajaxStop(function() {$.fancybox.hideActivity();});
 });
 </script>

@@ -269,7 +269,6 @@ def run_sim(request, project):
                '--main': request.POST.get('main_file', False),
                'args': request.POST.get('args', False)
               }
-    # run(["in.param", "--label='testlabel'"])
     options_list = []
     for key, item in run_opt.iteritems():
         if item:
@@ -277,7 +276,7 @@ def run_sim(request, project):
                 options_list.append(item)
             elif key == 'exec':
                 executable = str(os.path.basename(item))
-                if 'exe' in executable:
+                if '.exe' in executable:
                     executable = executable.split('.')[0]
                 options_list.append('='.join(['--executable', executable]))
             else:
