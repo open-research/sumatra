@@ -186,18 +186,18 @@ def show_file(request, project, label):
                                       {'path': path, 'label': label,
                                        'digest': digest,
                                        'project_name': project,})
-        #elif mimetype == 'application/zip':
-        #    import zipfile
-        #    if zipfile.is_zipfile(path):
-        #        zf = zipfile.ZipFile(path, 'r')
-        #        contents = zf.namelist()
-        #        zf.close()
-        #        return render_to_response("show_file.html",
-        #                              {'path': path, 'label': label,
-        #                               'content': "\n".join(contents)
-        #                               })
-        #    else:
-        #        raise IOError("Not a valid zip file")
+        elif mimetype == 'application/zip':
+            import zipfile
+            if zipfile.is_zipfile(path):
+                zf = zipfile.ZipFile(path, 'r')
+                contents = zf.namelist()
+                zf.close()
+                return render_to_response("show_file.html",
+                                      {'path': path, 'label': label,
+                                       'content': "\n".join(contents)
+                                       })
+            else:
+                raise IOError("Not a valid zip file")
         else:
             return render_to_response("show_file.html", {'path': path, 'label': label,
                                                          'project_name': project,
@@ -261,15 +261,29 @@ def show_diff(request, project, label, package):
                                                  'diff': dependency.diff})
                                                  
 def run_sim(request, project):
-    args = request.POST.get('args', False)
-    main_file = request.POST.get('main_file', False)
-    run_opt = {'--label':request.POST.get('label', False),
-               '--reason':request.POST.get('reason', False),
-               '--tag':request.POST.get('tag', False),
-               '--executable':request.POST.get('execut', False)                
+    
+    run_opt = {'--label': request.POST.get('label', False),
+               '--reason': request.POST.get('reason', False),
+               '--tag': request.POST.get('tag', False),
+               'exec': request.POST.get('execut', False),
+               '--main': request.POST.get('main_file', False),
+               'args': request.POST.get('args', False)
               }
     # run(["in.param", "--label='testlabel'"])
-    run(["in.param"])
+    options_list = []
+    for key, item in run_opt.iteritems():
+        if item:
+            if key == 'args':
+                options_list.append(item)
+            elif key == 'exec':
+                executable = str(os.path.basename(item))
+                if 'exe' in executable:
+                    executable = executable.split('.')[0]
+                options_list.append('='.join(['--executable', executable]))
+            else:
+                options_list.append('='.join([key, item])) 
+    print options_list
+    run(options_list)
     record = models.Record.objects.order_by('-db_id')[0]
     if not(len(record.launch_mode.get_parameters())):
         nbproc = 1

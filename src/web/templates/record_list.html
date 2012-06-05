@@ -7,16 +7,10 @@
     <div class="navbar-inner">
         <div class="container-fluid">
             <h1><div id = "name_project">
-            <a href="about/">{{project_name}}:{% if tag %} tagged with {{tag}}{% endif %}</a></div>
+            <a href="about/">{{project_name}}{% if tag %} tagged with {{tag}}{% endif %}</a></div>
             <div id = 'name_page'>&nbsp; list of records</div></h1>
             <div id='sumatra_logo'><a href="http://neuralensemble.org/trac/sumatra">
             <img src='/media/Sumatra_logo.png'/></a></div>
-            <!--div class="nav-collapse">
-            <ul class="nav">
-              <li><a href="#">File</a></li>
-              <li><a href="#about">Settings</a></li>
-            </ul>
-            </div-->
         </div>
     </div>
 </div> 
@@ -578,7 +572,6 @@ $(document).ready(function(){
              $("#table_out").trigger("update");  //for tablesorter
           },
         }).done(function(data) {
-             alert(data["Duration-t"]);
              $tableFirstrow = $('#table_out tbody tr:eq(0)');
              $tableFirstrow.find('td').each(function(i, el) {
                   $(el).html(data[$(el).attr('class').split(' ')[0]]);

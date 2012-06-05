@@ -27,7 +27,7 @@ from sumatra.dependency_finder import core, neuron, python, genesis
 def find_dependencies(filename, executable):
     """Return a list of dependencies for a given script and programming
        language."""
-    if executable.name == "Python":
+    if str.lower(executable.name) == "python":
         return python.find_dependencies(filename, executable)
     elif executable.name == "NEURON":
         return neuron.find_dependencies(filename, executable)
