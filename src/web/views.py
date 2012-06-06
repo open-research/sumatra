@@ -6,8 +6,6 @@ from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response
 from django.views.generic import list_detail
 from django import forms
-from django.core import serializers
-from django.template import RequestContext
 from django.utils import simplejson
 from tagging.views import tagged_object_list
 from sumatra.recordstore.django_store import models

@@ -267,13 +267,18 @@
 <!--p><a href="/">Return to list of projects</a></p-->
 <script type = 'text/javascript'>
 $(document).ready(function(){ 
+
+    $('.modal').modal().modal('hide');
+    
+    // load of settings:
+    hideColumns(hidedColumns());
+
+    
     $('.page.gradient').not('.inactive').mouseenter(function(){
         $(this).children().css('opacity','1.0');
     }).mouseleave(function(){
         $(this).children().css('opacity','0.5');
     });
-    
-    $('.modal').modal().modal('hide');
     
     $('#input_nrec, #s_nbt').click(function(event){  
         $('#save_set').attr('href', '.'); // for reloading the page if nb of records is changed
@@ -297,22 +302,6 @@ $(document).ready(function(){
         }   
     });
 
-    // load of settings:
-    $.ajax({
-      type: 'POST',
-      url: 'settings',
-      async: true,
-      data: {'web':true},
-      dataType: 'json'
-    }).done(function(data) {
-        cols = data.table_HideColumns;
-        if (cols){
-            for (var item, i = -1; item = cols[++i];){
-                $(['.', item, '-t'].join('')).hide();
-            }
-        }
-    }); // end load of settings
-  
     $('#btn_run, #close_newrec').click(function(e){
         $('#mod_newrec').modal('hide');    
     });
@@ -476,7 +465,7 @@ $(document).ready(function(){
                 $(".check-item").not(':checked').each(function() { 
                     $unchecked = $(this).attr('id');
                     $(['.', $unchecked, '-t'].join('')).hide();
-                    UncheckedItems.push($(this).attr('id'));
+                    UncheckedItems.push($unchecked);
                 });
                 
                 // show columns:
@@ -541,22 +530,15 @@ $(document).ready(function(){
         //$('#myModal').modal('show');
         $('.tabs a:last').tab('show');
         // load checkboxes states from .smt/project:
-        $.ajax({
-          type: 'POST',
-          url: 'settings',
-          async: true,
-          data: {'web':true},
-          dataType: 'json'
-        }).done(function(data) {   
-            cols = data.table_HideColumns;
-            if (cols){
-                for (var item, i = -1; item = cols[++i];){
-                    $('#' + item).attr('checked',false);
-                }
+        if (hidedColumns()){
+            for (var item, i = -1; item = cols[++i];){
+                $('#' + item).attr('checked',false);
             }
-        });
+        }
     });
-   
+    
+
+    
     $('#btn_run').click(function(){
         $clone = $('#table_out tbody tr:eq(0)').clone(); //clone zero row
         // remove the content from the clone
@@ -607,6 +589,28 @@ $(document).ready(function(){
     }); 
   // $('#fancybox-loading').ajaxStart(function() { $.fancybox.showActivity() }).ajaxStop(function() {$.fancybox.hideActivity();});
 });
+
+function hidedColumns(){
+    $.ajax({
+      type: 'POST',
+      url: 'settings',
+      async: false,
+      data: {'web':true},
+      dataType: 'json'
+    }).done(function(data) {   
+        cols = data.table_HideColumns;  
+    });
+    return cols;
+}
+
+function hideColumns(cols){
+    if (cols){
+        for (var item, i = -1; item = cols[++i];){
+            $(['.', item, '-t'].join('')).hide();
+        }
+    }
+}
+    
 </script>
 
 

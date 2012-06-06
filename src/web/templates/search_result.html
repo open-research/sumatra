@@ -5,9 +5,9 @@
     <tr class='simulations'>
         <td class="Label-t">{{value.label}}</td>
         {% if tag %}
-            <td class="Tag-t">{% for other_tag in value.tag_objects %}{% if tag == other_tag %}{{tag}} {% else %}<a href="/{{project_name}}/tag/{{other_tag.name}}/">{{other_tag.name}}</a> {% endif %}{% endfor %}</td>
+        <td class="Tag-t">{% for other_tag in value.tag_objects %}{% if tag == other_tag %}{{tag}} {% else %}<a href="/{{project_name}}/tag/{{other_tag.name}}/">{{other_tag.name}}</a> {% endif %}{% endfor %}</td>
         {% else %}
-            <td class="Tag-t">{{value.tags|link:"tag/%s/"}}</td>
+        <td class="Tag-t">{{value.tags|link:"tag/%s/"}}</td>
         {% endif %}
         <td class="Reason-t">{{value.reason}}</td>
         <td class="Outcome-t">{{value.outcome}}</td>
