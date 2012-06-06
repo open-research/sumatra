@@ -281,7 +281,6 @@ def run_sim(request, project):
                 options_list.append('='.join(['--executable', executable]))
             else:
                 options_list.append('='.join([key, item])) 
-    print options_list
     run(options_list)
     record = models.Record.objects.order_by('-db_id')[0]
     if not(len(record.launch_mode.get_parameters())):
@@ -348,7 +347,8 @@ def search(request, project):
     ''' search dropdown list: record_list.html '''
     if request.method == 'POST':
         label = request.POST.get('label', False)
-        return HttpResponse('ok')
+        results = models.Record.objects.filter(label__icontains=label)
+        return HttpResponse(len(results))
     else:
         return HttpResponse('not exist 404')
 
