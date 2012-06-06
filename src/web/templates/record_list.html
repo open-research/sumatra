@@ -31,18 +31,12 @@
             <a class="close" id='close_menu'>&times;</a>
             <div class='controls'>
                 <label class='control-label'>Label</label> 
-                <select data-placeholder=" " multiple class="chzn-select">
-                    <option value=""></option> 
-                    <option value="United States">United States</option>
-                    <option value="United States">France</option>
-                    <option value="United States">Russia</option>
-                    <option value="United States">UK</option>
-                </select>
+                <div class='controls'><input id='ilabel' class='input-large it' type='text'></div>
             </div>
             
             <div class='controls'>
                 <label class='control-label'>Tag</label>
-                <select data-placeholder=" " multiple class="chzn-select">
+                <select data-placeholder=" " multiple class="chzn-select" disabled=''>
                     <option value=""></option> 
                     <option value="United States">United States</option>
                     <option value="United States">France</option>
@@ -53,46 +47,43 @@
             
             <div class='controls'>
                 <label class='control-label'>Reason</label>
-                <select data-placeholder=" " multiple class="chzn-select">
-                </select>
+                 <div class='controls'><input id='ireason' class='input-large it' disabled='' type='text'></div>
             </div>
             
             <div class='controls'>
                 <label class='control-label'>Outcome</label>
-                <select data-placeholder=" " multiple class="chzn-select">
-                    <option value=""></option> 
-                    <option value="United States">United States</option>
-                    <option value="United States">France</option>
-                    <option value="United States">Russia</option>
-                    <option value="United States">UK</option>
-                </select>
+                <div class='controls'><input id='ioutcome' class='input-large it' disabled='' type='text'></div>
             </div>
             
             <div class='controls'>
                 <label class='control-label'>Processes</label>
-                <select data-placeholder=" " multiple class="chzn-select">
+                <select data-placeholder=" " multiple class="chzn-select" disabled=''>
                     <option value=""></option> 
-                    <option value="United States">United States</option>
-                    <option value="United States">France</option>
-                    <option value="United States">Russia</option>
-                    <option value="United States">UK</option>
+                    <option value="United States">1</option>
+                    <option value="United States">2</option>
                 </select>
             </div>
             
             <div class='controls'>
                 <label class='control-label'>Executable name</label>
-                <select data-placeholder=" " multiple class="chzn-select">
+                <select data-placeholder=" " multiple class="chzn-select" disabled=''>
                     <option value=""></option> 
-                    <option value="United States">United States</option>
-                    <option value="United States">France</option>
-                    <option value="United States">Russia</option>
-                    <option value="United States">UK</option>
+                    <option value="United States">Python</option>
+                    <option value="United States">NEURON</option>
+                    <option value="United States">NEST</option>
+                    <option value="United States">GENESIS</option>
+                    <option value="United States">Matlab</option>
                 </select>
             </div>
             
             <div class='controls'>
                 <label class='control-label'>Repository</label>
-                <select data-placeholder=" " multiple class="chzn-select">
+                <div class='controls'><input id='irepo' class='input-large it' disabled='' type='text'></div>
+            </div>
+            
+            <div class='controls'>
+                <label class='control-label'>Main file</label>
+                <select data-placeholder=" " multiple class="chzn-select" disabled=''>
                     <option value=""></option> 
                     <option value="United States">United States</option>
                     <option value="United States">France</option>
@@ -102,8 +93,8 @@
             </div>
             
             <div class='controls'>
-                <label class='control-label'>Main file</label>
-                <select data-placeholder=" " multiple class="chzn-select">
+                <label class='control-label'>Script version</label>
+                <select data-placeholder=" " multiple class="chzn-select" disabled=''>
                     <option value=""></option> 
                     <option value="United States">United States</option>
                     <option value="United States">France</option>
@@ -114,7 +105,7 @@
             
             <div class='controls'>
                 <label class='control-label'>Arguments</label>
-                <select data-placeholder=" " multiple class="chzn-select">
+                <select data-placeholder=" " multiple class="chzn-select" disabled=''>
                     <option value=""></option> 
                     <option value="United States">United States</option>
                     <option value="United States">France</option>
@@ -126,13 +117,8 @@
             
             <div class='controls'>
                 <label class='control-label'>Date</label>
-                <div class='controls'><input id='idate' class='date input-large it' type='text'></div>
-            </div>
-            
-            <div class='controls'>
-                <label class='control-label'>Time</label>
-                <div class='controls'><input id='itime' class='input-large it' type='text'></div>
-            </div>
+                <div class='controls'><input id='idate' class='date input-large it' disabled='' type='text'></div>
+            </div> 
             
             <div class='controls'>
                 <label class='control-label' style='width:15%'>Date within</label>
@@ -159,12 +145,12 @@
             </div>
             
             <label id='t_id'>of</label>
-            <div><input class='date input-large it' type='text' style='width:180px'>
+            <div><input class='date input-large it' disabled='' type='text' style='width:180px'>
             
 
             </div>
  
-            <a class='btn btn-info btn-large' style='padding: 5px 15px;margin-left:10px;margin-right:10px;color:#ffffff;margin-top:50px'><i class="icon-search">
+            <a id='search_but' class='btn btn-info btn-large' style='padding: 5px 15px;margin-left:10px;margin-right:10px;color:#ffffff;margin-top:50px'><i class="icon-search">
             </i>&nbsp; Search
             </a>
             
@@ -333,15 +319,25 @@ $(document).ready(function(){
 
      // new record popup:
      $(document).on('keyup keydown', function(e){
-        if (e.which == 13 && $('#mod_newrec').css('display')=='block'){
-            if (e.type == "keydown"){
-                $('#btn_run').addClass('active');
-                e.preventDefault();
-            }else{
-                $('#btn_run').removeClass('active');
-                $('#btn_run').trigger('click');
-            }  
-        }
+      if (e.which == 13){
+            if ($('#mod_newrec').css('display')=='block'){  // new record popup
+                if (e.type == "keydown"){
+                    $('#btn_run').addClass('active');
+                    e.preventDefault();
+                }else{
+                    $('#btn_run').removeClass('active');
+                    $('#btn_run').trigger('click');
+                }  
+            }else if ($('#menu_search').css('display') == 'block'){  // search dropdown
+                if (e.type == "keydown"){
+                    $('#search_but').addClass('active');
+                    e.preventDefault();
+                }else{
+                    $('#search_but').removeClass('active');
+                    $('#search_but').trigger('click');
+                }
+            }
+       }
     });
     
     $('#btn_newrec').click(function(){
@@ -499,7 +495,7 @@ $(document).ready(function(){
                          'cols_span_script':Script_colspan,
                          'saveSettings':true},
                   async: true,
-                }).done(function(){});
+                });
             }
     });
     

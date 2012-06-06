@@ -343,6 +343,14 @@ def settings(request, project):
         settings = {'execut':project.default_executable.path,
                     'mfile':project.default_main_file}
         return HttpResponse(json.dumps(settings))
+        
+def search(request, project):
+    ''' search dropdown list: record_list.html '''
+    if request.method == 'POST':
+        label = request.POST.get('label', False)
+        return HttpResponse('ok')
+    else:
+        return HttpResponse('not exist 404')
 
 def short_repo(url_repo):
     return '%s\%s' %(url_repo.split('\\')[-2], 
