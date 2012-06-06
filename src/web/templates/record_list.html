@@ -271,7 +271,7 @@ $(document).ready(function(){
     $('.modal').modal().modal('hide');
     
     // load of settings:
-    hideColumns(hidedColumns());
+    hideColumns(hiddenColumns());
 
     
     $('.page.gradient').not('.inactive').mouseenter(function(){
@@ -530,7 +530,7 @@ $(document).ready(function(){
         //$('#myModal').modal('show');
         $('.tabs a:last').tab('show');
         // load checkboxes states from .smt/project:
-        if (hidedColumns()){
+        if (hiddenColumns()){
             for (var item, i = -1; item = cols[++i];){
                 $('#' + item).attr('checked',false);
             }
@@ -588,29 +588,7 @@ $(document).ready(function(){
         }); // done
     }); 
   // $('#fancybox-loading').ajaxStart(function() { $.fancybox.showActivity() }).ajaxStop(function() {$.fancybox.hideActivity();});
-});
-
-function hidedColumns(){
-    $.ajax({
-      type: 'POST',
-      url: 'settings',
-      async: false,
-      data: {'web':true},
-      dataType: 'json'
-    }).done(function(data) {   
-        cols = data.table_HideColumns;  
-    });
-    return cols;
-}
-
-function hideColumns(cols){
-    if (cols){
-        for (var item, i = -1; item = cols[++i];){
-            $(['.', item, '-t'].join('')).hide();
-        }
-    }
-}
-    
+});   
 </script>
 
 

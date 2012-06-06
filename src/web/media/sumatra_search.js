@@ -9,9 +9,8 @@ $(window).ready(function(){
         }).done(function(data){
             $('#table_out tbody').html('');
             $('#table_out tbody').html(data);
-            hideColumns(hidedColumns()); //hide the columns which were hidden by user
+            hideColumns(hiddenColumns()); //hide the columns which were hidden by user
             $("#table_out").trigger("update");  // for tablesorter
         });
     });
 });
-
