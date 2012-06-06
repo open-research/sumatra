@@ -213,7 +213,7 @@
             </div>
 </div>
 
-<div id = 'main_content'>
+<div id = 'main_content'>  
     <table class="table table-bordered {{settings.display_density}}" id = 'table_out'>
         <thead>
           <tr>
@@ -237,7 +237,7 @@
             <th class="green header Arguments-t parentScript" rowspan="1">Arguments</th>
          </tr>
         </thead> 
-        <tbody> 
+        <tbody>   
             {% for record in object_list %}
                 <tr class='simulations'>
                     <td class="Label-t">{{record.label}}</td>
@@ -260,6 +260,7 @@
                     <td class="Arguments-t parentScript">{{record.script_arguments}}</td>
                 </tr>
             {% endfor %}
+            {% block thead %}{% endblock %}
         </tbody>                            
     </table>   
 </div><!-- main_content -->    

@@ -1,13 +1,15 @@
 $(window).ready(function(){
-    $('#search_but').click(function(){
+    $('#search_but').click(function(){     
         $.ajax({
           type: 'POST',
           url: 'search',
           async: true,
           data: {'label':$('#ilabel').val()},
-          //dataType: 'json'
-        }).done(function(data) {
-            alert(data);
-        }); 
+          dataType: 'html'
+        }).done(function(data){
+            $('#table_out tbody').html('');
+            $('#table_out tbody').html(data);
+            $("#table_out").trigger("update");  // for tablesorter
+        });
     });
 });

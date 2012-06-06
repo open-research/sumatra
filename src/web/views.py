@@ -6,18 +6,22 @@ from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response
 from django.views.generic import list_detail
 from django import forms
+from django.core import serializers
+from django.template import RequestContext
+from django.utils import simplejson
 from tagging.views import tagged_object_list
 from sumatra.recordstore.django_store import models
 from sumatra.datastore import get_data_store, DataKey
 from sumatra.commands import run
 from sumatra.web.templatetags import filters
+from sumatra.web.template import render_block_to_string
 from sumatra.projects import load_project, init_websettings
 from datetime import date
 import mimetypes
 mimetypes.init()
 import csv
 import os
-import json
+
 
 RECORDS_PER_PAGE = 50
     
@@ -290,20 +294,21 @@ def run_sim(request, project):
     timestamp = record.timestamp
     date = timestamp.strftime("%d/%m/%Y")
     time = timestamp.strftime("%H:%M:%S")
-    return HttpResponse(json.dumps({'Label-t':record.label,
-                                    'Tag-t':record.tags,
-                                    'Reason-t':record.reason,
-                                    'Outcome-t':record.outcome,
-                                    'Duration-t':filters.human_readable_duration(record.duration),
-                                    'Processes-t':nbproc,
-                                    'Name-t':record.executable.name,
-                                    'Version-t':record.executable.version,
-                                    'Repository-t':repo_short,
-                                    'Main_file-t':record.main_file,
-                                    'S-Version-t':version_short,
-                                    'Arguments-t':record.script_arguments,
-                                    'Date-t':date,
-                                    'Time-t':time}))
+    to_sumatra = {'Label-t':record.label,
+                  'Tag-t':record.tags,
+                  'Reason-t':record.reason,
+                  'Outcome-t':record.outcome,
+                  'Duration-t':filters.human_readable_duration(record.duration),
+                  'Processes-t':nbproc,
+                  'Name-t':record.executable.name,
+                  'Version-t':record.executable.version,
+                  'Repository-t':repo_short,
+                  'Main_file-t':record.main_file,
+                  'S-Version-t':version_short,
+                  'Arguments-t':record.script_arguments,
+                  'Date-t':date,
+                  'Time-t':time}
+    return HttpResponse(simplejson.dumps(to_sumatra))
                                     
 def settings(request, project):
     ''' Only one of the following parameter can be True
@@ -336,21 +341,23 @@ def settings(request, project):
                 project.web_settings[key] = item
         project.save()
         return HttpResponse('')
-    elif web_settings['web']:
-        return HttpResponse(json.dumps(project.web_settings))
+    elif web_settings['web']: 
+        return HttpResponse(simplejson.dumps(project.web_settings))
     elif web_settings['sumatra']:
         settings = {'execut':project.default_executable.path,
                     'mfile':project.default_main_file}
-        return HttpResponse(json.dumps(settings))
+        return HttpResponse(simplejson.dumps(settings))
         
 def search(request, project):
-    ''' search dropdown list: record_list.html '''
+    ''' search dropdown list from record_list.html '''
     if request.method == 'POST':
         label = request.POST.get('label', False)
         results = models.Record.objects.filter(label__icontains=label)
-        return HttpResponse(len(results))
+        dic_results = {i:results[i] for i in xrange(len(results))}
+        str = render_block_to_string('search_result.html', 'thead', {'dic_results': dic_results})
+        return HttpResponse(str)
     else:
-        return HttpResponse('not exist 404')
+        return HttpResponse('page do not exist 404')
 
 def short_repo(url_repo):
     return '%s\%s' %(url_repo.split('\\')[-2], 
