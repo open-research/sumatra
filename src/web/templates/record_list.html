@@ -7,7 +7,7 @@
     <div class="navbar-inner">
         <div class="container-fluid">
             <h1><div id = "name_project">
-            <a href="about/">{{project_name}}{% if tag %} tagged with {{tag}}{% endif %}</a></div>
+            <a href="/{{project_name}}/about/">{{project_name}}{% if tag %} tagged with {{tag}}{% endif %}</a></div>
             <div id = 'name_page'>&nbsp; list of records</div></h1>
             <div id='sumatra_logo'><a href="http://neuralensemble.org/trac/sumatra">
             <img src='/media/Sumatra_logo.png'/></a></div>
@@ -20,9 +20,9 @@
 <div id = 'header_menu'>
     <div class='subnav'>
         <ul class='nav nav-pills'>
-            <li><a href='..' class='a-subnav'>List of projects</a></li>
+            <li><a href='/' class='a-subnav'>List of projects</a></li>
             <li class='active'><a  class='a-subnav'>List of records</a></li>
-            <li><a href='about/' class='a-subnav'>About</a></li>   
+            <li><a href='/{{project_name}}/about/' class='a-subnav'>About</a></li>   
         </ul>
     </div>
    <div id = 'div_menu_search' class='span5'>
@@ -30,7 +30,7 @@
             <a class="close" id='close_menu'>&times;</a>
             <div class='controls'>
                 <label class='control-label'>Label</label> 
-                <div class='controls'><input id='ilabel' class='input-large it' type='text'></div>
+                <div class='controls'><input id='ilabel' class='input-large it' type='text' value='{{search_info.label}}'></div>
             </div>
             
             <div class='controls'>
@@ -58,8 +58,8 @@
                 <label class='control-label'>Processes</label>
                 <select data-placeholder=" " multiple class="chzn-select" disabled=''>
                     <option value=""></option> 
-                    <option value="United States">1</option>
-                    <option value="United States">2</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
                 </select>
             </div>
             
@@ -67,11 +67,11 @@
                 <label class='control-label'>Executable name</label>
                 <select data-placeholder=" " multiple class="chzn-select" disabled=''>
                     <option value=""></option> 
-                    <option value="United States">Python</option>
-                    <option value="United States">NEURON</option>
-                    <option value="United States">NEST</option>
-                    <option value="United States">GENESIS</option>
-                    <option value="United States">Matlab</option>
+                    <option value="Python">Python</option>
+                    <option value="Nueron">NEURON</option>
+                    <option value="Nest">NEST</option>
+                    <option value="Genesis">GENESIS</option>
+                    <option value="Matlab">Matlab</option>
                 </select>
             </div>
             
@@ -155,7 +155,7 @@
             
         </ul>
     </div>
-   <input class='span5' type='text' id="text_subnav"/>
+   <input class='span5' type='text' id="text_subnav" value='label: {{search_info.label}}'/>
     
    <span id="icon_cdown"><i class="icon-chevron-down"></i></span>       
         <a class='btn btn-info btn-large' id='btn_search'><i class="icon-search">
@@ -243,7 +243,7 @@
                     {% else %}
                     <td class="Tag-t {% if 'Tag' in settings.table_HideColumns%}hiddenCol{% endif %}">{{record.tags|link:"tag/%s/"}}</td>
                     {% endif %}
-                    <td class="Reason-t {% if 'Tag' in settings.table_HideColumns%}hiddenCol{% endif %}">{{record.reason}}</td>
+                    <td class="Reason-t {% if 'Reason' in settings.table_HideColumns%}hiddenCol{% endif %}">{{record.reason}}</td>
                     <td class="Outcome-t {% if 'Outcome' in settings.table_HideColumns%}hiddenCol{% endif %}">{{record.outcome}}</td>
                     <td class="Duration-t {% if 'Duration' in settings.table_HideColumns%}hiddenCol{% endif %}">{{record.duration|human_readable_duration}}</td>
                     <td class="Processes-t {% if 'Processes' in settings.table_HideColumns%}hiddenCol{% endif %}">{{record.launch_mode.get_parameters.n|default:"1"}}</td>
@@ -319,13 +319,13 @@ $(document).ready(function(){
                     $('#search_but').trigger('click');
                 }
             }
-       }
+        }
     });
     
     $('#btn_newrec').click(function(){
         $.ajax({
           type: 'POST',
-          url: 'settings',
+          url: '/{{project_name}}/settings',
           data: {'sumatra':true},
           async: true,
           dataType: 'json'
@@ -387,7 +387,7 @@ $(document).ready(function(){
     $('#settings_but').click(function(){
         $.ajax({
           type: 'POST',
-          url: 'settings',
+          url: '/{{project_name}}/settings',
           data: {'web':true},
           async: true,
           dataType: 'json'
@@ -445,8 +445,7 @@ $(document).ready(function(){
     $('#save_set').click(function(){ // button save settings 
             var UncheckedItems = new Array();
             
-            if (!$('#save_set').hasClass('disabled')){
-                
+            if (!$('#save_set').hasClass('disabled')){          
                 Exec_colspan = $('.Executable:checked').length;    
                 Script_colspan = $('.Script:checked').length;
                 $('.Script-t').attr('colspan', Script_colspan);
@@ -469,7 +468,7 @@ $(document).ready(function(){
                 // save settings to .smt/project
                 $.ajax({
                   type: 'POST',
-                  url: 'settings',
+                  url: '/{{project_name}}/settings',
                   data: {'table_HideColumns':UncheckedItems,
                          'nb_records_per_page':nb_rec,
                          'cols_span_execut':Exec_colspan,
@@ -502,7 +501,7 @@ $(document).ready(function(){
         $(this).addClass('active_settings_row');
             $.ajax({
               type: 'POST',
-              url: 'settings',
+              url: '/{{project_name}}/settings',
               data: {'display_density':$density_set,
                      'saveSettings':true},
               async: true
@@ -519,9 +518,16 @@ $(document).ready(function(){
       
    $('#button_settings').click(function(){
         $('.check-item').attr('checked',true); // if before user has unchecked one and didn't save
-        if (hiddenColumns()){
-            for (var item, i = -1; item = cols[++i];){
-                $('#' + item).attr('checked',false);
+        data =  $.ajax({type: 'POST',
+                        url: '/{{project_name}}/settings',
+                        async: false,
+                        data: {'web':true},
+                        dataType: 'json'});
+        data = $.parseJSON(data.responseText);
+        hiddenCols = data.table_HideColumns;
+        if (hiddenCols){
+            for (var item, i = -1; item = hiddenCols[++i];){
+                $(['#', item].join('')).attr('checked',false);
             }
         }
     });
@@ -535,7 +541,7 @@ $(document).ready(function(){
         $('#table_out tbody').prepend($clone); // insert the clone after the head of table
         $.ajax({
           type: 'POST',
-          url: 'simulation',
+          url: '/{{project_name}}/simulation',
           async: true,
           data: {'label':$('#mLabel').val(),
                  'reason':$('#mReason').val(),
@@ -575,8 +581,6 @@ $(document).ready(function(){
 });   
 $(document).ajaxStart(function() { $.fancybox.showActivity() }).ajaxStop(function() {$.fancybox.hideActivity();});
 </script>
-
-
 
 <div class="modal" id="mod_newrec"> 
     <div class='d-mod'>  
