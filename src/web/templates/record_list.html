@@ -155,10 +155,8 @@
             
         </ul>
     </div>
-    
    <input class='span5' type='text' id="text_subnav"/>
-
-
+    
    <span id="icon_cdown"><i class="icon-chevron-down"></i></span>       
         <a class='btn btn-info btn-large' id='btn_search'><i class="icon-search">
         </i>&nbsp; Search
@@ -172,7 +170,7 @@
         <ul class="dropdown-menu" id = 'dropdown_menu'>
             <li><a href="#" id='settings_density'>Display density:</a></li> 
             <li><a href="#" class='menu-rsettigns' id='button_null'>Comfortable</a></li>
-            <li><a href="#" class='menu-rsettigns' id='button_table-condensed'>Compact</a></li>
+            <li><a href="#" class='menu-rsettigns' id='button_condensed'>Compact</a></li>
             <li class="divider"></li>
             <li><a id='button_settings' class='menu-rsettigns' data-toggle="modal" href="#setModal">Settings</a></li>
         </ul>
@@ -212,52 +210,51 @@
                 </div>
             </div>
 </div>
-
-<div id = 'main_content'>  
-    <table class="table table-bordered {{settings.display_density}}" id = 'table_out'>
+<div id = 'main_content'> 
+    <table class="table table-bordered table-{{settings.display_density}}" id = 'table_out'>
         <thead>
           <tr>
-            <th class="blue header Label-t" rowspan="2">Label</th>
-            <th class="blue header Tag-t" rowspan="2">Tag</th>
-            <th class="blue header Reason-t" rowspan="2">Reason</th>
-            <th class="blue header Outcome-t" rowspan="2">Outcome</th>
-            <th class="blue header Duration-t" rowspan="2">Duration</th>
-            <th class="blue header Processes-t" rowspan="2">Processes</th>
-            <th class="blue header Date-t" rowspan="2">Date</th>
-            <th class="blue header Time-t" rowspan="2">Time</th> 
-            <th class='Executable-t' colspan="{{settings.cols_span_execut}}">Executable</th>
-            <th class='Script-t' colspan="{{settings.cols_span_script}}">Script</th>
+            <th class="blue header Label-t {% if 'Label' in settings.table_HideColumns%}hiddenCol{% endif %}" rowspan="2">Label</th>
+            <th class="blue header Tag-t {% if 'Tag' in settings.table_HideColumns%}hiddenCol{% endif %}" rowspan="2">Tag</th>
+            <th class="blue header Reason-t {% if 'Reason' in settings.table_HideColumns%}hiddenCol{% endif %}" rowspan="2">Reason</th>
+            <th class="blue header Outcome-t {% if 'Outcome' in settings.table_HideColumns%}hiddenCol{% endif %}" rowspan="2">Outcome</th>
+            <th class="blue header Duration-t {% if 'Duration' in settings.table_HideColumns%}hiddenCol{% endif %}" rowspan="2">Duration</th>
+            <th class="blue header Processes-t {% if 'Processes' in settings.table_HideColumns%}hiddenCol{% endif %}" rowspan="2">Processes</th>
+            <th class="blue header Date-t {% if 'Date' in settings.table_HideColumns%}hiddenCol{% endif %}" rowspan="2">Date</th>
+            <th class="blue header Time-t {% if 'Time' in settings.table_HideColumns%}hiddenCol{% endif %}" rowspan="2">Time</th> 
+            <th class="Executable-t {% if 'Executable' in settings.table_HideColumns%}hiddenCol{% endif %}" colspan="{{settings.cols_span_execut}}">Executable</th>
+            <th class="Script-t {% if 'Script' in settings.table_HideColumns%}hiddenCol{% endif %}" colspan="{{settings.cols_span_script}}">Script</th>
           </tr>
           <tr>
-            <th class="green header Name-t parentExecutable" rowspan="1">Name</th>
-            <th class="green header Version-t parentExecutable" rowspan="1">Version</th>
-            <th class="green header Repository-t parentScript" rowspan="1">Repository</th>
-            <th class="green header Main_file-t parentScript" rowspan="1">Main file</th>
-            <th class="green header S-Version-t parentScript" rowspan="1">Version</th>
-            <th class="green header Arguments-t parentScript" rowspan="1">Arguments</th>
+            <th class="green header Name-t parentExecutable {% if 'Name' in settings.table_HideColumns%}hiddenCol{% endif %}" rowspan="1">Name</th>
+            <th class="green header Version-t parentExecutable {% if 'Version' in settings.table_HideColumns%}hiddenCol{% endif %}" rowspan="1">Version</th>
+            <th class="green header Repository-t parentScript {% if 'Repository' in settings.table_HideColumns%}hiddenCol{% endif %}" rowspan="1">Repository</th>
+            <th class="green header Main_file-t parentScript {% if 'Main_file' in settings.table_HideColumns%}hiddenCol{% endif %}" rowspan="1">Main file</th>
+            <th class="green header S-Version-t parentScript {% if 'S-Version' in settings.table_HideColumns%}hiddenCol{% endif %}" rowspan="1">Version</th>
+            <th class="green header Arguments-t parentScript {% if 'Arguments' in settings.table_HideColumns%}hiddenCol{% endif %}" rowspan="1">Arguments</th>
          </tr>
         </thead> 
         <tbody>   
             {% for record in object_list %}
                 <tr class='simulations'>
-                    <td class="Label-t">{{record.label}}</td>
+                    <td class="Label-t {% if 'Label' in settings.table_HideColumns%}hiddenCol{% endif %}">{{record.label}}</td>
                     {% if tag %}
-                    <td class="Tag-t">{% for other_tag in record.tag_objects %}{% if tag == other_tag %}{{tag}} {% else %}<a href="/{{project_name}}/tag/{{other_tag.name}}/">{{other_tag.name}}</a> {% endif %}{% endfor %}</td>
+                    <td class="Tag-t {% if 'Tag' in settings.table_HideColumns%}hiddenCol{% endif %}">{% for other_tag in record.tag_objects %}{% if tag == other_tag %}{{tag}} {% else %}<a href="/{{project_name}}/tag/{{other_tag.name}}/">{{other_tag.name}}</a> {% endif %}{% endfor %}</td>
                     {% else %}
-                    <td class="Tag-t">{{record.tags|link:"tag/%s/"}}</td>
+                    <td class="Tag-t {% if 'Tag' in settings.table_HideColumns%}hiddenCol{% endif %}">{{record.tags|link:"tag/%s/"}}</td>
                     {% endif %}
-                    <td class="Reason-t">{{record.reason}}</td>
-                    <td class="Outcome-t">{{record.outcome}}</td>
-                    <td class="Duration-t">{{record.duration|human_readable_duration}}</td>
-                    <td class="Processes-t">{{record.launch_mode.get_parameters.n|default:"1"}}</td>
-                    <td class="Date-t">{{record.timestamp|date:"d/m/Y"}}</td>
-                    <td class="Time-t">{{record.timestamp|date:"H:i:s"}}</td>
-                    <td class="Name-t parentExecutable">{{record.executable.name}}</td>
-                    <td class="Version-t parentExecutable">{{record.executable.version}}</td>
-                    <td class="Repository-t parentScript">{{record.repository.url|cut:"repo"}}<div style='display:none'>{{record.repository.url}}</div></td> <!-- repository path: shorten -->
-                    <td class="Main_file-t parentScript">{{record.main_file}}</td>
-                    <td class="S-Version-t parentScript" style='width:10px;overflow: hidden;'>{{record.version|cut:"vers"}}{% if record.diff %}*{% endif %}<div style='display:none'>{{record.version}}</div></td> <!-- version: shorten -->
-                    <td class="Arguments-t parentScript">{{record.script_arguments}}</td>
+                    <td class="Reason-t {% if 'Tag' in settings.table_HideColumns%}hiddenCol{% endif %}">{{record.reason}}</td>
+                    <td class="Outcome-t {% if 'Outcome' in settings.table_HideColumns%}hiddenCol{% endif %}">{{record.outcome}}</td>
+                    <td class="Duration-t {% if 'Duration' in settings.table_HideColumns%}hiddenCol{% endif %}">{{record.duration|human_readable_duration}}</td>
+                    <td class="Processes-t {% if 'Processes' in settings.table_HideColumns%}hiddenCol{% endif %}">{{record.launch_mode.get_parameters.n|default:"1"}}</td>
+                    <td class="Date-t {% if 'Date' in settings.table_HideColumns%}hiddenCol{% endif %}">{{record.timestamp|date:"d/m/Y"}}</td>
+                    <td class="Time-t {% if 'Time' in settings.table_HideColumns%}hiddenCol{% endif %}">{{record.timestamp|date:"H:i:s"}}</td>
+                    <td class="Name-t parentExecutable {% if 'Name' in settings.table_HideColumns%}hiddenCol{% endif %}">{{record.executable.name}}</td>
+                    <td class="Version-t parentExecutable {% if 'Version' in settings.table_HideColumns%}hiddenCol{% endif %}">{{record.executable.version}}</td>
+                    <td class="Repository-t parentScript {% if 'Repository' in settings.table_HideColumns%}hiddenCol{% endif %}">{{record.repository.url|cut:"repo"}}<div style='display:none'>{{record.repository.url}}</div></td> <!-- repository path: shorten -->
+                    <td class="Main_file-t parentScript {% if 'Main_file' in settings.table_HideColumns%}hiddenCol{% endif %}">{{record.main_file}}</td>
+                    <td class="S-Version-t parentScript {% if 'S-Version' in settings.table_HideColumns%}hiddenCol{% endif %}" style='width:10px;overflow: hidden;'>{{record.version|cut:"vers"}}{% if record.diff %}*{% endif %}<div style='display:none'>{{record.version}}</div></td> <!-- version: shorten -->
+                    <td class="Arguments-t parentScript {% if 'Arguments' in settings.table_HideColumns%}hiddenCol{% endif %}">{{record.script_arguments}}</td>
                 </tr>
             {% endfor %}
             {% block thead %}{% endblock %}
@@ -269,10 +266,6 @@
 $(document).ready(function(){ 
 
     $('.modal').modal().modal('hide');
-    
-    // load of settings:
-    hideColumns(hiddenColumns());
-
     
     $('.page.gradient').not('.inactive').mouseenter(function(){
         $(this).children().css('opacity','1.0');
@@ -340,7 +333,6 @@ $(document).ready(function(){
              $('#mExec').val(data.execut);
              $('#mFile').val(data.mfile);     
         });
-        //$('#mod_newrec').modal('show');
     });
     
     $('#menu_datewith > li').click(function(){
@@ -392,20 +384,19 @@ $(document).ready(function(){
     $('#settings_but').dropdown();   // dropdown menu for the settings button 
     $('#pagin_info').dropdown();
    
-    $('#settings_but').click(function(){         
+    $('#settings_but').click(function(){
         $.ajax({
           type: 'POST',
           url: 'settings',
-          async: true,
           data: {'web':true},
+          async: true,
           dataType: 'json'
-        }).done(function(data) {
-            $('#button_' + data.display_density).addClass('active_settings_row');
-        });    
-    }); 
+        }).done(function(data){
+            $(['#button',data.display_density].join('_')).addClass('active_settings_row');
+        });
+    });
     
     $('#table_out').tablesorter(); // use tablesorter.min.js
-    
     
     $('#close_set, #close_set.btn').click(function(){
         $('#setModal').modal('hide');
@@ -475,6 +466,7 @@ $(document).ready(function(){
                 });
                 
                 nb_rec = $('#s_nbt').val();
+                // save settings to .smt/project
                 $.ajax({
                   type: 'POST',
                   url: 'settings',
@@ -505,7 +497,8 @@ $(document).ready(function(){
     
     /* Settings->Display density->compact */
     $('.menu-rsettigns').not('#button_settings').click(function(){
-        $density_set = $(this).attr('id').split('_')[1]; // 'comfortable' or 'compact'
+        $density_set = $(this).attr('id').split('_')[1]; // 'null' (=default) or 'condensed'
+        
         $(this).addClass('active_settings_row');
             $.ajax({
               type: 'POST',
@@ -513,31 +506,25 @@ $(document).ready(function(){
               data: {'display_density':$density_set,
                      'saveSettings':true},
               async: true
-            }).done(function(data) {
-                 //$('#myModal').modal('hide');
             });
 
-        if ($density_set == 'table-condensed'){
+        if ($density_set == 'condensed'){
             $('#table_out').addClass('table-condensed');
             $('#button_null').removeClass('active_settings_row');   
         }else{
             $('#table_out').removeClass('table-condensed');
-            $('#button_table-condensed').removeClass('active_settings_row');    
+            $('#button_condensed').removeClass('active_settings_row');    
         }        
     });
-    
+      
    $('#button_settings').click(function(){
-        //$('#myModal').modal('show');
-        $('.tabs a:last').tab('show');
-        // load checkboxes states from .smt/project:
+        $('.check-item').attr('checked',true); // if before user has unchecked one and didn't save
         if (hiddenColumns()){
             for (var item, i = -1; item = cols[++i];){
                 $('#' + item).attr('checked',false);
             }
         }
     });
-    
-
     
     $('#btn_run').click(function(){
         $clone = $('#table_out tbody tr:eq(0)').clone(); //clone zero row
@@ -546,7 +533,6 @@ $(document).ready(function(){
             $(el).html('');
         });
         $('#table_out tbody').prepend($clone); // insert the clone after the head of table
-        $.fancybox.showActivity(); 
         $.ajax({
           type: 'POST',
           url: 'simulation',
@@ -560,7 +546,6 @@ $(document).ready(function(){
                 },
           dataType: 'json',
           success: function(){  
-             $.fancybox.hideActivity();
              $("#table_out").trigger("update");  //for tablesorter
           },
         }).done(function(data) {
@@ -587,8 +572,8 @@ $(document).ready(function(){
              $('#b_nbsim').html(nb_sim + 1);
         }); // done
     }); 
-  // $('#fancybox-loading').ajaxStart(function() { $.fancybox.showActivity() }).ajaxStop(function() {$.fancybox.hideActivity();});
 });   
+$(document).ajaxStart(function() { $.fancybox.showActivity() }).ajaxStop(function() {$.fancybox.hideActivity();});
 </script>
 
 
@@ -652,10 +637,10 @@ $(document).ready(function(){
                 <input type="checkbox" id='Tag' checked="checked" class='check-item'> Tag
             </label>
             <label class="checkbox">
-                <input type="checkbox" id='Reason' checked="checked" class='check-item'> Reason
+                <input type="checkbox" id='Reason' checked="checked"  class='check-item'> Reason
             </label>
             <label class="checkbox">
-                <input type="checkbox" id='Outcome' checked="checked" class='check-item'> Outcome
+                <input type="checkbox" id='Outcome' checked="checked"  class='check-item'> Outcome
             </label>
             <label class="checkbox">
                 <input type="checkbox" id='Duration' checked="checked" class='check-item'> Duration
@@ -668,41 +653,41 @@ $(document).ready(function(){
             </label>
                 <label class="checkbox">
                     <div class = 'subitems'>
-                        <input type="checkbox" class='check-item Executable' id='Name' checked="checked"> Executable name
+                        <input type="checkbox" class='check-item Executable' checked="checked" id='Name'> Executable name
                     </div>
                 </label>
                 <label class="checkbox">
                     <div class = 'subitems'>
-                        <input type="checkbox" class='check-item Executable' id='Version' checked="checked"> Executable Version
+                        <input type="checkbox" class='check-item Executable' checked="checked" id='Version'> Executable Version
                     </div>
                 </label>
             <label class="checkbox">
-                <input type="checkbox" id='Date' checked="checked" class='check-item'> Date
+                <input type="checkbox" id='Date' checked="checked"  class='check-item'> Date
             </label>
             <label class="checkbox">
                 <input type="checkbox" id='Time' checked="checked" class='check-item'> Time
             </label>
             <label class="checkbox">
-                <input type="checkbox" id='Script' checked="checked" class='check-item'> Script
+                <input type="checkbox" id='Script' checked="checked"  class='check-item'> Script
             </label>
             <label class="checkbox">
                 <div class = 'subitems'>
-                    <input type="checkbox" class='check-item Script' id='Repository' checked="checked"> Script repository
+                    <input type="checkbox" class='check-item Script' checked="checked" id='Repository'> Script repository
                 </div>
             </label>
             <label class="checkbox">
                 <div class = 'subitems'>
-                    <input type="checkbox" class='check-item Script' id='Main_file' checked="checked"> Script main file
+                    <input type="checkbox" class='check-item Script' checked="checked" id='Main_file'> Script main file
                 </div>
             </label>
             <label class="checkbox">
                 <div class = 'subitems'>
-                    <input type="checkbox" class='check-item Script' id='S-Version' checked="checked"> Script version
+                    <input type="checkbox" class='check-item Script' checked="checked" id='S-Version'> Script version
                 </div>
             </label>
             <label class="checkbox">
                 <div class = 'subitems'>
-                    <input type="checkbox" class='check-item Script' id='Arguments' checked="checked"> Script arguments
+                    <input type="checkbox" class='check-item Script' checked="checked" id='Arguments'> Script arguments
                 </div>
             </label>
             <label class="checkbox">

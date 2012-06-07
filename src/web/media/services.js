@@ -1,3 +1,4 @@
+// this function is for retrieving from .smt/project the columns that were hidden by user
 function hiddenColumns(){
     $.ajax({
       type: 'POST',
@@ -10,11 +11,3 @@ function hiddenColumns(){
     });
     return cols;
 }
-
-function hideColumns(cols){
-    if (cols){
-        for (var item, i = -1; item = cols[++i];){
-            $(['.', item, '-t'].join('')).hide();
-        }
-    }
-} 

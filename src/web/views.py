@@ -82,7 +82,7 @@ def list_tagged_records(request, project, tag):
                               tag=tag,
                               queryset_or_model=queryset,
                               template_name="record_list.html",
-                              extra_context={ 'project_name': project })
+                              extra_context={'project_name': project })
 
 def record_detail(request, project, label):
     label = unescape(label)
@@ -262,8 +262,7 @@ def show_diff(request, project, label, package):
                                                  'parent_version': dependency.version,
                                                  'diff': dependency.diff})
                                                  
-def run_sim(request, project):
-    
+def run_sim(request, project):   
     run_opt = {'--label': request.POST.get('label', False),
                '--reason': request.POST.get('reason', False),
                '--tag': request.POST.get('tag', False),
@@ -346,17 +345,15 @@ def settings(request, project):
                     'mfile':project.default_main_file}
         return HttpResponse(simplejson.dumps(settings))
         
-def search(request, project):
-    ''' search dropdown list from record_list.html '''
-    if request.method == 'POST':
-        label = request.POST.get('label', False)
-        results = models.Record.objects.filter(label__icontains=label)
-        dic_results = {i:results[i] for i in xrange(len(results))}
-        str = render_block_to_string('search_result.html', 'thead', {'dic_results': dic_results})
-        return HttpResponse(str)
-    else:
-        return HttpResponse('page do not exist 404')
-
+def search(request, project, item):
+    ''' search dropdown list from record_list.html ''' 
+    web_settings = load_project().web_settings      
+    nb_per_page = int(load_project().web_settings['nb_records_per_page'])
+    results = models.Record.objects.filter(label__icontains=item)
+    return list_detail.object_list(request,
+                              queryset=results,
+                              template_name="record_list.html",
+                              paginate_by=nb_per_page)
 def short_repo(url_repo):
     return '%s\%s' %(url_repo.split('\\')[-2], 
                      url_repo.split('\\')[-1])

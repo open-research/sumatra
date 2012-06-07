@@ -514,3 +514,6 @@ li a.p-inac:hover{
     margin-top:5px;
 }
 
+.hiddenCol{
+    display: none;
+}
