@@ -25,137 +25,20 @@
             <li><a href='/{{project_name}}/about/' class='a-subnav'>About</a></li>   
         </ul>
     </div>
+    
    <div id = 'div_menu_search' class='span5'>
-       <ul class="dropdown-menu" id = 'menu_search'>
-            <a class="close" id='close_menu'>&times;</a>
-            <div class='controls'>
-                <label class='control-label'>Label</label> 
-                <div class='controls'><input id='ilabel' class='input-large it' type='text' value='{{search_info.label}}'></div>
-            </div>
-            
-            <div class='controls'>
-                <label class='control-label'>Tag</label>
-                <select data-placeholder=" " multiple class="chzn-select" disabled=''>
-                    <option value=""></option> 
-                    <option value="United States">United States</option>
-                    <option value="United States">France</option>
-                    <option value="United States">Russia</option>
-                    <option value="United States">UK</option>
-                </select>
-            </div>
-            
-            <div class='controls'>
-                <label class='control-label'>Reason</label>
-                 <div class='controls'><input id='ireason' class='input-large it' disabled='' type='text'></div>
-            </div>
-            
-            <div class='controls'>
-                <label class='control-label'>Outcome</label>
-                <div class='controls'><input id='ioutcome' class='input-large it' disabled='' type='text'></div>
-            </div>
-            
-            <div class='controls'>
-                <label class='control-label'>Processes</label>
-                <select data-placeholder=" " multiple class="chzn-select" disabled=''>
-                    <option value=""></option> 
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                </select>
-            </div>
-            
-            <div class='controls'>
-                <label class='control-label'>Executable name</label>
-                <select data-placeholder=" " multiple class="chzn-select" disabled=''>
-                    <option value=""></option> 
-                    <option value="Python">Python</option>
-                    <option value="Nueron">NEURON</option>
-                    <option value="Nest">NEST</option>
-                    <option value="Genesis">GENESIS</option>
-                    <option value="Matlab">Matlab</option>
-                </select>
-            </div>
-            
-            <div class='controls'>
-                <label class='control-label'>Repository</label>
-                <div class='controls'><input id='irepo' class='input-large it' disabled='' type='text'></div>
-            </div>
-            
-            <div class='controls'>
-                <label class='control-label'>Main file</label>
-                <select data-placeholder=" " multiple class="chzn-select" disabled=''>
-                    <option value=""></option> 
-                    <option value="United States">United States</option>
-                    <option value="United States">France</option>
-                    <option value="United States">Russia</option>
-                    <option value="United States">UK</option>
-                </select>
-            </div>
-            
-            <div class='controls'>
-                <label class='control-label'>Script version</label>
-                <select data-placeholder=" " multiple class="chzn-select" disabled=''>
-                    <option value=""></option> 
-                    <option value="United States">United States</option>
-                    <option value="United States">France</option>
-                    <option value="United States">Russia</option>
-                    <option value="United States">UK</option>
-                </select>
-            </div>
-            
-            <div class='controls'>
-                <label class='control-label'>Arguments</label>
-                <select data-placeholder=" " multiple class="chzn-select" disabled=''>
-                    <option value=""></option> 
-                    <option value="United States">United States</option>
-                    <option value="United States">France</option>
-                    <option value="United States">Russia</option>
-                    <option value="United States">UK</option>
-                </select>
-            </div>
-             
-            
-            <div class='controls'>
-                <label class='control-label'>Date</label>
-                <div class='controls'><input id='idate' class='date input-large it' disabled='' type='text'></div>
-            </div> 
-            
-            <div class='controls'>
-                <label class='control-label' style='width:15%'>Date within</label>
-            </div>   
-                
-            <div id='idatewith'><span id='sdate'>1 day</span>
-                <span id='span_icon'>
-                    <i class="icon-chevron-up" style='margin-top:0px'></i>  
-                    <i class="icon-chevron-down" style='margin-top:15px'></i>
-                </span>  
-            </div>
-            
-            <div>
-                <ul class="dropdown-menu" id = 'menu_datewith'>
-                    <li><a href='' >1 day</a></li>
-                    <li><a href='' >3 days</a></li>
-                    <li><a href='' >1 week</a></li>
-                    <li><a href='' >2 weeks</a></li>
-                    <li><a href='' >1 month</a></li>
-                    <li><a href='' >2 months</a></li>
-                    <li><a href='' >6 months</a></li>
-                    <li><a href='' >1 year</a></li>
-                </ul>
-            </div>
-            
-            <label id='t_id'>of</label>
-            <div><input class='date input-large it' disabled='' type='text' style='width:180px'>
-            
-
-            </div>
- 
-            <a id='search_but' class='btn btn-info btn-large' style='padding: 5px 15px;margin-left:10px;margin-right:10px;color:#ffffff;margin-top:50px'><i class="icon-search">
-            </i>&nbsp; Search
-            </a>
-            
+       <ul class="dropdown-menu" id = 'menu_search'>      
+            <a class="close" id='close_menu'>&times;</a> 
+                <form id='search_form' action='/{{project_name}}/search' method='GET'>
+                    {{form.as_p}}
+                </form>
+                <a id='search_but' class='btn btn-info btn-large' style='padding: 5px 15px;margin-left:10px;margin-right:10px;color:#ffffff;margin-top:50px'><i class="icon-search">  
+                </i>&nbsp; Search
+                </a> 
         </ul>
     </div>
-   <input class='span5' type='text' id="text_subnav" value='label: {{search_info.label}}'/>
+    
+   <input class='span5' type='text' id="text_subnav" value='{{search_info.label}}'/>
     
    <span id="icon_cdown"><i class="icon-chevron-down"></i></span>       
         <a class='btn btn-info btn-large' id='btn_search'><i class="icon-search">
@@ -263,10 +146,13 @@
 </div><!-- main_content -->    
 <!--p><a href="/">Return to list of projects</a></p-->
 <script type = 'text/javascript'>
-$(document).ready(function(){ 
-
+$(document).ready(function(){
+    $('#search_but').click(function(){
+        $('#search_form').trigger('submit');
+    });
+            
+    nbRecPerPage_changed = false;
     $('.modal').modal().modal('hide');
-    
     $('.page.gradient').not('.inactive').mouseenter(function(){
         $(this).children().css('opacity','1.0');
     }).mouseleave(function(){
@@ -274,14 +160,14 @@ $(document).ready(function(){
     });
     
     $('#input_nrec, #s_nbt').click(function(event){  
-        $('#save_set').attr('href', '.'); // for reloading the page if nb of records is changed
+        nbRecPerPage_changed = true;
         event.stopPropagation();
         $(this).css('display','none');
         $('#s_nbt').css('display','block');     
     });
     
     $('html').click(function(){ 
-        $val = $('#s_nbt').val(); 
+        var $val = $('#s_nbt').val(); 
         if ($val > 0){    
             $('#input_nrec').css('display','block').html($val);
             $('#s_nbt').css('display','none');
@@ -363,7 +249,7 @@ $(document).ready(function(){
     }).mouseleave(function(){
         $(this).css('opacity','0.2');
     }).click(function(event){   
-        //event.stopPropagation();  //if not it will never let to open the search menu
+        var parentWidth;
         parentWidth = $('input.span5')[0].offsetWidth - 2;
         $('#menu_search').css('width', parentWidth)
                          .show();
@@ -444,7 +330,6 @@ $(document).ready(function(){
     
     $('#save_set').click(function(){ // button save settings 
             var UncheckedItems = new Array();
-            
             if (!$('#save_set').hasClass('disabled')){          
                 Exec_colspan = $('.Executable:checked').length;    
                 Script_colspan = $('.Script:checked').length;
@@ -464,7 +349,7 @@ $(document).ready(function(){
                     $(['.', $checked, '-t'].join('')).show();
                 });
                 
-                nb_rec = $('#s_nbt').val();
+                var nb_rec = $('#s_nbt').val();
                 // save settings to .smt/project
                 $.ajax({
                   type: 'POST',
@@ -474,7 +359,10 @@ $(document).ready(function(){
                          'cols_span_execut':Exec_colspan,
                          'cols_span_script':Script_colspan,
                          'saveSettings':true},
-                  async: true,
+                  async: true
+                }).done(function(data){
+                    if (nbRecPerPage_changed)
+                        location.reload();
                 });
             }
     });
@@ -496,7 +384,7 @@ $(document).ready(function(){
     
     /* Settings->Display density->compact */
     $('.menu-rsettigns').not('#button_settings').click(function(){
-        $density_set = $(this).attr('id').split('_')[1]; // 'null' (=default) or 'condensed'
+        var $density_set = $(this).attr('id').split('_')[1]; // 'null' (=default) or 'condensed'
         
         $(this).addClass('active_settings_row');
             $.ajax({
@@ -517,6 +405,7 @@ $(document).ready(function(){
     });
       
    $('#button_settings').click(function(){
+        var data;
         $('.check-item').attr('checked',true); // if before user has unchecked one and didn't save
         data =  $.ajax({type: 'POST',
                         url: '/{{project_name}}/settings',
@@ -533,6 +422,7 @@ $(document).ready(function(){
     });
     
     $('#btn_run').click(function(){
+        var $clone;
         $clone = $('#table_out tbody tr:eq(0)').clone(); //clone zero row
         // remove the content from the clone
         $clone.find('td').each(function(i, el) {
@@ -555,7 +445,7 @@ $(document).ready(function(){
              $("#table_out").trigger("update");  //for tablesorter
           },
         }).done(function(data) {
-             $tableFirstrow = $('#table_out tbody tr:eq(0)');
+             var $tableFirstrow = $('#table_out tbody tr:eq(0)');
              $tableFirstrow.find('td').each(function(i, el) {
                        if ($(this).is(".Tag-t")) {
                           $tag = data[$(el).attr('class').split(' ')[0]].split(',');
@@ -574,14 +464,13 @@ $(document).ready(function(){
                         }
              });
              $tableFirstrow.effect("highlight", {}, 5000);  
-             nb_sim = parseInt($('#b_nbsim').html());
+             var nb_sim = parseInt($('#b_nbsim').html());
              $('#b_nbsim').html(nb_sim + 1);
         }); // done
     }); 
 });   
 $(document).ajaxStart(function() { $.fancybox.showActivity() }).ajaxStop(function() {$.fancybox.hideActivity();});
 </script>
-
 <div class="modal" id="mod_newrec"> 
     <div class='d-mod'>  
         <div style='float:left;padding:3px 15px;position:absolute; margin-top:5px'><h3>new record</h3></div><a class="close s-close" id='close_newrec'>&times;</a>
