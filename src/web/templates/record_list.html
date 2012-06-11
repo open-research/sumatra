@@ -88,8 +88,8 @@
             </div>
                  
                 <div style='float:left; margin-left:10px;'>
-                    {% if page_obj.has_previous %}<a href="?page={{page_obj.previous_page_number}}&per_page={{records_per_page}}" class="page gradient" id='older'>{% else %}<a class="page gradient inactive" id='older'>{% endif %}<i class="pagin icon-chevron-left"></i></a>
-                    {% if page_obj.has_next %}<a href="?page={{page_obj.next_page_number}}&per_page={{records_per_page}}" class="page gradient" id='newer'>{% else %}<a class="page gradient inactive" id='newer'>{% endif %}<i class="pagin icon-chevron-right"></i></a>
+                    {% if page_obj.has_previous %}<a href="{% if query_string %}?page={{page_obj.previous_page_number}}&per_page={{records_per_page}}{% else %}?page={{page_obj.previous_page_number}}&per_page={{records_per_page}}{% endif %}" class="page gradient" id='older'>{% else %}<a class="page gradient inactive" id='older'>{% endif %}<i class="pagin icon-chevron-left"></i></a>
+                    {% if page_obj.has_next %}<a href="{% if query_string %}?page={{page_obj.next_page_number}}&per_page={{records_per_page}}{% else %}?page={{page_obj.next_page_number}}&per_page={{records_per_page}}{% endif %}" class="page gradient" id='newer'>{% else %}<a class="page gradient inactive" id='newer'>{% endif %}<i class="pagin icon-chevron-right"></i></a>
                 </div>
             </div>
 </div>

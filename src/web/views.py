@@ -20,7 +20,6 @@ mimetypes.init()
 import csv
 import os
 
-
 RECORDS_PER_PAGE = 50
 
 class SearchForm(forms.ModelForm):
@@ -35,6 +34,11 @@ class RecordForm(SearchForm):
     class Meta:
         model = models.Record
         fields = ('label', 'tags', 'reason')
+        '''
+        widgets = {
+            'reason': forms.Textarea(attrs={'id': 'ireason'})
+        }
+        '''
     
 def search(request, project):
     if request.method == 'GET':
@@ -46,15 +50,17 @@ def search(request, project):
             results = models.Record.objects.filter(label__icontains=request_data['label'],
                                                    tags__icontains=request_data['tags'],
                                                    reason__icontains=request_data['reason'])
-    return list_detail.object_list(request,
-                               queryset=results,
-                               template_name="record_list.html",
-                               paginate_by=nb_per_page,
-                               extra_context={
-                                'project_name': project,
-                                'form': form,
-                                'records_per_page': nb_per_page,
-                                'settings': web_settings}) 
+            return list_detail.object_list(request,
+                                       queryset=results,
+                                       template_name="record_list.html",
+                                       paginate_by=nb_per_page,
+                                       extra_context={
+                                        'project_name': project,
+                                        'form': form,
+                                        'records_per_page': nb_per_page,
+                                        'settings': web_settings,
+                                        'query_string': request.META['QUERY_STRING']
+                                        }) 
     
 def unescape(label):
     return label.replace("||", "/")
