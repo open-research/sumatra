@@ -1,88 +1,119 @@
 {% extends "base.html" %}
 {% load filters %}
 
-{% block title %}{{project_name}}: {{record.label}}{% endblock %}
-{% block extrahead %}
-    <link rel="stylesheet" type="text/css" href="/media/jquery-ui-1.8.16.custom.css">
-    <script type="text/javascript" src="/media/jquery-1.6.4.min.js"></script>
-    <script type="text/javascript" src="/media/jquery-ui-1.8.16.custom.min.js"></script>
-    <script type="text/javascript" src="/media/smt.js"></script>    
-{% endblock %}
-
 {% block header %}
-<form action='{{ request.path }}' method='POST' id="actions" name="actions">
-<h1>{{project_name}}: <i>{{record.label}}</i></h1>
-<input type="submit" value='Save changes' class="headeritem">
-<input type="submit" value='Delete' class="headeritem" name="delete">
+<div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <h1><div id = "name_project">
+            <a href="/{{project_name}}/about/">{{project_name}}</a>: {{record.label}}</div>
+            <div id='sumatra_logo'><a href="http://neuralensemble.org/trac/sumatra">
+            <img src='/media/Sumatra_logo.png'/></a></div>
+        </div>
+    </div>
+</div> 
 {% endblock %}
 
 {% block content %}
-
-{% with record.get_previous_by_timestamp as previous %}{% with record.get_next_by_timestamp as next %}
-<p>{% if previous %}<a href="../{{previous|escapeslash}}/"><img src="/media/Go-previous.png" alt="previous record"/></a> {% endif %}
-{% if next %}<a href="../{{next|escapeslash}}/"><img src="/media/Go-next.png" alt="next record"/></a> {% endif %}
-<a href="../">Return to record list</a></p>
-{% endwith %}{% endwith %}
+<div id = 'header_menu'>
+    <div class='subnav'>
+        <ul class='nav nav-pills'>
+            <li><a href='/' class='a-subnav'>List of projects</a></li>
+            <li><a href='/{{project_name}}/' class='a-subnav'>List of records</a></li>
+            <li><a href='/{{project_name}}/about/' class='a-subnav'>About</a></li>   
+        </ul>
+    </div>
+</div>
 
 {{form.errors}}
+<div class="accordion">
+    <h2 class="navbar-inner topic">General info</h2>
+    <form class="form-horizontal">
+        <fieldset class = 'field-acc'>
+            <div class="control-group">
+                <table id = 'gen_info'>
+                    <tr><th>Label:</th><td>{{record.label}}</td></tr>
+                    <tr><th>Reason:</th><td>{{form.reason}}</td></tr>
+                    <tr><th>Outcome:</th><td>{{form.outcome}}</td></tr>
+                    <tr><th>Timestamp:</th><td>{{record.timestamp|date:"d/m/Y H:i:s"}}</td></tr>
+                    <tr><th>Duration:</th><td>{{record.duration|human_readable_duration}}</td></tr>
+                    <tr><th>Executable:</th><td>{{record.executable.name}} version {{record.executable.version}} ({{record.executable.path}})</td></tr>
+                    <tr><th>Launch mode:</th><td>{% ifequal record.launch_mode.type "SerialLaunchMode" %}serial{% else %}distributed, n={{record.launch_mode.get_parameters.n}}{% endifequal %}</td></tr>
+                    <tr><th>Repository:</th><td>{{record.repository.url}}</td></tr>
+                    <tr><th>Main file:</th><td>{{record.main_file}}</td></tr>
+                    <tr><th>Version:</th><td>{{record.version}}{% if record.diff %}* (<a href="diff/">diff</a>){% endif %}</td></tr>
+                    {% if record.script_arguments %}<tr><th>Arguments:</th><td>{{record.script_arguments}}</td></tr>{% endif %}
+                    <tr><th>Tags:</th><td>{{form.tags}}</td></tr>
+                </table>
+            </div>
+        </fieldset>
+    </form>
+</div>
 
-<table>
-    <tr><th>Label:</th><td>{{record.label}}</td></tr>
-    <tr><th>Reason:</th><td>{{form.reason}}</td></tr>
-    <tr><th>Outcome:</th><td>{{form.outcome}}</td></tr>
-    <tr><th>Timestamp:</th><td>{{record.timestamp|date:"d/m/Y H:i:s"}}</td></tr>
-    <tr><th>Duration:</th><td>{{record.duration|human_readable_duration}}</td></tr>
-    <tr><th>Executable:</th><td>{{record.executable.name}} version {{record.executable.version}} ({{record.executable.path}})</td></tr>
-    <tr><th>Launch mode:</th><td>{% ifequal record.launch_mode.type "SerialLaunchMode" %}serial{% else %}distributed, n={{record.launch_mode.get_parameters.n}}{% endifequal %}</td></tr>
-    <tr><th>Repository:</th><td>{{record.repository.url}}</td></tr>
-    <tr><th>Main file:</th><td>{{record.main_file}}</td></tr>
-    <tr><th>Version:</th><td>{{record.version}}{% if record.diff %}* (<a href="diff/">diff</a>){% endif %}</td></tr>
-    <tr><th>Arguments:</th><td>{{record.script_arguments}}</td></tr>
-    <tr><th>Tags:</th><td>{{form.tags}}</td></tr>
-</table>
-
-</form>
-
-
-<!-- Content for confirm-delete dialog box -->
-<div id="dialog" title="Please confirm">
-<p>Are you sure you want to delete this record?</p>
+<div class="accordion">
+    <h2 class="navbar-inner topic">Input files</h2>
+    <form class="form-horizontal">
+        <fieldset class = 'field-acc'>
+            <div class="control-group">
+                {% if record.input_data.count %}
+                <table>
+                    <tr><td colspan="4">{{record.input_datastore.access_parameters.root}}</td></tr>
+                    {% for file in record.input_data.all %}
+                           <tr class="{% cycle odd even %}"><td><a href="datafile?path={{file.path}}&digest={{file.digest}}&type=input">{{file.path}}</a></td>
+                           <td>{{file.digest}}</td>
+                           <td>{{file.metadata.mimetype|default:""}}</td>
+                           <td>{{file.metadata.size|filesizeformat}}</td></tr>
+                    {% endfor %}
+                </table>
+                {% else %}
+                    no input files
+                {% endif %}
+            </div>
+        </fieldset>
+    </form>
 </div>
 
 
-{% if record.input_data.count %}
-<h2>Input files</h2>
-<table>
-    <tr><td colspan="4">{{record.input_datastore.access_parameters.root}}</td></tr>
-{% for file in record.input_data.all %}
-  <tr class="{% cycle odd even %}"><td><a href="datafile?path={{file.path}}&digest={{file.digest}}&type=input">{{file.path}}</a></td>
-                                   <td>{{file.digest}}</td>
-                                   <td>{{file.metadata.mimetype|default:""}}</td>
-                                   <td>{{file.metadata.size|filesizeformat}}</td></tr>
-{% endfor %}
-</table>
-{% endif %}
+<div id="accordion-js" class="accordion">
+    <h2 class="navbar-inner topic">Output files</h2>
+    <form class="form-horizontal">
+        <fieldset class = 'field-acc'>
+            <div class="control-group">
+                <table>
+                    <tr><td colspan="4">{{record.datastore.access_parameters.root}}</td></tr>
+                        {% for file in record.output_data.all %}
+                                <tr class="{% cycle 'odd' 'even' %}"><td><a href="datafile?path={{file.path}}&digest={{file.digest}}">{{file.path}}</a></td>
+                                <td>{{file.digest}}</td>
+                                <td>{{file.get_metadata.mimetype|default:""}}</td>
+                                <td>{{file.get_metadata.size|filesizeformat}}</td></tr>
+                        {% endfor %}
+                </table>
+            </div>
+        </fieldset>
+    </form>
+</div>
 
-<h2>Output files</h2>
-<table>
-  <tr><td colspan="4">{{record.datastore.access_parameters.root}}</td></tr>
-{% for file in record.output_data.all %}
-  <tr class="{% cycle "odd" "even" %}"><td><a href="datafile?path={{file.path}}&digest={{file.digest}}">{{file.path}}</a></td>
-                                   <td>{{file.digest}}</td>
-                                   <td>{{file.get_metadata.mimetype|default:""}}</td>
-                                   <td>{{file.get_metadata.size|filesizeformat}}</td></tr>
-{% endfor %}
-</table>
-
-<h2>Parameters</h2>
-{% for name, value in parameters.items %}
-{{name}} = {{value}}<br>{% endfor %}
-                        
+<div id="accordion-js" class="accordion">
+    <h2 class="navbar-inner topic">Parameters</h2>
+    <form class="form-horizontal">
+        <fieldset class = 'field-acc'>
+            <div class="control-group">
+                {% if parameters %}
+                    {% for name, value in parameters.items %}
+                    {{name}} = {{value}}<br>{% endfor %}
+                {% else %}
+                    no parameters
+                {% endif %}
+            </div>
+        </fieldset>
+    </form>
+</div>
+                   
 <h2>Dependencies</h2>
 <table>
 <tr><th>Name</th><th>Path</th><th>Version</th></tr>
 {% for dep in record.dependencies.all %}
-<tr class="{% cycle "odd" "even" %}"><td>{{dep.name}}</td><td>{{dep.path}}</td><td>{{dep.version}}{% if dep.diff %}* (<a href="diff/{{dep.name}}">diff</a>){% endif %}</td></tr>{% endfor %}
+<tr class="{% cycle 'odd' 'even' %}"><td>{{dep.name}}</td><td>{{dep.path}}</td><td>{{dep.version}}{% if dep.diff %}* (<a href="diff/{{dep.name}}">diff</a>){% endif %}</td></tr>{% endfor %}
 </table>
 
 <h2>Platform information</h2>
@@ -92,7 +123,7 @@
     <th>Release</th><th>Version</th>
 </tr>
 {% for platform in record.platforms.all %}
-<tr class="{% cycle "odd" "even" %}">
+<tr class="{% cycle 'odd' 'even' %}">
     <td>{{platform.network_name}}</td>
     <td>{{platform.ip_addr}}</td>
     <td>{{platform.processor}} {{platform.machine}}</td>
@@ -110,5 +141,12 @@
 {{ record.stdout_stderr }}
 </pre>
 {% endif %}
-
+<script type = 'text/javascript'>
+$(document).ready(function(){
+        $('.accordion').find('h2').click(function(){
+		    $(this).next().slideToggle();
+		}).next()//.hide();
+		$('#accordion-js').find('#additional').next().hide();
+});
+</script>
 {% endblock %}

@@ -147,9 +147,12 @@
 <!--p><a href="/">Return to list of projects</a></p-->
 <script type = 'text/javascript'>
 $(document).ready(function(){
-    $('#table_out tr td:not(.Tag-t)').click(function(){
-        var $label = $(this).parent().find('.Label-t').html();
-        window.open(["/{{project_name}}", $label, ""].join('/'));
+    $('.simulations td').click(function(){
+        if (!$(this).children().is('a')){
+            $parent = $(this).parent();
+            var $label = $parent.find('.Label-t').html();
+            window.open(["/{{project_name}}", $label, ""].join('/'));
+        }
     });
     
     $('#search_but').click(function(){
@@ -445,13 +448,9 @@ $(document).ready(function(){
                  'main_file':$('#mFile').val(),
                  'args':$('#mArg').val()
                 },
-          dataType: 'json',
-          success: function(){  
-             $("#table_out").trigger("update");  //for tablesorter
-          },
+          dataType: 'json'
         }).done(function(data) {
-             var $tableFirstrow = $('#table_out tbody tr:eq(0)');
-             $tableFirstrow.find('td').each(function(i, el) {
+             $clone.find('td').each(function(i, el) {
                        if ($(this).is(".Tag-t")) {
                           $tag = data[$(el).attr('class').split(' ')[0]].split(',');
                           length = $tag.length;
@@ -468,9 +467,10 @@ $(document).ready(function(){
                             $(el).html(data[$(el).attr('class').split(' ')[0]]);
                         }
              });
-             $tableFirstrow.effect("highlight", {}, 5000);  
+             $clone.effect("highlight", {}, 5000);  
              var nb_sim = parseInt($('#b_nbsim').html());
              $('#b_nbsim').html(nb_sim + 1);
+             $("#table_out").trigger("update");  //for tablesorter
         }); // done
     }); 
 });   

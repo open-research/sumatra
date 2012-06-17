@@ -526,3 +526,21 @@ li a.p-inac:hover{
     padding: 4px;
     margin-left: 10px;
 }  
+
+h2.topic{
+    margin-top:10px;
+    width: 60%;
+    cursor:pointer;
+}
+
+.field-acc{
+    margin-top: 10px;
+}
+
+#gen_info tr th{
+    text-align: left;
+    width: 150px;
+    padding-top: 5px;
+    padding-bottom:5px;
+    font-size: 16px;
+}
