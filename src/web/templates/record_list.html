@@ -147,6 +147,12 @@
 <!--p><a href="/">Return to list of projects</a></p-->
 <script type = 'text/javascript'>
 $(document).ready(function(){
+    $('#table_out tr').click(function(){
+        var $label = $(this).find('.Label-t').html();
+        //"/{{project_name}}/{{record.label|escapeslash}}/"
+        window.open(["/{{project_name}}", $label, ""].join('/'));
+    });
+    
     $('#search_but').click(function(){
         $('#search_form').trigger('submit');
     });

@@ -29,6 +29,10 @@ padding-bottom: 40px;
 	margin-right: 20px;
     width: 98%;
 }
+#table_out tr:hover{
+    cursor: pointer;
+    cursor: hand;
+}
 
 #table_out th.green.header:first-child{border-left:1px solid #ddd}   
 #table_out th.blue.header:first-child{border-left: 0px;}   
