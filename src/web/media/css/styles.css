@@ -529,7 +529,7 @@ li a.p-inac:hover{
 
 h2.topic{
     margin-top:10px;
-    width: 60%;
+    width: 90%;
     cursor:pointer;
 }
 
@@ -539,8 +539,33 @@ h2.topic{
 
 #gen_info tr th{
     text-align: left;
-    width: 150px;
     padding-top: 5px;
     padding-bottom:5px;
+    padding-right: 20px;
     font-size: 16px;
+}
+
+.table-recDetail tr:first-child{
+    background-color: #E4E4E4;
+    color: #000000;
+    font-size: 16px;
+    text-align: left;
+    line-height: 22px;
+}
+
+.table-recDetail tr:nth-child(odd) td{
+    background-color:#E4E4E4;
+}
+
+.table-recDetail tr td{
+    padding-top:4px;
+    padding-bottom:4px;
+}
+
+.table-recDetail tr td{
+    padding-right: 80px;
+}
+
+.table-recDetail tr td:first-child{
+    font-weight: bold;
 }
