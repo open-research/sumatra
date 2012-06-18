@@ -6,28 +6,21 @@
     <div class="navbar-inner">
         <div class="container-fluid">
             <h1><div id = "name_project">
-            <a href="/{{project_name}}/about/">{{project_name}}</a>: {{record.label}}</div>
-            <div id='sumatra_logo'><a href="http://neuralensemble.org/trac/sumatra">
-            <img src='/media/Sumatra_logo.png'/></a></div>
+            <a href="/{{project_name}}/about/">{{project_name}}</a></div></h1>
+            <ul class='nav'>
+                <li class="divider"></li>
+                <li><a href='/{{project_name}}/about/' class='a-subnav'>About</a></li> 
+                <li><a href='/' class='a-subnav'>List of projects</a></li>
+                <li><a href='/{{project_name}}/' class='a-subnav'>List of records</a></li>       
+            </ul>
         </div>
     </div>
 </div> 
 {% endblock %}
 
 {% block content %}
-<div id = 'header_menu'>
-    <div class='subnav'>
-        <ul class='nav nav-pills'>
-            <li><a href='/' class='a-subnav'>List of projects</a></li>
-            <li><a href='/{{project_name}}/' class='a-subnav'>List of records</a></li>
-            <li><a href='/{{project_name}}/about/' class='a-subnav'>About</a></li>   
-        </ul>
-    </div>
-</div>
-
-
 <div class="accordion">
-    <h2 class="navbar-inner topic">General info</h2>
+    <h2 class="nav-toggle">General info</h2>
     <form action='{{ request.path }}' method='POST' id="actions" name="actions">
         {{form.errors}}
         <fieldset class = 'field-acc'>
@@ -56,7 +49,7 @@
 </div>
 
 <div class="accordion">
-    <h2 class="navbar-inner topic">Input files</h2>
+    <h2 class="nav-toggle">Input files</h2>
     <form class="form-horizontal">
         <fieldset class = 'field-acc'>
             <div class="control-group">
@@ -80,7 +73,7 @@
 
 
 <div class="accordion">
-    <h2 class="navbar-inner topic">Output files</h2>
+    <h2 class="nav-toggle">Output files</h2>
     <form class="form-horizontal">
         <fieldset class = 'field-acc'>
             <div class="control-group">
@@ -99,7 +92,7 @@
 </div>
 
 <div id="accordion-js" class="accordion">
-    <h2 class="navbar-inner topic">Parameters</h2>
+    <h2 class="nav-toggle">Parameters</h2>
     <form class="form-horizontal">
         <fieldset class = 'field-acc'>
             <div class="control-group">
@@ -115,7 +108,7 @@
 </div>
 
 <div class="accordion">
-    <h2 class="navbar-inner topic">Dependencies</h2>
+    <h2 class="nav-toggle">Dependencies</h2>
     <form class="form-horizontal">
         <fieldset class = 'field-acc'>
             <div class="control-group">
@@ -130,7 +123,7 @@
 </div>                   
 
 <div class="accordion">
-    <h2 class="navbar-inner topic">Platform information</h2>
+    <h2 class="nav-toggle">Platform information</h2>
     <form class="form-horizontal">
         <fieldset class = 'field-acc'>
             <div class="control-group">
@@ -157,14 +150,16 @@
 </div>
 
 <div class="accordion">
-    <h2 class="navbar-inner topic">Stdout & Stderr</h2>
+    <h2 class="nav-toggle">Stdout & Stderr</h2>
     <form class="form-horizontal">
         <fieldset class = 'field-acc'>
             <div class="control-group">
                 {% if record.stdout_stderr %}
-                <pre id = 'stdout'>
-                {{ record.stdout_stderr }}
-                </pre>
+                <div style='width:94%'>
+                    <pre>
+                    {{ record.stdout_stderr }}
+                    </pre>
+                </div>
                 {% else %}
                 no outputs
                 {% endif %}

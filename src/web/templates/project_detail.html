@@ -5,35 +5,24 @@
 {% block header %}
 <div class="navbar navbar-fixed-top">
     <div class="navbar-inner">
-        <div class="container-fluid">
-            <h1><div id = "name_project">
-            <a href="../">{{project.id}}:</a></div>
-            <div id = 'name_page'>&nbsp about</div></h1>
-            <div id='sumatra_logo'><a href="http://neuralensemble.org/trac/sumatra">
-            <img src='/media/Sumatra_logo.png'/></a></div>
-            <!--div class="nav-collapse">
-            <ul class="nav">
-              <li><a href="#">File</a></li>
-              <li><a href="#about">Settings</a></li>
-            </ul>
-            </div-->
+        <div class="container-fluid">       
+            <h2><div id = "name_project">
+            <a href="/{{project.id}}/about/" style='color:rgb(102, 157, 199)'>{{project.id}}</a></div></h2>   
+            <!--div id='sumatra_logo'><a href="http://neuralensemble.org/trac/sumatra">
+            <img src='/media/Sumatra_logo.png'/></a></div-->         
+                <ul class='nav'>
+                    <li class="divider"></li>
+                    <li class='active'><a href='/{{project.id}}/about/' class='a-subnav'>About</a></li> 
+                    <li><a href='/' class='a-subnav'>List of projects</a></li>
+                    <li><a href='/{{project.id}}/' class='a-subnav'>List of records</a></li>       
+                </ul>
         </div>
     </div>
-</div> 
+</div>
 {% endblock %}
 
 
 {% block content %}
-<div id = 'header_menu'>
-    <div class='subnav'>
-        <ul class='nav nav-pills'>
-            <li><a href='/' class='a-subnav'>List of projects</a></li>
-            <li><a href='../' class='a-subnav'>List of records</a></li>
-            <li class='active'><a class='a-subnav'>About</a></li>   
-        </ul>
-    </div>
-</div>
-
 <div id = 'side_projectDetail'>
     <form id = 'target' action='.' method='POST' style='margin-top:10px;'>
         

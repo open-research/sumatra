@@ -2594,11 +2594,12 @@ input[type="submit"].btn.small {
   border-color: #ddd #ddd #ddd transparent;
   *border-left-color: #ffffff;
 }
-/*
+
 .navbar {
   overflow: visible;
   margin-bottom: 18px;
 }
+
 .navbar-inner {
   padding-left: 20px;
   padding-right: 20px;
@@ -2618,6 +2619,7 @@ input[type="submit"].btn.small {
   -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
 }
+/*
 .btn-navbar {
   display: none;
   float: right;

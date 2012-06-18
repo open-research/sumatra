@@ -7,7 +7,7 @@
     <div class="navbar-inner">
         <div class="container-fluid">       
             <h2><div id = "name_project">
-            <a href="/{{project_name}}/about/">{{project_name}}{% if tag %} tagged with {{tag}}{% endif %}</a></div></h2>   
+            <a href="/{{project_name}}/about/" style='color:rgb(102, 157, 199)'>{{project_name}}{% if tag %} tagged with {{tag}}{% endif %}</a></div></h2>   
             <!--div id='sumatra_logo'><a href="http://neuralensemble.org/trac/sumatra">
             <img src='/media/Sumatra_logo.png'/></a></div-->         
                 <ul class='nav'>
@@ -15,12 +15,12 @@
                     <li><a href='/{{project_name}}/about/' class='a-subnav'>About</a></li> 
                     <li><a href='/' class='a-subnav'>List of projects</a></li>
                     <li class='active'><a  class='a-subnav'>List of records</a></li> 
+                    <div id = 'div_menu_search' style='float:right'>
                     <input class='span5' type='text' id="text_subnav" placeholder='Search' value='{{search_info.label}}'/> 
                         <span id='icon_cdown'><i class="icon-chevron-down" style='font-size:10pt; padding-top:3px;'></i></span>     
                         <a class='btn btn-info btn-large' id='btn_search'><i class="icon-search">
                         </i>&nbsp; Search
-                        </a>  
-                       <div id = 'div_menu_search' class='span5'>
+                        </a>         
                            <ul class="dropdown-menu" id = 'menu_search'>      
                                 <a class="close" id='close_menu'>&times;</a> 
                                 <form id='search_form' action='/{{project_name}}/search' method='GET'>
@@ -32,7 +32,7 @@
                                     </a> 
                                 </div>
                             </ul>
-                        </div>               
+                    </div>           
                 </ul>
                 <ul class='nav pull-right' style='margin-right:5px'>
                     <li class='divider-vertical'></li>   
@@ -54,8 +54,6 @@
 {% endblock %}
  
 {% block content %} 
-
-
 <div id='newrecord'>
         <a id='btn_newrec' class='btn btn-danger btn-large' style='width:100px' data-toggle="modal" href="#mod_newrec">
             <i class="icon-file"></i> New record
@@ -241,7 +239,7 @@ $(document).ready(function(){
     $(".chzn-select-deselect").chosen({allow_single_deselect:true});
     
     // #menu_search will inherit the offsetLength from this div
-    $('#div_menu_search').offset({left: $('#text_subnav').offset().left});
+    $('#div_menu_search').offset({left: $('#text_subnav').offset().left+20});
     
     $('#icon_cdown').tooltip({
         title: 'show search options',

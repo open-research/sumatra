@@ -5,35 +5,23 @@
 {% block header %}
 <div class="navbar navbar-fixed-top">
     <div class="navbar-inner">
-        <div class="container-fluid">
-            <h1><div id = "name_project">
-            <div id = 'name_page'>List of projects</div></h1>
-            <div id='sumatra_logo'><a href="http://neuralensemble.org/trac/sumatra">
-            <img src='/media/Sumatra_logo.png'/></a></div>
-            <!--div class="nav-collapse">
-            <ul class="nav">
-              <li><a href="#">File</a></li>
-              <li><a href="#about">Settings</a></li>
-            </ul>
-            </div-->
+        <div class="container-fluid">       
+            <h2><div id = "name_project">
+            <!--a href="/{{object_list.0.id}}/about/" style='color:rgb(102, 157, 199)'>{{object_list.0.id}}</a--></div></h2>   
+            <!--div id='sumatra_logo'><a href="http://neuralensemble.org/trac/sumatra">
+            <img src='/media/Sumatra_logo.png'/></a></div-->         
+                <ul class='nav'>
+                    <li class="divider"></li>
+                    <li><a href='/{{object_list.0.id}}/about/' class='a-subnav'>About</a></li> 
+                    <li class='active'><a href='/' class='a-subnav'>List of projects</a></li>
+                    <li><a href='/{{object_list.0.id}}/' class='a-subnav'>List of records</a></li>       
+                </ul>
         </div>
     </div>
 </div> 
 {% endblock %}
 
 {% block content %}
-{% for project in object_list %}
-<div id = 'header_menu'>
-    <div class='subnav'>
-        <ul class='nav nav-pills'>
-            <li class='active'><a class='a-subnav'>List of projects</a></li>
-            <li><a href="/{{project.id}}/" class='a-subnav'>List of records</a></li>
-            <li><a href="/{{project.id}}/about/" class='a-subnav'>About</a></li>   
-        </ul>
-    </div>
-</div>
-{% endfor %}
-
 {% if object_list %}
 <div id = 'div_listOfprojects'>
     <table class="table table-bordered" >
