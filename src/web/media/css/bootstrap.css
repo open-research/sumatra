@@ -1689,29 +1689,26 @@ table .span12 {
   top: 100%;
   left: 0;
   z-index: 1000;
-  float: left;
   display: none;
+  float: left;
   min-width: 160px;
-  _width: 160px;
   padding: 4px 0;
-  margin: 0;
+  margin: 1px 0 0;
   list-style: none;
   background-color: #ffffff;
-  border-color: #ccc;
-  border-color: rgba(0, 0, 0, 0.2);
-  border-style: solid;
-  border-width: 1px;
-  -webkit-border-radius: 0 0 5px 5px;
-  -moz-border-radius: 0 0 5px 5px;
-  border-radius: 0 0 5px 5px;
-  -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-  -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-  -webkit-background-clip: padding-box;
-  -moz-background-clip: padding;
-  background-clip: padding-box;
+  border: 1px solid #ccc;
+  border: 1px solid rgba(0, 0, 0, 0.2);
   *border-right-width: 2px;
   *border-bottom-width: 2px;
+  -webkit-border-radius: 5px;
+     -moz-border-radius: 5px;
+          border-radius: 5px;
+  -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+     -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+          box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  -webkit-background-clip: padding-box;
+     -moz-background-clip: padding;
+          background-clip: padding-box;
 }
 .dropdown-menu.bottom-up {
   top: auto;
@@ -2309,6 +2306,7 @@ input[type="submit"].btn.small {
 .alert-block p + p {
   margin-top: 5px;
 }
+
 .nav {
   margin-left: 0;
   margin-bottom: 18px;
@@ -2596,6 +2594,7 @@ input[type="submit"].btn.small {
   border-color: #ddd #ddd #ddd transparent;
   *border-left-color: #ffffff;
 }
+/*
 .navbar {
   overflow: visible;
   margin-bottom: 18px;
@@ -2898,6 +2897,7 @@ input[type="submit"].btn.small {
   left: auto;
   right: 13px;
 }
+*/
 .breadcrumb {
   padding: 7px 14px;
   margin: 0 0 18px;
@@ -4742,6 +4742,7 @@ ol.linenums li {
     margin-left: 30px;
   }
 }
+/*
 .navbar {
   border-bottom: 1px solid #CACACA;
 }
@@ -4837,6 +4838,7 @@ ol.linenums li {
 .navbar .nav-collapse > .nav li > a:hover .caret {
   border-top-color: #ffffff;
 }
+*/
 .btn {
   background-color: #f1f1f1;
   background-image: -moz-linear-gradient(top, #f4f4f4, #ececec);

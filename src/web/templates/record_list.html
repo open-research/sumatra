@@ -5,66 +5,62 @@
 {% block header %}
 <div class="navbar navbar-fixed-top">
     <div class="navbar-inner">
-        <div class="container-fluid">
-            <h1><div id = "name_project">
-            <a href="/{{project_name}}/about/">{{project_name}}{% if tag %} tagged with {{tag}}{% endif %}</a></div>
-            <div id = 'name_page'>&nbsp; list of records</div></h1>
-            <div id='sumatra_logo'><a href="http://neuralensemble.org/trac/sumatra">
-            <img src='/media/Sumatra_logo.png'/></a></div>
+        <div class="container-fluid">       
+            <h2><div id = "name_project">
+            <a href="/{{project_name}}/about/">{{project_name}}{% if tag %} tagged with {{tag}}{% endif %}</a></div></h2>   
+            <!--div id='sumatra_logo'><a href="http://neuralensemble.org/trac/sumatra">
+            <img src='/media/Sumatra_logo.png'/></a></div-->         
+                <ul class='nav'>
+                    <li class="divider"></li>
+                    <li><a href='/{{project_name}}/about/' class='a-subnav'>About</a></li> 
+                    <li><a href='/' class='a-subnav'>List of projects</a></li>
+                    <li class='active'><a  class='a-subnav'>List of records</a></li> 
+                    <input class='span5' type='text' id="text_subnav" placeholder='Search' value='{{search_info.label}}'/> 
+                        <span id='icon_cdown'><i class="icon-chevron-down" style='font-size:10pt; padding-top:3px;'></i></span>     
+                        <a class='btn btn-info btn-large' id='btn_search'><i class="icon-search">
+                        </i>&nbsp; Search
+                        </a>  
+                       <div id = 'div_menu_search' class='span5'>
+                           <ul class="dropdown-menu" id = 'menu_search'>      
+                                <a class="close" id='close_menu'>&times;</a> 
+                                <form id='search_form' action='/{{project_name}}/search' method='GET'>
+                                    {{form.as_p}}
+                                </form>
+                                <div>
+                                    <a id='search_but' class='btn btn-info btn-large' style='padding: 5px 15px;margin-left:10px;color:#ffffff;margin-right:10px'><i class="icon-search">                
+                                        </i>&nbsp; Search
+                                    </a> 
+                                </div>
+                            </ul>
+                        </div>               
+                </ul>
+                <ul class='nav pull-right' style='margin-right:5px'>
+                    <li class='divider-vertical'></li>   
+                    <li class='dropdown'><a id='li_settings' class='dropdown-toggle' data-toggle='dropdown' href='#'>
+                    <i class="icon-cog" style='margin-top:8px'></i> Settings<b class='caret'></b></a>
+                        <ul class='dropdown-menu' id = 'dropdown_menu'>
+                            <li><a href="#" id='settings_density'>Display density:</a></li> 
+                            <li><a href="#" class='menu-rsettigns' id='button_null'>Comfortable</a></li>
+                            <li><a href="#" class='menu-rsettigns' id='button_condensed'>Compact</a></li>
+                            <li class="divider"></li>
+                            <li><a id='button_settings' class='menu-rsettigns' data-toggle="modal" href="#setModal">Settings</a></li>
+                        </ul>
+                    </li>                    
+                    <li class='divider-vertical'></li>   
+                </ul> 
         </div>
     </div>
 </div> 
 {% endblock %}
  
 {% block content %} 
-<div id = 'header_menu'>
-    <div class='subnav'>
-        <ul class='nav nav-pills'>
-            <li><a href='/' class='a-subnav'>List of projects</a></li>
-            <li class='active'><a  class='a-subnav'>List of records</a></li>
-            <li><a href='/{{project_name}}/about/' class='a-subnav'>About</a></li>   
-        </ul>
-    </div>
-    
-   <div id = 'div_menu_search' class='span5'>
-       <ul class="dropdown-menu" id = 'menu_search'>      
-            <a class="close" id='close_menu'>&times;</a> 
-                <form id='search_form' action='/{{project_name}}/search' method='GET'>
-                    {{form.as_p}}
-                </form>
-                <a id='search_but' class='btn btn-info btn-large' style='padding: 5px 15px;margin-left:10px;margin-right:10px;color:#ffffff;margin-top:50px'><i class="icon-search">  
-                </i>&nbsp; Search
-                </a> 
-        </ul>
-    </div>
-    
-   <input class='span5' type='text' id="text_subnav" value='{{search_info.label}}'/>
-    
-   <span id="icon_cdown"><i class="icon-chevron-down"></i></span>       
-        <a class='btn btn-info btn-large' id='btn_search'><i class="icon-search">
-        </i>&nbsp; Search
-        </a>
 
-    <div class="btn-group">
-        <a class="btn btn-large dropdown-toggle" data-toggle="dropdown" href="#" id = 'settings_but'>
-        <i class="icon-cog"></i> Settings
-        <span class="caret"></span>
-        </a>
-        <ul class="dropdown-menu" id = 'dropdown_menu'>
-            <li><a href="#" id='settings_density'>Display density:</a></li> 
-            <li><a href="#" class='menu-rsettigns' id='button_null'>Comfortable</a></li>
-            <li><a href="#" class='menu-rsettigns' id='button_condensed'>Compact</a></li>
-            <li class="divider"></li>
-            <li><a id='button_settings' class='menu-rsettigns' data-toggle="modal" href="#setModal">Settings</a></li>
-        </ul>
-    </div>
-</div>
 
 <div id='newrecord'>
         <a id='btn_newrec' class='btn btn-danger btn-large' style='width:100px' data-toggle="modal" href="#mod_newrec">
             <i class="icon-file"></i> New record
         </a>
-            <div style='float:right; margin-right:25px'>
+            <div style='float:right; margin-right:34px'>
             <div class="btn-group paginator">
                 <div id='pagin_info'>
                     <b>{{page_obj.start_index}}</b> - <b id='b_nbrec'>{{page_obj.end_index}}</b> of <b id='b_nbsim'>{{paginator.count}}</b>
@@ -274,11 +270,10 @@ $(document).ready(function(){
         $('#menu_search').hide();
         $('#menu_datewith').hide();
     });
-    
-    $('#settings_but').dropdown();   // dropdown menu for the settings button 
+     
     $('#pagin_info').dropdown();
    
-    $('#settings_but').click(function(){
+    $('#li_settings').click(function(){
         $.ajax({
           type: 'POST',
           url: '/{{project_name}}/settings',
