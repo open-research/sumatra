@@ -70,6 +70,7 @@ class Record(object):
         if self.main_file is None:
             raise MissingInformationError("main script file not specified")
         if len(self.main_file.split()) == 1: # this assumes filenames cannot contain spaces
+            print 'self.main_file %s' %self.executable
             self.dependencies = dependency_finder.find_dependencies(self.main_file, self.executable)
         else: # if self.main_file contains multiple file names
             # this seems a bit hacky. Should perhaps store a list self.main_files, _and_ check that all files exist.

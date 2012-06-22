@@ -126,7 +126,8 @@ class Project(object):
                    main_file='default', version='latest', launch_mode='default',
                    label=None, reason=None):
         if executable == 'default':
-            executable = deepcopy(self.default_executable)
+            #executable = deepcopy(self.default_executable) 
+            executable = (self.default_executable)               
         if repository == 'default':
             repository = deepcopy(self.default_repository)
         if main_file == 'default':
@@ -135,6 +136,7 @@ class Project(object):
             launch_mode = deepcopy(self.default_launch_mode)
         working_copy = repository.get_working_copy()
         version, diff = self.update_code(working_copy, version)
+        
         record = Record(executable, repository, main_file, version, launch_mode,
                         self.data_store, parameters, input_data, script_args, 
                         label=label, reason=reason, diff=diff,

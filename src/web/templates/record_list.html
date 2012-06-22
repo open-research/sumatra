@@ -14,7 +14,7 @@
                     <li class="divider"></li>
                     <li><a href='/{{project_name}}/about/' class='a-subnav'>About</a></li> 
                     <li><a href='/' class='a-subnav'>List of projects</a></li>
-                    <li class='active'><a  class='a-subnav'>List of records</a></li> 
+                    <li class='active'><a href='/{{project_name}}/' class='a-subnav'>List of records</a></li> 
                     <div id = 'div_menu_search' style='float:right'>
                     <input class='span5' type='text' id="text_subnav" placeholder='Search' value='{{search_info.label}}'/> 
                         <span id='icon_cdown'><i class="icon-chevron-down" style='font-size:10pt; padding-top:3px;'></i></span>     
@@ -66,14 +66,14 @@
                 <ul class="dropdown-menu" style='min-width:0px'>
                     <li>
                         {% if page_obj.has_previous %}
-                            <a href="?page=1&per_page={{records_per_page}}">Newest</a>
+                            <a href="?{{query_string}}&page=1&per_page={{records_per_page}}">Newest</a>
                         {% else %}
                             <a class='p-inac'>Newest</a>
                         {% endif %}
                     </li>
                     <li>
                         {% if page_obj.has_next %}
-                            <a href="?page={{paginator.num_pages}}&per_page={{records_per_page}}">Oldest</a>
+                            <a href="?{{query_string}}&page={{paginator.num_pages}}&per_page={{records_per_page}}">Oldest</a>
                         {% else %}
                             <a class='p-inac'>Oldest</a> 
                         {% endif %}
@@ -82,8 +82,8 @@
             </div>
                  
                 <div style='float:left; margin-left:10px;'>
-                    {% if page_obj.has_previous %}<a href="{% if query_string %}?page={{page_obj.previous_page_number}}&per_page={{records_per_page}}{% else %}?page={{page_obj.previous_page_number}}&per_page={{records_per_page}}{% endif %}" class="page gradient" id='older'>{% else %}<a class="page gradient inactive" id='older'>{% endif %}<i class="pagin icon-chevron-left"></i></a>
-                    {% if page_obj.has_next %}<a href="{% if query_string %}?page={{page_obj.next_page_number}}&per_page={{records_per_page}}{% else %}?page={{page_obj.next_page_number}}&per_page={{records_per_page}}{% endif %}" class="page gradient" id='newer'>{% else %}<a class="page gradient inactive" id='newer'>{% endif %}<i class="pagin icon-chevron-right"></i></a>
+                    {% if page_obj.has_previous %}<a href="?{{query_string}}&page={{page_obj.previous_page_number}}&per_page={{records_per_page}}" class="page gradient" id='older'>{% else %}<a class="page gradient inactive" id='older'>{% endif %}<i class="pagin icon-chevron-left"></i></a>
+                    {% if page_obj.has_next %}<a href="?{{query_string}}&page={{page_obj.next_page_number}}&per_page={{records_per_page}}" class="page gradient" id='newer'>{% else %}<a class="page gradient inactive" id='newer'>{% endif %}<i class="pagin icon-chevron-right"></i></a>
                 </div>
             </div>
 </div>
