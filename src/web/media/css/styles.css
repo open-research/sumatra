@@ -37,7 +37,7 @@ padding-bottom: 40px;
 #table_out th.green.header:first-child{border-left:1px solid #ddd}   
 #table_out th.blue.header:first-child{border-left: 0px;}   
 #table_out th,#table_out td{line-height:18px;text-align:center;}
-#table_out th{padding-top:9px;font-weight:bold;vertical-align:middle;padding-right:0px}
+#table_out th{padding-top:9px;font-weight:bold;vertical-align:middle; width:40px}
 #table_out td{vertical-align:top;border-top:1px solid #ddd;}
 #table_out tbody th{border-top:1px solid #ddd;vertical-align:top;}
 .condensed-table th,.condensed-table td{padding:5px 5px 4px;}
