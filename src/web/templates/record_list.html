@@ -88,7 +88,7 @@
             </div>
 </div>
 <div id = 'main_content'> 
-    <table class="table table-bordered table-{{settings.display_density}}" id = 'table_out'>
+    <table class="table table-bordered zebra-striped table-{{settings.display_density}}" id = 'table_out'>
         <thead>
           <tr>
             <th class="blue header Label-t {% if 'Label' in settings.table_HideColumns%}hiddenCol{% endif %}" rowspan="2">Label</th>
@@ -140,7 +140,7 @@
 </div><!-- main_content -->    
 <!--p><a href="/">Return to list of projects</a></p-->
 <script type = 'text/javascript'>
-$(document).ready(function(){
+$(document).ready(function(){ 
     $('.simulations td').live('click', function(){
         if (!$(this).children().is('a')){
             $parent = $(this).parent();
@@ -424,6 +424,7 @@ $(document).ready(function(){
     
     $('#btn_run').click(function(){
         var $clone;
+        $.fancybox.showActivity();
         $clone = $('#table_out tbody tr:eq(0)').clone(); //clone zero row
         // remove the content from the clone
         $clone.find('td').each(function(i, el) {
@@ -443,6 +444,7 @@ $(document).ready(function(){
                 },
           dataType: 'json'
         }).done(function(data) {
+             $.fancybox.hideActivity();
              $clone.find('td').each(function(i, el) {
                        if ($(this).is(".Tag-t")) {
                           $tag = data[$(el).attr('class').split(' ')[0]].split(',');
@@ -467,7 +469,7 @@ $(document).ready(function(){
         }); // done
     }); 
 });   
-$(document).ajaxStart(function() { $.fancybox.showActivity() }).ajaxStop(function() {$.fancybox.hideActivity();});
+//$(document).ajaxStart(function() { $.fancybox.showActivity() }).ajaxStop(function() {$.fancybox.hideActivity();});
 </script>
 <div class="modal" id="mod_newrec"> 
     <div class='d-mod'>  

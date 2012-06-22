@@ -7,6 +7,7 @@ from django.shortcuts import render_to_response
 from django.views.generic import list_detail
 from django import forms
 from django.utils import simplejson
+from django.db.models import Q
 from tagging.views import tagged_object_list
 from sumatra.recordstore.django_store import models
 from sumatra.datastore import get_data_store, DataKey
@@ -46,10 +47,13 @@ def search(request, project):
         nb_per_page = int(load_project().web_settings['nb_records_per_page'])
         form = RecordForm(request.GET) 
         if form.is_valid():
+            labels_list = {}
             request_data = form.cleaned_data
-            results = models.Record.objects.filter(label__icontains=request_data['label'],
-                                                   tags__icontains=request_data['tags'],
-                                                   reason__icontains=request_data['reason'])
+            for key, val in request_data.iteritems():
+                labels_list[key] = [x.strip() for x in val.split(',')] 
+            results =  models.Record.objects.filter(reduce(lambda x, y: x | y, [Q(label__icontains = word) for word in labels_list['label']]),
+                                                    reduce(lambda x, y: x | y, [Q(tags__icontains = word) for word in labels_list['tags']]),
+                                                    reduce(lambda x, y: x | y, [Q(reason__icontains = word) for word in labels_list['reason']]))
             return list_detail.object_list(request,
                                        queryset=results,
                                        template_name="record_list.html",
