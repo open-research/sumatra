@@ -138,9 +138,12 @@
         </tbody>                            
     </table>   
 </div><!-- main_content -->    
-<!--p><a href="/">Return to list of projects</a></p-->
 <script type = 'text/javascript'>
 $(document).ready(function(){ 
+    if ($(location).attr('href').indexOf('?n=true') != -1){
+        $('#table_out tbody tr:eq(0) td').effect("highlight", {}, 15000); 
+    }
+
     $('.simulations td').live('click', function(){
         if (!$(this).children().is('a')){
             $parent = $(this).parent();
@@ -425,12 +428,6 @@ $(document).ready(function(){
     $('#btn_run').click(function(){
         var $clone;
         $.fancybox.showActivity();
-        $clone = $('#table_out tbody tr:eq(0)').clone(); //clone zero row
-        // remove the content from the clone
-        $clone.find('td').each(function(i, el) {
-            $(el).html('');
-        });
-        $('#table_out tbody').prepend($clone); // insert the clone after the head of table
         $.ajax({
           type: 'POST',
           url: '/{{project_name}}/simulation',
@@ -443,30 +440,7 @@ $(document).ready(function(){
                  'args':$('#mArg').val()
                 },
           dataType: 'json'
-        }).done(function(data) {
-             $.fancybox.hideActivity();
-             $clone.find('td').each(function(i, el) {
-                       if ($(this).is(".Tag-t")) {
-                          $tag = data[$(el).attr('class').split(' ')[0]].split(',');
-                          length = $tag.length;
-                          for (var item, i = -1; item = $tag[++i];){
-                              item = item.replace(/\s/g, ""); // removing spaces
-                              $a = $(el).append('<a href=""></a>').find('a:last'); // get appended a
-                              $a.html(item) // set value for appended value
-                                .attr('href', ["/{{project_name}}/tag/", item, '/'].join('')) // set href      
-                              if ( i < length - 1){
-                                $(el).append(', '); // comma between the tag words
-                              }
-                            }
-                        }else{
-                            $(el).html(data[$(el).attr('class').split(' ')[0]]);
-                        }
-             });
-             $clone.effect("highlight", {}, 5000);  
-             var nb_sim = parseInt($('#b_nbsim').html());
-             $('#b_nbsim').html(nb_sim + 1);
-             $("#table_out").trigger("update");  //for tablesorter
-        }); // done
+        })
     }); 
 });   
 //$(document).ajaxStart(function() { $.fancybox.showActivity() }).ajaxStop(function() {$.fancybox.hideActivity();});
@@ -498,7 +472,7 @@ $(document).ready(function(){
             <label class='control-label' for='mArg'>Arguments</label> 
             <div class='mod_input'>
                 <input id='mArg' class='input-xlarge' type='text'>
-                <button id='btn_run' class='btn btn-success btn-large' style='width:150px; display: block ;margin-left: auto; margin-right: auto;'>Run</button>
+                <a href='/{{project_name}}/?n=true'><button id='btn_run' class='btn btn-success btn-large' style='width:150px; display: block ;margin-left: auto; margin-right: auto;'>Run</button></a>
             </div>
         </div>
     </div>
@@ -600,12 +574,10 @@ $(document).ready(function(){
         <div id = 'tab_general_text'><p><b>option4:</b></p></div>
       </div>
     </div>
-
       <div class="modal-footer">
         <a class="btn btn-primary" id='save_set'>Save changes</a>
         <a class="btn" id='close_set'>Close</a>
-      </div>
-  
+      </div> 
  </div>  
  </div>
 

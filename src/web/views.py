@@ -63,8 +63,7 @@ def search(request, project):
                                         'form': form,
                                         'records_per_page': nb_per_page,
                                         'settings': web_settings,
-                                        'query_string': request.META['QUERY_STRING'].split('&page')[0]
-                                        }) 
+                                        'query_string': request.META['QUERY_STRING'].split('&page')[0]}) 
     
 def unescape(label):
     return label.replace("||", "/")

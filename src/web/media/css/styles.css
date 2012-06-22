@@ -970,3 +970,7 @@ h2.topic{
   cursor: pointer;
   width: 91%;
 }
+
+.mod_input a:hover{
+    text-decoration: none;
+}
