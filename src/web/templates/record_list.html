@@ -141,14 +141,14 @@
 <!--p><a href="/">Return to list of projects</a></p-->
 <script type = 'text/javascript'>
 $(document).ready(function(){
-    $('.simulations td').click(function(){
+    $('.simulations td').live('click', function(){
         if (!$(this).children().is('a')){
             $parent = $(this).parent();
             var $label = $parent.find('.Label-t').html();
             window.open(["/{{project_name}}", $label, ""].join('/'));
         }
     });
-    
+
     $('#search_but').click(function(){
         $('#search_form').trigger('submit');
     });
