@@ -1,6 +1,7 @@
 body {
 padding-top: 60px;
 padding-bottom: 40px;
+font-family: "Open Sans","lucida grande","Segoe UI",arial,verdana,"lucida sans unicode",tahoma,sans-serif ;
 }
 
 .sidebar-nav {
@@ -561,7 +562,7 @@ h2.topic{
   filter: progid:dximagetransform.microsoft.gradient(startColorstr='#333333', endColorstr='#222222', GradientType=0);
   -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
      -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);              
 }
 
 .navbar .container {
@@ -807,6 +808,7 @@ h2.topic{
 }
 
 .navbar .btn-navbar {
+
   display: none;
   float: right;
   padding: 7px 10px;
@@ -828,6 +830,7 @@ h2.topic{
   -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 1px 0 rgba(255, 255, 255, 0.075);
      -moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 1px 0 rgba(255, 255, 255, 0.075);
           box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 1px 0 rgba(255, 255, 255, 0.075);
+
 }
 
 .navbar .btn-navbar:hover,
@@ -973,4 +976,94 @@ h2.topic{
 
 .mod_input a:hover{
     text-decoration: none;
+}
+
+#head_t{
+    height: 35px;
+    background:url("../light_toast.png") 0% 0% transparent;
+    line-height: 35px;
+    padding: 3px 6px;
+    box-shadow:0 1px 1px rgba(0, 0, 0, 0.12), 0 0 0 #000000 inset;
+    display: block;
+    font-family: "Open Sans","lucida grande","Segoe UI",arial,verdana,"lucida sans unicode",tahoma,sans-serif;
+    border-color:#82CFFA #E7F2FB #96C4EA;
+    border-style: solid;
+    border-width: 1px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.12), 0 0 0 #000000 inset;
+    margin-right: 25px;
+}
+
+#l-label, #l-tag, #l-reason, #l-outcome,
+#l-duration, #l-processes, #l-date, #l-time{
+    float:left;
+    padding-right: 15px;
+    cursor: pointer; 
+    line-height: 33px;
+}
+.t-item{
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+input[type=radio] { display: none;}
+input[type="radio"]:checked+label{ font-weight: bold }
+
+.arr-s {
+   font-size:10px;
+   padding:5px;
+   color:rgb(4, 156, 219);
+   visibility:hidden;
+}
+
+#script{
+     position:relative;
+     width:340px;
+     height:35px;
+     float:left;
+     left:20px;
+}
+.item{
+     -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    -moz-transition: all 0.3s ease-out 0s;
+    -o-transition: all 0.3s ease-out 0s;
+    -webkit-transition: all 0.3s ease-out 0s;
+    -ms-transition: all 0.3s ease-out 0s;  
+}
+
+.item:hover{
+    -webkit-box-shadow:0 0 10px rgba(0, 0, 0, 0.3);
+    -moz-box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+	cursor: pointer;
+}
+
+#l-arguments, #l-sversion{
+    float:right; 
+    width: 25%;
+    text-align:center;
+}
+
+#l-main_file, #l-repository{
+    float:left; 
+    width: 25%;
+    text-align:center;
+}
+
+#l-name{
+  float:left;
+  top:0px;
+  width: 50%;
+  text-align:center;
+}
+
+#l-eversion{
+  float:right;
+  top:0px;
+  width: 50%;
+  text-align:center;
 }

@@ -137,9 +137,45 @@
             {% block thead %}{% endblock %}
         </tbody>                            
     </table>   
+    <div id='head_t'>
+        <input type="radio" id="label" /><label id='l-label' class='t-item' for="label">Label<span class='arr-s'>&#x25B2;</span><span style='display:none' class='arr-s'>&#x25BC;</span></label>
+        <input type="radio" id="tag" /><label id='l-tag' class='t-item' for="tag">Tag<span class='arr-s'>&#x25B2;</span><span style='display:none' class='arr-s'>&#x25BC;</span></label>
+        <input type="radio" id="reason" /><label id='l-reason' class='t-item' for="reason">Reason<span class='arr-s'>&#x25B2;</span><span style='display:none' class='arr-s'>&#x25BC;</span></label>
+        <input type="radio" id="outcome" /><label id='l-outcome' class='t-item' for="outcome">Outcome<span class='arr-s'>&#x25B2;</span><span style='display:none' class='arr-s'>&#x25BC;</span></label>
+        <input type="radio" id="duration" /><label id='l-duration' class='t-item' for="duration">Duration<span class='arr-s'>&#x25B2;</span><span style='display:none' class='arr-s'>&#x25BC;</span></label>
+        <input type="radio" id="processes" /><label  id='l-processes' class='t-item' for="processes">Processes<span class='arr-s'>&#x25B2;</span><span style='display:none' class='arr-s'>&#x25BC;</span></label>
+        <input type="radio" id="date" /><label id='l-date' class='t-item' for="date">Date<span class='arr-s'>&#x25B2;</span><span style='display:none' class='arr-s'>&#x25BC;</span></label>
+        <input type="radio" id="time" /><label id='l-time' class='t-item' for="time">Time<span class='arr-s'>&#x25B2;</span><span style='display:none' class='arr-s'>&#x25BC;</span></label>
+        <input type="radio" id="executable" />
+        <div class='item' style='position:relative; width:120px; height:35px; float:left; padding-left:0px'>
+            <label style='line-height:12px; position:relative; float:left;width:inherit; text-align:center; margin-top:0px;'>Executable</label>
+            <input type="radio" id="name"/><label for='name' class='t-item' id='l-name'>Name<span class='arr-s'>&#x25B2;</span><span style='display:none' class='arr-s'>&#x25BC;</span></label>
+            <input type="radio" id="eversion"/><label for='eversion' class='t-item' id='l-eversion'>Version<span class='arr-s'>&#x25B2;</span><span style='display:none' class='arr-s'>&#x25BC;</span></label>
+        </div>
+        <div class='item' id='script'>
+            <label style='line-height:12px; position:relative; float:left; width:inherit; text-align:center; margin-top:0px;'>Script</label>
+            <input type="radio" id="repository" /><label class='t-item' id='l-repository' for='repository'>Repository<span class='arr-s'>&#x25B2;</span><span style='display:none' class='arr-s'>&#x25BC;</span></label>
+            <input type="radio" id="main_file" /><label class='t-item' id='l-main_file' for='main_file'>Main file<span class='arr-s'>&#x25B2;</span><span style='display:none' class='arr-s'>&#x25BC;</span></label>
+            <input type="radio" id="arguments" /><label class='t-item' id = 'l-arguments' for='arguments'>Arguments<span class='arr-s'>&#x25B2;</span><span style='display:none' class='arr-s'>&#x25BC;</span></label>
+            <input type="radio" id="sversion" /><label class='t-item' id='l-sversion' for='sversion'>Version<span class='arr-s'>&#x25B2;</span><span style='display:none' class='arr-s'>&#x25BC;</span></label>
+        </div>
+    </div>
 </div><!-- main_content -->    
 <script type = 'text/javascript'>
 $(document).ready(function(){ 
+    $('input[type="radio"]').attr('checked', false);
+    $('.t-item').click(function(){
+        var $checked = $('input[type="radio"]:checked');
+        $(this).children().css('visibility','visible')
+        if ( $checked.attr('id') == $(this).attr('for')){
+            $(this).children().toggle();
+        }else{
+            $checked.attr('checked', false);
+            $checked.next().children().css('visibility', 'hidden');
+        }
+    });
+    
+    
     if ($(location).attr('href').indexOf('?n=true') != -1){
         $('#table_out tbody tr:eq(0) td').effect("highlight", {}, 15000); 
     }
