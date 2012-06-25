@@ -88,7 +88,7 @@
             </div>
 </div>
 <div id = 'main_content'> 
-    <table class="table table-bordered zebra-striped table-{{settings.display_density}}" id = 'table_out'>
+    <!--table class="table table-bordered zebra-striped table-{{settings.display_density}}" id = 'table_out'>
         <thead>
           <tr>
             <th class="blue header Label-t {% if 'Label' in settings.table_HideColumns%}hiddenCol{% endif %}" rowspan="2">Label</th>
@@ -128,51 +128,134 @@
                     <td class="Time-t {% if 'Time' in settings.table_HideColumns%}hiddenCol{% endif %}">{{record.timestamp|date:"H:i:s"}}</td>
                     <td class="Name-t parentExecutable {% if 'Name' in settings.table_HideColumns%}hiddenCol{% endif %}">{{record.executable.name}}</td>
                     <td class="Version-t parentExecutable {% if 'Version' in settings.table_HideColumns%}hiddenCol{% endif %}">{{record.executable.version}}</td>
-                    <td class="Repository-t parentScript {% if 'Repository' in settings.table_HideColumns%}hiddenCol{% endif %}">{{record.repository.url|cut:"repo"}}<div style='display:none'>{{record.repository.url}}</div></td> <!-- repository path: shorten -->
+                    <td class="Repository-t parentScript {% if 'Repository' in settings.table_HideColumns%}hiddenCol{% endif %}">{{record.repository.url|cut:"repo"}}<div style='display:none'>{{record.repository.url}}</div></td>
                     <td class="Main_file-t parentScript {% if 'Main_file' in settings.table_HideColumns%}hiddenCol{% endif %}">{{record.main_file}}</td>
-                    <td class="S-Version-t parentScript {% if 'S-Version' in settings.table_HideColumns%}hiddenCol{% endif %}" style='width:10px;overflow: hidden;'>{{record.version|cut:"vers"}}{% if record.diff %}*{% endif %}<div style='display:none'>{{record.version}}</div></td> <!-- version: shorten -->
+                    <td class="S-Version-t parentScript {% if 'S-Version' in settings.table_HideColumns%}hiddenCol{% endif %}" style='width:10px;overflow: hidden;'>{{record.version|cut:"vers"}}{% if record.diff %}*{% endif %}<div style='display:none'>{{record.version}}</div></td> 
                     <td class="Arguments-t parentScript {% if 'Arguments' in settings.table_HideColumns%}hiddenCol{% endif %}">{{record.script_arguments}}</td>
                 </tr>
             {% endfor %}
             {% block thead %}{% endblock %}
         </tbody>                            
-    </table>   
+    </table-->   
     <div id='head_t'>
-        <input type="radio" id="label" /><label id='l-label' class='t-item' for="label">Label<span class='arr-s'>&#x25B2;</span><span style='display:none' class='arr-s'>&#x25BC;</span></label>
-        <input type="radio" id="tag" /><label id='l-tag' class='t-item' for="tag">Tag<span class='arr-s'>&#x25B2;</span><span style='display:none' class='arr-s'>&#x25BC;</span></label>
-        <input type="radio" id="reason" /><label id='l-reason' class='t-item' for="reason">Reason<span class='arr-s'>&#x25B2;</span><span style='display:none' class='arr-s'>&#x25BC;</span></label>
-        <input type="radio" id="outcome" /><label id='l-outcome' class='t-item' for="outcome">Outcome<span class='arr-s'>&#x25B2;</span><span style='display:none' class='arr-s'>&#x25BC;</span></label>
-        <input type="radio" id="duration" /><label id='l-duration' class='t-item' for="duration">Duration<span class='arr-s'>&#x25B2;</span><span style='display:none' class='arr-s'>&#x25BC;</span></label>
-        <input type="radio" id="processes" /><label  id='l-processes' class='t-item' for="processes">Processes<span class='arr-s'>&#x25B2;</span><span style='display:none' class='arr-s'>&#x25BC;</span></label>
-        <input type="radio" id="date" /><label id='l-date' class='t-item' for="date">Date<span class='arr-s'>&#x25B2;</span><span style='display:none' class='arr-s'>&#x25BC;</span></label>
-        <input type="radio" id="time" /><label id='l-time' class='t-item' for="time">Time<span class='arr-s'>&#x25B2;</span><span style='display:none' class='arr-s'>&#x25BC;</span></label>
-        <input type="radio" id="executable" />
-        <div class='item' style='position:relative; width:120px; height:35px; float:left; padding-left:0px'>
-            <label style='line-height:12px; position:relative; float:left;width:inherit; text-align:center; margin-top:0px;'>Executable</label>
-            <input type="radio" id="name"/><label for='name' class='t-item' id='l-name'>Name<span class='arr-s'>&#x25B2;</span><span style='display:none' class='arr-s'>&#x25BC;</span></label>
-            <input type="radio" id="eversion"/><label for='eversion' class='t-item' id='l-eversion'>Version<span class='arr-s'>&#x25B2;</span><span style='display:none' class='arr-s'>&#x25BC;</span></label>
-        </div>
-        <div class='item' id='script'>
-            <label style='line-height:12px; position:relative; float:left; width:inherit; text-align:center; margin-top:0px;'>Script</label>
-            <input type="radio" id="repository" /><label class='t-item' id='l-repository' for='repository'>Repository<span class='arr-s'>&#x25B2;</span><span style='display:none' class='arr-s'>&#x25BC;</span></label>
-            <input type="radio" id="main_file" /><label class='t-item' id='l-main_file' for='main_file'>Main file<span class='arr-s'>&#x25B2;</span><span style='display:none' class='arr-s'>&#x25BC;</span></label>
-            <input type="radio" id="arguments" /><label class='t-item' id = 'l-arguments' for='arguments'>Arguments<span class='arr-s'>&#x25B2;</span><span style='display:none' class='arr-s'>&#x25BC;</span></label>
-            <input type="radio" id="sversion" /><label class='t-item' id='l-sversion' for='sversion'>Version<span class='arr-s'>&#x25B2;</span><span style='display:none' class='arr-s'>&#x25BC;</span></label>
-        </div>
+        <input type="radio" id="label" /><label class='t-item head-item' id='l-label'  for="label">Label<span style='visibility:hidden'><span id='up' style='display:inline' class='arr-s'>&#x25B2;</span><span style='display:none' id='down' class='arr-s'>&#x25BC;</span></span></label>
+        <input type="radio" id="tag" /><label class='t-item head-item' id='l-tag'  for="tag">Tag<span class='arr-s'>&#x25B2;</span><span style='display:none' class='arr-s'>&#x25BC;</span></label>
+        <input type="radio" id="reason" /><label class='t-item head-item' id='l-reason'  for="reason">Reason<span class='arr-s'>&#x25B2;</span><span style='display:none' class='arr-s'>&#x25BC;</span></label>
+        <input type="radio" id="outcome" /><label class='t-item head-item' id='l-outcome'  for="outcome">Outcome<span class='arr-s'>&#x25B2;</span><span style='display:none' class='arr-s'>&#x25BC;</span></label>
+        <input type="radio" id="duration" /><label class='t-item head-item' id='l-duration' for="duration">Duration<span class='arr-s'>&#x25B2;</span><span style='display:none' class='arr-s'>&#x25BC;</span></label>
+        <input type="radio" id="processes" /><label class='t-item head-item' id='l-processes' for="processes">Processes<span class='arr-s'>&#x25B2;</span><span style='display:none' class='arr-s'>&#x25BC;</span></label>
+        <input type="radio" id="date" /><label class='t-item head-item' id='l-date' for="date">Date<span class='arr-s'>&#x25B2;</span><span style='display:none' class='arr-s'>&#x25BC;</span></label>
+        <input type="radio" id="time" /><label class='t-item head-item' id='l-time' for="time">Time<span class='arr-s'>&#x25B2;</span><span style='display:none' class='arr-s'>&#x25BC;</span></label>
+        <input type="radio" id="ename" /><label id='l-ename' class='t-item' for="ename">Executable<br>name<span class='arr-s'>&#x25B2;</span><span style='display:none' class='arr-s'>&#x25BC;</span></label>
+        <input type="radio" id="eversion" /><label id='l-eversion' class='t-item' for="eversion">Executable<br>version<span class='arr-s'>&#x25B2;</span><span style='display:none' class='arr-s'>&#x25BC;</span></label>
+        <input type="radio" id="repository" /><label class='t-item head-item' id='l-repository' for="repository">Repository<span class='arr-s'>&#x25B2;</span><span style='display:none' class='arr-s'>&#x25BC;</span></label>
+        <input type="radio" id="main" /><label class='t-item head-item' id='l-main' for="main">Main file<span class='arr-s'>&#x25B2;</span><span style='display:none' class='arr-s'>&#x25BC;</span></label>
+        <input type="radio" id="version" /><label class='t-item head-item' id='l-version' for="version">Version<span class='arr-s'>&#x25B2;</span><span style='display:none' class='arr-s'>&#x25BC;</span></label>
+        <input type="radio" id="arguments" /><label class='t-item head-item' id='l-arguments' for="arguments">Arguments<span class='arr-s'>&#x25B2;</span><span style='display:none' class='arr-s'>&#x25BC;</span></label>
     </div>
+    <ol style='margin-left:0px; margin-right: 25px;'>
+    {% for record in object_list %}
+        <li class='record'>
+            <div class='label row-item' style='width:150px'>{{record.label}}</div>
+            {% if tag %}
+                <div class='tag row-item' id='tag-t'>{% for other_tag in record.tag_objects %}{% if tag == other_tag %}{{tag}} {% else %}<a href="/{{project_name}}/tag/{{other_tag.name}}/">{{other_tag.name}}</a> {% endif %}{% endfor %}</div>
+            {% else %}
+                <div class='tag row-item' id='tag-t'>{{record.tags|link:"tag/%s/"}}</div>
+            {% endif %}           
+            <div class='reason row-item' id='reason-t'>{{record.reason}}</div>
+            <div class='outcome row-item' id='outcome-t'>{{record.outcome}}</div>
+            <div class='duration row-item' id='duration-t'>{{record.duration|human_readable_duration}}</div>
+            <div class='processes row-item' id='processes-t'>{{record.launch_mode.get_parameters.n|default:"1"}}</div>
+            <div class='date row-item' id='date-t'>{{record.timestamp|date:"d/m/Y"}}</div>
+            <div class='time row-item' id='time-t'>{{record.timestamp|date:"H:i:s"}}</div>
+            <div class='name row-item' id='name-t'>{{record.executable.name}}</div>
+            <div class='eversion row-item' id='eversion-t'>{{record.executable.version}}</div>
+            <div class='repository row-item' id='repository-t'>{{record.repository.url|cut:"repo"}}</div>
+            <div class='main row-item' id='main-t'>{{record.main_file}}</div>
+            <div class='version row-item' id='version-t'>{{record.version|cut:"vers"}}{% if record.diff %}*{% endif %}<div style='display:none'>{{record.version}}</div></div>
+            <div class='arguments row-item' id='arguments-t'>{{record.script_arguments}}</div>
+            <br style='clear:both'>
+        </li>
+        {% endfor %}
+    </ol>
 </div><!-- main_content -->    
 <script type = 'text/javascript'>
+/*
+function buildCache(table) {
+    var totalRows = (table[0].childElementCount) || 0,
+        totalCells = table[0].children[0].children.length - 1 || 0,  // one among them is <br>
+        cache = {
+            row: [],
+            normalized: []
+        };
+    for (var i = 0; i < totalRows; ++i) {
+        var c = $(table[0].children[i]),
+            cols = [];
+        cache.row.push(c);
+        for (var j = 0; j < totalCells; ++j) {
+            if (table[0].children[i].children[j].childNodes.length > 1){  //version (one div is hidden)
+                cols.push(table[0].children[i].children[j].children[0].innerHTML);   
+            }else{
+                cols.push(table[0].children[i].children[j].innerHTML); // add parsers !!!
+            }
+        }
+        cache.normalized.push(cols);
+        cols = null;
+    }
+    //alert(parsers.length);
+    //alert(Object.prototype.toString.call('457'));
+    console.log(table.config);
+    return cache;
+}
+
+function sortTable(cache){
+    // add column to sort list array
+    var sortList = [];
+    // sortList.push([i, this.order]);
+    sortList.push([1, 0]);
+    setTimeout(function () {
+        appendToTable(multisort(sortList, cache));
+    }, 1);
+}
+*/
 $(document).ready(function(){ 
+    /* load of settings for the table view */
+    //var cache = buildCache($('ol'));
+    $('ol').listsorter();
+    
+    if ('{{settings.display_density}}'=='condensed'){
+        $('.record').css('line-height','14px');   
+    }else{
+        $('.record').css('line-height','32px');
+        $('.label').css('font-size','18px');
+    }
+    
     $('input[type="radio"]').attr('checked', false);
+    
+    $('.label').click(function(){
+        alert('idea: change color of the label...');
+    });
     $('.t-item').click(function(){
         var $checked = $('input[type="radio"]:checked');
-        $(this).children().css('visibility','visible')
+        var idrow = ['','.', $(this).attr('id').split('-')[1]].join('');
+        //sortTable(cache);
+        /*
+        var items = $(idrow).get();
+        
+                $("ol>li").each(function() { 
+                    $(this).html($('ol li:eq(4)').html());
+                    //alert($('ol li:eq(4)').html());
+                });
+        */
+        /*
+        $(this).children().css('visibility','visible');
         if ( $checked.attr('id') == $(this).attr('for')){
             $(this).children().toggle();
         }else{
             $checked.attr('checked', false);
             $checked.next().children().css('visibility', 'hidden');
         }
+        */
     });
     
     
@@ -273,7 +356,7 @@ $(document).ready(function(){
         $('#menu_datewith').offset({left: $('#idatewith').offset().left});
     });
     
-    $('.date').datepicker();
+    //$('.date').datepicker();
     $(".chzn-select").chosen();
     $(".chzn-select-deselect").chosen({allow_single_deselect:true});
     
@@ -322,7 +405,7 @@ $(document).ready(function(){
         });
     });
     
-    $('#table_out').tablesorter(); // use tablesorter.min.js
+    //$('#table_out').tablesorter(); // use tablesorter.min.js
     
     $('#close_set, #close_set.btn').click(function(){
         $('#setModal').modal('hide');
@@ -436,10 +519,14 @@ $(document).ready(function(){
             });
 
         if ($density_set == 'condensed'){
-            $('#table_out').addClass('table-condensed');
+            $('.record').css('line-height','14px');
+            $('.label').css('font-size','14px');
+            //$('#table_out').addClass('table-condensed');
             $('#button_null').removeClass('active_settings_row');   
         }else{
-            $('#table_out').removeClass('table-condensed');
+            $('.record').css('line-height','32px');
+            $('.label').css('font-size','18px');
+            //$('#table_out').removeClass('table-condensed');
             $('#button_condensed').removeClass('active_settings_row');    
         }        
     });

@@ -993,13 +993,23 @@ h2.topic{
     margin-right: 25px;
 }
 
-#l-label, #l-tag, #l-reason, #l-outcome,
-#l-duration, #l-processes, #l-date, #l-time{
+.head-item{
     float:left;
-    padding-right: 15px;
     cursor: pointer; 
+    width: 6.5%;
     line-height: 33px;
 }
+ #l-ename, #l-eversion{
+    float:left;
+    cursor: pointer; 
+    width: 6.5%;
+    margin-top: -2px;
+ }
+ 
+#l-label{
+    width: 150px;  
+}
+ 
 .t-item{
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -1013,14 +1023,14 @@ input[type="radio"]:checked+label{ font-weight: bold }
 
 .arr-s {
    font-size:10px;
-   padding:5px;
+   padding:2px;
    color:rgb(4, 156, 219);
-   visibility:hidden;
+   //visibility:hidden;
 }
 
 #script{
      position:relative;
-     width:340px;
+     width:26%;
      height:35px;
      float:left;
      left:20px;
@@ -1042,28 +1052,24 @@ input[type="radio"]:checked+label{ font-weight: bold }
 	cursor: pointer;
 }
 
-#l-arguments, #l-sversion{
-    float:right; 
-    width: 25%;
-    text-align:center;
+.record{
+    //line-height: 14px;
+    margin: 0 0 -1px;
+    padding: 5px 6px;
+    text-align: left;
+    border-color: #EDF1F5;
+    border-style: solid;
+    border-width: 1px 0;
+    font-size: 13px;
+    list-style: none outside none;
+    position: relative;
 }
 
-#l-main_file, #l-repository{
-    float:left; 
-    width: 25%;
-    text-align:center;
+.row-item{
+    float: left;
+    padding-top: 1px;
+    width: 6.5%;
 }
-
-#l-name{
-  float:left;
-  top:0px;
-  width: 50%;
-  text-align:center;
-}
-
-#l-eversion{
-  float:right;
-  top:0px;
-  width: 50%;
-  text-align:center;
+#label-t{
+    width: 150px;  
 }
