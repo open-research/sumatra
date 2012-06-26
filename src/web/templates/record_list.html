@@ -208,7 +208,14 @@
 </div><!-- main_content -->    
 <script type = 'text/javascript'>
 $(document).ready(function(){ 
-    $('ol').listsorter();
+    $('ol').listsorter();    
+    $(document).click(function(){ // deselect all the rows of click is out of table
+        $('.record').removeClass('activeRow');
+    });
+    $('ol>li').click(function(event){
+        event.preventDefault();
+        return false;
+    });
     $('.record').click(function(e){
         if (e['ctrlKey']){
             if ($(this).hasClass('activeRow')){
@@ -216,8 +223,19 @@ $(document).ready(function(){
             }else{
                 $(this).addClass('activeRow');
             }
-        }else if(e['shiftKey']){  // select the range of rows between two selected rows
-            //alert('erhe');
+        }else if(e['shiftKey']){  // select the range of rows between two selected
+            nb_selected = $('.activeRow').length;
+            if (!nb_selected){   // select all
+                $('.record').addClass('activeRow');
+            }else{
+                $selectedY = $('.record.activeRow').position()['top'];
+                $clickY = $(this).position()['top'];
+                if ($clickY >= $selectedY) {
+                    $($('.record.activeRow')[0]).nextUntil($(this).next()).addClass('activeRow');
+                }else{
+                    $($('.record.activeRow')[0]).prevUntil($(this).prev()).addClass('activeRow');
+                }
+            }
         }
         else{
             $('.record').removeClass('activeRow');
