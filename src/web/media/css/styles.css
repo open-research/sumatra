@@ -993,20 +993,18 @@ h2.topic{
     margin-right: 25px;
 }
 
-.head-item{
+.head-item, .row-item{
     float:left;
-    cursor: pointer; 
     width: 6.5%;
-    line-height: 33px;
 }
  #l-ename, #l-eversion{
     float:left;
-    cursor: pointer; 
-    width: 6.5%;
     margin-top: -2px;
+    line-height:20px;
+    width:6.5%;
  }
  
-#l-label{
+#l-label, #label-t{
     width: 150px;  
 }
  
@@ -1017,6 +1015,8 @@ h2.topic{
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+    line-height: 33px;
+    cursor: pointer; 
 }
 input[type=radio] { display: none;}
 input[type="radio"]:checked+label{ font-weight: bold }
@@ -1025,7 +1025,6 @@ input[type="radio"]:checked+label{ font-weight: bold }
    font-size:10px;
    padding:2px;
    color:rgb(4, 156, 219);
-   //visibility:hidden;
 }
 
 #script{
@@ -1053,7 +1052,6 @@ input[type="radio"]:checked+label{ font-weight: bold }
 }
 
 .record{
-    //line-height: 14px;
     margin: 0 0 -1px;
     padding: 5px 6px;
     text-align: left;
@@ -1069,9 +1067,6 @@ input[type="radio"]:checked+label{ font-weight: bold }
     float: left;
     padding-top: 1px;
     width: 6.5%;
-}
-#label-t{
-    width: 150px;  
 }
 
 #down{
