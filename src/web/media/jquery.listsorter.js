@@ -23,7 +23,6 @@
                                 // store exp, for speed
                                 var $cell = $(this);
                                 $cell[0].firstElementChild.style['visibility'] = 'visible'; //span containing the arrows becomes visible
-                                //$cell[0].firstElementChild.children[0].style['display'] = 'inline';
                                 $($cell[0].firstElementChild.children).toggle();
                                 var arrows = $cell[0].firstElementChild.children;
                                 for (var item, i = -1; item = arrows[++i];) {

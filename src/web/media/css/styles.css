@@ -1073,3 +1073,11 @@ input[type="radio"]:checked+label{ font-weight: bold }
 #label-t{
     width: 150px;  
 }
+
+#down{
+    display:none;
+}
+
+#span-ar{
+    visibility:hidden;
+}
