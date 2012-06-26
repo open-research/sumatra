@@ -1078,6 +1078,6 @@ input[type="radio"]:checked+label{ font-weight: bold }
     display:none;
 }
 
-#span-ar{
+.s-arrow{
     visibility:hidden;
 }

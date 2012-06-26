@@ -18,10 +18,12 @@
                         // click one of the headers of the table:
                         $('.t-item').click( 
                         function (e) {
-                            var totalRows = cache.normalized.length;
+                            var totalRows = cache.normalized.length,
+                                indx;
                             if (totalRows > 0) {
                                 // store exp, for speed
                                 var $cell = $(this);
+                                jQuery('.s-arrow').css('visibility', 'hidden');
                                 $cell[0].firstElementChild.style['visibility'] = 'visible'; //span containing the arrows becomes visible
                                 $($cell[0].firstElementChild.children).toggle();
                                 var arrows = $cell[0].firstElementChild.children;
@@ -33,7 +35,13 @@
                                 }
                                 // flush the sort list
                                 config.sortList = [];
-                                config.sortList.push([0, this.order]);  //only the first column
+                                for(var item, i = -1; item = cache.id[++i];){
+                                    if ($(this).attr('id') == item){
+                                        indx = i;
+                                        break;
+                                    }
+                                }
+                                config.sortList.push([indx, this.order]);  //only the first column
                                 setTimeout(function () {
                                         cache_sorted = multisort($this[0], config.sortList, cache);
                                         appendToTable($this[0], cache_sorted);
@@ -131,7 +139,8 @@
                         totalCells = table.children[0].children.length - 1 || 0,  // one among them is <br>
                         cache = {
                             row: [],
-                            normalized: []
+                            normalized: [],
+                            id:[]  // store the ids for the header of the table: ['l-label', 'l-tag', ...]
                         },
                         data;  
                     for (var i = 0; i < totalRows; ++i) {
@@ -152,6 +161,10 @@
                         cache.normalized.push(cols);
                         cols = null;
                     }
+                    // get the id of the each label inside header
+                    jQuery('#head_t label').each(function(){
+                        cache.id.push($(this).attr('id'));
+                    });
                     return cache;
                 }
                            
