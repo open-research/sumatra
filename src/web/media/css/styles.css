@@ -1009,15 +1009,18 @@ h2.topic{
 }
  
 .t-item{
+    line-height: 33px;
+    cursor: pointer; 
+}
+.nonselect{
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     -khtml-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
-    line-height: 33px;
-    cursor: pointer; 
 }
+
 input[type=radio] { display: none;}
 input[type="radio"]:checked+label{ font-weight: bold }
 
@@ -1063,10 +1066,19 @@ input[type="radio"]:checked+label{ font-weight: bold }
     position: relative;
 }
 
+.hoverRow{
+    background-color: rgba(230,245,255,0.3);
+    border-bottom:1px solid #C6D8E4;
+    border-top:1px solid #C6D8E4;
+    position:relative;
+    z-index:1;
+}
+
 .row-item{
     float: left;
     padding-top: 1px;
     width: 6.5%;
+    cursor:default;
 }
 
 #down{
@@ -1075,4 +1087,12 @@ input[type="radio"]:checked+label{ font-weight: bold }
 
 .s-arrow{
     visibility:hidden;
+}
+
+.activeRow{
+    background-color:#96C4EA;
+    border-color:#83B8DC;
+    position:relative;
+    z-index:2;
+    color:#ffffff;
 }

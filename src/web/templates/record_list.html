@@ -137,7 +137,7 @@
             {% block thead %}{% endblock %}
         </tbody>                            
     </table-->   
-    <div id='head_t'>
+    <div id='head_t' class='nonselect'>
         <input type="radio" id="label" />
         <label class='t-item head-item' id='l-label' for="label">Label<span class='s-arrow'><span id='up' class='arr-s'>&#x25B2;</span><span id='down' class='arr-s'>&#x25BC;</span></span></label>
         
@@ -182,7 +182,7 @@
     </div>
     <ol style='margin-left:0px; margin-right: 25px;'>
     {% for record in object_list %}
-        <li class='record'>
+        <li class='record nonselect'>
             <div class='row-item' id='label-t'>{{record.label}}</div>
             {% if tag %}
                 <div class='row-item' id='tag-t'>{% for other_tag in record.tag_objects %}{% if tag == other_tag %}{{tag}} {% else %}<a href="/{{project_name}}/tag/{{other_tag.name}}/">{{other_tag.name}}</a> {% endif %}{% endfor %}</div>
@@ -209,6 +209,25 @@
 <script type = 'text/javascript'>
 $(document).ready(function(){ 
     $('ol').listsorter();
+    $('.record').click(function(e){
+        if (e['ctrlKey']){
+            if ($(this).hasClass('activeRow')){
+                $(this).removeClass('activeRow');
+            }else{
+                $(this).addClass('activeRow');
+            }
+        }else if(e['shiftKey']){  // select the range of rows between two selected rows
+            //alert('erhe');
+        }
+        else{
+            $('.record').removeClass('activeRow');
+            $(this).addClass('activeRow');
+        }   
+    }).mouseenter(function(){
+        $(this).addClass('hoverRow');
+    }).mouseleave(function(){
+        $(this).removeClass('hoverRow');
+    });
     
     if ('{{settings.display_density}}'=='condensed'){
         $('.record').css('line-height','14px');   
