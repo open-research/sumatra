@@ -5,9 +5,7 @@
 {% block header %}
 <div class="navbar navbar-fixed-top">
     <div class="navbar-inner">
-        <div class="container-fluid">       
-            <h2><div id = "name_project">
-            <a href="/{{project_name}}/about/" style='color:rgb(102, 157, 199)'>{{project_name}}{% if tag %} tagged with {{tag}}{% endif %}</a></div></h2>   
+        <div class="container-fluid">         
             <!--div id='sumatra_logo'><a href="http://neuralensemble.org/trac/sumatra">
             <img src='/media/Sumatra_logo.png'/></a></div-->         
                 <ul class='nav'>
@@ -55,9 +53,12 @@
  
 {% block content %} 
 <div id='newrecord'>
-        <a id='btn_newrec' class='btn btn-danger btn-large' style='width:100px' data-toggle="modal" href="#mod_newrec">
-            <i class="icon-file"></i> New record
-        </a>
+        <div style='float:left; position:relative;'>
+            <a id='btn_newrec' class='btn btn-danger btn-large' style='width:100px' data-toggle="modal" href="#mod_newrec">
+                <i class="icon-file"></i> New record
+            </a>
+        </div>
+        <div id='head-div'><h2><a href="/{{project_name}}/about/" style='color:rgb(102, 157, 199)'>{{project_name}}{% if tag %} tagged with {{tag}}{% endif %}</a></h2></div>
             <div style='float:right; margin-right:34px'>
             <div class="btn-group paginator">
                 <div id='pagin_info'>
@@ -88,55 +89,6 @@
             </div>
 </div>
 <div id = 'main_content'> 
-    <!--table class="table table-bordered zebra-striped table-{{settings.display_density}}" id = 'table_out'>
-        <thead>
-          <tr>
-            <th class="blue header Label-t {% if 'Label' in settings.table_HideColumns%}hiddenCol{% endif %}" rowspan="2">Label</th>
-            <th class="blue header Tag-t {% if 'Tag' in settings.table_HideColumns%}hiddenCol{% endif %}" rowspan="2">Tag</th>
-            <th class="blue header Reason-t {% if 'Reason' in settings.table_HideColumns%}hiddenCol{% endif %}" rowspan="2">Reason</th>
-            <th class="blue header Outcome-t {% if 'Outcome' in settings.table_HideColumns%}hiddenCol{% endif %}" rowspan="2">Outcome</th>
-            <th class="blue header Duration-t {% if 'Duration' in settings.table_HideColumns%}hiddenCol{% endif %}" rowspan="2">Duration</th>
-            <th class="blue header Processes-t {% if 'Processes' in settings.table_HideColumns%}hiddenCol{% endif %}" rowspan="2">Processes</th>
-            <th class="blue header Date-t {% if 'Date' in settings.table_HideColumns%}hiddenCol{% endif %}" rowspan="2">Date</th>
-            <th class="blue header Time-t {% if 'Time' in settings.table_HideColumns%}hiddenCol{% endif %}" rowspan="2">Time</th> 
-            <th class="Executable-t {% if 'Executable' in settings.table_HideColumns%}hiddenCol{% endif %}" colspan="{{settings.cols_span_execut}}">Executable</th>
-            <th class="Script-t {% if 'Script' in settings.table_HideColumns%}hiddenCol{% endif %}" colspan="{{settings.cols_span_script}}">Script</th>
-          </tr>
-          <tr>
-            <th class="green header Name-t parentExecutable {% if 'Name' in settings.table_HideColumns%}hiddenCol{% endif %}" rowspan="1">Name</th>
-            <th class="green header Version-t parentExecutable {% if 'Version' in settings.table_HideColumns%}hiddenCol{% endif %}" rowspan="1">Version</th>
-            <th class="green header Repository-t parentScript {% if 'Repository' in settings.table_HideColumns%}hiddenCol{% endif %}" rowspan="1">Repository</th>
-            <th class="green header Main_file-t parentScript {% if 'Main_file' in settings.table_HideColumns%}hiddenCol{% endif %}" rowspan="1">Main file</th>
-            <th class="green header S-Version-t parentScript {% if 'S-Version' in settings.table_HideColumns%}hiddenCol{% endif %}" rowspan="1">Version</th>
-            <th class="green header Arguments-t parentScript {% if 'Arguments' in settings.table_HideColumns%}hiddenCol{% endif %}" rowspan="1">Arguments</th>
-         </tr>
-        </thead> 
-        <tbody>   
-            {% for record in object_list %}
-                <tr class='simulations'>
-                    <td class="Label-t {% if 'Label' in settings.table_HideColumns%}hiddenCol{% endif %}">{{record.label}}</td>
-                    {% if tag %}
-                    <td class="Tag-t {% if 'Tag' in settings.table_HideColumns%}hiddenCol{% endif %}">{% for other_tag in record.tag_objects %}{% if tag == other_tag %}{{tag}} {% else %}<a href="/{{project_name}}/tag/{{other_tag.name}}/">{{other_tag.name}}</a> {% endif %}{% endfor %}</td>
-                    {% else %}
-                    <td class="Tag-t {% if 'Tag' in settings.table_HideColumns%}hiddenCol{% endif %}">{{record.tags|link:"tag/%s/"}}</td>
-                    {% endif %}
-                    <td class="Reason-t {% if 'Reason' in settings.table_HideColumns%}hiddenCol{% endif %}">{{record.reason}}</td>
-                    <td class="Outcome-t {% if 'Outcome' in settings.table_HideColumns%}hiddenCol{% endif %}">{{record.outcome}}</td>
-                    <td class="Duration-t {% if 'Duration' in settings.table_HideColumns%}hiddenCol{% endif %}">{{record.duration|human_readable_duration}}</td>
-                    <td class="Processes-t {% if 'Processes' in settings.table_HideColumns%}hiddenCol{% endif %}">{{record.launch_mode.get_parameters.n|default:"1"}}</td>
-                    <td class="Date-t {% if 'Date' in settings.table_HideColumns%}hiddenCol{% endif %}">{{record.timestamp|date:"d/m/Y"}}</td>
-                    <td class="Time-t {% if 'Time' in settings.table_HideColumns%}hiddenCol{% endif %}">{{record.timestamp|date:"H:i:s"}}</td>
-                    <td class="Name-t parentExecutable {% if 'Name' in settings.table_HideColumns%}hiddenCol{% endif %}">{{record.executable.name}}</td>
-                    <td class="Version-t parentExecutable {% if 'Version' in settings.table_HideColumns%}hiddenCol{% endif %}">{{record.executable.version}}</td>
-                    <td class="Repository-t parentScript {% if 'Repository' in settings.table_HideColumns%}hiddenCol{% endif %}">{{record.repository.url|cut:"repo"}}<div style='display:none'>{{record.repository.url}}</div></td>
-                    <td class="Main_file-t parentScript {% if 'Main_file' in settings.table_HideColumns%}hiddenCol{% endif %}">{{record.main_file}}</td>
-                    <td class="S-Version-t parentScript {% if 'S-Version' in settings.table_HideColumns%}hiddenCol{% endif %}" style='width:10px;overflow: hidden;'>{{record.version|cut:"vers"}}{% if record.diff %}*{% endif %}<div style='display:none'>{{record.version}}</div></td> 
-                    <td class="Arguments-t parentScript {% if 'Arguments' in settings.table_HideColumns%}hiddenCol{% endif %}">{{record.script_arguments}}</td>
-                </tr>
-            {% endfor %}
-            {% block thead %}{% endblock %}
-        </tbody>                            
-    </table-->   
     <div id='head_t' class='nonselect'>
         <input type="radio" id="label" />
         <label class='t-item head-item' id='l-label' for="label">Label<span class='s-arrow'><span id='up' class='arr-s'>&#x25B2;</span><span id='down' class='arr-s'>&#x25BC;</span></span></label>
@@ -197,8 +149,8 @@
             <div class='row-item' id='time-t'>{{record.timestamp|date:"H:i:s"}}</div>
             <div class='row-item' id='name-t'>{{record.executable.name}}</div>
             <div class='row-item' id='eversion-t'>{{record.executable.version}}</div>
-            <div class='row-item' id='repository-t'>{{record.repository.url|cut:"repo"}}</div>
-            <div class='row-item' id='main-t'>{{record.main_file}}</div>
+            <div class='row-item' id='repository-t'>{{record.repository.url|cut:"repo"}}<div style='display:none'>{{record.repository.url}}</div></div>
+            <div class='row-item' id='main-t'><a class='id-script' href=''>{{record.main_file}}</a></div>
             <div class='row-item' id='version-t'>{{record.version|cut:"vers"}}{% if record.diff %}*{% endif %}<div style='display:none'>{{record.version}}</div></div>
             <div class='row-item' id='arguments-t'>{{record.script_arguments}}</div>
             <br style='clear:both'>
@@ -208,6 +160,30 @@
 </div><!-- main_content -->    
 <script type = 'text/javascript'>
 $(document).ready(function(){ 
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        mode: {name: "python",
+               version: 2,
+               singleLineStringErrors: false},
+        lineNumbers: true,
+        indentUnit: 4,
+        tabMode: "shift",
+        matchBrackets: true,
+      });
+
+    $('.id-script').click(function(){
+        hexsha = $(this).parent().parent().find('#version-t div').html();
+        path = $(this).parent().parent().find('#repository-t div').html();
+        $.ajax({
+          type: 'GET',
+          url: 'nolabel/datafile',
+          data: {'digest':hexsha, 'show_script':true, 'path':path},
+          async: false
+        }).done(function(data) {          
+            $('#code').val(data);
+            $('#mod5l').modal();  
+        });    
+    });
+
     $('ol').listsorter();    
     $(document).click(function(){ // deselect all the rows of click is out of table
         $('.record').removeClass('activeRow');
@@ -571,6 +547,8 @@ $(document).ready(function(){
 });   
 //$(document).ajaxStart(function() { $.fancybox.showActivity() }).ajaxStop(function() {$.fancybox.hideActivity();});
 </script>
+
+
 <div class="modal" id="mod_newrec"> 
     <div class='d-mod'>  
         <div style='float:left;padding:3px 15px;position:absolute; margin-top:5px'><h3>new record</h3></div><a class="close s-close" id='close_newrec'>&times;</a>
@@ -707,4 +685,8 @@ $(document).ready(function(){
  </div>  
  </div>
 
+<div id='mod5l' class='modal'>
+    <textarea id="code" name="code">
+    </textarea>
+</div>
 {% endblock %}

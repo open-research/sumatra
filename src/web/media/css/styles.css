@@ -225,6 +225,7 @@ a.active_settings_row{
     margin-bottom:10px;
     //float:left;
     //margin-left:20px;
+    //position:relative;
 }
 
 #text_subnav{
@@ -1038,7 +1039,7 @@ input[type="radio"]:checked+label{ font-weight: bold }
      left:20px;
 }
 .item{
-     -webkit-border-radius: 5px;
+    -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
     border-radius: 5px;
     -moz-transition: all 0.3s ease-out 0s;
@@ -1096,3 +1097,32 @@ input[type="radio"]:checked+label{ font-weight: bold }
     z-index:2;
     color:#ffffff;
 }
+
+#head-div{
+    float:left;
+    margin-left:10px;
+    width:70%;
+    height:40px;
+    background: url("../white_pixel.gif") repeat-x scroll 0 0 #F0F9FF;
+    padding-left: 5px;
+        -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+
+}
+
+#main_content{
+    float:left;
+    width:100%;
+}
+
+
+
+
+
+
+
+
+
+
+

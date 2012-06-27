@@ -176,11 +176,32 @@ def list_tags(request, project):
 DEFAULT_MAX_DISPLAY_LENGTH = 10*1024
 
 def show_file(request, project, label):
+    show_script = request.GET.get('show_script', False)
+    digest = request.GET.get('digest', False)
+    path = request.GET.get('path', False)
+    if show_script: # record_list.html: user click the main file cell    
+        try:
+            from git import Repo
+        except:
+            return HttpResponse('I can\t show you the content. Only GIT is supported by now...')
+        repo = Repo(path)
+        for item in repo.iter_commits('master'):
+            if item.hexsha == digest:
+                file_content = item.tree.blobs[0].data_stream.read()
+                return HttpResponse(file_content)
+        return HttpResponse('Sorry, I can\t show you the content. Some bug somewhere...')
+  
+'''
+def show_file(request, project, label):
+    print 'here fd'
     label = unescape(label)
     path = request.GET['path']
     digest = request.GET['digest']
     type = request.GET.get('type', 'output')
+    show_script = request.GET.get('show_script', False)
     data_key = DataKey(path, digest)
+    if show_script: # record_list.html: user click the main file cell
+        print 'digest: %s' %digest
     if 'truncate' in request.GET:
         if request.GET['truncate'].lower() == 'false':
             max_display_length = None
@@ -253,7 +274,7 @@ def show_file(request, project, label):
                                                      'project_name': project,
                                                      'content': "File not found.",
                                                      'errmsg': e})
-
+'''
 def download_file(request, project, label):
     label = unescape(label)
     path = request.GET['path']
