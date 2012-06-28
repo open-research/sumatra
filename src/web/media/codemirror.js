@@ -20,6 +20,7 @@ var CodeMirror = (function() {
     wrapper.className = "CodeMirror" + (options.lineWrapping ? " CodeMirror-wrap" : "");
     // This mess creates the base DOM structure for the editor.
     wrapper.innerHTML =
+      '<div id="headercode"">here</div>' +
       '<div style="overflow: hidden; position: relative; width: 3px; height: 0px;">' + // Wraps and hides input textarea
         '<textarea style="position: absolute; padding: 0; width: 1px; height: 1em" wrap="off" ' +
           'autocorrect="off" autocapitalize="off"></textarea></div>' +
@@ -40,14 +41,17 @@ var CodeMirror = (function() {
             '</div></div></div></div></div>';
     if (place.appendChild) place.appendChild(wrapper); else place(wrapper);
     // I've never seen more elegant code in my life.
-    var inputDiv = wrapper.firstChild, input = inputDiv.firstChild,
-        scroller = wrapper.lastChild, code = scroller.firstChild,
-        mover = code.firstChild, gutter = mover.firstChild, gutterText = gutter.firstChild,
-        lineSpace = gutter.nextSibling.firstChild, measure = lineSpace.firstChild,
-        cursor = measure.nextSibling, widthForcer = cursor.nextSibling,
-        selectionDiv = widthForcer.nextSibling, lineDiv = selectionDiv.nextSibling,
-        scrollbar = inputDiv.nextSibling, scrollbarInner = scrollbar.firstChild;
+    
+    //var inputDiv = wrapper.firstChild, 
+    var inputDiv = wrapper.children[1], input = inputDiv.firstChild,
+    scroller = wrapper.lastChild, code = scroller.firstChild,
+    mover = code.firstChild, gutter = mover.firstChild, gutterText = gutter.firstChild,
+    lineSpace = gutter.nextSibling.firstChild, measure = lineSpace.firstChild,
+    cursor = measure.nextSibling, widthForcer = cursor.nextSibling,
+    selectionDiv = widthForcer.nextSibling, lineDiv = selectionDiv.nextSibling,
+    scrollbar = inputDiv.nextSibling, scrollbarInner = scrollbar.firstChild;
     themeChanged(); keyMapChanged();
+    //console.log(wrapper.children[1]);
     // Needed to hide big blue blinking cursor on Mobile Safari
     if (ios) input.style.width = "0px";
     if (!webkit) scroller.draggable = true;

@@ -162,6 +162,9 @@
 <script type = 'text/javascript'>
 $(document).ready(function(){ 
     $("#resizable").resizable();
+    //$("#headercode" ).draggable();
+
+
     $("#resizable" ).bind( "resize", function(event, ui) {
         //alert($("#resizable").height())
         editor.getWrapperElement().style.height = $("#resizable").height()+'px';
@@ -189,9 +192,13 @@ $(document).ready(function(){
           url: 'nolabel/datafile',
           data: {'digest':hexsha, 'show_script':true, 'path':path},
           async: false
-        }).done(function(data) {          
+        }).done(function(data) {    
+            //$('#resizable').append('<div>Some header</div>');     
+            //$('#resizable').append(data);
             editor.setValue(data);
             editor.refresh();
+                $(".CodeMirror" ).draggable();
+
         });    
     });
 
@@ -696,7 +703,6 @@ $(document).ready(function(){
  </div>
  </div>
 <div id="resizable" class="ui-widget-content" >
-
     <!--textarea id="tcode" name="tcode">here</textarea-->
 </div>
 
