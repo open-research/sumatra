@@ -197,7 +197,7 @@ $(document).ready(function(){
             //$('#resizable').append(data);
             editor.setValue(data);
             editor.refresh();
-                $(".CodeMirror" ).draggable();
+                $(".CodeMirror").draggable({handle:"div.ui-widget-header"});
 
         });    
     });
