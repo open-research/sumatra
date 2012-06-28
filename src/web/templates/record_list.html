@@ -158,18 +158,29 @@
         {% endfor %}
     </ol>
 </div><!-- main_content -->    
+
 <script type = 'text/javascript'>
 $(document).ready(function(){ 
-      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+    $("#resizable").resizable();
+    $("#resizable" ).bind( "resize", function(event, ui) {
+        //alert($("#resizable").height())
+        editor.getWrapperElement().style.height = $("#resizable").height()+'px';
+        //editor.refresh(); 
+        $('.CodeMirror-scroll').css('height', $("#resizable").height());
+        $('.CodeMirror-gutter').css('height', $("#resizable").height())
+     });
+   
+      var editor = CodeMirror(document.getElementById("resizable"), {
         mode: {name: "python",
                version: 2,
                singleLineStringErrors: false},
         lineNumbers: true,
         indentUnit: 4,
         tabMode: "shift",
-        matchBrackets: true,
+        matchBrackets: true
       });
-
+      editor.setOption("theme", "ambiance");
+   
     $('.id-script').click(function(){
         hexsha = $(this).parent().parent().find('#version-t div').html();
         path = $(this).parent().parent().find('#repository-t div').html();
@@ -179,8 +190,8 @@ $(document).ready(function(){
           data: {'digest':hexsha, 'show_script':true, 'path':path},
           async: false
         }).done(function(data) {          
-            $('#code').val(data);
-            $('#mod5l').modal();  
+            editor.setValue(data);
+            editor.refresh();
         });    
     });
 
@@ -682,11 +693,11 @@ $(document).ready(function(){
         <a class="btn btn-primary" id='save_set'>Save changes</a>
         <a class="btn" id='close_set'>Close</a>
       </div> 
- </div>  
  </div>
+ </div>
+<div id="resizable" class="ui-widget-content" >
 
-<div id='mod5l' class='modal'>
-    <textarea id="code" name="code">
-    </textarea>
+    <!--textarea id="tcode" name="tcode">here</textarea-->
 </div>
+
 {% endblock %}
