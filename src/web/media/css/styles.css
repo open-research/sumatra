@@ -1161,6 +1161,12 @@ input[type="radio"]:checked+label{ font-weight: bold }
    cursor:move;
 }
 
+#resizable{
+  position:absolute;
+  left:10px;
+  display: none;
+}
+
 
 
 

@@ -161,17 +161,14 @@
 
 <script type = 'text/javascript'>
 $(document).ready(function(){ 
-    $("#resizable").resizable();
-    //$("#headercode" ).draggable();
+    
+    $("#resizable").bind( "resize", function(event, ui) {
+        var $code_h = $(".CodeMirror").height();
+        $('.CodeMirror-scroll').css('height', $code_h);
+        $('.CodeMirror-gutter').css('height', $code_h);
+    });
 
 
-    $("#resizable" ).bind( "resize", function(event, ui) {
-        //alert($("#resizable").height())
-        editor.getWrapperElement().style.height = $("#resizable").height()+'px';
-        //editor.refresh(); 
-        $('.CodeMirror-scroll').css('height', $("#resizable").height());
-        $('.CodeMirror-gutter').css('height', $("#resizable").height())
-     });
    
       var editor = CodeMirror(document.getElementById("resizable"), {
         mode: {name: "python",
@@ -192,12 +189,17 @@ $(document).ready(function(){
           url: 'nolabel/datafile',
           data: {'digest':hexsha, 'show_script':true, 'path':path},
           async: false
-        }).done(function(data) {    
-            //$('#resizable').append('<div>Some header</div>');     
-            //$('#resizable').append(data);
+        }).done(function(data) {        
+            $('#resizable').css('display','inline');
             editor.setValue(data);
             editor.refresh();
-                $(".CodeMirror").draggable({handle:"div.ui-widget-header"});
+            $(".CodeMirror").draggable({handle:"div.ui-widget-header"});
+            $(".CodeMirror").resizable();
+            $('#headercode').dblclick(function(){
+                //$('#resizable').css('display','none');
+                //$(this).next().slideToggle();
+                $('.CodeMirror-scroll').slideToggle();
+            });
 
         });    
     });
@@ -702,7 +704,7 @@ $(document).ready(function(){
       </div> 
  </div>
  </div>
-<div id="resizable" class="ui-widget-content" >
+<div id="resizable">
     <!--textarea id="tcode" name="tcode">here</textarea-->
 </div>
 
