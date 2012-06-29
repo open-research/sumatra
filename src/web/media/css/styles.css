@@ -1116,25 +1116,9 @@ input[type="radio"]:checked+label{ font-weight: bold }
     width:100%;
 }
 
-/*
-#code{
-  opacity: 0.90;
-  position:absolute;
-  top:200px;
-  right:200px;
-  left:200px;
-  z-index: 1104;
-  width: 500px;
-}
-
-#code:hover{
-  opacity: 1.0;
-}
-*/
-
 .ui-resizable { 
   position: absolute;
-  z-index: 1147;
+  z-index: 3;
   top:5px;
 }
 
@@ -1154,17 +1138,36 @@ input[type="radio"]:checked+label{ font-weight: bold }
   //color:white;
 }
 
-#headercode{
-   color:red;
-   height:20px;
-   background-color:yellow;
+.headercode{
+  color:#000000;
+  height:20px;
+  opacity:0.95;
+  background-color:#aaa;
+
+  -moz-border-radius-topright:5px;
+  border-top-right-radius:5px;
+  -webkit-border-top-right-radius:5px;
+
+  border-top-left-radius:5px;
+  -webkit-border-top-left-radius:5px;
+  -moz-border-radius-topleft:5px;
+
+  filter: progid:dximagetransform.microsoft.gradient(startColorstr='#333333', endColorstr='#222222', GradientType=0);
+  -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+     -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+
    cursor:move;
+   padding:5px 15px;
+   font-family: "Open Sans","lucida grande","Segoe UI",arial,verdana,"lucida sans unicode",tahoma,sans-serif ;
 }
 
-#resizable{
+.resizable{
   position:absolute;
-  left:10px;
+  margin-left:10px;
+  margin-top:10px;
   display: none;
+  float:left;
 }
 
 

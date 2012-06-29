@@ -88,6 +88,7 @@
                 </div>
             </div>
 </div>
+<div id='wrapper_code'></div>
 <div id = 'main_content'> 
     <div id='head_t' class='nonselect'>
         <input type="radio" id="label" />
@@ -161,48 +162,62 @@
 
 <script type = 'text/javascript'>
 $(document).ready(function(){ 
-    
-    $("#resizable").bind( "resize", function(event, ui) {
-        var $code_h = $(".CodeMirror").height();
-        $('.CodeMirror-scroll').css('height', $code_h);
-        $('.CodeMirror-gutter').css('height', $code_h);
-    });
-
-
-   
-      var editor = CodeMirror(document.getElementById("resizable"), {
-        mode: {name: "python",
-               version: 2,
-               singleLineStringErrors: false},
-        lineNumbers: true,
-        indentUnit: 4,
-        tabMode: "shift",
-        matchBrackets: true
-      });
-      editor.setOption("theme", "ambiance");
-   
+    var click_drag = function(){
+        $(".CodeMirror").css('z-index','3');
+        $(this).css('z-index','4');
+    };
     $('.id-script').click(function(){
-        hexsha = $(this).parent().parent().find('#version-t div').html();
-        path = $(this).parent().parent().find('#repository-t div').html();
+        var hexsha = $(this).parent().parent().find('#version-t div').html();
+        var path = $(this).parent().parent().find('#repository-t div').html();
+        var scrName = $(this).html();
+        var nbWind = $('.resizable').length;
         $.ajax({
           type: 'GET',
           url: 'nolabel/datafile',
           data: {'digest':hexsha, 'show_script':true, 'path':path},
           async: false
-        }).done(function(data) {        
-            $('#resizable').css('display','inline');
+        }).done(function(data) {  
+            id = ['code_wind',nbWind].join('');
+            $el = $('<div/>', {
+                id: id,
+                class: 'resizable'
+            })
+            $el.appendTo('#wrapper_code');
+             var editor = CodeMirror(document.getElementById(id), {
+                mode: {name: "python",
+                       version: 2,
+                       singleLineStringErrors: false},
+                lineNumbers: true,
+                indentUnit: 4,
+                tabMode: "shift",
+                matchBrackets: true
+              });
+            editor.setOption("theme", "ambiance"); 
+            //this way we hide the element. CodeMirrow is the new div.   
+            $('.resizable').css('display','block')
+                           .css('height','0px')
+                           .css('width','0px');  
             editor.setValue(data);
             editor.refresh();
-            $(".CodeMirror").draggable({handle:"div.ui-widget-header"});
+            $(".CodeMirror").draggable({handle:"div.ui-widget-header", snap: true});
             $(".CodeMirror").resizable();
-            $('#headercode').dblclick(function(){
-                //$('#resizable').css('display','none');
-                //$(this).next().slideToggle();
-                $('.CodeMirror-scroll').slideToggle();
+         
+            $('.headercode').bind('dblclick', function(){ 
+                var $el_clicked = $(this).parent().parent();
+                var $content = $el_clicked.find('.CodeMirror-scroll');
+                if ($content.is(':hidden')){
+                    $content.show();
+                }else{
+                    $content.hide();
+                }
             });
 
+            $el.find('.headercode').html(scrName + ': ' +hexsha);
+            $(".CodeMirror").bind('drag', click_drag);
+            $(".CodeMirror").bind('click', click_drag);
         });    
     });
+
 
     $('ol').listsorter();    
     $(document).click(function(){ // deselect all the rows of click is out of table
@@ -704,8 +719,6 @@ $(document).ready(function(){
       </div> 
  </div>
  </div>
-<div id="resizable">
-    <!--textarea id="tcode" name="tcode">here</textarea-->
-</div>
+
 
 {% endblock %}
