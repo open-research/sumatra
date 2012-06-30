@@ -101,14 +101,16 @@ def show_project(request, project):
         form = ProjectUpdateForm(instance=project)
     return render_to_response('project_detail.html',
                               {'project': project, 'form': form})
-   
+
 def list_records(request, project):
     form = RecordForm()
-    #search_form = TagSearch()   
+    wrapper_code = request.POST.get('wrapper_code', False)
+    # print 'cont_div %s' %cont_div
     nb_per_page = int(load_project().web_settings['nb_records_per_page'])
     # list containing simulations: 
     sim_list = models.Record.objects.filter(project__id=project).order_by('-timestamp')
     web_settings = load_project().web_settings
+    '''
     return list_detail.object_list(request,
                                    queryset=sim_list,
                                    template_name="record_list.html",
@@ -117,8 +119,15 @@ def list_records(request, project):
                                     'project_name': project,
                                     #'search_form': search_form,
                                     'form': form,
+                                    'cont_div':wrapper_code,
                                     'records_per_page': nb_per_page,
                                     'settings':web_settings})  
+    '''
+    return render_to_response("record_list.html",
+                              {'project_name':project,
+                               'form': form,
+                               'records_per_page': nb_per_page,
+                               'settings':web_settings})
 
 def list_tagged_records(request, project, tag):
     queryset = models.Record.objects.filter(project__id=project)

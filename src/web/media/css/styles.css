@@ -1143,6 +1143,7 @@ input[type="radio"]:checked+label{ font-weight: bold }
   height:20px;
   opacity:0.95;
   background-color:#aaa;
+  //text-shadow: #333 0.2px 0.2px;
 
   -moz-border-radius-topright:5px;
   border-top-right-radius:5px;

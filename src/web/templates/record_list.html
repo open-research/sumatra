@@ -86,9 +86,13 @@
                     {% if page_obj.has_previous %}<a href="?{{query_string}}&page={{page_obj.previous_page_number}}&per_page={{records_per_page}}" class="page gradient" id='older'>{% else %}<a class="page gradient inactive" id='older'>{% endif %}<i class="pagin icon-chevron-left"></i></a>
                     {% if page_obj.has_next %}<a href="?{{query_string}}&page={{page_obj.next_page_number}}&per_page={{records_per_page}}" class="page gradient" id='newer'>{% else %}<a class="page gradient inactive" id='newer'>{% endif %}<i class="pagin icon-chevron-right"></i></a>
                 </div>
+                <!--div style='float:left; margin-left:10px;'>
+                    {% if page_obj.has_previous %}<a class="page gradient" id='older'>{% else %}<a class="page gradient inactive" id='older'>{% endif %}<i class="pagin icon-chevron-left"></i></a>
+                    {% if page_obj.has_next %}<a class="page gradient" id='newer'>{% else %}<a class="page gradient inactive" id='newer'>{% endif %}<i class="pagin icon-chevron-right"></i></a>
+                </div-->
             </div>
 </div>
-<div id='wrapper_code'></div>
+<div id='wrapper_code'>{{cont_div}}</div>
 <div id = 'main_content'> 
     <div id='head_t' class='nonselect'>
         <input type="radio" id="label" />
@@ -162,6 +166,44 @@
 
 <script type = 'text/javascript'>
 $(document).ready(function(){ 
+        $(document).ajaxStart(function() {
+            alert('here'); 
+        });
+    $('.page#older').click(function(){
+
+
+        /*
+        var $content_code = $('#wrapper_code').html();
+        if ('{{page_obj.has_previous}}' == 'True'){
+            window.open('/{{project_name}}/?&page={{page_obj.previous_page_number}}&nb_per_page=20',
+                '_self');
+            $.ajax({
+                type: 'POST',
+                url: '/{{project_name}}/',
+                data: {'wrapper_code':$content_code},
+                success: function(){
+
+                }
+            });
+        }*/
+
+    });
+    /*
+    //$('#wrapper_code').html("{{cont_div}}");
+    $('.page#newer').click(function(){
+        if ('{{page_obj.has_next}}' == 'True'){
+            window.open('/{{project_name}}/?&page={{page_obj.next_page_number}}&nb_per_page=20',
+                '_self');
+            $.ajax({
+                type: 'POST',
+                url: '/{{project_name}}/',
+                data: {'page':'{{page_obj.next_page_number}}',
+                       'wrapper_code': $('#wrapper_code').html()}
+            });
+        }
+    });
+*/
+
     var click_drag = function(){
         $(".CodeMirror").css('z-index','3');
         $(this).css('z-index','4');
@@ -181,7 +223,8 @@ $(document).ready(function(){
             $el = $('<div/>', {
                 id: id,
                 class: 'resizable'
-            })
+            });
+
             $el.appendTo('#wrapper_code');
              var editor = CodeMirror(document.getElementById(id), {
                 mode: {name: "python",
