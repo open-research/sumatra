@@ -2,7 +2,6 @@
 
  <script type="text/javascript" src="/media/table.js"></script>
 
- <div id ='settings_table' style='display:none'>{{settings.display_density}}</div>
  <div id='newrecord'>
         <div style='float:left; position:relative;'>
             <a id='btn_newrec' class='btn btn-danger btn-large' style='width:100px' data-toggle="modal" href="#mod_newrec">
@@ -87,7 +86,7 @@
     </div>
     <ol style='margin-left:0px; margin-right: 25px;'>
     {% for record in object_list %}
-        <li class='record nonselect'>
+        <li class='record nonselect {{settings.display_density}}'>
             <div class='row-item' id='label-t'>{{record.label}}</div>
             {% if tag %}
                 <div class='row-item' id='tag-t'>{% for other_tag in record.tag_objects %}{% if tag == other_tag %}{{tag}} {% else %}<a href="/{{project_name}}/tag/{{other_tag.name}}/">{{other_tag.name}}</a> {% endif %}{% endfor %}</div>

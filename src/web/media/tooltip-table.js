@@ -5,11 +5,9 @@ $(window).ready(function(){
         },
         placement: 'bottom'
     });
-    
-    $('.page.gradient').tooltip({
-        title: function(){
-            return $(this).attr('id');    
-        },
+
+    $('#icon_cdown').tooltip({
+        title: 'show search options',
         placement: 'bottom'
     });
 });

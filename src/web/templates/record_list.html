@@ -87,11 +87,6 @@ $(document).ready(function(){
             
     nbRecPerPage_changed = false;
     $('.modal').modal().modal('hide');
-    $('.page.gradient').not('.inactive').mouseenter(function(){
-        $(this).children().css('opacity','1.0');
-    }).mouseleave(function(){
-        $(this).children().css('opacity','0.5');
-    });
     
     $('#input_nrec, #s_nbt').click(function(event){  
         nbRecPerPage_changed = true;
@@ -172,11 +167,6 @@ $(document).ready(function(){
     
     // #menu_search will inherit the offsetLength from this div
     $('#div_menu_search').offset({left: $('#text_subnav').offset().left+20});
-    
-    $('#icon_cdown').tooltip({
-        title: 'show search options',
-        placement: 'bottom'
-    });
     
     $('#icon_cdown').mouseenter(function(){
         $(this).css('opacity','1.0');
@@ -328,17 +318,11 @@ $(document).ready(function(){
             });
 
         if ($density_set == 'condensed'){
-            $('.record').css('line-height','14px');
-            $('.label').css('font-size','14px');
-            //$('#table_out').addClass('table-condensed');
             $('#button_null').removeClass('active_settings_row');  
-            $('#settings_table').html('condensed'); 
+            $('.record').removeClass('null').addClass('condensed');
         }else{
-            $('.record').css('line-height','32px');
-            $('.label').css('font-size','18px');
-            //$('#table_out').removeClass('table-condensed');
             $('#button_condensed').removeClass('active_settings_row'); 
-            $('#settings_table').html('null');    
+            $('.record').removeClass('condensed').addClass('null');
         }        
     });
       
@@ -499,8 +483,8 @@ $(document).ready(function(){
       </div>
       <div class="tab-pane" id="second">
             <div style='float:left; padding:8px'>Number of records per page:</div>
-            <div id="input_nrec">{{records_per_page}}</div>
-            <input id='s_nbt' class='span1' type='text' style='float:left;margin-bottom:0px' value='{{records_per_page}}'/>     
+            <div id="input_nrec">{{settings.nb_records_per_page}}</div>
+            <input id='s_nbt' class='span1' type='text' style='float:left;margin-bottom:0px' value='{{settings.nb_records_per_page}}'/>     
       </div>
       <div class="tab-pane" id="messages">
         <div id = 'tab_general_text'><p><b>option3:</b></p></div>

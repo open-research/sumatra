@@ -1103,7 +1103,7 @@ input[type="radio"]:checked+label{ font-weight: bold }
     margin-left:10px;
     width:70%;
     height:40px;
-    background: url("../white_pixel.gif") repeat-x scroll 0 0 #F0F9FF;
+    background: url("../white_pixel.png") repeat-x scroll 0 0 #F0F9FF;
     padding-left: 5px;
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
@@ -1175,6 +1175,14 @@ input[type="radio"]:checked+label{ font-weight: bold }
   cursor:pointer;
 }
 
+.record.condensed{
+  line-height:14px;
+}
+
+.record.null{
+  line-height: 32px;
+  font-size: 14px;
+}
 
 
 
