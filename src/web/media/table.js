@@ -1,22 +1,42 @@
 $(document).ready(function(){
     $('ol').listsorter(); 
+    $('#pagin_info').dropdown();
 
-    $('a#newer').click(function(){
-        //alert(pageHasNext());
-        if(pageHasNext()){
+    $('.page').not('.inactive').click(function(){
+        var $thisId = $(this).attr('id'),
+            $page;
+        if ($thisId == 'newer'){
+            $page = $('#next_page_number').html()
+        }else if($thisId == 'older'){
+            $page = $('#previous_page_number').html()
+        }
           $.ajax({
             type: 'POST',
             url: '.',
-            data: {'lastRec':$('#b_nbrec').html(), 'count':$('#b_nbsim').html()},
+            data: {'page':$page},
             success:function(data){
                 $('#innerContent').html(data);
             }
           });
-        }
     }); 
 
-    //alert($('.button_condensed').hasClass('active_settings_row'));
-    //alert($('#settings_table').html());
+    $('.quick-pag').click(function(){
+        var $this = $(this).html();
+        if ($this == 'Newest'){
+            $page = 1;
+        }else{
+            $page = 1e+10; // some large number
+        };
+          $.ajax({
+            type: 'POST',
+            url: '.',
+            data: {'page':$page},
+            success:function(data){
+                $('#innerContent').html(data);
+            }
+          });
+    });
+
     if ($('#settings_table').html()=='condensed'){
         $('.record').css('line-height','14px');   
     }else{

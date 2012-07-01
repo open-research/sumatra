@@ -1171,6 +1171,9 @@ input[type="radio"]:checked+label{ font-weight: bold }
   float:left;
 }
 
+.quick-pag{
+  cursor:pointer;
+}
 
 
 

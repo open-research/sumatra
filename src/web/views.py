@@ -8,6 +8,7 @@ from django.views.generic import list_detail
 from django import forms
 from django.utils import simplejson
 from django.db.models import Q
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger 
 from tagging.views import tagged_object_list
 from sumatra.recordstore.django_store import models
 from sumatra.datastore import get_data_store, DataKey
@@ -106,39 +107,34 @@ def list_records(request, project):
     form = RecordForm()  
     sim_list = models.Record.objects.filter(project__id=project).order_by('-timestamp')
     web_settings = load_project().web_settings
-    nb_per_page = int(web_settings['nb_records_per_page'])   
+    nb_per_page = int(web_settings['nb_records_per_page'])
+    paginator = Paginator(sim_list, nb_per_page)
     if request.is_ajax():
-        hasNext = False
-        start_index = int(request.POST.get('lastRec', 0)) + 1 # last record on the page
-        count = int(request.POST.get('count', 0))
-        # print 'here: %s, %s' %(lastRec, nbTotal)
-        end_index = start_index + nb_per_page
-        sim_list = sim_list[start_index:end_index] 
-        if end_index < count:
-           hasNext = True  
-        page_obj = {'has_next':hasNext,'has_previous':True,
-                    'start_index':start_index,'end_index':end_index}
-        paginator = {'count':count}
-        return list_detail.object_list(request,
-                               queryset=sim_list,
-                               template_name="content.html",
-                               extra_context={
-                                  'project_name': project,
-                                  'form': form,
-                                  'settings':web_settings,
-                                  'page_obj':page_obj,
-                                  'paginator':paginator})
+        page = request.POST.get('page', False)     
+        try:
+            page_list = paginator.page(page)
+        except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+            page_list = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+            page_list = paginator.page(paginator.num_pages)
+        dic = {'project_name': project,
+               'form': form,
+               'settings':web_settings,
+               'paginator':paginator,
+               'object_list':page_list.object_list,
+               'page_list':page_list}
+        return render_to_response('content.html', dic)
     else:
-        return list_detail.object_list(request,
-                                       queryset=sim_list,
-                                       template_name="record_list.html",
-                                       paginate_by=nb_per_page,
-                                       extra_context={
-                                        'project_name': project,
-                                        'form': form,
-                                        'records_per_page': nb_per_page,
-                                        'settings':web_settings}) 
-
+        page_list = paginator.page(1)
+        dic = {'project_name': project,
+               'form': form,
+               'settings':web_settings,
+               'object_list':page_list.object_list,
+               'page_list':page_list,
+               'paginator':paginator}
+        return render_to_response('record_list.html', dic)
 
 def list_tagged_records(request, project, tag):
     queryset = models.Record.objects.filter(project__id=project)

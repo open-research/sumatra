@@ -57,9 +57,6 @@
     {% include "content.html" %}  
 </div> 
 <script type = 'text/javascript'>
-function pageHasNext(){
-    return parseInt($('#b_nbrec').html()) < parseInt($('#b_nbsim').html()) ? 1 : 0;
-}
 $(document).ready(function(){ 
     $(document).click(function(){ // deselect all the rows of click is out of table
         $('.record').removeClass('activeRow');
@@ -204,7 +201,7 @@ $(document).ready(function(){
         $('#menu_datewith').hide();
     });
      
-    $('#pagin_info').dropdown();
+    
    
     $('#li_settings').click(function(){
         $.ajax({

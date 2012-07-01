@@ -13,33 +13,30 @@
             <div style='float:right; margin-right:34px'>
             <div class="btn-group paginator">
                 <div id='pagin_info'>
-                    <b>{{page_obj.start_index}}</b> - <b id='b_nbrec'>{{page_obj.end_index}}</b> of <b id='b_nbsim'>{{paginator.count}}</b>
+                    <b id='start_indx'>{{page_list.start_index}}</b> - <b id='b_nbrec'>{{page_list.end_index}}</b> of <b id='b_nbsim'>{{paginator.count}}</b>
                 </div>
                 <ul class="dropdown-menu" style='min-width:0px'>
                     <li>
-                        {% if page_obj.has_previous %}
-                            <a href="?{{query_string}}&page=1&per_page={{records_per_page}}">Newest</a>
+                        {% if page_list.has_previous %}
+                            <a class='quick-pag'>Newest</a>
                         {% else %}
                             <a class='p-inac'>Newest</a>
                         {% endif %}
                     </li>
                     <li>
-                        {% if page_obj.has_next %}
-                            <a href="?{{query_string}}&page={{paginator.num_pages}}&per_page={{records_per_page}}">Oldest</a>
+                        {% if page_list.has_next %}
+                            <a class='quick-pag'>Oldest</a>
                         {% else %}
                             <a class='p-inac'>Oldest</a> 
                         {% endif %}
                     </li>
                 </ul>
             </div>
-                 
-                <!--div style='float:left; margin-left:10px;'>
-                    {% if page_obj.has_previous %}<a href="?{{query_string}}&page={{page_obj.previous_page_number}}&per_page={{records_per_page}}" class="page gradient" id='older'>{% else %}<a class="page gradient inactive" id='older'>{% endif %}<i class="pagin icon-chevron-left"></i></a>
-                    {% if page_obj.has_next %}<a href="?{{query_string}}&page={{page_obj.next_page_number}}&per_page={{records_per_page}}" class="page gradient" id='newer'>{% else %}<a class="page gradient inactive" id='newer'>{% endif %}<i class="pagin icon-chevron-right"></i></a>
-                </div-->
+                <div id = 'next_page_number' style='display:none'>{{page_list.next_page_number}}</div>
+                <div id = 'previous_page_number' style='display:none'>{{page_list.previous_page_number}}</div>
                 <div style='float:left; margin-left:10px;'>
-                    {% if page_obj.has_previous %}<a class="page gradient" id='older'>{% else %}<a class="page gradient inactive" id='older'>{% endif %}<i class="pagin icon-chevron-left"></i></a>
-                    {% if page_obj.has_next %}<a class="page gradient" id='newer'>{% else %}<a class="page gradient inactive" id='newer'>{% endif %}<i class="pagin icon-chevron-right"></i></a>
+                    {% if page_list.has_previous %}<a class="page gradient" id='older'>{% else %}<a class="page gradient inactive" id='older'>{% endif %}<i class="pagin icon-chevron-left"></i></a>
+                    {% if page_list.has_next %}<a class="page gradient" id='newer'>{% else %}<a class="page gradient inactive" id='newer'>{% endif %}<i class="pagin icon-chevron-right"></i></a>
                 </div>
             </div>
 </div>
