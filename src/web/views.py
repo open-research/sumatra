@@ -103,31 +103,42 @@ def show_project(request, project):
                               {'project': project, 'form': form})
 
 def list_records(request, project):
-    form = RecordForm()
-    wrapper_code = request.POST.get('wrapper_code', False)
-    # print 'cont_div %s' %cont_div
-    nb_per_page = int(load_project().web_settings['nb_records_per_page'])
-    # list containing simulations: 
+    form = RecordForm()  
     sim_list = models.Record.objects.filter(project__id=project).order_by('-timestamp')
     web_settings = load_project().web_settings
-    '''
-    return list_detail.object_list(request,
-                                   queryset=sim_list,
-                                   template_name="record_list.html",
-                                   paginate_by=nb_per_page,
-                                   extra_context={
-                                    'project_name': project,
-                                    #'search_form': search_form,
-                                    'form': form,
-                                    'cont_div':wrapper_code,
-                                    'records_per_page': nb_per_page,
-                                    'settings':web_settings})  
-    '''
-    return render_to_response("record_list.html",
-                              {'project_name':project,
-                               'form': form,
-                               'records_per_page': nb_per_page,
-                               'settings':web_settings})
+    nb_per_page = int(web_settings['nb_records_per_page'])   
+    if request.is_ajax():
+        hasNext = False
+        start_index = int(request.POST.get('lastRec', 0)) + 1 # last record on the page
+        count = int(request.POST.get('count', 0))
+        # print 'here: %s, %s' %(lastRec, nbTotal)
+        end_index = start_index + nb_per_page
+        sim_list = sim_list[start_index:end_index] 
+        if end_index < count:
+           hasNext = True  
+        page_obj = {'has_next':hasNext,'has_previous':True,
+                    'start_index':start_index,'end_index':end_index}
+        paginator = {'count':count}
+        return list_detail.object_list(request,
+                               queryset=sim_list,
+                               template_name="content.html",
+                               extra_context={
+                                  'project_name': project,
+                                  'form': form,
+                                  'settings':web_settings,
+                                  'page_obj':page_obj,
+                                  'paginator':paginator})
+    else:
+        return list_detail.object_list(request,
+                                       queryset=sim_list,
+                                       template_name="record_list.html",
+                                       paginate_by=nb_per_page,
+                                       extra_context={
+                                        'project_name': project,
+                                        'form': form,
+                                        'records_per_page': nb_per_page,
+                                        'settings':web_settings}) 
+
 
 def list_tagged_records(request, project, tag):
     queryset = models.Record.objects.filter(project__id=project)
