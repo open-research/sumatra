@@ -105,8 +105,10 @@ $(document).ready(function(){
     
     $('.page.gradient').not('.inactive').mouseenter(function(){
         $(this).children().css('opacity','1.0');
+        $('.CodeMirror').css('opacity','0.3');
     }).mouseleave(function(){
         $(this).children().css('opacity','0.5');
+        $('.CodeMirror').css('opacity','1.0');
     });
 
     $("ol>li").on('click', function(e) {

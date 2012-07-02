@@ -1144,22 +1144,15 @@ input[type="radio"]:checked+label{ font-weight: bold }
   opacity:0.95;
   background-color:#aaa;
   //text-shadow: #333 0.2px 0.2px;
-
-  -moz-border-radius-topright:5px;
-  border-top-right-radius:5px;
-  -webkit-border-top-right-radius:5px;
-
-  border-top-left-radius:5px;
-  -webkit-border-top-left-radius:5px;
-  -moz-border-radius-topleft:5px;
-
   filter: progid:dximagetransform.microsoft.gradient(startColorstr='#333333', endColorstr='#222222', GradientType=0);
-  -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
-     -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
-
    cursor:move;
    padding:5px 15px;
+   line-height:18px;
+   -webkit-border-top-left-radius: 7px;
+-webkit-border-top-right-radius: 7px;
+border-top-left-radius: 7px;
+border-top-right-radius: 7px;
+border:3px solid #aaa;
    font-family: "Open Sans","lucida grande","Segoe UI",arial,verdana,"lucida sans unicode",tahoma,sans-serif ;
 }
 
