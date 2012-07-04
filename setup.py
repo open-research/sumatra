@@ -63,10 +63,9 @@ setup(
     extras_require = {'svn': 'pysvn',
                       'hg': 'mercurial',
                       'git': 'GitPython',
-                      'bzr': 'bzrlib',
+                      'bzr': 'bzr',
                       'mpi': 'mpi4py'},
     #test_suite = ?,
     tests_require = ['twill'],
     #use_2to3 = True,
 )
-

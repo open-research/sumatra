@@ -66,7 +66,7 @@ class Project(object):
         self.data_store = data_store # a data store object
         self.input_datastore = input_datastore or self.data_store
         if record_store == 'default':
-            record_store = DefaultRecordStore(".smt/records")
+            record_store = DefaultRecordStore(os.path.abspath(".smt/records"))
         self.record_store = record_store
         self.on_changed = on_changed
         self.description = description
@@ -103,9 +103,7 @@ class Project(object):
     def info(self):
         """Show some basic information about the project."""
         template = """
-        Sumatra project
-        ---------------
-        Name                : %(name)s
+        Project name        : %(name)s
         Default executable  : %(default_executable)s
         Default repository  : %(default_repository)s
         Default main file   : %(default_main_file)s

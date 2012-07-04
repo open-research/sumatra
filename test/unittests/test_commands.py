@@ -79,17 +79,17 @@ class MockRepository(object):
         self._checkout_called = False
     def checkout(self):
         self._checkout_called = True
-    
+
 class MockWorkingCopy(object):
     repository = MockRepository("http://mock_repository")
 
 def no_project():
     raise Exception("There is no Sumatra project here")
-    
+
 def mock_mkdir(path, mode=0777):
     print "Pretending to create directory %s" % path
-    
-    
+
+
 def mock_build_parameters(filename):
     if filename != "this.is.not.a.parameter.file":
         ps = type("MockParameterSet", (dict,),
@@ -113,7 +113,7 @@ def setup():
         store_original(commands, name)
     commands.build_parameters = mock_build_parameters
     commands.get_executable = mock_get_executable
-    commands.get_repository = MockRepository 
+    commands.get_repository = MockRepository
     commands.get_working_copy = MockWorkingCopy
     commands.FileSystemDataStore = MockDataStore
 
@@ -123,17 +123,17 @@ def teardown():
 
 
 class InitCommandTests(unittest.TestCase):
-    
+
     def test_with_no_args__should_raise_Exception(self):
         commands.load_project = no_project
         self.assertRaises(SystemExit, commands.init, [])
-    
+
     def test_with_single_args__should_create_Project(self):
         commands.load_project = no_project
         commands.Project = MockProject
         commands.init(["NewProject"])
         self.assertEqual(MockProject.instances[-1].name, "NewProject")
-    
+
     def test_with_existing_project_should_return_error(self):
         commands.load_project = lambda: True
         self.assertRaises(SystemExit, commands.init, ["NotSoNewProject"])
@@ -160,14 +160,14 @@ class InitCommandTests(unittest.TestCase):
         prj = MockProject.instances[-1]
         self.assertEqual(prj.default_main_file, "main.foo")
         self.assertEqual(prj.default_executable, None)
-        
+
     def test_set_main_no_executable_registered_extension_should_set_executable(self):
         commands.load_project = no_project
         commands.Project = MockProject
         commands.init(["NewProject", "-m", "file_with_registered_extension"])
         prj = MockProject.instances[-1]
         self.assertEqual(prj.default_main_file, "file_with_registered_extension")
-        self.assertEqual(prj.default_executable.script_file, "file_with_registered_extension")    
+        self.assertEqual(prj.default_executable.script_file, "file_with_registered_extension")
 
     def test_set_executable_and_main(self):
         commands.load_project = no_project
@@ -193,7 +193,7 @@ class InitCommandTests(unittest.TestCase):
         commands.init(["NewProject", "--archive", "true"])
         prj = MockProject.instances[-1]
         self.assertIsInstance(prj.data_store, datastore.ArchivingFileSystemDataStore)
-        self.assertEqual(prj.data_store.archive_store, ".smt/archive")
+        self.assertEqual(prj.data_store.archive_store, os.path.abspath(".smt/archive"))
 
     def test_archive_option_set_to_path(self):
         some_path = "./test_commands_archive_option"
@@ -202,17 +202,17 @@ class InitCommandTests(unittest.TestCase):
         commands.init(["NewProject", "--archive", some_path])
         prj = MockProject.instances[-1]
         self.assertIsInstance(prj.data_store, datastore.ArchivingFileSystemDataStore)
-        self.assertEqual(prj.data_store.archive_store, some_path)
+        self.assertEqual(prj.data_store.archive_store, os.path.abspath(some_path))
         if os.path.exists(some_path):
             os.rmdir(some_path)
 
 
 class ConfigureCommandTests(unittest.TestCase):
-    
+
     def setUp(self):
         self.prj = MockProject()
-        commands.load_project = lambda: self.prj 
-    
+        commands.load_project = lambda: self.prj
+
     def test_with_no_args(self):
         commands.configure([])
         assert self.prj.saved
@@ -296,11 +296,11 @@ class ConfigureCommandTests(unittest.TestCase):
 
 
 class InfoCommandTests(unittest.TestCase):
-    
+
     def setUp(self):
         self.prj = MockProject()
         commands.load_project = lambda: self.prj
-   
+
     def test_calls_project_info(self):
         self.assertFalse(self.prj.info_called)
         commands.info([])
@@ -313,10 +313,10 @@ class InfoCommandTests(unittest.TestCase):
 
 
 class TestParseArguments(unittest.TestCase):
-    
+
     def setUp(self):
         self.input_datastore = MockDataStore('/path/to/root')
-    
+
     def test_with_no_args(self):
         parameter_sets, input_data, script_args = commands.parse_arguments([], self.input_datastore)
         self.assertEqual(parameter_sets, [])
@@ -328,14 +328,14 @@ class TestParseArguments(unittest.TestCase):
         self.assertEqual(parameter_sets, [])
         self.assertEqual(input_data, [])
         self.assertEqual(script_args, "foo")
-    
+
     def test_with_nonfile_args(self):
         parameter_sets, input_data, script_args = commands.parse_arguments(["spam", "eggs"],
                                                                            self.input_datastore)
         self.assertEqual(parameter_sets, [])
         self.assertEqual(input_data, [])
         self.assertEqual(script_args, "spam eggs")
-        
+
     def test_with_single_parameter_file_and_nonfile_arg(self):
         f = open("test.param", 'w')
         f.write("a = 2\nb = 3\n")
@@ -345,7 +345,7 @@ class TestParseArguments(unittest.TestCase):
         self.assertEqual(input_data, [])
         self.assertEqual(script_args, "spam <parameters>")
         os.remove("test.param")
-    
+
     def test_with_single_datafile(self):
         data_content = "23496857243968b24cbc4275dc82470a\n"
         f = open("this.is.not.a.parameter.file", 'w')
@@ -388,11 +388,11 @@ class TestParseArguments(unittest.TestCase):
 
 class RunCommandTests(unittest.TestCase):
     maxDiff = None
-    
+
     def setUp(self):
         self.prj = MockProject()
         commands.load_project = lambda: self.prj
-        
+
     def test_with_no_args(self):
         commands.run([])
         expected = {'executable': 'default',
@@ -418,7 +418,7 @@ class RunCommandTests(unittest.TestCase):
                          'version': 'latest',
                          'launch_mode': launch.SerialLaunchMode(),
                          'script_args': 'some_parameter_file'})
-    
+
     def test_with_single_input_file(self):
         data_content = "0.0 242\n0.1 2345\n0.2 42451\n"
         f = open("this.is.not.a.parameter.file", 'w')
@@ -468,22 +468,22 @@ class RunCommandTests(unittest.TestCase):
 
 
 class ListCommandTests(unittest.TestCase):
-    
+
     def setUp(self):
         self.prj = MockProject()
         commands.load_project = lambda: self.prj
-    
+
     def test_with_no_args(self):
         commands.list([])
         # need some assertion about self.prj.format_args
-    
+
 
 class DeleteCommandTests(unittest.TestCase):
-    
+
     def setUp(self):
         self.prj = MockProject()
         commands.load_project = lambda: self.prj
-    
+
     def test_with_no_args(self):
         self.assertRaises(SystemExit, commands.delete, [])
 
@@ -502,72 +502,72 @@ class DeleteCommandTests(unittest.TestCase):
         self.assertEqual(self.prj._records_deleted,
                          ["records_tagged_with_tagA",
                           "records_tagged_with_tagB"])
-        
+
 
 class CommentCommandTests(unittest.TestCase):
-    
+
     def setUp(self):
         self.prj = MockProject()
         commands.load_project = lambda: self.prj
-    
+
     def test_with_no_args(self):
         self.assertRaises(SystemExit, commands.comment, [])
-        
+
     #def test_single_arg_interpreted_as_comment_on_last_record(self):
     #    self.fail()
-    #    
+    #
     #def test_two_args_interpreted_as_label_and_comment(self):
     #    self.fail()
-    #   
+    #
     #def test_invalid_label(self):
     #    self.fail()
-    #    
+    #
     #def test_with_file_option(self):
     #    self.fail()
-    #    
+    #
     #def test_with_nonexistent_file(self):
     #    self.fail()
 
 
 class TestTagCommand(unittest.TestCase):
-    
+
     def setUp(self):
         self.prj = MockProject()
         commands.load_project = lambda: self.prj
-    
+
     def test_with_no_args(self):
         self.assertRaises(SystemExit, commands.tag, [])
-    
-    
+
+
 class RepeatCommandTests(unittest.TestCase):
-    
+
     def setUp(self):
         self.prj = MockProject()
         commands.load_project = lambda: self.prj
-    
+
     def test_with_no_args(self):
         self.assertRaises(SystemExit, commands.repeat, [])
 
 
 class DiffCommandTests(unittest.TestCase):
-    
+
     def setUp(self):
         self.prj = MockProject()
         commands.load_project = lambda: self.prj
-    
+
     def test_with_no_args(self):
         self.assertRaises(SystemExit, commands.diff, [])
-        
+
     def test_with_one_arg(self):
         self.assertRaises(SystemExit, commands.diff, ["label1"])
 
 
 class HelpCommandTests(unittest.TestCase):
-    
+
     def setUp(self):
         self.prj = MockProject()
         commands.load_project = lambda: self.prj
-    
+
     def test_with_no_args(self):
         self.assertRaises(SystemExit, commands.help, [])
 
@@ -606,4 +606,3 @@ if __name__ == '__main__':
     setup()
     unittest.main()
     teardown()
-
