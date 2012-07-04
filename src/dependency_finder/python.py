@@ -41,6 +41,8 @@ import inspect
 from sumatra.dependency_finder import core
 from sumatra import versioncontrol
 
+SENTINEL = "<SUMATRA>"
+
 
 def run_script(executable_path, script):
     """
@@ -54,10 +56,12 @@ def run_script(executable_path, script):
     script = str(script) # get problems if script is is unicode
     p = subprocess.Popen(executable_path, shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
     output,err = p.communicate(textwrap.dedent(script)) # should handle err
+    output = output[output.find(SENTINEL)+len(SENTINEL):]
     try:
         return_value = eval(output)
     except SyntaxError, errmsg:
         warnings.warn("Error in evaluating script output\n. Executable: %s\nScript: %s\nOutput: '%s'\nError: %s" % (executable_path, script, output, err))
+        #import pdb; pdb.set_trace()
         return_value = {}
     return return_value
 
@@ -97,7 +101,7 @@ for name in module_names:
     if module:
         version = find_version_by_attribute(module)
     versions.append(version)
-sys.stdout.write(str(versions))
+sys.stdout.write("%(sentinel)s" + str(versions))
 """
 
 def find_versions_by_attribute(dependencies, executable):
@@ -105,6 +109,7 @@ def find_versions_by_attribute(dependencies, executable):
     context = {
         'module_names': [d.name for d in dependencies if d.version == 'unknown'],
         'def_find_version_by_attribute': inspect.getsource(find_version_by_attribute),
+        'sentinel': SENTINEL,
     }
     script = find_versions_by_attribute_template % context
     if executable.version[0] == '2':
@@ -131,7 +136,7 @@ def find_versions_from_egg(dependencies):
                             if line[:7] == 'Version':
                                 dependency.version = line.split(' ')[1].strip()
                                 attr_name = 'egg-info'
-                                break        
+                                break
     return dependencies
 
 
@@ -149,13 +154,13 @@ class Dependency(core.BaseDependency):
     determine version information.
     """
     module = 'python'
-    
+
     def __init__(self, module_name, path, version='unknown', diff=''):
         self.name = module_name
         self.path = path
         self.diff = diff
         self.version = version
-    
+
     @classmethod
     def from_module(cls, module, executable_path):
         """Create from modulefinder.Module instance."""
@@ -163,12 +168,12 @@ class Dependency(core.BaseDependency):
         if len(module.__path__) > 1:
             raise Exception("This is not supposed to happen. Please tell the package developers about this.") # or I could figure out for myself when this could happen
         return cls(module.__name__, module.__path__[0])
-    
+
 
 def find_imported_packages(filename, executable_path, debug=0, exclude_stdlib=True):
     """
     Find all imported top-level packages for a given Python file.
-    
+
     We cannot assume that the version of Python being used to run Sumatra is the
     same as that used to run the simulation/analysis. Therefore we need to run
     all the dependency finding and version checking in a subprocess with the
@@ -192,7 +197,7 @@ def find_imported_packages(filename, executable_path, debug=0, exclude_stdlib=Tr
             if module.__path__ and "." not in name:
                 if not(exclude_stdlib and os.path.dirname(module.__path__[0]) == stdlib_path): # doesn't work for platform-specific modules, e.g. 'Finder', 'Carbon'
                     top_level_packages[name] = module
-        sys.stdout.write(str(top_level_packages))""" % (exclude_stdlib, int(debug), filename)
+        sys.stdout.write("%s" + str(top_level_packages))""" % (exclude_stdlib, int(debug), filename, SENTINEL)
     return run_script(executable_path, script)
 
 
