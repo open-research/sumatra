@@ -84,9 +84,9 @@
         <input type="radio" id="arguments" />
         <label class='t-item head-item' id='l-arguments' for="arguments">Arguments<span class='s-arrow'><span id='up' class='arr-s'>&#x25B2;</span><span id='down' class='arr-s'>&#x25BC;</span></span></label>
     </div>
-    <ol style='margin-left:0px; margin-right: 25px;'>
+    <ol id ='ol-content'>
     {% for record in object_list %}
-        <li class='record nonselect {{settings.display_density}}'>
+        <li class='record {{settings.display_density}}'>
             <div class='row-item' id='label-t'>{{record.label}}</div>
             {% if tag %}
                 <div class='row-item' id='tag-t'>{% for other_tag in record.tag_objects %}{% if tag == other_tag %}{{tag}} {% else %}<a href="/{{project_name}}/tag/{{other_tag.name}}/">{{other_tag.name}}</a> {% endif %}{% endfor %}</div>

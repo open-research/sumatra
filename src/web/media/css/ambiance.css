@@ -46,13 +46,8 @@
 }
 
 .cm-s-ambiance .CodeMirror-gutter {
-  //background: #3D3D3D;
-  //background-color: #ECEDEB;
   background-color: #ECEDEB;
   padding: 0 5px;
-  //text-shadow: #333 1px 1px;
-  //border-right: 1px solid #4D4D4D;
-  //box-shadow: 0 10px 20px black;
 }
 
 .cm-s-ambiance .CodeMirror-gutter .CodeMirror-gutter-text {

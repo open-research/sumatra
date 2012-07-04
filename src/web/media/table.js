@@ -1,5 +1,5 @@
 $(document).ready(function(){
-    $('ol').listsorter(); 
+    $('#ol-content').listsorter(); 
     $('#pagin_info').dropdown();
     $('.page.gradient').tooltip({
         title: function(){
@@ -8,6 +8,19 @@ $(document).ready(function(){
         placement: 'bottom',
         trigger: 'hover'
     });
+    $('#ol-content').selectable({
+            stop: function() {
+                var result = $( "#testdiv" ).empty();
+                var $head_table = $('#head_t');
+                nbSelected = $( "li.ui-selected").length;
+                result.append(nbSelected);
+                $head_table.empty();
+                $head_table.append('<div id = "d-nbrec"></div>')
+                           .append('<div id = "d-delete" data-toggle="modal" href="#deleteModal">delete records</div>');
+                $('#d-nbrec').html(nbSelected + ' records');
+            }
+    });
+    $('.CodeMirror').css('opacity','1.0');
 
     $('.page').not('.inactive').click(function(){
         $('.page').tooltip('hide');
@@ -116,7 +129,9 @@ $(document).ready(function(){
         return false;
     });
 
+
     $('.record').on({
+    /*
      'click': function(e) {
         if (e['ctrlKey']){
             if ($(this).hasClass('activeRow')){
@@ -143,8 +158,9 @@ $(document).ready(function(){
             $(this).addClass('activeRow');
         }  
         },
+        */
         'mouseenter':function(){
-        $(this).addClass('hoverRow');
+        $(this).not('.ui-selected').addClass('hoverRow');
         },
         'mouseleave':function(){
         $(this).removeClass('hoverRow');

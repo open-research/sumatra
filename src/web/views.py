@@ -169,17 +169,18 @@ def record_detail(request, project, label):
                                                      })
 
 def delete_records(request, project):
-    records_to_delete = request.POST.getlist('delete')
-    delete_data = 'delete_data' in request.POST
+    records_to_delete = request.POST.getlist('delete[]')
+    #delete_data = 'delete_data' in request.POST
+    delete_data = request.POST.get('delete_data', False)
     records = models.Record.objects.filter(label__in=records_to_delete, project__id=project)
     for record in records:
         if delete_data:
             datastore = record.datastore.to_sumatra()
             datastore.delete(*[data_key.to_sumatra()
                                for data_key in record.output_data.all()])
-        record.delete()
-    return HttpResponseRedirect('/')  
 
+        record.delete()
+    return HttpResponse('')  
 
 def list_tags(request, project):
     tags = {

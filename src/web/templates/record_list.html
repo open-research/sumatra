@@ -59,9 +59,10 @@
 </div> 
 <script type = 'text/javascript'>
 $(document).ready(function(){ 
+    /*
     $(document).click(function(){ // deselect all the rows of click is out of table
-        $('.record').removeClass('activeRow');
-    });
+        $('.record').removeClass('ui-selected');
+    }); */
 
     $('input[type="radio"]').attr('checked', false);
 
@@ -71,16 +72,16 @@ $(document).ready(function(){
     });
         
     if ($(location).attr('href').indexOf('?n=true') != -1){
-        $('#table_out tbody tr:eq(0) td').effect("highlight", {}, 15000); 
+        $('#table_out tbody tr:eq(0) td').effect("highlight", {}, 15000); // not the right way
     }
-
+    /*
     $('.simulations td').live('click', function(){
         if (!$(this).children().is('a')){
             $parent = $(this).parent();
             var $label = $parent.find('.Label-t').html();
             window.open(["/{{project_name}}", $label, ""].join('/'));
         }
-    });
+    }); */
 
     $('#search_but').click(function(){
         $('#search_form').trigger('submit');
@@ -361,6 +362,29 @@ $(document).ready(function(){
           dataType: 'json'
         })
     }); 
+
+    $('#n-delRec').click(function(){
+        $('#deleteModal').modal('hide');
+    });
+    $('#y-delRec').click(function(){
+        var succ = false;
+        deleteArr = new Array(); // records to delete
+        $('li.ui-selected').each(function(){
+            deleteArr.push($(this).find('#label-t').html())
+        });
+        $.ajax({
+            type: 'POST',
+            url: 'delete/',
+            data: {'delete':deleteArr,'delete_data':true}, //presule that user always wand to delete data
+            success:function(data){
+                succ = true;
+            },
+            async: false
+        });
+        if (succ){
+            window.open('.','_self');
+        }
+    });
 });   
 //$(document).ajaxStart(function() { $.fancybox.showActivity() }).ajaxStop(function() {$.fancybox.hideActivity();});
 </script>
@@ -398,7 +422,20 @@ $(document).ready(function(){
     </div>
 </div>
 
-   
+
+<div class="modal" id="deleteModal">
+  <div class="modal-header">
+        <a class="close" data-dismiss="modal">&times;</a>
+        <h3>Delete records</h3>
+  </div>
+  <div class="modal-body">
+        <p>Are you sure you want to remove the records?</p>
+  </div>
+  <div class="modal-footer">
+        <a id="y-delRec" class="btn btn-primary">Yes</a>
+        <a id="n-delRec" class="btn">No</a>
+  </div>
+</div>   
 <div class="modal" id="setModal">
   <a class="close s-close" id='close_set'>&times;</a>
   <div class="modal-header">
