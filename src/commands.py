@@ -148,6 +148,7 @@ def init(argv):
     if options.archive and options.archive.lower() != 'false':
         if options.archive.lower() == "true":
             options.archive = ".smt/archive"
+        options.archive = os.path.abspath(options.archive)
         output_datastore = ArchivingFileSystemDataStore(options.datapath, options.archive)
     else:
         output_datastore = FileSystemDataStore(options.datapath)

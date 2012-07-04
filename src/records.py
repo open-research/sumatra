@@ -115,7 +115,7 @@ class Record(object):
                                       script_arguments, data_label)
         self.duration = time.time() - start_time
 
-        # try to get stdout_stderr from lauch_mode
+        # try to get stdout_stderr from launch_mode
         try:
             if self.launch_mode.stdout_stderr not in (None,""):
                 self.stdout_stderr = self.launch_mode.stdout_stderr

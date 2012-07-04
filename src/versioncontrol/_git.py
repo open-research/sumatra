@@ -37,7 +37,7 @@ def findrepo(path):
         
 
 def check_version():
-    if git.__version__.split(".")[1] < 2:
+    if int(git.__version__.split(".")[1]) < 2:
         raise VersionControlError("Your Git Python binding is too old. You require at least version 0.2.0-beta1.")
 
 def may_have_working_copy(path=None):

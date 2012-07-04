@@ -51,7 +51,7 @@ class Executable(object):
     def __str__(self):
         s = "%s (version: %s) at %s" % (self.name, self.version, self.path)
         if self.options:
-            s += "options: %s" % self.options
+            s += " options: %s" % self.options
         return s
 
     def _find_executable(self, executable_name):
