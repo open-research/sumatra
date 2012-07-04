@@ -15,6 +15,7 @@ from sumatra.recordstore.django_store import DjangoRecordStore, db_config
 import test_recordstore
 import sumatra.projects
 
+
 def setup():
     global store, orig_load_project, Client
     import django.conf
@@ -30,19 +31,20 @@ def setup():
     Client = django.test.client.Client
     import django.test.utils
     django.test.utils.setup_test_environment()
-    
+
     #recordstore_setup()
     orig_load_project = sumatra.projects.load_project
     sumatra.projects.load_project = lambda: MockProject()
 
 def clean_up():
-    if os.path.exists("test.db"):
-        os.remove("test.db")    
+    for filename in ("test.db", "test2.db"):
+        if os.path.exists(filename):
+            os.remove(filename)
 
 def teardown():
     test_recordstore.teardown()
-    sumatra.projects.load_project = orig_load_project
     clean_up()
+    sumatra.projects.load_project = orig_load_project
 
 
 class MockProject(object):
@@ -66,7 +68,7 @@ class MockDataStore(object):
 
 
 class TestWebInterface(unittest.TestCase):
-    
+
     def test_project_root(self):
         c = Client()
         response = c.get('/%s/' % MockProject.name)
@@ -78,7 +80,7 @@ class TestWebInterface(unittest.TestCase):
         c = Client()
         self.assertRaises(ObjectDoesNotExist,
                           c.get, '/%s/record0/' % MockProject.name)
- 
+
     def test__record_detail(self):
         add_some_records()
         c = Client()
@@ -91,7 +93,7 @@ class TestWebInterface(unittest.TestCase):
         c = Client()
         response = c.get("/%s/record1/datafile?path=test_file.csv&digest=mock" % MockProject.name)
         assert 'show_csv.html' in [t.name for t in response.template]
-        
+
     def test__show_file_txt(self):
         sumatra.web.views.get_data_store = lambda t,p: MockDataStore()
         c = Client()
@@ -109,14 +111,14 @@ class TestWebInterface(unittest.TestCase):
         c = Client()
         response = c.get("/%s/record1/datafile?path=test_file.doc&digest=mock" % MockProject.name)
         assert 'show_file.html' in [t.name for t in response.template]
-        assert "Can't display" in response.context["content"] 
+        assert "Can't display" in response.context["content"]
 
     def test__show_nonexistent_file(self):
         sumatra.web.views.get_data_store = lambda t,p: MockDataStore()
         c = Client()
         response = c.get("/%s/record1/datafile?path=non_existent_file.txt&digest=mock" % MockProject.name)
         assert 'show_file.html' in [t.name for t in response.template]
-        assert "File not found" in response.context["content"] 
+        assert "File not found" in response.context["content"]
 
     def test__show_image(self):
         sumatra.web.views.get_data_store = lambda t,p: MockDataStore()

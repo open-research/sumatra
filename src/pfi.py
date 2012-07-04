@@ -11,6 +11,8 @@ import socket
 import time
 from datetime import datetime
 
+TIMESTAMP_FORMAT = "%Y%m%d-%H%M%S"
+
 MPI_ROOT = 0
 comm = MPI.Comm.Get_parent()
 rank = comm.Get_rank()
@@ -27,7 +29,7 @@ platform_information = {
                        release=platform.release(),
                        system_name=platform.system(),
                        version=platform.version(),
-                       clock=datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+                       clock=datetime.now().strftime(TIMESTAMP_FORMAT))
 }
 
 comm.send(platform_information, dest=MPI_ROOT, tag=rank)

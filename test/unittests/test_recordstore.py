@@ -2,7 +2,10 @@
 Unit tests for the sumatra.recordstore package
 """
 
-import unittest2 as unittest
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
 import os
 import sys
 from datetime import datetime
@@ -20,7 +23,7 @@ try:
 except ImportError:
     import simplejson as json
 import urlparse
-    
+
 originals = []
 django_store1 = None
 django_store2 = None
@@ -60,7 +63,7 @@ class MockDependency(object):
     version = "1.0"
     diff = ""
     module = "python"
-    
+
 class MockPlatformInformation(object):
     architecture_bits = 32
     architecture_linkage = ""
@@ -81,7 +84,7 @@ class MockParameterSet(object):
         return None
 
 class MockRecord(object):
-    
+
     def __init__(self, label):
         self.label = label
         self.timestamp = datetime.now() #datetime(1901, 6, 1, 12, 0, 0)
@@ -108,14 +111,16 @@ class MockRecord(object):
 
     def __eq__(self, other):
         return self.label == other.label and self.duration == other.duration
-    
+
 
 class MockProject(object):
     name = "TestProject"
 
 def clean_up():
-    if os.path.exists("test_record_store.db"):
-        os.remove("test_record_store.db")
+    pass
+    #for filename in ("test.db", "test2.db"):
+    #    if os.path.exists(filename):
+    #        os.remove(filename)
 
 def setup():
     global django_store1, django_store2
@@ -131,23 +136,22 @@ def setup():
     vcs_list.append(sys.modules[__name__])
 
 def teardown():
+    global django_store1, django_store2
     del sumatra.launch.MockLaunchMode
     del sumatra.datastore.MockDataStore
     del sumatra.parameters.MockParameterSet
-    for filename in (django_store1._db_file, django_store2._db_file):
-        if os.path.exists(filename):
-            os.remove(filename)
+    clean_up()
     vcs_list.remove(sys.modules[__name__])
 
 class BaseTestRecordStore(object):
-    
+
     def tearDown(self):
         django_store1.delete_all()
         django_store2.delete_all()
         for filename in ("test_record_store2",):
             if os.path.exists(filename):
                 os.remove(filename)
-    
+
     def add_some_records(self):
         r1 = MockRecord("record1")
         r2 = MockRecord("record2")
@@ -167,16 +171,16 @@ class BaseTestRecordStore(object):
 
     def test_create_record_store_should_not_produce_errors(self):
         pass
-    
+
     def test_save_should_not_produce_errors(self):
         self.add_some_records()
-    
+
     def test_get(self):
         self.add_some_records()
         r = self.store.get(self.project.name, "record1")
         assert isinstance(r, (MockRecord, Record)), type(r)
         assert r.label == "record1", r.label
-        
+
     def test_get_nonexistent_record_raises_KeyError(self):
         self.assertRaises(KeyError, self.store.get, self.project.name, "foo")
 
@@ -185,13 +189,13 @@ class BaseTestRecordStore(object):
         records = self.store.list(self.project.name)
         assert isinstance(records, list), type(records)
         self.assertEqual(len(records), 3)
-    
+
     def test_list_for_tags_should_filter_records_appropriately(self):
         self.add_some_records()
         self.add_some_tags()
         records = self.store.list(self.project.name, "tag1")
         self.assertEqual(len(records), 2)
-    
+
     def test_delete_removes_record(self):
         self.add_some_records()
         key = "record1"
@@ -245,11 +249,11 @@ class BaseTestRecordStore(object):
 
 
 class TestShelveRecordStore(unittest.TestCase, BaseTestRecordStore):
-       
+
     def setUp(self):
         self.store = shelve_store.ShelveRecordStore(shelf_name="test_record_store")
         self.project = MockProject()
-        
+
     def tearDown(self):
         BaseTestRecordStore.tearDown(self)
         os.remove("test_record_store")
@@ -265,7 +269,7 @@ class TestShelveRecordStore(unittest.TestCase, BaseTestRecordStore):
 
 
 class TestDjangoRecordStore(unittest.TestCase, BaseTestRecordStore):
-    
+
     def setUp(self):
         self.store = django_store1
         self.project = MockProject()
@@ -308,7 +312,7 @@ class MockCredentials(object):
         credentials = [['domain', 'username', 'password']]
 
 class MockHttp(object):
-    def __init__(self, *args):
+    def __init__(self, *args, **kwargs):
         self.records = {}
         self.debug = False
         self.last_record = None
@@ -370,29 +374,29 @@ class MockHttp(object):
         if self.debug:
             print ">>>>>", status, content
         return MockResponse(status), content
-    
+
 
 class MockHttpLib(object):
-    
+
     @staticmethod
-    def Http(*args):
-        return MockHttp(*args)
+    def Http(*args, **kwargs):
+        return MockHttp(*args, **kwargs)
 
 
 class TestHttpRecordStore(unittest.TestCase, BaseTestRecordStore):
-    
+
     def __init__(self, *args, **kwargs):
         unittest.TestCase.__init__(self, *args, **kwargs)
         self.real_httplib = http_store.httplib2
         http_store.httplib2 = MockHttpLib()
-        
+
     def __del__(self):
         http_store.httplib2 = self.real_httplib
-    
+
     def setUp(self):
         self.store = http_store.HttpRecordStore("http://127.0.0.1:8000/", "testuser", "z6Ty49HY")
         self.project = MockProject()
-    
+
     def test_record_store_is_pickleable(self):
         import pickle
         self.add_some_records()

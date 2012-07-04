@@ -21,6 +21,7 @@ from sumatra.recordstore import get_record_store
 from sumatra.versioncontrol import get_working_copy, get_repository, UncommittedModificationsError
 from sumatra.formatting import get_diff_formatter
 from sumatra.records import MissingInformationError
+from sumatra.core import TIMESTAMP_FORMAT
 
 def parse_executable_str(exec_str):
     """
@@ -52,7 +53,7 @@ def parse_command_line_parameter(p):
                 pass
     return {name: value}
 
-def parse_arguments(args, input_datastore):  
+def parse_arguments(args, input_datastore):
     cmdline_parameters = {}
     script_args = []
     parameter_sets = []
@@ -71,7 +72,7 @@ def parse_arguments(args, input_datastore):
                 data_key = input_datastore.generate_keys(arg)
                 input_data.extend(data_key)
                 script_args.append(arg)
-            elif "=" in arg: # cmdline parameter 
+            elif "=" in arg: # cmdline parameter
                 cmdline_parameters.update(parse_command_line_parameter(arg))
             else: # a flag or something, passed on unchanged
                 script_args.append(arg)
@@ -102,19 +103,19 @@ def init(argv):
     parser.add_option('-s', '--store', help="specify the path to the record store, either an existing one or one to be created.")
     parser.add_option('-D', '--debug', action='store_true', help="print debugging information.")
     parser.add_option('-A', '--archive', metavar='PATH', help="specify a directory in which to archive output datafiles. If not specified, datafiles are not archived.")
-    
+
     (options, args) = parser.parse_args(argv)
-    
+
     try:
         project = load_project()
         parser.error("A project already exists in this directory.")
     except Exception:
         pass
-    
+
     if len(args) != 1:
         parser.error('You must supply a name.')
     project_name = args[0]
-    
+
     global _debug
     _debug = options.debug
 
@@ -125,7 +126,7 @@ def init(argv):
         repository = get_repository(options.repository)
         repository.checkout()
     else:
-        repository = get_working_copy().repository # if no repository is specified, we assume there is a working copy in the current directory.        
+        repository = get_working_copy().repository # if no repository is specified, we assume there is a working copy in the current directory.
 
     if options.executable:
         executable_path, executable_options = parse_executable_str(options.executable)
@@ -143,7 +144,7 @@ def init(argv):
         record_store = get_record_store(options.store)
     else:
         record_store = 'default'
-    
+
     if options.archive and options.archive.lower() != 'false':
         if options.archive.lower() == "true":
             options.archive = ".smt/archive"
@@ -179,7 +180,7 @@ def configure(argv):
     parser.add_option('-m', '--main', help="the name of the script that would be supplied on the command line if running the simulator normally, e.g. init.hoc.")
     parser.add_option('-c', '--on-changed', help="may be 'store-diff' or 'error': the action to take if the code in the repository or any of the dependencies has changed. Defaults to 'error'", choices=['store-diff', 'error'])
     parser.add_option('-A', '--archive', metavar='PATH', help="specify a directory in which to archive output datafiles. If not specified, or if 'false', datafiles are not archived.")
- 
+
     (options, args) = parser.parse_args(argv)
     if len(args) != 0:
         parser.error('configure does not take any arguments')
@@ -241,11 +242,11 @@ def run(argv):
       The list of arguments will be passed on to the simulation/analysis script.
       It should normally contain at least the name of a parameter file, but
       can also contain input files, flags, etc.
-      
+
       If the parameter file should be in a format that Sumatra understands (see
       documentation), then the parameters will be stored to allow future
       searching, comparison, etc. of records.
-      
+
       For convenience, it is possible to specify a file with default parameters
       and then specify those parameters that are different from the default values
       on the command line with any number of param=value pairs (note no space
@@ -261,9 +262,9 @@ def run(argv):
     parser.add_option('-n', '--num_processes', metavar='N', type="int",
                       help="run a distributed computation on N processes using MPI. If this option is not used, or if N=0, a normal, serial simulation/analysis is run.")
     parser.add_option('-t', '--tag', help="tag you want to add to the project")
-    
+
     (options, args) = parser.parse_args(argv)
-    
+
     project = load_project()
     parameters, input_data, script_args = parse_arguments(args, project.input_datastore)
     if len(parameters) == 0:
@@ -288,7 +289,7 @@ def run(argv):
     reason = options.reason or ''
     if reason:
         reason = reason.strip('\'"')
-    
+
     label = options.label
     try:
         run_label = project.launch(parameters, input_data, script_args,
@@ -321,7 +322,7 @@ def list(argv):
                       help="FMT can be 'text' (default) or 'html'.")
     (options, args) = parser.parse_args(argv)
     tags = args
-    
+
     project = load_project()
     print project.format_records(tags=tags, mode=options.mode, format=options.format)
 
@@ -340,11 +341,11 @@ def delete(argv):
                       help="interpret LIST as containing tags. Records with any of these tags will be deleted.")
     parser.add_option('-d', '--data', action='store_true',
                       help="also delete any data associated with the record(s).")
-                      
+
     (options, args) = parser.parse_args(argv)
     if len(args) < 1:
         parser.error('Please specify a record or list of records to be deleted.')
-        
+
     project = load_project()
     if options.tag:
         for tag in args:
@@ -358,7 +359,7 @@ def delete(argv):
                 project.delete_record(label, delete_data=options.data)
             except Exception: # could be KeyError or DoesNotExist: should create standard NoSuchRecord or RecordDoesNotExist exception
                 warnings.warn("Could not delete record '%s' because it does not exist" % label)
-            
+
 def comment(argv):
     """Add a comment to an existing record."""
     usage = "%prog comment [options] [LABEL] [COMMENT]"
@@ -385,11 +386,11 @@ def comment(argv):
         f = open(comment, 'r')
         comment = f.read()
         f.close()
-        
+
     project = load_project()
     label = label or project.most_recent().label
     project.add_comment(label, comment)
-    
+
 def tag(argv):
     """Tag, or remove a tag, from a record or records."""
     usage = "%prog tag [options] TAG [LIST]"
@@ -461,7 +462,7 @@ def repeat(argv):
     else:
         msg = "The new record exactly matches the original."
     print msg
-    project.add_comment(new_label, msg)    
+    project.add_comment(new_label, msg)
 
 def diff(argv):
     """Show the differences, if any, between two records."""
@@ -480,10 +481,10 @@ def diff(argv):
     label1, label2 = args
     if options.ignore is None:
         options.ignore = []
-    
+
     project = load_project()
     print project.show_diff(label1, label2, mode=options.mode, ignore_filenames=options.ignore)
-    
+
 def help(argv):
     usage = "%prog help [CMD]"
     description = dedent("""Get help on an %prog command.""")
@@ -498,7 +499,7 @@ def help(argv):
         func(['--help'])
     except KeyError:
         parser.error('"%s" is not an smt command.' % cmd)
-    
+
 def upgrade(argv):
     usage = "%prog upgrade"
     description = dedent("""\
@@ -509,10 +510,10 @@ def upgrade(argv):
     (options, args) = parser.parse_args(argv)
     if len(args) != 0:
         parser.error('%prog upgrade does not take any arguments.')
-    
+
     import shutil
     from datetime import datetime
-    backup_dir = ".smt_backup_%s" % datetime.now().strftime("%Y%m%d%H%M%S")
+    backup_dir = ".smt_backup_%s" % datetime.now().strftime(TIMESTAMP_FORMAT)
     shutil.move(".smt", backup_dir)
     # upgrade the project data
     os.mkdir(".smt")
@@ -559,7 +560,7 @@ def sync(argv):
     parser = OptionParser(usage=usage,
                           description=description)
     (options, args) = parser.parse_args(argv)
-    
+
     if len(args) == 2:
         store1 = get_record_store(args[0])
         store2 = get_record_store(args[1])
@@ -571,7 +572,7 @@ def sync(argv):
         collisions = store1.sync(store2, project.name)
     else:
         parser.error('%prog sync requires either one or two arguments.')
-    
+
     if collisions:
         print "Synchronization incomplete: there are two records with the same name for the following: %s" % ", ".join(collisions)
         sys.exit(1)

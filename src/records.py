@@ -19,6 +19,8 @@ import getpass
 from operator import or_
 from formatting import get_formatter
 import dependency_finder
+from sumatra.core import TIMESTAMP_FORMAT
+
 
 def assert_equal(a, b, msg=''):
     assert a == b, "%s: %s %s != %s %s" % (msg, a, type(a), b, type(b))
@@ -30,15 +32,15 @@ class MissingInformationError(Exception):
 
 class Record(object):
     """
-    
+
     """
-    
+
     def __init__(self, executable, repository, main_file, version, launch_mode,
                  datastore, parameters={}, input_data=[], script_arguments='',
                  label=None, reason='', diff='', user='', on_changed='error',
                  input_datastore=None, stdout_stderr='Not launched.'):
         self.timestamp = datetime.now() # might need to allow for this to be set as argument to allow for distributed/batch simulations on machines with out-of-sync clocks
-        self.label = label or self.timestamp.strftime("%Y%m%d-%H%M%S")
+        self.label = label or self.timestamp.strftime(TIMESTAMP_FORMAT)
         assert len(self.label) > 0
         self.reason = reason
         self.duration = None
@@ -59,7 +61,7 @@ class Record(object):
         self.user = user
         self.on_changed = on_changed
         self.stdout_stderr = stdout_stderr
-    
+
     def register(self, working_copy):
         """Record information about the environment."""
         # Check the code hasn't changed and the version is correct
@@ -79,11 +81,11 @@ class Record(object):
         # if self.on_changed is 'error', should check that all the dependencies have empty diffs and raise an UncommittedChangesError otherwise
         # Record platform information
         self.platforms = self.launch_mode.get_platform_information()
-    
+
     def run(self, with_label=False):
         """
         Launch the simulation or analysis.
-        
+
         with_label - adds the record label either to the parameter file
                      (with_label="parameters") or to the end of the command
                      line (with_label="cmdline"), and appends the label to the
@@ -131,29 +133,29 @@ class Record(object):
             print "Data keys are", self.output_data
         else:
             print "No data produced."
-    
+
     def __repr__(self):
         return "Record #%s" % self.label
-    
+
     def describe(self, format='text', mode='long'):
         formatter = get_formatter(format)([self])
         return formatter.format(mode)
-    
+
     def __ne__(self, other):
         return bool(self.difference(other))
-    
+
     def __eq__(self, other):
         return not self.__ne__(other)
-    
+
     def difference(self, other_record, ignore_mimetypes=[], ignore_filenames=[]):
         """
         Determine the difference between this computational experiment and
         another (code, platform, results, etc.).
-        
+
         Return a RecordDifference object.
         """
         return RecordDifference(self, other_record, ignore_mimetypes, ignore_filenames)
-    
+
     def delete_data(self):
         """
         Delete any data files associated with this record.
@@ -164,16 +166,16 @@ class Record(object):
 
 class RecordDifference(object):
     """Represents the difference between two Record objects."""
-    
+
     ignore_mimetypes = [] #r'image/\w+', r'video/\w+']
     ignore_filenames = [r'\.log', r'^log']
-    
+
     def __init__(self, recordA, recordB,
                  ignore_mimetypes=[],
                  ignore_filenames=[]):
         self.recordA = recordA
         self.recordB = recordB
-        assert not isinstance(ignore_mimetypes, basestring) # catch a 
+        assert not isinstance(ignore_mimetypes, basestring) # catch a
         assert not isinstance(ignore_filenames, basestring) # common error
         self.ignore_mimetypes += ignore_mimetypes
         self.ignore_filenames += ignore_filenames
@@ -192,12 +194,12 @@ class RecordDifference(object):
         #self.datastore = datastore
         #self.output_data = None
         self.diff_differs = recordA.diff != recordB.diff
-    
+
     def __nonzero__(self):
         """
         Return True if there are differences in executable, code, parameters or
         output data between the records, otherwise return False.
-        
+
         Differences in launch mode or platform are not counted, since those
         don't in principle make it a different experiment (they may do in
         practice, but then the output data will be different).
@@ -205,7 +207,7 @@ class RecordDifference(object):
         return reduce(or_, (self.executable_differs, self.code_differs,
                             self.input_data_differ, self.script_arguments_differ,
                             self.parameters_differ, self.data_differs))
-    
+
     def __repr__(self):
         s = "RecordDifference(%s, %s):" % (self.recordA.label, self.recordB.label)
         if self.executable_differs:
@@ -221,17 +223,17 @@ class RecordDifference(object):
         if self.script_arguments_differ:
             s += 'S'
         return s
-    
+
     @property
     def code_differs(self):
         return reduce(or_, (self.repository_differs, self.main_file_differs,
                             self.version_differs, self.diff_differs,
                             self.dependencies_differ))
-    
+
     @property
     def dependencies_differ(self):
         return set(self.recordA.dependencies) != set(self.recordB.dependencies)
-    
+
     @property
     def dependency_differences(self):
         depsA = {}
@@ -251,7 +253,7 @@ class RecordDifference(object):
             if name not in depsA:
                 diffs[name] = (None, depsB[name])
         return diffs
-    
+
     def _list_datakeys(self):
         keys = {self.recordA.label: {}, self.recordB.label: {}}
         for rec in self.recordA, self.recordB:
@@ -270,7 +272,7 @@ class RecordDifference(object):
                 if not ignore:
                     keys[rec.label][name] = key
         return keys
-                    
+
     @property
     def data_differs(self):  # rename to "output_data_differs"
         keys = self._list_datakeys()
@@ -284,7 +286,7 @@ class RecordDifference(object):
         for filename in filenamesA:
             differs[filename] = keys[self.recordA.label][filename].digest != keys[self.recordB.label][filename].digest # doesn't account for same-after-sorting
         return reduce(or_, differs.values())
-        
+
     @property
     def data_differences(self): # rename to "output_data_differences"
         keys = self._list_datakeys()
@@ -301,11 +303,10 @@ class RecordDifference(object):
             if name not in B:
                 diffs[name] = (None, B[name])
         return diffs
-    
+
     @property
     def launch_mode_differences(self):
         if self.launch_mode_differs:
             return self.recordA.launch_mode, self.recordB.launch_mode
         else:
             return None
-        

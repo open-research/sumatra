@@ -3,7 +3,10 @@ Unit tests for the sumatra.versioncontrol package
 """
 
 from __future__ import with_statement
-import unittest2 as unittest
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
 import os
 import pickle
 import tempfile
