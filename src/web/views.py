@@ -36,11 +36,6 @@ class RecordForm(SearchForm):
     class Meta:
         model = models.Record
         fields = ('label', 'tags', 'reason')
-        '''
-        widgets = {
-            'reason': forms.Textarea(attrs={'id': 'ireason'})
-        }
-        '''
     
 def search(request, project):
     if request.method == 'GET':
@@ -144,6 +139,18 @@ def list_tagged_records(request, project, tag):
                               template_name="record_list.html",
                               extra_context={'project_name': project })
 
+def set_tags(request, project):
+    records_to_settags = request.POST.get('selected_labels', False)
+    if records_to_settags: # case of submit request
+        records_to_settags = records_to_settags.split(',')
+        records = models.Record.objects.filter(label__in=records_to_settags, project__id=project)
+        for record in records:
+            form = RecordUpdateForm(request.POST, instance=record)
+            if form.is_valid():
+                form.save()
+        return HttpResponseRedirect('.')
+    return render_to_response('set_tag.html', {'form':form})
+
 def record_detail(request, project, label):
     label = unescape(label)
     record = models.Record.objects.get(label=label, project__id=project)
@@ -151,7 +158,7 @@ def record_detail(request, project, label):
     if request.method == 'POST':
         if request.POST.has_key('delete'):
             record.delete() # need to add option to delete data
-            return HttpResponseRedirect('/')
+            return HttpResponseRedirect('.')
         else:
             form = RecordUpdateForm(request.POST, instance=record)
             if form.is_valid():

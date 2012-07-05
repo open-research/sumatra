@@ -1180,10 +1180,39 @@ input[type="radio"]:checked+label{ font-weight: bold }
   position:relative;
 }
 
-#d-delete{
+#d-delete, #d-tags{
   float:left;
   position:relative;
   margin-left: 30px;
   cursor:pointer;
 }
 
+#form-tags label,
+#form-tags input#id_label,
+#form-tags textarea#id_reason
+{
+  display: none;
+}
+
+#form-tags{
+  margin-top: 10px;
+}
+
+span.label{
+  margin-right:5px;
+  float:left;
+  margin-top:5px;
+}
+
+#list-labels{
+  margin-top: 10px;
+  overflow: auto;
+}
+
+#form-tags #id_tags{
+  width:90%;
+}
+
+#arrLabls{
+  display: none;
+}

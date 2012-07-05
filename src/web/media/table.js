@@ -8,6 +8,26 @@ $(document).ready(function(){
         placement: 'bottom',
         trigger: 'hover'
     });
+
+    $('#d-tags').live('click', function(){ // click on the 'edit tags' button
+        $div_list = $('#list-labels').empty();
+        var $selected_labels = new Array();
+        var $selected_tags = new Array();
+        $('.record.ui-selected').each(function(){
+            var $labl = $(this).find('#label-t').html();
+            $(this).find('#tag-t a').each(function(){
+                var $tag = $(this).html();
+                if ($selected_tags.indexOf($tag) == -1) $selected_tags.push($tag);    
+            });             
+            $selected_labels.push($labl);
+            $div_list.append('<span class="label">'+ $labl +'</span>');  
+        });
+        //alert($selected_tags);
+        $('#form-tags #id_tags').val($selected_tags.join(', '));
+        var $selected_labels = $selected_labels.join(',');
+        $('#arrLabls').append($selected_labels); // as soon as form is submitted we'll read this div to retrieve all the labels
+    });
+
     $('#ol-content').selectable({
             stop: function() {
                 var result = $( "#testdiv" ).empty();
@@ -16,10 +36,12 @@ $(document).ready(function(){
                 result.append(nbSelected);
                 $head_table.empty();
                 $head_table.append('<div id = "d-nbrec"></div>')
-                           .append('<div id = "d-delete" data-toggle="modal" href="#deleteModal">delete records</div>');
+                           .append('<div id = "d-delete" data-toggle="modal" href="#deleteModal">delete records</div>')
+                           .append('<div id = "d-tags" data-toggle="modal" href="#setTagsModal">edit tags</div>');
                 $('#d-nbrec').html(nbSelected + ' records');
             }
     });
+
     $('.CodeMirror').css('opacity','1.0');
 
     $('.page').not('.inactive').click(function(){

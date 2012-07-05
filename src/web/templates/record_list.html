@@ -57,6 +57,7 @@
 <div id ='innerContent'>
     {% include "content.html" %}  
 </div> 
+{% include "set_tag.html" %}  <!-- modal window for the selected tags -->
 <script type = 'text/javascript'>
 $(document).ready(function(){ 
     /*
@@ -85,6 +86,10 @@ $(document).ready(function(){
 
     $('#search_but').click(function(){
         $('#search_form').trigger('submit');
+    });
+
+    $('#saveTags').click(function(){
+        $('#form-tags').trigger('submit');
     });
             
     nbRecPerPage_changed = false;
@@ -363,8 +368,8 @@ $(document).ready(function(){
         })
     }); 
 
-    $('#n-delRec').click(function(){
-        $('#deleteModal').modal('hide');
+    $('.cancel').click(function(){
+        $('.modal').modal('hide');
     });
     $('#y-delRec').click(function(){
         var succ = false;
@@ -375,7 +380,7 @@ $(document).ready(function(){
         $.ajax({
             type: 'POST',
             url: 'delete/',
-            data: {'delete':deleteArr,'delete_data':true}, //presule that user always wand to delete data
+            data: {'delete':deleteArr,'delete_data':true}, //presume that user always want to delete data
             success:function(data){
                 succ = true;
             },
@@ -433,9 +438,10 @@ $(document).ready(function(){
   </div>
   <div class="modal-footer">
         <a id="y-delRec" class="btn btn-primary">Yes</a>
-        <a id="n-delRec" class="btn">No</a>
+        <a class="cancel btn">No</a>
   </div>
-</div>   
+</div> 
+
 <div class="modal" id="setModal">
   <a class="close s-close" id='close_set'>&times;</a>
   <div class="modal-header">
