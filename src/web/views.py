@@ -35,7 +35,8 @@ class SearchForm(forms.ModelForm):
 class RecordForm(SearchForm):
     executable = forms.ModelChoiceField(queryset=models.Executable.objects.all(), empty_label=None)
     repository = forms.ModelChoiceField(queryset=models.Repository.objects.all(), empty_label=None)
-    timestamp = forms.CharField(label="Date")
+    timestamp = forms.DateTimeField(label="Date")
+
     class Meta:
         model = models.Record
         fields = ('label', 'tags', 'reason', 'executable', 'repository',
@@ -46,22 +47,24 @@ def search(request, project):
         web_settings = load_project().web_settings
         nb_per_page = int(load_project().web_settings['nb_records_per_page'])
         form = RecordForm(request.GET) 
+
         if form.is_valid():
             labels_list = {}
             request_data = form.cleaned_data
+            results =  models.Record.objects.all()
             for key, val in request_data.iteritems():
-                if 'Executable' in str(type(val)):
-                    val = val.name
-                elif 'Repository' in str(type(val)):
-                    val = val.url
-                labels_list[key] = [x.strip() for x in val.split(',')] 
-            results =  models.Record.objects.filter(reduce(lambda x, y: x | y, [Q(label__icontains = word) for word in labels_list['label']]),
-                                                    reduce(lambda x, y: x | y, [Q(tags__icontains = word) for word in labels_list['tags']]),
-                                                    reduce(lambda x, y: x | y, [Q(reason__icontains = word) for word in labels_list['reason']]),
-                                                    executable__name = labels_list['executable'][0],
-                                                    repository__url = labels_list['repository'][0],
-                                                    main_file__icontains = labels_list['main_file'][0],
-                                                    script_arguments__icontains = labels_list['script_arguments'][0])
+                if key in ['label','tags','reason', 'main_file', 'script_arguments']:
+                    field_list = [x.strip() for x in val.split(',')] 
+                    results =  results.filter(reduce(lambda x, y: x | y, [Q(**{"%s__contains" % key: word}) for word in field_list])) # __icontains (?)
+                elif isinstance(val, date):
+                    results =  results.filter(timestamp__year = val.year,
+                                              timestamp__month = val.month, 
+                                              timestamp__day = val.day)
+                elif isinstance(val, models.Executable):
+                    results =  results.filter(executable__name = val.name)
+                elif isinstance(val, models.Repository):
+                    results =  results.filter(repository__url = val.url)
+                              
             return list_detail.object_list(request,
                                        queryset=results,
                                        template_name="record_list.html",

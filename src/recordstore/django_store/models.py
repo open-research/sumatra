@@ -192,7 +192,7 @@ class PlatformInformation(BaseModel):
 
 
 class Record(BaseModel):
-    label = models.CharField(max_length=100, unique=True) # make this a SlugField?
+    label = models.CharField(max_length=100, unique=False) # make this a SlugField?
     db_id = models.AutoField(primary_key=True) # django-tagging needs an integer as primary key - see http://code.google.com/p/django-tagging/issues/detail?id=15
     reason = models.TextField(blank=True)
     duration = models.FloatField(null=True)
