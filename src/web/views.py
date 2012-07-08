@@ -34,9 +34,12 @@ class SearchForm(forms.ModelForm):
             
 class RecordForm(SearchForm):
     executable = forms.ModelChoiceField(queryset=models.Executable.objects.all(), empty_label=None)
+    repository = forms.ModelChoiceField(queryset=models.Repository.objects.all(), empty_label=None)
+    timestamp = forms.CharField(label="Date")
     class Meta:
         model = models.Record
-        fields = ('label', 'tags', 'reason', 'executable')
+        fields = ('label', 'tags', 'reason', 'executable', 'repository',
+                  'main_file', 'script_arguments', 'timestamp')
     
 def search(request, project):
     if request.method == 'GET':
@@ -47,13 +50,18 @@ def search(request, project):
             labels_list = {}
             request_data = form.cleaned_data
             for key, val in request_data.iteritems():
-                if type(val) is not unicode: # like in case of executable which is an object. See RecordForm
+                if 'Executable' in str(type(val)):
                     val = val.name
+                elif 'Repository' in str(type(val)):
+                    val = val.url
                 labels_list[key] = [x.strip() for x in val.split(',')] 
             results =  models.Record.objects.filter(reduce(lambda x, y: x | y, [Q(label__icontains = word) for word in labels_list['label']]),
                                                     reduce(lambda x, y: x | y, [Q(tags__icontains = word) for word in labels_list['tags']]),
                                                     reduce(lambda x, y: x | y, [Q(reason__icontains = word) for word in labels_list['reason']]),
-                                                    executable__name = labels_list['executable'][0])
+                                                    executable__name = labels_list['executable'][0],
+                                                    repository__url = labels_list['repository'][0],
+                                                    main_file__icontains = labels_list['main_file'][0],
+                                                    script_arguments__icontains = labels_list['script_arguments'][0])
             return list_detail.object_list(request,
                                        queryset=results,
                                        template_name="record_list.html",

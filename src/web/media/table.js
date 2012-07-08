@@ -22,11 +22,11 @@ $(document).ready(function(){
             $selected_labels.push($labl);
             $div_list.append('<span class="label">'+ $labl +'</span>');  
         });
-        //alert($selected_tags);
         $('#form-tags #id_tags').val($selected_tags.join(', '));
         var $selected_labels = $selected_labels.join(',');
         $('#arrLabls').append($selected_labels); // as soon as form is submitted we'll read this div to retrieve all the labels
     });
+
 
     $('#ol-content').selectable({
             stop: function() {

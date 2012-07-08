@@ -69,7 +69,7 @@ class Executable(BaseModel):
 
     def __unicode__(self):
         return self.name
-        
+
     def to_sumatra(self):
         cls = programs.registered_program_names.get(self.name, programs.Executable)
         ex = cls(self.path, self.version, self.options)
@@ -101,6 +101,9 @@ class Repository(BaseModel):
     # the following should be unique together.
     type = models.CharField(max_length=20)
     url = models.URLField(verify_exists=False)
+
+    def __unicode__(self):
+        return self.url
     
     def to_sumatra(self):
         for m in versioncontrol.vcs_list:

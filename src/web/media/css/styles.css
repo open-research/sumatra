@@ -481,6 +481,11 @@ li a.p-inac:hover{
     resize: vertical;
 }
 
+#id_script_arguments{
+    height:25px;
+    resize: vertical;
+}
+
 #search_form p label{
     float:left;
     width: 100px;
@@ -1188,9 +1193,12 @@ input[type="radio"]:checked+label{ font-weight: bold }
 }
 
 #form-tags label,
-#form-tags input#id_label,
-#form-tags textarea#id_reason,
-#form-tags #id_executable
+#form-tags #id_label,
+#form-tags textarea,
+#form-tags #id_executable,
+#form-tags select,
+#form-tags #id_main_file,
+#form-tags #id_timestamp
 {
   display: none;
 }
@@ -1216,4 +1224,8 @@ span.label{
 
 #arrLabls{
   display: none;
+}
+
+#ui-datepicker-div{
+  z-index:2000;
 }

@@ -82,7 +82,13 @@ $(document).ready(function(){
             var $label = $parent.find('.Label-t').html();
             window.open(["/{{project_name}}", $label, ""].join('/'));
         }
-    }); */
+    }); 
+    
+    $('input#id_timestamp').click(function(){
+        alert('here');
+    });*/
+
+    $( "#id_timestamp" ).datepicker();
 
     $('#search_but').click(function(){
         $('#search_form').trigger('submit');
