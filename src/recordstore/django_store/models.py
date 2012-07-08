@@ -67,6 +67,9 @@ class Executable(BaseModel):
     version = models.CharField(max_length=20)
     options = models.CharField(max_length=50)
 
+    def __unicode__(self):
+        return self.name
+        
     def to_sumatra(self):
         cls = programs.registered_program_names.get(self.name, programs.Executable)
         ex = cls(self.path, self.version, self.options)

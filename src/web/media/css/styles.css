@@ -1189,7 +1189,8 @@ input[type="radio"]:checked+label{ font-weight: bold }
 
 #form-tags label,
 #form-tags input#id_label,
-#form-tags textarea#id_reason
+#form-tags textarea#id_reason,
+#form-tags #id_executable
 {
   display: none;
 }

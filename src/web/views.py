@@ -33,9 +33,10 @@ class SearchForm(forms.ModelForm):
             self.fields[key].required = False
             
 class RecordForm(SearchForm):
+    executable = forms.ModelChoiceField(queryset=models.Executable.objects.all(), empty_label=None)
     class Meta:
         model = models.Record
-        fields = ('label', 'tags', 'reason')
+        fields = ('label', 'tags', 'reason', 'executable')
     
 def search(request, project):
     if request.method == 'GET':
@@ -46,10 +47,13 @@ def search(request, project):
             labels_list = {}
             request_data = form.cleaned_data
             for key, val in request_data.iteritems():
+                if type(val) is not unicode: # like in case of executable which is an object. See RecordForm
+                    val = val.name
                 labels_list[key] = [x.strip() for x in val.split(',')] 
             results =  models.Record.objects.filter(reduce(lambda x, y: x | y, [Q(label__icontains = word) for word in labels_list['label']]),
                                                     reduce(lambda x, y: x | y, [Q(tags__icontains = word) for word in labels_list['tags']]),
-                                                    reduce(lambda x, y: x | y, [Q(reason__icontains = word) for word in labels_list['reason']]))
+                                                    reduce(lambda x, y: x | y, [Q(reason__icontains = word) for word in labels_list['reason']]),
+                                                    executable__name = labels_list['executable'][0])
             return list_detail.object_list(request,
                                        queryset=results,
                                        template_name="record_list.html",
