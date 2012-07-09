@@ -18,3 +18,26 @@
         <a class="cancel btn">Cancel</a>
   </div>
 </div>
+
+<!-- compare simulations window -->
+<div class="modal" id="compareSim">
+  <div class="modal-header">
+        <a class="close" data-dismiss="modal">&times;</a>
+        <h3>Comparison of simulations</h3>
+  </div>
+  <div class="modal-body" id='body-w-tags'>
+      <div id='list-labels'></div>
+      <div>
+            <form id='form-tags' method='POST' action='/{{project_name}}/settags'>
+              {{form}}
+              <p class="help-block" style='margin-top:-5px'>specify the tags for the selected records</p>
+              <textarea name='selected_labels' id='arrLabls'></textarea>
+            </form>
+      </div>
+  </div>
+  <div class="modal-footer">
+        <a id="saveTags" class="btn btn-primary">Save</a>
+        <a class="cancel btn">Cancel</a>
+  </div>
+</div>
+

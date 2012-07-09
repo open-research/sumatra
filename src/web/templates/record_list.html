@@ -60,10 +60,7 @@
 {% include "set_tag.html" %}  <!-- modal window for the selected tags -->
 <script type = 'text/javascript'>
 $(document).ready(function(){ 
-    /*
-    $(document).click(function(){ // deselect all the rows of click is out of table
-        $('.record').removeClass('ui-selected');
-    }); */
+
 
     $('input[type="radio"]').attr('checked', false);
 
@@ -75,18 +72,7 @@ $(document).ready(function(){
     if ($(location).attr('href').indexOf('?n=true') != -1){
         $('#table_out tbody tr:eq(0) td').effect("highlight", {}, 15000); // not the right way
     }
-    /*
-    $('.simulations td').live('click', function(){
-        if (!$(this).children().is('a')){
-            $parent = $(this).parent();
-            var $label = $parent.find('.Label-t').html();
-            window.open(["/{{project_name}}", $label, ""].join('/'));
-        }
-    }); 
-    
-    $('input#id_timestamp').click(function(){
-        alert('here');
-    });*/
+
 
     $( "#id_timestamp" ).datepicker();
 

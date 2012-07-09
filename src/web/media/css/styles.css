@@ -1185,7 +1185,7 @@ input[type="radio"]:checked+label{ font-weight: bold }
   position:relative;
 }
 
-#d-delete, #d-tags{
+#d-delete, #d-tags, #d-comp{
   float:left;
   position:relative;
   margin-left: 30px;
@@ -1228,4 +1228,16 @@ span.label{
 
 #ui-datepicker-div{
   z-index:2000;
+}
+
+#compareSim{
+  width:97%;
+  position: absolute;
+  margin-left:20px;
+  left:0px;
+  margin-top: 20px;
+  top:0px;
+  bottom: 0px;
+  margin-bottom: 20px;
+  max-height:100%;
 }

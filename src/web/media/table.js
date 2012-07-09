@@ -37,7 +37,8 @@ $(document).ready(function(){
                 $head_table.empty();
                 $head_table.append('<div id = "d-nbrec"></div>')
                            .append('<div id = "d-delete" data-toggle="modal" href="#deleteModal">delete records</div>')
-                           .append('<div id = "d-tags" data-toggle="modal" href="#setTagsModal">edit tags</div>');
+                           .append('<div id = "d-tags" data-toggle="modal" href="#setTagsModal">edit tags</div>')
+                           .append('<div id = "d-comp" data-toggle="modal" href="#compareSim">compare simulations</div>');
                 $('#d-nbrec').html(nbSelected + ' records');
             }
     });
