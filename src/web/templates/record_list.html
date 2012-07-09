@@ -535,4 +535,27 @@ $(document).ready(function(){
       </div> 
  </div>
  </div>
+
+
+ <!-- compare simulations window -->
+<div class="modal" id="compareSim">
+  <div class="modal-header">
+        <a class="close" data-dismiss="modal">&times;</a>
+        <h3>Comparison of simulations</h3>
+  </div>
+  <div class="modal-body" id='body-w-tags'>
+   <span>Click the records you would like to compare: </span><div id='alist-labels'></div>
+    <div id='sim-left'>
+        {% include "analysis_modal.html" %} 
+        
+    </div>
+    <div id='sim-right'>
+        {% include "analysis_modal.html" %} 
+    </div>
+  </div>
+  <!--div class="modal-footer">
+        <a id="saveTags" class="btn btn-primary">Save</a>
+        <a class="cancel btn">Cancel</a>
+  </div-->
+</div>
 {% endblock %}

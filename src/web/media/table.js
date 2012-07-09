@@ -10,7 +10,7 @@ $(document).ready(function(){
     });
 
     $('#d-tags').live('click', function(){ // click on the 'edit tags' button
-        $div_list = $('#list-labels').empty();
+        var $div_list = $('#list-labels').empty();
         var $selected_labels = new Array();
         var $selected_tags = new Array();
         $('.record.ui-selected').each(function(){
@@ -27,6 +27,23 @@ $(document).ready(function(){
         $('#arrLabls').append($selected_labels); // as soon as form is submitted we'll read this div to retrieve all the labels
     });
 
+    $('#d-comp').live('click', function(){ //click on the 'compare simulations' button
+        var $div_list = $('#alist-labels').empty();   // !!! create function. reapeat the code for #d-tags
+        var $selected_labels = new Array();
+        $('.record.ui-selected').each(function(){
+            var $labl = $(this).find('#label-t').html();           
+            $selected_labels.push($labl);
+            $div_list.append('<span class="label">'+ $labl +'</span>');  
+        });
+    }); 
+
+    $('#alist-labels span.label').live('click', function(){
+        if (!$(this).hasClass('label-success')) {
+            $(this).addClass('label-success');
+        }else{
+            $(this).removeClass('label-success');
+        }
+    });
 
     $('#ol-content').selectable({
             stop: function() {

@@ -1218,6 +1218,11 @@ span.label{
   overflow: auto;
 }
 
+#alist-labels{
+  overflow: auto;
+  margin-bottom: 20px;
+}
+
 #form-tags #id_tags{
   width:90%;
 }
@@ -1240,4 +1245,21 @@ span.label{
   bottom: 0px;
   margin-bottom: 20px;
   max-height:100%;
+}
+
+#sim-left{
+  width:50%;
+  /*background-color: red;*/
+  float:left;
+}
+
+#sim-right{
+  width: 50%;
+  height: 100%;
+  /*background-color: yellow;*/
+  float: right;
+}
+
+#alist-labels span.label:hover{
+  cursor:pointer;
 }
