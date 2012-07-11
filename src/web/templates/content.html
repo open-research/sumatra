@@ -42,6 +42,9 @@
 
 <div id = 'main_content'>
  <div id='head_t' class='nonselect'>
+        <input type="radio" id="repository" />
+        <label class='t-item head-item' id='l-repository' for="repository">Repository<span class='s-arrow'><span id='up' class='arr-s'>&#x25B2;</span><span id='down' class='arr-s'>&#x25BC;</span></span></label>
+
         <input type="radio" id="label" />
         <label class='t-item head-item' id='l-label' for="label">Label<span class='s-arrow'><span id='up' class='arr-s'>&#x25B2;</span><span id='down' class='arr-s'>&#x25BC;</span></span></label>
         
@@ -72,9 +75,6 @@
         <input type="radio" id="eversion" />
         <label id='l-eversion' class='t-item' for="eversion">Executable version<span class='s-arrow'><span id='up' class='arr-s'>&#x25B2;</span><span id='down' class='arr-s'>&#x25BC;</span></span></label>
         
-        <input type="radio" id="repository" />
-        <label class='t-item head-item' id='l-repository' for="repository">Repository<span class='s-arrow'><span id='up' class='arr-s'>&#x25B2;</span><span id='down' class='arr-s'>&#x25BC;</span></span></label>
-        
         <input type="radio" id="main" />
         <label class='t-item head-item' id='l-main' for="main">Main file<span class='s-arrow'><span id='up' class='arr-s'>&#x25B2;</span><span id='down' class='arr-s'>&#x25BC;</span></span></label>
         
@@ -87,6 +87,7 @@
     <ol id ='ol-content'>
     {% for record in object_list %}
         <li class='record {{settings.display_density}}'>
+            <div class='row-item' id='repository-t'>{{record.repository.url|cut:"repo"}}<div style='display:none'>{{record.repository.url}}</div></div>
             <div class='row-item' id='label-t'>{{record.label}}</div>
             {% if tag %}
                 <div class='row-item' id='tag-t'>{% for other_tag in record.tag_objects %}{% if tag == other_tag %}{{tag}} {% else %}<a href="/{{project_name}}/tag/{{other_tag.name}}/">{{other_tag.name}}</a> {% endif %}{% endfor %}</div>
@@ -101,7 +102,6 @@
             <div class='row-item' id='time-t'>{{record.timestamp|date:"H:i:s"}}</div>
             <div class='row-item' id='name-t'>{{record.executable.name}}</div>
             <div class='row-item' id='eversion-t'>{{record.executable.version}}</div>
-            <div class='row-item' id='repository-t'>{{record.repository.url|cut:"repo"}}<div style='display:none'>{{record.repository.url}}</div></div>
             <div class='row-item' id='main-t'><a class='id-script' href=''>{{record.main_file}}</a></div>
             <div class='row-item' id='version-t'>{{record.version|cut:"vers"}}{% if record.diff %}*{% endif %}<div style='display:none'>{{record.version}}</div></div>
             <div class='row-item' id='arguments-t'>{{record.script_arguments}}</div>

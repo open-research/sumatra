@@ -91,11 +91,11 @@ table .headerSortUp.purple,table .headerSortDown.purple{background-color:#e2d5f0
     top: 50px;
 }
 
-a.active_settings_row{
+a.active{
     background-color: rgb(234, 234, 234);
 }
 
-.dropdown-menu a.active_settings_row:hover{
+.dropdown-menu a.active:hover{
     background-color: rgb(234, 234, 234);
     color: #555555;
     cursor: default; 
@@ -405,6 +405,7 @@ a.active_settings_row{
 }
 #s_nbt{
     text-align:center;
+    display: none;
 }
 
 .page.gradient{
@@ -1158,11 +1159,11 @@ input[type="radio"]:checked+label{ font-weight: bold }
   cursor:pointer;
 }
 
-.record.condensed{
+.record.compact{
   line-height:14px;
 }
 
-.record.null{
+.record.comfortable{
   line-height: 32px;
   font-size: 14px;
 }
@@ -1278,10 +1279,10 @@ span.label{
   padding: 2px;
   position: relative;
   text-align: left;
-  background-color:  #ffffff;
+  background-color: #ffffff;
 }
 .control-group ol li.odd{
-  background-color:  #E4E4E4;
+  background-color: #E4E4E4;
 }
 
 .s_platform{

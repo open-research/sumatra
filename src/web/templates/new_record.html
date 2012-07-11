@@ -1,0 +1,32 @@
+<div class="modal" id="mod_newrec"> 
+    <div class='d-mod'>  
+        <div style='float:left;padding:3px 15px;position:absolute; margin-top:5px'><h3>new record</h3></div><a class="close s-close" id='close_newrec'>&times;</a>
+        <div style='position:absolute; margin-top:50px'>
+            <label class='control-label' for='mLabel'>Label</label> 
+            <div class='mod_input'>
+                <input id='mLabel' class='input-xlarge' type='text'>
+            </div>
+            <label class='control-label' for='mReason'>Reason</label> 
+            <div class='mod_input'>
+                <textarea id='mReason' class='input-xlarge' type='text'></textarea>
+            </div>
+            <label class='control-label' for='mTag'>Tag</label> 
+            <div class='mod_input'>
+                <input id='mTag' class='input-xlarge' type='text'>
+            </div>
+            <label class='control-label' for='mExec'>Executable path</label> 
+            <div class='mod_input'>
+                <input id='mExec' class='input-xlarge' type='text'>
+            </div>
+            <label class='control-label' for='mFile'>Main file</label> 
+            <div class='mod_input'>
+                <input id='mFile' class='input-xlarge' type='text'>
+            </div>
+            <label class='control-label' for='mArg'>Arguments</label> 
+            <div class='mod_input'>
+                <input id='mArg' class='input-xlarge' type='text'>
+                <a href='/{{project_name}}/?n=true'><button id='btn_run' class='btn btn-success btn-large' style='width:150px; display: block ;margin-left: auto; margin-right: auto;'>Run</button></a>
+            </div>
+        </div>
+    </div>
+</div>

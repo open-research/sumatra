@@ -1,0 +1,79 @@
+<div class="modal" id="setModal">
+  <a class="close s-close" id='close_set'>&times;</a>
+  <div class="modal-header">
+    <a class="close" data-dismiss="modal"></a>
+    <h3>Settings</h3>
+  </div>
+  <div class="modal-body">   
+    <ul class="nav nav-tabs"  id ='myTab'>
+      <li class="active"><a href="#first"  data-toggle="tab" >General</a></li>
+      <li><a href="#second"  data-toggle="tab" >Another option</a></li>
+    </ul>
+    
+    <div class="tab-content">
+      <div class="tab-pane active" id="first">
+        <div id = 'tab_general_text'><p><b>Table:</b></p></div>
+        <div id = 'tab_general_content'>
+            <label class="checkbox">
+                <input type="checkbox"  id='Repository' checked="checked" class='check-item'> Repository
+            </label>
+            <label class="checkbox">
+                <input type="checkbox" id='Label' checked="checked" class='check-item'> Label
+            </label>
+            <label class="checkbox">
+                <input type="checkbox" id='Tag' checked="checked" class='check-item'> Tag
+            </label>
+            <label class="checkbox">
+                <input type="checkbox" id='Reason' checked="checked"  class='check-item'> Reason
+            </label>
+            <label class="checkbox">
+                <input type="checkbox" id='Outcome' checked="checked"  class='check-item'> Outcome
+            </label>
+            <label class="checkbox">
+                <input type="checkbox" id='Duration' checked="checked" class='check-item'> Duration
+            </label>
+            <label class="checkbox">
+                <input type="checkbox" id='Processes' checked="checked" class='check-item'> Processes
+            </label>
+            <label class="checkbox">
+                <input type="checkbox" id='Name' checked="checked" class='check-item'> Executable name
+            </label>
+            <label class="checkbox">
+                <input type="checkbox" id='Version' checked="checked" class='check-item'> Executable Version
+            </label>
+            <label class="checkbox">
+                <input type="checkbox" id='Date' checked="checked"  class='check-item'> Date
+            </label>
+            <label class="checkbox">
+                <input type="checkbox" id='Time' checked="checked" class='check-item'> Time
+            </label>
+            <label class="checkbox">
+                <input type="checkbox" id='Script' checked="checked"  class='check-item'> Script
+            </label>
+            <label class="checkbox">
+                 <input type="checkbox" id='Main_file' class='check-item' checked="checked"> Script main file
+            </label>
+            <label class="checkbox">
+                <input type="checkbox" id='S-Version' class='check-item' checked="checked"> Script version
+            </label>
+            <label class="checkbox">
+                <input type="checkbox" id='Arguments' class='check-item' checked="checked" > Script arguments
+            </label>
+            <label class="checkbox">
+                <input type="checkbox" id = 'check_selectAll' checked="checked"><b style='font-size:14px'>Select all</b>
+            </label>
+              <div style='float:left; padding:8px; padding-left:0px'>Number of records per page:</div>
+                    <div id="input_nrec">{{settings.nb_records_per_page}}</div>
+                    <input id='s_nbt' class='span1' type='text' style='float:left;margin-bottom:0px' value='{{settings.nb_records_per_page}}'> 
+              </div>
+        </div>
+      <div class="tab-pane" id="second">
+           some other settings...     
+      </div>
+    </div>
+      <div class="modal-footer">
+        <a class="btn btn-primary" id='save_set'>Save changes</a>
+        <a class="btn" id='close_set'>Close</a>
+      </div> 
+ </div>
+ </div>

@@ -35,526 +35,115 @@
                 </ul>
                 <ul class='nav pull-right' style='margin-right:5px'>
                     <li class='divider-vertical'></li>   
-                    <li class='dropdown'><a id='li_settings' class='dropdown-toggle' data-toggle='dropdown' href='#'>
+                    <li class='dropdown'><a id='li_settings' class='dropdown-toggle' data-toggle='dropdown' href=''>
                     <i class="icon-cog" style='margin-top:8px'></i> Settings<b class='caret'></b></a>
                         <ul class='dropdown-menu' id = 'dropdown_menu'>
                             <li><a href="#" id='settings_density'>Display density:</a></li> 
-                            <li><a href="#" class='menu-rsettigns' id='button_null'>Comfortable</a></li>
-                            <li><a href="#" class='menu-rsettigns' id='button_condensed'>Compact</a></li>
+                            <li><a href="#" class='menu-rsettigns {% if "comfortable" in settings.display_density %}active{% endif %}' id='comfortable'>Comfortable</a></li>
+                            <li><a href="#" class='menu-rsettigns {% if "compact" in settings.display_density %}active{% endif %}' id='compact'>Compact</a></li>
                             <li class="divider"></li>
                             <li><a id='button_settings' class='menu-rsettigns' data-toggle="modal" href="#setModal">Settings</a></li>
                         </ul>
                     </li>                    
-                    <li class='divider-vertical'></li>   
+                    <li class='divider-vertical'></li>     
                 </ul> 
         </div>
     </div>
-</div> 
-
+</div>
 {% endblock %}
  
 {% block content %} 
 <div id ='innerContent'>
-    {% include "content.html" %}  
+    {% include "content.html" %}       <!-- the content of the table + some javascript -->
 </div> 
-{% include "set_tag.html" %}  <!-- modal window for the selected tags -->
+{% include "set_tag.html" %}           <!-- 'set tags for selected records' window -->
+{% include "settings_window.html" %}   <!-- 'settings' popup window -->
+{% include "new_record.html" %}        <!-- 'new record' popup window -->
+{% include "delete_record.html" %}     <!-- 'delete selected records' popup window -->
+{% include "comparison_window.html" %} <!-- 'compare selected records' popup window -->
+
 <script type = 'text/javascript'>
 $(document).ready(function(){ 
+    nbRecPerPage_changed = false;  // true only when user change settings (number of records per one page)
 
+    // initialization of all modal popup-windows (settings, new record, set tags, compare records) and hide them
+    $('.modal').modal().modal('hide');
 
-    $('input[type="radio"]').attr('checked', false);
-
-    $('.t-item').click(function(){
-        var $checked = $('input[type="radio"]:checked');
-        var idrow = ['','.', $(this).attr('id').split('-')[1]].join('');
-    });
-        
-    if ($(location).attr('href').indexOf('?n=true') != -1){
-        $('#table_out tbody tr:eq(0) td').effect("highlight", {}, 15000); // not the right way
-    }
-
-
+    // initialization of jquery-ui datepicker used in the seach drop-down list
     $( "#id_timestamp" ).datepicker();
 
-    $('#search_but').click(function(){
-        $('#search_form').trigger('submit');
-    });
-
-    $('#saveTags').click(function(){
-        $('#form-tags').trigger('submit');
-    });
-            
-    nbRecPerPage_changed = false;
-    $('.modal').modal().modal('hide');
-    
-    $('#input_nrec, #s_nbt').click(function(event){  
-        nbRecPerPage_changed = true;
-        event.stopPropagation();
-        $(this).css('display','none');
-        $('#s_nbt').css('display','block');     
-    });
-    
-    $('html').click(function(){ 
-        var $val = $('#s_nbt').val(); 
-        if ($val > 0){    
-            $('#input_nrec').css('display','block').html($val);
-            $('#s_nbt').css('display','none');
-            $('#s_nbt').removeClass('err_border');
-            if ($('#myTab li.active a').attr('href') == '#second'){
-                $('#save_set').removeClass('disabled');
-            }
-        }else{
-            $('#s_nbt').addClass('err_border');
-            $('#save_set').addClass('disabled');
-        }   
-    });
-
-    $('#btn_run, #close_newrec').click(function(e){
-        $('#mod_newrec').modal('hide');    
-    });
-
-     // new record popup:
-     $(document).on('keyup keydown', function(e){
-      if (e.which == 13){
-            if ($('#mod_newrec').css('display')=='block'){  // new record popup
-                if (e.type == "keydown"){
-                    $('#btn_run').addClass('active');
-                    e.preventDefault();
-                }else{
-                    $('#btn_run').removeClass('active');
-                    $('#btn_run').trigger('click');
-                }  
-            }else if ($('#menu_search').css('display') == 'block'){  // search dropdown
-                if (e.type == "keydown"){
-                    $('#search_but').addClass('active');
-                    e.preventDefault();
-                }else{
-                    $('#search_but').removeClass('active');
-                    $('#search_but').trigger('click');
-                }
-            }
-        }
-    });
-    
-    $('#btn_newrec').click(function(){
-        $.ajax({
-          type: 'POST',
-          url: '/{{project_name}}/settings',
-          data: {'sumatra':true},
-          async: true,
-          dataType: 'json'
-        }).done(function(data) {
-             $('#mExec').val(data.execut);
-             $('#mFile').val(data.mfile);     
-        });
-    });
-    
-    $('#menu_datewith > li').click(function(){
-        $('#menu_datewith').hide();
-        $('#sdate').text($(this).text());       
-    });
-    
-    $('#idatewith, #up_icon, #low_icon').click(function(event){
-        event.stopPropagation(); 
-        $('#menu_datewith').show();
-        $('#menu_datewith').offset({left: $('#idatewith').offset().left});
-    });
-    
-    //$('.date').datepicker();
-    $(".chzn-select").chosen();
-    $(".chzn-select-deselect").chosen({allow_single_deselect:true});
-    
-    // #menu_search will inherit the offsetLength from this div
-    $('#div_menu_search').offset({left: $('#text_subnav').offset().left+20});
-    
-    $('#icon_cdown').mouseenter(function(){
+    // initialization of the drop-down search list (#div_menu_search)
+    $('#div_menu_search').offset({left: $('#text_subnav').offset().left + 20}); // x-position as for the #text_subnav + 20px
+    $('#icon_cdown').mouseenter(function(){  // little icon at the right side of #text_subnav
         $(this).css('opacity','1.0');
     }).mouseleave(function(){
         $(this).css('opacity','0.2');
     }).click(function(event){   
         var parentWidth;
-        parentWidth = $('input.span5')[0].offsetWidth - 2;
-        $('#menu_search').css('width', parentWidth)
-                         .show();
+        parentWidth = $('input.span5')[0].offsetWidth - 2; // the width of this drop-down equals the width of #text_subnav
+        $('#menu_search').css('width', parentWidth).show();
     });
-    
-    // prevent closing the search menu when clicking on it
+    // user can close the drop-down search list by clicking on the window or by clicking #close_menu (little icon top-right side)
+    $('#close_menu, html').click(function() {
+        $('#menu_search').hide();
+    });
+    // prevent closing the drop-down search list when clicking on it
     $('#menu_search, #icon_cdown, #ui-datepicker-div').click(function(event){
         event.stopPropagation(); 
         $('#menu_datewith').hide();
         return false; 
     });
-    
-    $('#close_menu, html').click(function() {
-        $('#menu_search').hide();
-        $('#menu_datewith').hide();
-    });
-     
-    
-   
-    $('#li_settings').click(function(){
-        $.ajax({
-          type: 'POST',
-          url: '/{{project_name}}/settings',
-          data: {'web':true},
-          async: true,
-          dataType: 'json'
-        }).done(function(data){
-            $(['#button',data.display_density].join('_')).addClass('active_settings_row');
-            $('#settings_table').html(data.display_density);
-        });
-    });
-    
-    $('#close_set, #close_set.btn').click(function(){
-        $('#setModal').modal('hide');
-    });
-    
-    /* Automatic check/uncheck of #Script and #Executable */
-    $(".check-item").click(function(){   // any checkbox in settings window         
-        /* #Script and #Executable have childrens, so if at least one of the chilrens is checked,
-           the parents checkboxes will be checked automatically. */
-        if ($(this).attr('id') != 'Script' && $(this).attr('id') != 'Executable'){
-            if ($('.check-item.Executable:checked').length == 0){
-                $('#Executable').attr('checked',false);
-            } else{
-                $('#Executable').attr('checked',true);
-            };
-            
-            if ($('.check-item.Script:checked').length == 0){
-                $('#Script').attr('checked',false);
-            }else{
-                $('#Script').attr('checked',true);
-            }
-        }else if ($(this).attr('id') == 'Executable'){
-            if ($(this).attr('checked')=='checked'){
-                $('.Executable').attr('checked',true);
-            }else{
-                $('.Executable').attr('checked',false);
-            }
-        }else if ($(this).attr('id') == 'Script'){
-            if ($(this).attr('checked')=='checked'){
-                $('.Script').attr('checked',true);
-            }else{
-                $('.Script').attr('checked',false);
-            }
-        };
 
-        // if no checkboxes are checked the button 'save settings' will be disables 
-        if ($(".check-item:checked").length == 0){
-            $('#check_selectAll').attr('checked', false);
-            $('#save_set').addClass('disabled');
-        }else{
-            $('#save_set').removeClass('disabled');
-        }
-        
-    }); /* End of automatic check/uncheck of #Script and #Executable */
-    
-    $('#save_set').click(function(){ // button save settings 
-            var UncheckedItems = new Array();
-            if (!$('#save_set').hasClass('disabled')){          
-                Exec_colspan = $('.Executable:checked').length;    
-                Script_colspan = $('.Script:checked').length;
-                $('.Script-t').attr('colspan', Script_colspan);
-                $('.Executable-t').attr('colspan', Exec_colspan);
-                
-                // hide columns:
-                $(".check-item").not(':checked').each(function() { 
-                    $unchecked = $(this).attr('id');
-                    $(['.', $unchecked, '-t'].join('')).hide();
-                    UncheckedItems.push($unchecked);
-                });
-                
-                // show columns:
-                $(".check-item:checked").each(function() { 
-                    $checked = $(this).attr('id');
-                    $(['.', $checked, '-t'].join('')).show();
-                });
-                
-                var nb_rec = $('#s_nbt').val();
-                // save settings to .smt/project
-                $.ajax({
-                  type: 'POST',
-                  url: '/{{project_name}}/settings',
-                  data: {'table_HideColumns':UncheckedItems,
-                         'nb_records_per_page':nb_rec,
-                         'cols_span_execut':Exec_colspan,
-                         'cols_span_script':Script_colspan,
-                         'saveSettings':true},
-                  async: true
-                }).done(function(data){
-                    if (nbRecPerPage_changed)
-                        location.reload();
-                });
-            }
+    // as soon as user clicks the search button in the search drop-down list, the form will be submited
+    $('#search_but').click(function(){
+        $('#search_form').trigger('submit');
     });
-    
-    /* selection of all checkboxes */
-    $("#check_selectAll").click(function() { 
-        var checkedStatus = this.checked;
-        
-        $(".check-item").each(function() {
-            this.checked = checkedStatus;
-        });  
-        
-        if (!checkedStatus){
-            $('#save_set').addClass('disabled'); // in case all are unchecked
-        }else{
-            $('#save_set').removeClass('disabled');
-        }    
+
+    // 'save tags' button in the 'edit tags' popup window 
+    $('#saveTags').click(function(){
+        $('#form-tags').trigger('submit');
     });
-    
-    /* Settings->Display density->compact */
+
+    // popup window is hide when user click the icons and 'run Sumatra' button
+    $('#btn_run, #close_newrec, #close_set, .cancel').click(function(e){
+        $('.modal').modal('hide');    
+    });
+
+    // click on the compact/comfortable anchor tag in settings drop-down list
     $('.menu-rsettigns').not('#button_settings').click(function(){
-        var $density_set = $(this).attr('id').split('_')[1]; // 'null' (=default) or 'condensed'
-        
-        $(this).addClass('active_settings_row');
-            $.ajax({
-              type: 'POST',
-              url: '/{{project_name}}/settings',
-              data: {'display_density':$density_set,
-                     'saveSettings':true},
-              async: true
-            });
-
-        if ($density_set == 'condensed'){
-            $('#button_null').removeClass('active_settings_row');  
-            $('.record').removeClass('null').addClass('condensed');
+        var $density_set = $(this).attr('id');      //compact or comfortable
+        $('.menu-rsettigns').removeClass('active');
+        $(this).addClass('active');
+        // save into .smt/project file the changed 'table density' settings
+        $.post("/{{project_name}}/settings", {'display_density':$density_set,'saveSettings':true}); 
+        // change the style of the table 
+        if ($density_set == 'compact'){
+            $('.record').removeClass('comfortable').addClass('condensed');
         }else{
-            $('#button_condensed').removeClass('active_settings_row'); 
-            $('.record').removeClass('condensed').addClass('null');
-        }        
+            $('.record').removeClass('condensed').addClass('comfortable');
+        }  
     });
-      
-   $('#button_settings').click(function(){
-        var data;
-        $('.check-item').attr('checked',true); // if before user has unchecked one and didn't save
-        data =  $.ajax({type: 'POST',
-                        url: '/{{project_name}}/settings',
-                        async: false,
-                        data: {'web':true},
-                        dataType: 'json'});
-        data = $.parseJSON(data.responseText);
-        hiddenCols = data.table_HideColumns;
-        if (hiddenCols){
-            for (var item, i = -1; item = hiddenCols[++i];){
-                $(['#', item].join('')).attr('checked',false);
-            }
-        }
-    });
-    
-    $('#btn_run').click(function(){
-        var $clone;
-        $.fancybox.showActivity();
-        $.ajax({
-          type: 'POST',
-          url: '/{{project_name}}/simulation',
-          async: true,
-          data: {'label':$('#mLabel').val(),
-                 'reason':$('#mReason').val(),
-                 'tag':$('#mTag').val(),
-                 'execut':$('#mExec').val(),
-                 'main_file':$('#mFile').val(),
-                 'args':$('#mArg').val()
-                },
-          dataType: 'json'
-        })
+
+    // settings: change of the number of records per one page
+    $('#input_nrec, #s_nbt').click(function(event){   //click on the div in the settings section
+        nbRecPerPage_changed = true;
+        event.stopPropagation();
+        $(this).css('display','none');
+        $('#s_nbt').css('display','block');     
     }); 
-
-    $('.cancel').click(function(){
-        $('.modal').modal('hide');
+    $('html').click(function(){               // each time user click window
+            var $val = $('#s_nbt').val();     // number of records per page
+            if ($val > 0){ 
+                $('#save_set').removeClass('disabled');
+                 $('#s_nbt').removeClass('err_border');
+                $('#input_nrec').css('display','block').html(Math.floor($val));
+                $('#s_nbt').css('display','none');
+            }else{  
+                $('#s_nbt').addClass('err_border');   
+                $('#save_set').addClass('disabled');  // disable the button 'save settings'
+                $('#setModal').modal('show');         // window is not closing
+            }  
     });
-    $('#y-delRec').click(function(){
-        var succ = false;
-        deleteArr = new Array(); // records to delete
-        $('li.ui-selected').each(function(){
-            deleteArr.push($(this).find('#label-t').html())
-        });
-        $.ajax({
-            type: 'POST',
-            url: 'delete/',
-            data: {'delete':deleteArr,'delete_data':true}, //presume that user always want to delete data
-            success:function(data){
-                succ = true;
-            },
-            async: false
-        });
-        if (succ){
-            window.open('.','_self');
-        }
-    });
-});   
-//$(document).ajaxStart(function() { $.fancybox.showActivity() }).ajaxStop(function() {$.fancybox.hideActivity();});
+});
 </script>
-
-<div class="modal" id="mod_newrec"> 
-    <div class='d-mod'>  
-        <div style='float:left;padding:3px 15px;position:absolute; margin-top:5px'><h3>new record</h3></div><a class="close s-close" id='close_newrec'>&times;</a>
-        <div style='position:absolute; margin-top:50px'>
-            <label class='control-label' for='mLabel'>Label</label> 
-            <div class='mod_input'>
-                <input id='mLabel' class='input-xlarge' type='text'>
-            </div>
-            <label class='control-label' for='mReason'>Reason</label> 
-            <div class='mod_input'>
-                <textarea id='mReason' class='input-xlarge' type='text'></textarea>
-            </div>
-            <label class='control-label' for='mTag'>Tag</label> 
-            <div class='mod_input'>
-                <input id='mTag' class='input-xlarge' type='text'>
-            </div>
-            <label class='control-label' for='mExec'>Executable path</label> 
-            <div class='mod_input'>
-                <input id='mExec' class='input-xlarge' type='text'>
-            </div>
-            <label class='control-label' for='mFile'>Main file</label> 
-            <div class='mod_input'>
-                <input id='mFile' class='input-xlarge' type='text'>
-            </div>
-            <label class='control-label' for='mArg'>Arguments</label> 
-            <div class='mod_input'>
-                <input id='mArg' class='input-xlarge' type='text'>
-                <a href='/{{project_name}}/?n=true'><button id='btn_run' class='btn btn-success btn-large' style='width:150px; display: block ;margin-left: auto; margin-right: auto;'>Run</button></a>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-<div class="modal" id="deleteModal">
-  <div class="modal-header">
-        <a class="close" data-dismiss="modal">&times;</a>
-        <h3>Delete records</h3>
-  </div>
-  <div class="modal-body">
-        <p>Are you sure you want to remove the records?</p>
-  </div>
-  <div class="modal-footer">
-        <a id="y-delRec" class="btn btn-primary">Yes</a>
-        <a class="cancel btn">No</a>
-  </div>
-</div> 
-
-<div class="modal" id="setModal">
-  <a class="close s-close" id='close_set'>&times;</a>
-  <div class="modal-header">
-    <a class="close" data-dismiss="modal"></a>
-    <h3>Settings</h3>
-  </div>
-  <div class="modal-body">   
-    <ul class="nav nav-tabs"  id ='myTab'>
-      <li class="active"><a href="#first"  data-toggle="tab" >General</a></li>
-      <li><a href="#second"  data-toggle="tab" >Another option 1</a></li>
-      <li><a href="#messages"  data-toggle="tab" >Another option 2</a></li>
-      <li><a href="#settings"  data-toggle="tab" >Another option 3</a></li>
-    </ul>
-    
-    <div class="tab-content">
-      <div class="tab-pane active" id="first">
-        <div id = 'tab_general_text'><p><b>Table:</b></p></div>
-        <div id = 'tab_general_content'>
-            <label class="checkbox">
-                <input type="checkbox" id='Label' checked="checked" class='check-item'> Label
-            </label>
-            <label class="checkbox">
-                <input type="checkbox" id='Tag' checked="checked" class='check-item'> Tag
-            </label>
-            <label class="checkbox">
-                <input type="checkbox" id='Reason' checked="checked"  class='check-item'> Reason
-            </label>
-            <label class="checkbox">
-                <input type="checkbox" id='Outcome' checked="checked"  class='check-item'> Outcome
-            </label>
-            <label class="checkbox">
-                <input type="checkbox" id='Duration' checked="checked" class='check-item'> Duration
-            </label>
-            <label class="checkbox">
-                <input type="checkbox" id='Processes' checked="checked" class='check-item'> Processes
-            </label>
-            <label class="checkbox">
-                <input type="checkbox" id='Executable' checked="checked" class='check-item'> Executable
-            </label>
-                <label class="checkbox">
-                    <div class = 'subitems'>
-                        <input type="checkbox" class='check-item Executable' checked="checked" id='Name'> Executable name
-                    </div>
-                </label>
-                <label class="checkbox">
-                    <div class = 'subitems'>
-                        <input type="checkbox" class='check-item Executable' checked="checked" id='Version'> Executable Version
-                    </div>
-                </label>
-            <label class="checkbox">
-                <input type="checkbox" id='Date' checked="checked"  class='check-item'> Date
-            </label>
-            <label class="checkbox">
-                <input type="checkbox" id='Time' checked="checked" class='check-item'> Time
-            </label>
-            <label class="checkbox">
-                <input type="checkbox" id='Script' checked="checked"  class='check-item'> Script
-            </label>
-            <label class="checkbox">
-                <div class = 'subitems'>
-                    <input type="checkbox" class='check-item Script' checked="checked" id='Repository'> Script repository
-                </div>
-            </label>
-            <label class="checkbox">
-                <div class = 'subitems'>
-                    <input type="checkbox" class='check-item Script' checked="checked" id='Main_file'> Script main file
-                </div>
-            </label>
-            <label class="checkbox">
-                <div class = 'subitems'>
-                    <input type="checkbox" class='check-item Script' checked="checked" id='S-Version'> Script version
-                </div>
-            </label>
-            <label class="checkbox">
-                <div class = 'subitems'>
-                    <input type="checkbox" class='check-item Script' checked="checked" id='Arguments'> Script arguments
-                </div>
-            </label>
-            <label class="checkbox">
-                <input type="checkbox" id = 'check_selectAll' checked="checked"><b style='font-size:14px'>Select all</b>
-            </label>
-        </div>
-      </div>
-      <div class="tab-pane" id="second">
-            <div style='float:left; padding:8px'>Number of records per page:</div>
-            <div id="input_nrec">{{settings.nb_records_per_page}}</div>
-            <input id='s_nbt' class='span1' type='text' style='float:left;margin-bottom:0px' value='{{settings.nb_records_per_page}}'/>     
-      </div>
-      <div class="tab-pane" id="messages">
-        <div id = 'tab_general_text'><p><b>option3:</b></p></div>
-      </div>
-      <div class="tab-pane" id="settings">
-        <div id = 'tab_general_text'><p><b>option4:</b></p></div>
-      </div>
-    </div>
-      <div class="modal-footer">
-        <a class="btn btn-primary" id='save_set'>Save changes</a>
-        <a class="btn" id='close_set'>Close</a>
-      </div> 
- </div>
- </div>
-
-
- <!-- compare simulations window -->
-<div class="modal" id="compareSim">
-  <div class="modal-header">
-        <a class="close" data-dismiss="modal">&times;</a>
-        <h3>Comparison of simulations</h3>
-  </div>
-  <div class="modal-body" id='body-w-tags'>
-   <span id = 'rec-compare'>Click the records you would like to compare: </span><div id='alist-labels'></div>
-    <div id='sim-left'>
-            
-    </div>
-    <div id='sim-right'>
-         
-    </div>
-  </div>
-  <!--div class="modal-footer">
-        <a id="saveTags" class="btn btn-primary">Save</a>
-        <a class="cancel btn">Cancel</a>
-  </div-->
-</div>
 {% endblock %}
