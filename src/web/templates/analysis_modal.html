@@ -3,7 +3,7 @@
 <div id = 'info_record' class = 'analysis-w'>
     <div class="accordion">
                  <h2 class="nav-toggle">General info</h2>
-                 <form action='' method='POST' id="actions" name="actions">
+                 <form action='' method='POST' id="actions" name="actions" style='width:98%'>
                     {{form.errors}}
                     <fieldset class = 'field-acc'>
                         <div class="control-group">
@@ -22,7 +22,7 @@
                                 <tr><th>Tags:</th><td>{{form.tags}}</td></tr>
                             </table>
                         </div>
-                        <div class='form-actions' style='width: 400px'>
+                        <div class='form-actions'>
                                 <button type="submit" class="btn btn-primary headeritem">Save changes</button>
                                 <button type="submit" class="btn headeritem" name="delete">Delete record</button>
                         </div>
@@ -108,23 +108,17 @@
         <form class="form-horizontal">
             <fieldset class = 'field-acc'>
                 <div class="control-group">
-                    <table class='table-recDetail'>
-                        <tr><th>Name</th><th>IP address</th><th>Processor</th>
-                            <th colspan="2">Architecture</th><th>System type</th>
-                            <th>Release</th><th>Version</th>
-                        </tr>
-                        {% for platform in record.platforms.all %}
-                        <tr class="{% cycle 'odd' 'even' %}">
-                            <td>{{platform.network_name}}</td>
-                            <td>{{platform.ip_addr}}</td>
-                            <td>{{platform.processor}} {{platform.machine}}</td>
-                            <td style='padding-right:5px'>{{platform.architecture_bits}}</td>
-                            <td>{{platform.architecture_linkage}}</td>
-                            <td>{{platform.system_name}}</td>
-                            <td>{{platform.release}}</td>
-                            <td>{{platform.version}}</td>
-                        </tr>{% endfor %}
-                    </table>
+                <ol>
+                    {% for platform in record.platforms.all %}
+                    <li class='odd'><span class = 's_platform'>Name:</span><div class='d_platform'>{{platform.network_name}}</div></li>
+                    <li><span class = 's_platform'>IP address:</span><div class='d_platform'>{{platform.ip_addr}}</div></li>
+                    <li class='odd'><span class = 's_platform'>Processor:</span><div class='d_platform'>{{platform.processor}}{{platform.machine}}, {{platform.architecture_bits}}
+                    <li><span class = 's_platform'>Architecture:</span><div class='d_platform'>{{platform.architecture_linkage}}</div>
+                    <li class='odd'><span class = 's_platform'>System type:</span><div class='d_platform'>{{platform.system_name}}</div>
+                    <li><span class = 's_platform'>Release:</span><div class='d_platform'>{{platform.release}}</div>
+                    <li class='odd'><span class = 's_platform'>Version:</span><div class='d_platform'>{{platform.version}}</div>
+                    {% endfor %}
+                </ol>
                 </div>
             </fieldset>
         </form>
@@ -136,7 +130,7 @@
             <fieldset class = 'field-acc'>
                 <div class="control-group">
                     {% if record.stdout_stderr %}
-                    <div style='width:94%'>
+                    <div>
                         <pre>
                         {{ record.stdout_stderr }}
                         </pre>

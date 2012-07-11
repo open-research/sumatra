@@ -962,13 +962,14 @@ h2.topic{
   padding-left: 20px;
   padding-right: 20px;
   background-color: #f7f7f7;
-  background-image: -moz-linear-gradient(top, #ffffff, #eaeaea);
+  background:url("../light_toast.png") 0% 0% transparent;
+  /*background-image: -moz-linear-gradient(top, #ffffff, #eaeaea);
   background-image: -ms-linear-gradient(top, #ffffff, #eaeaea);
   background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#ffffff), to(#eaeaea));
   background-image: -webkit-linear-gradient(top, #ffffff, #eaeaea);
   background-image: -o-linear-gradient(top, #ffffff, #eaeaea);
   background-image: linear-gradient(top, #ffffff, #eaeaea);
-  background-repeat: repeat-x;
+  background-repeat: repeat-x;*/
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#eaeaea', GradientType=0);
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
@@ -1262,4 +1263,27 @@ span.label{
 
 #alist-labels span.label:hover{
   cursor:pointer;
+}
+
+.accordion .form-horizontal{
+  width:98%;
+}
+
+
+.d_platform{
+  float:right;
+}
+
+.control-group ol li{
+  padding: 2px;
+  position: relative;
+  text-align: left;
+  background-color:  #ffffff;
+}
+.control-group ol li.odd{
+  background-color:  #E4E4E4;
+}
+
+.s_platform{
+  font-weight: bold;
 }
