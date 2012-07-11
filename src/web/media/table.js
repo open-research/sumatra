@@ -37,21 +37,39 @@ $(document).ready(function(){
             $div_list.append('<span class="label">'+ $labl +'</span>');  
         });
         if ($selected_labels.length == 2){ // if user choose exactly 2 records to compare     
-            $('#rec-compare').html('');
+            $('#rec-compare').empty();
             $('#alist-labels span').addClass('label-success'); 
             for( var i = -1, n = 2; ++i < n; ) {         
                 var buffer = [window.location.pathname, $selected_labels[i], "/ ", "#info_record"];
                 buffer = buffer.join('');      
                 $('#sim-' + names_div[i]).load(buffer);
             }
+        }else{
+            $('.analysis-w').empty(); //clear the the content of the popup window if user choose more than 2 records
         }  
-    }); 
+    });
 
-    $('#alist-labels span.label').live('click', function(){
-        if (!$(this).hasClass('label-success')) {
-            $(this).addClass('label-success');
+    $('#alist-labels span.label').live('click', function(){   
+        var nbSelected = $('span.label.label-success').length; 
+        var names_div = ['left', 'right'];   
+        if (!$(this).hasClass('label-success')) { // click on the record
+            if (nbSelected == 2){ // if more than two      
+                $('span.label.label-success:eq(0)').removeClass('label-success');  //remove it from the leftmost label
+            }
+            $(this).addClass('label-success');   // record is activated
+            $('span.label.label-success').each(function(i, el){
+
+                var $labl = $(el).html();        //label of the clicked record
+                var buffer = [window.location.pathname, $labl , "/ ", "#info_record"];
+                buffer = buffer.join('');
+                $('#sim-' + names_div[i]).load(buffer);    
+            });
         }else{
             $(this).removeClass('label-success');
+            // delete the part of the window with unchecked label
+            if ($('#sim-left #td_label').html() == $(this).html()){
+                $('#sim-left').empty();
+            } else { $('#sim-right').empty(); }
         }
     });
 

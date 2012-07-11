@@ -1,6 +1,6 @@
 {% load filters %}
 
-<div id = 'info_record'>
+<div id = 'info_record' class = 'analysis-w'>
     <div class="accordion">
                  <h2 class="nav-toggle">General info</h2>
                  <form action='' method='POST' id="actions" name="actions">
@@ -8,7 +8,7 @@
                     <fieldset class = 'field-acc'>
                         <div class="control-group">
                             <table id = 'gen_info'>
-                                <tr><th>Label:</th><td>{{record.label}}</td></tr>
+                                <tr><th>Label:</th><td id='td_label'>{{record.label}}</td></tr>
                                 <tr><th>Reason:</th><td>{{form.reason}}</td></tr>
                                 <tr><th>Outcome:</th><td>{{form.outcome}}</td></tr>
                                 <tr><th>Timestamp:</th><td>{{record.timestamp|date:"d/m/Y H:i:s"}}</td></tr>
