@@ -55,7 +55,8 @@ def search(request, project):
             for key, val in request_data.iteritems():
                 if key in ['label','tags','reason', 'main_file', 'script_arguments']:
                     field_list = [x.strip() for x in val.split(',')] 
-                    results =  results.filter(reduce(lambda x, y: x | y, [Q(**{"%s__contains" % key: word}) for word in field_list])) # __icontains (?)
+                    results =  results.filter(reduce(lambda x, y: x | y,
+                                              [Q(**{"%s__contains" % key: word}) for word in field_list])) # __icontains (?)
                 elif isinstance(val, date):
                     results =  results.filter(timestamp__year = val.year,
                                               timestamp__month = val.month, 
@@ -63,8 +64,7 @@ def search(request, project):
                 elif isinstance(val, models.Executable):
                     results =  results.filter(executable__name = val.name)
                 elif isinstance(val, models.Repository):
-                    results =  results.filter(repository__url = val.url)
-                              
+                    results =  results.filter(repository__url = val.url)                     
             return list_detail.object_list(request,
                                        queryset=results,
                                        template_name="record_list.html",
@@ -169,7 +169,6 @@ def set_tags(request, project):
 def record_detail(request, project, label):
     label = unescape(label)
     record = models.Record.objects.get(label=label, project__id=project)
-    
     if request.method == 'POST':
         if request.POST.has_key('delete'):
             record.delete() # need to add option to delete data
@@ -184,7 +183,7 @@ def record_detail(request, project, label):
     parameter_set = record.parameters.to_sumatra()
     if hasattr(parameter_set, "as_dict"):
         parameter_set = parameter_set.as_dict()
-    return render_to_response('record_detail.html', {'record': record,
+    return render_to_response('analysis_modal.html', {'record': record,
                                                      'project_name': project,
                                                      'parameters': parameter_set,
                                                      'form': form

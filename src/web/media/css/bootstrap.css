@@ -3376,7 +3376,7 @@ a.thumbnail:hover {
   background-color: #333333;
 }
 .label-success:hover {
-  background-color: #1a1a1a;
+  /*background-color: #1a1a1a;*/
 }
 .label-info {
   background-color: #1b3650;

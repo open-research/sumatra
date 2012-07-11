@@ -30,11 +30,21 @@ $(document).ready(function(){
     $('#d-comp').live('click', function(){ //click on the 'compare simulations' button
         var $div_list = $('#alist-labels').empty();   // !!! create function. reapeat the code for #d-tags
         var $selected_labels = new Array();
+        var names_div = ['left', 'right'];
         $('.record.ui-selected').each(function(){
             var $labl = $(this).find('#label-t').html();           
             $selected_labels.push($labl);
             $div_list.append('<span class="label">'+ $labl +'</span>');  
         });
+        if ($selected_labels.length == 2){ // if user choose exactly 2 records to compare     
+            $('#rec-compare').html('');
+            $('#alist-labels span').addClass('label-success'); 
+            for( var i = -1, n = 2; ++i < n; ) {         
+                var buffer = [window.location.pathname, $selected_labels[i], "/ ", "#info_record"];
+                buffer = buffer.join('');      
+                $('#sim-' + names_div[i]).load(buffer);
+            }
+        }  
     }); 
 
     $('#alist-labels span.label').live('click', function(){
