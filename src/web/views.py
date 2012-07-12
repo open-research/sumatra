@@ -424,11 +424,12 @@ def settings(request, project):
                     'web':request.POST.get('web', False), 
                     'sumatra':request.POST.get('sumatra', False) 
                     }
+    sim_list = models.Record.objects.filter(project__id=project).order_by('-timestamp')
     project = load_project() 
     if web_settings['saveSettings']:
         del web_settings['saveSettings']
         if len(web_settings['table_HideColumns']) == 0:  # empty set (all checkboxes are checked)
-            project.web_settings['table_HideColumns'] = None
+            project.web_settings['table_HideColumns'] = []
         try:
             project.web_settings
         except(AttributeError, KeyError): # project doesn't have web_settings yet
@@ -438,7 +439,18 @@ def settings(request, project):
             if item:
                 project.web_settings[key] = item
         project.save()
-        return HttpResponse('')
+        # repetition of code for list_records !!!
+        web_settings = load_project().web_settings
+        nb_per_page = int(web_settings['nb_records_per_page'])
+        paginator = Paginator(sim_list, nb_per_page)
+        page_list = paginator.page(1)
+        print page_list.object_list
+        dic = {'project_name': project,
+               'settings':web_settings,
+               'paginator':paginator,
+               'object_list':page_list.object_list,
+               'page_list':page_list}
+        return render_to_response('content.html', dic)
     elif web_settings['web']: 
         return HttpResponse(simplejson.dumps(project.web_settings))
     elif web_settings['sumatra']:

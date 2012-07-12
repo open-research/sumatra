@@ -42,74 +42,74 @@
 
 <div id = 'main_content'>
  <div id='head_t' class='nonselect'>
-        {% if 'repository' not in settings.table_HideColumns or not settings.table_HideColumns %}
+        {% if 'repository' not in settings.table_HideColumns %}
         <input type="radio" id="repository" />
         <label class='t-item head-item' id='l-repository' for="repository">Repository<span class='s-arrow'><span id='up' class='arr-s'>&#x25B2;</span><span id='down' class='arr-s'>&#x25BC;</span></span></label>{% endif %}
         
 
-        {% if 'label' not in settings.table_HideColumns or not settings.table_HideColumns %}
+        {% if 'label' not in settings.table_HideColumns %}
         <input type="radio" id="label" />
         <label class='t-item head-item' id='l-label' for="label">Label<span class='s-arrow'><span id='up' class='arr-s'>&#x25B2;</span><span id='down' class='arr-s'>&#x25BC;</span></span></label>{% endif %}
         
-        {% if 'tag' not in settings.table_HideColumns or not settings.table_HideColumns %}
+        {% if 'tag' not in settings.table_HideColumns %}
         <input type="radio" id="tag" />
         <label class='t-item head-item' id='l-tag'  for="tag">Tag<span class='s-arrow'><span id='up' class='arr-s'>&#x25B2;</span><span id='down' class='arr-s'>&#x25BC;</span></span></label>{% endif %}
         
-        {% if 'reason' not in settings.table_HideColumns or not settings.table_HideColumns %}
+        {% if 'reason' not in settings.table_HideColumns %}
         <input type="radio" id="reason" />
         <label class='t-item head-item' id='l-reason'  for="reason">Reason<span class='s-arrow'><span id='up' class='arr-s'>&#x25B2;</span><span id='down' class='arr-s'>&#x25BC;</span></span></label>{% endif %}
         
-        {% if 'outcome' not in settings.table_HideColumns or not settings.table_HideColumns %}
+        {% if 'outcome' not in settings.table_HideColumns %}
         <input type="radio" id="outcome" />
         <label class='t-item head-item' id='l-outcome'  for="outcome">Outcome<span class='s-arrow'><span id='up' class='arr-s'>&#x25B2;</span><span id='down' class='arr-s'>&#x25BC;</span></span></label>{% endif %}
         
-        {% if 'duration' not in settings.table_HideColumns or not settings.table_HideColumns %}
+        {% if 'duration' not in settings.table_HideColumns %}
         <input type="radio" id="duration" />
         <label class='t-item head-item' id='l-duration' for="duration">Duration<span class='s-arrow'><span id='up' class='arr-s'>&#x25B2;</span><span id='down' class='arr-s'>&#x25BC;</span></span></label>{% endif %}
         
-        {% if 'processes' not in settings.table_HideColumns or not settings.table_HideColumns %}
+        {% if 'processes' not in settings.table_HideColumns %}
         <input type="radio" id="processes" />
         <label class='t-item head-item' id='l-processes' for="processes">Processes<span class='s-arrow'><span id='up' class='arr-s'>&#x25B2;</span><span id='down' class='arr-s'>&#x25BC;</span></span></label>{% endif %}
         
-        {% if 'date' not in settings.table_HideColumns or not settings.table_HideColumns %}
+        {% if 'date' not in settings.table_HideColumns %}
         <input type="radio" id="date" />
         <label class='t-item head-item' id='l-date' for="date">Date<span class='s-arrow'><span id='up' class='arr-s'>&#x25B2;</span><span id='down' class='arr-s'>&#x25BC;</span></span></label>{% endif %}
         
-        {% if 'time' not in settings.table_HideColumns or not settings.table_HideColumns %}
+        {% if 'time' not in settings.table_HideColumns %}
         <input type="radio" id="time" />
         <label class='t-item head-item' id='l-time' for="time">Time<span class='s-arrow'><span id='up' class='arr-s'>&#x25B2;</span><span id='down' class='arr-s'>&#x25BC;</span></span></label>{% endif %}
         
-        {% if 'ename' not in settings.table_HideColumns or not settings.table_HideColumns %}
+        {% if 'ename' not in settings.table_HideColumns %}
         <input type="radio" id="ename" />
         <label id='l-ename' class='t-item' for="ename">Executable name<span class='s-arrow'><span id='up' class='arr-s'>&#x25B2;</span><span id='down' class='arr-s'>&#x25BC;</span></span></label>{% endif %}
         
-        {% if 'eversion' not in settings.table_HideColumns or not settings.table_HideColumns %}
+        {% if 'eversion' not in settings.table_HideColumns %}
         <input type="radio" id="eversion" />
         <label id='l-eversion' class='t-item' for="eversion">Executable version<span class='s-arrow'><span id='up' class='arr-s'>&#x25B2;</span><span id='down' class='arr-s'>&#x25BC;</span></span></label>{% endif %}
         
-        {% if 'main' not in settings.table_HideColumns or not settings.table_HideColumns %}
+        {% if 'main' not in settings.table_HideColumns %}
         <input type="radio" id="main" />
         <label class='t-item head-item' id='l-main' for="main">Main file<span class='s-arrow'><span id='up' class='arr-s'>&#x25B2;</span><span id='down' class='arr-s'>&#x25BC;</span></span></label>{% endif %}
         
-        {% if 'version' not in settings.table_HideColumns or not settings.table_HideColumns %}
+        {% if 'version' not in settings.table_HideColumns %}
         <input type="radio" id="version" />
         <label class='t-item head-item' id='l-version' for="version">Version<span class='s-arrow'><span id='up' class='arr-s'>&#x25B2;</span><span id='down' class='arr-s'>&#x25BC;</span></span></label>{% endif %}
         
-        {% if 'arguments' not in settings.table_HideColumns or not settings.table_HideColumns %}
+        {% if 'arguments' not in settings.table_HideColumns %}
         <input type="radio" id="arguments" />
         <label class='t-item head-item' id='l-arguments' for="arguments">Arguments<span class='s-arrow'><span id='up' class='arr-s'>&#x25B2;</span><span id='down' class='arr-s'>&#x25BC;</span></span></label>{% endif %}
     </div>
     <ol id ='ol-content'>
     {% for record in object_list %}
         <li class='record {{settings.display_density}}'>
-            {% if 'label' not in settings.table_HideColumns or not settings.table_HideColumns %}<div class='row-item' id='repository-t'>{{record.repository.url|cut:"repo"}}<div style='display:none'>{{record.repository.url}}</div></div>
+            {% if 'label' not in settings.table_HideColumns %}<div class='row-item' id='repository-t'>{{record.repository.url|cut:"repo"}}<div style='display:none'>{{record.repository.url}}</div></div>
             {% endif %}
 
-            {% if 'label' not in settings.table_HideColumns or not settings.table_HideColumns %}
+            {% if 'label' not in settings.table_HideColumns %}
             <div class='row-item' id='label-t'>{{record.label}}</div>
             {% endif %}
 
-            {% if 'tag' not in settings.table_HideColumns or not settings.table_HideColumns %}
+            {% if 'tag' not in settings.table_HideColumns %}
                 {% if tag %}
                     <div class='row-item' id='tag-t'>{% for other_tag in record.tag_objects %}{% if tag == other_tag %}{{tag}} {% else %}<a href="/{{project_name}}/tag/{{other_tag.name}}/">{{other_tag.name}}</a> {% endif %}{% endfor %}</div>
                 {% else %}
@@ -117,47 +117,47 @@
                 {% endif %}
             {% endif %} 
 
-            {% if 'reason' not in settings.table_HideColumns or not settings.table_HideColumns %}           
+            {% if 'reason' not in settings.table_HideColumns %}           
             <div class='row-item' id='reason-t'>{{record.reason}}</div>
             {% endif %}
 
-            {% if 'outcome' not in settings.table_HideColumns or not settings.table_HideColumns %}
+            {% if 'outcome' not in settings.table_HideColumns %}
             <div class='row-item' id='outcome-t'>{{record.outcome}}</div>
             {% endif %}
 
-            {% if 'duration' not in settings.table_HideColumnsor or not settings.table_HideColumns %}
+            {% if 'duration' not in settings.table_HideColumnsor %}
             <div class='row-item' id='duration-t'>{{record.duration|human_readable_duration}}</div>
             {% endif %}
 
-            {% if 'processes' not in settings.table_HideColumns or not settings.table_HideColumns %}
+            {% if 'processes' not in settings.table_HideColumns %}
             <div class='row-item' id='processes-t'>{{record.launch_mode.get_parameters.n|default:"1"}}</div>
             {% endif %}
 
-            {% if 'date' not in settings.table_HideColumns or not settings.table_HideColumns %}
+            {% if 'date' not in settings.table_HideColumns %}
             <div class='row-item' id='date-t'>{{record.timestamp|date:"d/m/Y"}}</div>
             {% endif %}
 
-            {% if 'time' not in settings.table_HideColumns or not settings.table_HideColumns %}
+            {% if 'time' not in settings.table_HideColumns %}
             <div class='row-item' id='time-t'>{{record.timestamp|date:"H:i:s"}}</div>
             {% endif %}
 
-            {% if 'name' not in settings.table_HideColumns or not settings.table_HideColumns %}
+            {% if 'name' not in settings.table_HideColumns %}
             <div class='row-item' id='name-t'>{{record.executable.name}}</div>
             {% endif %}
 
-            {% if 'eversion' not in settings.table_HideColumns or not settings.table_HideColumns %}
+            {% if 'eversion' not in settings.table_HideColumns %}
             <div class='row-item' id='eversion-t'>{{record.executable.version}}</div>
             {% endif %}
 
-            {% if 'main' not in settings.table_HideColumns or not settings.table_HideColumns %}
+            {% if 'main' not in settings.table_HideColumns %}
             <div class='row-item' id='main-t'><a class='id-script' href=''>{{record.main_file}}</a></div>
             {% endif %}
 
-            {% if 'version' not in settings.table_HideColumns or not settings.table_HideColumns %}
+            {% if 'version' not in settings.table_HideColumns %}
             <div class='row-item' id='version-t'>{{record.version|cut:"vers"}}{% if record.diff %}*{% endif %}<div style='display:none'>{{record.version}}</div></div>
             {% endif %}
 
-            {% if 'arguments' not in settings.table_HideColumns or not settings.table_HideColumns %}
+            {% if 'arguments' not in settings.table_HideColumns %}
             <div class='row-item' id='arguments-t'>{{record.script_arguments}}</div>
             {% endif %}
             <br style='clear:both'>

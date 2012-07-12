@@ -198,16 +198,9 @@ $(document).ready(function(){
                 uncheckedItems.push($unchecked);
             });
             // save settings to .smt/project
-            $.ajax({
-              type: 'POST',
-              url: 'settings',
-              data: {'table_HideColumns':uncheckedItems,
-                     'nb_records_per_page':nb_rec,
-                     'saveSettings':true}
-            }).done(function(data){
-                //location.reload();
-                alert(data);
-            });
+            $('#main_content').load('settings #main_content',{'table_HideColumns':uncheckedItems, 
+                                                              'nb_records_per_page':nb_rec,
+                                                              'saveSettings':true});             
         }
     });
 });
