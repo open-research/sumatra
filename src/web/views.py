@@ -427,7 +427,6 @@ def settings(request, project):
     sim_list = models.Record.objects.filter(project__id=project).order_by('-timestamp')
     project = load_project() 
     if web_settings['saveSettings']:
-        del web_settings['saveSettings']
         if len(web_settings['table_HideColumns']) == 0:  # empty set (all checkboxes are checked)
             project.web_settings['table_HideColumns'] = []
         try:
@@ -440,11 +439,9 @@ def settings(request, project):
                 project.web_settings[key] = item
         project.save()
         # repetition of code for list_records !!!
-        web_settings = load_project().web_settings
         nb_per_page = int(web_settings['nb_records_per_page'])
         paginator = Paginator(sim_list, nb_per_page)
         page_list = paginator.page(1)
-        print page_list.object_list
         dic = {'project_name': project,
                'settings':web_settings,
                'paginator':paginator,

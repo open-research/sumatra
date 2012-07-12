@@ -102,7 +102,7 @@
     <ol id ='ol-content'>
     {% for record in object_list %}
         <li class='record {{settings.display_density}}'>
-            {% if 'label' not in settings.table_HideColumns %}<div class='row-item' id='repository-t'>{{record.repository.url|cut:"repo"}}<div style='display:none'>{{record.repository.url}}</div></div>
+            {% if 'repository' not in settings.table_HideColumns %}<div class='row-item' id='repository-t'>{{record.repository.url|cut:"repo"}}<div style='display:none'>{{record.repository.url}}</div></div>
             {% endif %}
 
             {% if 'label' not in settings.table_HideColumns %}
@@ -141,8 +141,8 @@
             <div class='row-item' id='time-t'>{{record.timestamp|date:"H:i:s"}}</div>
             {% endif %}
 
-            {% if 'name' not in settings.table_HideColumns %}
-            <div class='row-item' id='name-t'>{{record.executable.name}}</div>
+            {% if 'ename' not in settings.table_HideColumns %}
+            <div class='row-item' id='ename-t'>{{record.executable.name}}</div>
             {% endif %}
 
             {% if 'eversion' not in settings.table_HideColumns %}
