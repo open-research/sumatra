@@ -1038,13 +1038,13 @@ input[type="radio"]:checked+label{ font-weight: bold }
    color:rgb(4, 156, 219);
 }
 
-#script{
+/*#script{
      position:relative;
      width:26%;
      height:35px;
      float:left;
      left:20px;
-}
+}*/
 .item{
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;

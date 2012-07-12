@@ -64,7 +64,7 @@
 
 <script type = 'text/javascript'>
 $(document).ready(function(){ 
-    nbRecPerPage_changed = false;  // true only when user change settings (number of records per one page)
+    //nbRecPerPage_changed = false;  // true only when user change settings (number of records per one page)
 
     // initialization of all modal popup-windows (settings, new record, set tags, compare records) and hide them
     $('.modal').modal().modal('hide');
@@ -134,15 +134,81 @@ $(document).ready(function(){
     $('html').click(function(){               // each time user click window
             var $val = $('#s_nbt').val();     // number of records per page
             if ($val > 0){ 
-                $('#save_set').removeClass('disabled');
+                //$('#save_set').removeClass('disabled');
                  $('#s_nbt').removeClass('err_border');
                 $('#input_nrec').css('display','block').html(Math.floor($val));
                 $('#s_nbt').css('display','none');
             }else{  
                 $('#s_nbt').addClass('err_border');   
-                $('#save_set').addClass('disabled');  // disable the button 'save settings'
+                //$('#save_set').addClass('disabled');  // disable the button 'save settings'
                 $('#setModal').modal('show');         // window is not closing
             }  
+    });
+
+    // user opens settings_window
+    $('#button_settings').on('click', function(){
+        $('.check-item').attr('checked', false); // uncheck all of them
+        // in the settings form refresh the current state of chkboxes:
+        $('#head_t label').not(':hidden').each(function(){
+            var str_chbx = ['.check-item#', $(this).attr('id').split('-')[1]].join('');
+            $(str_chbx).attr('checked', true);
+        });
+    });
+
+    $('.check-item, #button_settings').on('click', function(){
+        var $btext = $('#selectAll').parent().find('b');
+        var nbChecked = $(".check-item:checked").length;
+        if ($(".check-item").length > nbChecked) { //if there are some unchecked 
+            $btext.html('Select all');  // change text
+            $("#selectAll").attr('checked', false);
+        }else{
+            $btext.html('Deselect all');
+            $("#selectAll").attr('checked', true);
+        }
+        if (nbChecked) {
+            $('#save_set').removeClass('disabled');
+        }else{
+            $('#save_set').addClass('disabled');
+        }
+    })
+    
+    // settings_window: user clicks 'select all' checkbox
+    $("#selectAll").click(function() { 
+        var checkedStatus = this.checked; // true or false
+        var $btext = $('#selectAll').parent().find('b');       
+        $(".check-item").each(function() {
+            this.checked = checkedStatus;
+        });          
+        if (checkedStatus){ $btext.html('Deselect all'); $('#save_set').removeClass('disabled');}
+        else {$btext.html('Select all'); $('#save_set').addClass('disabled');} 
+    });
+
+    // settings_window: user click 'save'
+    $('#save_set').click(function(){
+        if (!$('#save_set').hasClass('disabled')){   
+            var uncheckedItems = new Array(); // all unchecked chkboxes
+            var nb_rec = $('#s_nbt').val(); // number of records per one page
+            // hide columns:
+            $(".check-item").not(':checked').each(function() { 
+                var $unchecked = $(this).attr('id');
+                var str_rec = ['.record #', $unchecked, '-t'].join(''); // records selector string
+                $(str_rec).hide(); // hide the records
+                var str_head = ['#l-', $unchecked].join(''); // header of the table selector string
+                $(str_head).hide(); 
+                uncheckedItems.push($unchecked);
+            });
+            // save settings to .smt/project
+            $.ajax({
+              type: 'POST',
+              url: 'settings',
+              data: {'table_HideColumns':uncheckedItems,
+                     'nb_records_per_page':nb_rec,
+                     'saveSettings':true}
+            }).done(function(data){
+                //location.reload();
+                alert(data);
+            });
+        }
     });
 });
 </script>

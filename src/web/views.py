@@ -419,8 +419,6 @@ def settings(request, project):
     '''
     web_settings = {'display_density':request.POST.get('display_density', False),
                     'nb_records_per_page':request.POST.get('nb_records_per_page', False),
-                    'cols_span_script':request.POST.get('cols_span_script', False),
-                    'cols_span_execut':request.POST.get('cols_span_execut', False),
                     'table_HideColumns': request.POST.getlist('table_HideColumns[]'),
                     'saveSettings':request.POST.get('saveSettings', False), 
                     'web':request.POST.get('web', False), 
