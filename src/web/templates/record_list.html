@@ -63,8 +63,13 @@
 {% include "comparison_window.html" %} <!-- 'compare selected records' popup window -->
 
 <script type = 'text/javascript'>
+function widthColumns(nbCol){
+    $('.head-item, .row-item').css('width', 90/nbCol + '%');
+    $('label#l-label, div#label-t').css('width', '150px');   
+}
 $(document).ready(function(){ 
-    //nbRecPerPage_changed = false;  // true only when user change settings (number of records per one page)
+    nbCol = 14; // total number of columns
+    widthColumns($('.head-item').length);
 
     // initialization of all modal popup-windows (settings, new record, set tags, compare records) and hide them
     $('.modal').modal().modal('hide');
@@ -196,12 +201,15 @@ $(document).ready(function(){
                 var str_head = ['#l-', $unchecked].join(''); // header of the table selector string
                 $(str_head).hide(); 
                 uncheckedItems.push($unchecked);
-            });
+            }); 
             // save settings to .smt/project
             $('#main_content').load('settings #main_content',{'table_HideColumns':uncheckedItems, 
                                                               'nb_records_per_page':nb_rec,
-                                                              'saveSettings':true});             
+                                                              'saveSettings':true}, 
+            function(){widthColumns(nbCol - uncheckedItems.length)} // success
+            );                                                                      
         }
+        
     });
 });
 </script>

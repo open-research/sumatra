@@ -1003,13 +1003,13 @@ h2.topic{
 
 .head-item, .row-item{
     float:left;
-    width: 6.5%;
+    /*width: 6.5%;*/
 }
  #l-ename, #l-eversion{
     float:left;
     margin-top: -2px;
     line-height:20px;
-    width:6.5%;
+    /*width:6.5%;*/
  }
  
 #l-label, #label-t{
@@ -1085,7 +1085,7 @@ input[type="radio"]:checked+label{ font-weight: bold }
 .row-item{
     float: left;
     padding-top: 1px;
-    width: 6.5%;
+    /*width: 6.5%;*/
     cursor:default;
 }
 
