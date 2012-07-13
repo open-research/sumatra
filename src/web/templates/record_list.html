@@ -64,8 +64,13 @@
 
 <script type = 'text/javascript'>
 function widthColumns(nbCol){
-    $('.head-item, .row-item').css('width', 90/nbCol + '%');
-    $('label#l-label, div#label-t').css('width', '150px');   
+    var widthCol = 90/nbCol + '%';
+    $('.head-item, .row-item').css('width', widthCol);
+    if (nbCol > 10){
+        $('label#l-label, div#label-t').css('width', '150px');  // fixed width
+    }else{
+        $('label#l-label, div#label-t').css('width', widthCol);
+    }  
 }
 $(document).ready(function(){ 
     nbCol = 14; // total number of columns
