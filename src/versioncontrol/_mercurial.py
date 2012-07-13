@@ -58,14 +58,14 @@ def get_repository(url):
 
 @vectorized
 def find_script(url, hex):
-    get_repository(url)
+    repo = hg.repository(ui.ui(), url)
     i = 0
     while True:
         el = repo.parents(i)[0].hex()
-        if hex in el:
-            ctx = repo.parents(i)[0]
-            return ctx.filectx(ctx.files()[0]).data()
-        yield i
+        if hex in el:  
+            ctx = repo.parents(i)[0]      
+            yield ctx.filectx(ctx.files()[0]).data() # presume only one file [0]
+            break
         i += 1
 
 class MercurialWorkingCopy(WorkingCopy):
