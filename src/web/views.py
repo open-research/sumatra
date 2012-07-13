@@ -114,6 +114,7 @@ def show_project(request, project):
                               {'project': project, 'form': form})
 
 def list_records(request, project):
+    nbCols = 14 
     form = RecordForm()  
     sim_list = models.Record.objects.filter(project__id=project).order_by('-timestamp')
     web_settings = load_project().web_settings
@@ -138,12 +139,19 @@ def list_records(request, project):
         return render_to_response('content.html', dic)
     else:
         page_list = paginator.page(1)
+        nbCols_actual = nbCols - len(web_settings['table_HideColumns'])
+        head_width = '%s%s' %(90.0/nbCols_actual, '%')
+        if (nbCols_actual > 10):
+            label_width = '150px'
+        else:
+            label_width = head_width
         dic = {'project_name': project,
                'form': form,
                'settings':web_settings,
                'object_list':page_list.object_list,
                'page_list':page_list,
-               'paginator':paginator}
+               'paginator':paginator,
+               'width':{'head': head_width, 'label':label_width}}
         return render_to_response('record_list.html', dic)
 
 def list_tagged_records(request, project, tag):
@@ -424,6 +432,7 @@ def settings(request, project):
                     'web':request.POST.get('web', False), 
                     'sumatra':request.POST.get('sumatra', False) 
                     }
+    nbCols = 14  # total number of columns
     sim_list = models.Record.objects.filter(project__id=project).order_by('-timestamp')
     project_loaded = load_project() 
     if web_settings['saveSettings']:
@@ -442,11 +451,18 @@ def settings(request, project):
         nb_per_page = int(web_settings['nb_records_per_page'])
         paginator = Paginator(sim_list, nb_per_page)
         page_list = paginator.page(1)
+        nbCols_actual = nbCols - len(web_settings['table_HideColumns'])
+        head_width = '%s%s' %(90.0/nbCols_actual, '%')
+        if (nbCols_actual > 10):
+            label_width = '150px'
+        else:
+            label_width = head_width
         dic = {'project_name': project,
                'settings':web_settings,
                'paginator':paginator,
                'object_list':page_list.object_list,
-               'page_list':page_list}
+               'page_list':page_list,
+               'width':{'head': head_width, 'label':label_width}}
         return render_to_response('content.html', dic)
     elif web_settings['web']: 
         return HttpResponse(simplejson.dumps(project.web_settings))
