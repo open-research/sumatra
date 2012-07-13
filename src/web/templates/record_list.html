@@ -208,11 +208,10 @@ $(document).ready(function(){
                 uncheckedItems.push($unchecked);
             }); 
             // save settings to .smt/project
-            $('#main_content').load('settings #main_content',{'table_HideColumns':uncheckedItems, 
+            $('#main_content').load('settings',{'table_HideColumns':uncheckedItems, 
                                                               'nb_records_per_page':nb_rec,
                                                               'saveSettings':true}, 
-            function(){widthColumns(nbCol - uncheckedItems.length)} // success
-            );                                                                      
+            function(){widthColumns(nbCol - uncheckedItems.length)});  // success                                                                      
         }
         
     });

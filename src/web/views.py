@@ -425,19 +425,19 @@ def settings(request, project):
                     'sumatra':request.POST.get('sumatra', False) 
                     }
     sim_list = models.Record.objects.filter(project__id=project).order_by('-timestamp')
-    project = load_project() 
+    project_loaded = load_project() 
     if web_settings['saveSettings']:
         if len(web_settings['table_HideColumns']) == 0:  # empty set (all checkboxes are checked)
-            project.web_settings['table_HideColumns'] = []
+            project_loaded.web_settings['table_HideColumns'] = []
         try:
-            project.web_settings
+            project_loaded.web_settings
         except(AttributeError, KeyError): # project doesn't have web_settings yet
             # upgrading of .smt/project: new supplementary settings entries
-            project.web_settings = init_websettings()   
+            project_loaded.web_settings = init_websettings()   
         for key, item in web_settings.iteritems():
             if item:
-                project.web_settings[key] = item
-        project.save()
+                project_loaded.web_settings[key] = item
+        project_loaded.save()
         # repetition of code for list_records !!!
         nb_per_page = int(web_settings['nb_records_per_page'])
         paginator = Paginator(sim_list, nb_per_page)

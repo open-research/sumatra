@@ -111,11 +111,6 @@ a.active{
     margin-top:-12px;
 }
 
-#main_content{
-    margin-top: 5px; 
-    position:relative;
-}
-
 .dropdown-menu a.menu-rsettigns{
     padding: 3px 35px;
     cursor: pointer;
@@ -225,7 +220,10 @@ a.active{
     margin-bottom:10px;
     //float:left;
     //margin-left:20px;
-    //position:relative;
+    position:absolute;
+    width: 100%;
+    //background-color: red;
+    //right:5px;
 }
 
 #text_subnav{
@@ -999,6 +997,8 @@ h2.topic{
     border-width: 1px;
     box-shadow: 0 1px 1px rgba(0, 0, 0, 0.12), 0 0 0 #000000 inset;
     margin-right: 25px;
+    position: relative;
+    top:60px;
 }
 
 .head-item, .row-item{
@@ -1112,6 +1112,8 @@ input[type="radio"]:checked+label{ font-weight: bold }
 #main_content{
     float:left;
     width:100%;
+    /*margin-top: 5px; 
+    position:relative;*/
 }
 
 .ui-resizable { 
@@ -1171,6 +1173,8 @@ input[type="radio"]:checked+label{ font-weight: bold }
 #ol-content{
     margin-left:0px;
     margin-right: 25px;
+    top:60px;
+    position: relative;
 }
 
 #ol-content .ui-selecting{
