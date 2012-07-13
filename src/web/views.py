@@ -120,8 +120,14 @@ def list_records(request, project):
     web_settings = load_project().web_settings
     nb_per_page = int(web_settings['nb_records_per_page'])
     paginator = Paginator(sim_list, nb_per_page)
-    if request.is_ajax():
-        page = request.POST.get('page', False)     
+    if request.is_ajax(): # when paginating
+        page = request.POST.get('page', False)  
+        nbCols_actual = nbCols - len(web_settings['table_HideColumns'])
+        head_width = '%s%s' %(90.0/nbCols_actual, '%')
+        if (nbCols_actual > 10):
+            label_width = '150px'
+        else:
+            label_width = head_width   
         try:
             page_list = paginator.page(page)
         except PageNotAnInteger:
@@ -135,7 +141,8 @@ def list_records(request, project):
                'settings':web_settings,
                'paginator':paginator,
                'object_list':page_list.object_list,
-               'page_list':page_list}
+               'page_list':page_list,
+               'width':{'head': head_width, 'label':label_width}}
         return render_to_response('content.html', dic)
     else:
         page_list = paginator.page(1)

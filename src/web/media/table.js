@@ -94,7 +94,7 @@ $(document).ready(function(){
         $('.page').tooltip('hide');
         var $thisId = $(this).attr('id'),
             $page;
-        if ($thisId == 'newer'){
+        if ($thisId == 'newer'){  // views.py: list_records with ajax request
             $page = $('#next_page_number').html()
         }else if($thisId == 'older'){
             $page = $('#previous_page_number').html()
@@ -132,7 +132,7 @@ $(document).ready(function(){
     };
 
     $('.id-script').on('click', function(){
-        var hexsha = $(this).parent().parent().find('#version-t div').html();
+        var hexsha = $(this).parent().parent().find('#version-t div').html();  //it should be visible, if not it'll be null
         var path = $(this).parent().parent().find('#repository-t div').html();
         var scrName = $(this).html();
         var nbWind = $('.resizable').length;

@@ -27,10 +27,15 @@ except ImportError:
     from mercurial.dispatch import _findrepo as findrepo
 import os
 import binascii
+import functools
 from base import VersionControlError
 
 from base import Repository, WorkingCopy
 
+def vectorized(generator_func):
+    def wrapper(*args, **kwargs):
+        return list(generator_func(*args, **kwargs))
+    return functools.update_wrapper(wrapper, generator_func)
 
 def may_have_working_copy(path=None):
     path = path or os.getcwd()
@@ -51,6 +56,17 @@ def get_repository(url):
     else:
         raise VersionControlError("Cannot access Mercurial repository at %s" % self.url)    
 
+@vectorized
+def find_script(url, hex):
+    get_repository(url)
+    i = 0
+    while True:
+        el = repo.parents(i)[0].hex()
+        if hex in el:
+            ctx = repo.parents(i)[0]
+            return ctx.filectx(ctx.files()[0]).data()
+        yield i
+        i += 1
 
 class MercurialWorkingCopy(WorkingCopy):
 
