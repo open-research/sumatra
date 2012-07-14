@@ -132,8 +132,8 @@ $(document).ready(function(){
     };
 
     $('.id-script').on('click', function(){
-        var hexsha = $(this).parent().parent().find('#version-t div').html();  //it should be visible, if not it'll be null
-        var path = $(this).parent().parent().find('#repository-t div').html();
+        var hexsha = $('#version-hid').html();
+        var path = $('#repo-hid').html();
         var scrName = $(this).html();
         var nbWind = $('.resizable').length;
         $.ajax({

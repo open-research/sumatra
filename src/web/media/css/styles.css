@@ -1292,3 +1292,7 @@ span.label{
 .s_platform{
   font-weight: bold;
 }
+
+.d-hid{
+  display: none;
+}

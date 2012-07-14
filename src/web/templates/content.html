@@ -102,7 +102,9 @@
     <ol id ='ol-content'>
     {% for record in object_list %}
         <li class='record {{settings.display_density}}'>
-            {% if 'repository' not in settings.table_HideColumns %}<div class='row-item' id='repository-t' style='width: {{width.head}}'>{{record.repository.url|cut:"repo"}}<div style='display:none'>{{record.repository.url}}</div></div>
+            <div id = 'version-hid' class='d-hid'>{{record.version}}</div>
+            <div id = 'repo-hid' class='d-hid'>{{record.repository.url}}</div>
+            {% if 'repository' not in settings.table_HideColumns %}<div class='row-item' id='repository-t' style='width: {{width.head}}'>{{record.repository.url|cut:"repo"}}</div>
             {% endif %}
 
             {% if 'label' not in settings.table_HideColumns %}
@@ -125,7 +127,7 @@
             <div class='row-item' id='outcome-t' style='width: {{width.head}}'>{{record.outcome}}</div>
             {% endif %}
 
-            {% if 'duration' not in settings.table_HideColumnsor %}
+            {% if 'duration' not in settings.table_HideColumns %}
             <div class='row-item' id='duration-t' style='width: {{width.head}}'>{{record.duration|human_readable_duration}}</div>
             {% endif %}
 
@@ -154,7 +156,7 @@
             {% endif %}
 
             {% if 'version' not in settings.table_HideColumns %}
-            <div class='row-item' id='version-t' style='width: {{width.head}}'>{{record.version|cut:"vers"}}{% if record.diff %}*{% endif %}<div style='display:none'>{{record.version}}</div></div>
+            <div class='row-item' id='version-t' style='width: {{width.head}}'>{{record.version|cut:"vers"}}{% if record.diff %}*{% endif %}</div>
             {% endif %}
 
             {% if 'arguments' not in settings.table_HideColumns %}
