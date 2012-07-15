@@ -152,16 +152,13 @@ def list_records(request, project):
             label_width = '150px'
         else:
             label_width = head_width
-        rec_prop = ('repository','label','tag','reason','outcome','duration','processes',
-                    'date', 'time', 'ename', 'eversion', 'main', 'version', 'arguments')
         dic = {'project_name': project,
                'form': form,
                'settings':web_settings,
                'object_list':page_list.object_list,
                'page_list':page_list,
                'paginator':paginator,
-               'width':{'head': head_width, 'label':label_width},
-               'rec_prop': rec_prop}
+               'width':{'head': head_width, 'label':label_width}}
         return render_to_response('record_list.html', dic)
 
 def list_tagged_records(request, project, tag):

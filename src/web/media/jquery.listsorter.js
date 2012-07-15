@@ -97,7 +97,7 @@
                     var dynamicExp = "var sortWrapper = function(a,b) {",
                         l = sortList.length;
                     for (var i = 0; i < l; i++) {
-                        var c = sortList[i][0];
+                        var c = sortList[i][0] + 2; //here 2 is the first two hidden columns
                         var order = sortList[i][1];
                         //console.log(config.parsers[c].type);
                         var s = (table.config.parsers[c].type == "text") ? ((order == 0) ? makeSortFunction("text", "asc", c) : makeSortFunction("text", "desc", c)) : ((order == 0) ? makeSortFunction("numeric", "asc", c) : makeSortFunction("numeric", "desc", c));
@@ -114,7 +114,7 @@
                     }
                     dynamicExp += "return 0; ";
                     dynamicExp += "}; ";
-                    
+
                     eval(dynamicExp);
                     cache.normalized.sort(sortWrapper);
                     return cache;
