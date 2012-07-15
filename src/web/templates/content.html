@@ -39,131 +39,70 @@
                     </div>
                 </div>
     </div>
-
-
-    <div id='head_t' class='nonselect'>
-        {% if 'repository' not in settings.table_HideColumns %}
+    <style type="text/css">
+        {% for item in settings.table_HideColumns %}
+            #l-{{item}}{display:none;}
+            #{{item}}-t{display:none;}
+        {% endfor%}
+        #head_t label#l-label, .record .row-item#label-t{width:{{width.label}};}
+        #head_t label:not(#l-label), .record .row-item:not(#label-t){width:{{width.head}};}
+        br {clear: both}
+    </style><!-- hide the columns which was selected in settings to be hidden -->
+    <div id='head_t' class='nonselect'>      
         <input type="radio" id="repository" />
-        <label class='t-item head-item' id='l-repository' for="repository" style='width: {{width.head}}'>Repository<span class='s-arrow'><span id='up' class='arr-s'>&#x25B2;</span><span id='down' class='arr-s'>&#x25BC;</span></span></label>{% endif %}
-        
-
-        {% if 'label' not in settings.table_HideColumns %}
+        <label class='t-item head-item' id='l-repository' for="repository">Repository</label> 
         <input type="radio" id="label" />
-        <label class='t-item head-item' id='l-label' for="label" style='width: {{width.label}}'>Label<span class='s-arrow'><span id='up' class='arr-s'>&#x25B2;</span><span id='down' class='arr-s'>&#x25BC;</span></span></label>{% endif %}
-        
-        {% if 'tag' not in settings.table_HideColumns %}
+        <label class='t-item head-item' id='l-label' for="label">Label</label>
         <input type="radio" id="tag" />
-        <label class='t-item head-item' id='l-tag'  for="tag" style='width: {{width.head}}'>Tag<span class='s-arrow'><span id='up' class='arr-s'>&#x25B2;</span><span id='down' class='arr-s'>&#x25BC;</span></span></label>{% endif %}
-        
-        {% if 'reason' not in settings.table_HideColumns %}
+        <label class='t-item head-item' id='l-tag' for="tag">Tag</label>   
         <input type="radio" id="reason" />
-        <label class='t-item head-item' id='l-reason'  for="reason" style='width: {{width.head}}'>Reason<span class='s-arrow'><span id='up' class='arr-s'>&#x25B2;</span><span id='down' class='arr-s'>&#x25BC;</span></span></label>{% endif %}
-        
-        {% if 'outcome' not in settings.table_HideColumns %}
+        <label class='t-item head-item' id='l-reason' for="reason">Reason</label>   
         <input type="radio" id="outcome" />
-        <label class='t-item head-item' id='l-outcome'  for="outcome" style='width: {{width.head}}'>Outcome<span class='s-arrow'><span id='up' class='arr-s'>&#x25B2;</span><span id='down' class='arr-s'>&#x25BC;</span></span></label>{% endif %}
-        
-        {% if 'duration' not in settings.table_HideColumns %}
+        <label class='t-item head-item' id='l-outcome' for="outcome">Outcome</label>    
         <input type="radio" id="duration" />
-        <label class='t-item head-item' id='l-duration' for="duration" style='width: {{width.head}}'>Duration<span class='s-arrow'><span id='up' class='arr-s'>&#x25B2;</span><span id='down' class='arr-s'>&#x25BC;</span></span></label>{% endif %}
-        
-        {% if 'processes' not in settings.table_HideColumns %}
+        <label class='t-item head-item' id='l-duration' for="duration">Duration</label>     
         <input type="radio" id="processes" />
-        <label class='t-item head-item' id='l-processes' for="processes" style='width: {{width.head}}'>Processes<span class='s-arrow'><span id='up' class='arr-s'>&#x25B2;</span><span id='down' class='arr-s'>&#x25BC;</span></span></label>{% endif %}
-        
-        {% if 'date' not in settings.table_HideColumns %}
+        <label class='t-item head-item' id='l-processes' for="processes">Processes</label>    
         <input type="radio" id="date" />
-        <label class='t-item head-item' id='l-date' for="date" style='width: {{width.head}}'>Date<span class='s-arrow'><span id='up' class='arr-s'>&#x25B2;</span><span id='down' class='arr-s'>&#x25BC;</span></span></label>{% endif %}
-        
-        {% if 'time' not in settings.table_HideColumns %}
+        <label class='t-item head-item' id='l-date' for="date">Date</label>
         <input type="radio" id="time" />
-        <label class='t-item head-item' id='l-time' for="time" style='width: {{width.head}}'>Time<span class='s-arrow'><span id='up' class='arr-s'>&#x25B2;</span><span id='down' class='arr-s'>&#x25BC;</span></span></label>{% endif %}
-        
-        {% if 'ename' not in settings.table_HideColumns %}
+        <label class='t-item head-item' id='l-time' for="time">Time</label>      
         <input type="radio" id="ename" />
-        <label id='l-ename' class='t-item head-item' for="ename" style='width: {{width.head}}'>Executable name<span class='s-arrow'><span id='up' class='arr-s'>&#x25B2;</span><span id='down' class='arr-s'>&#x25BC;</span></span></label>{% endif %}
-        
-        {% if 'eversion' not in settings.table_HideColumns %}
+        <label id='l-ename' class='t-item head-item' for="ename">Executable name</label>    
         <input type="radio" id="eversion" />
-        <label id='l-eversion' class='t-item head-item' for="eversion" style='width: {{width.head}}'>Executable version<span class='s-arrow'><span id='up' class='arr-s'>&#x25B2;</span><span id='down' class='arr-s'>&#x25BC;</span></span></label>{% endif %}
-        
-        {% if 'main' not in settings.table_HideColumns %}
+        <label id='l-eversion' class='t-item head-item' for="eversion">Executable version</label>  
         <input type="radio" id="main" />
-        <label class='t-item head-item' id='l-main' for="main" style='width: {{width.head}}'>Main file<span class='s-arrow'><span id='up' class='arr-s'>&#x25B2;</span><span id='down' class='arr-s'>&#x25BC;</span></span></label>{% endif %}
-        
-        {% if 'version' not in settings.table_HideColumns %}
+        <label class='t-item head-item' id='l-main' for="main">Main file</label> 
         <input type="radio" id="version" />
-        <label class='t-item head-item' id='l-version' for="version" style='width: {{width.head}}'>Version<span class='s-arrow'><span id='up' class='arr-s'>&#x25B2;</span><span id='down' class='arr-s'>&#x25BC;</span></span></label>{% endif %}
-        
-        {% if 'arguments' not in settings.table_HideColumns %}
+        <label class='t-item head-item' id='l-version' for="version">Version</label> 
         <input type="radio" id="arguments" />
-        <label class='t-item head-item' id='l-arguments' for="arguments" style='width: {{width.head}}'>Arguments<span class='s-arrow'><span id='up' class='arr-s'>&#x25B2;</span><span id='down' class='arr-s'>&#x25BC;</span></span></label>{% endif %}
+        <label class='t-item head-item' id='l-arguments' for="arguments">Arguments</label>
     </div>
     <ol id ='ol-content'>
     {% for record in object_list %}
-        <li class='record {{settings.display_density}}'>
-            <div id = 'version-hid' class='d-hid'>{{record.version}}</div>
-            <div id = 'repo-hid' class='d-hid'>{{record.repository.url}}</div>
-            {% if 'repository' not in settings.table_HideColumns %}<div class='row-item' id='repository-t' style='width: {{width.head}}'>{{record.repository.url|cut:"repo"}}</div>
-            {% endif %}
-
-            {% if 'label' not in settings.table_HideColumns %}
-            <div class='row-item' id='label-t' style='width: {{width.label}}'>{{record.label}}</div>
-            {% endif %}
-
-            {% if 'tag' not in settings.table_HideColumns %}
-                {% if tag %}
-                    <div class='row-item' id='tag-t' style='width: {{width.head}}'>{% for other_tag in record.tag_objects %}{% if tag == other_tag %}{{tag}} {% else %}<a href="/{{project_name}}/tag/{{other_tag.name}}/">{{other_tag.name}}</a> {% endif %}{% endfor %}</div>
-                {% else %}
-                    <div class='row-item' id='tag-t' style='width: {{width.head}}'>{{record.tags|link:"tag/%s/"}}</div>
-                {% endif %}
-            {% endif %} 
-
-            {% if 'reason' not in settings.table_HideColumns %}           
-            <div class='row-item' id='reason-t' style='width: {{width.head}}'>{{record.reason}}</div>
-            {% endif %}
-
-            {% if 'outcome' not in settings.table_HideColumns %}
-            <div class='row-item' id='outcome-t' style='width: {{width.head}}'>{{record.outcome}}</div>
-            {% endif %}
-
-            {% if 'duration' not in settings.table_HideColumns %}
-            <div class='row-item' id='duration-t' style='width: {{width.head}}'>{{record.duration|human_readable_duration}}</div>
-            {% endif %}
-
-            {% if 'processes' not in settings.table_HideColumns %}
-            <div class='row-item' id='processes-t' style='width: {{width.head}}'>{{record.launch_mode.get_parameters.n|default:"1"}}</div>
-            {% endif %}
-
-            {% if 'date' not in settings.table_HideColumns %}
-            <div class='row-item' id='date-t' style='width: {{width.head}}'>{{record.timestamp|date:"d/m/Y"}}</div>
-            {% endif %}
-
-            {% if 'time' not in settings.table_HideColumns %}
-            <div class='row-item' id='time-t' style='width: {{width.head}}'>{{record.timestamp|date:"H:i:s"}}</div>
-            {% endif %}
-
-            {% if 'ename' not in settings.table_HideColumns %}
-            <div class='row-item' id='ename-t' style='width: {{width.head}}'>{{record.executable.name}}</div>
-            {% endif %}
-
-            {% if 'eversion' not in settings.table_HideColumns %}
-            <div class='row-item' id='eversion-t' style='width: {{width.head}}'>{{record.executable.version}}</div>
-            {% endif %}
-
-            {% if 'main' not in settings.table_HideColumns %}
-            <div class='row-item' id='main-t' style='width: {{width.head}}'><a class='id-script' href=''>{{record.main_file}}</a></div>
-            {% endif %}
-
-            {% if 'version' not in settings.table_HideColumns %}
-            <div class='row-item' id='version-t' style='width: {{width.head}}'>{{record.version|cut:"vers"}}{% if record.diff %}*{% endif %}</div>
-            {% endif %}
-
-            {% if 'arguments' not in settings.table_HideColumns %}
-            <div class='row-item' id='arguments-t' style='width: {{width.head}}'>{{record.script_arguments}}</div>
-            {% endif %}
-            <br style='clear:both'>
-        </li>
-        {% endfor %}
+      <li class='record {{settings.display_density}}'>
+        <div id = 'version-hid' class='d-hid'>{{record.version}}</div>
+        <div id = 'repo-hid' class='d-hid'>{{record.repository.url}}</div>
+        <div class='row-item' id='repository-t'>{{record.repository.url|cut:"repo"}}</div>
+        <div class='row-item' id='label-t'>{{record.label}}</div>
+        {% if tag %}
+            <div class='row-item' id='tag-t'>{% for other_tag in record.tag_objects %}{% if tag == other_tag %}{{tag}} {% else %}<a href="/{{project_name}}/tag/{{other_tag.name}}/">{{other_tag.name}}</a> {% endif %}{% endfor %}</div>
+        {% else %}
+            <div class='row-item' id='tag-t'>{{record.tags|link:"tag/%s/"}}</div>
+        {% endif %}
+        <div class='row-item' id='reason-t'>{{record.reason}}</div>
+        <div class='row-item' id='outcome-t'>{{record.outcome}}</div>
+        <div class='row-item' id='duration-t'>{{record.duration|human_readable_duration}}</div>
+        <div class='row-item' id='processes-t'>{{record.launch_mode.get_parameters.n|default:"1"}}</div>
+        <div class='row-item' id='date-t'>{{record.timestamp|date:"d/m/Y"}}</div>
+        <div class='row-item' id='time-t'>{{record.timestamp|date:"H:i:s"}}</div>
+        <div class='row-item' id='ename-t'>{{record.executable.name}}</div>
+        <div class='row-item' id='eversion-t'>{{record.executable.version}}</div>
+        <div class='row-item' id='main-t'><a class='id-script' href=''>{{record.main_file}}</a></div>
+        <div class='row-item' id='version-t'>{{record.version|cut:"vers"}}{% if record.diff %}*{% endif %}</div>
+        <div class='row-item' id='arguments-t'>{{record.script_arguments}}</div>
+        <br>
+      </li>
+    {% endfor %}
     </ol>
 </div>

@@ -1,4 +1,6 @@
 $(document).ready(function(){
+    $('label.head-item').append("<span class='s-arrow'><span id='up' class='arr-s'>&#x25B2;</span><span id='down' class='arr-s'>&#x25BC;</span></span>");
+
     $('#ol-content').listsorter(); 
     $('#pagin_info').dropdown();
     $('.page.gradient').tooltip({
