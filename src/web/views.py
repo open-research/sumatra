@@ -465,7 +465,7 @@ def settings(request, project):
         else:
             label_width = head_width
         dic = {'project_name': project,
-               'settings':web_settings,
+               'settings':project_loaded.web_settings,
                'paginator':paginator,
                'object_list':page_list.object_list,
                'page_list':page_list,
