@@ -76,6 +76,7 @@ $(document).ready(function(){
     });
 
     $('#ol-content').selectable({
+            filter: 'li:not("div")',  //select only li and not the children divs
             stop: function() {
                 var result = $( "#testdiv" ).empty();
                 var $head_table = $('#head_t');
