@@ -3,24 +3,8 @@
 {% block title %}{{project.id}}:About{% endblock %}
 
 {% block header %}
-<div class="navbar navbar-fixed-top">
-    <div class="navbar-inner">
-        <div class="container-fluid">       
-            <h2><div id = "name_project">
-            <a href="/{{project.id}}/about/" style='color:rgb(102, 157, 199)'>{{project.id}}</a></div></h2>   
-            <!--div id='sumatra_logo'><a href="http://neuralensemble.org/trac/sumatra">
-            <img src='/media/Sumatra_logo.png'/></a></div-->         
-                <ul class='nav'>
-                    <li class="divider"></li>
-                    <li class='active'><a href='/{{project.id}}/about/' class='a-subnav'>About</a></li> 
-                    <li><a href='/' class='a-subnav'>List of projects</a></li>
-                    <li><a href='/{{project.id}}/' class='a-subnav'>List of records</a></li>       
-                </ul>
-        </div>
-    </div>
-</div>
-{% endblock %}
-
+    {% include "header.html" %} 
+{% endblock %} 
 
 {% block content %}
 <div id = 'side_projectDetail'>

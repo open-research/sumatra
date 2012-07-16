@@ -99,8 +99,11 @@ class ProjectUpdateForm(forms.ModelForm):
 
 
 def list_projects(request):
-    return list_detail.object_list(request, queryset=models.Project.objects.all(),
-                                   template_name="project_list.html")
+    projects = models.Project.objects.all()
+    return list_detail.object_list(request, queryset=projects,
+                                   template_name="project_list.html",
+                                   extra_context={'active':'List of projects',
+                                                  'project_name':projects[0]}) #returns the first project
 
 def show_project(request, project):
     project = models.Project.objects.get(id=project)
@@ -111,7 +114,7 @@ def show_project(request, project):
     else:
         form = ProjectUpdateForm(instance=project)
     return render_to_response('project_detail.html',
-                              {'project': project, 'form': form})
+                              {'project_name': project, 'form': form, 'active':'About'})
 
 def list_records(request, project):
     nbCols = 14 
@@ -158,7 +161,8 @@ def list_records(request, project):
                'object_list':page_list.object_list,
                'page_list':page_list,
                'paginator':paginator,
-               'width':{'head': head_width, 'label':label_width}}
+               'width':{'head': head_width, 'label':label_width},
+               'active':'List of records'}
         return render_to_response('record_list.html', dic)
 
 def list_tagged_records(request, project, tag):

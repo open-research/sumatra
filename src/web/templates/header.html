@@ -1,0 +1,49 @@
+<div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">                 
+                <ul class='nav'>
+                    <li class="divider"></li>
+                    <li class='{% if active == "About" %}active{% endif %}'><a href='/{{project_name}}/about/' class='a-subnav'>About</a></li> 
+                    <li class='{% if active == "List of projects" %}active{% endif %}'><a href='/' class='a-subnav'>List of projects</a></li>
+                    <li class='{% if active == "List of records" %}active{% endif %}'><a href='/{{project_name}}/' class='a-subnav'>List of records</a></li> 
+                    {% if active == "List of records" %}
+                        <div id = 'div_menu_search' style='float:right'>
+                            <input class='span5' type='text' id="text_subnav" placeholder='Search' value='{{search_info.label}}'/>
+                            <span id='icon_cdown'><i class="icon-chevron-down" style='font-size:10pt; padding-top:3px;'></i></span>     
+                            <a class='btn btn-info btn-large' id='btn_search'><i class="icon-search">
+                            </i>&nbsp; Search
+                            </a>         
+                               <ul class="dropdown-menu" id = 'menu_search'>      
+                                    <a class="close" id='close_menu'>&times;</a> 
+                                    <form id='search_form' action='/{{project_name}}/search' method='GET'>
+                                        {{form.as_p}}
+                                    </form>
+                                    <div>
+                                        <a id='search_but' class='btn btn-info btn-large' style='padding: 5px 15px;margin-left:10px;color:#ffffff;margin-right:10px'><i class="icon-search">
+                                            </i>&nbsp; Search
+                                        </a> 
+                                    </div>
+                                </ul>
+                        </div>
+                    {% endif %}           
+                </ul>
+                {% if active == "List of records" %}
+                    <ul class='nav pull-right' style='margin-right:5px'>
+                        <li class='divider-vertical'></li>   
+                        <li class='dropdown'><a id='li_settings' class='dropdown-toggle' data-toggle='dropdown' href=''>
+                        <i class="icon-cog" style='margin-top:8px'></i> Settings<b class='caret'></b></a>
+                            <ul class='dropdown-menu' id = 'dropdown_menu'>
+                                <li><a href="#" id='settings_density'>Display density:</a></li> 
+                                <li><a href="#" class='menu-rsettigns {% if "comfortable" in settings.display_density %}active{% endif %}' id='comfortable'>Comfortable</a></li>
+                                <li><a href="#" class='menu-rsettigns {% if "compact" in settings.display_density %}active{% endif %}' id='compact'>Compact</a></li>
+                                <li class="divider"></li>
+                                <li><a id='button_settings' class='menu-rsettigns' data-toggle="modal" href="#setModal">Settings</a></li>
+                            </ul>
+                        </li>                    
+                        <li class='divider-vertical'></li>     
+                    </ul> 
+                    <div id='wrapper_code'></div>
+                {% endif %}
+        </div>
+    </div>
+</div>
