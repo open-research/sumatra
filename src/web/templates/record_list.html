@@ -182,8 +182,7 @@ $(document).ready(function(){
     });
 
     // settings_window: user click 'save'
-    $('#save_set').click(function(){
-        
+    $('#save_set').click(function(){    
         if (!$('#save_set').hasClass('disabled')){ 
             var str_rec, str_head,  
                 uncheckedItems = new Array(); // all unchecked chkboxes
@@ -195,12 +194,11 @@ $(document).ready(function(){
                 str_head = ['#l-', $unchecked].join(''); // header of the table selector string           
                 uncheckedItems.push($unchecked);
             }); 
-            $(str_rec).hide(); // hide the records
-            $(str_head).hide(); 
+            $(str_rec,str_head).hide(); // hide the records
             // save settings to .smt/project
             $('#main_content').load('settings',{'table_HideColumns':uncheckedItems, 
-                                                'nb_records_per_page':nb_rec,
-                                                'saveSettings':true});
+                                            'nb_records_per_page':nb_rec,
+                                            'saveSettings':true}).fadeIn('quick');
         }  
     });
 });

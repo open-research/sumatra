@@ -1,6 +1,14 @@
 {% load filters %}
+<style type="text/css">
+    {% for item in settings.table_HideColumns %}
+        #l-{{item}}{display:none;}
+        #{{item}}-t{display:none;}
+    {% endfor%}
+    #head_t label#l-label, .record .row-item#label-t{width:{{width.label}};}
+    #head_t label:not(#l-label), .record .row-item:not(#label-t){width:{{width.head}};}
+    br {clear: both}
+</style><!-- hide the columns which was selected in settings to be hidden -->
 
-<script type="text/javascript" src="/media/table.js"></script>
 <div id = 'main_content'>
      <div id='newrecord'>
             <div style='float:left; position:relative;'>
@@ -39,15 +47,6 @@
                     </div>
                 </div>
     </div>
-    <style type="text/css">
-        {% for item in settings.table_HideColumns %}
-            #l-{{item}}{display:none;}
-            #{{item}}-t{display:none;}
-        {% endfor%}
-        #head_t label#l-label, .record .row-item#label-t{width:{{width.label}};}
-        #head_t label:not(#l-label), .record .row-item:not(#label-t){width:{{width.head}};}
-        br {clear: both}
-    </style><!-- hide the columns which was selected in settings to be hidden -->
     <div id='head_t' class='nonselect'>      
         <input type="radio" id="repository" />
         <label class='t-item head-item' id='l-repository' for="repository-t">Repository</label> 
@@ -106,3 +105,4 @@
     {% endfor %}
     </ol>
 </div>
+<script type="text/javascript" src="/media/table.js"></script>

@@ -977,7 +977,7 @@ h2.topic{
   -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
   cursor: pointer;
-  width: 93%;
+  width: 92%;
 }
 
 .mod_input a:hover{
@@ -1296,3 +1296,4 @@ span.label{
 .d-hid{
   display: none;
 }
+
