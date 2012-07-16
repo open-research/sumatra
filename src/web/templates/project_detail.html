@@ -2,10 +2,6 @@
 
 {% block title %}{{project.id}}:About{% endblock %}
 
-{% block header %}
-    {% include "header.html" %} 
-{% endblock %} 
-
 {% block content %}
 <div id = 'side_projectDetail'>
     <form id = 'target' action='.' method='POST' style='margin-top:10px;'>
@@ -30,5 +26,4 @@
     });
   });
 </script>
-
 {% endblock %}
