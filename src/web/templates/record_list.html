@@ -11,7 +11,6 @@
     {% include "new_record.html" %}        <!-- 'new record' popup window -->
     {% include "delete_record.html" %}     <!-- 'delete selected records' popup window -->
     {% include "comparison_window.html" %} <!-- 'compare selected records' popup window -->
-
 <script type = 'text/javascript'>
 $(document).ready(function(){ 
     // initialization of all modal popup-windows (settings, new record, set tags, compare records) and hide them
@@ -154,6 +153,31 @@ $(document).ready(function(){
                                             'nb_records_per_page':nb_rec,
                                             'saveSettings':true});
         }  
+    });
+
+    $(document).on('click', '#alist-labels span', function(){
+        var nbSelected = $('span.label.label-success').length; 
+        var names_div = ['left', 'right'];  
+        $this = $(this);
+        if ($this.hasClass('label-success')) { // click on the record
+            $this.removeClass('label-success');
+            // delete the part of the window with unchecked label
+            if ($('#sim-left #td_label').html() == $this.html()){
+                $('#sim-left').empty();
+            } else { $('#sim-right').empty(); }
+
+        }else{
+            if (nbSelected == 2){ // if more than two      
+                $('span.label.label-success:eq(0)').removeClass('label-success');  //remove it from the leftmost label
+            }
+            $this.addClass('label-success');   // record is activated
+            $('span.label.label-success').each(function(i, el){
+                var $labl = $(el).html();        //label of the clicked record
+                var buffer = [window.location.pathname, $labl , "/ ", "#info_record"];
+                buffer = buffer.join('');
+                $('#sim-' + names_div[i]).load(buffer);  
+            });
+        }
     });
 });
 </script>

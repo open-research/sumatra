@@ -7,7 +7,7 @@
   		<div id='list-labels'></div>
       <div>
         		<form id='form-tags' method='POST' action='/{{project_name}}/settags'>
-        			{{form}}
+        			{{form.as_p}}
         			<p class="help-block" style='margin-top:-5px'>specify the tags for the selected records</p>
               <textarea name='selected_labels' id='arrLabls'></textarea>
       		  </form>
