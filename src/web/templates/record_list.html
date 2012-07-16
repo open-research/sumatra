@@ -79,7 +79,7 @@ $(document).ready(function(){
         $(this).css('display','none');
         $('#s_nbt').css('display','block');     
     }); 
-    $('html').click(function(){               // each time user click window
+    $(window).click(function(){               // each time user click window
             var $val = $('#s_nbt').val();     // number of records per page
             if ($val > 0){ 
                 //$('#save_set').removeClass('disabled');
@@ -91,15 +91,17 @@ $(document).ready(function(){
                 //$('#save_set').addClass('disabled');  // disable the button 'save settings'
                 $('#setModal').modal('show');         // window is not closing
             } 
-            //alert('here'); 
-            $('.record').removeClass('ui-selected');
+            $('.record').removeClass('ui-selected'); // removing all selected records
+            $('#selection_header').css('display', 'none'); // remove the header of the table when there are some selected records
+            $('#default_header').css('display', 'inline'); // append the default header of the table
     });
 
     // user opens settings_window
     $('#button_settings').on('click', function(){
+        $('#default_header').css('display', 'inline');
         $('.check-item').attr('checked', false); // uncheck all of them
         // in the settings form refresh the current state of chkboxes:
-        $('#head_t label').not(':hidden').each(function(){
+        $('#default_header label').not(':hidden').each(function(){
             var str_chbx = ['.check-item#', $(this).attr('id').split('-')[1]].join('');
             $(str_chbx).attr('checked', true);
         });

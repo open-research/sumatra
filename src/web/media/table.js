@@ -11,6 +11,31 @@ $(document).ready(function(){
         trigger: 'hover'
     });
 
+    $('#d-delete, #y-delRec, #d-tags, #saveTags, #d-comp, #compareSim').live('click', function(e){
+        e.preventDefault();
+        return false;
+    });
+
+    $('#y-delRec').click(function(){
+        var succ = false;
+        deleteArr = new Array(); // records to delete
+        $('li.ui-selected').each(function(){
+            deleteArr.push($(this).find('#label-t').html())
+        });
+        $.ajax({
+            type: 'POST',
+            url: 'delete/',
+            data: {'delete':deleteArr,'delete_data':true}, //presume that user always want to delete data
+            success:function(data){
+                succ = true;
+            },
+            async: false
+        });
+        if (succ){
+            window.open('.','_self');
+        }
+    });
+
     $('#d-tags').live('click', function(){ // click on the 'edit tags' button
         var $div_list = $('#list-labels').empty();
         var $selected_labels = new Array();
@@ -34,6 +59,7 @@ $(document).ready(function(){
         var $selected_labels = new Array();
         var names_div = ['left', 'right'];
         $('.record.ui-selected').each(function(){
+            console.log($(this));
             var $labl = $(this).find('#label-t').html();           
             $selected_labels.push($labl);
             $div_list.append('<span class="label">'+ $labl +'</span>');  
@@ -48,7 +74,7 @@ $(document).ready(function(){
             }
         }else{
             $('.analysis-w').empty(); //clear the the content of the popup window if user choose more than 2 records
-        }  
+        }
     });
 
     $('#alist-labels span.label').live('click', function(){   
@@ -79,14 +105,10 @@ $(document).ready(function(){
             filter: 'li:not("div")',  //select only li and not the children divs
             stop: function() {
                 var result = $( "#testdiv" ).empty();
-                var $head_table = $('#head_t');
                 nbSelected = $( "li.ui-selected").length;
                 result.append(nbSelected);
-                $head_table.empty();
-                $head_table.append('<div id = "d-nbrec"></div>')
-                           .append('<div id = "d-delete" data-toggle="modal" href="#deleteModal">delete records</div>')
-                           .append('<div id = "d-tags" data-toggle="modal" href="#setTagsModal">edit tags</div>')
-                           .append('<div id = "d-comp" data-toggle="modal" href="#compareSim">compare simulations</div>');
+                $('#default_header').css('display','none');
+                $('#selection_header').css('display','inline');
                 $('#d-nbrec').html(nbSelected + ' records');
             }
     });
