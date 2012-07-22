@@ -220,7 +220,7 @@ a.active{
     margin-bottom:10px;
     //float:left;
     //margin-left:20px;
-    position:absolute;
+    /*position:absolute;*/
     width: 100%;
     //background-color: red;
     //right:5px;
@@ -1110,7 +1110,6 @@ input[type="radio"]:checked+label{ font-weight: bold }
 }
 
 #main_content{
-    float:left;
     width:100%;
     /*margin-top: 5px; 
     position:relative;*/
