@@ -221,7 +221,7 @@ a.active{
     //float:left;
     //margin-left:20px;
     /*position:absolute;*/
-    width: 100%;
+    /*width: 100%;*/
     //background-color: red;
     //right:5px;
 }
@@ -997,28 +997,31 @@ h2.topic{
     border-width: 1px;
     box-shadow: 0 1px 1px rgba(0, 0, 0, 0.12), 0 0 0 #000000 inset;
     margin-right: 25px;
-    position: relative;
-    top:60px;
+    /*position: relative;*/
+    /*margintop:400px;*/
+    margin-top: 100px;
 }
 
 .head-item, .row-item{
     float:left;
+    /*position:relative;*/
     /*width: 6.5%;*/
 }
  #l-ename, #l-eversion{
-    float:left;
-    margin-top: -2px;
-    line-height:20px;
-    /*width:6.5%;*/
+    /*height: 33px;*/
+    /*margin-top: auto;*/
+
  }
  
 #l-label, #label-t{
-    width: 150px;  
+    width: 150px; 
+    cursor: pointer; 
 }
  
 .t-item{
-    line-height: 33px;
+    /*line-height: 33px;*/
     cursor: pointer; 
+    margin-top: 8px;
 }
 .nonselect{
     -webkit-touch-callout: none;
@@ -1172,8 +1175,8 @@ input[type="radio"]:checked+label{ font-weight: bold }
 #ol-content{
     margin-left:0px;
     margin-right: 25px;
-    top:60px;
-    position: relative;
+    /*top:60px;*/
+    /*position: relative;*/
 }
 
 #ol-content .ui-selecting{

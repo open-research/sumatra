@@ -11,6 +11,15 @@ $(function() {
         trigger: 'hover'
     });
 
+    if ($('#l-eversion').height() > 20){ // in case it spans one line
+        $('#l-eversion').css('margin-top', '0px');
+    };
+
+    if ($('#l-ename').height() > 20){ // in case it spans one line
+        $('#l-ename').css('margin-top', '0px');
+    };
+
+
     $('#d-delete, #y-delRec, #d-tags, #saveTags, #d-comp, #compareSim').live('click', function(e){
         e.preventDefault();
         return false;
@@ -83,7 +92,7 @@ $(function() {
                 nbSelected = $( "li.ui-selected").length;
                 result.append(nbSelected);
                 $('#default_header').css('display','none');
-                $('#selection_header').css('display','inline');
+                $('#selection_header').css('display','block');
                 $('#d-nbrec').html(nbSelected + ' records');
             }
     });

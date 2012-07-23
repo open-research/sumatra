@@ -10,8 +10,8 @@
 </style><!-- hide the columns which was selected in settings to be hidden -->
 
 <div id = 'main_content'>
-     <div id='newrecord'>
-            <div style='float:left; position:relative;'>
+     <!--div id='newrecord'>
+            <div style='float:left'>
                 <a id='btn_newrec' class='btn btn-danger btn-large' style='width:100px' data-toggle="modal" href="#mod_newrec">
                     <i class="icon-file"></i> New record
                 </a>
@@ -45,7 +45,7 @@
                         {% if page_list.has_previous %}<a class="page gradient" id='older'>{% else %}<a class="page gradient inactive" id='older'>{% endif %}<i class="pagin icon-chevron-left"></i></a>
                         {% if page_list.has_next %}<a class="page gradient" id='newer'>{% else %}<a class="page gradient inactive" id='newer'>{% endif %}<i class="pagin icon-chevron-right"></i></a>
                     </div>
-                </div>
+        </div-->
     </div>
     <div id='head_t' class='nonselect'>  
         <div id='selection_header' style='display:none'>
@@ -54,7 +54,7 @@
             <div id = "d-tags" data-toggle="modal" href="#setTagsModal">edit tags</div>
             <div id = "d-comp" data-toggle="modal" href="#compareSim">compare simulations</div>
         </div>  
-        <div id = 'default_header'>  
+        <div id = 'default_header' style="position:relative;">  
             <input type="radio" id="repository" />
             <label class='t-item head-item' id='l-repository' for="repository-t">Repository</label> 
             <input type="radio" id="label" />
