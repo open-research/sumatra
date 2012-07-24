@@ -215,16 +215,14 @@ a.active{
   //margin-right:20px;
 }
 
-#newrecord{
+/*#newrecord{
     margin-top: 10px;
     margin-bottom:10px;
     //float:left;
     //margin-left:20px;
-    /*position:absolute;*/
-    /*width: 100%;*/
-    //background-color: red;
-    //right:5px;
-}
+    //position:relative;
+    /*width: 100%;
+}*/
 
 #text_subnav{
     margin-top:5px;
@@ -451,8 +449,9 @@ a.active{
     border:  1px solid #e5e5e5;
 }
 .btn-group.paginator{
-    float:left;
-    margin-right:0px;
+    /*float:right;*/
+    /*right:0px;*/
+    /*position:relative;*/
 }
 #pagin_info ul li a{
     font-size:12px; 
@@ -990,16 +989,23 @@ h2.topic{
     line-height: 35px;
     padding: 3px 6px;
     box-shadow:0 1px 1px rgba(0, 0, 0, 0.12), 0 0 0 #000000 inset;
-    display: block;
+    /*display: block;*/
     font-family: "Open Sans","lucida grande","Segoe UI",arial,verdana,"lucida sans unicode",tahoma,sans-serif;
     border-color:#82CFFA #E7F2FB #96C4EA;
     border-style: solid;
     border-width: 1px;
     box-shadow: 0 1px 1px rgba(0, 0, 0, 0.12), 0 0 0 #000000 inset;
     margin-right: 25px;
+    margin-top: 10px;
     /*position: relative;*/
     /*margintop:400px;*/
-    margin-top: 100px;
+    /*margin-top: 100px;*/
+    /*position: fixed;*/
+    /*position: relative;*/
+    /*right:10px;*/
+    /*left:10px;*/
+    /*top: 42px;*/
+    /*margin-top: 100px;*/
 }
 
 .head-item, .row-item{
@@ -1104,7 +1110,7 @@ input[type="radio"]:checked+label{ font-weight: bold }
     float:left;
     margin-left:10px;
     width:70%;
-    height:40px;
+    height:inherit;
     background: url("../white_pixel.png") repeat-x scroll 0 0 #F0F9FF;
     padding-left: 5px;
     -webkit-border-radius: 5px;
@@ -1112,10 +1118,19 @@ input[type="radio"]:checked+label{ font-weight: bold }
     border-radius: 5px;
 }
 
+#div-paginator{
+  float:right;
+  margin-right: 10px;
+  /*position: relative;*/
+  /*background-color: red;*/
+}
+
 #main_content{
-    width:100%;
+    /*width:100%;*/
+    /*position: absolute;*/
     /*margin-top: 5px; 
     position:relative;*/
+    /*border:1px solid red;*/
 }
 
 .ui-resizable { 
@@ -1299,3 +1314,17 @@ span.label{
   display: none;
 }
 
+.subnav-fixed {
+    /*border-color: #D5D5D5;*/
+    /*border-radius: 0 0 0 0;*/
+    /*border-width: 0 0 1px;*/
+    /*box-shadow: 0 1px 0 #FFFFFF inset, 0 1px 5px rgba(0, 0, 0, 0.1);*/
+    /*left: 0;*/
+    position: fixed;
+    /*right: 0;*/
+    top: 31px;
+    left:20px;
+    right:0px;
+    z-index: 1020;
+    /*right: 25px;*/
+}

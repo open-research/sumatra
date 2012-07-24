@@ -11,6 +11,8 @@ $(function() {
         trigger: 'hover'
     });
 
+    
+
     if ($('#l-eversion').height() > 20){ // in case it spans one line
         $('#l-eversion').css('margin-top', '0px');
     };
