@@ -54,10 +54,9 @@ def filter_search(request_data):
                                       timestamp__month = val.month, 
                                       timestamp__day = val.day)
         elif isinstance(val, models.Executable):
-            print 'in executable'
-            results =  results.filter(executable__name = val.name)
+            results =  results.filter(executable__path = val.path)
+
         elif isinstance(val, models.Repository):
-            print 'in repository'
             results =  results.filter(repository__url = val.url) 
     return results
 
@@ -65,7 +64,6 @@ def search(request, project):
     if request.method == 'POST':
         web_settings = load_project().web_settings
         nb_per_page = int(load_project().web_settings['nb_records_per_page'])
-        print 'request.POST', request.POST
         # form = RecordForm(request.POST) 
         form = RecordForm(request.POST) 
         if form.is_valid():
@@ -144,21 +142,12 @@ def list_records(request, project):
         if (nbCols_actual > 10):
             label_width = '150px'
         else:
-            label_width = head_width   
-        data_form = {}
-        data_form['label'] = request.POST.get('form[label]', False)
-        data_form['executable'] = request.POST.get('form[executable]', False)
-        data_form['repository'] = request.POST.get('form[repository]', False)
-        data_form['tags'] = request.POST.get('form[tags]', False)
-        data_form['main_file'] = request.POST.get('form[main_file]', False)
-        data_form['script_arguments'] = request.POST.get('form[script_arguments]', False)
-        data_form['reason'] = request.POST.get('form[reason]', False)
-        data_form['timestamp'] = request.POST.get('form[timestamp]', False)    
-        for key, val in data_form.iteritems():
-            if len(val) > 0:
-              sim_list = filter_search(data_form)
-              paginator = Paginator(sim_list, nb_per_page)
-              break
+            label_width = head_width 
+        form = RecordForm(request.POST)
+        if form.is_valid():
+            request_data = form.cleaned_data
+            sim_list = filter_search(request_data)
+            paginator = Paginator(sim_list, nb_per_page)
         try:
             page_list = paginator.page(page)
         except PageNotAnInteger:
@@ -278,7 +267,6 @@ def show_file(request, project, label):
   
 '''
 def show_file(request, project, label):
-    print 'here fd'
     label = unescape(label)
     path = request.GET['path']
     digest = request.GET['digest']
