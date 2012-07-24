@@ -68,7 +68,7 @@ class Executable(BaseModel):
     options = models.CharField(max_length=50)
 
     def __unicode__(self):
-        return self.name
+        return self.path
 
     def to_sumatra(self):
         cls = programs.registered_program_names.get(self.name, programs.Executable)
@@ -192,12 +192,12 @@ class PlatformInformation(BaseModel):
 
 
 class Record(BaseModel):
-    label = models.CharField(max_length=100, unique=False) # make this a SlugField?
+    label = models.CharField(max_length=100, unique=False) # make this a SlugField? samarkanov changed unique to False for the search form.
     db_id = models.AutoField(primary_key=True) # django-tagging needs an integer as primary key - see http://code.google.com/p/django-tagging/issues/detail?id=15
     reason = models.TextField(blank=True)
     duration = models.FloatField(null=True)
-    executable = models.ForeignKey(Executable)
-    repository = models.ForeignKey(Repository)
+    executable = models.ForeignKey(Executable, null=True, blank=True) # null and black for the search. If user doesn't want to specify the executable during the search
+    repository = models.ForeignKey(Repository, null=True, blank=True) # null and black for the search.
     main_file = models.CharField(max_length=100)
     version = models.CharField(max_length=50)
     parameters = models.ForeignKey(ParameterSet)

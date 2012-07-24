@@ -45,23 +45,15 @@ $(document).ready(function(){
         return false; 
     });
 
+    // clearing of the search form
+    $('#search_form').find(':input').each(function() {
+         $(this).val('');
+    });
+    
     // as soon as user clicks the search button in the search drop-down list, the form will be submited
     $('#search_but').click(function(){
-        //alert($('#search_form').html());
-        //$('#search_form').trigger('submit');
-        //aa = $('#search_form').submit();
-        //alert(aa);
-         //$('#search_form').trigger('submit');
-         // alert($('#id_label').val());
-            // $.get("search", {    
-            //     executable:$('#id_executable').val(), repository:$('#id_repository').val(), tags:$('#id_tags').val(), main_file:$('#id_main_file').val(), label:$('#id_label').val(), script_arguments:$('#id_script_arguments').val(), reason:$('#id_reason').val(), timestamp:$('#id_timestamp').val()
-            // }, function(data) {
-            //     //$('#output').html(data);
-            //     alert(data);
-            //     $('#main_content').empty().append(data);
-            // }); 
-    $('#main_content').load('search',{executable:$('#id_executable').val(), repository:$('#id_repository').val(), tags:$('#id_tags').val(), main_file:$('#id_main_file').val(), label:$('#id_label').val(), script_arguments:$('#id_script_arguments').val(), reason:$('#id_reason').val(), timestamp:$('#id_timestamp').val()});
-    });
+        $('#main_content').load('search',{executable:$('#id_executable').val(), repository:$('#id_repository').val(), tags:$('#id_tags').val(), main_file:$('#id_main_file').val(), label:$('#id_label').val(), script_arguments:$('#id_script_arguments').val(), reason:$('#id_reason').val(), timestamp:$('#id_timestamp').val()});
+        });
 
     // 'save tags' button in the 'edit tags' popup window 
     $('#saveTags').click(function(){

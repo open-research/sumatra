@@ -33,8 +33,8 @@ class SearchForm(forms.ModelForm):
             self.fields[key].required = False
             
 class RecordForm(SearchForm):
-    executable = forms.ModelChoiceField(queryset=models.Executable.objects.all(), empty_label=None)
-    repository = forms.ModelChoiceField(queryset=models.Repository.objects.all(), empty_label=None)
+    executable = forms.ModelChoiceField(queryset=models.Executable.objects.all(), empty_label='')
+    repository = forms.ModelChoiceField(queryset=models.Repository.objects.all(), empty_label='')
     timestamp = forms.DateTimeField(label="Date")
 
     class Meta:
@@ -42,32 +42,36 @@ class RecordForm(SearchForm):
         fields = ('label', 'tags', 'reason', 'executable', 'repository',
                   'main_file', 'script_arguments', 'timestamp')
 
+def filter_search(request_data):
+    results =  models.Record.objects.all()
+    for key, val in request_data.iteritems():
+        if key in ['label','tags','reason', 'main_file', 'script_arguments']:
+            field_list = [x.strip() for x in val.split(',')] 
+            results =  results.filter(reduce(lambda x, y: x | y,
+                                      [Q(**{"%s__contains" % key: word}) for word in field_list])) # __icontains (?)
+        elif isinstance(val, date):
+            results =  results.filter(timestamp__year = val.year,
+                                      timestamp__month = val.month, 
+                                      timestamp__day = val.day)
+        elif isinstance(val, models.Executable):
+            print 'in executable'
+            results =  results.filter(executable__name = val.name)
+        elif isinstance(val, models.Repository):
+            print 'in repository'
+            results =  results.filter(repository__url = val.url) 
+    return results
 
 def search(request, project):
     if request.method == 'POST':
         web_settings = load_project().web_settings
         nb_per_page = int(load_project().web_settings['nb_records_per_page'])
-        # print 'request.POST', request.POST
+        print 'request.POST', request.POST
         # form = RecordForm(request.POST) 
         form = RecordForm(request.POST) 
         if form.is_valid():
-            print 'form is valid'
             labels_list = {}
             request_data = form.cleaned_data
-            results =  models.Record.objects.all()
-            for key, val in request_data.iteritems():
-                if key in ['label','tags','reason', 'main_file', 'script_arguments']:
-                    field_list = [x.strip() for x in val.split(',')] 
-                    results =  results.filter(reduce(lambda x, y: x | y,
-                                              [Q(**{"%s__contains" % key: word}) for word in field_list])) # __icontains (?)
-                elif isinstance(val, date):
-                    results =  results.filter(timestamp__year = val.year,
-                                              timestamp__month = val.month, 
-                                              timestamp__day = val.day)
-                elif isinstance(val, models.Executable):
-                    results =  results.filter(executable__name = val.name)
-                elif isinstance(val, models.Repository):
-                    results =  results.filter(repository__url = val.url) 
+            results = filter_search(request_data)
             nbCols = 14 
             paginator = Paginator(results, nb_per_page)  
             nbCols_actual = nbCols - len(web_settings['table_HideColumns'])
@@ -134,13 +138,27 @@ def list_records(request, project):
     nb_per_page = int(web_settings['nb_records_per_page'])
     paginator = Paginator(sim_list, nb_per_page)
     if request.is_ajax(): # when paginating
-        page = request.POST.get('page', False)  
+        page = request.POST.get('page', False)
         nbCols_actual = nbCols - len(web_settings['table_HideColumns'])
         head_width = '%s%s' %(90.0/nbCols_actual, '%')
         if (nbCols_actual > 10):
             label_width = '150px'
         else:
             label_width = head_width   
+        data_form = {}
+        data_form['label'] = request.POST.get('form[label]', False)
+        data_form['executable'] = request.POST.get('form[executable]', False)
+        data_form['repository'] = request.POST.get('form[repository]', False)
+        data_form['tags'] = request.POST.get('form[tags]', False)
+        data_form['main_file'] = request.POST.get('form[main_file]', False)
+        data_form['script_arguments'] = request.POST.get('form[script_arguments]', False)
+        data_form['reason'] = request.POST.get('form[reason]', False)
+        data_form['timestamp'] = request.POST.get('form[timestamp]', False)    
+        for key, val in data_form.iteritems():
+            if len(val) > 0:
+              sim_list = filter_search(data_form)
+              paginator = Paginator(sim_list, nb_per_page)
+              break
         try:
             page_list = paginator.page(page)
         except PageNotAnInteger:

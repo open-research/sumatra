@@ -113,7 +113,9 @@ $(function() {
           $.ajax({
             type: 'POST',
             url: '.',
-            data: {'page':$page},
+            data: {'page':$page, 'form': {executable:$('#id_executable').val(), repository:$('#id_repository').val(),
+            tags:$('#id_tags').val(), main_file:$('#id_main_file').val(),
+            label:$('#id_label').val(), script_arguments:$('#id_script_arguments').val(), reason:$('#id_reason').val(), timestamp:$('#id_timestamp').val()}},
             success:function(data){
                 $('#innerContent').html(data);
             }
