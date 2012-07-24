@@ -2,6 +2,10 @@
 
 {% load filters %}
 
+{% block header %} 
+    {% include "header.html" %}
+{% endblock %}
+
 {% block content %} 
 <div id ='innerContent'>
     {% include "content.html" %}       <!-- the content of the table + paginator header + some javascript -->
@@ -43,7 +47,20 @@ $(document).ready(function(){
 
     // as soon as user clicks the search button in the search drop-down list, the form will be submited
     $('#search_but').click(function(){
-        $('#search_form').trigger('submit');
+        //alert($('#search_form').html());
+        //$('#search_form').trigger('submit');
+        //aa = $('#search_form').submit();
+        //alert(aa);
+         //$('#search_form').trigger('submit');
+         // alert($('#id_label').val());
+            // $.get("search", {    
+            //     executable:$('#id_executable').val(), repository:$('#id_repository').val(), tags:$('#id_tags').val(), main_file:$('#id_main_file').val(), label:$('#id_label').val(), script_arguments:$('#id_script_arguments').val(), reason:$('#id_reason').val(), timestamp:$('#id_timestamp').val()
+            // }, function(data) {
+            //     //$('#output').html(data);
+            //     alert(data);
+            //     $('#main_content').empty().append(data);
+            // }); 
+    $('#main_content').load('search',{executable:$('#id_executable').val(), repository:$('#id_repository').val(), tags:$('#id_tags').val(), main_file:$('#id_main_file').val(), label:$('#id_label').val(), script_arguments:$('#id_script_arguments').val(), reason:$('#id_reason').val(), timestamp:$('#id_timestamp').val()});
     });
 
     // 'save tags' button in the 'edit tags' popup window 
@@ -147,7 +164,7 @@ $(document).ready(function(){
                 str_head = ['#l-', $unchecked].join(''); // header of the table selector string           
                 uncheckedItems.push($unchecked);
             }); 
-            $(str_rec,str_head).hide(); // hide the records
+            // $(str_rec,str_head).hide(); // hide the records ???
             // save settings to .smt/project
             $('#main_content').load('settings',{'table_HideColumns':uncheckedItems, 
                                             'nb_records_per_page':nb_rec,

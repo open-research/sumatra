@@ -14,7 +14,7 @@ from sumatra.recordstore.django_store import models
 from sumatra.datastore import get_data_store, DataKey
 from sumatra.commands import run
 from sumatra.web.templatetags import filters
-from sumatra.web.template import render_block_to_string
+from sumatra.web.template import render_block_to_string, render_template_block, render_to
 from sumatra.projects import load_project, init_websettings
 from datetime import date
 import mimetypes
@@ -41,14 +41,17 @@ class RecordForm(SearchForm):
         model = models.Record
         fields = ('label', 'tags', 'reason', 'executable', 'repository',
                   'main_file', 'script_arguments', 'timestamp')
-    
+
+
 def search(request, project):
-    if request.method == 'GET':
+    if request.method == 'POST':
         web_settings = load_project().web_settings
         nb_per_page = int(load_project().web_settings['nb_records_per_page'])
-        form = RecordForm(request.GET) 
-
+        # print 'request.POST', request.POST
+        # form = RecordForm(request.POST) 
+        form = RecordForm(request.POST) 
         if form.is_valid():
+            print 'form is valid'
             labels_list = {}
             request_data = form.cleaned_data
             results =  models.Record.objects.all()
@@ -64,17 +67,24 @@ def search(request, project):
                 elif isinstance(val, models.Executable):
                     results =  results.filter(executable__name = val.name)
                 elif isinstance(val, models.Repository):
-                    results =  results.filter(repository__url = val.url)                     
-            return list_detail.object_list(request,
-                                       queryset=results,
-                                       template_name="record_list.html",
-                                       paginate_by=nb_per_page,
-                                       extra_context={
-                                        'project_name': project,
-                                        'form': form,
-                                        'records_per_page': nb_per_page,
-                                        'settings': web_settings,
-                                        'query_string': request.META['QUERY_STRING'].split('&page')[0]}) 
+                    results =  results.filter(repository__url = val.url) 
+            nbCols = 14 
+            paginator = Paginator(results, nb_per_page)  
+            nbCols_actual = nbCols - len(web_settings['table_HideColumns'])
+            head_width = '%s%s' %(90.0/nbCols_actual, '%')
+            if (nbCols_actual > 10):
+                label_width = '150px'
+            else:
+                label_width = head_width  
+            page_list = paginator.page(1)
+            dic = {'project_name': project,
+                   #'form': form,
+                   'settings':web_settings,
+                   'paginator':paginator,
+                   'object_list':page_list.object_list,
+                   'page_list':page_list,
+                   'width':{'head': head_width, 'label':label_width}}  
+            return render_to_response('content.html', dic)
     
 def unescape(label):
     return label.replace("||", "/")
