@@ -225,7 +225,7 @@ a.active{
 }
 
 .control-label{
-    padding: 3px 15px;
+    padding: 4px;
     width: 100px;
     float:left;
 }
@@ -1143,4 +1143,13 @@ span.label{
     left:20px;
     right:0px;
     z-index: 1020;
+}
+
+#id_datewithin{
+  width: 170px;
+}
+
+#menu_datewith:after, #menu_datewith:before{
+  border-left: 0px;
+  border-right:0px;
 }

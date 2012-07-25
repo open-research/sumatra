@@ -17,7 +17,31 @@
                                     <a class="close" id='close_menu'>&times;</a> 
                                     <form id='search_form' action='/{{project_name}}/search' method='GET'>
                                         {{form.as_p}}
+                                        <p><label>Date within:</label><p>
+                                        <div id='idatewith'><span id='sdate'>1 day</span>
+                                            <span id='span_icon'>
+                                                <i class="icon-chevron-up" style='margin-top:0px'></i>  
+                                                <i class="icon-chevron-down" style='margin-top:15px'></i>
+                                            </span>  
+                                        </div>
+                                        <div>
+                                            <ul class="dropdown-menu" id = 'menu_datewith'>
+                                                <li><a href='' >1 day</a></li>
+                                                <li><a href='' >3 days</a></li>
+                                                <li><a href='' >1 week</a></li>
+                                                <li><a href='' >2 weeks</a></li>
+                                                <li><a href='' >1 month</a></li>
+                                                <li><a href='' >2 months</a></li>
+                                                <li><a href='' >6 months</a></li>
+                                                <li><a href='' >1 year</a></li>
+                                            </ul>
+                                        </div>
+                                        <label id='t_id'>of</label>
+                                        <input id="id_datewithin" type="text">
                                     </form>
+
+                
+
                                     <div>
                                         <a id='search_but' class='btn btn-info btn-large' style='padding: 5px 15px;margin-left:10px;color:#ffffff;margin-right:10px'><i class="icon-search">
                                             </i>&nbsp; Search

@@ -21,7 +21,7 @@ $(document).ready(function(){
     $('.modal').modal().modal('hide');
 
     // initialization of jquery-ui datepicker used in the seach drop-down list
-    $( "#id_timestamp" ).datepicker();
+    $( "#id_timestamp, #id_datewithin" ).datepicker();
 
     // initialization of the drop-down search list (#div_menu_search)
     $('#div_menu_search').offset({left: $('#text_subnav').offset().left + 20}); // x-position as for the #text_subnav + 20px
@@ -188,6 +188,18 @@ $(document).ready(function(){
             });
         }
     });
+
+    // "date within" plugin (search form)
+    $('#menu_datewith > li').click(function(){
+        $('#menu_datewith').hide();
+        $('#sdate').text($(this).text());       
+    });
+    $('#idatewith, #up_icon, #low_icon').click(function(event){
+        event.stopPropagation(); 
+        $('#menu_datewith').show();
+        $('#menu_datewith').offset({left: $('#idatewith').offset().left});
+    });
+
 });
 </script>
 {% endblock %}
