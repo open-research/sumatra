@@ -145,8 +145,9 @@ $(function() {
     };
 
     $('.id-script').on('click', function(){
-        var hexsha = $('#version-hid').html();
-        var path = $('#repo-hid').html();
+        $li = $(this).parent().parent();
+        var hexsha = $li.find('#version-hid').html();
+        var path = $li.find('#repo-hid').html();
         var scrName = $(this).html();
         var nbWind = $('.resizable').length;
         $.ajax({

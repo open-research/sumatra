@@ -56,16 +56,21 @@ def get_repository(url):
     else:
         raise VersionControlError("Cannot access Mercurial repository at %s" % self.url)    
 
-@vectorized
-def find_script(url, hex):
+# @vectorized
+def content_mercurial(url, hex):
     repo = hg.repository(ui.ui(), url)
-    i = 0
+    i = 1
+    print 'hex', hex
+    if hex in repo.parents()[0].hex():
+        ctx = repo.parents()[0] 
+        return ctx.filectx(ctx.files()[0]).data()
     while True:
         el = repo.parents(i)[0].hex()
         if hex in el:  
             ctx = repo.parents(i)[0]      
-            yield ctx.filectx(ctx.files()[0]).data() # presume only one file [0]
-            break
+            #yield ctx.filectx(ctx.files()[0]).data() # presume only one file [0]
+            return ctx.filectx(ctx.files()[0]).data() # presume that we have only one file [0]
+            # break
         i += 1
 
 class MercurialWorkingCopy(WorkingCopy):

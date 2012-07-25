@@ -14,8 +14,12 @@ from sumatra.recordstore.django_store import models
 from sumatra.datastore import get_data_store, DataKey
 from sumatra.commands import run
 from sumatra.web.templatetags import filters
-from sumatra.web.template import render_block_to_string, render_template_block, render_to
+from sumatra.versioncontrol import get_repository
+# from sumatra.web.template import render_block_to_string, render_template_block, render_to
 from sumatra.projects import load_project, init_websettings
+from sumatra.versioncontrol._git import GitRepository, content_git
+from sumatra.versioncontrol._mercurial import content_mercurial
+from sumatra.versioncontrol._mercurial import MercurialRepository
 from datetime import date
 import mimetypes
 mimetypes.init()
@@ -166,7 +170,10 @@ def list_records(request, project):
         return render_to_response('content.html', dic)
     else:
         page_list = paginator.page(1)
-        nbCols_actual = nbCols - len(web_settings['table_HideColumns'])
+        if web_settings['table_HideColumns'] is not None:
+            nbCols_actual = nbCols - len(web_settings['table_HideColumns'])
+        else:
+            nbCols_actual = 14
         head_width = '%s%s' %(90.0/nbCols_actual, '%')
         if (nbCols_actual > 10):
             label_width = '150px'
@@ -253,17 +260,16 @@ def show_file(request, project, label):
     show_script = request.GET.get('show_script', False)
     digest = request.GET.get('digest', False)
     path = request.GET.get('path', False)
-    if show_script: # record_list.html: user click the main file cell    
-        try:
-            from git import Repo
-        except:
-            return HttpResponse('I can\t show you the content. Only GIT is supported by now...')
-        repo = Repo(path)
-        for item in repo.iter_commits('master'):
-            if item.hexsha == digest:
-                file_content = item.tree.blobs[0].data_stream.read()
-                return HttpResponse(file_content)
-        return HttpResponse('Sorry, I can\t show you the content. Some bug somewhere...')
+    path = str(path).encode("string_escape")
+    if show_script: # record_list.html: user click the main file cell  
+        if isinstance(get_repository(path), GitRepository):
+            file_content = content_git(path, digest)
+            return HttpResponse(file_content)
+        elif isinstance(get_repository(path), MercurialRepository):
+            print 'digest', digest
+            file_content = content_mercurial(path, digest)
+            return HttpResponse(file_content)
+        return HttpResponse('Sorry, I cannot show you the content. Work only with GIT and Mercurial...')
   
 '''
 def show_file(request, project, label):

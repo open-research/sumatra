@@ -27,6 +27,13 @@ except:
 
 from base import Repository, WorkingCopy, VersionControlError
 
+def content_git(path, digest):
+    repo = git.Repo(path)
+    for item in repo.iter_commits('master'):
+        if item.hexsha == digest:
+            file_content = item.tree.blobs[0].data_stream.read()
+    return file_content
+
 def findrepo(path):
     try:
         repo = git.Repo(path)
