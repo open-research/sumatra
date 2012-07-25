@@ -115,7 +115,8 @@ $(function() {
             url: '.',
             data: {'page':$page, executable:$('#id_executable').val(), repository:$('#id_repository').val(),
             tags:$('#id_tags').val(), main_file:$('#id_main_file').val(),
-            label:$('#id_label').val(), script_arguments:$('#id_script_arguments').val(), reason:$('#id_reason').val(), timestamp:$('#id_timestamp').val()},
+            label:$('#id_label').val(), script_arguments:$('#id_script_arguments').val(), reason:$('#id_reason').val(), timestamp:$('#id_timestamp').val(),
+            date_interval: $('#sdate').html(), date_interval_from: $('#id_datewithin').val()},
             success:function(data){
                 $('#innerContent').html(data);
             }

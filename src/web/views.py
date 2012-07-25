@@ -46,7 +46,7 @@ class RecordForm(SearchForm):
         fields = ('label', 'tags', 'reason', 'executable', 'repository',
                   'main_file', 'script_arguments', 'timestamp')
 
-def filter_search(request_data):
+def filter_search(request_data, date_from=False, date_interval=False):
     results =  models.Record.objects.all()
     for key, val in request_data.iteritems():
         if key in ['label','tags','reason', 'main_file', 'script_arguments']:
@@ -62,6 +62,8 @@ def filter_search(request_data):
 
         elif isinstance(val, models.Repository):
             results =  results.filter(repository__url = val.url) 
+    if date_from:
+        print "yes you specified search in interval of dates"
     return results
 
 def search(request, project):
@@ -69,11 +71,14 @@ def search(request, project):
         web_settings = load_project().web_settings
         nb_per_page = int(load_project().web_settings['nb_records_per_page'])
         # form = RecordForm(request.POST) 
+        date_from = request.POST.get('date_interval_from',False)
+        date_interval = request.POST.get('date_interval',False)
         form = RecordForm(request.POST) 
         if form.is_valid():
             labels_list = {}
             request_data = form.cleaned_data
-            results = filter_search(request_data)
+            #print request_data
+            results = filter_search(request_data, date_from, date_interval)
             nbCols = 14 
             paginator = Paginator(results, nb_per_page)  
             nbCols_actual = nbCols - len(web_settings['table_HideColumns'])
@@ -143,6 +148,8 @@ def list_records(request, project):
         page = request.POST.get('page', False)
         nbCols_actual = nbCols - len(web_settings['table_HideColumns'])
         head_width = '%s%s' %(90.0/nbCols_actual, '%')
+        date_from = request.POST.get('date_interval_from',False)
+        date_interval = request.POST.get('date_interval',False)
         if (nbCols_actual > 10):
             label_width = '150px'
         else:
@@ -150,7 +157,7 @@ def list_records(request, project):
         form = RecordForm(request.POST)
         if form.is_valid():
             request_data = form.cleaned_data
-            sim_list = filter_search(request_data)
+            sim_list = filter_search(request_data, date_from, date_interval)
             paginator = Paginator(sim_list, nb_per_page)
         try:
             page_list = paginator.page(page)

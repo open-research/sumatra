@@ -52,7 +52,7 @@ $(document).ready(function(){
     
     // as soon as user clicks the search button in the search drop-down list, the form will be submited
     $('#search_but').click(function(){
-        $('#main_content').load('search',{executable:$('#id_executable').val(), repository:$('#id_repository').val(), tags:$('#id_tags').val(), main_file:$('#id_main_file').val(), label:$('#id_label').val(), script_arguments:$('#id_script_arguments').val(), reason:$('#id_reason').val(), timestamp:$('#id_timestamp').val()});
+        $('#main_content').load('search',{executable:$('#id_executable').val(), repository:$('#id_repository').val(), tags:$('#id_tags').val(), main_file:$('#id_main_file').val(), label:$('#id_label').val(), script_arguments:$('#id_script_arguments').val(), reason:$('#id_reason').val(), timestamp:$('#id_timestamp').val(), date_interval: $('#sdate').html(), date_interval_from: $('#id_datewithin').val()});
         });
 
     // 'save tags' button in the 'edit tags' popup window 
