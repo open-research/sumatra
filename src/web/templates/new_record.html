@@ -20,13 +20,28 @@
             </div>
             <label class='control-label' for='mFile'>Main file</label> 
             <div class='mod_input'>
-                <input id='mFile' class='input-xlarge' type='text'>
+                <input id='mFile' class='input-xlarge' type='text'>  
             </div>
-            <label class='control-label' for='mArg'>Arguments</label> 
+            <label class='control-label' for='mArg'>Arguments</label>    
             <div class='mod_input'>
-                <input id='mArg' class='input-xlarge' type='text'>
+                <div id='mArg'></div>
+                <button id='select-arg' class="btn" href="#" style='margin-top:-8px'>Open</button> 
+                <!-- <input type="file" id="file" /> -->
+                <input id="fileInput" class="input-file" type="file" style='position:absolute; top:-100px;'>
                 <a href='/{{project_name}}/?n=true'><button id='btn_run' class='btn btn-success btn-large' style='width:150px; display: block ;margin-left: auto; margin-right: auto;'>Run</button></a>
             </div>
         </div>
     </div>
 </div>
+
+<script type = 'text/javascript'>
+$(document).ready(function(){ 
+    $("#select-arg").click(function(){
+        $("#fileInput").click();
+    });
+    $('input[type=file]').change(function(e){
+      $in=$(this);
+      $('#mArg').html('<a href="">' + $in.val() + '</a>');
+    });
+});
+</script>
