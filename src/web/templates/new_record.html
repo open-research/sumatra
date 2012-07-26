@@ -24,9 +24,10 @@
             </div>
             <label class='control-label' for='mArg'>Arguments</label>    
             <div class='mod_input'>
-                <div id='mArg'></div>
-                <button id='select-arg' class="btn" href="#" style='margin-top:-8px'>Open</button> 
-                <!-- <input type="file" id="file" /> -->
+                <div id='mArg'><a></a></div>
+                <div>
+                    <button id='select-arg' class="btn" href="#" style='margin-top:2px; margin-bottom:2px'>Open</button> 
+                </div>
                 <input id="fileInput" class="input-file" type="file" style='position:absolute; top:-100px;'>
                 <a href='/{{project_name}}/?n=true'><button id='btn_run' class='btn btn-success btn-large' style='width:150px; display: block ;margin-left: auto; margin-right: auto;'>Run</button></a>
             </div>
@@ -41,7 +42,43 @@ $(document).ready(function(){
     });
     $('input[type=file]').change(function(e){
       $in=$(this);
-      $('#mArg').html('<a href="">' + $in.val() + '</a>');
+      $('#mArg a').html($in.val());
     });
+    $('#mArg a').on('click', function(){    //code here is repeted the one in table.js
+        var nbWind = $('.resizable').length;
+        $.ajax({
+          type: 'GET',
+          url: 'nolabel/datafile',
+          data: {show_args: true, name: $in.val()}
+        }).done(function(data) {  
+
+            id = ['code_wind',nbWind].join('');
+                $el = $('<div/>', {
+                    id: id,
+                    class: 'resizable'
+                });
+
+                $el.appendTo('#wrapper_code');
+                 var editor = CodeMirror(document.getElementById(id), {
+                    mode: {name: "python",
+                           version: 2,
+                           singleLineStringErrors: false},
+                    lineNumbers: true,
+                    indentUnit: 4,
+                    tabMode: "shift",
+                    matchBrackets: true
+                  });
+                editor.setOption("theme", "ambiance"); 
+                //this way we hide the element. CodeMirrow is the new div.   
+                $('.resizable').css('display','block')
+                               .css('height','0px')
+                               .css('width','0px');  
+                editor.setValue(data);
+                editor.refresh();
+                $(".CodeMirror").draggable({handle:"div.ui-widget-header", snap: true});
+                $(".CodeMirror").resizable();
+            });
+    });
+    
 });
 </script>

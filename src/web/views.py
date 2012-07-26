@@ -274,7 +274,9 @@ DEFAULT_MAX_DISPLAY_LENGTH = 10*1024
 
 def show_file(request, project, label):
     show_script = request.GET.get('show_script', False)
+    show_args = request.GET.get('show_args', False)
     digest = request.GET.get('digest', False)
+    name = request.GET.get('name', False) # file name (in case of argument file)
     path = request.GET.get('path', False)
     path = str(path).encode("string_escape")
     if show_script: # record_list.html: user click the main file cell  
@@ -282,10 +284,19 @@ def show_file(request, project, label):
             file_content = content_git(path, digest)
             return HttpResponse(file_content)
         elif isinstance(get_repository(path), MercurialRepository):
-            print 'digest', digest
             file_content = content_mercurial(path, digest)
             return HttpResponse(file_content)
         return HttpResponse('Sorry, I cannot show you the content. Work only with GIT and Mercurial...')
+    elif show_args:
+        if 'fakepath' in name: # true for chrome
+            name = name.split('\\')[-1]  # only for windows ???
+        try:
+            arg_file = open(os.getcwd() + '\\' + name, 'r')
+            f_content = arg_file.read()
+            arg_file.close()
+        except:
+            return HttpResponse('There is no file with this name in %s' %(os.getcwd()))
+        return HttpResponse(f_content)
   
 '''
 def show_file(request, project, label):
