@@ -3,7 +3,7 @@ Defines view functions and forms for the Sumatra web interface.
 """
 
 from time import strptime
-from datetime import date, timedelta, datetime
+import datetime
 
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response
@@ -55,7 +55,7 @@ def filter_search(request_data, date_from=False, date_interval=False):
             field_list = [x.strip() for x in val.split(',')] 
             results =  results.filter(reduce(lambda x, y: x | y,
                                       [Q(**{"%s__contains" % key: word}) for word in field_list])) # __icontains (?)
-        elif isinstance(val, date):
+        elif isinstance(val, datetime.date):
             results =  results.filter(timestamp__year = val.year,
                                       timestamp__month = val.month, 
                                       timestamp__day = val.day)
@@ -64,27 +64,15 @@ def filter_search(request_data, date_from=False, date_interval=False):
 
         elif isinstance(val, models.Repository):
             results =  results.filter(repository__url = val.url)
-    if date_from:
-        date_from = strptime(date_from, "%m/%d/%Y")
-        base = date(date_from.tm_year, date_from.tm_mon, date_from.tm_mday)
+    if date_from: # in case user specifies "date within" in the search field
+        date_from = strptime(date_from, "%m/%d/%Y") # from text input in the search form
+        base = datetime.date(date_from.tm_year, date_from.tm_mon, date_from.tm_mday)
         dict_dates = {'1 day': 1, '3 days': 3, '1 week': 7, '2 weeks': 14, '1 month': 31, '2 months':31*2, '6 months':31*6, '1 year':365}
-        # dateList = [ base - timedelta(days=x) for x in range(0, dict_dates[date_interval] + 1) ]
-        # dateList.append([ base + timedelta(days=x) for x in range(1, dict_dates[date_interval] + 1) ])
-        dateIntvl = {}
-        dateIntvl['min'] = base - timedelta(days = dict_dates[date_interval] )
-        dateIntvl['max'] = base + timedelta(days = dict_dates[date_interval] )
-        time = datetime.time()
-        print 'type(dateIntvl["min"])', type(datetime.combine(dateIntvl['min'], time))   
-        print 'results[0].timestamp', type(results[0].timestamp)     
-        print 'from results ', results[0].timestamp < dateIntvl['min']
-        # print 'min dateList: ', dateIntvl['min']
-        # print 'max dateList: ', dateIntvl['max']
-        # print "yes you specified search in interval of dates"
-        # date_from = strptime(date_from, "%m/%d/%Y")
-        # print "dateee from: ", date_from
-        # print 'answer: ', date_from - timedelta(days = 365)
-        # a = filter(lambda x: x.timestamp.year <= dateIntvl['min'] and , results)
-        # print 'filtered: ', a
+        nb_days = dict_dates[date_interval] # date interval went from the search form
+        dateIntvl = {'min': base - datetime.timedelta(days = nb_days),
+                     'max': base + datetime.timedelta(days = nb_days)} # interval of the dates
+        results = filter(lambda x: x.timestamp >= datetime.datetime.combine(dateIntvl['min'], datetime.time()) and
+                                   x.timestamp <= datetime.datetime.combine(dateIntvl['max'], datetime.time(23,59)), results) # all the records inside the specified interval
     return results
 
 def search(request, project):
