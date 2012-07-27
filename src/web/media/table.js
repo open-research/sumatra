@@ -249,4 +249,18 @@ $(function() {
         $(this).removeClass('hoverRow');
         },
     });
+
+    // new record window:
+    $('#btn_newrec').on('click', function(){
+        $('#new-rec').css('display', 'block')
+                     .css('top', $('.navbar-fixed-top').height() + 0.2);
+    });
+    $('#col-newrec').mouseenter(function(){
+        $(this).css('background-color', 'Lavender');
+    }).mouseleave(function(){
+        $(this).css('background-color', 'AliceBlue');
+    });
+    $('#col-newrec').on('click', function(){
+         $('#new-rec').css('display', 'none');
+    });
 });
