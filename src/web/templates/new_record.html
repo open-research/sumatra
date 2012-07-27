@@ -1,4 +1,12 @@
-<div class="modal" id="mod_newrec"> 
+<div id='new-rec' class='modal'>
+    <div style="margin-top:3px; height:42px; line-height:34px; font-size:18px; background-color:Lavender; padding-left:10px;">
+    New simulation
+        <div id='col-newrec' style='width:30px; float:right; background-color:AliceBlue;font-size:28px; padding:10px;cursor: pointer;'>
+            <i class='pagin icon-chevron-left'></i><i class='pagin icon-chevron-left'></i>
+        </div>
+    </div>
+</div>
+<!-- <div class="modal" id="mod_newrec"> 
     <div class='d-mod'>  
         <div style='float:left;padding:3px 15px;position:absolute; margin-top:5px'><h3>new record</h3></div><a class="close s-close" id='close_newrec'>&times;</a>
         <div style='position:absolute; margin-top:50px'>
@@ -34,7 +42,7 @@
         </div>
     </div>
 </div>
-
+ -->
 <script type = 'text/javascript'>
 $(document).ready(function(){ 
     $("#select-arg").click(function(){
@@ -79,6 +87,15 @@ $(document).ready(function(){
                 $(".CodeMirror").resizable();
             });
     });
-    
+    $('#btn_newrec').click(function(){
+        $('#new-rec').css('display', 'block')
+                     .css('top', $('.navbar-fixed-top').height() + 0.2);
+    });
+    $('#col-newrec').mouseenter(function(){
+        $(this).css('background-color', 'Lavender');
+    }).mouseleave(function(){
+        $(this).css('background-color', 'AliceBlue');
+    });
+    // $('#col-newrec').click()
 });
 </script>

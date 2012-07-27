@@ -1153,3 +1153,23 @@ span.label{
   border-left: 0px;
   border-right:0px;
 }
+
+#new-rec{
+  display: none;
+  position: fixed;
+  left:0px;
+  top:0px;
+  margin: 0px;
+  border-radius: 0px;
+  height:100%;
+  width: 285px;
+  background: url("../white_pixel.png") repeat-x scroll 0 0 #F0F9FF;
+}
+
+#col-newrec:hover{
+   opacity:1.0;
+}
+
+#col-newrec{
+
+}
