@@ -28,62 +28,18 @@
         </div>
         <div class = 'd-newrec'>
             <label class='control-label' for='mArg'>Arguments</label>
-            <input id='mArg' class='input-medium' type='text'>
+            <select data-placeholder=" " multiple class="chzn-select">
+                    <option value=""></option> 
+                    <option value="United States">United States</option>
+                    <option value="United States">France</option>
+                    <option value="United States">Russia</option>
+                    <option value="United States">UK</option>
+            </select>
         </div>
         <div class = 'd-newrec'>
             <button id='btn_run' class='btn btn-success btn-large' style='width:150px; display: block ;margin-left: auto; margin-right: auto;'>Run</button>
         </div>
-<!--    
-
-            
-                
-            <div class='mod_input'>
-                <div id='mArg'><a></a></div>
-                <div>
-                    <button id='select-arg' class="btn" href="#" style='margin-top:2px; margin-bottom:2px'>Open</button> 
-                </div>
-                <input id="fileInput" class="input-file" type="file" style='position:absolute; top:-100px;'>
-                <a href='/{{project_name}}/?n=true'><button id='btn_run' class='btn btn-success btn-large' style='width:150px; display: block ;margin-left: auto; margin-right: auto;'>Run</button></a>
-            </div> -->
-        <!-- </div> -->
 </div>
-<!-- <div class="modal" id="mod_newrec"> 
-    <div class='d-mod'>  
-        <div style='float:left;padding:3px 15px;position:absolute; margin-top:5px'><h3>new record</h3></div><a class="close s-close" id='close_newrec'>&times;</a>
-        <div style='position:absolute; margin-top:50px'>
-            <label class='control-label' for='mLabel'>Label</label> 
-            <div class='mod_input'>
-                <input id='mLabel' class='input-xlarge' type='text'>
-            </div>
-            <label class='control-label' for='mReason'>Reason</label> 
-            <div class='mod_input'>
-                <textarea id='mReason' class='input-xlarge' type='text'></textarea>
-            </div>
-            <label class='control-label' for='mTag'>Tag</label> 
-            <div class='mod_input'>
-                <input id='mTag' class='input-xlarge' type='text'>
-            </div>
-            <label class='control-label' for='mExec'>Executable path</label> 
-            <div class='mod_input'>
-                <input id='mExec' class='input-xlarge' type='text'>
-            </div>
-            <label class='control-label' for='mFile'>Main file</label> 
-            <div class='mod_input'>
-                <input id='mFile' class='input-xlarge' type='text'>  
-            </div>
-            <label class='control-label' for='mArg'>Arguments</label>    
-            <div class='mod_input'>
-                <div id='mArg'><a></a></div>
-                <div>
-                    <button id='select-arg' class="btn" href="#" style='margin-top:2px; margin-bottom:2px'>Open</button> 
-                </div>
-                <input id="fileInput" class="input-file" type="file" style='position:absolute; top:-100px;'>
-                <a href='/{{project_name}}/?n=true'><button id='btn_run' class='btn btn-success btn-large' style='width:150px; display: block ;margin-left: auto; margin-right: auto;'>Run</button></a>
-            </div>
-        </div>
-    </div>
-</div>
- -->
 <script type = 'text/javascript'>
 $(document).ready(function(){ 
     $("#select-arg").click(function(){
@@ -128,5 +84,6 @@ $(document).ready(function(){
                 $(".CodeMirror").resizable();
             });
     });
+     $(".chzn-select").chosen(); $(".chzn-select-deselect").chosen({allow_single_deselect:true});
 });
 </script>

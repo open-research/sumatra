@@ -1177,3 +1177,12 @@ span.label{
 .d-newrec{
   margin-top: 10px;
 }
+
+.chzn-container-multi .chzn-choices{
+  width:158px;
+  float: left;
+}
+
+.chzn-container, .chzn-drop{
+  width: 158px !important;
+}
