@@ -1183,6 +1183,17 @@ span.label{
   float: left;
 }
 
-.chzn-container, .chzn-drop{
+.chzn-drop{
   width: 158px !important;
+}
+.chzn-container{
+  width: 160px !important;
+}
+
+.chzn-search input{
+  display: none !important;
+}
+
+.chzn-drop{
+
 }

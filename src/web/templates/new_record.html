@@ -28,12 +28,11 @@
         </div>
         <div class = 'd-newrec'>
             <label class='control-label' for='mArg'>Arguments</label>
-            <select data-placeholder=" " multiple class="chzn-select">
+            <select data-placeholder=" " class="chzn-select" id='select-arg'>
                     <option value=""></option> 
-                    <option value="United States">United States</option>
-                    <option value="United States">France</option>
-                    <option value="United States">Russia</option>
-                    <option value="United States">UK</option>
+                    {% for item in files %}
+                        <option value="{{item}}">{{item}}</option>
+                    {% endfor %}
             </select>
         </div>
         <div class = 'd-newrec'>
@@ -42,19 +41,19 @@
 </div>
 <script type = 'text/javascript'>
 $(document).ready(function(){ 
-    $("#select-arg").click(function(){
-        $("#fileInput").click();
-    });
-    $('input[type=file]').change(function(e){
-      $in=$(this);
-      $('#mArg a').html($in.val());
-    });
-    $('#mArg a').on('click', function(){    //code here is repeted the one in table.js
+
+     $(".chzn-select-deselect").chosen({allow_single_deselect:false});
+
+
+     $(".chzn-select").chosen().change(function(event){
+        var  target = $(event.target),
+             currentDataSet = target.val();
+        console.log(event);    
         var nbWind = $('.resizable').length;
         $.ajax({
           type: 'GET',
           url: 'nolabel/datafile',
-          data: {show_args: true, name: $in.val()}
+          data: {show_args: true, name: target[0].value}
         }).done(function(data) {  
 
             id = ['code_wind',nbWind].join('');
@@ -83,7 +82,6 @@ $(document).ready(function(){
                 $(".CodeMirror").draggable({handle:"div.ui-widget-header", snap: true});
                 $(".CodeMirror").resizable();
             });
-    });
-     $(".chzn-select").chosen(); $(".chzn-select-deselect").chosen({allow_single_deselect:true});
+     });
 });
 </script>

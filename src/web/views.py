@@ -185,6 +185,8 @@ def list_records(request, project):
                'width':{'head': head_width, 'label':label_width}}
         return render_to_response('content.html', dic)
     else:
+        # get names of all files in the current directory:
+        files = os.listdir(os.getcwd())
         page_list = paginator.page(1)
         if web_settings['table_HideColumns'] is not None:
             nbCols_actual = nbCols - len(web_settings['table_HideColumns'])
@@ -202,7 +204,8 @@ def list_records(request, project):
                'page_list':page_list,
                'paginator':paginator,
                'width':{'head': head_width, 'label':label_width},
-               'active':'List of records'}
+               'active':'List of records',
+               'files': files}
         return render_to_response('record_list.html', dic)
 
 def list_tagged_records(request, project, tag):
