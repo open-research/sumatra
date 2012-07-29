@@ -1166,6 +1166,19 @@ span.label{
   background: url("../white_pixel.png") repeat-x scroll 0 0 #F0F9FF;
 }
 
+#arg-cont{
+  display: none;
+  position: fixed;
+  left:288px;
+  top:0px;
+  margin: 0px;
+  border-radius: 0px;
+  height:100%;
+  right:0px !important;
+  /*width: 285px;*/
+  background: url("../white_pixel.png") repeat-x scroll 0 0 #F0F9FF;
+}
+
 #col-newrec:hover{
    opacity:1.0;
 }

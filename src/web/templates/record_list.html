@@ -49,6 +49,11 @@ $(document).ready(function(){
     $('#search_form').find(':input').each(function() {
          $(this).val('');
     });
+    // clearing of the new record form
+    $('.d-newrec').find(':input, textarea').each(function() {
+        $(this).val('');
+    });
+    $('.chzn-single span').html('');  // the drop-down list in the new record form (argument file)
     
     // as soon as user clicks the search button in the search drop-down list, the form will be submited
     $('#search_but').click(function(){
