@@ -34,6 +34,7 @@
                         <option value="{{item}}">{{item}}</option>
                     {% endfor %}
             </select>
+            <div><a id='file-arg' href='#'></a></div>
         </div>
         <div class = 'd-newrec'>
             <button id='btn_run' class='btn btn-success btn-large' style='width:150px; display: block ;margin-left: auto; margin-right: auto;'>Run</button>
@@ -46,14 +47,16 @@ $(document).ready(function(){
 
 
      $(".chzn-select").chosen().change(function(event){
-        var  target = $(event.target),
-             currentDataSet = target.val();
-        console.log(event);    
+        $('#file-arg').html('show file');
+    });
+
+     $('#file-arg').click(function(){
+        var target = $(".chzn-single span").html();   
         var nbWind = $('.resizable').length;
         $.ajax({
           type: 'GET',
           url: 'nolabel/datafile',
-          data: {show_args: true, name: target[0].value}
+          data: {show_args: true, name: target}
         }).done(function(data) {  
 
             id = ['code_wind',nbWind].join('');
