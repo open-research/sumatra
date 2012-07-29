@@ -263,4 +263,8 @@ $(function() {
     $('#col-newrec').on('click', function(){
          $('#new-rec').css('display', 'none');
     });
+    $('#col-arg').on('click', function(){
+         $('#arg-cont').css('display', 'none');
+         $('#file-arg').html('show content');
+    });
 });

@@ -41,7 +41,15 @@
         </div>
 </div>
 <div id='arg-cont' class='modal'>
-
+    <div style="margin-top:3px; height:42px; line-height:34px; font-size:16px; background-color:Lavender;">
+        <div id='col-arg' style='width:30px; float:left; background-color:AliceBlue;font-size:28px; padding:10px;cursor: pointer;'>
+            <i class='pagin icon-chevron-right'></i><i class='pagin icon-chevron-right'></i>
+        </div>
+        <span id = 'name-arg' style='padding-left:10px;'></span>
+    </div>
+    <div id='file-cont'>
+        
+    </div>
 </div>
 <script type = 'text/javascript'>
 $(document).ready(function(){ 
@@ -62,44 +70,50 @@ $(document).ready(function(){
             $('#arg-cont').css('display', 'block')
                           .css('top', $('.navbar-fixed-top').height() + 0.2);
             $('#file-arg').html('hide content');
+            $('#name-arg').html($(".chzn-single span").html());
+            var target = $(".chzn-single span").html();   
+            // var nbWind = $('.resizable').length;
+            $.ajax({
+              type: 'GET',
+              url: 'nolabel/datafile',
+              data: {show_args: true, name: target}
+            }).done(function(data) {  
+
+                // id = ['code_wind',nbWind].join('');
+                //     $el = $('<div/>', {
+                //         id: id,
+                //         class: 'resizable'
+                //     });
+
+                    // $('#').appendTo('#wrapper_code');
+                     // var myCodeMirror = CodeMirror.fromTextArea(document.getElementById('file-cont'));
+                     // var myCodeMirror = CodeMirror.fromTextArea(document.getElementById('file-cont'));
+                     CodeMirror.fromTextArea(document.getElementById('file-cont'), {
+                        lineNumbers: true
+                    }).setValue(data);
+                     // var editor = CodeMirror(document.getElementById('file-cont'), {
+                     //    mode: {name: "python",
+                     //           version: 2,
+                     //           singleLineStringErrors: false},
+                     //    lineNumbers: true,
+                     //    indentUnit: 4,
+                     //    tabMode: "shift",
+                     //    matchBrackets: true
+                     //  });
+                    // editor.setOption("theme", "ambiance"); 
+                    //this way we hide the element. CodeMirrow is the new div.   
+                    // $('.resizable').css('display','block')
+                    //                .css('height','0px')
+                    //                .css('width','0px');  
+                    // myCodeMirror.setValue('data');
+                    // myCodeMirror.refresh();
+                    // $(".CodeMirror").draggable({handle:"div.ui-widget-header", snap: true});
+                    // $(".CodeMirror").resizable();
+                });
         }else{
             $('#arg-cont').css('display', 'none');
             $('#file-arg').html('show content');
         }
-        // var target = $(".chzn-single span").html();   
-        // var nbWind = $('.resizable').length;
-        // $.ajax({
-        //   type: 'GET',
-        //   url: 'nolabel/datafile',
-        //   data: {show_args: true, name: target}
-        // }).done(function(data) {  
-
-        //     id = ['code_wind',nbWind].join('');
-        //         $el = $('<div/>', {
-        //             id: id,
-        //             class: 'resizable'
-        //         });
-
-        //         $el.appendTo('#wrapper_code');
-        //          var editor = CodeMirror(document.getElementById(id), {
-        //             mode: {name: "python",
-        //                    version: 2,
-        //                    singleLineStringErrors: false},
-        //             lineNumbers: true,
-        //             indentUnit: 4,
-        //             tabMode: "shift",
-        //             matchBrackets: true
-        //           });
-        //         editor.setOption("theme", "ambiance"); 
-        //         //this way we hide the element. CodeMirrow is the new div.   
-        //         $('.resizable').css('display','block')
-        //                        .css('height','0px')
-        //                        .css('width','0px');  
-        //         editor.setValue(data);
-        //         editor.refresh();
-        //         $(".CodeMirror").draggable({handle:"div.ui-widget-header", snap: true});
-        //         $(".CodeMirror").resizable();
-        //     });
      });
 });
 </script>
