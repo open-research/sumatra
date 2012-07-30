@@ -101,7 +101,7 @@ $(document).ready(function(){
 
      $('#btn_save-arg').on('click', function(){
           var content = editor.getValue();
-          var arg_file = $(".chzn-single span").html();
+          var arg_file = $("#name-arg").html();
           $.post("/{{project_name}}/simulation", {'content':content, 'arg_file':arg_file}); 
      });
 

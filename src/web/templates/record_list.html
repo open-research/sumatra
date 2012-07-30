@@ -204,6 +204,20 @@ $(document).ready(function(){
         $('#menu_datewith').show();
         $('#menu_datewith').offset({left: $('#idatewith').offset().left});
     });
+
+    // new record event:
+    $('#btn_run').click(function(){
+        $mainFile = $('#select-main').next().find('span').html();
+        $argsFile = $('#select-arg').next().find('span').html();
+        $('#main_content').load('/{{project_name}}/simulation',
+                {'label':$('#mLabel').val(),
+                 'reason':$('#mReason').val(),
+                 'tag':$('#mTag').val(),
+                 'execut':$('#mExec').val(),
+                 'main_file':$mainFile,
+                 'args':$argsFile
+                });
+    });
 });
 </script>
 {% endblock %}

@@ -466,7 +466,8 @@ def run_sim(request, project):
             else:
                 options_list.append('='.join([key, item])) 
     run(options_list)
-    record = models.Record.objects.order_by('-db_id')[0]
+    records = models.Record.objects.order_by('-db_id')
+    '''
     if not(len(record.launch_mode.get_parameters())):
         nbproc = 1
     repo_short = short_repo(record.repository.url)
@@ -489,6 +490,15 @@ def run_sim(request, project):
                   'Date-t':date,
                   'Time-t':time}
     return HttpResponse(simplejson.dumps(to_sumatra))
+    '''
+    paginator = Paginator(records, int(load_project().web_settings['nb_records_per_page']))
+    page_list = paginator.page(1)
+    dic = {'project_name': project,
+           'settings':load_project().web_settings,
+           'paginator':paginator,
+           'object_list':page_list.object_list,
+           'page_list':page_list}
+    return render_to_response('content.html', dic)
                                     
 def settings(request, project):
     ''' Only one of the following parameter can be True
