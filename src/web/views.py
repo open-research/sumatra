@@ -149,6 +149,7 @@ def show_project(request, project):
 def list_records(request, project):
     nbCols = 14 
     form = RecordForm()  
+    project_loaded = load_project()
     sim_list = models.Record.objects.filter(project__id=project).order_by('-timestamp')
     web_settings = load_project().web_settings
     nb_per_page = int(web_settings['nb_records_per_page'])
@@ -205,7 +206,8 @@ def list_records(request, project):
                'paginator':paginator,
                'width':{'head': head_width, 'label':label_width},
                'active':'List of records',
-               'files': files}
+               'files': files,
+               'path':project_loaded.default_executable.path}
         return render_to_response('record_list.html', dic)
 
 def list_tagged_records(request, project, tag):

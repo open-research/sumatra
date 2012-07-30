@@ -50,7 +50,7 @@ $(document).ready(function(){
          $(this).val('');
     });
     // clearing of the new record form
-    $('.d-newrec').find(':input, textarea').each(function() {
+    $('.d-newrec').find(':input:not("#mExec"), textarea').each(function() {
         $(this).val('');
     });
     $('.chzn-single span').html('');  // the drop-down list in the new record form (argument file)

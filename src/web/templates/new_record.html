@@ -20,11 +20,17 @@
         </div>
         <div class = 'd-newrec'>
             <label class='control-label' for='mExec'>Executable path</label> 
-            <input id='mExec' class='input-medium' type='text'>
+            <input id='mExec' class='input-medium' type='text' value='{{path}}'>
         </div>
         <div class = 'd-newrec'>
             <label class='control-label' for='mFile'>Main file</label> 
-            <input id='mFile' class='input-medium' type='text'>  
+            <select data-placeholder="" class="chzn-select" id='select-main'>
+                    <option value="">&nbsp;</option> 
+                    {% for item in files %}
+                        <option value="{{item}}">{{item}}</option>
+                    {% endfor %}
+            </select> 
+            <div><a class='link-file' id='file-main' href='#'></a></div>
         </div>
         <div class = 'd-newrec'>
             <label class='control-label' for='mArg'>Arguments</label>
@@ -34,7 +40,7 @@
                         <option value="{{item}}">{{item}}</option>
                     {% endfor %}
             </select>
-            <div><a id='file-arg' href='#'></a></div>
+            <div><a class='link-file' id='file-arg' href='#'></a></div>
         </div>
         <div class = 'd-newrec'>
             <button id='btn_run' class='btn btn-success btn-large' style='width:150px; display: block ;margin-left: auto; margin-right: auto;'>Run</button>
@@ -45,10 +51,9 @@
         <div id='col-arg' style='width:30px; float:left; background-color:AliceBlue;font-size:28px; padding:10px;cursor: pointer;'>
             <i class='pagin icon-chevron-right'></i><i class='pagin icon-chevron-right'></i>
         </div>
-        <span id = 'name-arg' style='padding-left:10px;'></span>
+        <span id = 'name-arg' style='padding-left:10px;font-weight:bold'></span>
     </div>
     <div id='file-cont'></div>
-
     <div>
       <button id='btn_save-arg' class='btn btn-success btn-large' style='width:150px; display: block ;margin-left: auto; margin-right: auto; margin-top:20px'>Save</button>
     </div>
@@ -63,31 +68,34 @@ $(document).ready(function(){
      $(".chzn-select-deselect").chosen({allow_single_deselect:true});
 
      $(".chzn-select").chosen().change(function(event){
+        $div_href = $('#' + event.target.id).next().next().children();
         if (event.target.value.length > 0){
-             $('#file-arg').html('show content');
+             $div_href.html('show content');
         } else {
-             $('#file-arg').html('');
+             $div_href.html('');
              $('#arg-cont').css('display', 'none');
         }
     });
 
-     $('#file-arg').click(function(){
-        if ($('#file-arg').html().indexOf('show') >= 0){
+     $('#file-arg, #file-main').click(function(){
+        var cont_href = $('.link-file').not(this);
+        if (cont_href.html().length > 0) cont_href.html('show content'); // two divs with the anchor tag
+        if ($(this).html().indexOf('show') >= 0){
             $('#arg-cont').css('display', 'block')
                           .css('top', $('.navbar-fixed-top').height() + 0.2);
-            $('#file-arg').html('hide content');
-            $('#name-arg').html($(".chzn-single span").html());
-            var target = $(".chzn-single span").html();   
+            $(this).html('hide content');
+            $file_name = $(this).parent().prev().find('span').html();
+            $('#name-arg').html($file_name); // name of the file (header of the window)  
             $.ajax({
               type: 'GET',
               url: 'nolabel/datafile',
-              data: {show_args: true, name: target}
+              data: {show_args: true, name: $file_name}
             }).done(function(data) {  
                 editor.setValue(data);
             });
         }else{
             $('#arg-cont').css('display', 'none');
-            $('#file-arg').html('show content');
+            $(this).html('show content');
         }
      });
 
@@ -96,5 +104,13 @@ $(document).ready(function(){
           var arg_file = $(".chzn-single span").html();
           $.post("/{{project_name}}/simulation", {'content':content, 'arg_file':arg_file}); 
      });
+
+    $('#col-arg').on('click', function(){
+         var cont_href = $('.link-file');
+         $('#arg-cont').css('display', 'none');
+         cont_href.each(function(){
+            if ($(this).html().length > 0) $(this).html('show content');;
+         });   
+    });
 });
 </script>
