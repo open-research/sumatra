@@ -444,6 +444,13 @@ def run_sim(request, project):
                '--main': request.POST.get('main_file', False),
                'args': request.POST.get('args', False)
               }
+    content = request.POST.get('content', False) # in case user changed the argument file
+    arg_file = request.POST.get('arg_file', False)
+    if content:
+        fow = open(os.getcwd() + '/' + arg_file, 'w')
+        fow.write(content)
+        fow.close()
+        return HttpResponse('ok')
     options_list = []
     for key, item in run_opt.iteritems():
         if item:
