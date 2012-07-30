@@ -47,8 +47,10 @@
         </div>
         <span id = 'name-arg' style='padding-left:10px;'></span>
     </div>
-    <div id='file-cont'>
-        
+    <div id='file-cont'></div>
+
+    <div>
+      <button id='btn_save-arg' class='btn btn-success btn-large' style='width:150px; display: block ;margin-left: auto; margin-right: auto; margin-top:20px'>Save</button>
     </div>
 </div>
 <script type = 'text/javascript'>
@@ -89,7 +91,8 @@ $(document).ready(function(){
                      // var myCodeMirror = CodeMirror.fromTextArea(document.getElementById('file-cont'));
                      // var myCodeMirror = CodeMirror.fromTextArea(document.getElementById('file-cont'));
                      CodeMirror.fromTextArea(document.getElementById('file-cont'), {
-                        lineNumbers: true
+                        lineNumbers: true,
+                        theme: 'ambiance'
                     }).setValue(data);
                      // var editor = CodeMirror(document.getElementById('file-cont'), {
                      //    mode: {name: "python",

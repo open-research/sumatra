@@ -1207,3 +1207,22 @@ span.label{
 .chzn-drop{
 
 }
+
+#arg-cont .CodeMirror .headercode{
+  height: 0px;
+  background: none;
+  border:none;
+  padding: 0px;
+}
+
+#arg-cont .CodeMirror{
+  background-color: inherit;
+  box-shadow: none;
+  width: inherit;
+  line-height: 1.5em;
+  left: 50px;
+  margin-top:10px;
+  max-height: 80%;
+  margin-right:60px;
+  overflow-y: auto;
+}
