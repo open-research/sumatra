@@ -64,9 +64,7 @@
                     <input id='s_nbt' class='span1' type='text' style='float:left;margin-bottom:0px' value='{{settings.nb_records_per_page}}'> 
               </div>
         </div>
-      <div class="tab-pane" id="second">
-           some other settings...     
-      </div>
+      <div class="tab-pane" id="second"></div>
     </div>
       <div class="modal-footer">
         <a class="btn btn-primary" id='save_set'>Save changes</a>
@@ -74,3 +72,102 @@
       </div> 
  </div>
  </div>
+ <script type = 'text/javascript'>
+$(document).ready(function(){ 
+    // click on the compact/comfortable anchor tag in settings drop-down list
+    $('.menu-rsettigns').not('#button_settings').click(function(){
+        var $density_set = $(this).attr('id');      //compact or comfortable
+        $('.menu-rsettigns').removeClass('active');
+        $(this).addClass('active');
+        // save into .smt/project file the changed 'table density' settings
+        $.post("/{{project_name}}/settings", {'display_density':$density_set,'saveSettings':true}); 
+        // change the style of the table 
+        if ($density_set == 'compact'){
+            $('.record').removeClass('comfortable').addClass('condensed');
+        }else{
+            $('.record').removeClass('condensed').addClass('comfortable');
+        }  
+    });
+
+    // settings: change of the number of records per one page
+    $('#input_nrec, #s_nbt').click(function(event){   //click on the div in the settings section
+        event.stopPropagation();
+        $(this).css('display','none');
+        $('#s_nbt').css('display','block');     
+    }); 
+
+    $(window).click(function(){               // each time user clicks the window
+            var $val = $('#s_nbt').val();     // number of records per page in the settings form
+            if ($val > 0){ 
+                $('#s_nbt').removeClass('err_border');
+                $('#input_nrec').css('display','block').html(Math.floor($val));
+                $('#s_nbt').css('display','none');
+            }else{  
+                $('#s_nbt').addClass('err_border');   
+                $('#setModal').modal('show');         // window is not closing
+            } 
+            $('.record').removeClass('ui-selected'); // removing all selected records
+            $('#selection_header').css('display', 'none'); // remove the header of the table when there are some selected records
+            $('#default_header').css('display', 'inline'); // append the default header of the table
+    });
+
+    // user opens settings_window
+    $('#button_settings').on('click', function(){
+        $('#default_header').css('display', 'inline');
+        $('.check-item').attr('checked', false); // uncheck all of them
+        // in the settings form refresh the current state of chkboxes:
+        $('#default_header label').not(':hidden').each(function(){
+            var str_chbx = ['.check-item#', $(this).attr('id').split('-')[1]].join('');
+            $(str_chbx).attr('checked', true);
+        });
+    });
+
+    $('.check-item, #button_settings').on('click', function(){
+        var $btext = $('#selectAll').parent().find('b');
+        var nbChecked = $(".check-item:checked").length;
+        if ($(".check-item").length > nbChecked) { //if there are some unchecked 
+            $btext.html('Select all');  // change text
+            $("#selectAll").attr('checked', false);
+        }else{
+            $btext.html('Deselect all');
+            $("#selectAll").attr('checked', true);
+        }
+        if (nbChecked) {
+            $('#save_set').removeClass('disabled');
+        }else{
+            $('#save_set').addClass('disabled');
+        }
+    });
+    
+    // settings_window: user clicks 'select all' checkbox
+    $("#selectAll").click(function() { 
+        var checkedStatus = this.checked; // true or false
+        var $btext = $('#selectAll').parent().find('b');       
+        $(".check-item").each(function() {
+            this.checked = checkedStatus;
+        });          
+        if (checkedStatus){ $btext.html('Deselect all'); $('#save_set').removeClass('disabled');}
+        else {$btext.html('Select all'); $('#save_set').addClass('disabled');} 
+    });
+
+    // settings_window: user click 'save'
+    $('#save_set').click(function(){    
+        if (!$('#save_set').hasClass('disabled')){ 
+            var str_rec, str_head,  
+                uncheckedItems = new Array(); // all unchecked chkboxes
+            var nb_rec = $('#s_nbt').val(); // number of records per one page
+            // hide columns:
+            $(".check-item").not(':checked').each(function() { 
+                var $unchecked = $(this).attr('id');
+                str_rec = ['.record #', $unchecked, '-t'].join(''); // records selector string
+                str_head = ['#l-', $unchecked].join(''); // header of the table selector string           
+                uncheckedItems.push($unchecked);
+            }); 
+            // save settings to .smt/project
+            $('#main_content').load('settings',{'table_HideColumns':uncheckedItems, 
+                                            'nb_records_per_page':nb_rec,
+                                            'saveSettings':true});
+        }  
+    });
+});
+</script>

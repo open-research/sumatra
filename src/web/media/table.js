@@ -27,26 +27,6 @@ $(function() {
         return false;
     });
 
-    $('#y-delRec').click(function(){
-        var succ = false;
-        deleteArr = new Array(); // records to delete
-        $('li.ui-selected').each(function(){
-            deleteArr.push($(this).find('#label-t').html())
-        });
-        $.ajax({
-            type: 'POST',
-            url: 'delete/',
-            data: {'delete':deleteArr,'delete_data':true}, //presume that user always want to delete data
-            success:function(data){
-                succ = true;
-            },
-            async: false
-        });
-        if (succ){
-            window.open('.','_self');
-        }
-    });
-
     $('#d-tags').live('click', function(){ // click on the 'edit tags' button
         var $div_list = $('#list-labels').empty();
         var $selected_labels = new Array();

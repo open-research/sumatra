@@ -18,6 +18,12 @@
         <a class="cancel btn">Cancel</a>
   </div>
 </div>
-
-
+<script type = 'text/javascript'>
+$(document).ready(function(){ 
+    // 'save tags' button in the 'edit tags' popup window 
+    $('#saveTags').click(function(){
+        $('#form-tags').trigger('submit');
+    });
+});
+</script>
 

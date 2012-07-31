@@ -138,6 +138,10 @@ a.active{
     opacity: 0.2;
 }
 
+#icon_cdown:hover{
+  opacity:1.0;
+}
+
 #menu_search{
     left: inferit;
     margin-top: -9px;

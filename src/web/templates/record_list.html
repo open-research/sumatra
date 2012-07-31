@@ -20,18 +20,14 @@ $(document).ready(function(){
     // initialization of all modal popup-windows (settings, new record, set tags, compare records) and hide them
     $('.modal').modal().modal('hide');
 
+    /* 1. Search form */
     // initialization of jquery-ui datepicker used in the seach drop-down list
     $( "#id_timestamp, #id_datewithin" ).datepicker();
 
     // initialization of the drop-down search list (#div_menu_search)
     $('#div_menu_search').offset({left: $('#text_subnav').offset().left + 20}); // x-position as for the #text_subnav + 20px
-    $('#icon_cdown').mouseenter(function(){  // little icon at the right side of #text_subnav
-        $(this).css('opacity','1.0');
-    }).mouseleave(function(){
-        $(this).css('opacity','0.2');
-    }).click(function(event){   
-        var parentWidth;
-        parentWidth = $('input.span5')[0].offsetWidth - 2; // the width of this drop-down equals the width of #text_subnav
+    $('#icon_cdown').click(function(event){   
+        var parentWidth = $('input.span5')[0].offsetWidth - 2; // the width of this drop-down equals the width of #text_subnav
         $('#menu_search').css('width', parentWidth).show();
     });
     // user can close the drop-down search list by clicking on the window or by clicking #close_menu (little icon top-right side)
@@ -45,153 +41,14 @@ $(document).ready(function(){
         return false; 
     });
 
-    // clearing of the search form
+    // clearing of the search form fields
     $('#search_form').find(':input').each(function() {
          $(this).val('');
     });
-    // clearing of the new record form
-    $('.d-newrec').find(':input:not("#mExec"), textarea').each(function() {
-        $(this).val('');
-    });
-    $('.chzn-single span').html('');  // the drop-down list in the new record form (argument file)
-    
+
     // as soon as user clicks the search button in the search drop-down list, the form will be submited
     $('#search_but').click(function(){
         $('#main_content').load('search',{executable:$('#id_executable').val(), repository:$('#id_repository').val(), tags:$('#id_tags').val(), main_file:$('#id_main_file').val(), label:$('#id_label').val(), script_arguments:$('#id_script_arguments').val(), reason:$('#id_reason').val(), timestamp:$('#id_timestamp').val(), date_interval: $('#sdate').html(), date_interval_from: $('#id_datewithin').val()});
-        });
-
-    // 'save tags' button in the 'edit tags' popup window 
-    $('#saveTags').click(function(){
-        $('#form-tags').trigger('submit');
-    });
-
-    // popup window is hide when user click the icons and 'run Sumatra' button
-    $('#btn_run, #close_newrec, #close_set, .cancel').click(function(e){
-        $('.modal').modal('hide');    
-    });
-
-    // click on the compact/comfortable anchor tag in settings drop-down list
-    $('.menu-rsettigns').not('#button_settings').click(function(){
-        var $density_set = $(this).attr('id');      //compact or comfortable
-        $('.menu-rsettigns').removeClass('active');
-        $(this).addClass('active');
-        // save into .smt/project file the changed 'table density' settings
-        $.post("/{{project_name}}/settings", {'display_density':$density_set,'saveSettings':true}); 
-        // change the style of the table 
-        if ($density_set == 'compact'){
-            $('.record').removeClass('comfortable').addClass('condensed');
-        }else{
-            $('.record').removeClass('condensed').addClass('comfortable');
-        }  
-    });
-
-    // settings: change of the number of records per one page
-    $('#input_nrec, #s_nbt').click(function(event){   //click on the div in the settings section
-        nbRecPerPage_changed = true;
-        event.stopPropagation();
-        $(this).css('display','none');
-        $('#s_nbt').css('display','block');     
-    }); 
-    $(window).click(function(){               // each time user click window
-            var $val = $('#s_nbt').val();     // number of records per page
-            if ($val > 0){ 
-                //$('#save_set').removeClass('disabled');
-                 $('#s_nbt').removeClass('err_border');
-                $('#input_nrec').css('display','block').html(Math.floor($val));
-                $('#s_nbt').css('display','none');
-            }else{  
-                $('#s_nbt').addClass('err_border');   
-                //$('#save_set').addClass('disabled');  // disable the button 'save settings'
-                $('#setModal').modal('show');         // window is not closing
-            } 
-            $('.record').removeClass('ui-selected'); // removing all selected records
-            $('#selection_header').css('display', 'none'); // remove the header of the table when there are some selected records
-            $('#default_header').css('display', 'inline'); // append the default header of the table
-    });
-
-    // user opens settings_window
-    $('#button_settings').on('click', function(){
-        $('#default_header').css('display', 'inline');
-        $('.check-item').attr('checked', false); // uncheck all of them
-        // in the settings form refresh the current state of chkboxes:
-        $('#default_header label').not(':hidden').each(function(){
-            var str_chbx = ['.check-item#', $(this).attr('id').split('-')[1]].join('');
-            $(str_chbx).attr('checked', true);
-        });
-    });
-
-    $('.check-item, #button_settings').on('click', function(){
-        var $btext = $('#selectAll').parent().find('b');
-        var nbChecked = $(".check-item:checked").length;
-        if ($(".check-item").length > nbChecked) { //if there are some unchecked 
-            $btext.html('Select all');  // change text
-            $("#selectAll").attr('checked', false);
-        }else{
-            $btext.html('Deselect all');
-            $("#selectAll").attr('checked', true);
-        }
-        if (nbChecked) {
-            $('#save_set').removeClass('disabled');
-        }else{
-            $('#save_set').addClass('disabled');
-        }
-    })
-    
-    // settings_window: user clicks 'select all' checkbox
-    $("#selectAll").click(function() { 
-        var checkedStatus = this.checked; // true or false
-        var $btext = $('#selectAll').parent().find('b');       
-        $(".check-item").each(function() {
-            this.checked = checkedStatus;
-        });          
-        if (checkedStatus){ $btext.html('Deselect all'); $('#save_set').removeClass('disabled');}
-        else {$btext.html('Select all'); $('#save_set').addClass('disabled');} 
-    });
-
-    // settings_window: user click 'save'
-    $('#save_set').click(function(){    
-        if (!$('#save_set').hasClass('disabled')){ 
-            var str_rec, str_head,  
-                uncheckedItems = new Array(); // all unchecked chkboxes
-            var nb_rec = $('#s_nbt').val(); // number of records per one page
-            // hide columns:
-            $(".check-item").not(':checked').each(function() { 
-                var $unchecked = $(this).attr('id');
-                str_rec = ['.record #', $unchecked, '-t'].join(''); // records selector string
-                str_head = ['#l-', $unchecked].join(''); // header of the table selector string           
-                uncheckedItems.push($unchecked);
-            }); 
-            // $(str_rec,str_head).hide(); // hide the records ???
-            // save settings to .smt/project
-            $('#main_content').load('settings',{'table_HideColumns':uncheckedItems, 
-                                            'nb_records_per_page':nb_rec,
-                                            'saveSettings':true});
-        }  
-    });
-
-    $(document).on('click', '#alist-labels span', function(){
-        var nbSelected = $('span.label.label-success').length; 
-        var names_div = ['left', 'right'];  
-        $this = $(this);
-        if ($this.hasClass('label-success')) { // click on the record
-            $this.removeClass('label-success');
-            // delete the part of the window with unchecked label
-            if ($('#sim-left #td_label').html() == $this.html()){
-                $('#sim-left').empty();
-            } else { $('#sim-right').empty(); }
-
-        }else{
-            if (nbSelected == 2){ // if more than two      
-                $('span.label.label-success:eq(0)').removeClass('label-success');  //remove it from the leftmost label
-            }
-            $this.addClass('label-success');   // record is activated
-            $('span.label.label-success').each(function(i, el){
-                var $labl = $(el).html();        //label of the clicked record
-                var buffer = [window.location.pathname, $labl , "/ ", "#info_record"];
-                buffer = buffer.join('');
-                $('#sim-' + names_div[i]).load(buffer);  
-            });
-        }
     });
 
     // "date within" plugin (search form)
@@ -203,20 +60,6 @@ $(document).ready(function(){
         event.stopPropagation(); 
         $('#menu_datewith').show();
         $('#menu_datewith').offset({left: $('#idatewith').offset().left});
-    });
-
-    // new record event:
-    $('#btn_run').click(function(){
-        $mainFile = $('#select-main').next().find('span').html();
-        $argsFile = $('#select-arg').next().find('span').html();
-        $('#main_content').load('/{{project_name}}/simulation',
-                {'label':$('#mLabel').val(),
-                 'reason':$('#mReason').val(),
-                 'tag':$('#mTag').val(),
-                 'execut':$('#mExec').val(),
-                 'main_file':$mainFile,
-                 'args':$argsFile
-                });
     });
 });
 </script>

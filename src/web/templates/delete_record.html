@@ -11,3 +11,27 @@
         <a class="cancel btn">No</a>
   </div>
 </div> 
+<script type = 'text/javascript'>
+$(document).ready(function(){ 
+    // click on the "delete record" button
+    $('#y-delRec').click(function(){
+        var succ = false;
+        deleteArr = new Array(); // records to delete
+        $('li.ui-selected').each(function(){
+            deleteArr.push($(this).find('#label-t').html())
+        });
+        $.ajax({
+            type: 'POST',
+            url: 'delete/',
+            data: {'delete':deleteArr,'delete_data':true}, //presume that user always want to delete data
+            success:function(data){
+                succ = true;
+            },
+            async: false
+        });
+        if (succ){
+            window.open('.','_self');
+        }
+    });
+});
+</script>

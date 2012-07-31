@@ -5,7 +5,6 @@
             <i class='pagin icon-chevron-left'></i><i class='pagin icon-chevron-left'></i>
         </div>
     </div>
-        <!-- <div style='position:absolute; margin-top:50px'> -->
         <div class = 'd-newrec'>
             <label class='control-label' for='mLabel'>Label</label> 
             <input id='mLabel' class='input-medium' type='text'>
@@ -48,26 +47,49 @@
 </div>
 <div id='arg-cont' class='modal'>
     <div style="margin-top:3px; height:42px; line-height:34px; font-size:16px; background-color:Lavender;">
-        <div id='col-arg' style='width:30px; float:left; background-color:AliceBlue;font-size:28px; padding:10px;cursor: pointer;'>
+        <div id='hide_window' style='width:30px; float:left; background-color:AliceBlue;font-size:28px; padding:10px;cursor: pointer;'>
             <i class='pagin icon-chevron-right'></i><i class='pagin icon-chevron-right'></i>
         </div>
         <span id = 'name-arg' style='padding-left:10px;font-weight:bold'></span>
     </div>
     <div id='file-cont'></div>
     <div>
-      <button id='btn_save-arg' class='btn btn-success btn-large' style='width:150px; display: block ;margin-left: auto; margin-right: auto; margin-top:20px'>Save</button>
+      <button id='btn_save' class='btn btn-success btn-large' style='width:150px; display: block ;margin-left: auto; margin-right: auto; margin-top:20px'>Save</button>
     </div>
 </div>
 <script type = 'text/javascript'>
 $(document).ready(function(){ 
-     var editor = CodeMirror.fromTextArea(document.getElementById('file-cont'), {
-                    lineNumbers: true,
-                    theme: 'ambiance'
+    // initialization of drop-down lists (argument, main file)
+    $(".chzn-select-deselect").chosen({allow_single_deselect:true});
+
+    // Code Mirror initialization
+    var editor = CodeMirror.fromTextArea(document.getElementById('file-cont'), {
+                  lineNumbers: true,
+                  theme: 'ambiance'
                 });
 
-     $(".chzn-select-deselect").chosen({allow_single_deselect:true});
+    // clearing of the new record form
+    $('.d-newrec').find(':input:not("#mExec"), textarea').each(function() {
+        $(this).val('');
+    });
+    $('.chzn-single span').html('');  // the drop-down list in the new record form (felds: argument, main file)
 
-     $(".chzn-select").chosen().change(function(event){
+    // click on the new record button:
+    $('#btn_run').click(function(){
+        $mainFile = $('#select-main').next().find('span').html();
+        $argsFile = $('#select-arg').next().find('span').html();
+        $('#main_content').load('/{{project_name}}/simulation', // post to views.py
+                {'label':$('#mLabel').val(),
+                 'reason':$('#mReason').val(),
+                 'tag':$('#mTag').val(),
+                 'execut':$('#mExec').val(),
+                 'main_file':$mainFile,
+                 'args':$argsFile
+                });
+    });
+
+    // user change the state of 'argument' or 'main file' fields 
+    $(".chzn-select").chosen().change(function(event){
         $div_href = $('#' + event.target.id).next().next().children();
         if (event.target.value.length > 0){
              $div_href.html('show content');
@@ -77,6 +99,7 @@ $(document).ready(function(){
         }
     });
 
+     // click on the <a href> under the drop-down list
      $('#file-arg, #file-main').click(function(){
         var cont_href = $('.link-file').not(this);
         if (cont_href.html().length > 0) cont_href.html('show content'); // two divs with the anchor tag
@@ -99,13 +122,15 @@ $(document).ready(function(){
         }
      });
 
-     $('#btn_save-arg').on('click', function(){
+     // save the changes
+     $('#btn_save').on('click', function(){
           var content = editor.getValue();
           var arg_file = $("#name-arg").html();
-          $.post("/{{project_name}}/simulation", {'content':content, 'arg_file':arg_file}); 
+          $.post("/{{project_name}}/simulation", {'content':content, 'arg_file':arg_file}); // post to the views.py
      });
 
-    $('#col-arg').on('click', function(){
+    //click on the 'hide window' icon
+    $('#hide_window').on('click', function(){
          var cont_href = $('.link-file');
          $('#arg-cont').css('display', 'none');
          cont_href.each(function(){
