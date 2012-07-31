@@ -5,8 +5,7 @@
                     <li class="divider"></li>
                     <li class='{% if active == "About" %}active{% endif %}'><a href='/{{project_name}}/about/' class='a-subnav'>About</a></li> 
                     <li class='{% if active == "List of projects" %}active{% endif %}'><a href='/' class='a-subnav'>List of projects</a></li>
-                    <li class='{% if active == "List of records" %}active{% endif %}'><a href='/{{project_name}}/' class='a-subnav'>List of records</a></li> 
-                   
+                    <li class='{% if active == "List of records" %}active{% endif %}'><a href='/{{project_name}}/' class='a-subnav'>List of records</a></li>                
                         <div id = 'div_menu_search' style='float:right'>
                             <input class='span5' type='text' id="text_subnav" placeholder='Search' value='{{search_info.label}}'/>
                             <span id='icon_cdown'><i class="icon-chevron-down" style='font-size:10pt; padding-top:3px;'></i></span>     
@@ -39,9 +38,6 @@
                                         <label id='t_id'>of</label>
                                         <input id="id_datewithin" type="text">
                                     </form>
-
-                
-
                                     <div>
                                         <a id='search_but' class='btn btn-info btn-large' style='padding: 5px 15px;margin-left:10px;color:#ffffff;margin-right:10px'><i class="icon-search">
                                             </i>&nbsp; Search
@@ -50,8 +46,7 @@
                                 </ul>
                         </div>
                             
-                </ul>
-               
+                </ul>  
                     <ul class='nav pull-right' style='margin-right:5px'>
                         <li class='divider-vertical'></li>   
                         <li class='dropdown'><a id='li_settings' class='dropdown-toggle' data-toggle='dropdown' href=''>
@@ -66,8 +61,7 @@
                         </li>                    
                         <li class='divider-vertical'></li>     
                     </ul> 
-                    <div id='wrapper_code'></div>
-              
+                    <div id='wrapper_code'></div>          
         </div>
     </div>
 </div>

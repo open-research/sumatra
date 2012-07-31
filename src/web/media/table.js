@@ -1,59 +1,71 @@
+function labelList(tag, div_list){
+    var $selected_labels = [],
+        $selected_tags = [],
+        list = {'labels':[], 'tags':[]};
+    $('.record.ui-selected').each(function(){
+        var $labl = $(this).find('#label-t').html();           
+        $selected_labels.push($labl);
+        div_list.append('<span class="label">'+ $labl +'</span>');  
+        if (tag){
+            $(this).find('#tag-t a').each(function(){
+                var $tag = $(this).html();
+                if ($selected_tags.indexOf($tag) == -1) $selected_tags.push($tag);    
+            }); 
+        };
+    });
+    if (tag) {list['labels'] = $selected_labels, list['tags'] = $selected_tags}
+    else list['labels'] = $selected_labels;
+    return list;
+};
+
 $(function() {
+    // add arrows which is used for indicating the order of sorting
     $('label.head-item').append("<span class='s-arrow'><span id='up' class='arr-s'>&#x25B2;</span><span id='down' class='arr-s'>&#x25BC;</span></span>");
 
+    // initialization of the sorting for the ol
     $('#ol-content').listsorter(); 
+
+    // this dropdown contains the links to the newest/oldest record sets
     $('#pagin_info').dropdown();
+
+    // in case of hovering the pagination buttons (newer/older)
     $('.page.gradient').tooltip({
-        title: function(){
-            return $(this).attr('id');    
-        },
+        title: function(){return $(this).attr('id');},
         placement: 'bottom',
         trigger: 'hover'
     });
 
-    
+    // as strings 'executable name' and 'executable version' are rather long, we used this hack for the nice rendering
+    $('#l-eversion, #l-ename').each(function(){
+        if ($(this).height() > 20){ // in case it spans one line
+            $(this).css('margin-top', '0px');
+        };
+    });
 
-    if ($('#l-eversion').height() > 20){ // in case it spans one line
-        $('#l-eversion').css('margin-top', '0px');
-    };
-
-    if ($('#l-ename').height() > 20){ // in case it spans one line
-        $('#l-ename').css('margin-top', '0px');
-    };
-
-
+    //buttons, after the click it should fire the opening of the modal popup windows 
     $('#d-delete, #y-delRec, #d-tags, #saveTags, #d-comp, #compareSim').live('click', function(e){
         e.preventDefault();
         return false;
     });
 
-    $('#d-tags').live('click', function(){ // click on the 'edit tags' button
+    // click on the 'edit tags' button
+    $('#d-tags').live('click', function(){
         var $div_list = $('#list-labels').empty();
-        var $selected_labels = new Array();
-        var $selected_tags = new Array();
-        $('.record.ui-selected').each(function(){
-            var $labl = $(this).find('#label-t').html();
-            $(this).find('#tag-t a').each(function(){
-                var $tag = $(this).html();
-                if ($selected_tags.indexOf($tag) == -1) $selected_tags.push($tag);    
-            });             
-            $selected_labels.push($labl);
-            $div_list.append('<span class="label">'+ $labl +'</span>');  
-        });
+        var tag = true;
+        list = labelList(tag, $div_list);
+        var $selected_labels = list.labels;
+        var $selected_tags = list.tags;
         $('#form-tags #id_tags').val($selected_tags.join(', '));
-        var $selected_labels = $selected_labels.join(',');
+        $selected_labels = $selected_labels.join(',');
         $('#arrLabls').append($selected_labels); // as soon as form is submitted we'll read this div to retrieve all the labels
     });
 
-    $('#d-comp').live('click', function(){ //click on the 'compare simulations' button
-        var $div_list = $('#alist-labels').empty();   // !!! create function. reapeat the code for #d-tags
-        var $selected_labels = new Array();
+    //click on the 'compare simulations' button
+    $('#d-comp').live('click', function(){ 
+        var $div_list = $('#alist-labels').empty();
         var names_div = ['left', 'right'];
-        $('.record.ui-selected').each(function(){
-            var $labl = $(this).find('#label-t').html();           
-            $selected_labels.push($labl);
-            $div_list.append('<span class="label">'+ $labl +'</span>');  
-        });
+        list = labelList(false, $div_list);
+        var $selected_labels = list.labels;
         if ($selected_labels.length == 2){ // if user choose exactly 2 records to compare     
             $('#rec-compare').empty();
             $('#alist-labels span').addClass('label-success'); 
@@ -67,6 +79,7 @@ $(function() {
         }
     });
 
+    // using jquery-ui for the rows of the table
     $('#ol-content').selectable({
             filter: 'li:not("div")',  //select only li and not the children divs
             stop: function() {
@@ -79,8 +92,7 @@ $(function() {
             }
     });
 
-    $('.CodeMirror').css('opacity','1.0');
-
+    // when paginate the results
     $('.page').not('.inactive').click(function(){
         $('.page').tooltip('hide');
         var $thisId = $(this).attr('id'),
@@ -103,6 +115,7 @@ $(function() {
           });
     }); 
 
+    // quick pagination: drop-down list with the links 'newest' and 'oldest' simulations
     $('.quick-pag').click(function(){
         var $this = $(this).html();
         if ($this == 'Newest'){
@@ -120,11 +133,14 @@ $(function() {
           });
     });
 
+    // when dragging the popup window with the script code, the dragged item is always above the all over popups
     var click_drag = function(){
         $(".CodeMirror").css('z-index','3');
         $(this).css('z-index','4');
     };
 
+    // clicking the link with the script name: popup window with the code will be opened
+    // (code is retrieved from the version control repository)
     $('.id-script').on('click', function(){
         $li = $(this).parent().parent();
         var hexsha = $li.find('#version-hid').html();
@@ -179,6 +195,7 @@ $(function() {
         });    
     });
     
+    // change the style of the pagination button when hover
     $('.page.gradient').not('.inactive').mouseenter(function(){
         $(this).children().css('opacity','1.0');
         $('.CodeMirror').css('opacity','0.3');
@@ -228,19 +245,5 @@ $(function() {
         'mouseleave':function(){
         $(this).removeClass('hoverRow');
         },
-    });
-
-    // new record window:
-    $('#btn_newrec').on('click', function(){
-        $('#new-rec').css('display', 'block')
-                     .css('top', $('.navbar-fixed-top').height() + 0.2);
-    });
-    $('#col-newrec').mouseenter(function(){
-        $(this).css('background-color', 'Lavender');
-    }).mouseleave(function(){
-        $(this).css('background-color', 'AliceBlue');
-    });
-    $('#col-newrec').on('click', function(){
-         $('#new-rec').css('display', 'none');
     });
 });

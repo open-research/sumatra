@@ -8,7 +8,7 @@
 
 {% block content %} 
 <div id ='innerContent'>
-    {% include "content.html" %}       <!-- the content of the table + paginator header + some javascript -->
+    {% include "content.html" %}           <!-- the content of the table which is reloaded after each post/get request-->
 </div> 
     {% include "set_tag.html" %}           <!-- 'set tags for selected records' window -->
     {% include "settings_window.html" %}   <!-- 'settings' popup window -->
@@ -20,7 +20,7 @@ $(document).ready(function(){
     // initialization of all modal popup-windows (settings, new record, set tags, compare records) and hide them
     $('.modal').modal().modal('hide');
 
-    /* 1. Search form */
+    /* Search form */
     // initialization of jquery-ui datepicker used in the seach drop-down list
     $( "#id_timestamp, #id_datewithin" ).datepicker();
 
@@ -51,7 +51,7 @@ $(document).ready(function(){
         $('#main_content').load('search',{executable:$('#id_executable').val(), repository:$('#id_repository').val(), tags:$('#id_tags').val(), main_file:$('#id_main_file').val(), label:$('#id_label').val(), script_arguments:$('#id_script_arguments').val(), reason:$('#id_reason').val(), timestamp:$('#id_timestamp').val(), date_interval: $('#sdate').html(), date_interval_from: $('#id_datewithin').val()});
     });
 
-    // "date within" plugin (search form)
+    // "date within"
     $('#menu_datewith > li').click(function(){
         $('#menu_datewith').hide();
         $('#sdate').text($(this).text());       

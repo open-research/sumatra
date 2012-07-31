@@ -59,6 +59,12 @@
 </div>
 <script type = 'text/javascript'>
 $(document).ready(function(){ 
+    // new record window:
+    $('#btn_newrec').live('click', function(){
+        $('#new-rec').css('display', 'block')
+                     .css('top', $('.navbar-fixed-top').height() + 0.2);
+    });
+
     // initialization of drop-down lists (argument, main file)
     $(".chzn-select-deselect").chosen({allow_single_deselect:true});
 
@@ -137,5 +143,11 @@ $(document).ready(function(){
             if ($(this).html().length > 0) $(this).html('show content');;
          });   
     });
+
+    // the hide button for the window
+    $('#col-newrec').on('click', function(){
+         $('#new-rec').css('display', 'none');
+    });
+
 });
 </script>
