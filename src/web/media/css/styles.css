@@ -835,7 +835,7 @@ h2.topic{
   padding-left: 20px;
   padding-right: 20px;
   background-color: #f7f7f7;
-  background:url("../light_toast.png") 0% 0% transparent;
+  background:url("../img/light_toast.png") 0% 0% transparent;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#eaeaea', GradientType=0);
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
@@ -853,7 +853,7 @@ h2.topic{
 
 #head_t{
     height: 35px;
-    background:url("../light_toast.png") 0% 0% transparent;
+    background:url("../img/light_toast.png") 0% 0% transparent;
     line-height: 35px;
     padding: 3px 6px;
     box-shadow:0 1px 1px rgba(0, 0, 0, 0.12), 0 0 0 #000000 inset;
@@ -953,7 +953,7 @@ input[type="radio"]:checked+label{ font-weight: bold }
     margin-left:10px;
     width:70%;
     height:inherit;
-    background: url("../white_pixel.png") repeat-x scroll 0 0 #F0F9FF;
+    background: url("../img/white_pixel.png") repeat-x scroll 0 0 #F0F9FF;
     padding-left: 5px;
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
@@ -1167,7 +1167,7 @@ span.label{
   border-radius: 0px;
   height:100%;
   width: 285px;
-  background: url("../white_pixel.png") repeat-x scroll 0 0 #F0F9FF;
+  background: url("../img/white_pixel.png") repeat-x scroll 0 0 #F0F9FF;
 }
 
 #arg-cont{
@@ -1179,8 +1179,7 @@ span.label{
   border-radius: 0px;
   height:100%;
   right:0px !important;
-  /*width: 285px;*/
-  background: url("../white_pixel.png") repeat-x scroll 0 0 #F0F9FF;
+  background: url("../img/white_pixel.png") repeat-x scroll 0 0 #F0F9FF;
 }
 
 
