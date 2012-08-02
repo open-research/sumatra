@@ -6,6 +6,7 @@
                     <li class='{% if active == "About" %}active{% endif %}'><a href='/{{project_name}}/about/' class='a-subnav'>About</a></li> 
                     <li class='{% if active == "List of projects" %}active{% endif %}'><a href='/' class='a-subnav'>List of projects</a></li>
                     <li class='{% if active == "List of records" %}active{% endif %}'><a href='/{{project_name}}/' class='a-subnav'>List of records</a></li>                
+                        {% if active == "List of records" %}
                         <div id = 'div_menu_search' style='float:right'>
                             <input class='span5' type='text' id="text_subnav" placeholder='Search' value='{{search_info.label}}'/>
                             <span id='icon_cdown'><i class="icon-chevron-down" style='font-size:10pt; padding-top:3px;'></i></span>     
@@ -44,8 +45,7 @@
                                         </a> 
                                     </div>
                                 </ul>
-                        </div>
-                            
+                        </div>         
                 </ul>  
                     <ul class='nav pull-right' style='margin-right:5px'>
                         <li class='divider-vertical'></li>   
@@ -61,7 +61,8 @@
                         </li>                    
                         <li class='divider-vertical'></li>     
                     </ul> 
-                    <div id='wrapper_code'></div>          
+                    <div id='wrapper_code'></div>    
+                    {% endif %}       
         </div>
     </div>
 </div>

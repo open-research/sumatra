@@ -47,7 +47,7 @@ class RecordForm(SearchForm):
         model = models.Record
         fields = ('label', 'tags', 'reason', 'executable', 'repository',
                   'main_file', 'script_arguments', 'timestamp')
-'''
+
 def filter_search(request_data, date_from=False, date_interval=False):
     results =  models.Record.objects.all()
     for key, val in request_data.iteritems():
@@ -74,7 +74,7 @@ def filter_search(request_data, date_from=False, date_interval=False):
         results = filter(lambda x: x.timestamp >= datetime.datetime.combine(dateIntvl['min'], datetime.time()) and
                                    x.timestamp <= datetime.datetime.combine(dateIntvl['max'], datetime.time(23,59)), results) # all the records inside the specified interval
     return results
-
+'''
 def search(request, project):
     if request.method == 'POST':
         web_settings = load_project().web_settings
@@ -127,14 +127,14 @@ class ProjectUpdateForm(forms.ModelForm):
         model = models.Project
         fields = ('name', 'description')
 
-
+'''
 def list_projects(request):
     projects = models.Project.objects.all()
     return list_detail.object_list(request, queryset=projects,
                                    template_name="project_list.html",
                                    extra_context={'active':'List of projects',
                                                   'project_name':projects[0]}) #returns the first project
-
+'''
 def show_project(request, project):
     project = models.Project.objects.get(id=project)
     if request.method == 'POST':
@@ -145,9 +145,8 @@ def show_project(request, project):
         form = ProjectUpdateForm(instance=project)
     return render_to_response('project_detail.html',
                               {'project_name': project, 'form': form, 'active':'About'})
-
+'''
 def list_records(request, project):
-    '''
     nbCols = 14 
     form = RecordForm()  
     project_loaded = load_project()
@@ -163,7 +162,6 @@ def list_records(request, project):
     web_settings = load_project().web_settings
     nb_per_page = int(web_settings['nb_records_per_page'])
     paginator = Paginator(sim_list, nb_per_page)
-    '''
     if request.is_ajax(): # when paginating
         page = request.POST.get('page', False)
         nbCols_actual = nbCols - len(web_settings['table_HideColumns'])
@@ -195,7 +193,7 @@ def list_records(request, project):
                'page_list':page_list,
                'width':{'head': head_width, 'label':label_width}}
         return render_to_response('content.html', dic)
-    '''
+    
     else:
         # get names of all files in the current directory:
         files = os.listdir(os.getcwd())

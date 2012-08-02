@@ -7,6 +7,12 @@ from sumatra.recordstore.django_store import models
 import datetime
 import os
 
+class ProjectUpdateForm(forms.ModelForm):
+    
+    class Meta:
+        model = models.Project
+        fields = ('name', 'description')
+        
 class SearchForm(forms.ModelForm):
     ''' this class will be inherited after. It is for changing the 
     requirement properties for any field in the search form'''
