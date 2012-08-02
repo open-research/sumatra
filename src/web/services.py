@@ -26,18 +26,19 @@ class RecordForm(SearchForm):
                   'main_file', 'script_arguments', 'timestamp')
 
 class DefaultTemplate(object):
-    ''' Default template is the record_list.html. THis class will be invoked each time user opens
+    ''' Default template is the record_list.html. This class will be invoked each time user opens
     http://localhost/{{project_name}}/ '''
     def __init__(self, project):
         self.nbCol = 14
+        self.page = 1
         self.project_name = project
         self.project = load_project()
         self.form = RecordForm()
-        self.web_settings = self.initSettings()
-        self.nb_per_page = int(self.web_settings['nb_records_per_page'])
+        self.settings = self.initSettings()
+        self.nb_per_page = int(self.settings['nb_records_per_page'])
         self.sim_list = models.Record.objects.filter(project__id=project).order_by('-timestamp') # here project is the string
         self.paginator = Paginator(self.sim_list, self.nb_per_page)
-        self.page_list = self.paginator.page(1)
+        self.page_list = self.paginator.page(self.page)
         self.files = os.listdir(os.getcwd())
         self.active = 'List of records'
         self.width = self.renderColWidth()
@@ -48,8 +49,8 @@ class DefaultTemplate(object):
         '''For calculating the width of the columns. These values will be send to .css
         Maybe it should rather be done using javascript?'''
         rendered_width = {}
-        if self.web_settings['table_HideColumns'] is not None:
-            nbCols_actual = self.nbCol - len(self.web_settings['table_HideColumns'])
+        if self.settings['table_HideColumns'] is not None:
+            nbCols_actual = self.nbCol - len(self.settings['table_HideColumns'])
         else:
             nbCols_actual = self.nbCol
         rendered_width['head'] = '%s%s' %(90.0/nbCols_actual, '%') # all columns except 'Label' since it should have bigger width
@@ -87,31 +88,45 @@ class DefaultTemplate(object):
 
 class AjaxTemplate(DefaultTemplate):
     ''' This class will be invoked only when the content of the table needs to be refreshed '''
-    def __init__(self, **argvs):
-        pass
+    def __init__(self, project, request_post):
+        super(AjaxTemplate, self).__init__(project)
+        self.form = RecordForm(request_post) # retrieving all fields of the search form
+        self.page = request_post.get('page', False) 
+        self.date_base = request_post.get('date_interval_from',False) # date_base/date_interval are not part of the search form
+        self.date_interval = request_post.get('date_interval', False)
+        if self.form.is_valid():
+            self.request_data = self.form.cleaned_data
+            self.sim_list = self.filter_search(self.request_data, self.date_base, self.date_interval)
+            self.paginator = Paginator(self.sim_list, self.nb_per_page)  
+            try:
+                self.page_list = self.paginator.page(self.page)
+            except PageNotAnInteger:
+                self.page_list = self.paginator.page(1)
+            except EmptyPage:          
+                self.page_list = self.paginator.page(self.paginator.num_pages) # deliver last page of results
 
-def filter_search(results, request_data, date_from=False, date_interval=False):
-    for key, val in request_data.iteritems():
-        if key in ['label','tags','reason', 'main_file', 'script_arguments']:
-            field_list = [x.strip() for x in val.split(',')] 
-            results =  results.filter(reduce(lambda x, y: x | y,
-                                      [Q(**{"%s__contains" % key: word}) for word in field_list])) # __icontains (?)
-        elif isinstance(val, datetime.date):
-            results =  results.filter(timestamp__year = val.year,
-                                      timestamp__month = val.month, 
-                                      timestamp__day = val.day)
-        elif isinstance(val, models.Executable):
-            results =  results.filter(executable__path = val.path)
+    def filter_search(self, request_data, date_from=False, date_interval=False):
+        for key, val in request_data.iteritems():
+            if key in ['label','tags','reason', 'main_file', 'script_arguments']:
+                field_list = [x.strip() for x in val.split(',')] 
+                self.sim_list =  self.sim_list.filter(reduce(lambda x, y: x | y,
+                                          [Q(**{"%s__contains" % key: word}) for word in field_list])) # __icontains (?)
+            elif isinstance(val, datetime.date):
+                self.sim_list =  self.sim_list.filter(timestamp__year = val.year,
+                                          timestamp__month = val.month, 
+                                          timestamp__day = val.day)
+            elif isinstance(val, models.Executable):
+                self.sim_list =  self.sim_list.filter(executable__path = val.path)
 
-        elif isinstance(val, models.Repository):
-            results =  results.filter(repository__url = val.url)
-    if date_from: # in case user specifies "date within" in the search field
-        date_from = strptime(date_from, "%m/%d/%Y") # from text input in the search form
-        base = datetime.date(date_from.tm_year, date_from.tm_mon, date_from.tm_mday)
-        dict_dates = {'1 day': 1, '3 days': 3, '1 week': 7, '2 weeks': 14, '1 month': 31, '2 months':31*2, '6 months':31*6, '1 year':365}
-        nb_days = dict_dates[date_interval] # date interval went from the search form
-        dateIntvl = {'min': base - datetime.timedelta(days = nb_days),
-                     'max': base + datetime.timedelta(days = nb_days)} # interval of the dates
-        results = filter(lambda x: x.timestamp >= datetime.datetime.combine(dateIntvl['min'], datetime.time()) and
-                                   x.timestamp <= datetime.datetime.combine(dateIntvl['max'], datetime.time(23,59)), results) # all the records inside the specified interval
-    return results
+            elif isinstance(val, models.Repository):
+                self.sim_list =  self.sim_list.filter(repository__url = val.url)
+        if date_from: # in case user specifies "date within" in the search field
+            date_from = strptime(date_from, "%m/%d/%Y") # from text input in the search form
+            base = datetime.date(date_from.tm_year, date_from.tm_mon, date_from.tm_mday)
+            dict_dates = {'1 day': 1, '3 days': 3, '1 week': 7, '2 weeks': 14, '1 month': 31, '2 months':31*2, '6 months':31*6, '1 year':365}
+            nb_days = dict_dates[date_interval] # date interval went from the search form
+            dateIntvl = {'min': base - datetime.timedelta(days = nb_days),
+                         'max': base + datetime.timedelta(days = nb_days)} # interval of the dates
+            self.sim_list = filter(lambda x: x.timestamp >= datetime.datetime.combine(dateIntvl['min'], datetime.time()) and
+                                       x.timestamp <= datetime.datetime.combine(dateIntvl['max'], datetime.time(23,59)), results) # all the records inside the specified interval
+        return self.sim_list

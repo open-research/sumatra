@@ -3,14 +3,16 @@ Defines view functions and forms for the Sumatra web interface.
 """
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
-from services import DefaultTemplate, filter_search
+from services import DefaultTemplate, AjaxTemplate
 
 
 def list_records(request, project):
     if request.is_ajax(): # only when paginating
+        ajaxTempOb = AjaxTemplate(project, request.POST)
+        '''
         page = request.POST.get('page', False)    
-        form = RecordForm(request.POST) # retrieving all fields of the search form
-        date_from = request.POST.get('date_interval_from',False) # date_from and date_interval are not part of the search form
+        form = RecordForm(request.POST) 
+        date_from = request.POST.get('date_interval_from',False) 
         date_interval = request.POST.get('date_interval',False)
         if form.is_valid():
             request_data = form.cleaned_data
@@ -29,7 +31,8 @@ def list_records(request, project):
                'object_list':page_list.object_list,
                'page_list':page_list,
                'width':rendered_width}
-        return render_to_response('content.html', dic)
+        '''
+        return render_to_response('content.html', ajaxTempOb.getDict())
     else:
         defTempOb = DefaultTemplate(project)     
         return render_to_response('record_list.html', defTempOb.getDict())
