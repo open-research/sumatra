@@ -9,30 +9,13 @@ from services import DefaultTemplate, AjaxTemplate
 def list_records(request, project):
     if request.is_ajax(): # only when paginating
         ajaxTempOb = AjaxTemplate(project, request.POST)
-        '''
-        page = request.POST.get('page', False)    
-        form = RecordForm(request.POST) 
-        date_from = request.POST.get('date_interval_from',False) 
-        date_interval = request.POST.get('date_interval',False)
-        if form.is_valid():
-            request_data = form.cleaned_data
-            sim_list = filter_search(sim_list, request_data, date_from, date_interval)
-            paginator = Paginator(sim_list, nb_per_page)   
-        try:
-            page_list = paginator.page(page)
-        except PageNotAnInteger:
-            page_list = paginator.page(1)
-        except EmptyPage:          
-            page_list = paginator.page(paginator.num_pages) # deliver last page of results
-        dic = {'project_name': project,
-               'form': form,
-               'settings':web_settings,
-               'paginator':paginator,
-               'object_list':page_list.object_list,
-               'page_list':page_list,
-               'width':rendered_width}
-        '''
-        return render_to_response('content.html', ajaxTempOb.getDict())
+        if ajaxTempOb.form.is_valid(): # is search form is ok
+            ajaxTempOb.filter_search(ajaxTempOb.form.cleaned_data) # taking into consideration the search form
+            ajaxTempOb.init_object_list(ajaxTempOb.page) # taking into consideration pagination
+            return render_to_response('content.html', ajaxTempOb.getDict()) # content.html is a part of record_list.html
+        else:
+            return HttpResponse('search form is not valid')
     else:
-        defTempOb = DefaultTemplate(project)     
+        defTempOb = DefaultTemplate(project)
+        defTempOb.init_object_list() # object_list is used in record_list.html     
         return render_to_response('record_list.html', defTempOb.getDict())
