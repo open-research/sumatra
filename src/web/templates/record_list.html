@@ -57,6 +57,34 @@ $(document).ready(function(){
         $('#menu_datewith').show();
         $('#menu_datewith').offset({left: $('#idatewith').offset().left});
     });
+
+    $('#tags-b').tooltip({
+        title: 'Tags',
+        placement: 'bottom',
+        trigger: 'hover'
+    });
+
+    // click on the button 'tags' on the header
+    $('#tags-b').click(function(){
+        $.ajax({
+            type: 'GET',
+            url: '/{{project_name}}/tag/',
+            success:function(data){
+                $('#dropdown_tags').html(data); // refresh the drop-down with the list of tags
+            }
+        });
+    });
+
+    $('.menu-tags').live('click', function(){ // using live() because it was inserted dynamycally using django
+        $.ajax({
+            type: 'POST',
+            url: '/{{project_name}}/tag/',
+            data: {tags: $(this).html()},
+            success:function(data){
+                $('#main_content').html(data); // refresh the drop-down with the list of tags
+            }
+        });
+    });
 });
 </script>
 {% endblock %}
