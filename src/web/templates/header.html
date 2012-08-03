@@ -5,7 +5,8 @@
                     <li class="divider"></li>
                     <li class='{% if active == "About" %}active{% endif %}'><a href='/{{project_name}}/about/' class='a-subnav'>About</a></li> 
                     <li class='{% if active == "List of projects" %}active{% endif %}'><a href='/' class='a-subnav'>List of projects</a></li>
-                    <li class='{% if active == "List of records" %}active{% endif %}'><a href='/{{project_name}}/' class='a-subnav'>List of records</a></li>                
+                    <li class='{% if active == "List of records" %}active{% endif %}'><a href='/{{project_name}}/' class='a-subnav'>List of records</a></li>
+                    <li class='{% if active == "Tags" %}active{% endif %}'><a href='/{{project_name}}/tag/' class='a-subnav' id = 'tags-b'><i class="icon-tags"></i></a></li>    
                         {% if active == "List of records" %}
                         <div id = 'div_menu_search' style='float:right'>
                             <input class='span5' type='text' id="text_subnav" placeholder='Search' value='{{search_info.label}}'/>
@@ -59,10 +60,10 @@
                                 <li><a id='button_settings' class='menu-rsettigns' data-toggle="modal" href="#setModal">Settings</a></li>
                             </ul>
                         </li>                    
-                        <li class='divider-vertical'></li>     
+                        <li class='divider-vertical'></li>   
+                    {% endif %}   
                     </ul> 
-                    <div id='wrapper_code'></div>    
-                    {% endif %}       
+                    <div id='wrapper_code'></div>          
         </div>
     </div>
 </div>

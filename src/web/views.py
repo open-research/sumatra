@@ -5,7 +5,7 @@ from django.http import HttpResponse
 from django.shortcuts import render_to_response
 from django.views.generic import list_detail
 from services import DefaultTemplate, AjaxTemplate, ProjectUpdateForm
-from sumatra.recordstore.django_store.models import Project
+from sumatra.recordstore.django_store.models import Project, Tag
 
 def list_records(request, project):
     if request.is_ajax(): # only when paginating
@@ -42,3 +42,9 @@ def show_project(request, project):
     else:
         dic['form'] = ProjectUpdateForm(instance=project)
     return render_to_response('project_detail.html', dic)
+
+def list_tags(request, project):
+    tags = {"extra_context": { 'project_name': project, 'active':'Tags' },
+            "queryset": Tag.objects.all(),
+            "template_name": "tag_list.html"}
+    return list_detail.object_list(request, **tags)

@@ -1229,3 +1229,9 @@ span.label{
   margin-right:60px;
   overflow-y: auto;
 }
+
+#tags-b{
+  font-size:18px;
+  padding-top:12px;
+  padding-bottom:8px;
+}

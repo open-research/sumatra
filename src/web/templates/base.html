@@ -53,4 +53,14 @@
         </div>
     </div><!--/container-->                 
 </body>
+<script type = 'text/javascript'>
+$(document).ready(function(){ 
+    // hovering the 'tags' button (header of the page). It is accessible from all pages since base.html is common for each template
+    $('#tags-b').tooltip({
+        title: 'Tags',
+        placement: 'bottom',
+        trigger: 'hover'
+    });
+});
+</script>
 </html>

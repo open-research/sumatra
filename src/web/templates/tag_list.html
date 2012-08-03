@@ -1,12 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{project_name}}: List of tags{% endblock %}
-
-{% block header %}<h1>{{project_name}}: List of tags</h1>{% endblock %}
-
 {% block content %}
-
-<p><a href="/{{project_name}}/">Return to record list</a></p>
 
 {% if object_list %}
     <ul>
