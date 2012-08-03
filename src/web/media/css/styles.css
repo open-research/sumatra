@@ -1235,3 +1235,16 @@ span.label{
   padding-top:12px;
   padding-bottom:8px;
 }
+
+#dropdown_tags{
+  max-height: 200px;
+  overflow-y: scroll; 
+}
+
+#tags-b i{
+  line-height: 20px;
+}
+
+#tags-b b{
+  margin-left: 5px;
+}
