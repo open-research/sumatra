@@ -4,6 +4,7 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from sumatra.projects import load_project, init_websettings
 from sumatra.projects import init_websettings
 from sumatra.recordstore.django_store import models
+from time import strptime
 import datetime
 import os
 
@@ -42,13 +43,13 @@ class DefaultTemplate(object):
         self.settings = self._init_settings()
         self.nb_per_page = int(self.settings['nb_records_per_page'])
         self.sim_list = models.Record.objects.filter(project__id=project).order_by('-timestamp') # here project is the string
-        self.paginator = Paginator(self.sim_list, self.nb_per_page)
         self.files = os.listdir(os.getcwd())
         self.active = 'List of records'
         self.width = self.renderColWidth()
         self.path = self.project.default_executable.path
 
     def init_object_list(self, page=1):
+        self.paginator = Paginator(self.sim_list, self.nb_per_page)
         try:
             self.page_list = self.paginator.page(page)
         except PageNotAnInteger:
@@ -100,18 +101,19 @@ class DefaultTemplate(object):
 class AjaxTemplate(DefaultTemplate):
     ''' This class will be invoked only when the content of the table needs to be refreshed.
     It is a children of DefaultTemplate class'''
-    def __init__(self, project, request_post):
+    def __init__(self, project, request_post=None): # request_post=None when user retrieve the list of records for defined tag (views: list_tagged_records())
         super(AjaxTemplate, self).__init__(project)
-        self.form = RecordForm(request_post) # retrieving all fields of the search form
-        self.page = request_post.get('page', False) 
-        self.date_base = request_post.get('date_interval_from',False) # date_base/date_interval are not part of the search form
-        self.date_interval = request_post.get('date_interval', False)
-        self.dict_dates = {'1 day': 1, '3 days': 3, '1 week': 7, '2 weeks': 14, '1 month': 31, '2 months':31*2, '6 months':31*6, '1 year':365}
+        if request_post:
+            self.form = RecordForm(request_post) # retrieving all fields of the search form
+            self.page = request_post.get('page', False) 
+            self.date_base = request_post.get('date_interval_from',False) # date_base/date_interval are not part of the search form
+            self.date_interval = request_post.get('date_interval', False)
+            self.dict_dates = {'1 day': 1, '3 days': 3, '1 week': 7, '2 weeks': 14, '1 month': 31, '2 months':31*2, '6 months':31*6, '1 year':365}
 
     def filter_search(self, request_data):
         for key, val in request_data.iteritems():
             if key in ['label','tags','reason', 'main_file', 'script_arguments']:
-                field_list = [x.strip() for x in val.split(',')] 
+                field_list = [x.strip() for x in val.split(',')]
                 self.sim_list =  self.sim_list.filter(reduce(lambda x, y: x | y,
                                           [Q(**{"%s__contains" % key: word}) for word in field_list])) # __icontains (?)
             elif isinstance(val, datetime.date):
@@ -122,7 +124,7 @@ class AjaxTemplate(DefaultTemplate):
                 self.sim_list =  self.sim_list.filter(executable__path = val.path)
             elif isinstance(val, models.Repository):
                 self.sim_list =  self.sim_list.filter(repository__url = val.url)
-        if self.date_base:  # in case user specifies "date within" in the search field
+        if hasattr(self, 'date_base') and self.date_base:  # in case user specifies "date within" in the search field
             self.date_base = strptime(self.date_base, "%m/%d/%Y") # from text input in the search form
             base = datetime.date(self.date_base.tm_year, self.date_base.tm_mon, self.date_base.tm_mday)
             nb_days = self.dict_dates[date_interval] # date interval went from the search form

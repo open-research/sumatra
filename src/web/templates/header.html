@@ -6,8 +6,12 @@
                     <li class='{% if active == "About" %}active{% endif %}'><a href='/{{project_name}}/about/' class='a-subnav'>About</a></li> 
                     <li class='{% if active == "List of projects" %}active{% endif %}'><a href='/' class='a-subnav'>List of projects</a></li>
                     <li class='{% if active == "List of records" %}active{% endif %}'><a href='/{{project_name}}/' class='a-subnav'>List of records</a></li>
-                    <li class='{% if active == "Tags" %}active{% endif %}'><a href='/{{project_name}}/tag/' class='a-subnav' id = 'tags-b'><i class="icon-tags"></i></a></li>    
-                        {% if active == "List of records" %}
+                    {% if active == "List of records" %}
+                    <li class='dropdown'><a href='' class='dropdown-toggle' data-toggle='dropdown' id = 'tags-b'><i class="icon-tags"></i><b class='caret'></b></a>
+                            <ul class='dropdown-menu' id = 'dropdown_tags'>
+                                    {% include "tag_list.html" %}
+                            </ul>
+                    </li>  
                         <div id = 'div_menu_search' style='float:right'>
                             <input class='span5' type='text' id="text_subnav" placeholder='Search' value='{{search_info.label}}'/>
                             <span id='icon_cdown'><i class="icon-chevron-down" style='font-size:10pt; padding-top:3px;'></i></span>     
@@ -54,10 +58,10 @@
                         <i class="icon-cog" style='margin-top:8px'></i> Settings<b class='caret'></b></a>
                             <ul class='dropdown-menu' id = 'dropdown_menu'>
                                 <li><a href="#" id='settings_density'>Display density:</a></li> 
-                                <li><a href="#" class='menu-rsettigns {% if "comfortable" in settings.display_density %}active{% endif %}' id='comfortable'>Comfortable</a></li>
-                                <li><a href="#" class='menu-rsettigns {% if "compact" in settings.display_density %}active{% endif %}' id='compact'>Compact</a></li>
+                                <li><a href="#" class='menu-rsettings {% if "comfortable" in settings.display_density %}active{% endif %}' id='comfortable'>Comfortable</a></li>
+                                <li><a href="#" class='menu-rsettings {% if "compact" in settings.display_density %}active{% endif %}' id='compact'>Compact</a></li>
                                 <li class="divider"></li>
-                                <li><a id='button_settings' class='menu-rsettigns' data-toggle="modal" href="#setModal">Settings</a></li>
+                                <li><a id='button_settings' class='menu-rsettings' data-toggle="modal" href="#setModal">Settings</a></li>
                             </ul>
                         </li>                    
                         <li class='divider-vertical'></li>   

@@ -4,8 +4,9 @@ Defines view functions and forms for the Sumatra web interface.
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
 from django.views.generic import list_detail
+#from tagging.views import tagged_object_list
 from services import DefaultTemplate, AjaxTemplate, ProjectUpdateForm
-from sumatra.recordstore.django_store.models import Project, Tag
+from sumatra.recordstore.django_store.models import Project, Tag, Record
 
 def list_records(request, project):
     if request.is_ajax(): # only when paginating
@@ -44,7 +45,10 @@ def show_project(request, project):
     return render_to_response('project_detail.html', dic)
 
 def list_tags(request, project):
-    tags = {"extra_context": { 'project_name': project, 'active':'Tags' },
-            "queryset": Tag.objects.all(),
-            "template_name": "tag_list.html"}
-    return list_detail.object_list(request, **tags)
+    if request.method == 'POST': # user define a tag name (by clicking it)
+        ajaxTempOb = AjaxTemplate(project)
+        ajaxTempOb.filter_search(request.POST)
+        ajaxTempOb.init_object_list()
+        return render_to_response('content.html', ajaxTempOb.getDict())
+    else:
+        return render_to_response('tag_list.html', {'tags_list':Tag.objects.all(), 'project_name': project})

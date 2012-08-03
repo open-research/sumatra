@@ -9,7 +9,6 @@
       <li class="active"><a href="#first"  data-toggle="tab" >General</a></li>
       <li><a href="#second"  data-toggle="tab" >Another option</a></li>
     </ul>
-    
     <div class="tab-content">
       <div class="tab-pane active" id="first">
         <div id = 'tab_general_text'><p><b>Table:</b></p></div>
@@ -75,9 +74,9 @@
  <script type = 'text/javascript'>
 $(document).ready(function(){ 
     // click on the compact/comfortable anchor tag in settings drop-down list
-    $('.menu-rsettigns').not('#button_settings').click(function(){
+    $('.menu-rsettings').not('#button_settings').click(function(){
         var $density_set = $(this).attr('id');      //compact or comfortable
-        $('.menu-rsettigns').removeClass('active');
+        $('.menu-rsettings').removeClass('active');
         $(this).addClass('active');
         // save into .smt/project file the changed 'table density' settings
         $.post("/{{project_name}}/settings", {'display_density':$density_set,'saveSettings':true}); 

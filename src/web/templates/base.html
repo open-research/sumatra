@@ -51,8 +51,7 @@
         <div id="sidebar">
             {% block sidebar %}{% endblock %}    
         </div>
-    </div><!--/container-->                 
-</body>
+    </div><!--/container-->  
 <script type = 'text/javascript'>
 $(document).ready(function(){ 
     // hovering the 'tags' button (header of the page). It is accessible from all pages since base.html is common for each template
@@ -61,6 +60,29 @@ $(document).ready(function(){
         placement: 'bottom',
         trigger: 'hover'
     });
+
+    // click on the button 'tags' on the header
+    $('#tags-b').click(function(){
+        $.ajax({
+            type: 'GET',
+            url: '/{{project_name}}/tag/',
+            success:function(data){
+                $('#dropdown_tags').html(data); // refresh the drop-down with the list of tags
+            }
+        });
+    });
+
+    $('.menu-tags').live('click', function(){ // using live() becauseit was inserted dynamycally using django
+        $.ajax({
+            type: 'POST',
+            url: '/{{project_name}}/tag/',
+            data: {tags: $(this).html()},
+            success:function(data){
+                $('#main_content').html(data); // refresh the drop-down with the list of tags
+            }
+        });
+    });
 });
-</script>
+</script>               
+</body>
 </html>
