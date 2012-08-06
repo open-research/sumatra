@@ -136,3 +136,15 @@ class AjaxTemplate(DefaultTemplate):
                                        x.timestamp <= datetime.datetime.combine(dateIntvl['max'], datetime.time(23,59)), results) # all the records inside the specified interval
         elif self.tags:
             self.sim_list =  self.sim_list.filter(tags__icontains = self.tags.strip())
+
+def unescape(label):
+    return label.replace("||", "/")
+
+class RecordUpdateForm(forms.ModelForm):
+    wide_textarea = forms.Textarea(attrs={'rows': 2, 'cols':80})
+    reason = forms.CharField(required=False, widget=wide_textarea)
+    outcome = forms.CharField(required=False, widget=wide_textarea)
+    
+    class Meta:
+        model = models.Record
+        fields=('reason', 'outcome', 'tags')

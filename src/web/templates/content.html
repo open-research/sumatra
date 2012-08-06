@@ -90,7 +90,7 @@
         <div id = 'version-hid' class='d-hid'>{{record.version}}</div>
         <div id = 'repo-hid' class='d-hid'>{{record.repository.url}}</div>
         <div class='row-item' id='repository-t'>{{record.repository.url|cut:"repo"}}</div>
-        <div class='row-item' id='label-t'>{{record.label}}</div>
+        <div class='row-item' id='label-t'><a class='href_lab' href=''>{{record.label}}</a></div>
         {% if tag %}
             <div class='row-item' id='tag-t'>{% for other_tag in record.tag_objects %}{% if tag == other_tag %}{{tag}} {% else %}<a href="/{{project_name}}/tag/{{other_tag.name}}/">{{other_tag.name}}</a> {% endif %}{% endfor %}</div>
         {% else %}

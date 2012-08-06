@@ -4,8 +4,9 @@ Defines view functions and forms for the Sumatra web interface.
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
 from django.views.generic import list_detail
-from services import DefaultTemplate, AjaxTemplate, ProjectUpdateForm
+from services import DefaultTemplate, AjaxTemplate, ProjectUpdateForm, RecordUpdateForm, unescape
 from sumatra.recordstore.django_store.models import Project, Tag, Record
+from sumatra.datastore import get_data_store
 
 def list_records(request, project):
     if request.is_ajax(): # only when paginating
@@ -52,3 +53,26 @@ def list_tags(request, project):
         return render_to_response('content.html', dic)
     else:
         return render_to_response('tag_list.html', {'tags_list':Tag.objects.all(), 'project_name': project})
+
+def record_detail(request, project, label):
+    label = unescape(label)
+    record = Record.objects.get(label=label, project__id=project)
+    if request.method == 'POST':
+        if request.POST.has_key('delete'):
+            record.delete() # need to add option to delete data
+            return HttpResponseRedirect('.')
+        else:
+            form = RecordUpdateForm(request.POST, instance=record)
+            if form.is_valid():
+                form.save()
+    else:
+        form = RecordUpdateForm(instance=record)
+    data_store = get_data_store(record.datastore.type, eval(record.datastore.parameters))
+    parameter_set = record.parameters.to_sumatra()
+    if hasattr(parameter_set, "as_dict"):
+        parameter_set = parameter_set.as_dict()
+    return render_to_response('record_detail.html', {'record': record,
+                                                     'project_name': project,
+                                                     'parameters': parameter_set,
+                                                     'form': form
+                                                     })
