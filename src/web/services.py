@@ -47,6 +47,7 @@ class DefaultTemplate(object):
         self.active = 'List of records'
         self.width = self.renderColWidth()
         self.path = self.project.default_executable.path
+        self.tags = False # tags is not defined
 
     def init_object_list(self, page=1):
         self.paginator = Paginator(self.sim_list, self.nb_per_page)
@@ -133,5 +134,5 @@ class AjaxTemplate(DefaultTemplate):
                          'max': base + datetime.timedelta(days = nb_days)} # interval of the dates
             self.sim_list = filter(lambda x: x.timestamp >= datetime.datetime.combine(dateIntvl['min'], datetime.time()) and
                                        x.timestamp <= datetime.datetime.combine(dateIntvl['max'], datetime.time(23,59)), results) # all the records inside the specified interval
-        elif hasattr(self, 'tags') and self.tags:
+        elif self.tags:
             self.sim_list =  self.sim_list.filter(tags__icontains = self.tags.strip())

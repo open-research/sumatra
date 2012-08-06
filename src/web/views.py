@@ -45,11 +45,10 @@ def show_project(request, project):
 
 def list_tags(request, project):
     if request.method == 'POST': # user define a tag name (by clicking it)
-        ajaxTempOb = AjaxTemplate(project)
+        ajaxTempOb = AjaxTemplate(project, request.POST)
         ajaxTempOb.filter_search(request.POST)
         ajaxTempOb.init_object_list()
         dic = ajaxTempOb.getDict()
-        dic['tag'] = request.POST['tags']
         return render_to_response('content.html', dic)
     else:
         return render_to_response('tag_list.html', {'tags_list':Tag.objects.all(), 'project_name': project})

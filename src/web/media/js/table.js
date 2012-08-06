@@ -18,6 +18,16 @@ function labelList(tag, div_list){
     return list;
 };
 
+function headerSearch(){
+    var obj = {};
+    var search_subnav = $('#search_subnav').val().split(','); // header of the page: search textarea
+    search_subnav.forEach(function(property) {
+        var tup = property.split(':');
+        obj[tup[0]] = tup[1];
+    });
+    return obj;
+};
+
 $(function() {
     // add arrows which is used for indicating the order of sorting
     $('label.head-item').append("<span class='s-arrow'><span id='up' class='arr-s'>&#x25B2;</span><span id='down' class='arr-s'>&#x25BC;</span></span>");
@@ -98,11 +108,7 @@ $(function() {
         var $thisId = $(this).attr('id'),
             obj = {},
             $page;
-        var search_subnav = $('#search_subnav').val().split(','); // header of the page: search textarea
-        search_subnav.forEach(function(property) {
-            var tup = property.split(':');
-            obj[tup[0]] = tup[1];
-        });
+        var search_header_obj =  headerSearch();
         if ($thisId == 'newer'){  // views.py: list_records with ajax request
             $page = $('#next_page_number').html()
         }else if($thisId == 'older'){
@@ -114,7 +120,7 @@ $(function() {
             data: {'page':$page, executable:$('#id_executable').val(), repository:$('#id_repository').val(),
             tags:$('#id_tags').val(), main_file:$('#id_main_file').val(),
             label:$('#id_label').val(), script_arguments:$('#id_script_arguments').val(), reason:$('#id_reason').val(), timestamp:$('#id_timestamp').val(),
-            date_interval: $('#sdate').html(), date_interval_from: $('#id_datewithin').val(), search_input: obj},
+            date_interval: $('#sdate').html(), date_interval_from: $('#id_datewithin').val(), search_input: search_header_obj},
             success:function(data){
                 $('#innerContent').html(data);
             }
@@ -124,6 +130,7 @@ $(function() {
     // quick pagination: drop-down list with the links 'newest' and 'oldest' simulations
     $('.quick-pag').click(function(){
         var $this = $(this).html();
+        var search_header_obj =  headerSearch(); // search textarea in the header
         if ($this == 'Newest'){
             $page = 1;
         }else{
@@ -132,7 +139,7 @@ $(function() {
           $.ajax({
             type: 'POST',
             url: '.',
-            data: {'page':$page},
+            data: {'page':$page, search_input:search_header_obj},
             success:function(data){
                 $('#innerContent').html(data);
             }

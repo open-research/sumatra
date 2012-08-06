@@ -43,7 +43,7 @@ $(document).ready(function(){
     });
 
     // search input textarea
-    $('#search_subnav').val('Search');
+    $('#search_subnav').val('');
 
     // as soon as user clicks the search button in the search drop-down list, the form will be submited
     $('#search_but').click(function(){
@@ -80,13 +80,15 @@ $(document).ready(function(){
 
     $('.menu-tags').live('click', function(){ // using live() because it was inserted dynamycally using django
         var $tags = $(this).html();
+        $('#search_subnav').val('tags: ' + $tags);
+        obj = {};
+        obj['tags'] = $tags;
         $.ajax({
             type: 'POST',
             url: '/{{project_name}}/tag/',
-            data: {tags: $tags},
+            data: {search_input: obj},
             success:function(data){
                 $('#main_content').html(data); // refresh the drop-down with the list of tags
-                $('#search_subnav').val('tags: ' + $tags);
             }
         });
     });
