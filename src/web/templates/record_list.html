@@ -21,9 +21,9 @@ $(document).ready(function(){
     $( "#id_timestamp, #id_datewithin" ).datepicker();
 
     // initialization of the drop-down search list (#div_menu_search)
-    $('#div_menu_search').offset({left: $('#text_subnav').offset().left + 20}); // x-position as for the #text_subnav + 20px
+    $('#div_menu_search').offset({left: $('#search_subnav').offset().left + 20}); // x-position as for the #search_subnav + 20px
     $('#icon_cdown').click(function(event){   
-        var parentWidth = $('input.span5')[0].offsetWidth - 2; // the width of this drop-down equals the width of #text_subnav
+        var parentWidth = $('input.span5')[0].offsetWidth - 2; // the width of this drop-down equals the width of #search_subnav
         $('#menu_search').css('width', parentWidth).show();
     });
     // user can close the drop-down search list by clicking on the window or by clicking #close_menu (little icon top-right side)
@@ -76,12 +76,14 @@ $(document).ready(function(){
     });
 
     $('.menu-tags').live('click', function(){ // using live() because it was inserted dynamycally using django
+        var $tags = $(this).html();
         $.ajax({
             type: 'POST',
             url: '/{{project_name}}/tag/',
-            data: {tags: $(this).html()},
+            data: {tags: $tags},
             success:function(data){
                 $('#main_content').html(data); // refresh the drop-down with the list of tags
+                $('#search_subnav').val('tags: ' + $tags);
             }
         });
     });

@@ -108,6 +108,7 @@ class AjaxTemplate(DefaultTemplate):
             self.page = request_post.get('page', False) 
             self.date_base = request_post.get('date_interval_from',False) # date_base/date_interval are not part of the search form
             self.date_interval = request_post.get('date_interval', False)
+            self.tags = request_post.get('search_input[tags]', False) 
             self.dict_dates = {'1 day': 1, '3 days': 3, '1 week': 7, '2 weeks': 14, '1 month': 31, '2 months':31*2, '6 months':31*6, '1 year':365}
 
     def filter_search(self, request_data):
@@ -132,3 +133,5 @@ class AjaxTemplate(DefaultTemplate):
                          'max': base + datetime.timedelta(days = nb_days)} # interval of the dates
             self.sim_list = filter(lambda x: x.timestamp >= datetime.datetime.combine(dateIntvl['min'], datetime.time()) and
                                        x.timestamp <= datetime.datetime.combine(dateIntvl['max'], datetime.time(23,59)), results) # all the records inside the specified interval
+        elif hasattr(self, 'tags') and self.tags:
+            self.sim_list =  self.sim_list.filter(tags__icontains = self.tags.strip())

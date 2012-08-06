@@ -96,7 +96,13 @@ $(function() {
     $('.page').not('.inactive').click(function(){
         $('.page').tooltip('hide');
         var $thisId = $(this).attr('id'),
+            obj = {},
             $page;
+        var search_subnav = $('#search_subnav').val().split(','); // header of the page: search textarea
+        search_subnav.forEach(function(property) {
+            var tup = property.split(':');
+            obj[tup[0]] = tup[1];
+        });
         if ($thisId == 'newer'){  // views.py: list_records with ajax request
             $page = $('#next_page_number').html()
         }else if($thisId == 'older'){
@@ -108,7 +114,7 @@ $(function() {
             data: {'page':$page, executable:$('#id_executable').val(), repository:$('#id_repository').val(),
             tags:$('#id_tags').val(), main_file:$('#id_main_file').val(),
             label:$('#id_label').val(), script_arguments:$('#id_script_arguments').val(), reason:$('#id_reason').val(), timestamp:$('#id_timestamp').val(),
-            date_interval: $('#sdate').html(), date_interval_from: $('#id_datewithin').val()},
+            date_interval: $('#sdate').html(), date_interval_from: $('#id_datewithin').val(), search_input: obj},
             success:function(data){
                 $('#innerContent').html(data);
             }

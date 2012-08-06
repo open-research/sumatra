@@ -99,7 +99,7 @@ a.active{
   float: left;
 }
 
-#text_subnav{
+#search_subnav{
     margin-top:5px;
     color:#CCCCCC;
     background-color:#626262;
@@ -108,8 +108,8 @@ a.active{
     padding: 4px 9px;   
 }
 
-#text_subnav:focus,
-#text_subnav.focused {
+#search_subnav:focus,
+#search_subnav.focused {
   padding: 5px 10px;
   color: #333333;
   text-shadow: 0 1px 0 #ffffff;

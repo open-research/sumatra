@@ -10,7 +10,7 @@ from sumatra.recordstore.django_store.models import Project, Tag, Record
 def list_records(request, project):
     if request.is_ajax(): # only when paginating
         ajaxTempOb = AjaxTemplate(project, request.POST)
-        if ajaxTempOb.form.is_valid(): # is search form is ok
+        if ajaxTempOb.form.is_valid():
             ajaxTempOb.filter_search(ajaxTempOb.form.cleaned_data) # taking into consideration the search form
             ajaxTempOb.init_object_list(ajaxTempOb.page) # taking into consideration pagination
             return render_to_response('content.html', ajaxTempOb.getDict()) # content.html is a part of record_list.html
