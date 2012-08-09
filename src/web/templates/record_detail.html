@@ -1,23 +1,6 @@
 {% extends "base.html" %}
 {% load filters %}
 
-{% block header %}
-<div class="navbar navbar-fixed-top">
-    <div class="navbar-inner">
-        <div class="container-fluid">
-            <h1><div id = "name_project">
-            <a href="/{{project_name}}/about/">{{project_name}}</a></div></h1>
-            <ul class='nav'>
-                <li class="divider"></li>
-                <li><a href='/{{project_name}}/about/' class='a-subnav'>About</a></li> 
-                <li><a href='/' class='a-subnav'>List of projects</a></li>
-                <li><a href='/{{project_name}}/' class='a-subnav'>List of records</a></li>       
-            </ul>
-        </div>
-    </div>
-</div> 
-{% endblock %}
-
 {% block content %}
 <div class="accordion">
     <h2 class="nav-toggle">General info</h2>
