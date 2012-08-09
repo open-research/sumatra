@@ -3,7 +3,7 @@ function labelList(tag, div_list){
         $selected_tags = [],
         list = {'labels':[], 'tags':[]};
     $('.record.ui-selected').each(function(){
-        var $labl = $(this).find('#label-t').html();           
+        var $labl = $(this).find('#label-t a').html();     
         $selected_labels.push($labl);
         div_list.append('<span class="label">'+ $labl +'</span>');  
         if (tag){

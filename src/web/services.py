@@ -51,7 +51,6 @@ class DefaultTemplate(object):
 
     def init_object_list(self, page=1):
         self.paginator = Paginator(self.sim_list, self.nb_per_page)
-        print 'page ', page
         try:
             self.page_list = self.paginator.page(page)
         except PageNotAnInteger:

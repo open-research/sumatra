@@ -1,7 +1,7 @@
 """
 Defines view functions and forms for the Sumatra web interface.
 """
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.views.generic import list_detail
 from services import DefaultTemplate, AjaxTemplate, ProjectUpdateForm, RecordUpdateForm, unescape
@@ -82,8 +82,19 @@ def search(request, project):
         ajaxTempOb = AjaxTemplate(project, request.POST)
         if ajaxTempOb.form.is_valid():
             ajaxTempOb.filter_search(ajaxTempOb.form.cleaned_data) # taking into consideration the search form
-            print 'ajaxTempOb.page ', ajaxTempOb.page
             ajaxTempOb.init_object_list(ajaxTempOb.page) # taking into consideration pagination
             return render_to_response('content.html', ajaxTempOb.getDict()) # content.html is a part of record_list.html
         else:
             return HttpResponse('search form is not valid')
+
+def set_tags(request, project):
+    records_to_settags = request.POST.get('selected_labels', False)
+    if records_to_settags: # case of submit request
+        records_to_settags = records_to_settags.split(',')
+        records = Record.objects.filter(label__in=records_to_settags, project__id=project)
+        for record in records:
+            form = RecordUpdateForm(request.POST, instance=record)
+            if form.is_valid():
+                print 'it is valid'
+                form.save()
+        return HttpResponseRedirect('.')
