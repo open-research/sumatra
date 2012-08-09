@@ -74,7 +74,7 @@ def filter_search(request_data, date_from=False, date_interval=False):
         results = filter(lambda x: x.timestamp >= datetime.datetime.combine(dateIntvl['min'], datetime.time()) and
                                    x.timestamp <= datetime.datetime.combine(dateIntvl['max'], datetime.time(23,59)), results) # all the records inside the specified interval
     return results
-'''
+
 def search(request, project):
     if request.method == 'POST':
         web_settings = load_project().web_settings
@@ -108,10 +108,10 @@ def search(request, project):
     
 def unescape(label):
     return label.replace("||", "/")
-
+'''
 class TagSearch(forms.Form):
     search = forms.CharField() 
-    
+'''    
 class RecordUpdateForm(forms.ModelForm):
     wide_textarea = forms.Textarea(attrs={'rows': 2, 'cols':80})
     reason = forms.CharField(required=False, widget=wide_textarea)
@@ -120,21 +120,22 @@ class RecordUpdateForm(forms.ModelForm):
     class Meta:
         model = models.Record
         fields=('reason', 'outcome', 'tags')
-
+'''
+'''
 class ProjectUpdateForm(forms.ModelForm):
     
     class Meta:
         model = models.Project
         fields = ('name', 'description')
 
-'''
+
 def list_projects(request):
     projects = models.Project.objects.all()
     return list_detail.object_list(request, queryset=projects,
                                    template_name="project_list.html",
                                    extra_context={'active':'List of projects',
                                                   'project_name':projects[0]}) #returns the first project
-'''
+
 def show_project(request, project):
     project = models.Project.objects.get(id=project)
     if request.method == 'POST':
@@ -145,7 +146,7 @@ def show_project(request, project):
         form = ProjectUpdateForm(instance=project)
     return render_to_response('project_detail.html',
                               {'project_name': project, 'form': form, 'active':'About'})
-'''
+
 def list_records(request, project):
     nbCols = 14 
     form = RecordForm()  
@@ -219,7 +220,7 @@ def list_records(request, project):
                'path':project_loaded.default_executable.path}
         return render_to_response('record_list.html', dic)
     '''
-
+"""
 def list_tagged_records(request, project, tag):
     queryset = models.Record.objects.filter(project__id=project)
     return tagged_object_list(request,
@@ -227,7 +228,7 @@ def list_tagged_records(request, project, tag):
                               queryset_or_model=queryset,
                               template_name="record_list.html",
                               extra_context={'project_name': project })
-
+"""
 def set_tags(request, project):
     records_to_settags = request.POST.get('selected_labels', False)
     if records_to_settags: # case of submit request
@@ -239,7 +240,7 @@ def set_tags(request, project):
                 form.save()
         return HttpResponseRedirect('.')
     return render_to_response('set_tag.html', {'form':form})
-
+'''
 def record_detail(request, project, label):
     label = unescape(label)
     record = models.Record.objects.get(label=label, project__id=project)
@@ -262,7 +263,7 @@ def record_detail(request, project, label):
                                                      'parameters': parameter_set,
                                                      'form': form
                                                      })
-
+'''
 def delete_records(request, project):
     records_to_delete = request.POST.getlist('delete[]')
     #delete_data = 'delete_data' in request.POST
@@ -276,7 +277,7 @@ def delete_records(request, project):
 
         record.delete()
     return HttpResponse('')  
-
+'''
 def list_tags(request, project):
     tags = {
         "extra_context": { 'project_name': project },
@@ -284,7 +285,7 @@ def list_tags(request, project):
         "template_name": "tag_list.html",
     }
     return list_detail.object_list(request, **tags)
-
+'''
 DEFAULT_MAX_DISPLAY_LENGTH = 10*1024
 
 def show_file(request, project, label):
@@ -313,7 +314,7 @@ def show_file(request, project, label):
             return HttpResponse('There is no file with this name in %s' %(os.getcwd()))
         return HttpResponse(f_content)
   
-'''
+
 def show_file(request, project, label):
     label = unescape(label)
     path = request.GET['path']
@@ -395,7 +396,7 @@ def show_file(request, project, label):
                                                      'project_name': project,
                                                      'content': "File not found.",
                                                      'errmsg': e})
-'''
+
 def download_file(request, project, label):
     label = unescape(label)
     path = request.GET['path']
@@ -562,10 +563,3 @@ def settings(request, project):
         settings = {'execut':project.default_executable.path,
                     'mfile':project.default_main_file}
         return HttpResponse(simplejson.dumps(settings))
-
-def short_repo(url_repo):
-    return '%s\%s' %(url_repo.split('\\')[-2], 
-                     url_repo.split('\\')[-1])
-                     
-def short_version(version_name):
-    return '%s...' %(version_name[:5])

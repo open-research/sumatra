@@ -45,15 +45,16 @@ $(function() {
         trigger: 'hover'
     });
 
+
     // hovering the repository name in table
-    $('label.repo').tooltip({
+    $('ol .repo').tooltip({
         title: function(){return $(this).parent().parent().find('#repo-hid').html()},
         placement: 'right',
         trigger: 'hover'
     });
 
     // hovering the hex version
-    $('label.version').tooltip({
+    $('ol .version').tooltip({
         title: function(){return $(this).parent().parent().find('#version-hid').html()},
         placement: 'right',
         trigger: 'hover'

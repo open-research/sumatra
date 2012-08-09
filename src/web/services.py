@@ -51,11 +51,13 @@ class DefaultTemplate(object):
 
     def init_object_list(self, page=1):
         self.paginator = Paginator(self.sim_list, self.nb_per_page)
+        print 'page ', page
         try:
             self.page_list = self.paginator.page(page)
         except PageNotAnInteger:
             self.page_list = self.paginator.page(1)
-        except EmptyPage:          
+        except EmptyPage:    
+            print 'i am in emptyPage'      
             self.page_list = self.paginator.page(self.paginator.num_pages) # deliver last page of results
         self.object_list = self.page_list.object_list
 
@@ -129,11 +131,11 @@ class AjaxTemplate(DefaultTemplate):
         if hasattr(self, 'date_base') and self.date_base:  # in case user specifies "date within" in the search field
             self.date_base = strptime(self.date_base, "%m/%d/%Y") # from text input in the search form
             base = datetime.date(self.date_base.tm_year, self.date_base.tm_mon, self.date_base.tm_mday)
-            nb_days = self.dict_dates[date_interval] # date interval went from the search form
+            nb_days = self.dict_dates[self.date_interval] # date interval from the search form
             dateIntvl = {'min': base - datetime.timedelta(days = nb_days),
                          'max': base + datetime.timedelta(days = nb_days)} # interval of the dates
             self.sim_list = filter(lambda x: x.timestamp >= datetime.datetime.combine(dateIntvl['min'], datetime.time()) and
-                                       x.timestamp <= datetime.datetime.combine(dateIntvl['max'], datetime.time(23,59)), results) # all the records inside the specified interval
+                                       x.timestamp <= datetime.datetime.combine(dateIntvl['max'], datetime.time(23,59)), self.sim_list) # all the records inside the specified interval
         elif self.tags:
             self.sim_list =  self.sim_list.filter(tags__icontains = self.tags.strip())
 

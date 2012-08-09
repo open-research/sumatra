@@ -15,8 +15,6 @@ def cut(text, type):
             text_out = text.split('/')[-1]
         else:
             text_out = text.split('\\')[-1] # for windows
-        print 'text: ', text
-        print 'text_out ', text_out
     elif type == 'vers':
         text_out = text[:5]
     return mark_safe(text_out)

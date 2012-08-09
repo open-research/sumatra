@@ -76,3 +76,14 @@ def record_detail(request, project, label):
                                                      'parameters': parameter_set,
                                                      'form': form
                                                      }) 
+
+def search(request, project):
+    if request.is_ajax():
+        ajaxTempOb = AjaxTemplate(project, request.POST)
+        if ajaxTempOb.form.is_valid():
+            ajaxTempOb.filter_search(ajaxTempOb.form.cleaned_data) # taking into consideration the search form
+            print 'ajaxTempOb.page ', ajaxTempOb.page
+            ajaxTempOb.init_object_list(ajaxTempOb.page) # taking into consideration pagination
+            return render_to_response('content.html', ajaxTempOb.getDict()) # content.html is a part of record_list.html
+        else:
+            return HttpResponse('search form is not valid')
