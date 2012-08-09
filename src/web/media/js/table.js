@@ -259,4 +259,10 @@ $(function() {
         $(this).removeClass('hoverRow');
         },
     });
+
+    // clicking on the record link
+    $('.href_lab').click(function(e){ // if not, it will be only selected (jquery-ui selectable)
+        e.stopPropagation();
+        $(this).attr('href', window.location.pathname + $(this).html() + '/');
+    });
 });

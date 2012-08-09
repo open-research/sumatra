@@ -75,4 +75,4 @@ def record_detail(request, project, label):
                                                      'project_name': project,
                                                      'parameters': parameter_set,
                                                      'form': form
-                                                     })
+                                                     }) 

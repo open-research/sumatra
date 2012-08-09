@@ -92,11 +92,6 @@ $(document).ready(function(){
             }
         });
     });
-
-    $('.href_lab').click(function(e){ // if not, it will be only selected (jquery-ui selectable)
-        e.stopPropagation();
-        $(this).attr('href', '/{{project_name}}/' + $(this).html() + '/');
-    });
 });
 </script>
 {% endblock %}
