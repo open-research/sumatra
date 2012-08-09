@@ -68,10 +68,13 @@ $(function() {
         };
     });
 
-    //buttons, after the click it should fire the opening of the modal popup windows 
-    $('#d-delete, #y-delRec, #d-tags, #saveTags, #d-comp, #compareSim').live('click', function(e){
-        e.preventDefault();
-        return false;
+    //this for preventing the deselection of records in the table (see record_list.html: (window).click())
+    // #d-delete, #d-tags, #d-comp: the buttons  
+    $('#d-delete, #d-tags, #d-comp, .modal').live('click', function(e){
+        if (e.target.type !== 'checkbox'){ //delete_record.html has a checkbox and we don't want to make it unselectable
+            e.preventDefault();
+            return false;
+        };
     });
 
     // click on the 'edit tags' button
@@ -233,10 +236,10 @@ $(function() {
         $('.CodeMirror').css('opacity','1.0');
     });
 
-    $("ol>li").on('click', function(e) {
-        e.preventDefault();
-        return false;
-    });
+    //$("ol>li").on('click', function(e) {
+    //    e.preventDefault();
+    //    return false;
+    //});
 
 
     $('.record').on({

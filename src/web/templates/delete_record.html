@@ -5,6 +5,9 @@
   </div>
   <div class="modal-body">
         <p>Are you sure you want to remove selected records?</p>
+        <label class="checkbox">
+                <input type="checkbox" id='is_data' class='check-item'> include data
+        </label>
   </div>
   <div class="modal-footer">
         <a id="y-delRec" class="btn btn-primary">Yes</a>
@@ -16,14 +19,22 @@ $(document).ready(function(){
     // click on the "delete record" button
     $('#y-delRec').click(function(){
         var success = false;
-        deleteArr = new Array(); // records to delete
+        var includeData = function(){
+            if ($('#is_data').attr('checked')){
+                return true;
+            }else{
+                return false;
+            };
+        };
+        var deleteArr = new Array(); // records to delete
         $('li.ui-selected').each(function(){
-            deleteArr.push($(this).find('#label-t a').html())
+            deleteArr.push($(this).find('#label-t a').html());
+            console.log($(this));
         });
         $.ajax({
             type: 'POST',
             url: 'delete/',
-            data: {'delete':deleteArr,'delete_data':true}, //presume that user always want to delete data
+            data: {'delete':deleteArr,'delete_data':includeData()}, //presume that user always want to delete data
             success:function(){
                 success = true;
             },

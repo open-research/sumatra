@@ -92,6 +92,16 @@ $(document).ready(function(){
             }
         });
     });
+
+    //deselection of the records when clicking some place on the page
+    //all the records will be deselected except the modal pop up window is clicked
+    $(window).click(function(e){               // each time user clicks the window
+        if (e.target.type !== 'checkbox'){ // delete_record.html: has a checkbox and we don't want to deselect all records when clicking to this checkbox
+                $('.record').removeClass('ui-selected'); // removing all selected records
+                $('#selection_header').css('display', 'none'); // remove the header of the table when there are some selected records
+                $('#default_header').css('display', 'inline'); // append the default header of the table
+        };
+    });
 });
 </script>
 {% endblock %}

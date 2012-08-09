@@ -88,7 +88,6 @@ def search(request, project):
             return HttpResponse('search form is not valid')
 
 def set_tags(request, project):
-    print 'request.POST ', request.POST
     records_to_settags = request.POST.get('selected_labels', False)
 
     if records_to_settags: # case of submit request
@@ -106,7 +105,7 @@ def delete_records(request, project):
     records = Record.objects.filter(label__in=records_to_delete, project__id=project)
     if records:
         for record in records:
-            if delete_data:
+            if delete_data == True:
                 datastore = record.datastore.to_sumatra()
                 datastore.delete(*[data_key.to_sumatra()
                                    for data_key in record.output_data.all()])
