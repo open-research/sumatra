@@ -58,7 +58,7 @@ def record_detail(request, project, label):
     label = unescape(label)
     record = Record.objects.get(label=label, project__id=project)
     if request.method == 'POST':
-        if request.POST.has_key('delete'):
+        if request.POST.has_key('delete'): # in this version the page record_detail doesn't have delete option
             record.delete() # need to add option to delete data
             return HttpResponseRedirect('.')
         else:
@@ -88,13 +88,28 @@ def search(request, project):
             return HttpResponse('search form is not valid')
 
 def set_tags(request, project):
+    print 'request.POST ', request.POST
     records_to_settags = request.POST.get('selected_labels', False)
+
     if records_to_settags: # case of submit request
         records_to_settags = records_to_settags.split(',')
         records = Record.objects.filter(label__in=records_to_settags, project__id=project)
         for record in records:
             form = RecordUpdateForm(request.POST, instance=record)
             if form.is_valid():
-                print 'it is valid'
                 form.save()
         return HttpResponseRedirect('.')
+
+def delete_records(request, project):
+    records_to_delete = request.POST.getlist('delete[]')
+    delete_data = request.POST.get('delete_data', False)
+    records = Record.objects.filter(label__in=records_to_delete, project__id=project)
+    if records:
+        for record in records:
+            if delete_data:
+                datastore = record.datastore.to_sumatra()
+                datastore.delete(*[data_key.to_sumatra()
+                                   for data_key in record.output_data.all()])
+
+            record.delete()
+    return HttpResponse('OK')

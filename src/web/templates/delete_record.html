@@ -15,23 +15,23 @@
 $(document).ready(function(){ 
     // click on the "delete record" button
     $('#y-delRec').click(function(){
-        var succ = false;
+        var success = false;
         deleteArr = new Array(); // records to delete
         $('li.ui-selected').each(function(){
-            deleteArr.push($(this).find('#label-t').html())
+            deleteArr.push($(this).find('#label-t a').html())
         });
         $.ajax({
             type: 'POST',
             url: 'delete/',
             data: {'delete':deleteArr,'delete_data':true}, //presume that user always want to delete data
-            success:function(data){
-                succ = true;
+            success:function(){
+                success = true;
             },
             async: false
         });
-        if (succ){
+        if (success){
             window.open('.','_self');
-        }
+        };
     });
 });
 </script>
