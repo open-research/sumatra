@@ -47,14 +47,14 @@ $(function() {
 
 
     // hovering the repository name in table
-    $('ol .repo').tooltip({
+    $('#repository-t span').tooltip({
         title: function(){return $(this).parent().parent().find('#repo-hid').html()},
         placement: 'right',
         trigger: 'hover'
     });
 
     // hovering the hex version
-    $('ol .version').tooltip({
+    $('#version-t span').tooltip({
         title: function(){return $(this).parent().parent().find('#version-hid').html()},
         placement: 'right',
         trigger: 'hover'

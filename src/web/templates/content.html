@@ -89,7 +89,7 @@
       <li class='record {{settings.display_density}}'>
         <div id = 'version-hid' class='d-hid'>{{record.version}}</div>
         <div id = 'repo-hid' class='d-hid'>{{record.repository.url}}</div>
-        <div class='row-item' id='repository-t'><label class="label label-info repo">{{record.repository.url|cut:"repo"}}</label></div>
+        <div class='row-item' id='repository-t'><span class="span-box">{{record.repository.url|cut:"repo"}}</span></div>
         <div class='row-item' id='label-t'><a class='href_lab' href=''>{{record.label}}</a></div>
         {% if tag %}
             <div class='row-item' id='tag-t'>{% for other_tag in record.tag_objects %}{% if tag == other_tag %}{{tag}} {% else %}<a href="/{{project_name}}/tag/{{other_tag.name}}/">{{other_tag.name}}</a> {% endif %}{% endfor %}</div>
@@ -105,7 +105,7 @@
         <div class='row-item' id='ename-t'>{{record.executable.name}}</div>
         <div class='row-item' id='eversion-t'>{{record.executable.version}}</div>
         <div class='row-item' id='main-t'><a class='id-script' href=''>{{record.main_file}}</a></div>
-        <div class='row-item' id='version-t'><label class="label label-info version">{{record.version|cut:"vers"}}{% if record.diff %}*{% endif %}</label></div>
+        <div class='row-item' id='version-t'><span class="span-box">{{record.version|cut:"vers"}}{% if record.diff %}*{% endif %}</span></div>
         <div class='row-item' id='arguments-t'>{{record.script_arguments}}</div>
         <br>
       </li>

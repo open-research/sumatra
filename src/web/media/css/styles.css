@@ -1248,3 +1248,14 @@ span.label{
 #tags-b b{
   margin-left: 5px;
 }
+
+.span-box{
+  margin-left: 0px;
+  background-color: rgb(102, 157, 199);
+  color: #ffffff;
+  padding: 2px 4px 3px;
+  text-shadow:0 -1px 0 rgba(0, 0, 0, 0.25);
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+}

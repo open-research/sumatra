@@ -108,7 +108,7 @@ class AjaxTemplate(DefaultTemplate):
         super(AjaxTemplate, self).__init__(project)
         if request_post:
             self.form = RecordForm(request_post) # retrieving all fields of the search form
-            self.page = request_post.get('page', False) 
+            self.page = request_post.get('page', 1) 
             self.date_base = request_post.get('date_interval_from',False) # date_base/date_interval are not part of the search form
             self.date_interval = request_post.get('date_interval', False)
             self.tags = request_post.get('search_input[tags]', False) 
