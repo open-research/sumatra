@@ -1238,7 +1238,7 @@ span.label{
 
 #dropdown_tags{
   max-height: 200px;
-  overflow-y: scroll; 
+  overflow: auto;
 }
 
 #tags-b i{

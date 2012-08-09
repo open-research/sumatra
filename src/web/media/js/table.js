@@ -45,6 +45,21 @@ $(function() {
         trigger: 'hover'
     });
 
+    // hovering the repository name in table
+    $('label.repo').tooltip({
+        title: function(){return $(this).parent().parent().find('#repo-hid').html()},
+        placement: 'right',
+        trigger: 'hover'
+    });
+
+    // hovering the hex version
+    $('label.version').tooltip({
+        title: function(){return $(this).parent().parent().find('#version-hid').html()},
+        placement: 'right',
+        trigger: 'hover'
+    });
+
+
     // as strings 'executable name' and 'executable version' are rather long, we used this hack for the nice rendering
     $('#l-eversion, #l-ename').each(function(){
         if ($(this).height() > 20){ // in case it spans one line

@@ -3,6 +3,7 @@ from django.template.defaultfilters import stringfilter
 from tagging.utils import parse_tag_input, edit_string_for_tags
 from django.utils.safestring import mark_safe
 from math import modf
+from os import name
 
 register = template.Library()
 
@@ -10,9 +11,14 @@ register = template.Library()
 @stringfilter
 def cut(text, type):
     if type == 'repo':
-        text_out = '\\'.join(text.split('\\')[-2:])
+        if name == 'posix':
+            text_out = text.split('/')[-1]
+        else:
+            text_out = text.split('\\')[-1] # for windows
+        print 'text: ', text
+        print 'text_out ', text_out
     elif type == 'vers':
-        text_out = ''.join([text[:5], '...'])
+        text_out = text[:5]
     return mark_safe(text_out)
     
 @register.filter
