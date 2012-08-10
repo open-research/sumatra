@@ -216,6 +216,10 @@ class Record(BaseModel):
     project = models.ForeignKey(Project, null=True)
     script_arguments = models.TextField(blank=True)
     stdout_stderr = models.TextField(blank=True)
+
+    # parameters which will be used in the fulltext search (see sumatra.web.services fulltext_search)
+    params_search = ('label','reason', 'duration', 'main_file', 'outcome', 'user', 'tags') 
+
     def to_sumatra(self):
         record = records.Record(
             self.executable.to_sumatra(),

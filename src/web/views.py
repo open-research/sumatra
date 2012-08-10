@@ -78,14 +78,19 @@ def record_detail(request, project, label):
                                                      }) 
 
 def search(request, project):
-    if request.is_ajax():
-        ajaxTempOb = AjaxTemplate(project, request.POST)
+    ajaxTempOb = AjaxTemplate(project, request.POST)
+    if request.POST.has_key('search_inquiry'): # using the input #search_subnav
+        ajaxTempOb.fulltext_search(request.POST.get('search_inquiry'))
+        ajaxTempOb.init_object_list(ajaxTempOb.page) 
+        return render_to_response('content.html', ajaxTempOb.getDict())
+    else : # using the form   
         if ajaxTempOb.form.is_valid():
             ajaxTempOb.filter_search(ajaxTempOb.form.cleaned_data) # taking into consideration the search form
             ajaxTempOb.init_object_list(ajaxTempOb.page) # taking into consideration pagination
             return render_to_response('content.html', ajaxTempOb.getDict()) # content.html is a part of record_list.html
         else:
             return HttpResponse('search form is not valid')
+
 
 def set_tags(request, project):
     records_to_settags = request.POST.get('selected_labels', False)

@@ -138,6 +138,16 @@ class AjaxTemplate(DefaultTemplate):
         elif self.tags:
             self.sim_list =  self.sim_list.filter(tags__icontains = self.tags.strip())
 
+    def fulltext_search(self, request_data):
+        field_list = [x.strip() for x in request_data.split(',')]
+        results = []
+        for item in models.Record.params_search:
+            intermediate_res =  self.sim_list.filter(reduce(lambda x, y: x | y,
+                                [Q(**{"%s__contains" % item: word}) for word in field_list]))
+            results = list(set(results).union(set(intermediate_res)))
+        self.sim_list = results
+        #print 'self.sim_list: ', len(self.sim_list)
+
 def unescape(label):
     return label.replace("||", "/")
 

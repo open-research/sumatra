@@ -284,4 +284,9 @@ $(function() {
         e.stopPropagation();
         $(this).attr('href', window.location.pathname + $(this).html() + '/');
     });
+
+    $('#btn_search').click(function(){
+        var inquiry = $('#search_subnav').val();
+        $('#main_content').load('search', {'search_inquiry':inquiry});
+    });
 });
