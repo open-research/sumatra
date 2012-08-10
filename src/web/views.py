@@ -56,11 +56,14 @@ def list_tags(request, project):
 
 def record_detail(request, project, label):
     label = unescape(label)
-    record = Record.objects.get(label=label, project__id=project)
+    record = Record.objects.get(label=label, project__id=project) 
     if request.method == 'POST':
         if request.POST.has_key('delete'): # in this version the page record_detail doesn't have delete option
-            record.delete() # need to add option to delete data
+            record.delete() 
             return HttpResponseRedirect('.')
+        elif request.POST.has_key('show_args'): # user clicks the link <parameters> in record_list.html
+            parameter_set = record.parameters.to_sumatra()
+            return HttpResponse(parameter_set)
         else:
             form = RecordUpdateForm(request.POST, instance=record)
             if form.is_valid():

@@ -98,6 +98,7 @@ class DefaultTemplate(object):
             pass
 
     def getDict(self):
+        #print 'dict: ', record.parameters.to_sumatra() #self.__dict__['sim_list'][0].parameters.content
         return self.__dict__
 
 class AjaxTemplate(DefaultTemplate):

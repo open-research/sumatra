@@ -106,7 +106,7 @@
         <div class='row-item' id='eversion-t'>{{record.executable.version}}</div>
         <div class='row-item' id='main-t'><a class='id-script' href=''>{{record.main_file}}</a></div>
         <div class='row-item' id='version-t'><span class="span-box">{{record.version|cut:"vers"}}{% if record.diff %}*{% endif %}</span></div>
-        <div class='row-item' id='arguments-t'>{{record.script_arguments}}</div>
+        <div class='row-item' id='arguments-t'><a class='href_args' href=''>{{record.script_arguments}}</a></div>
         <br>
       </li>
     {% endfor %}

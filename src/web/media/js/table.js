@@ -280,9 +280,22 @@ $(function() {
     });
 
     // clicking on the record link
-    $('.href_lab').click(function(e){ // if not, it will be only selected (jquery-ui selectable)
+    $('.href_lab').click(function(e){
         e.stopPropagation();
         $(this).attr('href', window.location.pathname + $(this).html() + '/');
+    });
+
+    // clicking on the arguments link
+    $('.href_args').click(function(e){
+        var label = $(this).parent().parent().find('#label-t a').html();
+        $.ajax({
+            type: 'POST',
+            url: label + '/',
+            data: {'show_args':true},
+            success:function(data){
+                alert(data);
+            }
+        });
     });
 
     $('#btn_search').click(function(){
