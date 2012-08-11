@@ -121,9 +121,16 @@ a.active{
           box-shadow: 0 0 3px rgba(0, 0, 0, 0.15);
 }
 
-#btn_search{
+#btn-search_header{
     margin-right:20px;  
     margin-bottom:9px;
+}
+
+#btn-search_form{
+  padding: 5px 15px;
+  margin-left:10px;
+  color:#ffffff;
+  margin-right:10px;
 }
 
 #icon_cdown{   

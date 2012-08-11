@@ -4,7 +4,7 @@
 
 {% block content %} 
 <div id ='innerContent'>
-    {% include "content.html" %}           <!-- the content of the table which is reloaded after each post/get request-->
+    {% include "content.html" %} <!-- html + js files. The content of the table which is reloaded after each post/get request-->
 </div> 
     {% include "set_tag.html" %}           <!-- 'set tags for selected records' window -->
     {% include "settings_window.html" %}   <!-- 'settings' popup window -->
@@ -15,52 +15,6 @@
 $(document).ready(function(){ 
     // initialization of all modal popup-windows (settings, new record, set tags, compare records) and hide them
     $('.modal').modal().modal('hide');
-
-    /* Search form */
-    // initialization of jquery-ui datepicker used in the seach drop-down list
-    $( "#id_timestamp, #id_datewithin" ).datepicker();
-
-    // initialization of the drop-down search list (#div_menu_search)
-    $('#div_menu_search').offset({left: $('#search_subnav').offset().left + 20}); // x-position as for the #search_subnav + 20px
-    $('#icon_cdown').click(function(event){   
-        var parentWidth = $('input.span5')[0].offsetWidth - 2; // the width of this drop-down equals the width of #search_subnav
-        $('#menu_search').css('width', parentWidth).show();
-    });
-    // user can close the drop-down search list by clicking on the window or by clicking #close_menu (little icon top-right side)
-    $('#close_menu, html').click(function() {
-        $('#menu_search').hide();
-    });
-    // prevent closing the drop-down search list when clicking on it
-    $('#menu_search, #icon_cdown, #ui-datepicker-div').click(function(event){
-        event.stopPropagation(); 
-        $('#menu_datewith').hide();
-        return false; 
-    });
-
-    // clearing of the search form fields
-    $('#search_form').find(':input').each(function() {
-         $(this).val('');
-    });
-
-    // search input textarea
-    $('#search_subnav').val('');
-
-    // as soon as user clicks the search button in the search drop-down list, the form will be submited
-    $('#search_but').click(function(){
-        searchFormOb = getSearchFormOb()
-        $('#main_content').load('search', searchFormOb);
-    });
-
-    // "date within"
-    $('#menu_datewith > li').click(function(){
-        $('#menu_datewith').hide();
-        $('#sdate').text($(this).text());       
-    });
-    $('#idatewith, #up_icon, #low_icon').click(function(event){
-        event.stopPropagation(); 
-        $('#menu_datewith').show();
-        $('#menu_datewith').offset({left: $('#idatewith').offset().left});
-    });
 
     $('#tags-b').tooltip({
         title: 'Tags',
