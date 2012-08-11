@@ -21,17 +21,6 @@ function getSearchFormOb(){
     return values;
 };
 
-/*
-function headerSearch(){
-    var obj = {};
-    var search_subnav = $('#search_subnav').val().split(','); // header of the page: search textarea
-    search_subnav.forEach(function(property) {
-        var tup = property.split(':');
-        obj[tup[0]] = tup[1];
-    });
-    return obj;
-}; */
-
 $(function() {
 	// initialization of jquery-ui datepicker used in the seach drop-down list
     $( "#id_timestamp, #id_datewithin" ).datepicker();
