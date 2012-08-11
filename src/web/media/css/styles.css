@@ -1266,3 +1266,8 @@ span.label{
   -moz-border-radius: 3px;
   border-radius: 3px;
 }
+
+#div_menu_search{
+  float:right;
+  left: 0px;
+}

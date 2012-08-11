@@ -1,10 +1,10 @@
 function getSearchFormOb(){
     var $inputs = $('#search_form :input');
-    var $fulltext_inquiry = $('#search_subnav').val(); //inquiry out of search form: using only the #search_subnav input
+    var fulltext_inquiry = $('#search_subnav').val(); //inquiry out of search form: using only the #search_subnav input
     var values = {};
     var txt_inquiry = '';
-    if ($fulltext_inquiry){ // ignore here the search form: only the content of #search_subnav
-        values['fulltext_inquiry'] = $fulltext_inquiry;
+    if (fulltext_inquiry && fulltext_inquiry.indexOf(':') < 0){ // ignore here the search form: only the content of #search_subnav
+        values['fulltext_inquiry'] = fulltext_inquiry;
     }else{
         $inputs.each(function() {
         	var $val = $(this).val();
@@ -21,6 +21,7 @@ function getSearchFormOb(){
     return values;
 };
 
+/*
 function headerSearch(){
     var obj = {};
     var search_subnav = $('#search_subnav').val().split(','); // header of the page: search textarea
@@ -29,14 +30,14 @@ function headerSearch(){
         obj[tup[0]] = tup[1];
     });
     return obj;
-};
+}; */
 
 $(function() {
 	// initialization of jquery-ui datepicker used in the seach drop-down list
     $( "#id_timestamp, #id_datewithin" ).datepicker();
 
     // initialization of the drop-down search list (#div_menu_search)
-    $('#div_menu_search').offset({left: $('#search_subnav').offset().left + 20}); // x-position as for the #search_subnav + 20px
+    $('#div_menu_search').offset({left: $('#search_subnav').offset().left}); // x-position as for the #search_subnav + 20px
     $('#icon_cdown').click(function(event){   
         var parentWidth = $('input.span5')[0].offsetWidth - 2; // the width of this drop-down equals the width of #search_subnav
         $('#menu_search').css('width', parentWidth).show();
@@ -64,7 +65,7 @@ $(function() {
 
     // as soon as user clicks the search button in the search drop-down list, the form will be submited
     $('#btn-search_form').click(function(){
-        searchFormOb = getSearchFormOb()
+        searchFormOb = getSearchFormOb();    
         $('#main_content').load('search', searchFormOb);
     });
 
@@ -81,7 +82,7 @@ $(function() {
 
 	// clicking the button 'Search' in the header of the page
     $('#btn-search_header').click(function(){
-        searchFormOb = getSearchFormOb()
+        searchFormOb = getSearchFormOb();
         $('#main_content').load('search', searchFormOb);
     });
 });
