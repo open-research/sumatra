@@ -63,12 +63,6 @@ $(function() {
          $(this).val('');
     });
 
-    // as soon as user clicks the search button in the search drop-down list, the form will be submited
-    $('#btn-search_form').click(function(){
-        searchFormOb = getSearchFormOb();    
-        $('#main_content').load('search', searchFormOb);
-    });
-
     // "date within"
     $('#menu_datewith > li').click(function(){
         $('#menu_datewith').hide();
@@ -80,9 +74,15 @@ $(function() {
         $('#menu_datewith').offset({left: $('#idatewith').offset().left});
     });
 
-	// clicking the button 'Search' in the header of the page
+    // clicking the button 'Search' in the header of the page
     $('#btn-search_header').click(function(){
-        searchFormOb = getSearchFormOb();
-        $('#main_content').load('search', searchFormOb);
+        var searchFormOb = getSearchFormOb();
+        $('#innerContent').load('search', searchFormOb);
+    });
+
+    // as soon as user clicks the search button in the search drop-down list, the form will be submited
+    $('#btn-search_form').click(function(){
+        var searchFormOb = getSearchFormOb();    
+        $('#innerContent').load('search', searchFormOb);
     });
 });

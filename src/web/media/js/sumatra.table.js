@@ -20,43 +20,7 @@ function labelList(tag, div_list){
 
 $(function() {
     // add arrows which is used for indicating the order of sorting
-    $('label.head-item').append("<span class='s-arrow'><span id='up' class='arr-s'>&#x25B2;</span><span id='down' class='arr-s'>&#x25BC;</span></span>");
-
-    // initialization of the sorting for the ol
-    $('#ol-content').listsorter(); 
-
-    // this dropdown contains the links to the newest/oldest record sets
-    $('#pagin_info').dropdown();
-
-    // in case of hovering the pagination buttons (newer/older)
-    $('.page.gradient').tooltip({
-        title: function(){return $(this).attr('id');},
-        placement: 'bottom',
-        trigger: 'hover'
-    });
-
-
-    // hovering the repository name in table
-    $('#repository-t span').tooltip({
-        title: function(){return $(this).parent().parent().find('#repo-hid').html()},
-        placement: 'right',
-        trigger: 'hover'
-    });
-
-    // hovering the hex version
-    $('#version-t span').tooltip({
-        title: function(){return $(this).parent().parent().find('#version-hid').html()},
-        placement: 'right',
-        trigger: 'hover'
-    });
-
-
-    // as strings 'executable name' and 'executable version' are rather long, we used this hack for the nice rendering
-    $('#l-eversion, #l-ename').each(function(){
-        if ($(this).height() > 20){ // in case it spans one line
-            $(this).css('margin-top', '0px');
-        };
-    });
+    //$('label.head-item').append("<span class='s-arrow'><span id='up' class='arr-s'>&#x25B2;</span><span id='down' class='arr-s'>&#x25BC;</span></span>");
 
     //this for preventing the deselection of records in the table (see record_list.html: (window).click())
     // #d-delete, #d-tags, #d-comp: the buttons  
@@ -98,63 +62,8 @@ $(function() {
         }
     });
 
-    // using jquery-ui for the rows of the table
-    $('#ol-content').selectable({
-            filter: 'li:not("div")',  //select only li and not the children divs
-            stop: function() {
-                var result = $( "#testdiv" ).empty();
-                nbSelected = $( "li.ui-selected").length;
-                result.append(nbSelected);
-                $('#default_header').css('display','none');
-                $('#selection_header').css('display','block');
-                $('#d-nbrec').html(nbSelected + ' records');
-            }
-    });
 
-    // when paginate the results
-    $('.page').not('.inactive').click(function(){
-        $('.page').tooltip('hide');
-        var $thisId = $(this).attr('id'),
-            obj = {},
-            $page;
-        var search_header_obj =  headerSearch();
-        if ($thisId == 'newer'){  // views.py: list_records with ajax request
-            $page = $('#next_page_number').html()
-        }else if($thisId == 'older'){
-            $page = $('#previous_page_number').html()
-        }
-          $.ajax({
-            type: 'POST',
-            url: '.',
-            data: {'page':$page, executable:$('#id_executable').val(), repository:$('#id_repository').val(),
-            tags:$('#id_tags').val(), main_file:$('#id_main_file').val(),
-            label:$('#id_label').val(), script_arguments:$('#id_script_arguments').val(), reason:$('#id_reason').val(), timestamp:$('#id_timestamp').val(),
-            date_interval: $('#sdate').html(), date_interval_from: $('#id_datewithin').val(), 'fulltext_inquiry': $('#search_subnav').val(), search_input: search_header_obj},
-            success:function(data){
-                $('#innerContent').html(data);
-            }
-          });
-    }); 
-
-    // quick pagination: drop-down list with the links 'newest' and 'oldest' simulations
-    $('.quick-pag').click(function(){
-        var $this = $(this).html();
-        var search_header_obj =  headerSearch(); // search textarea in the header
-        if ($this == 'Newest'){
-            $page = 1;
-        }else{
-            $page = 1e+10; // some large number
-        };
-          $.ajax({
-            type: 'POST',
-            url: '.',
-            data: {'page':$page, search_input:search_header_obj},
-            success:function(data){
-                $('#innerContent').html(data);
-            }
-          });
-    });
-
+    /*
     // when dragging the popup window with the script code, the dragged item is always above the all over popups
     var click_drag = function(){
         $(".CodeMirror").css('z-index','3');
@@ -215,76 +124,5 @@ $(function() {
             $(".CodeMirror").bind('drag', click_drag);
             $(".CodeMirror").bind('click', click_drag);
         });    
-    });
-    
-    // change the style of the pagination button when hover
-    $('.page.gradient').not('.inactive').mouseenter(function(){
-        $(this).children().css('opacity','1.0');
-        $('.CodeMirror').css('opacity','0.3');
-    }).mouseleave(function(){
-        $(this).children().css('opacity','0.5');
-        $('.CodeMirror').css('opacity','1.0');
-    });
-
-    //$("ol>li").on('click', function(e) {
-    //    e.preventDefault();
-    //    return false;
-    //});
-
-
-    $('.record').on({
-    /*
-     'click': function(e) {
-        if (e['ctrlKey']){
-            if ($(this).hasClass('activeRow')){
-                $(this).removeClass('activeRow');
-            }else{
-                $(this).addClass('activeRow');
-            }
-        }else if(e['shiftKey']){  // select the range of rows between two selected
-            nb_selected = $('.activeRow').length;
-            if (!nb_selected){   // select all
-                $('.record').addClass('activeRow');
-            }else{
-                $selectedY = $('.record.activeRow').position()['top'];
-                $clickY = $(this).position()['top'];
-                if ($clickY >= $selectedY) {
-                    $($('.record.activeRow')[0]).nextUntil($(this).next()).addClass('activeRow');
-                }else{
-                    $($('.record.activeRow')[0]).prevUntil($(this).prev()).addClass('activeRow');
-                }
-            }
-        }
-        else{
-            $('.record').removeClass('activeRow');
-            $(this).addClass('activeRow');
-        }  
-        },
-        */
-        'mouseenter':function(){
-        $(this).not('.ui-selected').addClass('hoverRow');
-        },
-        'mouseleave':function(){
-        $(this).removeClass('hoverRow');
-        },
-    });
-
-    // clicking on the record link
-    $('.href_lab').click(function(e){
-        e.stopPropagation();
-        $(this).attr('href', window.location.pathname + $(this).html() + '/');
-    });
-
-    // clicking on the arguments link
-    $('.href_args').click(function(e){
-        var label = $(this).parent().parent().find('#label-t a').html();
-        $.ajax({
-            type: 'POST',
-            url: label + '/',
-            data: {'show_args':true},
-            success:function(data){
-                alert(data); // by now it is alert. TODO: stick the content to the window
-            }
-        });
-    });
+    });  */
 });
