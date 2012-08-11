@@ -28,6 +28,22 @@ function headerSearch(){
     return obj;
 };
 
+function getSearchFormOb(){
+    var $inputs = $('#search_form :input');
+    var $fulltext_inquiry = $('#search_subnav').val(); //inquiry out of search form: using only the #search_subnav input
+    var values = {};
+    if ($fulltext_inquiry){ // ignore here the search form: only the content of #search_subnav
+        values['fulltext_inquiry'] = $fulltext_inquiry;
+    }else{
+        $inputs.each(function() {
+            if (this.name) values[this.name] = $(this).val();
+        });
+        values['date_interval'] = $('#sdate').html(); // date interval is out of form, so we add it explicitely:
+        values['date_interval_from'] = $('#id_datewithin').val();
+    }
+    return values;
+};
+
 $(function() {
     // add arrows which is used for indicating the order of sorting
     $('label.head-item').append("<span class='s-arrow'><span id='up' class='arr-s'>&#x25B2;</span><span id='down' class='arr-s'>&#x25BC;</span></span>");
@@ -139,7 +155,7 @@ $(function() {
             data: {'page':$page, executable:$('#id_executable').val(), repository:$('#id_repository').val(),
             tags:$('#id_tags').val(), main_file:$('#id_main_file').val(),
             label:$('#id_label').val(), script_arguments:$('#id_script_arguments').val(), reason:$('#id_reason').val(), timestamp:$('#id_timestamp').val(),
-            date_interval: $('#sdate').html(), date_interval_from: $('#id_datewithin').val(), search_input: search_header_obj},
+            date_interval: $('#sdate').html(), date_interval_from: $('#id_datewithin').val(), 'fulltext_inquiry': $('#search_subnav').val(), search_input: search_header_obj},
             success:function(data){
                 $('#innerContent').html(data);
             }
@@ -293,13 +309,14 @@ $(function() {
             url: label + '/',
             data: {'show_args':true},
             success:function(data){
-                alert(data);
+                alert(data); // by now it is alert. TODO: stick the content to the window
             }
         });
     });
 
+    // clicking the button 'Search' in the header of the page
     $('#btn_search').click(function(){
-        var inquiry = $('#search_subnav').val();
-        $('#main_content').load('search', {'search_inquiry':inquiry});
+        searchFormOb = getSearchFormOb()
+        $('#main_content').load('search', searchFormOb);
     });
 });

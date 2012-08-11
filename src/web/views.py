@@ -12,7 +12,7 @@ def list_records(request, project):
     if request.is_ajax(): # only when paginating
         ajaxTempOb = AjaxTemplate(project, request.POST)
         if ajaxTempOb.form.is_valid():
-            ajaxTempOb.filter_search(ajaxTempOb.form.cleaned_data) # taking into consideration the search form
+            ajaxTempOb.filter_search(request.POST.dict()) # taking into consideration the search inquiry
             ajaxTempOb.init_object_list(ajaxTempOb.page) # taking into consideration pagination
             return render_to_response('content.html', ajaxTempOb.getDict()) # content.html is a part of record_list.html
         else:
@@ -78,12 +78,13 @@ def record_detail(request, project, label):
                                                      'project_name': project,
                                                      'parameters': parameter_set,
                                                      'form': form
-                                                     }) 
+                                                     })
 
 def search(request, project):
+    print 'request.POST ', request.POST
     ajaxTempOb = AjaxTemplate(project, request.POST)
-    if request.POST.has_key('search_inquiry'): # using the input #search_subnav
-        ajaxTempOb.fulltext_search(request.POST.get('search_inquiry'))
+    if request.POST.has_key('fulltext_inquiry'): # using the input #search_subnav
+        ajaxTempOb.filter_search(request.POST.dict())
         ajaxTempOb.init_object_list(ajaxTempOb.page) 
         return render_to_response('content.html', ajaxTempOb.getDict())
     else : # using the form   
@@ -97,7 +98,6 @@ def search(request, project):
 
 def set_tags(request, project):
     records_to_settags = request.POST.get('selected_labels', False)
-
     if records_to_settags: # case of submit request
         records_to_settags = records_to_settags.split(',')
         records = Record.objects.filter(label__in=records_to_settags, project__id=project)

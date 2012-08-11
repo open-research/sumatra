@@ -31,8 +31,6 @@ import os
 RECORDS_PER_PAGE = 50
 '''
 class SearchForm(forms.ModelForm):
-    ''' this class will be inherited after. It is for changing the 
-    requirement properties for any field in the search form'''
     def __init__(self, *args, **kwargs):
         super(SearchForm, self).__init__(*args, **kwargs)
         for key, field in self.fields.iteritems():
@@ -229,6 +227,7 @@ def list_tagged_records(request, project, tag):
                               template_name="record_list.html",
                               extra_context={'project_name': project })
 """
+'''
 def set_tags(request, project):
     records_to_settags = request.POST.get('selected_labels', False)
     if records_to_settags: # case of submit request
@@ -240,6 +239,7 @@ def set_tags(request, project):
                 form.save()
         return HttpResponseRedirect('.')
     return render_to_response('set_tag.html', {'form':form})
+    '''
 '''
 def record_detail(request, project, label):
     label = unescape(label)
@@ -264,6 +264,7 @@ def record_detail(request, project, label):
                                                      'form': form
                                                      })
 '''
+'''
 def delete_records(request, project):
     records_to_delete = request.POST.getlist('delete[]')
     #delete_data = 'delete_data' in request.POST
@@ -277,6 +278,7 @@ def delete_records(request, project):
 
         record.delete()
     return HttpResponse('')  
+'''
 '''
 def list_tags(request, project):
     tags = {

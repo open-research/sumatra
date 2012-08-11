@@ -55,8 +55,7 @@ class DefaultTemplate(object):
             self.page_list = self.paginator.page(page)
         except PageNotAnInteger:
             self.page_list = self.paginator.page(1)
-        except EmptyPage:    
-            print 'i am in emptyPage'      
+        except EmptyPage:         
             self.page_list = self.paginator.page(self.paginator.num_pages) # deliver last page of results
         self.object_list = self.page_list.object_list
 
@@ -98,7 +97,6 @@ class DefaultTemplate(object):
             pass
 
     def getDict(self):
-        #print 'dict: ', record.parameters.to_sumatra() #self.__dict__['sim_list'][0].parameters.content
         return self.__dict__
 
 class AjaxTemplate(DefaultTemplate):
@@ -120,6 +118,15 @@ class AjaxTemplate(DefaultTemplate):
                 field_list = [x.strip() for x in val.split(',')]
                 self.sim_list =  self.sim_list.filter(reduce(lambda x, y: x | y,
                                           [Q(**{"%s__contains" % key: word}) for word in field_list])) # __icontains (?)
+            elif key == 'fulltext_inquiry': # search without using the search form
+                results = []
+                field_list = [x.strip() for x in request_data['fulltext_inquiry'].split(',')]
+                for item in models.Record.params_search:
+                    intermediate_res =  self.sim_list.filter(reduce(lambda x, y: x | y,
+                                [Q(**{"%s__contains" % item: word}) for word in field_list]))
+                    results = list(set(results).union(set(intermediate_res)))              
+                self.sim_list = results
+                break # if we have fulltext inquiry it is not possible to have others
             elif isinstance(val, datetime.date):
                 self.sim_list =  self.sim_list.filter(timestamp__year = val.year,
                                                       timestamp__month = val.month, 
@@ -138,16 +145,6 @@ class AjaxTemplate(DefaultTemplate):
                                        x.timestamp <= datetime.datetime.combine(dateIntvl['max'], datetime.time(23,59)), self.sim_list) # all the records inside the specified interval
         elif self.tags:
             self.sim_list =  self.sim_list.filter(tags__icontains = self.tags.strip())
-
-    def fulltext_search(self, request_data):
-        field_list = [x.strip() for x in request_data.split(',')]
-        results = []
-        for item in models.Record.params_search:
-            intermediate_res =  self.sim_list.filter(reduce(lambda x, y: x | y,
-                                [Q(**{"%s__contains" % item: word}) for word in field_list]))
-            results = list(set(results).union(set(intermediate_res)))
-        self.sim_list = results
-        #print 'self.sim_list: ', len(self.sim_list)
 
 def unescape(label):
     return label.replace("||", "/")
