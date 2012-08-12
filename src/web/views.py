@@ -81,7 +81,6 @@ def record_detail(request, project, label):
                                                      })
 
 def search(request, project):
-    print 'request.POST ', request.POST
     ajaxTempOb = AjaxTemplate(project, request.POST)
     if request.POST.has_key('fulltext_inquiry'): # using the input #search_subnav
         ajaxTempOb.filter_search(request.POST.dict())
@@ -120,3 +119,10 @@ def delete_records(request, project):
 
             record.delete()
     return HttpResponse('OK')
+
+def settings(request, project):
+    web_settings = {'display_density':request.POST.get('display_density', 'compact'),
+                    'nb_records_per_page':request.POST.get('nb_records_per_page', 14),
+                    'hidden_cols': request.POST.getlist('hidden_cols[]', False)}
+    project_loaded = load_project()
+    print web_settings['display_density']

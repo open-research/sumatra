@@ -137,21 +137,20 @@ $(document).ready(function(){
     // settings_window: user click 'save'
     $('#save_set').click(function(){    
         if (!$('#save_set').hasClass('disabled')){ 
-            var str_rec, str_head,  
-                uncheckedItems = new Array(); // all unchecked chkboxes
+            //var str_rec, str_head,  
+            var uncheckedItems = new Array(); // all unchecked chkboxes
             var nb_rec = $('#s_nbt').val(); // number of records per one page
             if (parseInt(nb_rec) > 0){
                 // hide columns:
-                $(".check-item").not(':checked').each(function() { 
+                $("#setModal .check-item").not(':checked').each(function() { 
                     var $unchecked = $(this).attr('id');
-                    str_rec = ['.record #', $unchecked, '-t'].join(''); // records selector string
-                    str_head = ['#l-', $unchecked].join(''); // header of the table selector string           
+                    //str_rec = ['.record #', $unchecked, '-t'].join(''); // records selector string
+                    //str_head = ['#l-', $unchecked].join(''); // header of the table selector string           
                     uncheckedItems.push($unchecked);
                 }); 
                 // save settings to .smt/project
-                $('#main_content').load('settings',{'table_HideColumns':uncheckedItems, 
-                                                'nb_records_per_page':nb_rec,
-                                                'saveSettings':true});
+                $('#main_content').load('settings',{'hidden_cols':uncheckedItems, 
+                                                    'nb_records_per_page':nb_rec});
             }          
             else{
                 alert('Please enter the vaid number of records')
