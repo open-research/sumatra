@@ -105,16 +105,14 @@ a.active{
     background-color:#626262;
     border:1px solid #151515;
     box-shadow:0 1px 2px rgba(0, 0, 0, 0.1) inset, 0 1px 0 rgba(255, 255, 255, 0.15);
-    padding: 4px 9px;   
+    padding-right: 16px;  
 }
 
 #search_subnav:focus,
 #search_subnav.focused {
-  padding: 5px 10px;
   color: #333333;
   text-shadow: 0 1px 0 #ffffff;
   background-color: #ffffff;
-  border: 0;
   outline: 0;
   -webkit-box-shadow: 0 0 3px rgba(0, 0, 0, 0.15);
      -moz-box-shadow: 0 0 3px rgba(0, 0, 0, 0.15);

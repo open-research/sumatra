@@ -2,17 +2,35 @@ function getSearchFormOb(){
     var $inputs = $('#search_form :input');
     var fulltext_inquiry = $('#search_subnav').val(); //inquiry out of search form: using only the #search_subnav input
     var values = {};
-    var txt_inquiry = '';
+    var txt_inquiry = '',
+        $val,
+        text;
     if (fulltext_inquiry && fulltext_inquiry.indexOf(':') < 0){ // ignore here the search form: only the content of #search_subnav
         values['fulltext_inquiry'] = fulltext_inquiry;
     }else{
         $inputs.each(function() {
-        	var $val = $(this).val();
-            if (this.name) values[this.name] = $val;
-            // fill the #search_subnav. Example: user defined label = 777 in the search form. After it should print
-		    // 'label: 777' in the input textarea in the header of the page.  
-		    if ($val){  if (txt_inquiry) {txt_inquiry += ', ' + this.name + ': ' + $val;}
-		    			else {txt_inquiry += this.name + ': ' + $val; } }
+            $this = $(this);
+        	$val = $this.val();
+            if ($val){
+                if ($this[0].firstElementChild){ // option element: executable/repository (in DB they are the ForeignKeys, so integers)
+                    $options = $this.children();
+                    $options.each(function(){
+                        if ($(this).attr('selected')) text = $(this).html();
+                    });
+                }else{
+                    text = $val;
+                };
+                
+                if (this.name && this.name.indexOf('interval') < 0) {
+                    values[this.name] = $val; 
+                }else { 
+                    this.name = 'interval: ' + $('#sdate').html() + ', base date'; 
+                }
+                // fill the #search_subnav. Example: user defined label = 777 in the search form. After it should print
+    		    // 'label: 777' in the input textarea in the header of the page.  
+    		    if (txt_inquiry) {txt_inquiry += ', ' + this.name + ': ' + text;}
+    		    else {txt_inquiry += this.name + ': ' + text; }
+            }
         });
         $('#search_subnav').val(txt_inquiry);
         values['date_interval'] = $('#sdate').html(); // date interval is out of form, so we add it explicitely:

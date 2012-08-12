@@ -19,9 +19,6 @@ function labelList(tag, div_list){
 };
 
 $(function() {
-    // add arrows which is used for indicating the order of sorting
-    //$('label.head-item').append("<span class='s-arrow'><span id='up' class='arr-s'>&#x25B2;</span><span id='down' class='arr-s'>&#x25BC;</span></span>");
-
     //this for preventing the deselection of records in the table (see record_list.html: (window).click())
     // #d-delete, #d-tags, #d-comp: the buttons  
     $('#d-delete, #d-tags, #d-comp, .modal').live('click', function(e){

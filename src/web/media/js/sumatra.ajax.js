@@ -74,5 +74,9 @@ $(function() {
                 $('#selection_header').css('display','block');
                 $('#d-nbrec').html(nbSelected + ' records');
             }
-    });  
+    });
+
+    // add little arrows which are used for indicating the order of sorting
+    $('label.head-item').append("<span class='s-arrow'><span id='up' class='arr-s'>&#x25B2;</span><span id='down' class='arr-s'>&#x25BC;</span></span>");
+  
 });
