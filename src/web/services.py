@@ -41,16 +41,15 @@ class DefaultTemplate(object):
         self.project = load_project()
         self.form = RecordForm()
         self.settings = self._init_settings()
-        self.nb_per_page = int(self.settings['nb_records_per_page'])
         self.sim_list = models.Record.objects.filter(project__id=project).order_by('-timestamp') # here project is the string
         self.files = os.listdir(os.getcwd())
         self.active = 'List of records'
-        self.width = self.renderColWidth()
+        #self.width = self.renderColWidth()
         self.path = self.project.default_executable.path
         self.tags = False # tags is not defined
 
     def init_object_list(self, page=1):
-        self.paginator = Paginator(self.sim_list, self.nb_per_page)
+        self.paginator = Paginator(self.sim_list, int(self.settings['nb_records_per_page']))
         try:
             self.page_list = self.paginator.page(page)
         except PageNotAnInteger:
@@ -58,13 +57,13 @@ class DefaultTemplate(object):
         except EmptyPage:         
             self.page_list = self.paginator.page(self.paginator.num_pages) # deliver last page of results
         self.object_list = self.page_list.object_list
-
+    '''
     def renderColWidth(self):
-        '''For calculating the width of the columns. These values will be send to .css
-        Maybe it should rather be done using javascript?'''
+        #For calculating the width of the columns. These values will be send to .css
+        #Maybe it should rather be done using javascript?
         rendered_width = {}
-        if self.settings['table_HideColumns'] is not None:
-            nbCols_actual = self.nbCol - len(self.settings['table_HideColumns'])
+        if self.settings['hidden_cols'] is not None:
+            nbCols_actual = self.nbCol - len(self.settings['hidden_cols'])
         else:
             nbCols_actual = self.nbCol
         rendered_width['head'] = '%s%s' %(90.0/nbCols_actual, '%') # all columns except 'Label' since it should have bigger width
@@ -73,7 +72,7 @@ class DefaultTemplate(object):
         else:
             rendered_width['label'] = head_width
         return rendered_width
-
+    '''
     def _init_settings(self, option='web'):
         '''Checking existence of the specific settings in .smt/project.
         In case it doesn't exist, it will be initialized with some default values

@@ -1,11 +1,12 @@
 {% load filters %}
 <style type="text/css">
-    {% for item in settings.table_HideColumns %}
+    .head-item, .row-item{
+        display: block;
+    }
+    {% for item in settings.hidden_cols %}
         #l-{{item}}{display:none;}
         #{{item}}-t{display:none;}
     {% endfor%}
-    #head_t label#l-label, .record .row-item#label-t{width:{{width.label}};}
-    #head_t label:not(#l-label), .record .row-item:not(#label-t){width:{{width.head}};}
     br {clear: both}
 </style><!-- hide the columns which was selected in settings to be hidden -->
 

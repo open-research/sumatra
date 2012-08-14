@@ -121,8 +121,13 @@ def delete_records(request, project):
     return HttpResponse('OK')
 
 def settings(request, project):
-    web_settings = {'display_density':request.POST.get('display_density', 'compact'),
-                    'nb_records_per_page':request.POST.get('nb_records_per_page', 14),
-                    'hidden_cols': request.POST.getlist('hidden_cols[]', False)}
-    project_loaded = load_project()
-    print web_settings['display_density']
+    web_settings = {'display_density':request.POST.get('display_density', False),
+                    'nb_records_per_page':request.POST.get('nb_records_per_page', False),
+                    'hidden_cols': request.POST.getlist('hidden_cols[]', None)}
+    ajaxTempOb = AjaxTemplate(project, None)
+    for key, item in web_settings.iteritems():
+        if item:
+            ajaxTempOb.project.web_settings[key] = item
+    ajaxTempOb.project.save()
+    ajaxTempOb.init_object_list(1)
+    return render_to_response('content.html', ajaxTempOb.getDict())
