@@ -58,6 +58,22 @@ $(function() {
             $('.analysis-w').empty(); //clear the the content of the popup window if user choose more than 2 records
         }
     });
+    $('.id-script').on('click', function(){
+        $li = $(this).closest('li');
+        var hexsha = $li.find('#version-hid').html();
+        var path = $li.find('#repo-hid').html();
+        var label = $li.find('#label-t a').html();
+        var scrName = $(this).html();
+        //var nbWind = $('.resizable').length;
+        //alert(hexsha);
+        $.ajax({
+          type: 'POST',
+          url: label + '/',
+          data: {'digest':hexsha, 'show_script':true, 'path':path}
+        }).done(function(data) { 
+          alert(data);
+        });
+    });
 
 
     /*

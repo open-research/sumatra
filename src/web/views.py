@@ -7,6 +7,7 @@ from django.views.generic import list_detail
 from services import DefaultTemplate, AjaxTemplate, ProjectUpdateForm, RecordUpdateForm, unescape
 from sumatra.recordstore.django_store.models import Project, Tag, Record
 from sumatra.datastore import get_data_store
+from sumatra.versioncontrol import get_working_copy
 
 def list_records(request, project):
     if request.is_ajax(): # only when paginating
@@ -64,6 +65,13 @@ def record_detail(request, project, label):
         elif request.POST.has_key('show_args'): # user clicks the link <parameters> in record_list.html
             parameter_set = record.parameters.to_sumatra()
             return HttpResponse(parameter_set)
+        elif request.POST.has_key('show_script'): # retrieve script code from the repo
+            digest = request.POST.get('digest', False)
+            path = request.POST.get('path', False)
+            path = str(path).encode("string_escape")
+            wc = get_working_copy(path)
+            file_content = wc.content(digest)
+            return HttpResponse(file_content)
         else:
             form = RecordUpdateForm(request.POST, instance=record)
             if form.is_valid():
