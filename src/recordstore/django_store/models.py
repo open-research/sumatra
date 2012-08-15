@@ -21,7 +21,6 @@ class SumatraObjectsManager(models.Manager):
         excluded_fields = ('id', 'record', 'input_to_records', 'output_from_records')
         field_names = set(self.model._meta.get_all_field_names()).difference(excluded_fields)
         attributes = {}
-        #import pdb; pdb.set_trace()
         for name in field_names:
             try:
                 attributes[name] = getattr(obj, name)
@@ -31,9 +30,9 @@ class SumatraObjectsManager(models.Manager):
                 elif name == 'type':
                     attributes[name] = obj.__class__.__name__
                 elif name == 'var_name':
-                    attributes[name] = 'a'
+                    attributes[name] = obj
                 elif name in ('content', 'metadata'):
-                    if name == 'content': # samarkanov: search by param name
+                    if name == 'content':
                         attributes[name] = str(obj.values) 
                     else:    
                         attributes[name] = str(obj) # ParameterSet, DataKey
