@@ -30,7 +30,10 @@ class SumatraObjectsManager(models.Manager):
                 elif name == 'type':
                     attributes[name] = obj.__class__.__name__
                 elif name in ('content', 'metadata'):
-                    attributes[name] = str(obj) # ParameterSet, DataKey
+                    if name == 'content': # samarkanov: search by param name
+                        attributes[name] = str(obj.values) 
+                    else:    
+                        attributes[name] = str(obj) # ParameterSet, DataKey
                 else:
                     raise
         return self.using(using).get_or_create(**attributes)            

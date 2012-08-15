@@ -50,7 +50,15 @@ class SimpleParameterSet(object):
         self.values = {}
         self.types = {}
         self.comments = {}
-        if isinstance(initialiser, dict):
+        dict_initializer = False
+        try:
+            if isinstance(eval(initialiser), dict):
+                dict_initializer = True
+                initialiser = eval(initialiser)
+        except SyntaxError:
+            pass
+
+        if dict_initializer:
             for name, value in initialiser.items():
                 self.values[name] = value
                 self.types[name] = type(value)
