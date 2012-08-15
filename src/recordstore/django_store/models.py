@@ -21,6 +21,7 @@ class SumatraObjectsManager(models.Manager):
         excluded_fields = ('id', 'record', 'input_to_records', 'output_from_records')
         field_names = set(self.model._meta.get_all_field_names()).difference(excluded_fields)
         attributes = {}
+        #import pdb; pdb.set_trace()
         for name in field_names:
             try:
                 attributes[name] = getattr(obj, name)
@@ -29,6 +30,8 @@ class SumatraObjectsManager(models.Manager):
                     attributes[name] = str(obj.__getstate__())
                 elif name == 'type':
                     attributes[name] = obj.__class__.__name__
+                elif name == 'var_name':
+                    attributes[name] = 'a'
                 elif name in ('content', 'metadata'):
                     if name == 'content': # samarkanov: search by param name
                         attributes[name] = str(obj.values) 
@@ -113,6 +116,10 @@ class Repository(BaseModel):
             if hasattr(m, self.type):
                 return getattr(m, self.type)(self.url)
         raise Exception("Repository type %s not supported." % self.type)
+
+
+class VariableSet(BaseModel):
+    var_name = models.CharField(max_length=30)
 
 
 class ParameterSet(BaseModel):
@@ -219,6 +226,7 @@ class Record(BaseModel):
     project = models.ForeignKey(Project, null=True)
     script_arguments = models.TextField(blank=True)
     stdout_stderr = models.TextField(blank=True)
+    variables = models.ManyToManyField(VariableSet)
 
     # parameters which will be used in the fulltext search (see sumatra.web.services fulltext_search)
     params_search = ('label','reason', 'duration', 'main_file', 'outcome', 'user', 'tags') 

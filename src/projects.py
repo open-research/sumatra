@@ -153,6 +153,7 @@ class Project(object):
                                  executable, repository, main_file, version,
                                  launch_mode, label, reason)
         record.run(with_label=self.data_label)
+        #import pdb; pdb.set_trace()
         self.add_record(record)
         self.save()
         return record.label
