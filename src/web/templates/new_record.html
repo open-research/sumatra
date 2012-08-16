@@ -85,13 +85,24 @@ $(document).ready(function(){
         $mainFile = $('#select-main').next().find('span').html();
         $argsFile = $('#select-arg').next().find('span').html();
         $('#main_content').load('/{{project_name}}/simulation', // post to views.py
-                {'label':$('#mLabel').val(),
-                 'reason':$('#mReason').val(),
-                 'tag':$('#mTag').val(),
-                 'execut':$('#mExec').val(),
-                 'main_file':$mainFile,
-                 'args':$argsFile
-                });
+                                {'label':$('#mLabel').val(),
+                                 'reason':$('#mReason').val(),
+                                 'tag':$('#mTag').val(),
+                                 'execut':$('#mExec').val(),
+                                 'main_file':$mainFile,
+                                 'args':$argsFile}, 
+                                 function (responseText, textStatus, XMLHttpRequest) {
+                                    if (textStatus == "success") {
+                                         $.jGrowl('Success',{
+                                          theme:  'success',
+                                          position:  'bottom-left'});
+                                    }
+                                    if (textStatus == "error") {
+                                         $.jGrowl('Something goes wrong',{
+                                          theme:  'danger',
+                                          position:  'bottom-left'});
+                                    }
+                                 });
     });
 
     // user change the state of 'argument' or 'main file' fields 
@@ -115,7 +126,7 @@ $(document).ready(function(){
             $(this).html('hide content');
             var $file_name = $(this).parentsUntil('span').find('span').html();
             var $file_type = $(this).parentsUntil("label").find('label').html();
-            $('#name-arg').html($file_type + ': ' + $file_name); // name of the file (header of the window)  
+            $('#name-arg').html($file_name); // name of the file (header of the window)
             $.ajax({
               type: 'POST',
               url: 'nolabel/datafile',
@@ -135,12 +146,23 @@ $(document).ready(function(){
         }
      });
 
-     // save the changes
+     // save the changes for the argument file
      $('#btn_save').on('click', function(){
         if (!$(this).hasClass('disabled')){
             var content = editor.getValue();
             var arg_file = $("#name-arg").html();
-            $.post("/{{project_name}}/simulation", {'content':content, 'arg_file':arg_file}); // post to the views.py
+            $.post("/{{project_name}}/simulation", {'content':content, 'arg_file':arg_file})
+             .done(function(data){
+                if (data === 'ok'){
+                  $.jGrowl('All changes were stored',{
+                    theme:  'success',
+                    position:  'bottom-left'});
+                }
+             }); // post to the views.py
+          }else{
+              $.jGrowl('Script file editing is not possible',{
+               theme:  'danger',
+               position:  'bottom-left'});
           }
      });
 

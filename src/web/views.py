@@ -9,6 +9,7 @@ from services import DefaultTemplate, AjaxTemplate, ProjectUpdateForm, RecordUpd
 from sumatra.recordstore.django_store.models import Project, Tag, Record
 from sumatra.datastore import get_data_store
 from sumatra.versioncontrol import get_working_copy
+from sumatra.commands import run
 
 def list_records(request, project):
     if request.is_ajax(): # only when paginating
@@ -151,3 +152,38 @@ def settings(request, project):
     ajaxTempOb.project.save()
     ajaxTempOb.init_object_list(1)
     return render_to_response('content.html', ajaxTempOb.getDict())
+
+def run_sim(request, project):
+    if request.POST.has_key('content'): # save the edited argument file
+        content = request.POST.get('content', False) # in case user changed the argument file
+        arg_file = request.POST.get('arg_file', False)
+        if os.name == 'posix':
+            fow = open(os.getcwd() + '/' + arg_file, 'w')
+        else:
+            fow = open(os.getcwd() + '\\' + arg_file, 'w')
+        fow.write(content)
+        fow.close()
+        return HttpResponse('ok')
+    else: # run simulation
+        run_opt = {'--label': request.POST.get('label', False),
+                   '--reason': request.POST.get('reason', False),
+                   '--tag': request.POST.get('tag', False),
+                   'exec': request.POST.get('execut', False),
+                   '--main': request.POST.get('main_file', False),
+                   'args': request.POST.get('args', False)}
+        options_list = []
+        for key, item in run_opt.iteritems():
+            if item:
+                if key == 'args':
+                    options_list.append(item)
+                elif key == 'exec':
+                    executable = str(os.path.basename(item))
+                    if '.exe' in executable:
+                        executable = executable.split('.')[0]
+                    options_list.append('='.join(['--executable', executable]))
+                else:
+                    options_list.append('='.join([key, item])) 
+        run(options_list)
+        ajaxTempOb = AjaxTemplate(project)
+        ajaxTempOb.init_object_list(1) # taking into consideration pagination
+        return render_to_response('content.html', ajaxTempOb.getDict()) 
