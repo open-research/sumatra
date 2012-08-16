@@ -1292,3 +1292,12 @@ span.label{
 .modalcode .modal-body{
   padding: 0px;
 }
+
+div.progress{
+  display: none;
+  position: absolute;
+  top:60px;
+  right:40%;
+  width: 200px;
+  z-index: 1100;
+}
