@@ -57,10 +57,8 @@ $(function() {
     // change the style of the pagination button when hover
     $('.page.gradient').not('.inactive').mouseenter(function(){
         $(this).children().css('opacity','1.0');
-        $('.CodeMirror').css('opacity','0.3');
     }).mouseleave(function(){
         $(this).children().css('opacity','0.5');
-        $('.CodeMirror').css('opacity','1.0');
     });  
 
     // using jquery-ui for the rows of the table
@@ -78,5 +76,60 @@ $(function() {
 
     // add little arrows which are used for indicating the order of sorting
     $('label.head-item').append("<span class='s-arrow'><span id='up' class='arr-s'>&#x25B2;</span><span id='down' class='arr-s'>&#x25BC;</span></span>");
-  
+    
+    $('.id-script').on('click', function(){
+        var click_drag = function(){
+            $(".modalcode").css('z-index','3');
+            $(this).css('z-index','4');
+        };
+        //$('#modal-code').modal('show');
+        $li = $(this).closest('li');
+        var hexsha = $li.find('#version-hid').html();
+        var path = $li.find('#repo-hid').html();
+        var label = $li.find('#label-t a').html();
+        var scrName = $(this).html();
+        var nb_wind = $('#wrapper_code').children().length;
+        $.ajax({
+          type: 'POST',
+          url: label + '/',
+          data: {'digest':hexsha, 'show_script':true, 'path':path}
+        }).done(function(data) { 
+             var modal_id = 'modal-code' + nb_wind,
+                 code_id = 's-code' + nb_wind;
+
+             $modal = '<div class="modal modalcode" id=' + modal_id + '>\
+                      <div class="modal-header">\
+                        <button type="button" class="close" data-dismiss="modal">×</button>\
+                        <h3>'+ scrName + ': ' + hexsha +'</h3>\
+                      </div>\
+                      <div class="modal-body">\
+                        <div id=' + code_id + '></div>\
+                      </div>\
+                    </div>';
+             $('#wrapper_code').append($modal);
+             //$('#s-code').empty();
+             var editor = CodeMirror(document.getElementById('s-code' + nb_wind), {
+                mode: {name: "python",
+                       version: 2,
+                       singleLineStringErrors: false},
+                lineNumbers: true,
+                indentUnit: 4,
+                tabMode: "shift",
+                matchBrackets: true
+              });
+            editor.setOption("theme", "ambiance");
+            editor.setValue(data);
+            $(".modalcode").draggable({handle:".modal-header", snap: false});
+            $('.modalcode').modal({keyboard: false, backdrop:false});
+            $('.close').on('click', function(){
+                $closed = $(this).closest('.modal').attr('id');
+                $('#' + $closed).empty();
+            });
+            $(".modalcode").bind('drag', click_drag);
+            $(".modalcode").bind('click', click_drag);
+            var $height_code = $('#' + code_id).find('.CodeMirror-scroll').height();
+            if ($height_code < 700) 
+                $('#' + code_id).find('.CodeMirror').css('height', $height_code);
+        });
+    });
 });

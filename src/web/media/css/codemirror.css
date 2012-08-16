@@ -4,12 +4,15 @@
   /* Necessary so the scrollbar can be absolutely positioned within the wrapper on Lion. */
   position: relative;
   /* This prevents unwanted scrollbars from showing up on the body and wrapper in IE. */
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: scroll;
   width:400px;
   background-color: #202020;
   -webkit-box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
   -moz-box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);           
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);  
+  height:300px;
+  width: 700px;
 }
 
 .CodeMirror-scroll {
@@ -30,6 +33,7 @@
      by the rule for .CodeMirror-scrollbar-inner. */
   margin-left: -1px;
 }
+
 .CodeMirror-scrollbar-inner {
   /* This needs to have a nonzero width in order for the scrollbar to appear
      in Firefox and IE9. */
@@ -72,8 +76,8 @@
   cursor: text;
   padding-right: 10px;
   -moz-box-shadow: 0 0 5px #888;
--webkit-box-shadow: 0 0 5px#888;
-box-shadow: 0 0 5px #888;
+  -webkit-box-shadow: 0 0 5px#888;
+  box-shadow: 0 0 5px #888; 
 }
 .CodeMirror-lines * {
   /* Necessary for throw-scrolling to decelerate properly on Safari. */

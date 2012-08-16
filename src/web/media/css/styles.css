@@ -989,6 +989,7 @@ input[type="radio"]:checked+label{ font-weight: bold }
 .ui-widget-content{
 }
 
+/*
 .headercode{
   color:#000000;
   height:20px;
@@ -1001,13 +1002,23 @@ input[type="radio"]:checked+label{ font-weight: bold }
   border:3px solid #aaa;
   font-family: "Open Sans","lucida grande","Segoe UI",arial,verdana,"lucida sans unicode",tahoma,sans-serif ;
 }
-
+*/
 .resizable{
   position:absolute;
   margin-left:10px;
   margin-top:10px;
   display: none;
-  float:left;
+  float:left;  
+}
+
+.display-resizable{
+  display: block;
+  height: 0px;
+  width: 0px; 
+}
+
+div.headercode{
+  display: none;
 }
 
 .quick-pag{
@@ -1216,7 +1227,7 @@ span.label{
 
 }
 
-#arg-cont .CodeMirror .headercode{
+#arg-cont .CodeMirror{
   height: 0px;
   background: none;
   border:none;
@@ -1268,4 +1279,16 @@ span.label{
 #div_menu_search{
   float:right;
   left: 0px;
+}
+
+.modalcode .modal-header:hover{
+  cursor:move; 
+}
+
+#modal-code{
+  width: 700px;
+}
+
+.modalcode .modal-body{
+  padding: 0px;
 }
