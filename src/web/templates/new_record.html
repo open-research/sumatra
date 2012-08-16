@@ -53,10 +53,10 @@
         <span id = 'name-arg' style='padding-left:10px;font-weight:bold'></span>
     </div>
     <div id='file-cont'></div>
-    <div>
-      <button id='btn_save' class='btn btn-success btn-large' style='width:150px; display: block ;margin-left: auto; margin-right: auto; margin-top:20px'>Save</button>
+      <div>
+        <button id='btn_save' class='btn btn-success btn-large' style='width:150px; display: block ;margin-left: auto; margin-right: auto; margin-top:20px'>Save</button>
+      </div>
     </div>
-</div>
 <script type = 'text/javascript'>
 $(document).ready(function(){ 
     // new record window:
@@ -113,14 +113,21 @@ $(document).ready(function(){
             $('#arg-cont').css('display', 'block')
                           .css('top', $('.navbar-fixed-top').height() + 0.2);
             $(this).html('hide content');
-            $file_name = $(this).parent().prev().find('span').html();
-            $('#name-arg').html($file_name); // name of the file (header of the window)  
+            var $file_name = $(this).parentsUntil('span').find('span').html();
+            var $file_type = $(this).parentsUntil("label").find('label').html();
+            $('#name-arg').html($file_type + ': ' + $file_name); // name of the file (header of the window)  
             $.ajax({
-              type: 'GET',
+              type: 'POST',
               url: 'nolabel/datafile',
               data: {show_args: true, name: $file_name}
-            }).done(function(data) {  
+            }).done(function(data) { 
+                if ($file_type === 'Main file'){ $('#btn_save').addClass('disabled'); }
+                else { $('#btn_save').removeClass('disabled'); }
                 editor.setValue(data);
+                actual_h = parseInt($('#arg-cont .CodeMirror-lines').height());
+                max_h = parseInt($('#arg-cont .CodeMirror').css('max-height'));
+                if (actual_h < max_h) { $('#arg-cont .CodeMirror').css('height', actual_h);}
+                else {$('#arg-cont .CodeMirror').css('height', max_h);}   
             });
         }else{
             $('#arg-cont').css('display', 'none');
@@ -130,9 +137,11 @@ $(document).ready(function(){
 
      // save the changes
      $('#btn_save').on('click', function(){
-          var content = editor.getValue();
-          var arg_file = $("#name-arg").html();
-          $.post("/{{project_name}}/simulation", {'content':content, 'arg_file':arg_file}); // post to the views.py
+        if (!$(this).hasClass('disabled')){
+            var content = editor.getValue();
+            var arg_file = $("#name-arg").html();
+            $.post("/{{project_name}}/simulation", {'content':content, 'arg_file':arg_file}); // post to the views.py
+          }
      });
 
     //click on the 'hide window' icon

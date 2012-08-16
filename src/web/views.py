@@ -1,6 +1,7 @@
 """
 Defines view functions and forms for the Sumatra web interface.
 """
+import os
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.views.generic import list_detail
@@ -87,6 +88,17 @@ def record_detail(request, project, label):
                                                      'parameters': parameter_set,
                                                      'form': form
                                                      })
+
+def show_file(request, project, label):
+    if request.POST.has_key('show_args'): # retrieve the content of the input file
+        name = request.POST.get('name', False)
+        if os.name == 'posix':
+            arg_file = open(os.getcwd() + '/' + name, 'r')
+        else:
+            arg_file = open(os.getcwd() + '\\' + name, 'r')
+        f_content = arg_file.read()
+        arg_file.close()
+        return HttpResponse(f_content)
 
 def search(request, project):
     ajaxTempOb = AjaxTemplate(project, request.POST)

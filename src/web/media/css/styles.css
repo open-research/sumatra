@@ -1228,7 +1228,7 @@ span.label{
 }
 
 #arg-cont .CodeMirror{
-  height: 0px;
+  //height: 0px;
   background: none;
   border:none;
   padding: 0px;
@@ -1241,7 +1241,7 @@ span.label{
   line-height: 1.5em;
   left: 50px;
   margin-top:10px;
-  max-height: 80%;
+  max-height: 75%;
   margin-right:60px;
   overflow-y: auto;
 }
