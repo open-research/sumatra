@@ -18,6 +18,7 @@
 $(document).ready(function(){ 
     // click on the "delete record" button
     $('#y-delRec').click(function(){
+        $('div.progress').animateBar('start');
         var success = false;
         var includeData = function(){
             if ($('#is_data').attr('checked')){

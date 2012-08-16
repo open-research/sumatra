@@ -1301,3 +1301,7 @@ div.progress{
   width: 200px;
   z-index: 1100;
 }
+
+#setTagsModal{
+  width: 40%;
+}

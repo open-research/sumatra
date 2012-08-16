@@ -22,6 +22,7 @@
 $(document).ready(function(){ 
     // 'save tags' button in the 'edit tags' popup window 
     $('#saveTags').click(function(){
+        $('div.progress').animateBar('start');
         $('#form-tags').trigger('submit');
     });
 });
