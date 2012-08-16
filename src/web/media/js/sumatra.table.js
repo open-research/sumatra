@@ -57,5 +57,5 @@ $(function() {
         }else{
             $('.analysis-w').empty(); //clear the the content of the popup window if user choose more than 2 records
         }
-    });
+    });    
 });

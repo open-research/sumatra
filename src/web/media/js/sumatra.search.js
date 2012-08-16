@@ -43,8 +43,6 @@ $(function() {
 	// initialization of jquery-ui datepicker used in the seach drop-down list
     $( "#id_timestamp, #id_datewithin" ).datepicker();
 
-    // initialization of the drop-down search list (#div_menu_search)
-    $('#div_menu_search').offset({left: $('#search_subnav').offset().left}); // x-position as for the #search_subnav + 20px
     $('#icon_cdown').click(function(event){   
         var parentWidth = $('input.span5')[0].offsetWidth - 2; // the width of this drop-down equals the width of #search_subnav
         $('#menu_search').css('width', parentWidth).show();

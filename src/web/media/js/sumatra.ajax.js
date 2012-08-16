@@ -2,6 +2,9 @@ $(function() {
     // initialization of the sorting for the ol
     $('#ol-content').listsorter(); 
 
+     // initialization of the drop-down search list (#div_menu_search)
+    $('#div_menu_search').offset({left: $('#search_subnav').offset().left}); // x-position as for the #search_subnav + 20px
+
     // this dropdown contains the links to the newest/oldest record sets
     $('#pagin_info').dropdown();
 
