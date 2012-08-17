@@ -5,13 +5,15 @@
   </div>
   <div class="modal-body" id='body-w-tags'>
    <span id = 'rec-compare'>Click the records you would like to compare: </span><div id='alist-labels'></div>
-    <div id='sim-left'></div>
-    <div id='sim-right'></div>
+    <div id="comparison_framework">
+        {% include "comparison_framework.html" %}
+    </div>
   </div>
 </div>
 <script type = 'text/javascript'>
-$(document).ready(function(){ 
-    $(document).on('click', '#alist-labels span', function(){ // click any span with the labels
+$(document).ready(function(){
+    /*
+    $('#alist-labels span').live('click', function(){ // click any span with the labels
         var nbSelected = $('span.label.label-success').length; 
         var names_div = ['left', 'right'];  
         $this = $(this);
@@ -27,13 +29,16 @@ $(document).ready(function(){
                 $('span.label.label-success:eq(0)').removeClass('label-success');  //remove it from the leftmost label
             }
             $this.addClass('label-success');   // record is activated
+            
             $('span.label.label-success').each(function(i, el){
                 var $labl = $(el).html();        //label of the clicked record
-                var buffer = [window.location.pathname, $labl , "/ ", "#info_record"];
+                var buffer = [window.location.pathname, $labl , "/"];
                 buffer = buffer.join('');
-                $('#sim-' + names_div[i]).load(buffer);  // load the content to the left OR right side of the window
+                //alert(names_div[i]);
+                //$('#sim-' + names_div[i]).load(buffer);  // load the content to the left OR right side of the window
             });
         }
     });
+    */
 });
 </script>

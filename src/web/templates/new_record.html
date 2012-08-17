@@ -103,7 +103,7 @@ $(document).ready(function(){
 
     // click on the new record button:
     $('#btn_run').click(function(){
-        $('div.progress').animateBar('start'); //.css('display', 'block');
+        $('div.progress').animateBar('start');
         $mainFile = $('#select-main').next().find('span').html();
         $argsFile = $('#select-arg').next().find('span').html();
         $('#main_content').load('/{{project_name}}/simulation', // post to views.py

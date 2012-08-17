@@ -58,8 +58,9 @@ def list_tags(request, project):
         return render_to_response('tag_list.html', {'tags_list':Tag.objects.all(), 'project_name': project})
 
 def record_detail(request, project, label):
-    label = unescape(label)
-    record = Record.objects.get(label=label, project__id=project) 
+    if label != 'nolabel':
+        label = unescape(label)
+        record = Record.objects.get(label=label, project__id=project) 
     if request.method == 'POST':
         if request.POST.has_key('delete'): # in this version the page record_detail doesn't have delete option
             record.delete() 
@@ -74,6 +75,12 @@ def record_detail(request, project, label):
             wc = get_working_copy(path)
             file_content = wc.content(digest)
             return HttpResponse(file_content)
+        elif request.POST.has_key('compare_records'):
+            labels = request.POST.getlist('records[]', False)
+            records = Record.objects.filter(project__id=project)
+            records = records.filter(label__in=labels[:2]) # by now we take only two records
+            dic = {'records':records}
+            return render_to_response('comparison_framework.html', dic)
         else:
             form = RecordUpdateForm(request.POST, instance=record)
             if form.is_valid():
