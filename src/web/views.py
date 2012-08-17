@@ -79,6 +79,9 @@ def record_detail(request, project, label):
             labels = request.POST.getlist('records[]', False)
             records = Record.objects.filter(project__id=project)
             records = records.filter(label__in=labels[:2]) # by now we take only two records
+            for record in records:
+                if record.script_arguments == '<parameters>':
+                    record.script_arguments = record.parameters.to_sumatra()
             dic = {'records':records}
             return render_to_response('comparison_framework.html', dic)
         else:

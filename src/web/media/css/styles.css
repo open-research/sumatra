@@ -919,8 +919,7 @@ input[type="radio"]:checked+label{ font-weight: bold }
 	cursor: pointer;
 }
 
-.record{
-    min-height: 14px;
+.record, .rcomp{
     margin: 0 0 -1px;
     padding: 5px 6px;
     text-align: left;
@@ -930,6 +929,7 @@ input[type="radio"]:checked+label{ font-weight: bold }
     font-size: 13px;
     list-style: none outside none;
     position: relative;
+    min-height: 14px;
 }
 
 .hoverRow{
@@ -1038,6 +1038,11 @@ div.headercode{
 #ol-content{
     margin-left:0px;
     margin-right: 25px;
+}
+
+.ol-compare{
+  margin: 0px;
+  border-right: 1px solid rgb(237, 241, 245);
 }
 
 #ol-content .ui-selecting{

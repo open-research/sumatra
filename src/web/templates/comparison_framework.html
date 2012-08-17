@@ -1,37 +1,52 @@
-   {% load filters %}
+{% if records %}
+{% load filters %}
+<script type = 'text/javascript'>
+$(document).ready(function(){
+	$('.rcomp').each(function(){
+		var min_h = 14;
+		var iclass = $(this).attr('class').split(' ')[1]; // not the best way
+		$('.rcomp.' + iclass).each(function(){
+			var h = $(this).height()
+			if (h > min_h) min_h = h; 
+		});
+		$('.rcomp.' + iclass).css('min-height',min_h);
+	});
+});
+</script>
 	   <div style='float:left;width:200px'>
-	   	<ol id ='ol-content' style='border-right: 1px solid rgb(237, 241, 245);margin-right:0px'>
-	   		<li class='record'>Label:</li>
-	   		<li class='record'>Reason:</li>
-	   		<li class='record'>Outcome:</li>
-	   		<li class='record'>Timestamp:</li>
-	   		<li class='record'>Duration:</li>
-	   		<li class='record'>Executable:</li>
-	   		<li class='record'>Launch mode:</li>
-	   		<li class='record'>Repository:</li>
-	   		<li class='record'>Main file:</li>
-	   		<li class='record'>Version:</li>
-	   		<li class='record'>Arguments:</li>
-	   		
-	   		<li class='record'>Tags:</li>
+	   	<ol class ='ol-compare'>
+	   		<li class='rcomp labl'>Label:</li>
+	   		<li class='rcomp reas'>Reason:</li>
+	   		<li class='rcomp out'>Outcome:</li>
+	   		<li class='rcomp time'>Timestamp:</li>
+	   		<li class='rcomp dur'>Duration:</li>
+	   		<li class='rcomp exec'>Executable:</li>
+	   		<li class='rcomp mode'>Launch mode:</li>
+	   		<li class='rcomp repo'>Repository:</li>
+	   		<li class='rcomp main'>Main file:</li>
+	   		<li class='rcomp vers'>Version:</li>
+	   		<li class='rcomp args'>Arguments:</li>
+	   		<li class='rcomp tags'>Tags:</li>
 	   	</ol>
 	   </div>
    {% for record in records %}
 	   <div style='float:left;width:40%'>
-	   	<ol id ='ol-content' style='border-right: 1px solid rgb(237, 241, 245);margin-right:0px'>
-	   		<li class='record'>{{record.label}}</li>
-	   		<li class='record'>{{record.reason}}</li>
-	   		<li class='record'>{{record.outcome}}</li>
-	   		<li class='record'>{{record.timestamp|date:"d/m/Y H:i:s"}}</li>
-	   		<li class='record'>{{record.duration|human_readable_duration}}</li>
-	   		<li class='record'>{{record.executable.name}} version {{record.executable.version}} ({{record.executable.path}})</li>
-	   		<li class='record'>{% ifequal record.launch_mode.type "SerialLaunchMode" %}serial{% else %}distributed, n={{record.launch_mode.get_parameters.n}}{% endifequal %}</li>
-	   		<li class='record'>{{record.repository.url}}</li>
-	   		<li class='record'>{{record.main_file}}</li>
-	   		<li class='record'>{{record.version}}{% if record.diff %}* (<a href="diff/">diff</a>){% endif %}</li>
-	   		<li class='record'>{{record.script_arguments}}</li>
-	   		<li class='record'>{{record.tags}}</li>
+	   	<ol class ='ol-compare'>
+	   		<li class='rcomp labl'>{{record.label}}</li>
+	   		<li class='rcomp reas'>{{record.reason}}</li>
+	   		<li class='rcomp out'>{{record.outcome}}</li>
+	   		<li class='rcomp time'>{{record.timestamp|date:"d/m/Y H:i:s"}}</li>
+	   		<li class='rcomp dur'>{{record.duration|human_readable_duration}}</li>
+	   		<li class='rcomp exec'>{{record.executable.name}} version {{record.executable.version}} ({{record.executable.path}})</li>
+	   		<li class='rcomp mode'>{% ifequal record.launch_mode.type "SerialLaunchMode" %}serial{% else %}distributed, n={{record.launch_mode.get_parameters.n}}{% endifequal %}</li>
+	   		<li class='rcomp repo'>{{record.repository.url}}</li>
+	   		<li class='rcomp main'>{{record.main_file}}</li>
+	   		<li class='rcomp vers'>{{record.version}}{% if record.diff %}* (<a href="diff/">diff</a>){% endif %}</li>
+	   		<li class='rcomp args'><pre>{{record.script_arguments}}</pre></li>
+	   		<li class='rcomp tags'>{{record.tags}}</li>
 	   	</ol>
 	   </div>	
    {% endfor %}
+{% endif %}
+
    
