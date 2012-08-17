@@ -1,0 +1,37 @@
+   {% load filters %}
+	   <div style='float:left;width:200px'>
+	   	<ol id ='ol-content' style='border-right: 1px solid rgb(237, 241, 245);margin-right:0px'>
+	   		<li class='record'>Label:</li>
+	   		<li class='record'>Reason:</li>
+	   		<li class='record'>Outcome:</li>
+	   		<li class='record'>Timestamp:</li>
+	   		<li class='record'>Duration:</li>
+	   		<li class='record'>Executable:</li>
+	   		<li class='record'>Launch mode:</li>
+	   		<li class='record'>Repository:</li>
+	   		<li class='record'>Main file:</li>
+	   		<li class='record'>Version:</li>
+	   		<li class='record'>Arguments:</li>
+	   		
+	   		<li class='record'>Tags:</li>
+	   	</ol>
+	   </div>
+   {% for record in records %}
+	   <div style='float:left;width:40%'>
+	   	<ol id ='ol-content' style='border-right: 1px solid rgb(237, 241, 245);margin-right:0px'>
+	   		<li class='record'>{{record.label}}</li>
+	   		<li class='record'>{{record.reason}}</li>
+	   		<li class='record'>{{record.outcome}}</li>
+	   		<li class='record'>{{record.timestamp|date:"d/m/Y H:i:s"}}</li>
+	   		<li class='record'>{{record.duration|human_readable_duration}}</li>
+	   		<li class='record'>{{record.executable.name}} version {{record.executable.version}} ({{record.executable.path}})</li>
+	   		<li class='record'>{% ifequal record.launch_mode.type "SerialLaunchMode" %}serial{% else %}distributed, n={{record.launch_mode.get_parameters.n}}{% endifequal %}</li>
+	   		<li class='record'>{{record.repository.url}}</li>
+	   		<li class='record'>{{record.main_file}}</li>
+	   		<li class='record'>{{record.version}}{% if record.diff %}* (<a href="diff/">diff</a>){% endif %}</li>
+	   		<li class='record'>{{record.script_arguments}}</li>
+	   		<li class='record'>{{record.tags}}</li>
+	   	</ol>
+	   </div>	
+   {% endfor %}
+   
