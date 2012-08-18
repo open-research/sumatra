@@ -59,7 +59,14 @@ $(document).ready(function(){
                 $('.record').removeClass('ui-selected'); // removing all selected records
                 $('#selection_header').css('display', 'none'); // remove the header of the table when there are some selected records
                 $('#default_header').css('display', 'inline'); // append the default header of the table
-        };
+        };       
+    });
+
+    // hide the scroll when modal popup is open
+    $('.modal').on('hide', function(){
+        $('body').css('overflow', 'auto');
+    }).on('show', function(){
+        $('body').css('overflow', 'hidden');
     });
 });
 </script>

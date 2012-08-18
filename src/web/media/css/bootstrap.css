@@ -2749,6 +2749,7 @@ input[type="submit"].btn.small {
 .pager .previous a {
   float: left;
 }
+/*
 .modal-open .dropdown-menu {
   z-index: 2050;
 }
@@ -2783,15 +2784,12 @@ input[type="submit"].btn.small {
   top: 50%;
   left: 50%;
   z-index: 1050;
-  /*max-height: 500px;*/
   overflow: auto;
-  /*  width: 560px;*/
   margin: -250px 0 0 -280px;
   background-color: #ffffff;
   border: 1px solid #999;
   border: 1px solid rgba(0, 0, 0, 0.3);
   *border: 1px solid #999;
-  /* IE6-7 */
 
   -webkit-border-radius: 6px;
   -moz-border-radius: 6px;
@@ -2853,6 +2851,7 @@ input[type="submit"].btn.small {
   margin-left: 5px;
   margin-bottom: 0;
 }
+*/
 .tooltip {
   position: absolute;
   z-index: 1020;
@@ -3904,6 +3903,7 @@ ol.linenums li {
     padding-left: 10px;
     padding-right: 10px;
   }
+  /*
   .modal {
     position: absolute;
     top: 10px;
@@ -3923,6 +3923,7 @@ ol.linenums li {
     position: static;
   }
 }
+*/
 @media (max-width: 767px) {
   .container {
     width: auto;

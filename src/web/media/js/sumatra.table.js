@@ -51,7 +51,12 @@ $(function() {
         list = labelList(false, $div_list);
         //alert(list.labels);
 
-        $('#comparison_framework').load('nolabel/', {'compare_records':true, records: list.labels});
+        $('#body-comp').load('nolabel/', {'compare_records':true, records: list.labels});
+        $('#alist-labels').tooltip({
+            title: 'Click the records you would like to compare',
+            placement: 'bottom',
+            trigger: 'hover'
+        });
         /*
         $.ajax({
             type: 'POST',
