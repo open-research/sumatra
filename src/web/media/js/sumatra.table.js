@@ -22,6 +22,22 @@ function labelList(tag, div_list){
     return list;
 };
 
+function showjGrowl(){
+     return function (responseText, textStatus, XMLHttpRequest) {
+        $('div.progress').animateBar('stop');
+        if (textStatus == "success") {
+             $.jGrowl('Success',{
+              theme:  'success',
+              position:  'bottom-left'});
+        }
+        if (textStatus == "error") {
+             $.jGrowl('Something goes wrong',{
+              theme:  'danger',
+              position:  'bottom-left'});
+        }
+    }
+};
+
 $(function() {
     //this for preventing the deselection of records in the table (see record_list.html: (window).click())
     // #d-delete, #d-tags, #d-comp: the buttons  

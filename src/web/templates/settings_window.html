@@ -1,17 +1,10 @@
 <div class="modal" id="setModal">
-  <a class="close s-close" id='close_set'>&times;</a>
+  <a class="close" data-dismiss="modal">&times;</a>
   <div class="modal-header">
-    <a class="close" data-dismiss="modal"></a>
     <h3>Settings</h3>
   </div>
-  <div class="modal-body" style='overflow-y:hidden'>   
-    <ul class="nav nav-tabs"  id ='myTab'>
-      <li class="active"><a href="#first"  data-toggle="tab" >General</a></li>
-      <li><a href="#second"  data-toggle="tab" >Another option</a></li>
-    </ul>
-    <div class="tab-content">
-      <div class="tab-pane active" id="first">
-        <div id = 'tab_general_text'><p><b>Table:</b></p></div>
+  <div class="modal-body">  
+     <div id = 'tab_general_text'><p><b>Table:</b></p></div>
         <div id = 'tab_general_content'>
             <label class="checkbox">
                 <input type="checkbox"  id='repository' class='check-item'> Repository
@@ -58,19 +51,15 @@
             <label class="checkbox">
                 <input type="checkbox" id = 'selectAll' checked="checked"><b style='font-size:14px'>Select all</b>
             </label>
-              <div style='float:left; padding:8px; padding-left:0px'>Number of records per page:</div>
-                    <div id="input_nrec">{{settings.nb_records_per_page}}</div>
-                    <input id='s_nbt' class='span1' type='text' style='float:left;margin-bottom:0px' value='{{settings.nb_records_per_page}}'> 
-              </div>
-        </div>
-      <div class="tab-pane" id="second"></div>
-    </div>
-      <div class="modal-footer">
+            <div style='float:left; padding:8px; padding-left:0px'>Number of records per page:</div>
+            <input id='s_nbt' class='span1' type='text' style='float:left;margin-bottom:0px' value='{{settings.nb_records_per_page}}'>
+        </div>     
+  </div>
+  <div class="modal-footer"> 
+        <a class="btn" data-dismiss="modal">Close</a>
         <a class="btn btn-primary" id='save_set'>Save changes</a>
-        <a class="btn" id='close_set'>Close</a>
-      </div> 
- </div>
- </div>
+ </div> 
+</div>       
  <script type = 'text/javascript'>
 $(document).ready(function(){ 
     // click on the compact/comfortable anchor tag in settings drop-down list
@@ -87,13 +76,6 @@ $(document).ready(function(){
             $('.record').removeClass('condensed').addClass('comfortable');
         }  
     });
-
-    // settings: change of the number of records per one page
-    $('#input_nrec, #s_nbt').click(function(event){   //click on the div in the settings section
-        event.stopPropagation();
-        $(this).css('display','none');
-        $('#s_nbt').css('display','block');     
-    }); 
 
     // user opens settings_window
     $('#button_settings').on('click', function(){
@@ -150,7 +132,7 @@ $(document).ready(function(){
                 }); 
                 // save settings to .smt/project
                 $('#innerContent').load('settings',{'hidden_cols':uncheckedItems, 
-                                                    'nb_records_per_page':nb_rec});
+                                                    'nb_records_per_page':nb_rec}, showjGrowl());
             }          
             else{
                 alert('Please enter the vaid number of records')

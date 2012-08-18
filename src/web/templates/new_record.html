@@ -112,20 +112,7 @@ $(document).ready(function(){
                                  'tag':$('#mTag').val(),
                                  'execut':$('#mExec').val(),
                                  'main_file':$mainFile,
-                                 'args':$argsFile}, 
-                                 function (responseText, textStatus, XMLHttpRequest) {
-                                    $('div.progress').animateBar('stop');
-                                    if (textStatus == "success") {
-                                         $.jGrowl('Success',{
-                                          theme:  'success',
-                                          position:  'bottom-left'});
-                                    }
-                                    if (textStatus == "error") {
-                                         $.jGrowl('Something goes wrong',{
-                                          theme:  'danger',
-                                          position:  'bottom-left'});
-                                    }
-                                 });
+                                 'args':$argsFile}, showjGrowl());
     });
 
     // user change the state of 'argument' or 'main file' fields 

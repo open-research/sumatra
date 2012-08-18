@@ -2,14 +2,19 @@
 Defines view functions and forms for the Sumatra web interface.
 """
 import os
+import mimetypes
+import csv
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.views.generic import list_detail
 from services import DefaultTemplate, AjaxTemplate, ProjectUpdateForm, RecordUpdateForm, unescape
 from sumatra.recordstore.django_store.models import Project, Tag, Record
-from sumatra.datastore import get_data_store
+from sumatra.datastore import get_data_store, DataKey
 from sumatra.versioncontrol import get_working_copy
 from sumatra.commands import run
+
+DEFAULT_MAX_DISPLAY_LENGTH = 10*1024
+mimetypes.init()
 
 def list_records(request, project):
     if request.is_ajax(): # only when paginating
@@ -199,4 +204,136 @@ def run_sim(request, project):
         run(options_list)
         ajaxTempOb = AjaxTemplate(project)
         ajaxTempOb.init_object_list(1) # taking into consideration pagination
-        return render_to_response('content.html', ajaxTempOb.getDict()) 
+        return render_to_response('content.html', ajaxTempOb.getDict())
+
+def show_file(request, project, label):
+    label = unescape(label)
+    path = request.GET['path']
+    digest = request.GET['digest']
+    type = request.GET.get('type', 'output')
+    show_script = request.GET.get('show_script', False)
+    data_key = DataKey(path, digest)
+    if 'truncate' in request.GET:
+        if request.GET['truncate'].lower() == 'false':
+            max_display_length = None
+        else:
+            max_display_length = int(request.GET['truncate'])*1024
+    else:
+        max_display_length = DEFAULT_MAX_DISPLAY_LENGTH
+    
+    record = Record.objects.get(label=label, project__id=project)
+    if type == 'output':
+        data_store = get_data_store(record.datastore.type, eval(record.datastore.parameters))
+    else:
+        data_store = get_data_store(record.input_datastore.type, eval(record.input_datastore.parameters))
+    truncated = False
+    mimetype, encoding = mimetypes.guess_type(path)
+    try:
+        if mimetype  == "text/csv":
+            content = data_store.get_content(data_key, max_length=max_display_length)
+            if max_display_length is not None and len(content) >= max_display_length:
+                truncated = True
+                
+                # dump the last truncated line (if any)
+                content = content.rpartition('\n')[0]
+
+            lines = content.splitlines()
+            reader = csv.reader(lines)
+            
+            return render_to_response("show_csv.html",
+                                      {'path': path, 'label': label,
+                                       'digest': digest,
+                                       'project_name': project,
+                                       'reader': reader,
+                                       'truncated':truncated
+                                       })
+
+        elif mimetype == None or mimetype.split("/")[0] == "text":
+            content = data_store.get_content(data_key, max_length=max_display_length)
+            if max_display_length is not None and len(content) >= max_display_length:
+                truncated = True
+            return render_to_response("show_file.html",
+                                      {'path': path, 'label': label,
+                                       'digest': digest,
+                                       'project_name': project,
+                                       'content': content,
+                                       'truncated': truncated,
+                                       })
+        elif mimetype in ("image/png", "image/jpeg", "image/gif"): # need to check digests match
+            return render_to_response("show_image.html",
+                                      {'path': path, 'label': label,
+                                       'digest': digest,
+                                       'project_name': project,})
+        elif mimetype == 'application/zip':
+            import zipfile
+            if zipfile.is_zipfile(path):
+                zf = zipfile.ZipFile(path, 'r')
+                contents = zf.namelist()
+                zf.close()
+                return render_to_response("show_file.html",
+                                      {'path': path, 'label': label,
+                                       'content': "\n".join(contents)
+                                       })
+            else:
+                raise IOError("Not a valid zip file")
+        else:
+            return render_to_response("show_file.html", {'path': path, 'label': label,
+                                                         'project_name': project,
+                                                         'content': "Can't display this file (mimetype assumed to be %s)" % mimetype})
+    except (IOError, KeyError), e:
+        return render_to_response("show_file.html", {'path': path, 'label': label,
+                                                     'project_name': project,
+                                                     'content': "File not found.",
+                                                     'errmsg': e})
+
+def download_file(request, project, label):
+    label = unescape(label)
+    path = request.GET['path']
+    digest = request.GET['digest']
+    data_key = DataKey(path, digest)
+    record = Record.objects.get(label=label, project__id=project)
+    data_store = get_data_store(record.datastore.type, eval(record.datastore.parameters))
+
+    mimetype, encoding = mimetypes.guess_type(path)
+    try:
+        content = data_store.get_content(data_key)
+    except (IOError, KeyError):
+        raise Http404
+    dir, fname = os.path.split(path) 
+    response = HttpResponse(mimetype=mimetype)
+    response['Content-Disposition'] =  'attachment; filename=%s' % fname
+    response.write(content)
+    return response 
+
+def show_image(request, project, label):
+    label = unescape(label)
+    path = request.GET['path']
+    digest = request.GET['digest']
+    data_key = DataKey(path, digest)
+    mimetype, encoding = mimetypes.guess_type(path)
+    if mimetype in ("image/png", "image/jpeg", "image/gif"):
+        record = Record.objects.get(label=label, project__id=project)
+        data_store = get_data_store(record.datastore.type, eval(record.datastore.parameters))
+        try:
+            content = data_store.get_content(data_key)
+        except (IOError, KeyError):
+            raise Http404
+        response = HttpResponse(mimetype=mimetype)
+        response.write(content)
+        return response
+    else:
+        return HttpResponse(mimetype="image/png") # should return a placeholder image?
+    
+def show_diff(request, project, label, package):
+    label = unescape(label)
+    record = Record.objects.get(label=label, project__id=project)
+    if package:
+        dependency = record.dependencies.get(name=package)
+    else:
+        package = "Main script"
+        dependency = record
+    return render_to_response("show_diff.html", {'label': label,
+                                                 'project_name': project,
+                                                 'package': package,
+                                                 'parent_version': dependency.version,
+                                                 'diff': dependency.diff})

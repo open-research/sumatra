@@ -286,7 +286,7 @@ a.active{
 
 #s_nbt{
     text-align:center;
-    display: none;
+    //display: none;
 }
 
 .page.gradient{
@@ -872,7 +872,7 @@ h2.topic{
 }
 
  #head_c{
-  margin-right: 42px;
+  margin-right: 55px;
   position:relative;
  }
 
@@ -1052,7 +1052,8 @@ div.headercode{
 
 .ol-compare{
   margin: 0px;
-  border: 1px solid rgb(237, 241, 245);
+  border-bottom: 1px solid rgb(237, 241, 245);
+  border-right: 1px solid rgb(237, 241, 245);
 }
 
 #ol-content .ui-selecting{
@@ -1334,4 +1335,9 @@ div.progress{
   font-weight: bold;
 }
 
+.close{
+  padding-right:15px;
+  padding-top: 10px;
+  font-size:40px;
+}
 
