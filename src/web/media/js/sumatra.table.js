@@ -6,7 +6,7 @@ function labelList(tag, div_list){
         var $labl = $(this).find('#label-t a').html();     
         $selected_labels.push($labl);
         if (i < 2) {
-            div_list.append('<span class="label label-success">'+ $labl +'</span>'); 
+            div_list.append('<span class="label">'+ $labl +'</span>'); 
         }else{
             div_list.append('<span class="label">'+ $labl +'</span>'); 
         }       
@@ -47,38 +47,12 @@ $(function() {
     //click on the 'compare simulations' button
     $('#d-comp').live('click', function(){ 
         var $div_list = $('#alist-labels').empty();
-        //var names_div = ['left', 'right'];
-        list = labelList(false, $div_list);
-        //alert(list.labels);
-
+        var list = labelList(false, $div_list);
         $('#body-comp').load('nolabel/', {'compare_records':true, records: list.labels});
-        $('#alist-labels').tooltip({
-            title: 'Click the records you would like to compare',
-            placement: 'bottom',
-            trigger: 'hover'
-        });
-        /*
-        $.ajax({
-            type: 'POST',
-            url: 'nolabel/',
-            data: {'compare_records':true, records: list.labels},   
-            success:function(data){
-                //alert(data); // by now it is alert. TODO: stick the content to the window
-                $('#comparison_framework').empty().append(data);
-            }
-        });
-        //var $selected_labels = list.labels;
-        
-        if ($selected_labels.length == 2){ // if user choose exactly 2 records to compare     
-            $('#rec-compare').empty();
-            $('#alist-labels span').addClass('label-success'); 
-            for( var i = -1, n = 2; ++i < n; ) {         
-                var buffer = [window.location.pathname, $selected_labels[i], "/ ", "#info_record"];
-                buffer = buffer.join('');      
-                $('#sim-' + names_div[i]).load(buffer);
-            }
-        }else{
-            $('.analysis-w').empty(); //clear the the content of the popup window if user choose more than 2 records
-        }*/
+
+        for(var i = 0; i < 2; i++){ // only for the first two records
+            var el = $('#alist-labels').children()[i]; // not the best way
+            $(el).addClass('label-success');
+        }
     });    
 });

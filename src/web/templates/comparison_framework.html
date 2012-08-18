@@ -1,21 +1,7 @@
 {% if records %}
 {% load filters %}
-<script type = 'text/javascript'>
-$(document).ready(function(){
-	$('.rcomp').each(function(){
-		var min_h = 14;
-		var iclass = $(this).attr('class').split(' ')[1]; // not the best way
-		$('.rcomp.' + iclass).each(function(){
-			var h = $(this).height()
-			if (h > min_h) min_h = h; 
-		});
-		$('.rcomp.' + iclass).css('min-height',min_h);
-	});
-});
-</script>
 	   <div style='float:left;width:200px'>
 	   	<ol class ='ol-compare'>
-	   		<li class='rcomp labl'>Label:</li>
 	   		<li class='rcomp reas'>Reason:</li>
 	   		<li class='rcomp out'>Outcome:</li>
 	   		<li class='rcomp time'>Timestamp:</li>
@@ -28,16 +14,15 @@ $(document).ready(function(){
 	   		<li class='rcomp args'>Arguments:</li>
 	   		<li class='rcomp tags'>Tags:</li>
 	   		<li class='rcomp ifile'>Input files:</li>
-	   		<li class='rcomp params'>Parameters:</li>
+	   		<li class='rcomp output'>Output files:</li>
 			<li class='rcomp depend'>Dependencies:</li>
 			<li class='rcomp platf'>Platform information:</li>	
 			<li class='rcomp stdout'>Stdout & Stderr:</li>
 	   	</ol>
 	   </div>
    {% for record in records %}
-	   <div style='float:left;width:40%'>
+	   <div id = 'column-c' style='float:left;width:40%'>
 	   	<ol class ='ol-compare'>
-	   		<li class='rcomp labl' style='background-color:rgb(245, 245, 245);'>{{record.label}}</li>
 	   		<li class='rcomp reas'>{{record.reason}}</li>
 	   		<li class='rcomp out'>{{record.outcome}}</li>
 	   		<li class='rcomp time'>{{record.timestamp|date:"d/m/Y H:i:s"}}</li>
@@ -64,13 +49,16 @@ $(document).ready(function(){
                     no input files
                 {% endif %}
 	   		</li>
-	   		<li class='rcomp params'>
-                {% if parameters %}
-                    {% for name, value in parameters.items %}
-                    {{name}} = {{value}}<br>{% endfor %}
-                {% else %}
-                    no parameters
-                {% endif %}
+	   		<li class='rcomp output'>
+                <table>
+                    <tr><td colspan="4">{{record.datastore.access_parameters.root}}</td></tr>
+                        {% for file in record.output_data.all %}
+                                <tr class="{% cycle 'odd' 'even' %}"><td><a href="datafile?path={{file.path}}&digest={{file.digest}}">{{file.path}}</a></td>
+                                <td>{{file.digest}}</td>
+                                <td>{{file.get_metadata.mimetype|default:""}}</td>
+                                <td>{{file.get_metadata.size|filesizeformat}}</td></tr>
+                        {% endfor %}
+                </table>
 	   		</li>
 	   		<li class='rcomp depend'>
 	   			{% if record.dependencies.all %}
@@ -110,6 +98,26 @@ $(document).ready(function(){
 	   	</ol>
 	   </div>	
    {% endfor %}
+<script type = 'text/javascript'>
+$(document).ready(function(){
+	$('#head-comp').empty().append("<div id='head_c' class='nonselect head-table'>\
+				              <div id = 'left-r' style='position:absolute;'></div>\
+				              <div id = 'right-r' style='position:absolute;'></div>\
+				            </div>");
+	$('.rcomp').each(function(){
+		var min_h = 14;
+		var iclass = $(this).attr('class').split(' ')[1]; // not the best way
+		$('.rcomp.' + iclass).each(function(){
+			var h = $(this).height()
+			if (h > min_h) min_h = h; 
+		});
+		$('.rcomp.' + iclass).css('min-height',min_h);
+	});
+	$('#left-r').html('{{records.0}}').css('padding-left','200px');
+	$('#right-r').html('{{records.1}}').css('padding-left', 200 + $('#column-c').width());
+});
+</script>
 {% endif %}
+
 
    

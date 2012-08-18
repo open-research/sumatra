@@ -1,12 +1,40 @@
 <div class="modal" id="compareSim">
   <div class="modal-header">
-    <div>
         <a class="close" data-dismiss="modal" style='padding-right:15px; font-size:40px'>&times;</a>
         <h3>Comparison of simulations</h3>
+            <div>Click the records you would like to compare:</div>
             <span id='alist-labels'></span>
-    </div>
+            <div id='head-comp'></div>
   </div>
   <div class="modal-body" id='body-comp'>
         {% include "comparison_framework.html" %}
   </div>
 </div>
+<script type = 'text/javascript'>
+$(document).ready(function(){ 
+    $('#alist-labels span').live('click', function(){
+        if ($(this).hasClass('label-success')){
+            $(this).removeClass('label-success');
+        }else{
+            var nb_selected = $('#alist-labels .label-success').length;
+            if (nb_selected == 2) $('#alist-labels .label-success:eq(0)').removeClass('label-success');
+            $(this).addClass('label-success');
+        };
+
+        var getSelected = function(){
+          var selected_lab = [];
+          $('#alist-labels .label-success').each(function(){
+              selected_lab.push($(this).html());
+          });
+          return selected_lab;
+        }
+
+        var selected = getSelected();
+        if (!selected.length){
+          $('#body-comp,#head-comp').empty();
+        }else{
+          $('#body-comp').load('nolabel/', {'compare_records':true, records: selected});
+        }
+    });
+});
+</script>
