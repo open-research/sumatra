@@ -145,7 +145,7 @@ $(document).ready(function(){
                 if ($file_type === 'Main file'){ $('#btn_save').addClass('disabled'); }
                 else { $('#btn_save').removeClass('disabled'); }
                 editor.setValue(data);
-                actual_h = parseInt($('#arg-cont .CodeMirror-lines').height());
+                actual_h = parseInt($('#arg-cont .CodeMirror-lines').height()) + 20;
                 max_h = parseInt($('#arg-cont .CodeMirror').css('max-height'));
                 if (actual_h < max_h) { $('#arg-cont .CodeMirror').css('height', actual_h);}
                 else {$('#arg-cont .CodeMirror').css('height', max_h);}   

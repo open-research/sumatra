@@ -102,7 +102,7 @@ $(function() {
 
              $modal = '<div class="modal modalcode" id=' + modal_id + '>\
                       <div class="modal-header">\
-                        <button type="button" class="close" data-dismiss="modal">×</button>\
+                        <button type="button" class="close close-code" data-dismiss="modal">×</button>\
                         <h3>'+ scrName + ': ' + hexsha +'</h3>\
                       </div>\
                       <div class="modal-body">\

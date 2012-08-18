@@ -878,16 +878,18 @@ h2.topic{
 
 .head-item, .row-item{
     float:left;
+    width: 6.0%;
 }
  
 #l-label, #label-t{
-    //width: 150px; 
+    width: 200px; 
     cursor: pointer; 
 }
  
 .t-item{
     cursor: pointer; 
     margin-top: 8px;
+    width: 6.0%;
 }
 .nonselect{
     -webkit-touch-callout: none;
@@ -1221,6 +1223,7 @@ span.label{
   height:100%;
   right:0px !important;
   background: url("../img/white_pixel.png") repeat-x scroll 0 0 #F0F9FF;
+  width: auto;
 }
 
 
@@ -1339,5 +1342,10 @@ div.progress{
   padding-right:15px;
   padding-top: 10px;
   font-size:40px;
+}
+
+.close-code{
+  font-size: 20px;
+  padding:0px;
 }
 

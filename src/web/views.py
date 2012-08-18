@@ -105,17 +105,6 @@ def record_detail(request, project, label):
                                                      'form': form
                                                      })
 
-def show_file(request, project, label):
-    if request.POST.has_key('show_args'): # retrieve the content of the input file
-        name = request.POST.get('name', False)
-        if os.name == 'posix':
-            arg_file = open(os.getcwd() + '/' + name, 'r')
-        else:
-            arg_file = open(os.getcwd() + '\\' + name, 'r')
-        f_content = arg_file.read()
-        arg_file.close()
-        return HttpResponse(f_content)
-
 def search(request, project):
     ajaxTempOb = AjaxTemplate(project, request.POST)
     if request.POST.has_key('fulltext_inquiry'): # using the input #search_subnav
@@ -207,6 +196,15 @@ def run_sim(request, project):
         return render_to_response('content.html', ajaxTempOb.getDict())
 
 def show_file(request, project, label):
+    if request.POST.has_key('show_args'): # retrieve the content of the input file
+        name = request.POST.get('name', False)
+        if os.name == 'posix':
+            arg_file = open(os.getcwd() + '/' + name, 'r')
+        else:
+            arg_file = open(os.getcwd() + '\\' + name, 'r')
+        f_content = arg_file.read()
+        arg_file.close()
+        return HttpResponse(f_content)
     label = unescape(label)
     path = request.GET['path']
     digest = request.GET['digest']
