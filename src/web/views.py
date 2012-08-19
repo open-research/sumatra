@@ -81,7 +81,7 @@ def record_detail(request, project, label):
             file_content = wc.content(digest)
             return HttpResponse(file_content)
         elif request.POST.has_key('compare_records'):
-            labels = request.POST.getlist('records[]', False)
+            labels = request.POST.getlist('records[]')
             records = Record.objects.filter(project__id=project)
             records = records.filter(label__in=labels[:2]) # by now we take only two records
             for record in records:
@@ -148,7 +148,7 @@ def delete_records(request, project):
 def settings(request, project):
     web_settings = {'display_density':request.POST.get('display_density', False),
                     'nb_records_per_page':request.POST.get('nb_records_per_page', False),
-                    'hidden_cols': request.POST.getlist('hidden_cols[]', False)}
+                    'hidden_cols': request.POST.getlist('hidden_cols[]')}
     ajaxTempOb = AjaxTemplate(project, None)
     for key, item in web_settings.iteritems():
         if item:
