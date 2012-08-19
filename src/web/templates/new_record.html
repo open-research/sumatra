@@ -113,6 +113,7 @@ $(document).ready(function(){
                                  'execut':$('#mExec').val(),
                                  'main_file':$mainFile,
                                  'args':$argsFile}, showjGrowl());
+        $('div.progress').animateBar('stop');
     });
 
     // user change the state of 'argument' or 'main file' fields 

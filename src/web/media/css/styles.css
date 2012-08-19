@@ -1211,6 +1211,7 @@ span.label{
   height:100%;
   width: 285px;
   background: url("../img/white_pixel.png") repeat-x scroll 0 0 #F0F9FF;
+  text-align: left;
 }
 
 #arg-cont{

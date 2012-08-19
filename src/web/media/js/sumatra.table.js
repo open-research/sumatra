@@ -24,7 +24,6 @@ function labelList(tag, div_list){
 
 function showjGrowl(){
      return function (responseText, textStatus, XMLHttpRequest) {
-        $('div.progress').animateBar('stop');
         if (textStatus == "success") {
              $.jGrowl('Success',{
               theme:  'success',

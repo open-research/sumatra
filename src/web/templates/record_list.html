@@ -2,7 +2,8 @@
 
 {% load filters %}
 
-{% block content %} 
+{% block content %}  
+{% if sim_list %}   
 <div id ='innerContent'>
     {% include "content.html" %} <!-- html + js files. The content of the table which is reloaded after each post/get request-->
 </div> 
@@ -13,7 +14,6 @@
     {% include "comparison_window.html" %} <!-- 'compare selected records' popup window -->
 <script type = 'text/javascript'>
 $(document).ready(function(){ 
-    
     // initialization of all modal popup-windows (settings, new record, set tags, compare records) and hide them
     $('.modal').modal().modal('hide');
 
@@ -70,4 +70,31 @@ $(document).ready(function(){
     });
 });
 </script>
+{% else %}
+<div style='text-align: center;'>
+    <div style='font-size:40px; padding:10px 15px;'>You don't have any records yet</div>
+    {% include "new_record.html" %}
+    <a id='btn_newrec' class='btn btn-danger btn-large' style='font-size:30px; width:30%; margin-top:10%'>
+        <i class="icon-file"></i> New record
+    </a>
+</div> 
+<script type = 'text/javascript'>
+$(document).ready(function(){ 
+    $('#btn_run').click(function(){
+        alert('hhfhh')
+        $('div.progress').animateBar('start');
+        $mainFile = $('#select-main').next().find('span').html();
+        $argsFile = $('#select-arg').next().find('span').html();
+        $.post('/{{project_name}}/simulation', // post to views.py
+                                {'label':$('#mLabel').val(),
+                                 'reason':$('#mReason').val(),
+                                 'tag':$('#mTag').val(),
+                                 'execut':$('#mExec').val(),
+                                 'main_file':$mainFile,
+                                 'args':$argsFile}, showjGrowl());
+        $('div.progress').animateBar('stop');
+    });
+});
+</script>
+{% endif %}
 {% endblock %}

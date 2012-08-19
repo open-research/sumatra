@@ -11,8 +11,9 @@ from services import DefaultTemplate, AjaxTemplate, ProjectUpdateForm, RecordUpd
 from sumatra.recordstore.django_store.models import Project, Tag, Record
 from sumatra.datastore import get_data_store, DataKey
 from sumatra.versioncontrol import get_working_copy
-from sumatra.commands import run
+from sumatra.commands import run, configure
 from sumatra.projects import load_project
+from sumatra.programs import Executable
 
 DEFAULT_MAX_DISPLAY_LENGTH = 10*1024
 mimetypes.init()
@@ -28,21 +29,20 @@ def list_records(request, project):
             return HttpResponse('search form is not valid')
     else:
         defTempOb = DefaultTemplate(project)
-        defTempOb.init_object_list() # object_list is used in record_list.html     
+        defTempOb.init_object_list() # object_list is used in record_list.html   
         return render_to_response('record_list.html', defTempOb.getDict())
 
 def list_projects(request):
-    projects = Project.objects.all()
-    if not len(projects):  # empty project: without any records inside
-        return list_detail.object_list(request, queryset=projects,
-                                       template_name="project_list.html",
-                                       extra_context={'active':'List of projects',
-                                                      'project_name':load_project().name}) #returns the first project
+    projects = Project.objects.all() 
+    extra_context={'active':'List of projects'}  #returns the first project
+    if not len(projects):  
+        extra_context['project_name'] = load_project().name
+        if not load_project().default_executable: # empty project: without any records inside
+            extra_context['show_modal'] = True    
     else:
-        return list_detail.object_list(request, queryset=projects,
-                                       template_name="project_list.html",
-                                       extra_context={'active':'List of projects',
-                                                      'project_name':projects[0]}) #returns the first project
+        extra_context['project_name'] = projects[0]
+    return list_detail.object_list(request, queryset=projects,
+                                   template_name="project_list.html",extra_context=extra_context)
 
 def show_project(request, project):
     project = Project.objects.get(id=project)
@@ -153,6 +153,14 @@ def delete_records(request, project):
     return HttpResponse('OK')
 
 def settings(request, project):
+    if request.POST.has_key('init_settings'):
+        executable = request.POST.get('executable')
+        try:
+            Executable(executable)._find_executable(executable)
+        except:
+            return HttpResponse('error')
+        configure(['--executable=%s' %executable])
+        return HttpResponse('OK')
     web_settings = {'display_density':request.POST.get('display_density', False),
                     'nb_records_per_page':request.POST.get('nb_records_per_page', False),
                     'hidden_cols': request.POST.getlist('hidden_cols[]')}
@@ -179,6 +187,7 @@ def run_sim(request, project):
         fow.close()
         return HttpResponse('ok')
     else: # run simulation
+        print 'Records: ', Records.objects().all()
         run_opt = {'--label': request.POST.get('label', False),
                    '--reason': request.POST.get('reason', False),
                    '--tag': request.POST.get('tag', False),
