@@ -34,6 +34,7 @@ function showjGrowl(){
               theme:  'danger',
               position:  'bottom-left'});
         }
+        if ($('div.progress').css('display') === 'block') $('div.progress').animateBar('stop');
     }
 };
 

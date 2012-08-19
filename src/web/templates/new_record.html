@@ -57,28 +57,7 @@
         <button id='btn_save' class='btn btn-success btn-large' style='width:150px; display: block ;margin-left: auto; margin-right: auto; margin-top:20px'>Save</button>
       </div>
 </div>
-<div class="progress progress-danger progress-striped active">
-  <div class="bar" style="width: 0%;"></div>
-</div>
 <script type = 'text/javascript'>
-$.fn.animateBar = function(option) {
-  if (option === 'start'){
-      $this = $(this);
-      $this.css('display', 'block');
-      $this.find('.bar').css('width', 0);
-      var i = 0,
-          interval;
-      interval = setInterval(function() {
-        w = i++;
-        $this.find('.bar').css('width', w + '%');
-        if ( w === 100 ) {
-          clearInterval( interval );
-        }
-      }, 25);
-  }else if (option === 'stop'){
-      $(this).css('display', 'none');
-  }
-};
 $(document).ready(function(){ 
     // new record window:
     $('#btn_newrec').live('click', function(){
@@ -104,8 +83,8 @@ $(document).ready(function(){
     // click on the new record button:
     $('#btn_run').click(function(){
         $('div.progress').animateBar('start');
-        $mainFile = $('#select-main').next().find('span').html();
-        $argsFile = $('#select-arg').next().find('span').html();
+        var $mainFile = $('#select-main').next().find('span').html();
+        var $argsFile = $('#select-arg').next().find('span').html();
         $('#main_content').load('/{{project_name}}/simulation', // post to views.py
                                 {'label':$('#mLabel').val(),
                                  'reason':$('#mReason').val(),
@@ -113,7 +92,6 @@ $(document).ready(function(){
                                  'execut':$('#mExec').val(),
                                  'main_file':$mainFile,
                                  'args':$argsFile}, showjGrowl());
-        $('div.progress').animateBar('stop');
     });
 
     // user change the state of 'argument' or 'main file' fields 

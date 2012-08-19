@@ -72,27 +72,37 @@ $(document).ready(function(){
 </script>
 {% else %}
 <div style='text-align: center;'>
-    <div style='font-size:40px; padding:10px 15px;'>You don't have any records yet</div>
+    <div style='font-size:40px; padding:50px 15px;'>You don't have any records yet</div>
     {% include "new_record.html" %}
-    <a id='btn_newrec' class='btn btn-danger btn-large' style='font-size:30px; width:30%; margin-top:10%'>
+    <a id='btn_newrec' class='btn btn-danger btn-large' style='font-size:30px; width:30%; margin-top:70px'>
         <i class="icon-file"></i> New record
     </a>
 </div> 
 <script type = 'text/javascript'>
+
 $(document).ready(function(){ 
     $('#btn_run').click(function(){
-        alert('hhfhh')
         $('div.progress').animateBar('start');
-        $mainFile = $('#select-main').next().find('span').html();
-        $argsFile = $('#select-arg').next().find('span').html();
-        $.post('/{{project_name}}/simulation', // post to views.py
-                                {'label':$('#mLabel').val(),
-                                 'reason':$('#mReason').val(),
-                                 'tag':$('#mTag').val(),
-                                 'execut':$('#mExec').val(),
-                                 'main_file':$mainFile,
-                                 'args':$argsFile}, showjGrowl());
-        $('div.progress').animateBar('stop');
+        var $mainFile = $('#select-main').next().find('span').html();
+        var $argsFile = $('#select-arg').next().find('span').html();
+        $.ajax({
+            type: 'POST',
+            url: '/{{project_name}}/simulation',
+            async: true,
+            data:  {'label':$('#mLabel').val(),
+                     'reason':$('#mReason').val(),
+                     'tag':$('#mTag').val(),
+                     'execut':$('#mExec').val(),
+                     'main_file':$mainFile,
+                     'args':$argsFile},
+            success: function(){
+                success = true;
+                $.jGrowl('Success',{
+                  theme:  'success',
+                  position:  'bottom-left'});
+                  window.open(document.URL, '_self');
+            }
+        });
     });
 });
 </script>

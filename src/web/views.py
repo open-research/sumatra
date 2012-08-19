@@ -186,8 +186,7 @@ def run_sim(request, project):
         fow.write(content)
         fow.close()
         return HttpResponse('ok')
-    else: # run simulation
-        print 'Records: ', Records.objects().all()
+    else: # run simulation 
         run_opt = {'--label': request.POST.get('label', False),
                    '--reason': request.POST.get('reason', False),
                    '--tag': request.POST.get('tag', False),
@@ -209,7 +208,10 @@ def run_sim(request, project):
         run(options_list)
         ajaxTempOb = AjaxTemplate(project)
         ajaxTempOb.init_object_list(1) # taking into consideration pagination
-        return render_to_response('content.html', ajaxTempOb.getDict())
+        if len(Record.objects.filter(project__id=project)) == 1:
+            return HttpResponse('OK')
+        else:
+            return render_to_response('content.html', ajaxTempOb.getDict())
 
 def show_file(request, project, label):
     if request.POST.has_key('show_args'): # retrieve the content of the input file
