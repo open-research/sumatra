@@ -12,6 +12,7 @@ from sumatra.recordstore.django_store.models import Project, Tag, Record
 from sumatra.datastore import get_data_store, DataKey
 from sumatra.versioncontrol import get_working_copy
 from sumatra.commands import run
+from sumatra.projects import load_project
 
 DEFAULT_MAX_DISPLAY_LENGTH = 10*1024
 mimetypes.init()
@@ -32,10 +33,16 @@ def list_records(request, project):
 
 def list_projects(request):
     projects = Project.objects.all()
-    return list_detail.object_list(request, queryset=projects,
-                                   template_name="project_list.html",
-                                   extra_context={'active':'List of projects',
-                                                  'project_name':projects[0]}) #returns the first project
+    if not len(projects):  # empty project: without any records inside
+        return list_detail.object_list(request, queryset=projects,
+                                       template_name="project_list.html",
+                                       extra_context={'active':'List of projects',
+                                                      'project_name':load_project().name}) #returns the first project
+    else:
+        return list_detail.object_list(request, queryset=projects,
+                                       template_name="project_list.html",
+                                       extra_context={'active':'List of projects',
+                                                      'project_name':projects[0]}) #returns the first project
 
 def show_project(request, project):
     project = Project.objects.get(id=project)

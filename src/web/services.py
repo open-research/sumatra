@@ -2,7 +2,6 @@ from django import forms
 from django.db.models import Q
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from sumatra.projects import load_project, init_websettings
-from sumatra.projects import init_websettings
 from sumatra.recordstore.django_store import models
 from time import strptime
 import datetime
@@ -48,7 +47,6 @@ class DefaultTemplate(object):
         self.sim_list = models.Record.objects.filter(project__id=project).order_by('-timestamp') # here project is the string
         self.files = os.listdir(os.getcwd())
         self.active = 'List of records'
-        #self.width = self.renderColWidth()
         self.path = self.project.default_executable.path
         self.tags = False # tags is not defined
 
@@ -61,22 +59,7 @@ class DefaultTemplate(object):
         except EmptyPage:         
             self.page_list = self.paginator.page(self.paginator.num_pages) # deliver last page of results
         self.object_list = self.page_list.object_list
-    '''
-    def renderColWidth(self):
-        #For calculating the width of the columns. These values will be send to .css
-        #Maybe it should rather be done using javascript?
-        rendered_width = {}
-        if self.settings['hidden_cols'] is not None:
-            nbCols_actual = self.nbCol - len(self.settings['hidden_cols'])
-        else:
-            nbCols_actual = self.nbCol
-        rendered_width['head'] = '%s%s' %(90.0/nbCols_actual, '%') # all columns except 'Label' since it should have bigger width
-        if (nbCols_actual > 10):
-            rendered_width['label'] = '150px'
-        else:
-            rendered_width['label'] = head_width
-        return rendered_width
-    '''
+
     def _init_settings(self, option='web'):
         '''Checking existence of the specific settings in .smt/project.
         In case it doesn't exist, it will be initialized with some default values

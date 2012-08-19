@@ -20,6 +20,40 @@
         </table>
     </div>
     {% else %}
-        <p class="warning"><strong>No projects found</strong></p>
+        <div id = 'div_listOfprojects'>
+            <table class="table table-bordered" >
+                <tr>
+                    <th>ID</th><th>Name</th><th>Description</th><th>Records</th>
+                </tr>
+                <tr class="{% cycle odd,even %}">
+                    <td><a href="/{{project_name}}/">{{project_name}}</a></td>
+                    <td>{{project_name}}</td>
+                    <td></td>
+                    <td>0</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Modal settings window -->
+        <div class="modal" id="initSettings">
+          <a class="close" data-dismiss="modal">&times;</a>
+          <div class="modal-header">
+                <h3>Please specify the settings for the new Sumatra project</h3>
+          </div>
+          <div class="modal-body" id='body-w-tags'>
+
+          </div>
+          <div class="modal-footer">
+                <a class="cancel btn" data-dismiss="modal">Cancel</a>
+                <a id="saveTags" class="btn btn-primary">Save</a>
+          </div>
+        </div><!-- end of modal settings window -->
+
+        <script type = 'text/javascript'>
+        $(document).ready(function(){ 
+            // loading of the settings modal window for the empty project:
+            $('#initSettings').modal({'show':true});
+        });
+</script>
     {% endif %}
 {% endblock %}
