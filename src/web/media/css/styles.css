@@ -1128,9 +1128,9 @@ span.label{
   left:0px;
   margin-top: 20px;
   top:0px;
-  bottom: 0px;
   margin-bottom: 20px;
-  max-height:100%;
+  bottom:10px;
+  overflow: hidden;
 }
 
 #compareSim .modal-header{

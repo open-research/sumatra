@@ -1,13 +1,18 @@
 {% extends "base.html" %}
 
-{% block title %}{{project_name}}: {{label}}: {{path}}{% endblock %}
-
-{% block header %}
-<h1>{{project_name}}: <i>{{label}}</i></h1>
-{% endblock %}
+<div id="pageHeader">
+    {% block header %}
+        {% include "header.html" %} 
+    {% endblock %}          
+</div>
 
 {% block content %}
-<p><a href=".">Return to record</a></p>
+    <div style = 'height:40px;'>
+        <div id='head-div' style='margin-left:0px'>
+       		<h2><a href="/{{project_name}}/" style='color:purple'>{{project_name}}</a> > 
+       			<a href="/{{project_name}}/{{label}}/">{{label}}</a></h2>
+    	</div>
+    </div>
 
 <h2>{{path}}</h2>
 

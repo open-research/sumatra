@@ -43,7 +43,23 @@ $(function() {
     $('.href_lab').on('click', function(e){
         e.stopPropagation();
         $(this).attr('href', window.location.pathname + $(this).html() + '/');
-    });  
+    });
+
+    // clicking on the tag name
+    $('#tag-t a').on('click', function(e){
+        e.stopPropagation();
+        obj = {};
+        obj['tags'] = $(this).html();
+         $.ajax({
+            type: 'POST',
+            url: 'tag/',
+            data: {search_input: obj},
+            success:function(data){
+                $('#main_content').html(data); // refresh the drop-down with the list of tags
+            }
+        });
+
+    });   
     
     $('.href_args').on('click', function(e){
         var label = $(this).parent().parent().find('#label-t a').html();

@@ -288,7 +288,7 @@ def show_file(request, project, label):
                 zf.close()
                 return render_to_response("show_file.html",
                                       {'path': path, 'label': label,
-                                       'content': "\n".join(contents)
+                                       'content': "\n".join(contents),'project_name': project
                                        })
             else:
                 raise IOError("Not a valid zip file")
