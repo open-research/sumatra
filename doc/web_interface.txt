@@ -53,9 +53,47 @@ will have nothing except the button. By clicking it the **new simulation** dialo
 You can specify **label**, **reason**, **tag**, **main file**, **arguments**, and **executable** there. The **executable**
 option will be already filled, however you can change it for any new record. **Main file** and **arguments** are
 drop-down lists with the names of the files from the folder of Sumatra project. As soon as the file is picked up from the
-list, you can see the content. More than that, the **argument** file is editable and the changes can be saved from this web page. You can hide and open the content of the files by clicking the corresponding links below the drop-down list.
+list, you can see their content. More than that, the **argument** file is editable and any changes you made can be saved from this web page. You can hide and open the content of the files by clicking the corresponding links below the drop-down list.
 
 .. figure:: /images/img3.png  
+ :scale: 70 %
+ :align: center
+
+After the successful execution of Sumatra the new record will be appended to the table at **List of records** web-page.
+
+Changing the web settings
+-------------------------
+Originally the page **List of records** contains a table with the following columns:
+	- Repository (name of the Sumatra project folder)
+	- Label
+	- Tag
+	- Reason
+	- Outcome
+	- Duration
+	- Processes
+	- Date (date of the record execution)
+	- Time
+	- Executable name
+	- Executable version
+	- Main file
+	- Version (ID name of the revision for the repository)
+	- Arguments
+**Important**: for now it is not possible to set the label name with the space inside it.
+
+The default value of the total number of records per one page is 10. You can change any settings concerning the table view the in the **Settings** window.
+
+.. figure:: /images/img4.png  
+ :scale: 70 %
+ :align: center
+
+List of records: content of the table
+----------------------------------------
+Each record is represented as the row in the table. The rows can be selected just by dragging the mouse over it. As soon as you start doing that, the header of the table will be changed and it will be containing actions you can perform with selected records. Among them you can:
+	- Set the tags for selected simulations
+	- Delete selected simulations
+	- Compare simulations with each other  
+
+.. figure:: /images/img5.png  
  :scale: 70 %
  :align: center
 
