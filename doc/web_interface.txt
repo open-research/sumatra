@@ -89,13 +89,59 @@ The default value of the total number of records per one page is 10. You can cha
 List of records: content of the table
 ----------------------------------------
 Each record is represented as the row in the table. The rows can be selected just by dragging the mouse over it. As soon as you start doing that, the header of the table will be changed and it will be containing actions you can perform with selected records. Among them you can:
-	- Set the tags for selected simulations
-	- Delete selected simulations
+	- Set the tags for the selected simulations
+	- Delete simulations
 	- Compare simulations with each other  
 
 .. figure:: /images/img5.png  
  :scale: 70 %
  :align: center
+
+**Removing the records**
+
+As an option you can remove the records with any data pertinent to that simulation.
+
+.. figure:: /images/img6.png  
+ :scale: 70 %
+ :align: center
+
+**Editing the tags**
+
+For the selected records you can specify additional tags, edit or remove them.
+
+**Important**: for now it is not possible to have the tag names which will contain space.
+
+.. figure:: /images/img7.png  
+ :scale: 67 %
+ :align: center
+
+**Comparison of records**
+
+From the set of selected records you can choose any two to compare them.
+
+.. figure:: /images/img8.png  
+ :scale: 70 %
+ :align: center
+
+**Retrieving the content of main file**
+
+You can see the code of your script file by clicking the corresponding link in the table. It will be shown in the modal draggable window.
+
+**Important**: for now this is working only for GIT and Mercurial repositories.
+
+.. figure:: /images/img9.png  
+ :scale: 70 %
+ :align: center
+
+Accessing records details
+-------------------------------------
+
+Filtering the records by the tag name
+-------------------------------------
+
+Search the records
+------------------
+
 
 For multiple projects
 ---------------------
