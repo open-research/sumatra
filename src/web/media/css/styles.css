@@ -880,6 +880,10 @@ h2.topic{
     float:left;
     width: 6.0%;
 }
+
+.head-item{
+  height:32px;
+}
  
 #l-label, #label-t{
     width: 200px; 
