@@ -32,7 +32,7 @@ web page the modal window will be displayed. In that window you should specify t
 which you intend to use:
 
 .. figure:: /images/img1.png  
- :scale: 70 %
+ :scale: 100 %
  :align: center
 
 Web interface is consisted from the three principal pages:
@@ -47,7 +47,7 @@ You can run Sumatra on **list of records** page and in case you have the empty p
 will have nothing except the button. By clicking it the **new simulation** dialog window will be opened.
 
 .. figure:: /images/img2.png  
- :scale: 70 %
+ :scale: 100 %
  :align: center
 
 You can specify **label**, **reason**, **tag**, **main file**, **arguments**, and **executable** there. The **executable**
@@ -56,7 +56,7 @@ drop-down lists with the names of the files from the folder of Sumatra project. 
 list, you can see their content. More than that, the **argument** file is editable and any changes you made can be saved from this web page. You can hide and open the content of the files by clicking the corresponding links below the drop-down list.
 
 .. figure:: /images/img3.png  
- :scale: 70 %
+ :scale: 90 %
  :align: center
 
 After the successful execution of Sumatra the new record will be appended to the table at **List of records** web-page.
@@ -125,7 +125,7 @@ From the set of selected records you can choose any two to compare them.
 
 **Retrieving the content of main file**
 
-You can see the code of your script file by clicking the corresponding link in the table. It will be shown in the modal draggable window.
+You can see the code of your script file by clicking the corresponding link in the table. It will be shown in the modal window which can be dragged.
 
 **Important**: for now this is working only for GIT and Mercurial repositories.
 
@@ -133,15 +133,46 @@ You can see the code of your script file by clicking the corresponding link in t
  :scale: 70 %
  :align: center
 
-Accessing records details
+Accessing record details
 -------------------------------------
+You can access the record detail by clicking the corresponding label name in the main table. Record detail page contains the following sections:
+	- general info
+	- input files
+	- output files
+	- parameters
+	- dependencies
+	- platform information
+	- Stdout & Stderr
 
 Filtering the records by the tag name
 -------------------------------------
+Records can be filtered using the tags by clicking the 'tag' button positioned at the header of the page.
 
-Search the records
-------------------
+.. figure:: /images/img10.png  
+ :scale: 70 %
+ :align: center
 
+Filtering the records
+---------------------
+You can filter the records using the search form. This form contains the following items:
+	- label
+	- tags
+	- reason
+	- executable
+	- repository
+	- main file
+	- date
+	- variable name
+	- interval of dates
+
+**Important**: 
+Search using the input textarea at the header of the page currently does not work, please use instead the search form.
+
+.. figure:: /images/img11.png  
+ :scale: 70 %
+ :align: center
+
+Search by **variable name** allows filtering the records using the name of parameter. If for each new simulation you have different parameter set, this feature can be useful for narrowing the set of possible records.   
 
 For multiple projects
 ---------------------

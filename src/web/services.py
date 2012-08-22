@@ -33,7 +33,7 @@ class RecordForm(SearchForm):
     class Meta:
         model = models.Record
         fields = ('label', 'tags', 'reason', 'executable', 'repository',
-                  'main_file', 'script_arguments', 'timestamp', 'variable_name')
+                  'main_file', 'timestamp', 'variable_name')
 
 class DefaultTemplate(object):
     ''' Default template is the record_list.html. This class will be invoked each time user opens
