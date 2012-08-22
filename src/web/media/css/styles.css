@@ -882,12 +882,16 @@ h2.topic{
 }
 
 .head-item{
-  height:32px;
+  height:20px;
 }
  
 #l-label, #label-t{
     width: 200px; 
     cursor: pointer; 
+}
+
+#l-ename, #l-eversion, #l-main{
+  margin-top: 0px;
 }
  
 .t-item{
