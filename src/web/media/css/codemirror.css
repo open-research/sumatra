@@ -5,7 +5,7 @@
   position: relative;
   /* This prevents unwanted scrollbars from showing up on the body and wrapper in IE. */
   overflow-x: hidden;
-  overflow-y: scroll;
+  overflow-y: hidden;
   width:400px;
   background-color: #202020;
   -webkit-box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);

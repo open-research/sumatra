@@ -94,9 +94,9 @@
         <div class='row-item' id='repository-t'><span class="span-box">{{record.repository.url|cut:"repo"}}</span></div>
         <div class='row-item' id='label-t'><a class='href_lab' href='#'>{{record.label}}</a></div>
         {% if tag %}
-            <div class='row-item' id='tag-t'>{% for other_tag in record.tag_objects %}{% if tag == other_tag %}{{tag}} {% else %}<a href="#">{{other_tag.name}}</a> {% endif %}{% endfor %}</div>
+            <div class='row-item' id='tag-t'>{% for other_tag in record.tag_objects %}{% if tag == other_tag %}{{tag}} {% else %}<a href="#">{{other_tag.name}}</a>{% endif %}{% endfor %}</div>
         {% else %}
-            <div class='row-item' id='tag-t'><a href="#">{{record.tags}}</a></div>
+            <div class='row-item' id='tag-t'>{% for tag in record.tag_objects %}<a href="#">{{tag}}</a>, {% endfor %}</div>
         {% endif %}
         <div class='row-item' id='reason-t'>{{record.reason}}</div>
         <div class='row-item' id='outcome-t'>{{record.outcome}}</div>

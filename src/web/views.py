@@ -4,7 +4,7 @@ Defines view functions and forms for the Sumatra web interface.
 import os
 import mimetypes
 import csv
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response
 from django.views.generic import list_detail
 from services import DefaultTemplate, AjaxTemplate, ProjectUpdateForm, RecordUpdateForm, unescape
@@ -204,7 +204,7 @@ def run_sim(request, project):
                         executable = executable.split('.')[0]
                     options_list.append('='.join(['--executable', executable]))
                 else:
-                    options_list.append('='.join([key, item])) 
+                    options_list.append('='.join([key, item]))
         run(options_list)
         ajaxTempOb = AjaxTemplate(project)
         ajaxTempOb.init_object_list(1) # taking into consideration pagination
@@ -275,7 +275,7 @@ def show_file(request, project, label):
                                        'content': content,
                                        'truncated': truncated,
                                        })
-        elif mimetype in ("image/png", "image/jpeg", "image/gif"): # need to check digests match
+        elif mimetype in ("image/png", "image/jpeg", "image/gif", "image/x-png"): # need to check digests match
             return render_to_response("show_image.html",
                                       {'path': path, 'label': label,
                                        'digest': digest,
