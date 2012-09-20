@@ -28,7 +28,7 @@ import subprocess
 import sys
 
 version_pattern = re.compile(r'\b(?P<version>\d[\.\d]*([a-z]*\d)*)\b')
-
+version_pattern_matlab = re.compile(r'(?<=Version: )(?P<version>\d.+)\b')
 
 class Executable(object):
     # store compilation/configuration options? yes, if we can determine them
@@ -75,10 +75,15 @@ class Executable(object):
                 print 'Multiple versions found, using %s. If you wish to use a different version, please specify it explicitly' % executable
         return executable
 
-    def _get_version(self):
-        p = subprocess.Popen("%s --version" % self.path, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
-        returncode = p.wait()
-        match = version_pattern.search(p.stdout.read())
+    def _get_version(self):  
+        if 'matlab' in self.path.lower():
+            p = subprocess.Popen("matlab -h", stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+            returncode = p.wait()
+            match = version_pattern_matlab.search(p.stdout.read())
+        else:    
+            p = subprocess.Popen("%s --version" % self.path, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+            returncode = p.wait()
+            match = version_pattern.search(p.stdout.read())
         if match:
             version = match.groupdict()['version']
         else:
@@ -191,6 +196,5 @@ def get_executable(path=None, script_file=None):
         else:
             raise Exception("Extension not recognized.")
     else:
-        raise Exception('Either path or script_file must be specified')
-        
+        raise Exception('Either path or script_file must be specified')  
     return program

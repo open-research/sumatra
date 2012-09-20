@@ -29,7 +29,6 @@ def find_dependencies(filename, executable):
        language."""
     print 'executable.name %s' %executable.name
     if (executable.name) == u"matlab.exe":
-        print 'here'
         pass
     elif str.lower(executable.name) == "python":
         return python.find_dependencies(filename, executable)
