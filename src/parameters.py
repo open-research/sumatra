@@ -63,6 +63,7 @@ class SimpleParameterSet(object):
                 self.values[name] = value
                 self.types[name] = type(value)
         else:
+            #import pdb; pdb.set_trace()
             if os.path.exists(initialiser):
                 with open(initialiser) as f:
                     content = f.readlines()
@@ -77,7 +78,10 @@ class SimpleParameterSet(object):
                     if "#" in value:
                         value, comment = value.split("#")[:2]
                         self.comments[name] = comment
-                    self.values[name] = eval(value)
+                    try:
+                        self.values[name] = eval(value)
+                    except SyntaxError:
+                        self.values[name] = value
                     self.types[name] = type(self.values[name])
                 elif line:
                     if line.strip()[0] == "#":

@@ -14,7 +14,6 @@ Project - stores information about a computational project, and enables
 
 Functions
 ---------
-169
 load_project() - read project information from the working directory and return
                  a Project object.
 """
@@ -152,6 +151,7 @@ class Project(object):
         record = self.new_record(parameters, input_data, script_args,
                                  executable, repository, main_file, version,
                                  launch_mode, label, reason)
+        # import pdb;pdb.set_trace()
         record.run(with_label=self.data_label)
         self.add_record(record)
         self.save()

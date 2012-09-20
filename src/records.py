@@ -110,6 +110,7 @@ class Record(object):
             script_arguments = script_arguments.replace("<parameters>", parameter_file)
         # Run simulation/analysis
         start_time = time.time()
+        #import pdb;pdb.set_trace()
         result = self.launch_mode.run(self.executable, self.main_file,
                                       script_arguments, data_label)
         self.duration = time.time() - start_time
@@ -123,10 +124,11 @@ class Record(object):
         except:
             self.stdout_stderr = "Not available."
         # Run post-processing scripts
-        pass # skip this if there is an error
+        # pass # skip this if there is an error
         # Search for newly-created datafiles
         if self.parameters and os.path.exists(parameter_file):
-            os.remove(parameter_file)
+            # pass
+            os.remove(parameter_file) # matlab: it removes before Matlab starts (?)
         self.output_data = self.datastore.find_new_data(self.timestamp)
         if self.output_data:
             print "Data keys are", self.output_data
