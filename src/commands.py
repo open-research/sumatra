@@ -266,7 +266,6 @@ def run(argv):
     (options, args) = parser.parse_args(argv)
     
     project = load_project()
-    # import pdb; pdb.set_trace()
     parameters, input_data, script_args = parse_arguments(args, project.input_datastore)
     if len(parameters) == 0:
         parameters = {}

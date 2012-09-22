@@ -63,7 +63,6 @@ class SimpleParameterSet(object):
                 self.values[name] = value
                 self.types[name] = type(value)
         else:
-            #import pdb; pdb.set_trace()
             if os.path.exists(initialiser):
                 with open(initialiser) as f:
                     content = f.readlines()
@@ -121,14 +120,22 @@ class SimpleParameterSet(object):
                     not used.
         """
         output = []
+        exec_python = True # as a default Python is the executable
+        from projects import load_project
+        prj = load_project()
+        if 'matlab' in prj.default_executable.path.lower():
+            exec_python = False
         for name, value in self.values.items():
             type = self.types[name]
-            if issubclass(type, basestring):
-                output.append('%s = "%s"' % (name, value))
-            else:
+            if exec_python:
+                if issubclass(type, basestring):
+                    output.append('%s = "%s"' % (name, value))
+                else:
+                    output.append('%s = %s' % (name, value))
+                if name in self.comments:
+                    output[-1] += ' #%s' % self.comments[name]
+            else: # if it isn't Python we will always have type = string (see SimpleParameterSet() SyntaxError)
                 output.append('%s = %s' % (name, value))
-            if name in self.comments:
-                output[-1] += ' #%s' % self.comments[name]
         return "\n".join(output)
 
     def as_dict(self):

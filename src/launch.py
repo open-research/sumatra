@@ -84,28 +84,17 @@ class LaunchMode(object):
         False otherwise.
         """
         cmd = self.generate_command(executable, main_file, arguments)
-        import pdb;pdb.set_trace()
+        #import pdb;pdb.set_trace()
         if append_label:
             cmd += " " + append_label
         print "Sumatra is running the following command:", cmd
-        #p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True)
-
-        #p = subprocess.Popen(cmd , shell=True, stdout=None, stderr=None, close_fds=True)
-        #result = p.wait()
-        #self.errors = p.stderr.read()
-        #self.output = p.stdout.read()
-        #sys.stdout.write(self.output)
-        #sys.stderr.write(self.errors)
         if 'matlab' in executable.name.lower():   
             mat_args = cmd.split('-r ')[-1]
-            # import pdb;pdb.set_trace()
-            # p = subprocess.Popen(['matlab','-nodesktop', '-r', mat_args], shell=True)
             p = subprocess.Popen(['matlab','-nodesktop', '-nosplash', '-nojvm', ' -nodisplay', '-wait', '-r', mat_args], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
             result = p.wait()
             output = p.stdout.read()            
-        else:    
+        else:
             result, output = tee.system2(cmd, stdout=True)
-        # import pdb;pdb.set_trace()
         self.stdout_stderr = "".join(output)
 
         if result == 0:
