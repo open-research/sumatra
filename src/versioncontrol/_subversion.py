@@ -18,6 +18,8 @@ get_repository()        - return a SubversionRepository object for a given URL.
 
 import pysvn
 import os
+import tempfile
+import shutil
 
 from base import Repository, WorkingCopy, VersionControlError
 
@@ -75,8 +77,11 @@ class SubversionWorkingCopy(WorkingCopy):
     
     def diff(self):
         """Difference between working copy and repository."""
-        return self.repository._client.diff('./tmp-', self.path)
-    
+        tmpdir = tempfile.mkdtemp()
+        result = self.repository._client.diff(tmpdir, self.path)
+        shutil.rmtree(tmpdir)
+        return result
+
 
 class SubversionRepository(Repository):
     
