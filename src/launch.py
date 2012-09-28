@@ -84,13 +84,13 @@ class LaunchMode(object):
         False otherwise.
         """
         cmd = self.generate_command(executable, main_file, arguments)
-        #import pdb;pdb.set_trace()
         if append_label:
             cmd += " " + append_label
-        print "Sumatra is running the following command:", cmd
         if 'matlab' in executable.name.lower():   
             mat_args = cmd.split('-r ')[-1]
-            p = subprocess.Popen(['matlab','-nodesktop', '-nosplash', '-nojvm', ' -nodisplay', '-wait', '-r', mat_args], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+            file_dep = "depfun %s -toponly -print depfun.data;" %main_file # write all dependencies to a file
+            cmd = "%s %s; quit" %(file_dep, mat_args)
+            p = subprocess.Popen(['matlab','-nodesktop', '-nosplash', '-nojvm', ' -nodisplay', '-wait', '-r', cmd], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)    
             result = p.wait()
             output = p.stdout.read()            
         else:
