@@ -69,7 +69,7 @@ class HttpRecordStore(RecordStore):
         response, content = self.client.request(self.server_url)
         if response.status != 200:
             raise Exception("Error in accessing %s\n%s: %s" % (self.server_url, response.status, content))
-        return serialization.decode_project_list(content)
+        return [entry['id'] for entry in serialization.decode_project_list(content)]
 
     def create_project(self, project_name):
         url = "%s%s/" % (self.server_url, project_name)
