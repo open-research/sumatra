@@ -69,7 +69,10 @@ class SimpleParameterSet(object):
                     if "#" in value:
                         value, comment = value.split("#")[:2]
                         self.comments[name] = comment
-                    self.values[name] = eval(value)
+                    try:
+                        self.values[name] = eval(value)
+                    except NameError:
+                        self.values[name] = unicode(value)
                     self.types[name] = type(self.values[name])
                 elif line:
                     if line.strip()[0] == "#":
