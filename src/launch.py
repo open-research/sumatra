@@ -16,6 +16,7 @@ import subprocess
 import os
 import sys
 from sumatra.programs import Executable
+from sumatra.dependency_finder.matlab import save_dependencies
 import warnings
 import cmd
 import tempfile
@@ -86,17 +87,13 @@ class LaunchMode(object):
         cmd = self.generate_command(executable, main_file, arguments)
         if append_label:
             cmd += " " + append_label
-        if 'matlab' in executable.name.lower():   
-            mat_args = cmd.split('-r ')[-1]
-            file_dep = "depfun %s -toponly -print depfun.data;" %main_file # write all dependencies to a file
-            cmd = "%s %s; quit" %(file_dep, mat_args)
-            p = subprocess.Popen(['matlab','-nodesktop', '-nosplash', '-nojvm', ' -nodisplay', '-wait', '-r', cmd], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)    
-            result = p.wait()
-            output = p.stdout.read()            
+        if 'matlab' in executable.name.lower():  
+            ''' we will be executing Matlab and at the same time saving the
+            dependencies in order to avoid opening of Matlab shell two times '''
+            result, output = save_dependencies(cmd, main_file)       
         else:
             result, output = tee.system2(cmd, stdout=True)
         self.stdout_stderr = "".join(output)
-
         if result == 0:
             return True
         else:

@@ -135,13 +135,13 @@ class Project(object):
             launch_mode = deepcopy(self.default_launch_mode)
         working_copy = repository.get_working_copy()
         version, diff = self.update_code(working_copy, version)
-        
         record = Record(executable, repository, main_file, version, launch_mode,
                         self.data_store, parameters, input_data, script_args, 
                         label=label, reason=reason, diff=diff,
                         on_changed=self.on_changed,
                         input_datastore=self.input_datastore)
-        record.register(working_copy)
+        if 'matlab' not in executable.name.lower():
+            record.register(working_copy)
         return record
     
     def launch(self, parameters={}, input_data=[], script_args="",
@@ -150,9 +150,10 @@ class Project(object):
         """Launch a new simulation or analysis."""
         record = self.new_record(parameters, input_data, script_args,
                                  executable, repository, main_file, version,
-                                 launch_mode, label, reason)
-        # import pdb;pdb.set_trace()
+                                 launch_mode, label, reason) 
         record.run(with_label=self.data_label)
+        if 'matlab' in record.executable.name.lower():
+            record.register(record.repository.get_working_copy())
         self.add_record(record)
         self.save()
         return record.label

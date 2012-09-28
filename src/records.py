@@ -70,7 +70,6 @@ class Record(object):
         if self.main_file is None:
             raise MissingInformationError("main script file not specified")
         if len(self.main_file.split()) == 1: # this assumes filenames cannot contain spaces
-            print 'self.main_file %s' %self.executable
             self.dependencies = dependency_finder.find_dependencies(self.main_file, self.executable)
         else: # if self.main_file contains multiple file names
             # this seems a bit hacky. Should perhaps store a list self.main_files, _and_ check that all files exist.
@@ -105,12 +104,11 @@ class Record(object):
         # Write the executable-specific parameter file
         script_arguments = self.script_arguments
         if self.parameters:
-            parameter_file = "%s.param" % self.label.replace("/", "_")
-            self.executable.write_parameters(self.parameters, parameter_file)
-            script_arguments = script_arguments.replace("<parameters>", parameter_file)
+            self.parameter_file = "%s.param" % self.label.replace("/", "_")
+            self.executable.write_parameters(self.parameters, self.parameter_file)
+            script_arguments = script_arguments.replace("<parameters>", self.parameter_file)
         # Run simulation/analysis
         start_time = time.time()
-        #import pdb;pdb.set_trace()
         result = self.launch_mode.run(self.executable, self.main_file,
                                       script_arguments, data_label)
         self.duration = time.time() - start_time
@@ -126,14 +124,14 @@ class Record(object):
         # Run post-processing scripts
         # pass # skip this if there is an error
         # Search for newly-created datafiles
-        if self.parameters and os.path.exists(parameter_file):
-            # pass
-            os.remove(parameter_file) # matlab: it removes before Matlab starts (?)
         self.output_data = self.datastore.find_new_data(self.timestamp)
         if self.output_data:
             print "Data keys are", self.output_data
         else:
             print "No data produced."
+        if self.parameters and os.path.exists(self.parameter_file):
+            time.sleep(0.5) # execution of matlab: parameter_file is not always deleted immediately
+            os.remove(self.parameter_file)
     
     def __repr__(self):
         return "Record #%s" % self.label
