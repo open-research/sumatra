@@ -8,6 +8,15 @@ register = template.Library()
 
 @register.filter
 @stringfilter
+def cut(text, type):
+    if type == 'repo':
+        text_out = '\\'.join(text.split('\\')[-2:])
+    elif type == 'vers':
+        text_out = ''.join([text[:5], '...'])
+    return mark_safe(text_out)
+    
+@register.filter
+@stringfilter
 def link(text, url):
     tags = parse_tag_input(text)
     template = '<a href="%s">%%s</a>' % url

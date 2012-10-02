@@ -23,6 +23,10 @@ urlpatterns = patterns('sumatra.web.views',
     (r'^%(project)s/%(label)s/download$' % P, 'download_file'),
     (r'^%(project)s/%(label)s/image$' % P, 'show_image'),
     (r'^%(project)s/%(label)s/diff/(?P<package>[\w_]+)*$' % P, 'show_diff'),
+    (r'^%(project)s/simulation$' % P, 'run_sim'),
+    (r'^%(project)s/settings$' % P, 'settings'), 
+    (r'^%(project)s/search$' % P, 'search'),
+    (r'^%(project)s/settags$' % P, 'set_tags'),  
 )
 
 urlpatterns += patterns('',

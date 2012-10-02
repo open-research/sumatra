@@ -6,16 +6,61 @@ from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response
 from django.views.generic import list_detail
 from django import forms
+from django.utils import simplejson
+from django.db.models import Q
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger 
 from tagging.views import tagged_object_list
 from sumatra.recordstore.django_store import models
 from sumatra.datastore import get_data_store, DataKey
+from sumatra.commands import run
+from sumatra.web.templatetags import filters
+from sumatra.web.template import render_block_to_string
+from sumatra.projects import load_project, init_websettings
+from datetime import date
 import mimetypes
 mimetypes.init()
 import csv
 import os
 
-RECORDS_PER_PAGE = 10
+RECORDS_PER_PAGE = 50
 
+class SearchForm(forms.ModelForm):
+    ''' this class will be inherited after. It is for changing the 
+    requirement properties for any field in the search form'''
+    def __init__(self, *args, **kwargs):
+        super(SearchForm, self).__init__(*args, **kwargs)
+        for key, field in self.fields.iteritems():
+            self.fields[key].required = False
+            
+class RecordForm(SearchForm):
+    class Meta:
+        model = models.Record
+        fields = ('label', 'tags', 'reason')
+    
+def search(request, project):
+    if request.method == 'GET':
+        web_settings = load_project().web_settings
+        nb_per_page = int(load_project().web_settings['nb_records_per_page'])
+        form = RecordForm(request.GET) 
+        if form.is_valid():
+            labels_list = {}
+            request_data = form.cleaned_data
+            for key, val in request_data.iteritems():
+                labels_list[key] = [x.strip() for x in val.split(',')] 
+            results =  models.Record.objects.filter(reduce(lambda x, y: x | y, [Q(label__icontains = word) for word in labels_list['label']]),
+                                                    reduce(lambda x, y: x | y, [Q(tags__icontains = word) for word in labels_list['tags']]),
+                                                    reduce(lambda x, y: x | y, [Q(reason__icontains = word) for word in labels_list['reason']]))
+            return list_detail.object_list(request,
+                                       queryset=results,
+                                       template_name="record_list.html",
+                                       paginate_by=nb_per_page,
+                                       extra_context={
+                                        'project_name': project,
+                                        'form': form,
+                                        'records_per_page': nb_per_page,
+                                        'settings': web_settings,
+                                        'query_string': request.META['QUERY_STRING'].split('&page')[0]}) 
+    
 def unescape(label):
     return label.replace("||", "/")
 
@@ -52,22 +97,39 @@ def show_project(request, project):
         form = ProjectUpdateForm(instance=project)
     return render_to_response('project_detail.html',
                               {'project': project, 'form': form})
-   
+
 def list_records(request, project):
-    search_form = TagSearch()
-    try:
-        records_per_page = int(request.GET.get("per_page", RECORDS_PER_PAGE))
-        assert records_per_page > 0
-    except (ValueError, AssertionError):
-        records_per_page = RECORDS_PER_PAGE
-    return list_detail.object_list(request,
-                                   queryset=models.Record.objects.filter(project__id=project).order_by('-timestamp'),
-                                   template_name="record_list.html",
-                                   paginate_by=records_per_page,
-                                   extra_context={
-                                    'project_name': project,
-                                    'search_form': search_form,
-                                    'records_per_page': records_per_page})  
+    form = RecordForm()  
+    sim_list = models.Record.objects.filter(project__id=project).order_by('-timestamp')
+    web_settings = load_project().web_settings
+    nb_per_page = int(web_settings['nb_records_per_page'])
+    paginator = Paginator(sim_list, nb_per_page)
+    if request.is_ajax():
+        page = request.POST.get('page', False)     
+        try:
+            page_list = paginator.page(page)
+        except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+            page_list = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+            page_list = paginator.page(paginator.num_pages)
+        dic = {'project_name': project,
+               'form': form,
+               'settings':web_settings,
+               'paginator':paginator,
+               'object_list':page_list.object_list,
+               'page_list':page_list}
+        return render_to_response('content.html', dic)
+    else:
+        page_list = paginator.page(1)
+        dic = {'project_name': project,
+               'form': form,
+               'settings':web_settings,
+               'object_list':page_list.object_list,
+               'page_list':page_list,
+               'paginator':paginator}
+        return render_to_response('record_list.html', dic)
 
 def list_tagged_records(request, project, tag):
     queryset = models.Record.objects.filter(project__id=project)
@@ -75,7 +137,19 @@ def list_tagged_records(request, project, tag):
                               tag=tag,
                               queryset_or_model=queryset,
                               template_name="record_list.html",
-                              extra_context={ 'project_name': project })
+                              extra_context={'project_name': project })
+
+def set_tags(request, project):
+    records_to_settags = request.POST.get('selected_labels', False)
+    if records_to_settags: # case of submit request
+        records_to_settags = records_to_settags.split(',')
+        records = models.Record.objects.filter(label__in=records_to_settags, project__id=project)
+        for record in records:
+            form = RecordUpdateForm(request.POST, instance=record)
+            if form.is_valid():
+                form.save()
+        return HttpResponseRedirect('.')
+    return render_to_response('set_tag.html', {'form':form})
 
 def record_detail(request, project, label):
     label = unescape(label)
@@ -84,7 +158,7 @@ def record_detail(request, project, label):
     if request.method == 'POST':
         if request.POST.has_key('delete'):
             record.delete() # need to add option to delete data
-            return HttpResponseRedirect('/')
+            return HttpResponseRedirect('.')
         else:
             form = RecordUpdateForm(request.POST, instance=record)
             if form.is_valid():
@@ -102,17 +176,18 @@ def record_detail(request, project, label):
                                                      })
 
 def delete_records(request, project):
-    records_to_delete = request.POST.getlist('delete')
-    delete_data = 'delete_data' in request.POST
+    records_to_delete = request.POST.getlist('delete[]')
+    #delete_data = 'delete_data' in request.POST
+    delete_data = request.POST.get('delete_data', False)
     records = models.Record.objects.filter(label__in=records_to_delete, project__id=project)
     for record in records:
         if delete_data:
             datastore = record.datastore.to_sumatra()
             datastore.delete(*[data_key.to_sumatra()
                                for data_key in record.output_data.all()])
-        record.delete()
-    return HttpResponseRedirect('/')  
 
+        record.delete()
+    return HttpResponse('')  
 
 def list_tags(request, project):
     tags = {
@@ -125,11 +200,32 @@ def list_tags(request, project):
 DEFAULT_MAX_DISPLAY_LENGTH = 10*1024
 
 def show_file(request, project, label):
+    show_script = request.GET.get('show_script', False)
+    digest = request.GET.get('digest', False)
+    path = request.GET.get('path', False)
+    if show_script: # record_list.html: user click the main file cell    
+        try:
+            from git import Repo
+        except:
+            return HttpResponse('I can\t show you the content. Only GIT is supported by now...')
+        repo = Repo(path)
+        for item in repo.iter_commits('master'):
+            if item.hexsha == digest:
+                file_content = item.tree.blobs[0].data_stream.read()
+                return HttpResponse(file_content)
+        return HttpResponse('Sorry, I can\t show you the content. Some bug somewhere...')
+  
+'''
+def show_file(request, project, label):
+    print 'here fd'
     label = unescape(label)
     path = request.GET['path']
     digest = request.GET['digest']
     type = request.GET.get('type', 'output')
+    show_script = request.GET.get('show_script', False)
     data_key = DataKey(path, digest)
+    if show_script: # record_list.html: user click the main file cell
+        print 'digest: %s' %digest
     if 'truncate' in request.GET:
         if request.GET['truncate'].lower() == 'false':
             max_display_length = None
@@ -181,18 +277,18 @@ def show_file(request, project, label):
                                       {'path': path, 'label': label,
                                        'digest': digest,
                                        'project_name': project,})
-        #elif mimetype == 'application/zip':
-        #    import zipfile
-        #    if zipfile.is_zipfile(path):
-        #        zf = zipfile.ZipFile(path, 'r')
-        #        contents = zf.namelist()
-        #        zf.close()
-        #        return render_to_response("show_file.html",
-        #                              {'path': path, 'label': label,
-        #                               'content': "\n".join(contents)
-        #                               })
-        #    else:
-        #        raise IOError("Not a valid zip file")
+        elif mimetype == 'application/zip':
+            import zipfile
+            if zipfile.is_zipfile(path):
+                zf = zipfile.ZipFile(path, 'r')
+                contents = zf.namelist()
+                zf.close()
+                return render_to_response("show_file.html",
+                                      {'path': path, 'label': label,
+                                       'content': "\n".join(contents)
+                                       })
+            else:
+                raise IOError("Not a valid zip file")
         else:
             return render_to_response("show_file.html", {'path': path, 'label': label,
                                                          'project_name': project,
@@ -202,7 +298,7 @@ def show_file(request, project, label):
                                                      'project_name': project,
                                                      'content': "File not found.",
                                                      'errmsg': e})
-
+'''
 def download_file(request, project, label):
     label = unescape(label)
     path = request.GET['path']
@@ -254,4 +350,93 @@ def show_diff(request, project, label, package):
                                                  'package': package,
                                                  'parent_version': dependency.version,
                                                  'diff': dependency.diff})
-    
+                                                 
+def run_sim(request, project):   
+    run_opt = {'--label': request.POST.get('label', False),
+               '--reason': request.POST.get('reason', False),
+               '--tag': request.POST.get('tag', False),
+               'exec': request.POST.get('execut', False),
+               '--main': request.POST.get('main_file', False),
+               'args': request.POST.get('args', False)
+              }
+    options_list = []
+    for key, item in run_opt.iteritems():
+        if item:
+            if key == 'args':
+                options_list.append(item)
+            elif key == 'exec':
+                executable = str(os.path.basename(item))
+                if '.exe' in executable:
+                    executable = executable.split('.')[0]
+                options_list.append('='.join(['--executable', executable]))
+            else:
+                options_list.append('='.join([key, item])) 
+    run(options_list)
+    record = models.Record.objects.order_by('-db_id')[0]
+    if not(len(record.launch_mode.get_parameters())):
+        nbproc = 1
+    repo_short = short_repo(record.repository.url)
+    version_short = short_version(record.version)
+    timestamp = record.timestamp
+    date = timestamp.strftime("%d/%m/%Y")
+    time = timestamp.strftime("%H:%M:%S")
+    to_sumatra = {'Label-t':record.label,
+                  'Tag-t':record.tags,
+                  'Reason-t':record.reason,
+                  'Outcome-t':record.outcome,
+                  'Duration-t':filters.human_readable_duration(record.duration),
+                  'Processes-t':nbproc,
+                  'Name-t':record.executable.name,
+                  'Version-t':record.executable.version,
+                  'Repository-t':repo_short,
+                  'Main_file-t':record.main_file,
+                  'S-Version-t':version_short,
+                  'Arguments-t':record.script_arguments,
+                  'Date-t':date,
+                  'Time-t':time}
+    return HttpResponse(simplejson.dumps(to_sumatra))
+                                    
+def settings(request, project):
+    ''' Only one of the following parameter can be True
+    web_settings['saveSettings'] == True: save the settings in .smt/project
+    web_settings['web'] == True: send project.web_settings to record_list.html
+    web_settings['sumatra'] = True: send some spacific settings to record_list.html (they will
+    be used in the popup window for the new record as the default values
+    '''
+    web_settings = {'display_density':request.POST.get('display_density', False),
+                    'nb_records_per_page':request.POST.get('nb_records_per_page', False),
+                    'cols_span_script':request.POST.get('cols_span_script', False),
+                    'cols_span_execut':request.POST.get('cols_span_execut', False),
+                    'table_HideColumns': request.POST.getlist('table_HideColumns[]'),
+                    'saveSettings':request.POST.get('saveSettings', False), 
+                    'web':request.POST.get('web', False), 
+                    'sumatra':request.POST.get('sumatra', False) 
+                    }
+    project = load_project() 
+    if web_settings['saveSettings']:
+        del web_settings['saveSettings']
+        if len(web_settings['table_HideColumns']) == 0:  # empty set (all checkboxes are checked)
+            project.web_settings['table_HideColumns'] = None
+        try:
+            project.web_settings
+        except(AttributeError, KeyError): # project doesn't have web_settings yet
+            # upgrading of .smt/project: new supplementary settings entries
+            project.web_settings = init_websettings()   
+        for key, item in web_settings.iteritems():
+            if item:
+                project.web_settings[key] = item
+        project.save()
+        return HttpResponse('')
+    elif web_settings['web']: 
+        return HttpResponse(simplejson.dumps(project.web_settings))
+    elif web_settings['sumatra']:
+        settings = {'execut':project.default_executable.path,
+                    'mfile':project.default_main_file}
+        return HttpResponse(simplejson.dumps(settings))
+
+def short_repo(url_repo):
+    return '%s\%s' %(url_repo.split('\\')[-2], 
+                     url_repo.split('\\')[-1])
+                     
+def short_version(version_name):
+    return '%s...' %(version_name[:5])

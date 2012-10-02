@@ -1,7 +1,0 @@
-The icons in this folder are from the Tango icons set, and have all been
-released into the public domain.
-
-see:
-    
-http://commons.wikimedia.org/wiki/File:Go-next.svg
-http://commons.wikimedia.org/wiki/File:Go-previous.svg

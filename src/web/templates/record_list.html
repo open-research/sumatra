@@ -1,80 +1,546 @@
 {% extends "base.html" %}
+
 {% load filters %}
 
-{% block title %}{{project_name}}: List of records{% if tag %} tagged with {{tag}}{% endif %}{% endblock %}
+{% block header %}
+<div id='wrapper_code'></div>
+<div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">         
+            <!--div id='sumatra_logo'><a href="http://neuralensemble.org/trac/sumatra">
+            <img src='/media/Sumatra_logo.png'/></a></div-->         
+                <ul class='nav'>
+                    <li class="divider"></li>
+                    <li><a href='/{{project_name}}/about/' class='a-subnav'>About</a></li> 
+                    <li><a href='/' class='a-subnav'>List of projects</a></li>
+                    <li class='active'><a href='/{{project_name}}/' class='a-subnav'>List of records</a></li> 
+                    <div id = 'div_menu_search' style='float:right'>
+                    <input class='span5' type='text' id="text_subnav" placeholder='Search' value='{{search_info.label}}'/> 
+                        <span id='icon_cdown'><i class="icon-chevron-down" style='font-size:10pt; padding-top:3px;'></i></span>     
+                        <a class='btn btn-info btn-large' id='btn_search'><i class="icon-search">
+                        </i>&nbsp; Search
+                        </a>         
+                           <ul class="dropdown-menu" id = 'menu_search'>      
+                                <a class="close" id='close_menu'>&times;</a> 
+                                <form id='search_form' action='/{{project_name}}/search' method='GET'>
+                                    {{form.as_p}}
+                                </form>
+                                <div>
+                                    <a id='search_but' class='btn btn-info btn-large' style='padding: 5px 15px;margin-left:10px;color:#ffffff;margin-right:10px'><i class="icon-search">                
+                                        </i>&nbsp; Search
+                                    </a> 
+                                </div>
+                            </ul>
+                    </div>           
+                </ul>
+                <ul class='nav pull-right' style='margin-right:5px'>
+                    <li class='divider-vertical'></li>   
+                    <li class='dropdown'><a id='li_settings' class='dropdown-toggle' data-toggle='dropdown' href='#'>
+                    <i class="icon-cog" style='margin-top:8px'></i> Settings<b class='caret'></b></a>
+                        <ul class='dropdown-menu' id = 'dropdown_menu'>
+                            <li><a href="#" id='settings_density'>Display density:</a></li> 
+                            <li><a href="#" class='menu-rsettigns' id='button_null'>Comfortable</a></li>
+                            <li><a href="#" class='menu-rsettigns' id='button_condensed'>Compact</a></li>
+                            <li class="divider"></li>
+                            <li><a id='button_settings' class='menu-rsettigns' data-toggle="modal" href="#setModal">Settings</a></li>
+                        </ul>
+                    </li>                    
+                    <li class='divider-vertical'></li>   
+                </ul> 
+        </div>
+    </div>
+</div> 
 
-{% block header %}<h1><a href="about/">{{project_name}}</a>: List of records{% if tag %} tagged with <em>{{tag}}</em>{% endif %}</h1>{% endblock %}
+{% endblock %}
+ 
+{% block content %} 
+<div id ='innerContent'>
+    {% include "content.html" %}  
+</div> 
+{% include "set_tag.html" %}  <!-- modal window for the selected tags -->
+<script type = 'text/javascript'>
+$(document).ready(function(){ 
+    /*
+    $(document).click(function(){ // deselect all the rows of click is out of table
+        $('.record').removeClass('ui-selected');
+    }); */
 
-{% block content %}
+    $('input[type="radio"]').attr('checked', false);
 
-<p><a href="/">Return to list of projects</a></p>
-{% if tag %}
-<p><a href="/{{project_name}}/">Return to full record list</a></p>
-<p><a href="/{{project_name}}/tag/">Return to list of tags</a></p>
-{% endif %}
+    $('.t-item').click(function(){
+        var $checked = $('input[type="radio"]:checked');
+        var idrow = ['','.', $(this).attr('id').split('-')[1]].join('');
+    });
+        
+    if ($(location).attr('href').indexOf('?n=true') != -1){
+        $('#table_out tbody tr:eq(0) td').effect("highlight", {}, 15000); // not the right way
+    }
+    /*
+    $('.simulations td').live('click', function(){
+        if (!$(this).children().is('a')){
+            $parent = $(this).parent();
+            var $label = $parent.find('.Label-t').html();
+            window.open(["/{{project_name}}", $label, ""].join('/'));
+        }
+    }); */
 
-{% if object_list %}
-    <form method="POST" action="/{{project_name}}/delete/">
-    <table class="simlist">
-        <tr>
-            <th rowspan="2"><input type="Submit" value="Delete"/><br/><small>include data&nbsp;</small><input type="checkbox" name="delete_data" value="True"/></th>
-            <th rowspan="2">Label</th>
-            <th rowspan="2">Reason</th>
-            <th rowspan="2">Outcome</th>
-            <th rowspan="2">Duration</th>
-            <th rowspan="2">Processes</th>
-            <th colspan="2">Executable</th>
-            <th colspan="4">Script</th>
-            <th rowspan="2">Date</th>
-            <th rowspan="2">Time</th>
-            <th rowspan="2">Tags</th>
-        </tr>
-        <tr>
-            <th>Name</th>
-            <th>Version</th>
-            <th>Repository</th>
-            <th>Main file</th>
-            <th>Version</th>
-            <th>Arguments</th>
-        </tr>
-        {% for record in object_list %}
-        <tr class="{% cycle odd,even %}">
-            <td><input type="checkbox" name="delete" value="{{record.label}}"/></td>
-            <td><a href="/{{project_name}}/{{record.label|escapeslash}}/">{{record.label}}</a></td>
-            <td>{{record.reason}}</td>
-            <td>{{record.outcome}}</td>
-            <td>{{record.duration|human_readable_duration}}</td>
-            <td>{{record.launch_mode.get_parameters.n|default:"1"}}</td>
-            <td>{{record.executable.name}}</td>
-            <td>{{record.executable.version}}</td>
-            <td>{{record.repository.url}}</td>
-            <td>{{record.main_file}}</td>
-            <td>{{record.version}}{% if record.diff %}*{% endif %}</td>
-            <td>{{record.script_arguments}}</td>
-            <td>{{record.timestamp|date:"d/m/Y"}}</td>
-            <td>{{record.timestamp|date:"H:i:s"}}</td>
-            {% if tag %}
-            <td>{% for other_tag in record.tag_objects %}{% if tag == other_tag %}{{tag}} {% else %}<a href="/{{project_name}}/tag/{{other_tag.name}}/">{{other_tag.name}}</a> {% endif %}{% endfor %}</td>
-            {% else %}
-            <td>{{record.tags|link:"tag/%s/"}}</td>
-            {% endif %}
-        </tr>
-        {% endfor %}
-    </table>
-    </form>
-    {% if is_paginated %}
-    <p>
-    {% if page_obj.has_previous %}<a href="?page={{page_obj.previous_page_number}}&per_page={{records_per_page}}"><img src="/media/Go-previous.png" alt="previous page"/></a>{% else %}&nbsp;&nbsp;&nbsp;{% endif %}
-    {% if page_obj.has_next %}<a href="?page={{page_obj.next_page_number}}&per_page={{records_per_page}}"><img src="/media/Go-next.png" alt="next page"/></a>{% endif %}
-    Records {{page_obj.start_index}}-{{page_obj.end_index}} of {{paginator.count}}
-    <form method="GET" action=".">
-        <label for="per_page">Records per page: </label><input type="text" id="per_page" name="per_page" value="{{records_per_page}}" />
-        <input type="submit" value="Update"/>
-    </form>
-    </p>
-    {% endif %}
-{% else %}
-    <p class="warning"><strong>No records found</strong></p>
-{% endif %}
+    $('#search_but').click(function(){
+        $('#search_form').trigger('submit');
+    });
 
+    $('#saveTags').click(function(){
+        $('#form-tags').trigger('submit');
+    });
+            
+    nbRecPerPage_changed = false;
+    $('.modal').modal().modal('hide');
+    
+    $('#input_nrec, #s_nbt').click(function(event){  
+        nbRecPerPage_changed = true;
+        event.stopPropagation();
+        $(this).css('display','none');
+        $('#s_nbt').css('display','block');     
+    });
+    
+    $('html').click(function(){ 
+        var $val = $('#s_nbt').val(); 
+        if ($val > 0){    
+            $('#input_nrec').css('display','block').html($val);
+            $('#s_nbt').css('display','none');
+            $('#s_nbt').removeClass('err_border');
+            if ($('#myTab li.active a').attr('href') == '#second'){
+                $('#save_set').removeClass('disabled');
+            }
+        }else{
+            $('#s_nbt').addClass('err_border');
+            $('#save_set').addClass('disabled');
+        }   
+    });
+
+    $('#btn_run, #close_newrec').click(function(e){
+        $('#mod_newrec').modal('hide');    
+    });
+
+     // new record popup:
+     $(document).on('keyup keydown', function(e){
+      if (e.which == 13){
+            if ($('#mod_newrec').css('display')=='block'){  // new record popup
+                if (e.type == "keydown"){
+                    $('#btn_run').addClass('active');
+                    e.preventDefault();
+                }else{
+                    $('#btn_run').removeClass('active');
+                    $('#btn_run').trigger('click');
+                }  
+            }else if ($('#menu_search').css('display') == 'block'){  // search dropdown
+                if (e.type == "keydown"){
+                    $('#search_but').addClass('active');
+                    e.preventDefault();
+                }else{
+                    $('#search_but').removeClass('active');
+                    $('#search_but').trigger('click');
+                }
+            }
+        }
+    });
+    
+    $('#btn_newrec').click(function(){
+        $.ajax({
+          type: 'POST',
+          url: '/{{project_name}}/settings',
+          data: {'sumatra':true},
+          async: true,
+          dataType: 'json'
+        }).done(function(data) {
+             $('#mExec').val(data.execut);
+             $('#mFile').val(data.mfile);     
+        });
+    });
+    
+    $('#menu_datewith > li').click(function(){
+        $('#menu_datewith').hide();
+        $('#sdate').text($(this).text());       
+    });
+    
+    $('#idatewith, #up_icon, #low_icon').click(function(event){
+        event.stopPropagation(); 
+        $('#menu_datewith').show();
+        $('#menu_datewith').offset({left: $('#idatewith').offset().left});
+    });
+    
+    //$('.date').datepicker();
+    $(".chzn-select").chosen();
+    $(".chzn-select-deselect").chosen({allow_single_deselect:true});
+    
+    // #menu_search will inherit the offsetLength from this div
+    $('#div_menu_search').offset({left: $('#text_subnav').offset().left+20});
+    
+    $('#icon_cdown').mouseenter(function(){
+        $(this).css('opacity','1.0');
+    }).mouseleave(function(){
+        $(this).css('opacity','0.2');
+    }).click(function(event){   
+        var parentWidth;
+        parentWidth = $('input.span5')[0].offsetWidth - 2;
+        $('#menu_search').css('width', parentWidth)
+                         .show();
+    });
+    
+    // prevent closing the search menu when clicking on it
+    $('#menu_search, #icon_cdown, #ui-datepicker-div').click(function(event){
+        event.stopPropagation(); 
+        $('#menu_datewith').hide();
+        return false; 
+    });
+    
+    $('#close_menu, html').click(function() {
+        $('#menu_search').hide();
+        $('#menu_datewith').hide();
+    });
+     
+    
+   
+    $('#li_settings').click(function(){
+        $.ajax({
+          type: 'POST',
+          url: '/{{project_name}}/settings',
+          data: {'web':true},
+          async: true,
+          dataType: 'json'
+        }).done(function(data){
+            $(['#button',data.display_density].join('_')).addClass('active_settings_row');
+            $('#settings_table').html(data.display_density);
+        });
+    });
+    
+    $('#close_set, #close_set.btn').click(function(){
+        $('#setModal').modal('hide');
+    });
+    
+    /* Automatic check/uncheck of #Script and #Executable */
+    $(".check-item").click(function(){   // any checkbox in settings window         
+        /* #Script and #Executable have childrens, so if at least one of the chilrens is checked,
+           the parents checkboxes will be checked automatically. */
+        if ($(this).attr('id') != 'Script' && $(this).attr('id') != 'Executable'){
+            if ($('.check-item.Executable:checked').length == 0){
+                $('#Executable').attr('checked',false);
+            } else{
+                $('#Executable').attr('checked',true);
+            };
+            
+            if ($('.check-item.Script:checked').length == 0){
+                $('#Script').attr('checked',false);
+            }else{
+                $('#Script').attr('checked',true);
+            }
+        }else if ($(this).attr('id') == 'Executable'){
+            if ($(this).attr('checked')=='checked'){
+                $('.Executable').attr('checked',true);
+            }else{
+                $('.Executable').attr('checked',false);
+            }
+        }else if ($(this).attr('id') == 'Script'){
+            if ($(this).attr('checked')=='checked'){
+                $('.Script').attr('checked',true);
+            }else{
+                $('.Script').attr('checked',false);
+            }
+        };
+
+        // if no checkboxes are checked the button 'save settings' will be disables 
+        if ($(".check-item:checked").length == 0){
+            $('#check_selectAll').attr('checked', false);
+            $('#save_set').addClass('disabled');
+        }else{
+            $('#save_set').removeClass('disabled');
+        }
+        
+    }); /* End of automatic check/uncheck of #Script and #Executable */
+    
+    $('#save_set').click(function(){ // button save settings 
+            var UncheckedItems = new Array();
+            if (!$('#save_set').hasClass('disabled')){          
+                Exec_colspan = $('.Executable:checked').length;    
+                Script_colspan = $('.Script:checked').length;
+                $('.Script-t').attr('colspan', Script_colspan);
+                $('.Executable-t').attr('colspan', Exec_colspan);
+                
+                // hide columns:
+                $(".check-item").not(':checked').each(function() { 
+                    $unchecked = $(this).attr('id');
+                    $(['.', $unchecked, '-t'].join('')).hide();
+                    UncheckedItems.push($unchecked);
+                });
+                
+                // show columns:
+                $(".check-item:checked").each(function() { 
+                    $checked = $(this).attr('id');
+                    $(['.', $checked, '-t'].join('')).show();
+                });
+                
+                var nb_rec = $('#s_nbt').val();
+                // save settings to .smt/project
+                $.ajax({
+                  type: 'POST',
+                  url: '/{{project_name}}/settings',
+                  data: {'table_HideColumns':UncheckedItems,
+                         'nb_records_per_page':nb_rec,
+                         'cols_span_execut':Exec_colspan,
+                         'cols_span_script':Script_colspan,
+                         'saveSettings':true},
+                  async: true
+                }).done(function(data){
+                    if (nbRecPerPage_changed)
+                        location.reload();
+                });
+            }
+    });
+    
+    /* selection of all checkboxes */
+    $("#check_selectAll").click(function() { 
+        var checkedStatus = this.checked;
+        
+        $(".check-item").each(function() {
+            this.checked = checkedStatus;
+        });  
+        
+        if (!checkedStatus){
+            $('#save_set').addClass('disabled'); // in case all are unchecked
+        }else{
+            $('#save_set').removeClass('disabled');
+        }    
+    });
+    
+    /* Settings->Display density->compact */
+    $('.menu-rsettigns').not('#button_settings').click(function(){
+        var $density_set = $(this).attr('id').split('_')[1]; // 'null' (=default) or 'condensed'
+        
+        $(this).addClass('active_settings_row');
+            $.ajax({
+              type: 'POST',
+              url: '/{{project_name}}/settings',
+              data: {'display_density':$density_set,
+                     'saveSettings':true},
+              async: true
+            });
+
+        if ($density_set == 'condensed'){
+            $('#button_null').removeClass('active_settings_row');  
+            $('.record').removeClass('null').addClass('condensed');
+        }else{
+            $('#button_condensed').removeClass('active_settings_row'); 
+            $('.record').removeClass('condensed').addClass('null');
+        }        
+    });
+      
+   $('#button_settings').click(function(){
+        var data;
+        $('.check-item').attr('checked',true); // if before user has unchecked one and didn't save
+        data =  $.ajax({type: 'POST',
+                        url: '/{{project_name}}/settings',
+                        async: false,
+                        data: {'web':true},
+                        dataType: 'json'});
+        data = $.parseJSON(data.responseText);
+        hiddenCols = data.table_HideColumns;
+        if (hiddenCols){
+            for (var item, i = -1; item = hiddenCols[++i];){
+                $(['#', item].join('')).attr('checked',false);
+            }
+        }
+    });
+    
+    $('#btn_run').click(function(){
+        var $clone;
+        $.fancybox.showActivity();
+        $.ajax({
+          type: 'POST',
+          url: '/{{project_name}}/simulation',
+          async: true,
+          data: {'label':$('#mLabel').val(),
+                 'reason':$('#mReason').val(),
+                 'tag':$('#mTag').val(),
+                 'execut':$('#mExec').val(),
+                 'main_file':$('#mFile').val(),
+                 'args':$('#mArg').val()
+                },
+          dataType: 'json'
+        })
+    }); 
+
+    $('.cancel').click(function(){
+        $('.modal').modal('hide');
+    });
+    $('#y-delRec').click(function(){
+        var succ = false;
+        deleteArr = new Array(); // records to delete
+        $('li.ui-selected').each(function(){
+            deleteArr.push($(this).find('#label-t').html())
+        });
+        $.ajax({
+            type: 'POST',
+            url: 'delete/',
+            data: {'delete':deleteArr,'delete_data':true}, //presume that user always want to delete data
+            success:function(data){
+                succ = true;
+            },
+            async: false
+        });
+        if (succ){
+            window.open('.','_self');
+        }
+    });
+});   
+//$(document).ajaxStart(function() { $.fancybox.showActivity() }).ajaxStop(function() {$.fancybox.hideActivity();});
+</script>
+
+<div class="modal" id="mod_newrec"> 
+    <div class='d-mod'>  
+        <div style='float:left;padding:3px 15px;position:absolute; margin-top:5px'><h3>new record</h3></div><a class="close s-close" id='close_newrec'>&times;</a>
+        <div style='position:absolute; margin-top:50px'>
+            <label class='control-label' for='mLabel'>Label</label> 
+            <div class='mod_input'>
+                <input id='mLabel' class='input-xlarge' type='text'>
+            </div>
+            <label class='control-label' for='mReason'>Reason</label> 
+            <div class='mod_input'>
+                <textarea id='mReason' class='input-xlarge' type='text'></textarea>
+            </div>
+            <label class='control-label' for='mTag'>Tag</label> 
+            <div class='mod_input'>
+                <input id='mTag' class='input-xlarge' type='text'>
+            </div>
+            <label class='control-label' for='mExec'>Executable path</label> 
+            <div class='mod_input'>
+                <input id='mExec' class='input-xlarge' type='text'>
+            </div>
+            <label class='control-label' for='mFile'>Main file</label> 
+            <div class='mod_input'>
+                <input id='mFile' class='input-xlarge' type='text'>
+            </div>
+            <label class='control-label' for='mArg'>Arguments</label> 
+            <div class='mod_input'>
+                <input id='mArg' class='input-xlarge' type='text'>
+                <a href='/{{project_name}}/?n=true'><button id='btn_run' class='btn btn-success btn-large' style='width:150px; display: block ;margin-left: auto; margin-right: auto;'>Run</button></a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal" id="deleteModal">
+  <div class="modal-header">
+        <a class="close" data-dismiss="modal">&times;</a>
+        <h3>Delete records</h3>
+  </div>
+  <div class="modal-body">
+        <p>Are you sure you want to remove the records?</p>
+  </div>
+  <div class="modal-footer">
+        <a id="y-delRec" class="btn btn-primary">Yes</a>
+        <a class="cancel btn">No</a>
+  </div>
+</div> 
+
+<div class="modal" id="setModal">
+  <a class="close s-close" id='close_set'>&times;</a>
+  <div class="modal-header">
+    <a class="close" data-dismiss="modal"></a>
+    <h3>Settings</h3>
+  </div>
+  <div class="modal-body">   
+    <ul class="nav nav-tabs"  id ='myTab'>
+      <li class="active"><a href="#first"  data-toggle="tab" >General</a></li>
+      <li><a href="#second"  data-toggle="tab" >Another option 1</a></li>
+      <li><a href="#messages"  data-toggle="tab" >Another option 2</a></li>
+      <li><a href="#settings"  data-toggle="tab" >Another option 3</a></li>
+    </ul>
+    
+    <div class="tab-content">
+      <div class="tab-pane active" id="first">
+        <div id = 'tab_general_text'><p><b>Table:</b></p></div>
+        <div id = 'tab_general_content'>
+            <label class="checkbox">
+                <input type="checkbox" id='Label' checked="checked" class='check-item'> Label
+            </label>
+            <label class="checkbox">
+                <input type="checkbox" id='Tag' checked="checked" class='check-item'> Tag
+            </label>
+            <label class="checkbox">
+                <input type="checkbox" id='Reason' checked="checked"  class='check-item'> Reason
+            </label>
+            <label class="checkbox">
+                <input type="checkbox" id='Outcome' checked="checked"  class='check-item'> Outcome
+            </label>
+            <label class="checkbox">
+                <input type="checkbox" id='Duration' checked="checked" class='check-item'> Duration
+            </label>
+            <label class="checkbox">
+                <input type="checkbox" id='Processes' checked="checked" class='check-item'> Processes
+            </label>
+            <label class="checkbox">
+                <input type="checkbox" id='Executable' checked="checked" class='check-item'> Executable
+            </label>
+                <label class="checkbox">
+                    <div class = 'subitems'>
+                        <input type="checkbox" class='check-item Executable' checked="checked" id='Name'> Executable name
+                    </div>
+                </label>
+                <label class="checkbox">
+                    <div class = 'subitems'>
+                        <input type="checkbox" class='check-item Executable' checked="checked" id='Version'> Executable Version
+                    </div>
+                </label>
+            <label class="checkbox">
+                <input type="checkbox" id='Date' checked="checked"  class='check-item'> Date
+            </label>
+            <label class="checkbox">
+                <input type="checkbox" id='Time' checked="checked" class='check-item'> Time
+            </label>
+            <label class="checkbox">
+                <input type="checkbox" id='Script' checked="checked"  class='check-item'> Script
+            </label>
+            <label class="checkbox">
+                <div class = 'subitems'>
+                    <input type="checkbox" class='check-item Script' checked="checked" id='Repository'> Script repository
+                </div>
+            </label>
+            <label class="checkbox">
+                <div class = 'subitems'>
+                    <input type="checkbox" class='check-item Script' checked="checked" id='Main_file'> Script main file
+                </div>
+            </label>
+            <label class="checkbox">
+                <div class = 'subitems'>
+                    <input type="checkbox" class='check-item Script' checked="checked" id='S-Version'> Script version
+                </div>
+            </label>
+            <label class="checkbox">
+                <div class = 'subitems'>
+                    <input type="checkbox" class='check-item Script' checked="checked" id='Arguments'> Script arguments
+                </div>
+            </label>
+            <label class="checkbox">
+                <input type="checkbox" id = 'check_selectAll' checked="checked"><b style='font-size:14px'>Select all</b>
+            </label>
+        </div>
+      </div>
+      <div class="tab-pane" id="second">
+            <div style='float:left; padding:8px'>Number of records per page:</div>
+            <div id="input_nrec">{{settings.nb_records_per_page}}</div>
+            <input id='s_nbt' class='span1' type='text' style='float:left;margin-bottom:0px' value='{{settings.nb_records_per_page}}'/>     
+      </div>
+      <div class="tab-pane" id="messages">
+        <div id = 'tab_general_text'><p><b>option3:</b></p></div>
+      </div>
+      <div class="tab-pane" id="settings">
+        <div id = 'tab_general_text'><p><b>option4:</b></p></div>
+      </div>
+    </div>
+      <div class="modal-footer">
+        <a class="btn btn-primary" id='save_set'>Save changes</a>
+        <a class="btn" id='close_set'>Close</a>
+      </div> 
+ </div>
+ </div>
 {% endblock %}

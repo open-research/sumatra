@@ -23,6 +23,7 @@ from sumatra.formatting import get_diff_formatter
 from sumatra.records import MissingInformationError
 from sumatra.core import TIMESTAMP_FORMAT
 
+
 def parse_executable_str(exec_str):
     """
     Split the string describing the executable into a path part and an

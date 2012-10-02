@@ -35,6 +35,7 @@ except ImportError:
     import simplejson as json
 
 DEFAULT_PROJECT_FILE = "project"
+RECORDS_PER_PAGE = 10
 
 def _remove_left_margin(s): # replace this by textwrap.dedent?
     lines = s.strip().split('\n')
@@ -50,7 +51,7 @@ class Project(object):
                  default_main_file=None, default_launch_mode=None,
                  data_store='default', record_store='default',
                  on_changed='error', description='', data_label=None,
-                 input_datastore=None):
+                 input_datastore=None, web_settings=None):
         self.path = os.getcwd()
         if not os.path.exists(".smt"):
             os.mkdir(".smt")
@@ -72,12 +73,14 @@ class Project(object):
         self.description = description
         self.data_label = data_label
         self._most_recent = None
+        self.web_settings = init_websettings()
         self.save()
         print "Sumatra project successfully set up"
-    
+        
     def __set_data_label(self, value):
         assert value in (None, 'parameters', 'cmdline')
         self._data_label = value
+        
     def __get_data_label(self):
         return self._data_label
     data_label = property(fset=__set_data_label, fget=__get_data_label)
@@ -88,7 +91,7 @@ class Project(object):
         for name in ('name', 'default_executable', 'default_repository',
                      'default_launch_mode', 'data_store', 'record_store',
                      'default_main_file', 'on_changed', 'description',
-                     'data_label', '_most_recent', 'input_datastore'):
+                     'data_label', '_most_recent', 'input_datastore', 'web_settings'):
             attr = getattr(self, name)
             if hasattr(attr, "__getstate__"):
                 state[name] = {'type': attr.__class__.__module__ + "." + attr.__class__.__name__}
@@ -121,7 +124,7 @@ class Project(object):
                    main_file='default', version='latest', launch_mode='default',
                    label=None, reason=None):
         if executable == 'default':
-            executable = deepcopy(self.default_executable)
+            executable = deepcopy(self.default_executable)           
         if repository == 'default':
             repository = deepcopy(self.default_repository)
         if main_file == 'default':
@@ -130,6 +133,7 @@ class Project(object):
             launch_mode = deepcopy(self.default_launch_mode)
         working_copy = repository.get_working_copy()
         version, diff = self.update_code(working_copy, version)
+        
         record = Record(executable, repository, main_file, version, launch_mode,
                         self.data_store, parameters, input_data, script_args, 
                         label=label, reason=reason, diff=diff,
@@ -282,3 +286,11 @@ def load_project(path=None):
     #except Exception:
     #    prj = _load_project_from_pickle(p)
     return prj
+
+def init_websettings():
+    web_settings = {'nb_records_per_page':RECORDS_PER_PAGE,
+                    'display_density':'table-condensed',
+                    'table_HideColumns':None,
+                    'cols_span_script':4,
+                    'cols_span_execut':2}
+    return web_settings
