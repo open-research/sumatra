@@ -50,15 +50,7 @@ class SimpleParameterSet(object):
         self.values = {}
         self.types = {}
         self.comments = {}
-        dict_initializer = False
-        try:
-            if isinstance(eval(initialiser), dict):
-                dict_initializer = True
-                initialiser = eval(initialiser)
-        except SyntaxError:
-            pass
-
-        if dict_initializer:
+        if isinstance(initialiser, dict):
             for name, value in initialiser.items():
                 self.values[name] = value
                 self.types[name] = type(value)
@@ -79,7 +71,7 @@ class SimpleParameterSet(object):
                         self.comments[name] = comment
                     try:
                         self.values[name] = eval(value)
-                    except (NameError, SyntaxError):
+                    except NameError:
                         self.values[name] = unicode(value)
                     self.types[name] = type(self.values[name])
                 elif line:
@@ -120,22 +112,14 @@ class SimpleParameterSet(object):
                     not used.
         """
         output = []
-        exec_python = True # as a default Python is the executable
-        from projects import load_project
-        prj = load_project()
-        if 'matlab' in prj.default_executable.path.lower():
-            exec_python = False
         for name, value in self.values.items():
             type = self.types[name]
-            if exec_python:
-                if issubclass(type, basestring):
-                    output.append('%s = "%s"' % (name, value))
-                else:
-                    output.append('%s = %s' % (name, value))
-                if name in self.comments:
-                    output[-1] += ' #%s' % self.comments[name]
-            else: # if it isn't Python we will always have type = string (see SimpleParameterSet() SyntaxError)
+            if issubclass(type, basestring):
+                output.append('%s = "%s"' % (name, value))
+            else:
                 output.append('%s = %s' % (name, value))
+            if name in self.comments:
+                output[-1] += ' #%s' % self.comments[name]
         return "\n".join(output)
 
     def as_dict(self):
