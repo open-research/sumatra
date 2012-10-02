@@ -1,3 +1,8 @@
+"""
+docstring goes here
+"""
+
+
 from django import forms
 from django.db.models import Q
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
@@ -6,19 +11,24 @@ from sumatra.recordstore.django_store import models
 from time import strptime
 import datetime
 import os
+import json
+
 
 def unescape(label):
     return label.replace("||", "/")
+
 
 class ProjectUpdateForm(forms.ModelForm):
     
     class Meta:
         model = models.Project
         fields = ('name', 'description')
-        
+
+
 class SearchForm(forms.ModelForm):
     ''' this class will be inherited after. It is for changing the 
     requirement properties for any field in the search form'''
+    
     def __init__(self, *args, **kwargs):
         super(SearchForm, self).__init__(*args, **kwargs)
         for key, field in self.fields.iteritems():
@@ -35,18 +45,19 @@ class RecordForm(SearchForm):
                   'main_file', 'timestamp')
 
 class DefaultTemplate(object):
-    ''' Default template is the record_list.html. This class will be invoked each time user opens
-    http://localhost/{{project_name}}/ '''
+    '''
+    Default template is the record_list.html. This class will be invoked each time user opens
+    http://localhost/{{project_name}}/
+    '''
+    
     def __init__(self, project):
         self.nbCol = 14
         self.project_name = project
-        self.project = load_project()
         self.form = RecordForm()
-        self.settings = self._init_settings()
+        self._init_settings()
         self.sim_list = models.Record.objects.filter(project__id=project).order_by('-timestamp') # here project is the string
         self.files = os.listdir(os.getcwd())
         self.active = 'List of records'
-        self.path = self.project.default_executable.path
         self.tags = False # tags is not defined
 
     def init_object_list(self, page=1):
@@ -59,8 +70,9 @@ class DefaultTemplate(object):
             self.page_list = self.paginator.page(self.paginator.num_pages) # deliver last page of results
         self.object_list = self.page_list.object_list
 
-    def _init_settings(self, option='web'):
-        '''Checking existence of the specific settings in .smt/project.
+    def _init_settings(self):
+        '''
+        Checking existence of the specific settings in .smt/project.
         In case it doesn't exist, it will be initialized with some default values
         Inputs:
             project: project object,
@@ -68,25 +80,26 @@ class DefaultTemplate(object):
         Output:
             web_settings: dictionary.
         '''
-        if option == 'web':
-            try:
-                return self.project.web_settings
-            except AttributeError:
-                self.project.web_settings = init_websettings()   
-                for key, item in self.project.web_settings.iteritems():
-                    if item:
-                        self.project.web_settings[key] = item
-                self.project.save()
-                return self.project.web_settings
-        else:
-            pass
+        try:
+            project = load_project()
+            self.settings = project.web_settings
+        except IOError:
+            global_conf_file = os.path.join("homedir", ".smtrc")
+            if os.path.exists(global_conf_file):
+                self.settings = json.load(global_conf_file)
+            else:
+                self.settings = init_websettings()   
 
     def getDict(self):
         return self.__dict__
 
+
 class AjaxTemplate(DefaultTemplate):
-    ''' This class will be invoked only when the content of the table needs to be refreshed.
-    It is a children of DefaultTemplate class'''
+    '''
+    This class will be invoked only when the content of the table needs to be refreshed.
+    It is a child of DefaultTemplate class
+    '''
+    
     def __init__(self, project, request_post=None): # request_post=None when user retrieve the list of records for defined tag (views: list_tagged_records())
         super(AjaxTemplate, self).__init__(project)
         if request_post:
@@ -130,6 +143,7 @@ class AjaxTemplate(DefaultTemplate):
                                        x.timestamp <= datetime.datetime.combine(dateIntvl['max'], datetime.time(23,59)), self.sim_list) # all the records inside the specified interval
         elif self.tags:
             self.sim_list =  self.sim_list.filter(tags__icontains = self.tags.strip())
+
 
 class RecordUpdateForm(forms.ModelForm):
     wide_textarea = forms.Textarea(attrs={'rows': 2, 'cols':80})
