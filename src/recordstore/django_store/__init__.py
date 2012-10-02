@@ -189,7 +189,7 @@ class DjangoRecordStore(RecordStore):
         for pi in record.platforms:
             db_record.platforms.add(self._get_db_obj('PlatformInformation', pi))
         #import pdb;pdb.set_trace()
-        for key, item in record.parameters.values.iteritems():
+        for key in record.parameters:
             db_record.variables.add(self._get_db_obj('VariableSet', key))
         db_record.diff = record.diff
         db_record.save(using=self._db_label)

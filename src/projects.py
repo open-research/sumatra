@@ -90,7 +90,8 @@ class Project(object):
         for name in ('name', 'default_executable', 'default_repository',
                      'default_launch_mode', 'data_store', 'record_store',
                      'default_main_file', 'on_changed', 'description',
-                     'data_label', '_most_recent', 'input_datastore', 'web_settings'):
+                     'data_label', '_most_recent', 'input_datastore',
+                     'web_settings'):
             attr = getattr(self, name)
             if hasattr(attr, "__getstate__"):
                 state[name] = {'type': attr.__class__.__module__ + "." + attr.__class__.__name__}
@@ -258,6 +259,8 @@ def _load_project_from_json(path):
             setattr(prj, key, cls(**args))
         else:
             setattr(prj, key, value)
+    if not hasattr(prj, "web_settings"):
+        prj.web_settings = init_websettings()
     return prj
 
 def _load_project_from_pickle(path):
@@ -289,7 +292,6 @@ def load_project(path=None):
     return prj
 
 def init_websettings():
-    web_settings = {'nb_records_per_page':RECORDS_PER_PAGE,
-                    'display_density':'compact',
-                    'hidden_cols':None}
-    return web_settings
+    return {'nb_records_per_page': RECORDS_PER_PAGE,
+            'display_density': 'compact',
+            'hidden_cols': None}
