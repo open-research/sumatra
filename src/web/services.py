@@ -27,13 +27,12 @@ class SearchForm(forms.ModelForm):
 class RecordForm(SearchForm):
     executable = forms.ModelChoiceField(queryset=models.Executable.objects.all(), empty_label='')
     repository = forms.ModelChoiceField(queryset=models.Repository.objects.all(), empty_label='')
-    variable_name = forms.ModelChoiceField(queryset=models.VariableSet.objects.all(), empty_label='')
     timestamp = forms.DateTimeField(label="Date")
 
     class Meta:
         model = models.Record
         fields = ('label', 'tags', 'reason', 'executable', 'repository',
-                  'main_file', 'timestamp', 'variable_name')
+                  'main_file', 'timestamp')
 
 class DefaultTemplate(object):
     ''' Default template is the record_list.html. This class will be invoked each time user opens
@@ -121,8 +120,6 @@ class AjaxTemplate(DefaultTemplate):
                 self.sim_list =  self.sim_list.filter(executable__path = val.path)
             elif isinstance(val, models.Repository):
                 self.sim_list =  self.sim_list.filter(repository__url = val.url)
-            elif isinstance(val, models.VariableSet):
-                self.sim_list =  self.sim_list.filter(variables__var_name = val.var_name)
         if hasattr(self, 'date_base') and self.date_base:  # in case user specifies "date within" in the search field
             self.date_base = strptime(self.date_base, "%m/%d/%Y") # from text input in the search form
             base = datetime.date(self.date_base.tm_year, self.date_base.tm_mon, self.date_base.tm_mday)

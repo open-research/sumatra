@@ -29,13 +29,8 @@ class SumatraObjectsManager(models.Manager):
                     attributes[name] = str(obj.__getstate__())
                 elif name == 'type':
                     attributes[name] = obj.__class__.__name__
-                elif name == 'var_name':
-                    attributes[name] = obj
-                elif name in ('content', 'metadata'):
-                    if name == 'content':
-                        attributes[name] = str(obj.values) 
-                    else:    
-                        attributes[name] = str(obj) # ParameterSet, DataKey
+                elif name in ('content', 'metadata'):    
+                    attributes[name] = str(obj) # ParameterSet, DataKey
                 else:
                     raise
         return self.using(using).get_or_create(**attributes)            
@@ -115,13 +110,6 @@ class Repository(BaseModel):
             if hasattr(m, self.type):
                 return getattr(m, self.type)(self.url)
         raise Exception("Repository type %s not supported." % self.type)
-
-
-class VariableSet(BaseModel):
-    var_name = models.CharField(max_length=30)
-
-    def __unicode__(self):
-        return self.var_name
 
 
 class ParameterSet(BaseModel):
@@ -228,7 +216,6 @@ class Record(BaseModel):
     project = models.ForeignKey(Project, null=True)
     script_arguments = models.TextField(blank=True)
     stdout_stderr = models.TextField(blank=True)
-    variables = models.ManyToManyField(VariableSet)
 
     # parameters which will be used in the fulltext search (see sumatra.web.services fulltext_search)
     params_search = ('label','reason', 'duration', 'main_file', 'outcome', 'user', 'tags') 
