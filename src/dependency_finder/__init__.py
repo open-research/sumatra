@@ -21,17 +21,15 @@ import os
 import sys
 import warnings
 
-from sumatra.dependency_finder import core, neuron, python, genesis
+from sumatra.dependency_finder import core, neuron, python, genesis, matlab
     
 
 def find_dependencies(filename, executable):
     """Return a list of dependencies for a given script and programming
        language."""
-    print 'executable.name %s' %executable.name
-    if (executable.name) == u"matlab.exe":
-        print 'here'
-        pass
-    elif str.lower(executable.name) == "python":
+    if "matlab" in executable.name.lower():
+        return matlab.find_dependencies(filename, executable)
+    elif "python" in executable.name.lower():
         return python.find_dependencies(filename, executable)
     elif executable.name == "NEURON":
         return neuron.find_dependencies(filename, executable)
@@ -40,5 +38,3 @@ def find_dependencies(filename, executable):
     else:
         warnings.warn("find_dependencies() not yet implemented for %s" % executable.name)
         return []
-        
-

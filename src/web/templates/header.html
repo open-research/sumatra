@@ -1,0 +1,76 @@
+<div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">                 
+                <ul class='nav'>
+                    <li class="divider"></li>
+                    <li class='{% if active == "About" %}active{% endif %}'><a href='/{{project_name}}/about/' class='a-subnav'>About</a></li> 
+                    <li class='{% if active == "List of projects" %}active{% endif %}'><a href='/' class='a-subnav'>List of projects</a></li>
+                    <li class='{% if active == "List of records" %}active{% endif %}'><a href='/{{project_name}}/' class='a-subnav'>List of records</a></li>
+                    {% if active == "List of records" %}
+                    <li class='dropdown'><a href='' class='dropdown-toggle' data-toggle='dropdown' id = 'tags-b'><i class="icon-tags"></i><b class='caret'></b></a>
+                            <ul class='dropdown-menu' id = 'dropdown_tags'>
+                                    {% include "tag_list.html" %}
+                            </ul>
+                    </li>  
+                        <div id = 'div_menu_search'>
+                            <input class='span5' type='text' id="search_subnav" placeholder='Search' value='{{search_info.label}}'/>
+                            <span id='icon_cdown'><i class="icon-chevron-down" style='font-size:10pt; padding-top:3px;'></i></span>     
+                            <a class='btn btn-info btn-large' id='btn-search_header'><i class="icon-search">
+                            </i>&nbsp; Search
+                            </a>         
+                               <ul class="dropdown-menu" id = 'menu_search'>      
+                                    <a class="close" id='close_menu'>&times;</a> 
+                                    <form id='search_form' action='/{{project_name}}/search' method='GET'>
+                                        {{form.as_p}}
+                                        <p><label>Date within:</label><p>
+                                        <div id='idatewith'><span id='sdate'>1 day</span>
+                                            <span id='span_icon'>
+                                                <i class="icon-chevron-up" style='margin-top:0px'></i>  
+                                                <i class="icon-chevron-down" style='margin-top:15px'></i>
+                                            </span>  
+                                        </div>
+                                        <div>
+                                            <ul class="dropdown-menu" id = 'menu_datewith'>
+                                                <li><a href='' >1 day</a></li>
+                                                <li><a href='' >3 days</a></li>
+                                                <li><a href='' >1 week</a></li>
+                                                <li><a href='' >2 weeks</a></li>
+                                                <li><a href='' >1 month</a></li>
+                                                <li><a href='' >2 months</a></li>
+                                                <li><a href='' >6 months</a></li>
+                                                <li><a href='' >1 year</a></li>
+                                            </ul>
+                                        </div>
+                                        <label id='t_id'>of</label>
+                                        <input id="id_datewithin" type="text">
+                                    </form>
+                                    <div>
+                                        <a id='btn-search_form' class='btn btn-info btn-large'><i class="icon-search">
+                                            </i>&nbsp; Search
+                                        </a> 
+                                    </div>
+                                </ul>
+                        </div>         
+                </ul>  
+                    <ul class='nav pull-right' style='margin-right:5px'>
+                        <li class='divider-vertical'></li>   
+                        <li class='dropdown'><a id='li_settings' class='dropdown-toggle' data-toggle='dropdown' href=''>
+                        <i class="icon-cog" style='margin-top:8px'></i> Settings<b class='caret'></b></a>
+                            <ul class='dropdown-menu' id = 'dropdown_menu'>
+                                <li><a href="#" id='settings_density'>Display density:</a></li> 
+                                <li><a href="#" class='menu-rsettings {% if "comfortable" in settings.display_density %}active{% endif %}' id='comfortable'>Comfortable</a></li>
+                                <li><a href="#" class='menu-rsettings {% if "compact" in settings.display_density %}active{% endif %}' id='compact'>Compact</a></li>
+                                <li class="divider"></li>
+                                <li><a id='button_settings' class='menu-rsettings' data-toggle="modal" href="#setModal">Settings</a></li>
+                            </ul>
+                        </li>                    
+                        <li class='divider-vertical'></li>   
+                    {% endif %}   
+                    </ul> 
+                    <div id='wrapper_code'></div>          
+        </div>
+    </div>
+</div>
+<div class="progress progress-danger progress-striped active">
+  <div class="bar" style="width: 0%;"></div>
+</div> 

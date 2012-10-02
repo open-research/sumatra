@@ -1,24 +1,18 @@
-{% extends "base.html" %}
 {% load filters %}
-
-{% block header %}
-<div class="navbar navbar-fixed-top">
-    <div class="navbar-inner">
-        <div class="container-fluid">
-            <h1><div id = "name_project">
-            <a href="/{{project_name}}/about/">{{project_name}}</a></div></h1>
-            <ul class='nav'>
-                <li class="divider"></li>
-                <li><a href='/{{project_name}}/about/' class='a-subnav'>About</a></li> 
-                <li><a href='/' class='a-subnav'>List of projects</a></li>
-                <li><a href='/{{project_name}}/' class='a-subnav'>List of records</a></li>       
-            </ul>
-        </div>
-    </div>
-</div> 
-{% endblock %}
-
-{% block content %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <link rel="stylesheet" href='/media/css/bootstrap.css'>
+    <link rel="stylesheet" href='/media/css/styles.css'> 
+</head>
+<body>
+<div id="container">
+<div id="pageHeader">
+    {% block header %}
+        {% include "header.html" %} 
+    {% endblock %}          
+</div>
+<div id = 'pageBody'>    
 <div class="accordion">
     <h2 class="nav-toggle">General info</h2>
     <form action='{{ request.path }}' method='POST' id="actions" name="actions">
@@ -96,9 +90,8 @@
     <form class="form-horizontal">
         <fieldset class = 'field-acc'>
             <div class="control-group">
-                {% if parameters %}
-                    {% for name, value in parameters.items %}
-                    {{name}} = {{value}}<br>{% endfor %}
+                {% if parameters %}            
+                        {% for name, value in parameters.items %}<div class='label label-success' style='display:inline-block'>{{name}}</div><pre style='margin-top:5px'>{{value}}</pre>{% endfor %}
                 {% else %}
                     no parameters
                 {% endif %}
@@ -156,9 +149,7 @@
             <div class="control-group">
                 {% if record.stdout_stderr %}
                 <div style='width:94%'>
-                    <pre>
-                    {{ record.stdout_stderr }}
-                    </pre>
+                    <pre>{{ record.stdout_stderr }}</pre>
                 </div>
                 {% else %}
                 no outputs
@@ -167,7 +158,7 @@
         </fieldset>
     </form>
 </div>
-
+<script type = 'text/javascript' src='/media/js/jquery-1.7.2.min.js'></script>
 <script type = 'text/javascript'>
 $(document).ready(function(){
         $('.accordion').find('h2').click(function(){
@@ -177,4 +168,7 @@ $(document).ready(function(){
         $('#stdout').css('width', $('h2.topic').width());
 });
 </script>
-{% endblock %}
+</div>
+</div>
+</body>
+</html>

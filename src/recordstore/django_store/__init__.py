@@ -182,11 +182,15 @@ class DjangoRecordStore(RecordStore):
             db_record.input_data.add(self._get_db_obj('DataKey', key))
         for key in record.output_data:
             db_record.output_data.add(self._get_db_obj('DataKey', key))
-        for dep in record.dependencies:
-            #print "Adding dependency %s to db_record" % dep
-            db_record.dependencies.add(self._get_db_obj('Dependency', dep))
+        if record.dependencies:
+            for dep in record.dependencies:
+                #print "Adding dependency %s to db_record" % dep
+                db_record.dependencies.add(self._get_db_obj('Dependency', dep))
         for pi in record.platforms:
             db_record.platforms.add(self._get_db_obj('PlatformInformation', pi))
+        #import pdb;pdb.set_trace()
+        for key, item in record.parameters.values.iteritems():
+            db_record.variables.add(self._get_db_obj('VariableSet', key))
         db_record.diff = record.diff
         db_record.save(using=self._db_label)
         

@@ -29,8 +29,13 @@ class SumatraObjectsManager(models.Manager):
                     attributes[name] = str(obj.__getstate__())
                 elif name == 'type':
                     attributes[name] = obj.__class__.__name__
+                elif name == 'var_name':
+                    attributes[name] = obj
                 elif name in ('content', 'metadata'):
-                    attributes[name] = str(obj) # ParameterSet, DataKey
+                    if name == 'content':
+                        attributes[name] = str(obj.values) 
+                    else:    
+                        attributes[name] = str(obj) # ParameterSet, DataKey
                 else:
                     raise
         return self.using(using).get_or_create(**attributes)            
@@ -67,6 +72,9 @@ class Executable(BaseModel):
     version = models.CharField(max_length=20)
     options = models.CharField(max_length=50)
 
+    def __unicode__(self):
+        return self.path
+
     def to_sumatra(self):
         cls = programs.registered_program_names.get(self.name, programs.Executable)
         ex = cls(self.path, self.version, self.options)
@@ -98,12 +106,22 @@ class Repository(BaseModel):
     # the following should be unique together.
     type = models.CharField(max_length=20)
     url = models.URLField(verify_exists=False)
+
+    def __unicode__(self):
+        return self.url
     
     def to_sumatra(self):
         for m in versioncontrol.vcs_list:
             if hasattr(m, self.type):
                 return getattr(m, self.type)(self.url)
         raise Exception("Repository type %s not supported." % self.type)
+
+
+class VariableSet(BaseModel):
+    var_name = models.CharField(max_length=30)
+
+    def __unicode__(self):
+        return self.var_name
 
 
 class ParameterSet(BaseModel):
@@ -186,12 +204,12 @@ class PlatformInformation(BaseModel):
 
 
 class Record(BaseModel):
-    label = models.CharField(max_length=100, unique=True) # make this a SlugField?
+    label = models.CharField(max_length=100, unique=False) # make this a SlugField? samarkanov changed unique to False for the search form.
     db_id = models.AutoField(primary_key=True) # django-tagging needs an integer as primary key - see http://code.google.com/p/django-tagging/issues/detail?id=15
     reason = models.TextField(blank=True)
     duration = models.FloatField(null=True)
-    executable = models.ForeignKey(Executable)
-    repository = models.ForeignKey(Repository)
+    executable = models.ForeignKey(Executable, null=True, blank=True) # null and blank for the search. If user doesn't want to specify the executable during the search
+    repository = models.ForeignKey(Repository, null=True, blank=True) # null and blank for the search.
     main_file = models.CharField(max_length=100)
     version = models.CharField(max_length=50)
     parameters = models.ForeignKey(ParameterSet)
@@ -210,6 +228,10 @@ class Record(BaseModel):
     project = models.ForeignKey(Project, null=True)
     script_arguments = models.TextField(blank=True)
     stdout_stderr = models.TextField(blank=True)
+    variables = models.ManyToManyField(VariableSet)
+
+    # parameters which will be used in the fulltext search (see sumatra.web.services fulltext_search)
+    params_search = ('label','reason', 'duration', 'main_file', 'outcome', 'user', 'tags') 
 
     def to_sumatra(self):
         record = records.Record(

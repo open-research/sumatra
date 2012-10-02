@@ -27,10 +27,15 @@ except ImportError:
     from mercurial.dispatch import _findrepo as findrepo
 import os
 import binascii
+import functools
 from base import VersionControlError
 
 from base import Repository, WorkingCopy
 
+def vectorized(generator_func):
+    def wrapper(*args, **kwargs):
+        return list(generator_func(*args, **kwargs))
+    return functools.update_wrapper(wrapper, generator_func)
 
 def may_have_working_copy(path=None):
     path = path or os.getcwd()
@@ -93,6 +98,19 @@ class MercurialWorkingCopy(WorkingCopy):
         opts = patch.mdiff.diffopts(nodates=True)
         diff = patch.diff(self.repository._repository, opts=opts)
         return "".join(diff)
+
+    def content(self, hex):
+        repo = hg.repository(ui.ui(), self.path)
+        i = 1
+        if hex in repo.parents()[0].hex():
+            ctx = repo.parents()[0] 
+            return ctx.filectx(ctx.files()[0]).data()
+        while True:
+            el = repo.parents(i)[0].hex()
+            if hex in el:  
+                ctx = repo.parents(i)[0]      
+                return ctx.filectx(ctx.files()[0]).data() # presume that we have only one file [0]
+            i += 1
 
 
 class MercurialRepository(Repository):

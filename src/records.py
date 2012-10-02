@@ -106,9 +106,9 @@ class Record(object):
         # Write the executable-specific parameter file
         script_arguments = self.script_arguments
         if self.parameters:
-            parameter_file = "%s.param" % self.label.replace("/", "_")
-            self.executable.write_parameters(self.parameters, parameter_file)
-            script_arguments = script_arguments.replace("<parameters>", parameter_file)
+            self.parameter_file = "%s.param" % self.label.replace("/", "_")
+            self.executable.write_parameters(self.parameters, self.parameter_file)
+            script_arguments = script_arguments.replace("<parameters>", self.parameter_file)
         # Run simulation/analysis
         start_time = time.time()
         result = self.launch_mode.run(self.executable, self.main_file,
@@ -124,15 +124,16 @@ class Record(object):
         except:
             self.stdout_stderr = "Not available."
         # Run post-processing scripts
-        pass # skip this if there is an error
+        # pass # skip this if there is an error
         # Search for newly-created datafiles
-        if self.parameters and os.path.exists(parameter_file):
-            os.remove(parameter_file)
         self.output_data = self.datastore.find_new_data(self.timestamp)
         if self.output_data:
             print "Data keys are", self.output_data
         else:
             print "No data produced."
+        if self.parameters and os.path.exists(self.parameter_file):
+            time.sleep(0.5) # execution of matlab: parameter_file is not always deleted immediately
+            os.remove(self.parameter_file)
 
     def __repr__(self):
         return "Record #%s" % self.label

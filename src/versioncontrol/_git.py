@@ -23,9 +23,8 @@ try:
     from git.errors import InvalidGitRepositoryError
 except:
     from git.exc import InvalidGitRepositoryError
-
-
 from base import Repository, WorkingCopy, VersionControlError
+
 
 def findrepo(path):
     try:
@@ -104,6 +103,13 @@ class GitWorkingCopy(WorkingCopy):
         """Difference between working copy and repository."""
         g = git.Git(self.path)
         return g.diff('HEAD')
+
+    def content(self, digest):
+        repo = git.Repo(self.path)
+        for item in repo.iter_commits('master'):
+            if item.hexsha == digest:
+                file_content = item.tree.blobs[0].data_stream.read()
+        return file_content
         
 
 def move_contents(src, dst):

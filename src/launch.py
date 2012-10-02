@@ -14,7 +14,9 @@ import platform
 import socket
 import subprocess
 import os
+import sys
 from sumatra.programs import Executable
+from sumatra.dependency_finder.matlab import save_dependencies
 import warnings
 import cmd
 import tempfile
@@ -85,18 +87,13 @@ class LaunchMode(object):
         cmd = self.generate_command(executable, main_file, arguments)
         if append_label:
             cmd += " " + append_label
-        print "Sumatra is running the following command:", cmd
-        #p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True)
-
-        #p = subprocess.Popen(cmd , shell=True, stdout=None, stderr=None, close_fds=True)
-        #result = p.wait()
-        #self.errors = p.stderr.read()
-        #self.output = p.stdout.read()
-        #sys.stdout.write(self.output)
-        #sys.stderr.write(self.errors)
-        result, output = tee.system2(cmd, stdout=True)
+        if 'matlab' in executable.name.lower():  
+            ''' we will be executing Matlab and at the same time saving the
+            dependencies in order to avoid opening of Matlab shell two times '''
+            result, output = save_dependencies(cmd, main_file)       
+        else:
+            result, output = tee.system2(cmd, stdout=True)
         self.stdout_stderr = "".join(output)
-
         if result == 0:
             return True
         else:
@@ -156,9 +153,15 @@ class SerialLaunchMode(LaunchMode):
         return {}
     
     def generate_command(self, executable, main_file, arguments):
+        #import pdb;pdb.set_trace()
         __doc__ = LaunchMode.__doc__
         check_files_exist(executable.path, *main_file.split())
-        cmd = "%s %s %s %s" % (executable.path, executable.options, main_file, arguments)
+        if 'matlab' in executable.name:
+            #if sys.platform == 'win32' or sys.platform == 'win64':
+            cmd = "%s -nodesktop -r \"%s('%s')\"" %(executable.name, main_file.split('.')[0], arguments) # only for windows
+            # cmd = "%s -nodesktop -r \"%s('%s')\"" %(executable.name, main_file.split('.')[0], 'in.param') # only for windows
+        else:
+            cmd = "%s %s %s %s" % (executable.path, executable.options, main_file, arguments)
         return cmd
     
 

@@ -1,0 +1,143 @@
+<div class="modal" id="setModal">
+  <a class="close" data-dismiss="modal">&times;</a>
+  <div class="modal-header">
+    <h3>Settings</h3>
+  </div>
+  <div class="modal-body">  
+     <div id = 'tab_general_text'><p><b>Table:</b></p></div>
+        <div id = 'tab_general_content'>
+            <label class="checkbox">
+                <input type="checkbox"  id='repository' class='check-item'> Repository
+            </label>
+            <label class="checkbox">
+                <input type="checkbox" id='label' class='check-item'> Label
+            </label>
+            <label class="checkbox">
+                <input type="checkbox" id='tag' class='check-item'> Tag
+            </label>
+            <label class="checkbox">
+                <input type="checkbox" id='reason' class='check-item'> Reason
+            </label>
+            <label class="checkbox">
+                <input type="checkbox" id='outcome' class='check-item'> Outcome
+            </label>
+            <label class="checkbox">
+                <input type="checkbox" id='duration' class='check-item'> Duration
+            </label>
+            <label class="checkbox">
+                <input type="checkbox" id='processes' class='check-item'> Processes
+            </label>
+            <label class="checkbox">
+                <input type="checkbox" id='ename' class='check-item'> Executable name
+            </label>
+            <label class="checkbox">
+                <input type="checkbox" id='eversion' class='check-item'> Executable version
+            </label>
+            <label class="checkbox">
+                <input type="checkbox" id='date' class='check-item'> Date
+            </label>
+            <label class="checkbox">
+                <input type="checkbox" id='time' class='check-item'> Time
+            </label>
+            <label class="checkbox">
+                 <input type="checkbox" id='main' class='check-item'> Script main file
+            </label>
+            <label class="checkbox">
+                <input type="checkbox" id='version' class='check-item'> Script version
+            </label>
+            <label class="checkbox">
+                <input type="checkbox" id='arguments' class='check-item'> Script arguments
+            </label>
+            <label class="checkbox">
+                <input type="checkbox" id = 'selectAll' checked="checked"><b style='font-size:14px'>Select all</b>
+            </label>
+            <div style='float:left; padding:8px; padding-left:0px'>Number of records per page:</div>
+            <input id='s_nbt' class='span1' type='text' style='float:left;margin-bottom:0px' value='{{settings.nb_records_per_page}}'>
+        </div>     
+  </div>
+  <div class="modal-footer"> 
+        <a class="btn" data-dismiss="modal">Close</a>
+        <a class="btn btn-primary" id='save_set'>Save changes</a>
+ </div> 
+</div>       
+ <script type = 'text/javascript'>
+$(document).ready(function(){ 
+    // click on the compact/comfortable anchor tag in settings drop-down list
+    $('.menu-rsettings').not('#button_settings').click(function(){
+        var $density_set = $(this).attr('id');      //compact or comfortable
+        $('.menu-rsettings').removeClass('active');
+        $(this).addClass('active');
+        // save into .smt/project file the changed 'table density' settings
+        $.post("/{{project_name}}/settings", {'display_density':$density_set,'saveSettings':true}); 
+        // change the style of the table 
+        if ($density_set == 'compact'){
+            $('.record').removeClass('comfortable').addClass('condensed');
+        }else{
+            $('.record').removeClass('condensed').addClass('comfortable');
+        }  
+    });
+
+    // user opens settings_window
+    $('#button_settings').on('click', function(){
+        $('#default_header').css('display', 'inline');
+        $('.check-item').attr('checked', false); // uncheck all of them
+        // in the settings form refresh the current state of chkboxes:
+        $('#default_header label').not(':hidden').each(function(){
+            var str_chbx = ['.check-item#', $(this).attr('id').split('-')[1]].join('');
+            $(str_chbx).attr('checked', true);
+        });
+    });
+
+    $('.check-item, #button_settings').on('click', function(){
+        var $btext = $('#selectAll').parent().find('b');
+        var nbChecked = $(".check-item:checked").length;
+        if ($(".check-item").length > nbChecked) { //if there are some unchecked 
+            $btext.html('Select all');  // change text
+            $("#selectAll").attr('checked', false);
+        }else{
+            $btext.html('Deselect all');
+            $("#selectAll").attr('checked', true);
+        }
+        if (nbChecked) {
+            $('#save_set').removeClass('disabled');
+        }else{
+            $('#save_set').addClass('disabled');
+        }
+    });
+    
+    // settings_window: user clicks 'select all' checkbox
+    $("#selectAll").click(function() { 
+        var checkedStatus = this.checked; // true or false
+        var $btext = $('#selectAll').parent().find('b');       
+        $(".check-item").each(function() {
+            this.checked = checkedStatus;
+        });          
+        if (checkedStatus){ $btext.html('Deselect all'); $('#save_set').removeClass('disabled');}
+        else {$btext.html('Select all'); $('#save_set').addClass('disabled');} 
+    });
+
+    // settings_window: user click 'save'
+    $('#save_set').click(function(){    
+        if (!$('#save_set').hasClass('disabled')){ 
+            //var str_rec, str_head,  
+            var uncheckedItems = new Array(); // all unchecked chkboxes
+            var nb_rec = $('#s_nbt').val(); // number of records per one page
+            if (parseInt(nb_rec) > 0){
+                // hide columns:
+                $("#setModal .check-item").not(':checked').each(function() { 
+                    var $unchecked = $(this).attr('id');
+                    //str_rec = ['.record #', $unchecked, '-t'].join(''); // records selector string
+                    //str_head = ['#l-', $unchecked].join(''); // header of the table selector string           
+                    uncheckedItems.push($unchecked);
+                }); 
+                // save settings to .smt/project
+                $('#innerContent').load('settings',{'hidden_cols':uncheckedItems, 
+                                                    'nb_records_per_page':nb_rec}, showjGrowl());
+            }          
+            else{
+                alert('Please enter the vaid number of records')
+            }
+        }  
+    });
+});
+</script>

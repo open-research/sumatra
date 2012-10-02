@@ -14,15 +14,165 @@ Before using the web interface, you must have created a Sumatra project using
 To launch the web interface, in your project directory run::
 
     $ smtweb &
-    
+
+
 This will launch a simple web server that listens on port 8000, and will
-automatically open a new tab in your browser at http://127.0.0.1:8000/.
+automatically open a new tab in your browser at http://127.0.0.1:8000/. You can specify 
+the ``-n`` option which will disable automatic opening of the new tab::
+
+    $ smtweb -n
 
 If port 8000 is already in use, you can specify a different port with the ``-p``
 option to ``smtweb``, e.g.::
 
     $ smtweb -p 8001
 
+If your project does not contain any records, the record store will be created and at the initial
+web page the modal window will be displayed. In that window you should specify the name of the executable
+which you intend to use:
+
+.. figure:: /images/img1.png  
+ :scale: 100 %
+ :align: center
+
+Web interface is consisted from the three principal pages:
+     - List of projects
+     - List of records
+     - About page 
+Each time you start Sumatra web interface the initial will be the **list of projects** page.
+
+Executing Sumatra from the web interface
+----------------------------------------
+You can run Sumatra on **list of records** page and in case you have the empty project, this page
+will have nothing except the button. By clicking it the **new simulation** dialog window will be opened.
+
+.. figure:: /images/img2.png  
+ :scale: 100 %
+ :align: center
+
+You can specify **label**, **reason**, **tag**, **main file**, **arguments**, and **executable** there. The **executable**
+option will be already filled, however you can change it for any new record. **Main file** and **arguments** are
+drop-down lists with the names of the files from the folder of Sumatra project. As soon as the file is picked up from the
+list, you can see their content. More than that, the **argument** file is editable and any changes you made can be saved from this web page. You can hide and open the content of the files by clicking the corresponding links below the drop-down list.
+
+.. figure:: /images/img3.png  
+ :scale: 90 %
+ :align: center
+
+After the successful execution of Sumatra the new record will be appended to the table at **List of records** web-page.
+
+Changing the web settings
+-------------------------
+Originally the page **List of records** contains a table with the following columns:
+	- Repository (name of the Sumatra project folder)
+	- Label
+	- Tag
+	- Reason
+	- Outcome
+	- Duration
+	- Processes
+	- Date (date of the record execution)
+	- Time
+	- Executable name
+	- Executable version
+	- Main file
+	- Version (ID name of the revision for the repository)
+	- Arguments
+**Important**: for now it is not possible to set the label name with the space inside it.
+
+The default value of the total number of records per one page is 10. You can change any settings concerning the table view the in the **Settings** window.
+
+.. figure:: /images/img4.png  
+ :scale: 70 %
+ :align: center
+
+List of records: content of the table
+----------------------------------------
+Each record is represented as the row in the table. The rows can be selected just by dragging the mouse over it. As soon as you start doing that, the header of the table will be changed and it will be containing actions you can perform with selected records. Among them you can:
+	- Set the tags for the selected simulations
+	- Delete simulations
+	- Compare simulations with each other  
+
+.. figure:: /images/img5.png  
+ :scale: 70 %
+ :align: center
+
+**Removing the records**
+
+As an option you can remove the records with any data pertinent to that simulation.
+
+.. figure:: /images/img6.png  
+ :scale: 70 %
+ :align: center
+
+**Editing the tags**
+
+For the selected records you can specify additional tags, edit or remove them.
+
+**Important**: for now it is not possible to have the tag names which will contain space.
+
+.. figure:: /images/img7.png  
+ :scale: 67 %
+ :align: center
+
+**Comparison of records**
+
+From the set of selected records you can choose any two to compare them.
+
+.. figure:: /images/img8.png  
+ :scale: 70 %
+ :align: center
+
+**Retrieving the content of main file**
+
+You can see the code of your script file by clicking the corresponding link in the table. It will be shown in the modal window which can be dragged.
+
+**Important**: for now this is working only for GIT and Mercurial repositories.
+
+.. figure:: /images/img9.png  
+ :scale: 70 %
+ :align: center
+
+Accessing record details
+-------------------------------------
+You can access the record detail by clicking the corresponding label name in the main table. Record detail page contains the following sections:
+	- general info
+	- input files
+	- output files
+	- parameters
+	- dependencies
+	- platform information
+	- Stdout & Stderr
+
+Filtering the records by the tag name
+-------------------------------------
+Records can be filtered using the tags by clicking the 'tag' button positioned at the header of the page.
+
+.. figure:: /images/img10.png  
+ :scale: 70 %
+ :align: center
+
+Filtering the records
+---------------------
+You can filter the records using the search form. This form contains the following items:
+	- label
+	- tags
+	- reason
+	- executable
+	- repository
+	- main file
+	- date
+	- variable name
+	- interval of dates
+
+**Important**: 
+Search using the input textarea at the header of the page currently does not work, please use instead the search form.
+
+.. figure:: /images/img11.png  
+ :scale: 70 %
+ :align: center
+
+Search by **variable name** allows filtering the records using the name of parameter. If for each new simulation you have different parameter set, this feature can be useful for narrowing the set of possible records.   
 
 For multiple projects
 ---------------------
@@ -39,7 +189,6 @@ Finishing up
 
 Don't forget to kill the webserver process (e.g. with ``fg``, ``Ctrl-C``) when you are
 finished with it.
-
 
 Customizing the web interface
 -----------------------------
