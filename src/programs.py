@@ -72,15 +72,10 @@ class Executable(object):
                 print 'Multiple versions found, using %s. If you wish to use a different version, please specify it explicitly' % executable
         return executable
 
-    def _get_version(self):  
-        if 'matlab' in self.path.lower():
-            p = subprocess.Popen("matlab -h", stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
-            returncode = p.wait()
-            match = version_pattern_matlab.search(p.stdout.read())
-        else:    
-            p = subprocess.Popen("%s --version" % self.path, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
-            returncode = p.wait()
-            match = version_pattern.search(p.stdout.read())
+    def _get_version(self):
+        p = subprocess.Popen("%s --version" % self.path, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+        returncode = p.wait()
+        match = version_pattern.search(p.stdout.read())
         if match:
             version = match.groupdict()['version']
         else:
@@ -102,7 +97,6 @@ class Executable(object):
 
 
 class NEURONSimulator(Executable):
-    
     name = "NEURON"
     default_executable_name = "nrniv"
     mpi_options = "-mpi"
@@ -120,19 +114,31 @@ class NEURONSimulator(Executable):
 
 
 class PythonExecutable(Executable):
-    
     name = "Python"
     default_executable_name = "python" 
 
 
+class MatlabExecutable(Executable):
+    name = "Matlab"
+    default_executable_name = "matlab" 
+
+    def _get_version(self):
+        p = subprocess.Popen("matlab -h", stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+        returncode = p.wait()
+        match = version_pattern_matlab.search(p.stdout.read())
+        if match:
+            version = match.groupdict()['version']
+        else:
+            version = None
+        return version
+
+
 class NESTSimulator(Executable):
-    
     name = "NEST"
     default_executable_name = 'nest'
     
 
 class GENESISSimulator(Executable):
-    
     name = "GENESIS"
     default_executable_name = "genesis"
 
@@ -152,10 +158,12 @@ class GENESISSimulator(Executable):
         os.remove("genesis_version.g")
         os.remove("genesis_version.out")
         return version.strip()
-    
+
+
 registered_program_names = {}
 registered_executables = {}
 registered_extensions = {}
+
     
 def register_executable(cls, name, executables, extensions):
     """Register a new subclass of Executable that can be returned by get_executable()."""
@@ -165,14 +173,17 @@ def register_executable(cls, name, executables, extensions):
         registered_executables[executable] = cls
     for ext in extensions:
         registered_extensions[ext] = cls
+
     
 register_executable(NEURONSimulator, 'NEURON', ('nrniv', 'nrngui'), ('.hoc', '.oc'))
 register_executable(PythonExecutable, 'Python', ('python', 'python2', 'python3',
                                                  'python2.5', 'python2.6', 'python2.7',
-                                                 'python3.1', 'python3.2'), ('.py',))
+                                                 'python3.1', 'python3.2', 'python3.3'), ('.py',))
+register_executable(MatlabExecutable, 'Matlab', ('matlab',), ('.m',))
 register_executable(NESTSimulator, 'NEST', ('nest',), ('.sli',))
 register_executable(GENESISSimulator, 'GENESIS', ('genesis',), ('.g',))
-    
+
+
 def get_executable(path=None, script_file=None):
     """
     Given the path to an executable, determine what program it is, if possible.

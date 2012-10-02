@@ -16,6 +16,7 @@ except ImportError:
 
 class MockExecutable(object):
     def __init__(self, path):
+        self.name = "foo"
         self.path = path
         self.options = "-t"
 
