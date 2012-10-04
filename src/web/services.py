@@ -55,12 +55,12 @@ class RecordForm(SearchForm):
 class DefaultTemplate(object):
     '''
     Default template is the record_list.html. This class will be invoked each time user opens
-    http://localhost/{{project_name}}/
+    http://localhost/{{project_id}}/
     '''
     
     def __init__(self, project):
         self.nbCol = 14
-        self.project_name = project
+        self.project_id = project
         self.form = RecordForm()
         self._init_settings()
         self.sim_list = models.Record.objects.filter(project__id=project).order_by('-timestamp') # here project is the string

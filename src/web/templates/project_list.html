@@ -7,19 +7,13 @@
 {% block content %}
     {% if object_list %}
     <div id = 'div_listOfprojects'>
-        <table class="table table-bordered" >
-            <tr>
-                <th>ID</th><th>Name</th><th>Description</th><th>Records</th>
-            </tr>
-            {% for project in object_list %}
-            <tr class="{% cycle odd,even %}">
-                <td><a href="/{{project.id}}/">{{project.id}}</a></td>
-                <td>{{project.name}}</td>
-                <td>{{project.description|restructuredtext}}</td>
-                <td>{{project.record_set.count}}</td>
-            </tr>
-            {% endfor %}
-        </table>
+        {% for project in object_list %}
+        <div class="well">
+            <a href="/{{project.id}}/"><h2>{{project.get_name}}</h2></a>
+            <span class="label label-important clearfix">{{project.record_set.count}} records</span>
+            {{project.description|restructuredtext}}
+        </div>
+        {% endfor %}
     </div>
     {% else %}
         <div id = 'div_listOfprojects'>
