@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% load markup %}
+
 {% block title %}List of projects{% endblock %}
 
 {% block content %}
@@ -13,7 +15,7 @@
             <tr class="{% cycle odd,even %}">
                 <td><a href="/{{project.id}}/">{{project.id}}</a></td>
                 <td>{{project.name}}</td>
-                <td>{{project.description}}</td>
+                <td>{{project.description|restructuredtext}}</td>
                 <td>{{project.record_set.count}}</td>
             </tr>
             {% endfor %}

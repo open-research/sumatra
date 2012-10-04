@@ -51,7 +51,7 @@ def list_projects(request):
 def show_project(request, project):
     project = Project.objects.get(id=project)
     # notification is used after the form is successfully stored. In project_detail.html we use jGrowl for that
-    dic = {'project_name': project, 'form': None, 'active':'About', 'notification':False} 
+    dic = {'project_name': project, 'form': None, 'active': 'About', 'notification': False} 
     if request.method == 'POST':
         form = ProjectUpdateForm(request.POST, instance=project)
         if form.is_valid():
