@@ -1,6 +1,7 @@
 """
 Defines view functions and forms for the Sumatra web interface.
 """
+
 import os
 import mimetypes
 import csv
@@ -18,6 +19,7 @@ from sumatra.programs import Executable
 DEFAULT_MAX_DISPLAY_LENGTH = 10*1024
 mimetypes.init()
 
+
 def list_records(request, project):
     if request.is_ajax(): # only when paginating
         ajaxTempOb = AjaxTemplate(project, request.POST)
@@ -32,9 +34,10 @@ def list_records(request, project):
         defTempOb.init_object_list() # object_list is used in record_list.html   
         return render_to_response('record_list.html', defTempOb.getDict())
 
+
 def list_projects(request):
     projects = Project.objects.all() 
-    extra_context={'active':'List of projects'}  #returns the first project
+    extra_context = {'active':'List of projects'}  #returns the first project
     if not len(projects):  
         extra_context['project_name'] = load_project().name
         if not load_project().default_executable: # empty project: without any records inside
@@ -42,7 +45,8 @@ def list_projects(request):
     else:
         extra_context['project_name'] = projects[0]
     return list_detail.object_list(request, queryset=projects,
-                                   template_name="project_list.html",extra_context=extra_context)
+                                   template_name="project_list.html", extra_context=extra_context)
+
 
 def show_project(request, project):
     project = Project.objects.get(id=project)
@@ -59,6 +63,7 @@ def show_project(request, project):
         dic['form'] = ProjectUpdateForm(instance=project)
     return render_to_response('project_detail.html', dic)
 
+
 def list_tags(request, project):
     if request.method == 'POST': # user define a tag name (by clicking it)
         ajaxTempOb = AjaxTemplate(project, request.POST)
@@ -68,6 +73,7 @@ def list_tags(request, project):
         return render_to_response('content.html', dic)
     else:
         return render_to_response('tag_list.html', {'tags_list':Tag.objects.all(), 'project_name': project})
+
 
 def record_detail(request, project, label):
     if label != 'nolabel':
@@ -112,6 +118,7 @@ def record_detail(request, project, label):
                                                      'form': form
                                                      })
 
+
 def search(request, project):
     ajaxTempOb = AjaxTemplate(project, request.POST)
     if request.POST.has_key('fulltext_inquiry'): # using the input #search_subnav
@@ -138,6 +145,7 @@ def set_tags(request, project):
                 form.save()
         return HttpResponseRedirect('.')
 
+
 def delete_records(request, project):
     records_to_delete = request.POST.getlist('delete[]')
     delete_data = request.POST.get('delete_data', False)
@@ -152,6 +160,7 @@ def delete_records(request, project):
             record.delete()
     return HttpResponse('OK')
 
+
 def settings(request, project):
     if request.POST.has_key('init_settings'):
         executable = request.POST.get('executable')
@@ -161,19 +170,20 @@ def settings(request, project):
             return HttpResponse('error')
         configure(['--executable=%s' %executable])
         return HttpResponse('OK')
-    web_settings = {'display_density':request.POST.get('display_density', False),
-                    'nb_records_per_page':request.POST.get('nb_records_per_page', False),
+    web_settings = {'display_density': request.POST.get('display_density', False),
+                    'nb_records_per_page': request.POST.get('nb_records_per_page', False),
                     'hidden_cols': request.POST.getlist('hidden_cols[]')}
     ajaxTempOb = AjaxTemplate(project, None)
     for key, item in web_settings.iteritems():
         if item:
-            ajaxTempOb.project.web_settings[key] = item
+            ajaxTempOb.settings[key] = item
         else:
             if key == 'hidden_cols':
-                ajaxTempOb.project.web_settings[key] = None
-    ajaxTempOb.project.save()
+                ajaxTempOb.settings[key] = None
+    ajaxTempOb.save_settings()
     ajaxTempOb.init_object_list(1)
     return render_to_response('content.html', ajaxTempOb.getDict())
+
 
 def run_sim(request, project):
     if request.POST.has_key('content'): # save the edited argument file
@@ -212,6 +222,7 @@ def run_sim(request, project):
             return HttpResponse('OK')
         else:
             return render_to_response('content.html', ajaxTempOb.getDict())
+
 
 def show_file(request, project, label):
     if request.POST.has_key('show_args'): # retrieve the content of the input file
@@ -321,6 +332,7 @@ def download_file(request, project, label):
     response.write(content)
     return response 
 
+
 def show_image(request, project, label):
     label = unescape(label)
     path = request.GET['path']
@@ -339,7 +351,8 @@ def show_image(request, project, label):
         return response
     else:
         return HttpResponse(mimetype="image/png") # should return a placeholder image?
-    
+
+
 def show_diff(request, project, label, package):
     label = unescape(label)
     record = Record.objects.get(label=label, project__id=project)

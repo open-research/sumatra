@@ -67,7 +67,7 @@ $(document).ready(function(){
         var $density_set = $(this).attr('id');      //compact or comfortable
         $('.menu-rsettings').removeClass('active');
         $(this).addClass('active');
-        // save into .smt/project file the changed 'table density' settings
+        // save into ~/.smtrc file the changed 'table density' settings
         $.post("/{{project_name}}/settings", {'display_density':$density_set,'saveSettings':true}); 
         // change the style of the table 
         if ($density_set == 'compact'){
@@ -130,7 +130,7 @@ $(document).ready(function(){
                     //str_head = ['#l-', $unchecked].join(''); // header of the table selector string           
                     uncheckedItems.push($unchecked);
                 }); 
-                // save settings to .smt/project
+                // save settings to ~/.smtrc
                 $('#innerContent').load('settings',{'hidden_cols':uncheckedItems, 
                                                     'nb_records_per_page':nb_rec}, showjGrowl());
             }          

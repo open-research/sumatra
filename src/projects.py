@@ -34,7 +34,7 @@ except ImportError:
     import simplejson as json
 
 DEFAULT_PROJECT_FILE = "project"
-RECORDS_PER_PAGE = 10
+
 
 def _remove_left_margin(s): # replace this by textwrap.dedent?
     lines = s.strip().split('\n')
@@ -50,7 +50,7 @@ class Project(object):
                  default_main_file=None, default_launch_mode=None,
                  data_store='default', record_store='default',
                  on_changed='error', description='', data_label=None,
-                 input_datastore=None, web_settings=None):
+                 input_datastore=None):
         self.path = os.getcwd()
         if not os.path.exists(".smt"):
             os.mkdir(".smt")
@@ -72,7 +72,6 @@ class Project(object):
         self.description = description
         self.data_label = data_label
         self._most_recent = None
-        self.web_settings = init_websettings()
         self.save()
         print "Sumatra project successfully set up"
         
@@ -90,8 +89,7 @@ class Project(object):
         for name in ('name', 'default_executable', 'default_repository',
                      'default_launch_mode', 'data_store', 'record_store',
                      'default_main_file', 'on_changed', 'description',
-                     'data_label', '_most_recent', 'input_datastore',
-                     'web_settings'):
+                     'data_label', '_most_recent', 'input_datastore',):
             attr = getattr(self, name)
             if hasattr(attr, "__getstate__"):
                 state[name] = {'type': attr.__class__.__module__ + "." + attr.__class__.__name__}
@@ -259,8 +257,6 @@ def _load_project_from_json(path):
             setattr(prj, key, cls(**args))
         else:
             setattr(prj, key, value)
-    if not hasattr(prj, "web_settings"):
-        prj.web_settings = init_websettings()
     return prj
 
 def _load_project_from_pickle(path):
@@ -290,8 +286,3 @@ def load_project(path=None):
     #except Exception:
     #    prj = _load_project_from_pickle(p)
     return prj
-
-def init_websettings():
-    return {'nb_records_per_page': RECORDS_PER_PAGE,
-            'display_density': 'compact',
-            'hidden_cols': None}

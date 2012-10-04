@@ -6,13 +6,19 @@ docstring goes here
 from django import forms
 from django.db.models import Q
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from sumatra.projects import load_project, init_websettings
+from sumatra.projects import load_project
 from sumatra.recordstore.django_store import models
 from time import strptime
 import datetime
 import os
 import json
 
+
+def init_websettings():
+    return {'nb_records_per_page': 10,
+            'display_density': 'compact',
+            'hidden_cols': None}
+    
 
 def unescape(label):
     return label.replace("||", "/")
@@ -33,7 +39,8 @@ class SearchForm(forms.ModelForm):
         super(SearchForm, self).__init__(*args, **kwargs)
         for key, field in self.fields.iteritems():
             self.fields[key].required = False
-            
+
+
 class RecordForm(SearchForm):
     executable = forms.ModelChoiceField(queryset=models.Executable.objects.all(), empty_label='')
     repository = forms.ModelChoiceField(queryset=models.Repository.objects.all(), empty_label='')
@@ -43,6 +50,7 @@ class RecordForm(SearchForm):
         model = models.Record
         fields = ('label', 'tags', 'reason', 'executable', 'repository',
                   'main_file', 'timestamp')
+
 
 class DefaultTemplate(object):
     '''
@@ -72,7 +80,7 @@ class DefaultTemplate(object):
 
     def _init_settings(self):
         '''
-        Checking existence of the specific settings in .smt/project.
+        Checking existence of the specific settings in ~/.smtrc
         In case it doesn't exist, it will be initialized with some default values
         Inputs:
             project: project object,
@@ -80,15 +88,12 @@ class DefaultTemplate(object):
         Output:
             web_settings: dictionary.
         '''
-        try:
-            project = load_project()
-            self.settings = project.web_settings
-        except IOError:
-            global_conf_file = os.path.join("homedir", ".smtrc")
-            if os.path.exists(global_conf_file):
-                self.settings = json.load(global_conf_file)
-            else:
-                self.settings = init_websettings()   
+        global_conf_file = os.path.expanduser(os.path.join("~", ".smtrc"))
+        if os.path.exists(global_conf_file):
+            with open(global_conf_file) as fp:
+                self.settings = json.load(fp)
+        else:
+            self.settings = init_websettings()   
 
     def getDict(self):
         return self.__dict__
@@ -143,6 +148,11 @@ class AjaxTemplate(DefaultTemplate):
                                        x.timestamp <= datetime.datetime.combine(dateIntvl['max'], datetime.time(23,59)), self.sim_list) # all the records inside the specified interval
         elif self.tags:
             self.sim_list =  self.sim_list.filter(tags__icontains = self.tags.strip())
+
+    def save_settings(self):
+        global_conf_file = os.path.expanduser(os.path.join("~", ".smtrc"))
+        with open(global_conf_file, 'w') as fp:
+            json.dump(self.settings, fp, indent=2)
 
 
 class RecordUpdateForm(forms.ModelForm):
