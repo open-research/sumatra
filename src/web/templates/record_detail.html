@@ -1,18 +1,17 @@
+{% extends "base.html" %}
+
 {% load filters %}
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-<head>
-    <link rel="stylesheet" href='/media/css/bootstrap.css'>
-    <link rel="stylesheet" href='/media/css/styles.css'> 
-</head>
-<body>
-<div id="container">
-<div id="pageHeader">
-    {% block header %}
-        {% include "header.html" %} 
-    {% endblock %}          
-</div>
-<div id = 'pageBody'>    
+
+{% block title %}{{project_name}}: {{record.label}}{% endblock %}
+
+{% block header %}
+            <li class="divider"></li>
+            <li><a href="/{{project_name}}/">{{project_name}}</a></li>
+            <li><a href="/{{project_name}}/{{record.label}}/"> {{record.label}}</a></li>
+{% endblock %}
+    
+{% block content %}
+
 <div class="accordion">
     <h2 class="nav-toggle">General info</h2>
     <form action='{{ request.path }}' method='POST' id="actions" name="actions">
@@ -168,7 +167,5 @@ $(document).ready(function(){
         $('#stdout').css('width', $('h2.topic').width());
 });
 </script>
-</div>
-</div>
-</body>
-</html>
+
+{% endblock %}

@@ -1,18 +1,11 @@
-{% extends "base.html" %}
+{% extends "show_file_base.html" %}
 
-{% block title %}{{project_name}}: {{label}}: file::{{path}}{% endblock %}
-
-{% block header %}
-<h1>{{project_name}}: <i>{{label}}</i></h1>
-{% endblock %}
 
 {% block content %}
-<p><a href=".">Return to record</a></p>
-
-<h2>{{path}}</h2>
+<h3>{{path}}</h3>
 
 <img src="image?path={{path}}&digest={{digest}}" alt="/{{label}}:{{path}}"/>
 
-<p><a href="download?path={{path}}&digest={{digest}}">Download image</a></p>
+<p><a href="download?path={{path}}&digest={{digest}}" class="btn">Download image</a></p>
 
 {% endblock %}

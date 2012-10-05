@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% load filters %}
+
+{% block title %}{{project_name}}: {{label}}: {{path}}{% endblock %}
+
+{% block header %}
+            <li class="divider"></li>
+            <li><a href="/{{project_name}}/">{{project_name}}</a></li>
+            <li><a href="/{{project_name}}/{{label}}/"> {{label}}</a></li>
+{% endblock %}

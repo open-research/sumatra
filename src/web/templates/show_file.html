@@ -1,20 +1,8 @@
-{% extends "base.html" %}
-
-<div id="pageHeader">
-    {% block header %}
-        {% include "header.html" %} 
-    {% endblock %}          
-</div>
+{% extends "show_file_base.html" %}
 
 {% block content %}
-    <div style = 'height:40px;'>
-        <div id='head-div' style='margin-left:0px'>
-       		<h2><a href="/{{project_name}}/" style='color:purple'>{{project_name}}</a> > 
-       			<a href="/{{project_name}}/{{label}}/">{{label}}</a></h2>
-    	</div>
-    </div>
 
-<h2>{{path}}</h2>
+<h3>{{path}}</h3>
 
 <div class="plaintext">
 <pre>
@@ -23,11 +11,11 @@
 </div>
 
 {% if truncated %}
-<p>File contents truncated. <a href="datafile?path={{path}}&digest={{digest}}&truncate=false">Show entire contents</a></p>
+<p>File contents truncated. <a href="datafile?path={{path}}&digest={{digest}}&truncate=false" class="btn">Show entire contents</a></p>
 {% endif %}
 
 {{errmsg}}
 {% if not errmsg %}
-<p><a href="download?path={{path}}&digest={{digest}}">Download content</a></p>
+<p><a href="download?path={{path}}&digest={{digest}}" class="btn">Download content</a></p>
 {% endif %}
 {% endblock %}

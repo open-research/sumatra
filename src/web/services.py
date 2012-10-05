@@ -60,7 +60,7 @@ class DefaultTemplate(object):
     
     def __init__(self, project):
         self.nbCol = 14
-        self.project_id = project
+        self.project_name = project
         self.form = RecordForm()
         self._init_settings()
         self.sim_list = models.Record.objects.filter(project__id=project).order_by('-timestamp') # here project is the string
