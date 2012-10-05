@@ -15,7 +15,7 @@ import socket
 import subprocess
 import os
 import sys
-from sumatra.programs import Executable
+from sumatra.programs import Executable, MatlabExecutable
 from sumatra.dependency_finder.matlab import save_dependencies
 import warnings
 import cmd
@@ -155,15 +155,21 @@ class SerialLaunchMode(LaunchMode):
     def generate_command(self, executable, main_file, arguments):
         #import pdb;pdb.set_trace()
         __doc__ = LaunchMode.__doc__
-        check_files_exist(executable.path, *main_file.split())
-        if 'matlab' in executable.name:
-            #if sys.platform == 'win32' or sys.platform == 'win64':
-            cmd = "%s -nodesktop -r \"%s('%s')\"" %(executable.name, main_file.split('.')[0], arguments) # only for windows
-            # cmd = "%s -nodesktop -r \"%s('%s')\"" %(executable.name, main_file.split('.')[0], 'in.param') # only for windows
+        if executable.requires_script:
+            check_files_exist(executable.path, *main_file.split())
+            if isinstance(executable, MatlabExecutable):
+                #if sys.platform == 'win32' or sys.platform == 'win64':
+                cmd = "%s -nodesktop -r \"%s('%s')\"" %(executable.name, main_file.split('.')[0], arguments) # only for windows
+                # cmd = "%s -nodesktop -r \"%s('%s')\"" %(executable.name, main_file.split('.')[0], 'in.param') # only for windows
+            else:
+                cmd = "%s %s %s %s" % (executable.path, executable.options, main_file, arguments)
         else:
-            cmd = "%s %s %s %s" % (executable.path, executable.options, main_file, arguments)
+            if executable.path == executable.name:  # temporary hack
+                cmd = "./%s %s %s" % (executable.path, executable.options, arguments)
+            else:
+                cmd = "%s %s %s" % (executable.path, executable.options, arguments)
         return cmd
-    
+
 
 class DistributedLaunchMode(LaunchMode):
     """

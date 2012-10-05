@@ -32,10 +32,10 @@ version_pattern_matlab = re.compile(r'(?<=Version: )(?P<version>\d.+)\b')
 
 class Executable(object):
     # store compilation/configuration options? yes, if we can determine them
-
-    def __init__(self, path, version=None, options=""):
-        if not hasattr(self, 'name'):
-            self.name = os.path.basename(path)
+    requires_script = False  # does this executable require a script file
+    name = None
+    
+    def __init__(self, path, version=None, options="", name=None):
         if path and os.path.exists(path):
             self.path = path
         else:
@@ -44,12 +44,12 @@ class Executable(object):
             except Warning, errmsg:
                 print errmsg
                 self.path = path
-        if not hasattr(self, 'name'):
-            self.name = os.path.basename(self.path)
+        if self.name is None:
+            self.name = name or os.path.basename(self.path)
         self.version = version or self._get_version()
-        self.options = options
+        self.options = options        
 
-    def __str__(self):
+    def __repr__(self):
         s = "%s (version: %s) at %s" % (self.name, self.version, self.path)
         if self.options:
             s += " options: %s" % self.options
@@ -79,7 +79,7 @@ class Executable(object):
         if match:
             version = match.groupdict()['version']
         else:
-            version = None
+            version = "unknown" #None
         return version
 
     def __eq__(self, other):
@@ -89,7 +89,10 @@ class Executable(object):
         return not self.__eq__(other)
     
     def __getstate__(self):
-        return {'path': self.path, 'version': self.version, 'options': self.options}
+        return {'path': self.path, 'version': self.version, 'options': self.options, 'name': self.name}
+    
+    def __setstate__(self, d):
+        self.__dict__ = d
     
     @staticmethod
     def write_parameters(parameters, filename):
@@ -101,6 +104,7 @@ class NEURONSimulator(Executable):
     default_executable_name = "nrniv"
     mpi_options = "-mpi"
     pre_run = "nrnivmodl"
+    requires_script = True
 
     @staticmethod
     def write_parameters(parameters, filename):
@@ -115,12 +119,14 @@ class NEURONSimulator(Executable):
 
 class PythonExecutable(Executable):
     name = "Python"
-    default_executable_name = "python" 
+    default_executable_name = "python"
+    requires_script = True
 
 
 class MatlabExecutable(Executable):
     name = "Matlab"
-    default_executable_name = "matlab" 
+    default_executable_name = "matlab"
+    requires_script = True
 
     def _get_version(self):
         p = subprocess.Popen("matlab -h", stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
@@ -136,11 +142,13 @@ class MatlabExecutable(Executable):
 class NESTSimulator(Executable):
     name = "NEST"
     default_executable_name = 'nest'
+    requires_script = True
     
 
 class GENESISSimulator(Executable):
     name = "GENESIS"
     default_executable_name = "genesis"
+    requires_script = True
 
     def _get_version(self):
         print "Writing genesis version script"

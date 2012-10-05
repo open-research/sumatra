@@ -15,6 +15,7 @@ except ImportError:
     have_mpi = False
 
 class MockExecutable(object):
+    requires_script = True
     def __init__(self, path):
         self.name = "foo"
         self.path = path

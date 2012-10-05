@@ -136,7 +136,7 @@ class Project(object):
                         label=label, reason=reason, diff=diff,
                         on_changed=self.on_changed,
                         input_datastore=self.input_datastore)
-        if 'matlab' not in executable.name.lower():
+        if not isinstance(executable, programs.MatlabExecutable):
             record.register(working_copy)
         return record
     
