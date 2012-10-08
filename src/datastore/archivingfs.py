@@ -9,6 +9,7 @@ import tarfile
 import shutil
 import logging
 import mimetypes
+from sumatra.core import TIMESTAMP_FORMAT 
 
 
 from base import DataItem, DataKey
@@ -69,7 +70,7 @@ class ArchivingFileSystemDataStore(FileSystemDataStore):
     def find_new_data(self, timestamp):
         """Finds newly created/changed data items"""
         new_files = self._find_new_data_files(timestamp)
-        label = timestamp.strftime("%Y%m%d-%H%m%S")
+        label = timestamp.strftime(TIMESTAMP_FORMAT)
         archive_paths = self._archive(label, new_files)
         return [ArchivedDataFile(path, self).generate_key()
                 for path in archive_paths]
