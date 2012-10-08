@@ -6,6 +6,7 @@ Command-line interface to the Sumatra computational experiment management tool.
 import sys
 from sumatra import commands, __version__
 from sumatra.versioncontrol.base import VersionControlError
+from sumatra.recordstore.base import RecordStoreAccessError
 
 modes = ("init", "configure", "info", "run", "list", "delete", "comment", "tag",
          "repeat", "diff", "export", "upgrade", "sync")
@@ -31,6 +32,6 @@ except AttributeError:
 
 try:
     main(sys.argv[2:])
-except VersionControlError, err:
+except (VersionControlError, RecordStoreAccessError), err:
     print "Error:", err.message
     sys.exit(1)

@@ -4,6 +4,7 @@ Provides base RecordStore class.
 
 from sumatra.recordstore import serialization
 
+
 class RecordStore(object):
     
     def list_projects(self):
@@ -73,3 +74,7 @@ class RecordStore(object):
         all_projects = set(self.list_projects()).union(other.list_projects())
         for project_name in all_projects:
             self.sync(other, project_name)
+
+
+class RecordStoreAccessError(OSError):
+    pass

@@ -14,7 +14,7 @@ and should both accept and return JSON-encoded data when the Accept header is
 The required JSON structure can be seen in recordstore.serialization.
 """
 
-from sumatra.recordstore.base import RecordStore
+from sumatra.recordstore.base import RecordStore, RecordStoreAccessError
 from sumatra.recordstore import serialization
 import httplib2
 from urlparse import urlparse, urlunparse
@@ -56,10 +56,14 @@ class HttpRecordStore(RecordStore):
         return "Interface to remote record store at %s using HTTP" % self.server_url
 
     def __getstate__(self):
+        username = password = None
+        if self.client.credentials.credentials:
+            username = self.client.credentials.credentials[0][1],
+            password = self.client.credentials.credentials[0][2],
         return {
             'server_url': self.server_url,
-            'username': self.client.credentials.credentials[0][1],
-            'password': self.client.credentials.credentials[0][2],
+            'username': username,
+            'password': password,
         }
     
     def __setstate__(self, state):
@@ -68,7 +72,7 @@ class HttpRecordStore(RecordStore):
     def list_projects(self):
         response, content = self.client.request(self.server_url)
         if response.status != 200:
-            raise Exception("Error in accessing %s\n%s: %s" % (self.server_url, response.status, content))
+            raise RecordStoreAccessError("Error in accessing %s\n%s: %s" % (self.server_url, response.status, content))
         return [entry['id'] for entry in serialization.decode_project_list(content)]
 
     def create_project(self, project_name):
@@ -78,7 +82,7 @@ class HttpRecordStore(RecordStore):
         response, content = self.client.request(url, 'PUT', data,
                                                 headers=headers)
         if response.status not in (200, 201):
-            raise Exception("%d\n%s" % (response.status, content))
+            raise RecordStoreAccessError("%d\n%s" % (response.status, content))
     
     def has_project(self, project_name):
         project_url = "%s%s/" % (self.server_url, project_name)
@@ -88,7 +92,7 @@ class HttpRecordStore(RecordStore):
         elif response.status in (401, 404):
             return False
         else:
-            raise Exception("%d\n%s" % (response.status, content))
+            raise RecordStoreAccessError("%d\n%s" % (response.status, content))
     
     def save(self, project_name, record):
         if not self.has_project(project_name):
@@ -99,7 +103,7 @@ class HttpRecordStore(RecordStore):
         response, content = self.client.request(url, 'PUT', data,
                                                 headers=headers)
         if response.status not in (200, 201):
-            raise Exception("%d\n%s" % (response.status, content))
+            raise RecordStoreAccessError("%d\n%s" % (response.status, content))
     
     def _get_record(self, url):
         response, content = self.client.request(url)
@@ -107,7 +111,7 @@ class HttpRecordStore(RecordStore):
             if response.status == 404:
                 raise KeyError("No record was found at %s" % url)                
             else:
-                raise Exception("%d\n%s" % (response.status, content))
+                raise RecordStoreAccessError("%d\n%s" % (response.status, content))
         return serialization.decode_record(content)
     
     def get(self, project_name, label):
@@ -122,7 +126,7 @@ class HttpRecordStore(RecordStore):
             project_url += "?tags=%s" % ",".join(tags)
         response, content = self.client.request(project_url)
         if response.status != 200:
-            raise Exception("Error in accessing %s\n%s: %s" % (project_url, response.status, content))
+            raise RecordStoreAccessError("Could not access %s\n%s: %s" % (project_url, response.status, content))
         record_urls = serialization.decode_record_list(content)["records"]
         records = []
         for record_url in record_urls:
@@ -136,13 +140,13 @@ class HttpRecordStore(RecordStore):
         url = "%s%s/%s/" % (self.server_url, project_name, label)
         response, deleted_content = self.client.request(url, 'DELETE')
         if response.status != 204:
-            raise Exception("%d\n%s" % (response.status, deleted_content))
+            raise RecordStoreAccessError("%d\n%s" % (response.status, deleted_content))
         
     def delete_by_tag(self, project_name, tag):
         url = "%s%s/tag/%s/" % (self.server_url, project_name, tag)
         response, n_records = self.client.request(url, 'DELETE')
         if response.status != 200:
-            raise Exception("%d\n%s" % (response.status, n_records))
+            raise RecordStoreAccessError("%d\n%s" % (response.status, n_records))
         return int(n_records)
     
     def most_recent(self, project_name):
