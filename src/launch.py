@@ -70,7 +70,8 @@ class LaunchMode(object):
         """Run tasks before the simulation/analysis proper.""" # e.g. nrnivmodl
         # this implementation is a temporary hack. "pre_run" should probably be an Executable instance, not a string
         if hasattr(executable, "pre_run"):
-            p = subprocess.Popen(executable.pre_run, shell=True, stdout=None, stderr=None, close_fds=True)
+            p = subprocess.Popen(executable.pre_run, shell=True, stdout=None,
+                                 stderr=None, close_fds=True)
             result = p.wait()
 
     def generate_command(self, paths):
@@ -164,6 +165,7 @@ class SerialLaunchMode(LaunchMode):
             else:
                 cmd = "%s %s %s %s" % (executable.path, executable.options, main_file, arguments)
         else:
+            check_files_exist(executable.path)
             if executable.path == executable.name:  # temporary hack
                 cmd = "./%s %s %s" % (executable.path, executable.options, arguments)
             else:
@@ -224,8 +226,14 @@ class DistributedLaunchMode(LaunchMode):
             self.mpirun,
             self.n
         )
-        cmd += " %s %s %s %s %s" % (executable.path, mpi_options,
-                                    executable.options, main_file, arguments)
+        if executable.requires_script:
+            check_files_exist(self.mpirun, executable.path, *main_file.split())
+            cmd += " %s %s %s %s %s" % (executable.path, mpi_options,
+                                        executable.options, main_file, arguments)
+        else:
+            check_files_exist(self.mpirun, executable.path)
+            cms += " %s %s %s %s" % (executable.path, mpi_options,
+                                        executable.options, arguments)
         return cmd
     
     def get_platform_information(self):
