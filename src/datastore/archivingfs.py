@@ -9,9 +9,8 @@ import tarfile
 import shutil
 import logging
 import mimetypes
-import sys
 
-from sumatra.core import TIMESTAMP_FORMAT
+
 from base import DataItem, DataKey
 from filesystem import FileSystemDataStore
 
@@ -19,17 +18,11 @@ from filesystem import FileSystemDataStore
 class ArchivedDataFile(DataItem):
     """A file-like object, that represents a file inside a tar archive"""
     # current implementation just for real files
-
+    
     def __init__(self, path, store):
-        platform_info = sys.platform
-        if platform_info == 'win32' or platform_info == 'win64':
-            archive_label = path.split('\\')[0] # '20120605-110619
-            self.tarfile_path = os.path.join(os.getcwd(), store.archive_store, archive_label + ".tar.gz") # complete path
-            self.path = tarfile.open(self.tarfile_path, 'r').getnames()[0]  # '20120605-110619/out2.txt
-        else:
-            self.path = path
-            archive_label = self.path.split("/")[0]
-            self.tarfile_path = os.path.join(store.archive_store, archive_label + ".tar.gz")     
+        self.path = path
+        archive_label = self.path.split(os.path.sep)[0]
+        self.tarfile_path = os.path.join(store.archive_store, archive_label + ".tar.gz")
         self.size = self._get_info().size
         self.name = os.path.basename(self.path)
         self.extension = os.path.splitext(self.name)
@@ -39,10 +32,10 @@ class ArchivedDataFile(DataItem):
         with tarfile.open(self.tarfile_path, 'r') as data_archive:
             info = data_archive.getmember(self.path)
         return info
-
+    
     def get_content(self, max_length=None):
         with tarfile.open(self.tarfile_path, 'r') as data_archive:
-            f = data_archive.extractfile(self.path)   
+            f = data_archive.extractfile(self.path)
             if max_length:
                 content = f.read(max_length)
             else:
@@ -50,7 +43,7 @@ class ArchivedDataFile(DataItem):
             f.close()
             return content
     content = property(fget=get_content)
-
+    
     @property
     def sorted_content(self):
         raise NotImplementedError
@@ -63,24 +56,24 @@ class ArchivingFileSystemDataStore(FileSystemDataStore):
     real filesystem.
     """
     data_item_class = ArchivedDataFile
-
+    
     def __init__(self, root, archive=".smt/archive"):
         self.root = root or "./Data"
         self.archive_store = archive
         if not os.path.exists(self.archive_store):
             os.mkdir(self.archive_store)
-
+    
     def __getstate__(self):
         return {'root': self.root, 'archive': self.archive_store}
-
+    
     def find_new_data(self, timestamp):
         """Finds newly created/changed data items"""
         new_files = self._find_new_data_files(timestamp)
-        label = timestamp.strftime(TIMESTAMP_FORMAT)
+        label = timestamp.strftime("%Y%m%d-%H%m%S")
         archive_paths = self._archive(label, new_files)
         return [ArchivedDataFile(path, self).generate_key()
                 for path in archive_paths]
-
+    
     def _archive(self, label, files, delete_originals=True):
         """
         Archives files and, by default, deletes the originals.
@@ -103,7 +96,7 @@ class ArchivingFileSystemDataStore(FileSystemDataStore):
                 os.remove(os.path.join(self.root, file_path))
         self._last_label = label # useful for testing
         return archive_paths
-
+    
     def delete(self, *keys):
         """Delete the files corresponding to the given keys."""
         raise NotImplementedError("Deletion of individual files not supported.")

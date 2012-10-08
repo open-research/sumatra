@@ -75,13 +75,22 @@ class HttpRecordStore(RecordStore):
             raise RecordStoreAccessError("Error in accessing %s\n%s: %s" % (self.server_url, response.status, content))
         return [entry['id'] for entry in serialization.decode_project_list(content)]
 
-    def create_project(self, project_name):
+    def _put_project(self, project_name, long_name='', description=''):
         url = "%s%s/" % (self.server_url, project_name)
-        data = "" # could add long name and description here
-        headers = {'Content-Length': '0'}
+        data = serialization.encode_project_info(long_name, description)
+        #headers = {'Content-Length': '0'}
         response, content = self.client.request(url, 'PUT', data,
                                                 headers=headers)
-        if response.status not in (200, 201):
+        return response, content
+    
+    def create_project(self, project_name, long_name='', description=''):
+        response, content = self._put_project(project_name, long_name, description)
+        if response.status != 201:
+            raise RecordStoreAccessError("%d\n%s" % (response.status, content))
+    
+    def update_project_info(self, project_name, long_name='', description=''):
+        response, content = self._put_project(project_name, long_name, description)
+        if response.status != 200:
             raise RecordStoreAccessError("%d\n%s" % (response.status, content))
     
     def has_project(self, project_name):
@@ -93,6 +102,14 @@ class HttpRecordStore(RecordStore):
             return False
         else:
             raise RecordStoreAccessError("%d\n%s" % (response.status, content))
+    
+    def project_info(self, project_name):
+        project_url = "%s%s/" % (self.server_url, project_name)
+        response, content = self.client.request(project_url)
+        if response.status != 200:
+            raise RecordStoreAccessError("Error in accessing %s\n%s: %s" % (project_url, response.status, content))
+        data = serialization.decode_project_data(content)
+        return dict((k, data[k]) for k in ("name", "description"))
     
     def save(self, project_name, record):
         if not self.has_project(project_name):
@@ -127,7 +144,7 @@ class HttpRecordStore(RecordStore):
         response, content = self.client.request(project_url)
         if response.status != 200:
             raise RecordStoreAccessError("Could not access %s\n%s: %s" % (project_url, response.status, content))
-        record_urls = serialization.decode_record_list(content)["records"]
+        record_urls = serialization.decode_project_data(content)["records"]
         records = []
         for record_url in record_urls:
             records.append(self._get_record(record_url))

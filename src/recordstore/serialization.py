@@ -83,6 +83,16 @@ def encode_record(record, indent=None):
         }
     return json.dumps(data, indent=indent)
 
+
+def encode_project_info(long_name, description):
+    data = {}
+    if long_name:
+        data["name"] = long_name
+    if description:
+        data["description"] = description
+    return json.dumps(data)
+
+
 def keys2str(D):
     """
     Return a new dictionary whose keys are the same as in `D`, but converted
@@ -93,11 +103,14 @@ def keys2str(D):
         E[str(k)] = v
     return E
 
+
 def decode_project_list(content):
     return json.loads(content)
 
-def decode_record_list(content):
+
+def decode_project_data(content):
     return json.loads(content)
+
 
 def build_record(data):
     edata = data["executable"]
@@ -168,8 +181,10 @@ def build_record(data):
         record.dependencies.append(dep)
     return record
 
+
 def decode_record(content):
     return build_record(json.loads(content))
+
     
 def decode_records(content):
     return [build_record(data) for data in json.loads(content)]
