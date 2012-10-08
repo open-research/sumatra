@@ -64,7 +64,7 @@ def main(argv):
     management.setup_environ(settings)
     if not options.no_browser:
         thread.start_new_thread(delayed_new_tab, ("http://127.0.0.1:%s" % options.port, 3))
-    management.call_command('runserver', options.port)
+    management.call_command('runserver', options.port, use_reloader=False)
     
 
 if __name__ == "__main__":
