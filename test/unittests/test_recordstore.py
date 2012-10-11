@@ -256,7 +256,8 @@ class TestShelveRecordStore(unittest.TestCase, BaseTestRecordStore):
 
     def tearDown(self):
         BaseTestRecordStore.tearDown(self)
-        os.remove("test_record_store")
+        if os.path.exists("test_record_store"):
+            os.remove("test_record_store")
 
     def test_record_store_is_pickleable(self):
         import pickle

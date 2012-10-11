@@ -69,8 +69,13 @@ class HttpRecordStore(RecordStore):
     def __setstate__(self, state):
         self.__init__(state['server_url'], state['username'], state['password'])
 
+    def _get(self, url, media_type):
+        headers = {'Accept': 'application/vnd.sumatra.%s-v1+json, application/json' % media_type}
+        response, content = self.client.request(url, headers=headers)
+        return response, content
+
     def list_projects(self):
-        response, content = self.client.request(self.server_url)
+        response, content = self._get(self.server_url, 'project-list')
         if response.status != 200:
             raise RecordStoreAccessError("Error in accessing %s\n%s: %s" % (self.server_url, response.status, content))
         return [entry['id'] for entry in serialization.decode_project_list(content)]
@@ -78,7 +83,7 @@ class HttpRecordStore(RecordStore):
     def _put_project(self, project_name, long_name='', description=''):
         url = "%s%s/" % (self.server_url, project_name)
         data = serialization.encode_project_info(long_name, description)
-        #headers = {'Content-Length': '0'}
+        headers = {'Content-Type': 'application/vnd.sumatra.project-v1+json'}
         response, content = self.client.request(url, 'PUT', data,
                                                 headers=headers)
         return response, content
@@ -95,7 +100,7 @@ class HttpRecordStore(RecordStore):
     
     def has_project(self, project_name):
         project_url = "%s%s/" % (self.server_url, project_name)
-        response, content = self.client.request(project_url)
+        response, content = self._get(project_url, 'project')
         if response.status == 200:
             return True
         elif response.status in (401, 404):
@@ -105,7 +110,7 @@ class HttpRecordStore(RecordStore):
     
     def project_info(self, project_name):
         project_url = "%s%s/" % (self.server_url, project_name)
-        response, content = self.client.request(project_url)
+        response, content = self._get(project_url, 'project')
         if response.status != 200:
             raise RecordStoreAccessError("Error in accessing %s\n%s: %s" % (project_url, response.status, content))
         data = serialization.decode_project_data(content)
@@ -115,7 +120,7 @@ class HttpRecordStore(RecordStore):
         if not self.has_project(project_name):
             self.create_project(project_name)
         url = "%s%s/%s/" % (self.server_url, project_name, record.label)
-        headers = {'Content-Type': 'application/json'}
+        headers = {'Content-Type': 'application/vnd.sumatra.record-v1+json'}
         data = serialization.encode_record(record)
         response, content = self.client.request(url, 'PUT', data,
                                                 headers=headers)
@@ -123,7 +128,7 @@ class HttpRecordStore(RecordStore):
             raise RecordStoreAccessError("%d\n%s" % (response.status, content))
     
     def _get_record(self, url):
-        response, content = self.client.request(url)
+        response, content = self._get(url, 'record')
         if response.status != 200:
             if response.status == 404:
                 raise KeyError("No record was found at %s" % url)                
@@ -141,7 +146,7 @@ class HttpRecordStore(RecordStore):
             if not hasattr(tags, "__iter__"):
                 tags=[tags]
             project_url += "?tags=%s" % ",".join(tags)
-        response, content = self.client.request(project_url)
+        response, content = self._get(project_url, 'project')
         if response.status != 200:
             raise RecordStoreAccessError("Could not access %s\n%s: %s" % (project_url, response.status, content))
         record_urls = serialization.decode_project_data(content)["records"]
