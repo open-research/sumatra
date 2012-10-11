@@ -94,7 +94,7 @@ class GitWorkingCopy(WorkingCopy):
         self.use_version('master') # note that we are assuming all code is in the 'master' branch
         
     def status(self):
-        raise NotImplementedError()   
+        raise NotImplementedError()
 
     def has_changed(self):
         return self.repository._repository.is_dirty()
@@ -110,6 +110,10 @@ class GitWorkingCopy(WorkingCopy):
             if item.hexsha == digest:
                 file_content = item.tree.blobs[0].data_stream.read()
         return file_content
+
+    def contains(self, path):
+        """Does the repository contain the file with the given path?"""
+        return path in self.repository._repository.git.ls_files().split()
         
 
 def move_contents(src, dst):

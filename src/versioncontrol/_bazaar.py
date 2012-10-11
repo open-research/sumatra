@@ -78,15 +78,16 @@ class BazaarWorkingCopy(WorkingCopy):
 
     def status(self):
         current_tree = self._get_revision_tree(self._current_version)
-        delta = self.workingtree.changes_from(current_tree, want_unversioned=True)
-        modified = [i[0] for i in delta.modified]
-        deleted = [i[0] for i in delta.removed]
-        unknown = [i[0] for i in delta.unversioned]
-        added = [i[0] for i in delta.added]
-        removed = []
+        delta = self.workingtree.changes_from(current_tree, want_unversioned=True, want_unchanged=True)
+        modified = set(i[0] for i in delta.modified)
+        removed = set(i[0] for i in delta.removed)
+        unknown = set(i[0] for i in delta.unversioned)
+        added = set(i[0] for i in delta.added)
+        clean = set(i[0] for i in delta.unchanged)
+        missing = set([])
         return {'modified': modified, 'removed': removed,
-                'deleted': deleted, 'unknown': unknown,
-                'added':added}
+                'missing': missing, 'unknown': unknown,
+                'added': added, 'clean': clean}
 
     def has_changed(self):
         return self.workingtree.has_changes()

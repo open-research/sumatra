@@ -68,6 +68,8 @@ class Record(object):
         if len(self.diff) == 0:
             assert not working_copy.has_changed()
         assert_equal(working_copy.current_version(), self.version, "version")
+        # Check the main file is in the working copy
+        assert working_copy.contains(self.main_file), "%s not in %s" % (self.main_file, working_copy.status()) # need to ensure main_file is relative to the base directory of the working copy
         # Record dependencies
         self.dependencies = []
         if self.executable.requires_script:

@@ -74,7 +74,10 @@ class BaseTestWorkingCopy(object):
         self.assertEqual(self.wc.current_version(), self.previous_version)
         self.wc.use_latest_version()
         self.assertEqual(self.wc.current_version(), self.latest_version)
-        
+
+    def test__contains(self):
+        self.assert_(self.wc.contains("romans.param"))
+
 
 class TestMercurialWorkingCopy(unittest.TestCase, BaseTestWorkingCopy):
     
@@ -91,13 +94,26 @@ class TestMercurialWorkingCopy(unittest.TestCase, BaseTestWorkingCopy):
     def tearDown(self):
         os.unlink("%s/.hg" % self.repository_path)
         shutil.rmtree(self.tmpdir)
-    
+
     def test__status(self):
-        self.assertEqual(self.wc.status(), {'modified': [], 'removed': [],
-                                            'deleted': [], 'unknown': []})
+        self.assertEqual(self.wc.status(),
+                         {'modified': set([]), 'removed': set([]),
+                          'missing': set([]), 'unknown': set([]),
+                          'added': set([]),
+                          'clean': set(['EGG-INFO/PKG-INFO', 'default.param',
+                                        'main.py', 'romans.param',
+                                        'subpackage/__init__.py',
+                                        'subpackage/somemodule.py'])})
         self.change_file()
-        self.assertEqual(self.wc.status(), {'modified': ['romans.param'], 'removed': [],
-                                            'deleted': [], 'unknown': []})
+        self.assertEqual(self.wc.status(),
+                         {'modified': set(['romans.param']), 'removed': set([]),
+                          'missing': set([]), 'unknown': set([]),
+                          'added': set([]),
+                          'clean': set(['EGG-INFO/PKG-INFO', 'default.param',
+                                        'main.py',
+                                        'subpackage/__init__.py',
+                                        'subpackage/somemodule.py'])})
+
 
 #@unittest.skipUnless(have_git, "Could not import git") # 
 class TestGitWorkingCopy(unittest.TestCase, BaseTestWorkingCopy):
@@ -133,10 +149,32 @@ class TestSubversionWorkingCopy(unittest.TestCase, BaseTestWorkingCopy):
     def tearDown(self):
         shutil.rmtree(self.tmpdir)
 
+    #def test__status(self):
+    #    self.assertEqual(self.wc.status()['modified'], [])
+    #    self.change_file()
+    #    self.assertEqual(os.path.basename(self.wc.status()['modified'][0]), 'romans.param')
+        
     def test__status(self):
-        self.assertEqual(self.wc.status()['modified'], [])
+        self.assertEqual(self.wc.status(),
+                         {'modified': set([]), 'removed': set([]),
+                          'missing': set([]), 'unknown': set([]),
+                          'added': set([]),
+                          'clean': set(['EGG-INFO', 'subpackage',
+                                        'EGG-INFO/PKG-INFO', 'default.param',
+                                        'main.py', 'romans.param',
+                                        'subpackage/__init__.py',
+                                        'subpackage/somemodule.py'])})
         self.change_file()
-        self.assertEqual(os.path.basename(self.wc.status()['modified'][0]), 'romans.param')
+        self.assertEqual(self.wc.status(),
+                         {'modified': set(['romans.param']), 'removed': set([]),
+                          'missing': set([]), 'unknown': set([]),
+                          'added': set([]),
+                          'clean': set(['EGG-INFO', 'subpackage',
+                                        'EGG-INFO/PKG-INFO', 'default.param',
+                                        'main.py',
+                                        'subpackage/__init__.py',
+                                        'subpackage/somemodule.py'])})
+
 TestSubversionWorkingCopy = unittest.skipUnless(have_pysvn, "Could not import pysvn")(TestSubversionWorkingCopy)
 
 
@@ -156,6 +194,28 @@ class TestBazaarWorkingCopy(unittest.TestCase, BaseTestWorkingCopy):
     def tearDown(self):
         os.unlink("%s/.bzr" % self.repository_path)
         shutil.rmtree(self.tmpdir)
+        
+    def test__status(self):
+        self.assertEqual(self.wc.status(),
+                         {'modified': set([]), 'removed': set([]),
+                          'missing': set([]), 'unknown': set([]),
+                          'added': set([]),
+                          'clean': set(['subpackage',
+                                        'default.param',
+                                        'main.py', 'romans.param',
+                                        'subpackage/__init__.py',
+                                        'subpackage/somemodule.py'])})
+        self.change_file()
+        self.assertEqual(self.wc.status(),
+                         {'modified': set(['romans.param']), 'removed': set([]),
+                          'missing': set([]), 'unknown': set([]),
+                          'added': set([]),
+                          'clean': set(['subpackage',
+                                        'default.param',
+                                        'main.py',
+                                        'subpackage/__init__.py',
+                                        'subpackage/somemodule.py'])})
+
 TestBazaarWorkingCopy = unittest.skipUnless(have_bzr, "Could not import bzrlib")(TestBazaarWorkingCopy)
 
 

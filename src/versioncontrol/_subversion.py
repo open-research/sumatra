@@ -58,18 +58,21 @@ class SubversionWorkingCopy(WorkingCopy):
     def status(self):
         changes = self.repository._client.status(self.path)
         status_dict = {}
-        status_dict['modified'] = [f.path for f in changes if f.text_status == pysvn.wc_status_kind.modified]
-        status_dict['added'] = [f.path for f in changes if f.text_status == pysvn.wc_status_kind.added]
-        status_dict['removed'] = [f.path for f in changes if f.text_status == pysvn.wc_status_kind.deleted]
-        status_dict['deleted'] = [f.path for f in changes if f.text_status == pysvn.wc_status_kind.missing]
-        status_dict['unknown'] = [f.path for f in changes if f.text_status == pysvn.wc_status_kind.unversioned]
-        status_dict['clean'] = [f.path for f in changes if f.text_status == pysvn.wc_status_kind.normal]
+        offset = len(self.path) + 1
+        status_dict['modified'] = set(f.path[offset:] for f in changes if f.text_status == pysvn.wc_status_kind.modified)
+        status_dict['added'] = set(f.path[offset:] for f in changes if f.text_status == pysvn.wc_status_kind.added)
+        status_dict['removed'] = set(f.path[offset:] for f in changes if f.text_status == pysvn.wc_status_kind.deleted)
+        status_dict['missing'] = set(f.path[offset:] for f in changes if f.text_status == pysvn.wc_status_kind.missing)
+        status_dict['unknown'] = set(f.path[offset:] for f in changes if f.text_status == pysvn.wc_status_kind.unversioned)
+        status_dict['clean'] = set(f.path[offset:] for f in changes if f.text_status == pysvn.wc_status_kind.normal)
+        if '' in status_dict['clean']:
+            status_dict['clean'].remove('')
         return status_dict
 
     def has_changed(self):
         status = self.status()
         changed = False
-        for st in 'modified', 'removed', 'deleted':
+        for st in 'modified', 'removed', 'missing':
             if status[st]:
                 changed = True
                 break

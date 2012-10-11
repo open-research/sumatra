@@ -33,6 +33,7 @@ class Repository(object):
         """For unpickling"""
         self.__init__(state['url'])
 
+
 class WorkingCopy(object):
     
     def __eq__(self, other):
@@ -42,4 +43,7 @@ class WorkingCopy(object):
     def __ne__(self, other):
         return not self.__eq__(other)
 
-
+    def contains(self, path):
+        """Does the repository contain the file with the given path?"""
+        status = self.status()
+        return (path in status['modified']) or (path in status['clean'])

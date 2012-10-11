@@ -26,6 +26,8 @@ class MockWorkingCopy(object):
             return 999
         def use_version(self, v):
             pass
+        def contains(self, path):
+            return True
         
 class MockRepository(object):
     url = "http://svn.example.com"
