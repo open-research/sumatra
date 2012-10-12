@@ -45,5 +45,9 @@ class WorkingCopy(object):
 
     def contains(self, path):
         """Does the repository contain the file with the given path?"""
+        full_path = os.path.abspath(path)
+        if full_path.find(self.path) < 0:
+            return False
+        rel_path = full_path[len(self.path)+1:]
         status = self.status()
-        return (path in status['modified']) or (path in status['clean'])
+        return (rel_path in status['modified']) or (rel_path in status['clean'])

@@ -20,6 +20,7 @@ from operator import or_
 from formatting import get_formatter
 import dependency_finder
 from sumatra.core import TIMESTAMP_FORMAT
+from versioncontrol import VersionControlError
 
 
 def assert_equal(a, b, msg=''):
@@ -69,7 +70,8 @@ class Record(object):
             assert not working_copy.has_changed()
         assert_equal(working_copy.current_version(), self.version, "version")
         # Check the main file is in the working copy
-        assert working_copy.contains(self.main_file), "%s not in %s" % (self.main_file, working_copy.status()) # need to ensure main_file is relative to the base directory of the working copy
+        if not working_copy.contains(self.main_file):
+            raise VersionControlError("Main file %s is not under version control" % self.main_file)
         # Record dependencies
         self.dependencies = []
         if self.executable.requires_script:
