@@ -44,10 +44,10 @@ class WorkingCopy(object):
         return not self.__eq__(other)
 
     def contains(self, path):
-        """Does the repository contain the file with the given path?"""
-        full_path = os.path.abspath(path)
-        if full_path.find(self.path) < 0:
-            return False
-        rel_path = full_path[len(self.path)+1:]
-        status = self.status()
-        return (rel_path in status['modified']) or (rel_path in status['clean'])
+        """
+        Does the repository contain the file with the given path?
+        
+        where `path` is relative to the working copy root.
+        """
+        status = self.status()    
+        return (path in status['modified']) or (path in status['clean'])

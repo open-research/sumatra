@@ -18,16 +18,17 @@ class MockDiffFormatter(object):
 sumatra.projects.get_diff_formatter = lambda: MockDiffFormatter
 
 class MockWorkingCopy(object):
-        def has_changed(self):
-            return False
-        def use_latest_version(self):
-            pass
-        def current_version(self):
-            return 999
-        def use_version(self, v):
-            pass
-        def contains(self, path):
-            return True
+    path = "/path/to/working/copy"
+    def has_changed(self):
+        return False
+    def use_latest_version(self):
+        pass
+    def current_version(self):
+        return 999
+    def use_version(self, v):
+        pass
+    def contains(self, path):
+        return True
         
 class MockRepository(object):
     url = "http://svn.example.com"
