@@ -31,6 +31,7 @@ clean:
 	-rm -rf $(BUILDDIR)/*
 
 html:
+	python build_reference.py
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
@@ -66,6 +67,7 @@ qthelp:
 	@echo "# assistant -collectionFile $(BUILDDIR)/qthelp/Sumatra.qhc"
 
 latex:
+	python build_reference.py
 	$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) $(BUILDDIR)/latex
 	@echo
 	@echo "Build finished; the LaTeX files are in $(BUILDDIR)/latex."

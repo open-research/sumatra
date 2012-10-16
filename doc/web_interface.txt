@@ -38,7 +38,8 @@ which you intend to use:
 Web interface is consisted from the three principal pages:
      - List of projects
      - List of records
-     - About page 
+     - About page
+     
 Each time you start Sumatra web interface the initial will be the **list of projects** page.
 
 Executing Sumatra from the web interface
@@ -78,6 +79,7 @@ Originally the page **List of records** contains a table with the following colu
 	- Main file
 	- Version (ID name of the revision for the repository)
 	- Arguments
+
 **Important**: for now it is not possible to set the label name with the space inside it.
 
 The default value of the total number of records per one page is 10. You can change any settings concerning the table view the in the **Settings** window.

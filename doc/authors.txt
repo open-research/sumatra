@@ -1,0 +1,31 @@
+========================
+Authors and contributors
+========================
+
+The following people have contributed code to Sumatra. The institutional
+affiliations are those at the time of the contribution, and may not be the
+current affiliation of a contributor.
+
+* Andrew Davison [1]
+* Dmitry Samarkanov [2]
+* Bartosz Telenczuk [1, 3]
+* Michele Mattioni [4]
+* Eilif Muller [5]
+* Konrad Hinsen [6]
+* Stephan Gabler [7]
+* Takafumi Arakaki [8]
+
+
+1. Unité de Neuroscience, Information et Complexité, CNRS UPR 3293, Gif-sur-Yvette, France 
+2. Ecole Centrale de Lille, Lille, France
+3. Institute for Theoretical Biology, Humboldt University zu Berlin, Berlin, Germany 
+4. European Bioinformatics Institute, Hinxton, UK
+5. Blue Brain Project, Ecole Polytechnique Fédérale de Lausanne, Lausanne, Switzerland
+6. Centre de biophysique moléculaire, CNRS UPR 4301, Orléans, France
+7. Max Planck Institute for Human Development, Berlin, Germany
+8. Laboratoire de Neurophysique et Physiologie, CNRS UMR 8119, Université Paris Descartes, Paris, France
+
+
+If I've somehow missed you off the list I'm very sorry - please let us know.
+
+Many thanks also go to everyone who has reported bugs on the issue tracker.
