@@ -11,7 +11,7 @@
         <div class="well">
             <a href="/{{project.id}}/"><h2>{{project.get_name}}</h2></a>
             <span class="label label-important clearfix">{{project.record_set.count}} records</span>
-            {{project.description|restructuredtext}}
+            {{project.description|restructuredtext}}&nbsp;
         </div>
         {% endfor %}
     </div>
