@@ -143,11 +143,12 @@ class MercurialRepository(Repository):
             # update
             hg.update(self._repository, None)
         else:
-            # can't clone into an existing directory, so we create
-            # an empty repository and then do a pull and update
-            local_repos = hg.repository(self._ui, path, create=True)
-            local_repos.pull(self._repository)
-            hg.update(local_repos, None)
+            try:
+                hg.clone(self._ui, {}, self.url, path, update=True)
+            except:  # hg.clone fails for older versions of mercurial, e.g. 1.5
+                local_repos = hg.repository(self._ui, path, create=True)
+                local_repos.pull(self._repository)
+                hg.update(local_repos, None)
 
     def get_working_copy(self, path=None):
         return get_working_copy(path)
