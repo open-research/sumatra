@@ -3,7 +3,10 @@ Unit tests for the sumatra.launch module
 """
 
 from __future__ import with_statement
-import unittest
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
 from sumatra.launch import SerialLaunchMode, DistributedLaunchMode, PlatformInformation
 import sys
 import os
