@@ -84,13 +84,13 @@ To see the current configuration of your project, use the ``info`` command::
 
     $ smt info
     Project name        : MyProject
-    Default executable  : Python (version: 2.7.1) at /home/andrew/env/sumatra_py27_django13/bin/python
-    Default repository  : GitRepository at /home/andrew/tmp/sumatra0.4_docs
+    Default executable  : Python (version: 2.7.1) at /usr/local/bin/python
+    Default repository  : GitRepository at /path/to/my/project
     Default main file   : main.py
     Default launch mode : serial
     Data store (output) : ./Data
     .          (input)  : /
-    Record store        : Relational database record store using the Django ORM (database file=/home/andrew/tmp/sumatra0.4_docs/.smt/records)
+    Record store        : Relational database record store using the Django ORM (database file=/path/to/my/project/.smt/records)
     Code change policy  : error
     Append label to     : None
     
@@ -110,7 +110,7 @@ After the simulation is complete, you can add a description of the outcome::
 This adds the comment to the most recent simulation. You may also describe the outcome
 of an earlier simulation, by specifying its label::
 
-    $ smt comment 20121017-114820"Eureka! Nobel prize here we come."
+    $ smt comment 20121017-114820 "Eureka! Nobel prize here we come."
     
 You can also tag a simulation record with one or more short keywords::
 
