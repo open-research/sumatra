@@ -2,7 +2,7 @@
 Sumatra 0.4.0 release notes
 ===========================
 
-*October 16th 2012*
+*October 18th 2012*
 
 Welcome to Sumatra 0.4.0!
 
