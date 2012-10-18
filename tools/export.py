@@ -11,18 +11,21 @@ from sumatra.recordstore.shelve_store import ShelveRecordStore
 from sumatra.recordstore.django_store import DjangoRecordStore
 import sys
 import os
+import shutil
 
 version = __version__.split(".")
 major_version = int(version[0])
 minor_version = int(version[1][0])
-if major_version != 0 or minor_version not in (1, 2):
-    print "This script is only intended for use with Sumatra 0.1, 0.2 or 0.2.1. You are using %s" % __version__
+if major_version != 0 or minor_version not in (1, 2, 3):
+    print "This script is only intended for use with Sumatra 0.1, 0.2, 0.2.1 or 0.3.0. You are using %s" % __version__
     sys.exit(1)
 
 STORE_FILE = {
     1: ".smt/simulation_records",
     2: ".smt/records",
+    3: ".smt/records",
 }
+
 
 def load_recordstore():
     store_file = STORE_FILE[minor_version]
@@ -31,6 +34,7 @@ def load_recordstore():
     except Exception:
         store = DjangoRecordStore(store_file)
     return store
+
 
 def encode_record(record, indent=None):
     data = {
@@ -56,11 +60,11 @@ def encode_record(record, indent=None):
         },
         "launch_mode": {
             "type": record.launch_mode.__class__.__name__, 
-            "parameters": str(record.launch_mode.get_state()),
+            "parameters": record.launch_mode.get_state(),
         },
         "datastore": {
             "type": record.datastore.__class__.__name__,
-            "parameters": str(record.datastore.get_state()),
+            "parameters": record.datastore.get_state(),
         },
         "outcome": record.outcome or "",
         "data_key": str(record.data_key),
@@ -92,19 +96,23 @@ def encode_record(record, indent=None):
     return data
 
 
-
 def export_records(output_file):
     store = load_recordstore()
-    patch_sumatra()
+    if minor_version < 3:
+        patch_sumatra()
     f = open(output_file, 'w')
     if minor_version == 1:
         json.dump([encode_record(record) for record in store.list(groups=None)],
                   f, indent=2)
     else:
         project_name = projects.load_project().name
-        json.dump([encode_record(record) for record in store.list(project_name)],
-                  f, indent=2)
+        if minor_version == 2:
+            json.dump([encode_record(record) for record in store.list(project_name)],
+                      f, indent=2)
+        else:
+            f.write(store.export(project_name))
     f.close()
+
 
 def patch_sumatra():
     import sumatra.programs
@@ -116,11 +124,16 @@ def patch_sumatra():
         return cls(self.url)
     sumatra.recordstore.django_store.models.Repository.to_sumatra = repos_to_sumatra #patch for Michele Mattioni, who started using GitRepository early
 
+
 def _get_class_path(obj):
     return obj.__class__.__module__ + "." + obj.__class__.__name__
 
+
 def export_project(output_file):
-    if minor_version == 1:
+    if minor_version == 3:
+        shutil.copy(".smt/project", ".smt/project_export.json")
+        return
+    elif minor_version == 1:
         prj = projects.load_simulation_project()
     else:
         prj = projects.load_project()
@@ -160,6 +173,7 @@ def export_project(output_file):
     f = open(output_file, 'w')
     json.dump(state, f, indent=2)
     f.close()
+
 
 if __name__ == "__main__":
     export_records(".smt/records_export.json")
