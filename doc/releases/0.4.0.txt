@@ -19,7 +19,8 @@ Many thanks to Google and to the INCF_ as mentoring organisation. In addition to
 Dmitry's improvements, handling of input and output data files is much improved,
 and Sumatra now captures and stores standard output (stdout) and standard error
 (stderr) streams. More details on all of these, plus a bunch of minor
-improvements and bug fixes, is given below.
+improvements and bug fixes, is given below. Finally, Sumatra no longer supports
+Python 2.5 - the minimum requirement is Python 2.6.
 
 
 Web interface
@@ -112,37 +113,11 @@ Other new features
 Bug fixes
 ---------
 
-* Unicode `project_name` now converted to string for use as shelve key in `ShelveRecordStore` (see ticket:63)
-* Improved parsing of command-line parameters - see ticket:56
-* NTParameterSet now accepts 'true' and 'false' in JSON files
-* The behaviour of `GitRepository` is now more consistent with `MercurialRepository` and `SubversionRepository`, in that checkout (clone) does not occur on repository creation.
-* Applied dedan's patch for ticket:70 and added associated unit test.
-* smtweb now works when project names contain spaces (see ticket:77)
-* Fix for ticket:79 (Parsing errors with smt list)
-* Allow multiple executable names for a given Executable. Fixes ticket:80, although uncovered ticket:81
-* Some improved error messages for `smt`. `smt configure -c store-diff` now works with a git repository (see ticket:66)
-* Empty datastore directories are no longer automatically deleted (see ticket:61).
-* Fix crash when hostname is missing from /etc/hosts (ticket:67)
-* Creating a `DjangoRecordStore` is now much quieter (see ticket:83)
-* Fixed bug in `@capture` decorator
-* Extended names (e.g. `python2.7`) for Python executables are now recognized (see ticket:80). Implementation is very naive, might want to revisit this in future and do it properly, e.g. with regexp
-* `HttpRecordStore`  now creates a project in the remote store *before* (instead of during) saving a record if the project does not already exist, which makes authentication simpler (works with sumatra_server rev 31:	c5394944f31d73402e2d1d82721f26aa99057c03)
-* Record serialization no longer puts the string representation of simple dicts (as returned by `__getstate__()`) into the output, rather it puts the actual dict
-* Tags with "/" inside them now have correct links on the web interface (see ticket:71)
-* Fixed a bug in `HttpRecordStore` and added an option to disable SSL certificate validation
-* More robust finding of the NEURON install location
-* Fixed ticket:93 (problem with deepcopy of ConfigParserParameterSet in Python 2.7)
-* Trying to make Python dependency finder more robust in case of unexpected stuff in stdout
-* Fixed bug when using more recent versions of pysvn
-* windows enhancements
-* Fix for ticket:101 "smtweb opens two tabs"
-* Added custom content-types to HttpRecordStore, to support versioning of the JSON interchange formats
-* Sumatra now checks that the main file is under version control before running
-
-see https://neuralensemble.org/trac/sumatra/query?status=closed&group=resolution&milestone=0.4
+A `whole bunch of bugs`_ were fixed in Sumatra 0.4. 
 
 
 .. _`Google Summer of Code`: http://www.google-melange.com/gsoc/homepage/google/gsoc2012
 .. _INCF: http://www.incf.org
 .. _`this blog post`: http://samarkanov.com/blog/xxx
 .. _reStructuredText: docutils.sourceforge.net/rst.html
+.. _`whole bunch of bugs`: https://neuralensemble.org/trac/sumatra/query?status=closed&group=resolution&milestone=0.4

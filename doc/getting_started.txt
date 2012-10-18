@@ -5,7 +5,7 @@ Getting started
 Let us assume that you already have a project based on numerical simulation,
 which you wish to start managing using Sumatra, and that the code for this
 project is under version control. Note that the following is equally valid if
-your project is based on numerical analysis rather than, or as well as,
+your project is based on data analysis rather than, or as well as,
 simulation: just mentally replace "simulation" with "analysis" in the following.
 
 Change to the working directory for your project, and then create a new Sumatra
