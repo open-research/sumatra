@@ -82,9 +82,6 @@ plugin is required for each language. Sumatra already has a dependency tracking
 plugin for Python and for two computational neuroscience simulation environments,
 NEURON and GENESIS. Sumatra 0.4 adds dependency tracking for Matlab scripts.
 
-Sumatra 0.4 also adds support for using simple Matlab files, containing just
-``key = value;`` pairs, as parameter files.
-
 
 Recording of stdout and stderr
 ------------------------------
