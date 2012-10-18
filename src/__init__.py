@@ -2,4 +2,4 @@ __all__ = ['commands', 'datastore', 'formatting', 'launch', 'parameters',
            'programs', 'projects', 'records', 'recordstore', 'versioncontrol',
            'dependency_finder', 'external', 'web', 'decorators']
 
-__version__ = "0.4.0.dev"    
+__version__ = "0.4.0"    

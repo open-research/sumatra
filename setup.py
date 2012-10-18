@@ -28,7 +28,7 @@ class sdist_hg(sdist):
 setup(
     name = "Sumatra",
     version = __version__,
-    package_dir={'sumatra': 'src'},
+    package_dir = {'sumatra': 'src'},
     packages = ['sumatra', 'sumatra.dependency_finder',
                 'sumatra.external', 'sumatra.datastore',
                 'sumatra.external.NeuroTools',
