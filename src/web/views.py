@@ -24,7 +24,7 @@ def list_records(request, project):
     if request.is_ajax(): # only when paginating
         ajaxTempOb = AjaxTemplate(project, request.POST)
         if ajaxTempOb.form.is_valid():
-            ajaxTempOb.filter_search(request.POST.dict()) # taking into consideration the search inquiry
+            ajaxTempOb.filter_search(request.POST) # taking into consideration the search inquiry
             ajaxTempOb.init_object_list(ajaxTempOb.page) # taking into consideration pagination
             return render_to_response('content.html', ajaxTempOb.getDict()) # content.html is a part of record_list.html
         else:
@@ -122,7 +122,7 @@ def record_detail(request, project, label):
 def search(request, project):
     ajaxTempOb = AjaxTemplate(project, request.POST)
     if request.POST.has_key('fulltext_inquiry'): # using the input #search_subnav
-        ajaxTempOb.filter_search(request.POST.dict())
+        ajaxTempOb.filter_search(request.POST)
         ajaxTempOb.init_object_list(ajaxTempOb.page) 
         return render_to_response('content.html', ajaxTempOb.getDict())
     else : # using the form   

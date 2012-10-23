@@ -26,7 +26,7 @@ string_table      - Convert a table written as a multi-line string into a dict o
 
 """
 
-import urllib, copy, warnings, math
+import urllib, copy, warnings, math, urllib2
 from urlparse import urlparse
 from sumatra.external.NeuroTools.random import ParameterDist, GammaDist, UniformDist, NormalDist
 
@@ -193,7 +193,14 @@ class ParameterSet(dict):
                                 false=False,  # files
                                 ))            
         try:
-            D = eval(s, global_dict)
+            if 'file://' in s:
+                path = s.split('file://')[1]
+                ifile = open(path, 'r')
+                content = ifile.read()
+                ifile.close()
+                D = eval(content, global_dict)           
+            else:
+                D = eval(s, global_dict)
         except SyntaxError, e:
             raise SyntaxError("Invalid string for ParameterSet definition: %s\n%s" % (s,e))
         return D or {}
@@ -225,7 +232,8 @@ class ParameterSet(dict):
                 # should be rewritten using urllib2 
                 #scheme, netloc, path, \
                 #        parameters, query, fragment = urlparse(initialiser)
-                f = urllib.urlopen(initialiser)
+                f= urllib2.urlopen(initialiser)
+                # f = urllib.urlopen(initialiser)
                 pstr = f.read()
                 self._url = initialiser
             except IOError, e:
