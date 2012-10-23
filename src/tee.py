@@ -131,6 +131,7 @@ def system2(cmd, cwd=None, logger=_sentinel, stdout=_sentinel, log_command=_sent
 	# reason: if I have 'quote_command' Sumatra does not work in Windows (it encloses the command in quotes. I did not understand why should we quote)
 	# I have never catched "The input line is too long" (yet?)
 	# cmd = quote_command(cmd) # to prevent _popen() bug
+
 	p = subprocess.Popen(cmd, cwd=cwd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 	if(log_command):
 		mylogger("Running: %s" % cmd)
