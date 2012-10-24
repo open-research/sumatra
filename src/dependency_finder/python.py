@@ -61,7 +61,6 @@ def run_script(executable_path, script):
         return_value = eval(output)
     except SyntaxError, errmsg:
         warnings.warn("Error in evaluating script output\n. Executable: %s\nScript: %s\nOutput: '%s'\nError: %s" % (executable_path, script, output, err))
-        #import pdb; pdb.set_trace()
         return_value = {}
     return return_value
 

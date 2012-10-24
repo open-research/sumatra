@@ -50,15 +50,19 @@
                 {% endif %}
 	   		</li>
 	   		<li class='rcomp output'>
-                <table>
-                    <tr><td colspan="4">{{record.datastore.access_parameters.root}}</td></tr>
+                    <div>Folder: {{record.datastore.access_parameters.root}}</div>
                         {% for file in record.output_data.all %}
-                                <tr class="{% cycle 'odd' 'even' %}"><td><a href="datafile?path={{file.path}}&digest={{file.digest}}">{{file.path}}</a></td>
-                                <td>{{file.digest}}</td>
-                                <td>{{file.get_metadata.mimetype|default:""}}</td>
-                                <td>{{file.get_metadata.size|filesizeformat}}</td></tr>
-                        {% endfor %}
-                </table>
+	                        <div style='padding-top:5px'>
+	                        	{% if '.pdf' in file.path %}
+	                        		<div style='padding-top:5px'>
+	                        			File name: <a class="fancybox" rel="group" href="{{record.label}}/download?path={{file.path}}&digest={{file.digest}}">{{file.path}}</a>
+	                        		</div>
+	                        	{% else %}
+	                        		<div style='padding-top:5px'>File name: {{file.path}}</div>
+	                        		<a class="fancybox" rel="group" href="{{record.label}}/image?path={{file.path}}&digest={{file.digest}}"><img src="{{record.label}}/image?path={{file.path}}&digest={{file.digest}}" class="img-polaroid"></a>
+	                        	{% endif %}
+	                        </div>
+                        {% endfor %} 
 	   		</li>
 	   		<li class='rcomp depend'>
 	   			{% if record.dependencies.all %}
@@ -100,6 +104,9 @@
    {% endfor %}
 <script type = 'text/javascript'>
 $(document).ready(function(){
+	$(".fancybox").click(function(e){ // clicking on the image: it will be opened in a new window
+		e.stopPropagation();
+	});
 	$('#head-comp').empty().append("<div id='head_c' class='nonselect head-table'>\
 				              <div id = 'left-r' style='position:absolute;'></div>\
 				              <div id = 'right-r' style='position:absolute;'></div>\

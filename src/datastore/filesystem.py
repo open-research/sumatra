@@ -31,7 +31,7 @@ class DataFile(DataItem):
         self.mimetype, self.encoding = mimetypes.guess_type(self.full_path)
     
     def get_content(self, max_length=None):
-        f = open(self.full_path, 'r')
+        f = open(self.full_path, 'rb')
         if max_length:
             content = f.read(max_length)
         else:
@@ -47,7 +47,7 @@ class DataFile(DataItem):
             cmd = "sort %s > %s" % (self.full_path, sorted_path)
             job = Popen(cmd, shell=True)
             job.wait()
-        f = open(sorted_path, 'r')
+        f = open(sorted_path, 'rb')
         content = f.read()
         f.close()
         if len(content) != self.size: # sort adds a \n if the file does not end with one

@@ -26,5 +26,5 @@ from archivingfs import ArchivingFileSystemDataStore
 
     
 def get_data_store(type, parameters):
-    cls = eval(type)
-    return cls(**parameters)
+	cls = eval(type)
+	return cls(**parameters)
