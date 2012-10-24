@@ -12,7 +12,7 @@ simulation on 17 nodes, run::
 (assuming you have already configured your default executable and main script
 file). This will call ``mpiexec`` for you with the appropriate arguments.
 
-If this is non sufficiently configurable for you, please take a look at the
+If this is insufficiently configurable for you, please take a look at the
 :class:`DistributedLaunchMode` class in ``launch.py`` within the source
 distribution, and get in touch with the Sumatra developers, for example by
 `creating a ticket`_ or asking a question on the `mailing list`_.

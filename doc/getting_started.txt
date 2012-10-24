@@ -5,7 +5,7 @@ Getting started
 Let us assume that you already have a project based on numerical simulation,
 which you wish to start managing using Sumatra, and that the code for this
 project is under version control. Note that the following is equally valid if
-your project is based on numerical analysis rather than, or as well as,
+your project is based on data analysis rather than, or as well as,
 simulation: just mentally replace "simulation" with "analysis" in the following.
 
 Change to the working directory for your project, and then create a new Sumatra
@@ -36,7 +36,7 @@ To run it using Sumatra, you would use::
 Now we can see a list of the simulations we have run::
 
     $ smt list
-    20110314-132438
+    20121017-114820
     
 This shows the label for each simulation we have run. Since we did not specify
 a label, one was automatically generated from the timestamp. To see more detail,
@@ -44,16 +44,23 @@ use the ``--long`` option::
 
     $ smt list --long
     --------------------------------------------------------------------------------
-    Label            : 20110314-132438
-    Reason           :
-    Outcome          :
-    Duration         : 0.669460058212
-    Repository       : MercurialRepository at /path/to/myproject
+    Label            : 20121017-114820
+    Timestamp        : 2012-10-17 11:48:20.421631
+    Reason           : 
+    Outcome          : 
+    Duration         : 0.119576931
+    Repository       : GitRepository at /path/to/myproject
     Main_File        : main.py
-    Version          : 2dfa0e27c514
+    Version          : 560a4afae1565799a29ca259b6a400aa389e59dd
     Script_Arguments : <parameters>
-    Executable       : Python (version: 2.5.2) at /usr/local/bin/python
-    Timestamp        : 2011-03-14 13:24:38.924926
+    Executable       : Python (version: 2.7.1) at /usr/local/bin/python
+    Parameters       : seed = 45245
+                     : distr = "uniform"
+                     : n = 100
+                     : tau_m = 20.0
+    Input_Data       : []
+    Launch_Mode      : serial
+    Output_Data      : [output.dat(dcb86788c2c793804a04e683fae99ad0bac8fb99)]
     Tags             :
     
 (most options also have a short form, ``-l`` in this case.)
@@ -76,15 +83,14 @@ Now you can run a simulation with a much shorter command line::
 To see the current configuration of your project, use the ``info`` command::
 
     $ smt info
-    Sumatra project
-    ---------------
-    Name                : MyProject
-    Default executable  : Python (version: 2.5.2) at /usr/local/bin/python
-    Default repository  : MercurialRepository at /path/to/myproject
+    Project name        : MyProject
+    Default executable  : Python (version: 2.7.1) at /usr/local/bin/python
+    Default repository  : GitRepository at /path/to/my/project
     Default main file   : main.py
     Default launch mode : serial
-    Data store          : /path/to/myproject/Data
-    Record store        : Relational database record store using the Django ORM (database file=.smt/records)
+    Data store (output) : ./Data
+    .          (input)  : /
+    Record store        : Relational database record store using the Django ORM (database file=/path/to/my/project/.smt/records)
     Code change policy  : error
     Append label to     : None
     
@@ -104,7 +110,7 @@ After the simulation is complete, you can add a description of the outcome::
 This adds the comment to the most recent simulation. You may also describe the outcome
 of an earlier simulation, by specifying its label::
 
-    $ smt comment 20110314-132438 "Eureka! Nobel prize here we come."
+    $ smt comment 20121017-114820 "Eureka! Nobel prize here we come."
     
 You can also tag a simulation record with one or more short keywords::
 
@@ -133,12 +139,12 @@ results. The ``repeat`` command re-runs a previous simulation, and checks that t
 output is identical to that of the original run::
 
     $ smt repeat haggling
-    The simulation results match.
+    The new record exactly matches the original.
     
 Although it is better not to delete simulation records (so as to preserve a full
 record of the project, false starts and all), it is possible::
 
-    $ smt delete 20110314-132438
+    $ smt delete 20121017-123706
     
 It is also possible to delete all simulations with a given tag::
 
@@ -151,9 +157,9 @@ available by running ``smt`` by itself::
 
     $ smt
     Usage: smt <subcommand> [options] [args]
-        
-    Simulation management tool, version 0.3.0
-
+  
+    Simulation/analysis management tool version 0.4.0.dev 
+    
     Available subcommands:  
       init
       configure
@@ -165,8 +171,10 @@ available by running ``smt`` by itself::
       tag
       repeat
       diff
+      export
       upgrade
       sync
+
 
 and help on a given command is available by running the command with the ``--help``
 option, e.g.::

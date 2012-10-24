@@ -14,6 +14,7 @@ Record - gathers and stores information about an individual simulation or
 from datetime import datetime
 import time
 import os
+from os.path import relpath, normpath, join, basename, exists
 import re
 import getpass
 from operator import or_
@@ -70,7 +71,9 @@ class Record(object):
             assert not working_copy.has_changed()
         assert_equal(working_copy.current_version(), self.version, "version")
         # Check the main file is in the working copy
-        if not working_copy.contains(self.main_file):
+        cwd_relative_to_wc = relpath(os.getcwd(), working_copy.path)
+        if not working_copy.contains(
+                normpath(join(cwd_relative_to_wc, basename(self.main_file)))):
             raise VersionControlError("Main file %s is not under version control" % self.main_file)
         # Record dependencies
         self.dependencies = []
@@ -105,7 +108,7 @@ class Record(object):
                 data_label = self.label
             else:
                 raise Exception("with_label must be either 'parameters' or 'cmdline'")
-            self.datastore.root  = os.path.join(self.datastore.root, self.label)
+            self.datastore.root  = join(self.datastore.root, self.label)
         # run pre-simulation/analysis tasks, e.g. nrnivmodl
         self.launch_mode.pre_run(self.executable)
         # Write the executable-specific parameter file
@@ -136,7 +139,7 @@ class Record(object):
             print "Data keys are", self.output_data
         else:
             print "No data produced."
-        if self.parameters and os.path.exists(self.parameter_file):
+        if self.parameters and exists(self.parameter_file):
             time.sleep(0.5) # execution of matlab: parameter_file is not always deleted immediately
             os.remove(self.parameter_file)
 
@@ -265,7 +268,7 @@ class RecordDifference(object):
         for rec in self.recordA, self.recordB:
             for key in rec.output_data:
                 ignore = False
-                name = os.path.basename(key.path) # not sure this makes sense for archive data store
+                name = basename(key.path) # not sure this makes sense for archive data store
                 if key.metadata['mimetype']:
                     for pattern in self.ignore_mimetypes:
                         if re.match(pattern, key.metadata['mimetype']):

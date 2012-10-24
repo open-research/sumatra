@@ -2,7 +2,10 @@
 Unit tests for the sumatra.commands module
 """
 
-import unittest
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
 import os
 import hashlib
 from sumatra import commands, launch, datastore

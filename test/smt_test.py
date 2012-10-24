@@ -139,7 +139,8 @@ def run_test(repos, options, working_dir, repos_dir):
 run_test.__test__ = False # nose should not treat this as a test
     
 def test_all():
-    for repos in [m.__name__.split('.')[-1] for m in vcs_list]:#('git', 'subversion', 'mercurial'):  
+    #for repos in [m.__name__.split('.')[-1] for m in vcs_list]:
+    for repos in ('_git', '_subversion', '_mercurial'):  
         for options in ({}, {'store': ".smt/records.shelf"}):
             working_dir, repos_dir = create_temporary_directories()
             print working_dir, repos_dir
@@ -148,8 +149,6 @@ def test_all():
             shutil.rmtree(repos_dir)
             
 if __name__ == "__main__":
-    #run_test('mercurial', {}, "/Users/andrew/tmp/SumatraTestDj", "/Users/andrew/tmp/smt_example_repos")
-    #run_test('mercurial', {'store': ".smt/records.shelf"}, "/Users/andrew/tmp/SumatraTest", "/Users/andrew/tmp/smt_example_repos")
     for args in test_all():
         test = args[0]
         test(*args[1:])

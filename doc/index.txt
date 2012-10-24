@@ -18,7 +18,7 @@ It consists of:
   scripts in place of using smt, or could be integrated into a GUI-based
   application.
 
-Sumatra is currently alpha code, and should be used with caution and frequent
+Sumatra is currently beta code, and should be used with caution and frequent
 backups of your records.
 
 
@@ -31,18 +31,19 @@ Table of Contents
    introduction
    installation
    getting_started
-   managing_a_project
+   command_reference
    web_interface
    gui
    parallel_computations
    using_the_api
    parameter_files
-   command_reference
    upgrading
    migration
    developers_guide
    faq
    support
+   release_notes
+   authors
 
 .. * :ref:`genindex`
 .. * :ref:`modindex`

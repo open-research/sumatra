@@ -9,11 +9,11 @@ Mac OS X, with the bash shell.
 Requirements
 ------------
 
-    * Python_ 2.5, 2.6 and/or 2.7
+    * Python_ 2.6 and/or 2.7
     * Django_ >= 1.2
     * django-tagging_ >= 0.3
     * nose_ >= 0.11.4
-    * if using Python 2.5 or 2.6, unittest2_ >= 0.5.1
+    * if using Python 2.6, unittest2_ >= 0.5.1
     * Distribute_ >= 0.6.14
     * (optional) mpi4py_ >= 1.2.2
     * (optional) tox_ >= 0.9 (makes it easier to test with multiple Python versions)
@@ -119,7 +119,7 @@ Coding standards and style
 --------------------------
 
 All code should conform as much as possible to `PEP 8`_, and should run with
-Python 2.5, 2.6 and 2.7.
+Python 2.6 and 2.7.
 
 .. _Python: http://www.python.org
 .. _Django: http://www.djangoproject.com/

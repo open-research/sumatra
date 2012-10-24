@@ -9,6 +9,7 @@ import tarfile
 import shutil
 import logging
 import mimetypes
+from contextlib import closing  # needed for Python 2.6
 from sumatra.core import TIMESTAMP_FORMAT 
 
 
@@ -30,12 +31,12 @@ class ArchivedDataFile(DataItem):
         self.mimetype, self.encoding = mimetypes.guess_type(self.path)
 
     def _get_info(self):
-        with tarfile.open(self.tarfile_path, 'r') as data_archive:
+        with closing(tarfile.open(self.tarfile_path, 'r')) as data_archive:
             info = data_archive.getmember(self.path)
         return info
     
     def get_content(self, max_length=None):
-        with tarfile.open(self.tarfile_path, 'r') as data_archive:
+        with closing(tarfile.open(self.tarfile_path, 'r')) as data_archive:
             f = data_archive.extractfile(self.path)
             if max_length:
                 content = f.read(max_length)

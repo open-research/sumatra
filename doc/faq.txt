@@ -2,16 +2,17 @@
 Frequently asked questions
 ==========================
 
-* Where does the name "Sumatra" come from?
+Where does the name "Sumatra" come from?
+----------------------------------------
 
 It is based on the initial letters of "Simulation Management Tool".
 (Sumatra was originally conceived for tracking simulations, it was only later
 that I realized it could equally well be used for any command-line driven
-computation). Despite a certain geographical proximity, it has nothing to do
+computation). Despite a certain `geographical proximity`_, it has nothing to do
 with Java :-)
 
-* When I run more than one simulation at once, Sumatra mixes up the output
-  files. How can I make it associate the right files with the right simulation?
+When I run more than one simulation at once, Sumatra mixes up the output files. How can I make it associate the right files with the right simulation?
+------------------------------------------------------------------------------------------------------------------------------------------------------
   
 When you run a simulation/analysis, Sumatra looks for any new files within your
 datastore root directory, and associates them with your computation. This means
@@ -46,3 +47,6 @@ the datastore root::
     output_dir = os.path.join("Data", label)
     with open(os.path.join(output_dir, "mydata.txt"), 'w') as fp:
         fp.write(output_data)
+
+
+.. _`geographical proximity`: http://commons.wikimedia.org/wiki/File:1842_Greenleaf_Map_of_the_East_Indies,_Borneo,_Java,_Sumatra,_Thailand,_Vietnam_-_Geographicus_-_EastIndies-greenleaf-1842.jpg

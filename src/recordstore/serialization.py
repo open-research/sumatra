@@ -134,9 +134,13 @@ def build_record(data):
         parameter_set = getattr(parameters, pdata["type"])(pdata["content"])
     ldata = data["launch_mode"]
     lm_parameters = ldata["parameters"]
+    if isinstance(lm_parameters, basestring): # prior to 0.3
+        lm_parameters = eval(lm_parameters)
     launch_mode = getattr(launch, ldata["type"])(**keys2str(lm_parameters))
     def build_data_store(ddata):
         ds_parameters = ddata["parameters"]
+        if isinstance(ds_parameters, basestring): # prior to 0.3
+            ds_parameters = eval(ds_parameters)
         return getattr(datastore, ddata["type"])(**keys2str(ds_parameters))
     data_store = build_data_store(data["datastore"])
     if "input_data_store" in data: # 0.4 onwards
@@ -144,8 +148,10 @@ def build_record(data):
     else:
         input_datastore = datastore.FileSystemDataStore("/")
     input_data = data.get("input_data", [])
+    if isinstance(input_data, basestring): # 0.3
+        input_data = eval(input_data)
     if input_data:
-        if isinstance(input_data[0], str): # versions prior to 0.4
+        if isinstance(input_data[0], basestring): # versions prior to 0.4
             input_data = [datastore.DataKey(path, digest=datastore.IGNORE_DIGEST)
                           for path in input_data]
         else:

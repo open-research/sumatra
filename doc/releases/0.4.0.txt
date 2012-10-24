@@ -1,0 +1,120 @@
+===========================
+Sumatra 0.4.0 release notes
+===========================
+
+*October 18th 2012*
+
+Welcome to Sumatra 0.4.0!
+
+
+Overview
+--------
+
+The biggest change in Sumatra 0.4 is the redesign of the browser-based interface,
+launched with :command:`smtweb`. Thanks to the `Google Summer of Code`_ program,
+Dmitry Samarkanov was able to spend his summer working on improving Sumatra, with
+the results being a much improved web interface, better support for running
+Sumatra on Windows, and better support for running Matlab scripts with Sumatra.
+Many thanks to Google and to the INCF_ as mentoring organisation. In addition to
+Dmitry's improvements, handling of input and output data files is much improved,
+and Sumatra now captures and stores standard output (stdout) and standard error
+(stderr) streams. More details on all of these, plus a bunch of minor
+improvements and bug fixes, is given below. Finally, Sumatra no longer supports
+Python 2.5 - the minimum requirement is Python 2.6.
+
+
+Web interface
+-------------
+
+The Sumatra browser-based interface runs a local webserver on your computer,
+and allows you to browse the information that Sumatra captures about your
+analyses, simulations or other computations, including code versions, input
+and output data files, parameter/configuration files, the operating system and
+processor architecture.
+
+The interface has been completely redesigned for Sumatra 0.4, and includes
+dozens of large and small improvements, including:
+
+  - a more modern, attractive design
+  - the ability to select which columns to display in the record list view
+  - the ability to search all of your records based on date, tags or full-text
+  - side-by-side comparison of records
+  - sorting of records based on any column
+  - selection of multiple records by clicking or dragging for deletion, comparison and tagging
+
+Furthermore, it is now possible to launch computations from the browser interface.
+
+For more information, see :doc:`../web_interface` and `this blog post`_ from Dmitry
+Samarkanov.
+
+
+Data file handling
+------------------
+
+In earlier versions of Sumatra, the filename (or rather, the file path relative
+to a user-defined root) was used as the identifier for input and output data
+files. The problem with this, of course, is that it is possible to overwrite a
+given file with new data. For this reason, Sumatra 0.4 now calculates and stores
+the SHA1 hash of the file contents. If the file contents change, the hash will
+also change, so that Sumatra can alert you if a file is accidentally overwritten,
+for example.
+
+Sumatra 0.4 also adds a new data store which automatically archives a copy of
+the output data from your computations in a user-selected location. This data
+store is accessible through the API as the :class:`ArchivingFileSystemDataStore`
+class, or through the :command:`smt` command-line interface with the "--archive"
+option to the "init" and "configure" commands.
+
+Finally, Sumatra now allows the user the choice of whether to use an absolute or
+relative path for the data store root directory. Using a relative path makes
+projects easier to move and easier to access from other locations (e.g. with
+symbolic links or NFS).
+
+
+Matlab support
+--------------
+
+Sumatra can capture certain information for *any* command-line tool: input and
+output data, version of the main codebase, operating system and processor
+architecture, etc. For dependency information, however (i.e. which libraries,
+modules or packages are imported/included by your main script), a separate
+plugin is required for each language. Sumatra already has a dependency tracking
+plugin for Python and for two computational neuroscience simulation environments,
+NEURON and GENESIS. Sumatra 0.4 adds dependency tracking for Matlab scripts.
+
+
+Recording of stdout and stderr
+------------------------------
+
+Sumatra 0.4 now supports recording and storage of the standard output and
+standard error streams from your scripts.
+
+
+Other new features
+------------------
+
+* added support for JSON-format parameter files;
+* added :command:`smt export` command, which allows the contents of a Sumatra
+  record store to be exported in JSON format;
+* more information is now printed by :command:`smt list --long`;
+* the Python dependency finder now supports scripts run with Python 3 (although
+  Sumatra itself still needs Python 2);
+* can now specify :class:`HttpRecordStore` username and password as part of the
+  URL passed to :class:`smt init`;
+* added support for markup using reStructuredText_ in the project description
+* it is no longer required to have a script file, which makes it possible to
+  use Sumatra with your own compiled executables. Further support for compiled
+  languages is planned for the next release.
+
+
+Bug fixes
+---------
+
+A `whole bunch of bugs`_ were fixed in Sumatra 0.4. 
+
+
+.. _`Google Summer of Code`: http://www.google-melange.com/gsoc/homepage/google/gsoc2012
+.. _INCF: http://www.incf.org
+.. _`this blog post`: http://samarkanov.com/blog/xxx
+.. _reStructuredText: docutils.sourceforge.net/rst.html
+.. _`whole bunch of bugs`: https://neuralensemble.org/trac/sumatra/query?status=closed&group=resolution&milestone=0.4

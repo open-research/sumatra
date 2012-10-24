@@ -8,22 +8,25 @@ you can install it from `python.org`_, or install one of the
 "value-added" distributions aimed at scientific users of Python: `Enthought`_ or
 `Python(x,y)`_.
 
-Sumatra may be downloaded from the `Python Package Index`_ (PyPI) or from the `INCF Software Centre`_.
-To install it, first unpack the tar archive::
-
-    $ tar xzf Sumatra-0.3.0.tar.gz
-    $ cd Sumatra-0.3.0
-    # python setup.py install
-    
-The last step may need to be run as root, or using sudo.
-
-Alternatively, you can install directly from the Python Package Index::
+The easiest way to install Sumatra is directly from the `Python Package Index`_
+(PyPI)::
 
     $ pip install sumatra
 
 or::
 
     $ easy_install sumatra
+
+
+Alternatively, you can download the Sumatra package from either PyPI or the
+`INCF Software Centre`_ and install it as follows::
+
+    $ tar xzf Sumatra-0.4.0.tar.gz
+    $ cd Sumatra-0.4.0
+    # python setup.py install
+    
+The last step may need to be run as root, or using sudo.
+
 
 Installing Django
 -----------------
@@ -35,10 +38,13 @@ http://code.djangoproject.com/wiki/Distributions.
 Otherwise, it is very easy to install manually: see
 http://docs.djangoproject.com/en/dev/topics/install/#installing-official-release
 
-You will also need to install the `django-tagging`_ package, which may be in
-your package management system, otherwise it can be installed from PyPI::
+You will also need to install the `django-tagging`_ and docutils_ packages,
+which may be in your package management system, otherwise they can be installed
+from PyPI::
 
-    $ easy_install django-tagging
+    $ pip install django-tagging
+    $ pip install docutils
+
 
 Installing Python bindings for your version control system
 ----------------------------------------------------------
@@ -62,3 +68,4 @@ GitPython_ package.
 .. _`GitPython`: http://pypi.python.org/pypi/GitPython/
 .. _`Enthought`: http://www.enthought.com/products/epd.php
 .. _`Python(x,y)`: http://code.google.com/p/pythonxy/
+.. _docutils: http://docutils.sourceforge.net

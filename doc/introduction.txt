@@ -2,7 +2,6 @@
 Background
 ==========
 
-
 Reproducibility, provenance and project management
 --------------------------------------------------
 
@@ -75,7 +74,7 @@ of these tools seem to be well suited for tracking simulation experiments.
 .. [What about workflow tools like Taverna, VisTrails, Kepler].
 
 Challenges for tracking computational experiments
----------------------------------------------------------------
+-------------------------------------------------
 
 In developing a tool for tracking simulation experiments, something like an
 electronic lab notebook for computational science, there are a number of
@@ -117,8 +116,31 @@ The core ``sumatra`` package needs to:
   systems, etc.
 * be very easy to use, otherwise it will only be used by the very conscientious.
 
+
+Further resources
+-----------------
+
+For further background, see the following article:
+
+        Davison A.P. (2012) Automated capture of experiment context for easier
+        reproducibility in computational research.
+        *Computing in Science and Engineering* **14**: 48-56 [preprint_]
+
+You may also be interested in exploring this interactive poster about Sumatra:
+
+.. image:: /images/poster.png
+    :target: http://fgrz.ro/SnvSHa
+
+or in watching a talk given at a workshop_ on "*Reproducible Research-Tools and Strategies for Scientific Computing*" in Vancouver, Canada in July 2011.
+[`video with slides`_ (Silverlight required)] [`video only`_ (YouTube)] [slides_].
+
 .. _Subversion: http://subversion.tigris.org/
 .. _Git: http://git-scm.com
 .. _Mercurial: http://www.selenic.com/mercurial
 .. _Bazaar: http://bazaar-vcs.org
 .. _MPI: http://en.wikipedia.org/wiki/Message_Passing_Interface
+.. _preprint: http://andrewdavison.info/media/files/reproducible_research_CiSE.pdf
+.. _`video with slides`: http://mediasite.mediagroup.ubc.ca/MediaGroup/Viewer/?peid=291fc2e10e3d4adab212c8949577b32e1d
+.. _`video only`: http://www.youtube.com/watch?v=7VcDvxvjqrc
+.. _slides: http://www.stodden.net/AMP2011/slides/sumatra_amp2011.pdf
+.. _workshop: http://www.stodden.net/AMP2011/
