@@ -196,6 +196,8 @@ class ParameterSet(dict):
             D = eval(s, global_dict)
         except SyntaxError, e:
             raise SyntaxError("Invalid string for ParameterSet definition: %s\n%s" % (s,e))
+        except TypeError, e:
+            raise SyntaxError("Invalid string for ParameterSet definition: %s" % e)
         return D or {}
     
     @staticmethod
