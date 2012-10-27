@@ -32,7 +32,7 @@ version_pattern_matlab = re.compile(r'(?<=Version: )(?P<version>\d.+)\b')
 
 class Executable(object):
     # store compilation/configuration options? yes, if we can determine them
-    requires_script = False  # does this executable require a script file
+    requires_script = True  # does this executable require a script file
     name = None
     
     def __init__(self, path, version=None, options="", name=None):
@@ -190,7 +190,6 @@ register_executable(PythonExecutable, 'Python', ('python', 'python2', 'python3',
 register_executable(MatlabExecutable, 'Matlab', ('matlab',), ('.m',))
 register_executable(NESTSimulator, 'NEST', ('nest',), ('.sli',))
 register_executable(GENESISSimulator, 'GENESIS', ('genesis',), ('.g',))
-
 
 def get_executable(path=None, script_file=None):
     """

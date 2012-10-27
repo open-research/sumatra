@@ -53,13 +53,13 @@
                     <div>Folder: {{record.datastore.access_parameters.root}}</div>
                         {% for file in record.output_data.all %}
 	                        <div style='padding-top:5px'>
-	                        	{% if '.pdf' in file.path %}
+	                        	{% if '.png' in file.path %}
+	                        		<div style='padding-top:5px'>File name: {{file.path}}</div>
+	                        		<a class="fancybox" rel="group" href="{{record.label}}/image?path={{file.path}}&digest={{file.digest}}"><img src="{{record.label}}/image?path={{file.path}}&digest={{file.digest}}" class="img-polaroid"></a>
+	                        	{% else %}
 	                        		<div style='padding-top:5px'>
 	                        			File name: <a class="fancybox" rel="group" href="{{record.label}}/download?path={{file.path}}&digest={{file.digest}}">{{file.path}}</a>
 	                        		</div>
-	                        	{% else %}
-	                        		<div style='padding-top:5px'>File name: {{file.path}}</div>
-	                        		<a class="fancybox" rel="group" href="{{record.label}}/image?path={{file.path}}&digest={{file.digest}}"><img src="{{record.label}}/image?path={{file.path}}&digest={{file.digest}}" class="img-polaroid"></a>
 	                        	{% endif %}
 	                        </div>
                         {% endfor %} 

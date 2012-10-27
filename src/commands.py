@@ -275,7 +275,7 @@ def run(argv):
         parameters = parameters[0]
     else:
         parser.error("Only a single parameter file allowed.") # for now
-
+        
     if options.executable:
         executable_path, executable_options = parse_executable_str(options.executable)
         executable = get_executable(path=executable_path)
