@@ -60,7 +60,7 @@ $(function() {
         $('#arrLabls').append($selected_labels); // as soon as form is submitted we'll read this div to retrieve all the labels
     });
 
-    //click on the 'compare simulations' button
+    //click on the 'compare records' button
     $('#d-comp').live('click', function(){ 
         var $div_list = $('#alist-labels').empty();
         var list = labelList(false, $div_list);

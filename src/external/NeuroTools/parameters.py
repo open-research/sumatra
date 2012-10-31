@@ -31,10 +31,9 @@ from urlparse import urlparse
 from os import environ
 from sumatra.external.NeuroTools.random import ParameterDist, GammaDist, UniformDist, NormalDist
 
-PROXY = True # for the LAN with proxy server
-if PROXY:
+if 'HTTP_PROXY' in environ:
     HTTP_PROXY = environ['HTTP_PROXY'] # user has to define it
-    ''' next lines is for communication to urllib of proxy information '''
+    ''' next lines are for communication to urllib of proxy information '''
     proxy_support = urllib2.ProxyHandler({"https":HTTP_PROXY})
     opener = urllib2.build_opener(proxy_support, urllib2.HTTPHandler)
     urllib2.install_opener(opener)

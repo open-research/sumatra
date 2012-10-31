@@ -58,8 +58,8 @@ class HttpRecordStore(RecordStore):
     def __getstate__(self):
         username = password = None
         if self.client.credentials.credentials:
-            username = self.client.credentials.credentials[0][1],
-            password = self.client.credentials.credentials[0][2],
+            username = self.client.credentials.credentials[0][1]
+            password = self.client.credentials.credentials[0][2]
         return {
             'server_url': self.server_url,
             'username': username,

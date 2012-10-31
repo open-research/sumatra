@@ -196,7 +196,7 @@ def run_sim(request, project):
         fow.write(content)
         fow.close()
         return HttpResponse('ok')
-    else: # run simulation 
+    else: # run computation 
         run_opt = {'--label': request.POST.get('label', False),
                    '--reason': request.POST.get('reason', False),
                    '--tag': request.POST.get('tag', False),

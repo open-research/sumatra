@@ -4,7 +4,7 @@ The parameters module handles different parameter file formats.
 The original idea was that all parameter files will be converted to a single
 internal parameter format, the NeuroTools ParameterSet class. This will allow
 fancy searching/comparisons based on parameters. However, we don't do this at
-the moment, the only methods that are used are `update()` and `save()
+the moment, the only methods that are used are `update()` and `save()`
 
 Classes
 -------
@@ -16,8 +16,9 @@ SimpleParameterSet       - handles parameter files in a simple "name = value"
 ConfigParserParameterSet - handles parameter files in traditional config file
                            format, as parsed by the standard Python ConfigParser
                            module.
+JSONParameterSet         - handles parameter files in JSON format
 """
-# JSONParameterSet and YAMLParameterSet should be useful and straightforward to
+# YAMLParameterSet should be useful and straightforward to
 # implement. XMLParameterSet could also be useful, but is unlikely to be
 # straightforward.
 

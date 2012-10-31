@@ -1,11 +1,11 @@
-====================
-Parallel simulations
-====================
+=====================
+Parallel computations
+=====================
 
 As well as launching computations on your local machine, Sumatra can launch
 distributed, MPI-based computations on a cluster, at least for simple use-cases.
 We assume you already have your hosts files, etc. set up. Then, to run your
-simulation on 17 nodes, run::
+computation on 17 nodes, run::
 
     $ smt run -n 17 default.param
     

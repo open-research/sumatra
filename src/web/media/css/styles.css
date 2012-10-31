@@ -415,7 +415,7 @@ h2.topic{
 }
 
 .table-recDetail tr td{
-    padding-right: 70px;
+    padding-right: 10px;
 }
 
 .table-recDetail tr td:first-child{
@@ -886,14 +886,34 @@ h2.topic{
 }
  
 #l-label, #label-t{
-    width: 200px; 
+    width: 160px; 
     cursor: pointer; 
 }
 
 #l-ename, #l-eversion, #l-main{
   margin-top: 0px;
 }
- 
+
+#l-main, #main-t {
+    width: 180px;
+}
+
+#l-date, #date-t {
+    width: 100px;
+}
+
+#l-reason, #reason-t {
+    width: 120px;
+}
+
+#l-outcome, #outcome-t {
+    width: 120px;
+}
+
+#l-duration, #duration-t {
+    width: 7re0px;
+}
+
 .t-item{
     cursor: pointer; 
     margin-top: 8px;
