@@ -5912,4 +5912,18 @@ li[class*=" icomoon-"].icon-large:before {
   padding: 4px 5px 4px 20px;
   direction: rtl;
 }
+.img-polaroid {
+  padding: 4px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+.img-polaroid:hover{
+  cursor: pointer;
+  cursor: hand; 
+}
+
 /* @end */

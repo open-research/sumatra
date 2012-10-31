@@ -26,10 +26,18 @@ string_table      - Convert a table written as a multi-line string into a dict o
 
 """
 
-import urllib, copy, warnings, math
+import urllib, copy, warnings, math, urllib2
 from urlparse import urlparse
+from os import environ
 from sumatra.external.NeuroTools.random import ParameterDist, GammaDist, UniformDist, NormalDist
 
+PROXY = True # for the LAN with proxy server
+if PROXY:
+    HTTP_PROXY = environ['HTTP_PROXY'] # user has to define it
+    ''' next lines is for communication to urllib of proxy information '''
+    proxy_support = urllib2.ProxyHandler({"https":HTTP_PROXY})
+    opener = urllib2.build_opener(proxy_support, urllib2.HTTPHandler)
+    urllib2.install_opener(opener)
 
 def isiterable(x):
     return (hasattr(x,'__iter__') and not isinstance(x, basestring))
@@ -193,7 +201,14 @@ class ParameterSet(dict):
                                 false=False,  # files
                                 ))            
         try:
-            D = eval(s, global_dict)
+            if 'file://' in s:
+                path = s.split('file://')[1]
+                ifile = open(path, 'r')
+                content = ifile.read()
+                ifile.close()
+                D = eval(content, global_dict)           
+            else:
+                D = eval(s, global_dict)
         except SyntaxError, e:
             raise SyntaxError("Invalid string for ParameterSet definition: %s\n%s" % (s,e))
         except TypeError, e:
@@ -225,9 +240,7 @@ class ParameterSet(dict):
             try:
                 # can't handle cases where authentication is required
                 # should be rewritten using urllib2 
-                #scheme, netloc, path, \
-                #        parameters, query, fragment = urlparse(initialiser)
-                f = urllib.urlopen(initialiser)
+                f= urllib2.urlopen(initialiser)
                 pstr = f.read()
                 self._url = initialiser
             except IOError, e:

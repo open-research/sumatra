@@ -154,7 +154,6 @@ class SerialLaunchMode(LaunchMode):
         return {}
     
     def generate_command(self, executable, main_file, arguments):
-        #import pdb;pdb.set_trace()
         __doc__ = LaunchMode.__doc__
         if executable.requires_script:
             check_files_exist(executable.path, *main_file.split())

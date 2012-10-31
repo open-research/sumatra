@@ -298,18 +298,18 @@ def show_file(request, project, label):
                 contents = zf.namelist()
                 zf.close()
                 return render_to_response("show_file.html",
-                                      {'path': path, 'label': label,
+                                      {'path': path, 'label': label, 'digest': digest,
                                        'content': "\n".join(contents),'project_name': project
                                        })
             else:
                 raise IOError("Not a valid zip file")
         else:
             return render_to_response("show_file.html", {'path': path, 'label': label,
-                                                         'project_name': project,
+                                                         'project_name': project, 'digest': digest,
                                                          'content': "Can't display this file (mimetype assumed to be %s)" % mimetype})
     except (IOError, KeyError), e:
         return render_to_response("show_file.html", {'path': path, 'label': label,
-                                                     'project_name': project,
+                                                     'project_name': project, 'digest': digest,
                                                      'content': "File not found.",
                                                      'errmsg': e})
 
@@ -339,16 +339,14 @@ def show_image(request, project, label):
     digest = request.GET['digest']
     data_key = DataKey(path, digest)
     mimetype, encoding = mimetypes.guess_type(path)
-    if mimetype in ("image/png", "image/jpeg", "image/gif"):
+    if mimetype in ("image/png", "image/jpeg", "image/gif", "image/x-png"):
         record = Record.objects.get(label=label, project__id=project)
         data_store = get_data_store(record.datastore.type, eval(record.datastore.parameters))
         try:
             content = data_store.get_content(data_key)
         except (IOError, KeyError):
             raise Http404
-        response = HttpResponse(mimetype=mimetype)
-        response.write(content)
-        return response
+        return HttpResponse(content, mimetype=mimetype)
     else:
         return HttpResponse(mimetype="image/png") # should return a placeholder image?
 
