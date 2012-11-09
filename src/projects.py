@@ -155,7 +155,7 @@ class Project(object):
         return record.label
     
     def update_code(self, working_copy, version='latest'):
-        # Check if the working copy has modifications and prompt to commit or revert them
+        """Check if the working copy has modifications and prompt to commit or revert them."""
         # we really need to extend this to the dependencies, but we need to take extra special care that the
         # code ends up in the same condition as before the run
         diff = ''

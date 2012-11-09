@@ -174,3 +174,9 @@ class HttpRecordStore(RecordStore):
     def most_recent(self, project_name):
         url = "%s%s/last/" % (self.server_url, project_name)
         return self._get_record(url).label
+
+    def sync(self, other, project_name):
+        __doc__ = super(HttpRecordStore, self).__doc__
+        if not self.has_project(project_name):
+            self.create_project(project_name)
+        super(HttpRecordStore, self).sync(other, project_name)
