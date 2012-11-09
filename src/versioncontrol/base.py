@@ -15,6 +15,7 @@ class Repository(object):
         if url == ".":
             url = os.path.abspath(url)
         self.url = url
+        self.upstream = None
         
     def __str__(self):
         return "%s at %s" % (self.__class__.__name__, self.url)
@@ -27,11 +28,12 @@ class Repository(object):
 
     def __getstate__(self):
         """For pickling"""
-        return {'url': self.url}
+        return {'url': self.url, 'upstream': self.upstream}
 
     def __setstate__(self, state):
         """For unpickling"""
         self.__init__(state['url'])
+        self.upstream = state['upstream']
 
 
 class WorkingCopy(object):
