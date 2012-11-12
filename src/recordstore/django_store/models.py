@@ -8,7 +8,7 @@ from sumatra import programs, launch, datastore, records, versioncontrol, parame
 import os.path
 import tagging.fields
 from tagging.models import Tag
-
+from datetime import datetime
 
 class SumatraObjectsManager(models.Manager):
     
@@ -54,11 +54,17 @@ class Project(BaseModel):
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True)
 
+    class Meta:
+        ordering = ('id',)
+
     def get_name(self):
         return self.name or self.id
 
     def __unicode__(self):
         return self.id
+    
+    def last_updated(self):
+        return self.record_set.all().aggregate(models.Max('timestamp'))["timestamp__max"] or datetime(1970, 1, 1, 0, 0, 0)
 
 
 class Executable(BaseModel):
@@ -254,4 +260,4 @@ class Record(BaseModel):
         return self.label
     
     def tag_objects(self):
-        return Tag.objects.get_for_object(self)
+        return Tag.objects.get_for_object(self) 
