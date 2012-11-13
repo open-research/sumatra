@@ -229,6 +229,9 @@ class Record(BaseModel):
     # parameters which will be used in the fulltext search (see sumatra.web.services fulltext_search)
     params_search = ('label','reason', 'duration', 'main_file', 'outcome', 'user', 'tags') 
 
+    class Meta:
+        ordering = ('-timestamp',)
+
     def to_sumatra(self):
         record = records.Record(
             self.executable.to_sumatra(),
