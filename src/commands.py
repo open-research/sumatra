@@ -11,6 +11,7 @@ from textwrap import dedent
 from copy import deepcopy
 import warnings
 import re
+import logging
 
 from sumatra.programs import get_executable
 from sumatra.datastore import FileSystemDataStore, ArchivingFileSystemDataStore
@@ -23,6 +24,13 @@ from sumatra.formatting import get_diff_formatter
 from sumatra.records import MissingInformationError
 from sumatra.core import TIMESTAMP_FORMAT
 
+logger = logging.getLogger("Sumatra")
+logger.setLevel(logging.CRITICAL)
+h = logging.StreamHandler()
+h.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+logger.addHandler(h)
+
+logger.debug("STARTING")
 
 def parse_executable_str(exec_str):
     """
@@ -102,7 +110,6 @@ def init(argv):
     parser.add_option('-m', '--main', help="the name of the script that would be supplied on the command line if running the simulation or analysis normally, e.g. init.hoc.")
     parser.add_option('-c', '--on-changed', default='error', help="the action to take if the code in the repository or any of the depdendencies has changed. Defaults to %default") # need to add list of allowed values
     parser.add_option('-s', '--store', help="specify the path to the record store, either an existing one or one to be created.")
-    parser.add_option('-D', '--debug', action='store_true', help="print debugging information.")
     parser.add_option('-A', '--archive', metavar='PATH', help="specify a directory in which to archive output datafiles. If not specified, datafiles are not archived.")
 
     (options, args) = parser.parse_args(argv)
@@ -116,9 +123,6 @@ def init(argv):
     if len(args) != 1:
         parser.error('You must supply a name.')
     project_name = args[0]
-
-    global _debug
-    _debug = options.debug
 
     if not os.path.exists(".smt"):
         os.mkdir(".smt")
@@ -264,8 +268,12 @@ def run(argv):
     parser.add_option('-n', '--num_processes', metavar='N', type="int",
                       help="run a distributed computation on N processes using MPI. If this option is not used, or if N=0, a normal, serial simulation/analysis is run.")
     parser.add_option('-t', '--tag', help="tag you want to add to the project")
+    parser.add_option('-D', '--debug', action='store_true', help="print debugging information.")
 
     (options, args) = parser.parse_args(argv)
+
+    if options.debug:
+        logger.setLevel(logging.DEBUG)
 
     project = load_project()
     parameters, input_data, script_args = parse_arguments(args, project.input_datastore)

@@ -37,10 +37,12 @@ import sys
 from modulefinder import Module
 import warnings
 import inspect
+import logging
 
 from sumatra.dependency_finder import core
 from sumatra import versioncontrol
 
+logger = logging.getLogger("Sumatra")
 SENTINEL = "<SUMATRA>"
 
 
@@ -206,8 +208,10 @@ def find_dependencies(filename, executable):
     heuristics = [core.find_versions_from_versioncontrol,
                   lambda deps: find_versions_by_attribute(deps, executable),
                   find_versions_from_egg]
+    logger.debug("Finding imported packages")
     packages = find_imported_packages(filename, executable.path, exclude_stdlib=True)
     dependencies = [Dependency.from_module(module, executable.path) for module in packages.values()]
+    logger.debug("Finding versions of dependencies")
     return core.find_versions(dependencies, heuristics)
 
 

@@ -20,8 +20,13 @@ import pysvn
 import os
 import tempfile
 import shutil
+import logging
+from sumatra.core import have_internet_connection
 
 from base import Repository, WorkingCopy, VersionControlError
+
+logger = logging.getLogger("Sumatra")
+
 
 def may_have_working_copy(path=None):
     path = path or os.getcwd()
@@ -91,12 +96,13 @@ class SubversionRepository(Repository):
     def __init__(self, url):
         Repository.__init__(self, url)
         self._client = pysvn.Client()
-        # check that there is a valid Subversion repository at the URL,
-        # without doing a checkout.
-        try:
-            self._client.ls(url)
-        except pysvn._pysvn.ClientError, errmsg:
-            raise VersionControlError(errmsg)
+        if have_internet_connection():
+            # check that there is a valid Subversion repository at the URL,
+            # without doing a checkout.
+            try:
+                self._client.ls(url)
+            except pysvn._pysvn.ClientError, errmsg:
+                raise VersionControlError(errmsg)
     
     def checkout(self, path='.'):
         try:

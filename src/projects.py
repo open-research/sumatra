@@ -32,6 +32,9 @@ try:
     import json
 except ImportError:
     import simplejson as json
+import logging
+
+logger = logging.getLogger("Sumatra")
 
 DEFAULT_PROJECT_FILE = "project"
 
@@ -121,6 +124,7 @@ class Project(object):
                    executable='default', repository='default',
                    main_file='default', version='latest', launch_mode='default',
                    label=None, reason=None):
+        logger.debug("Creating new record")
         if executable == 'default':
             executable = deepcopy(self.default_executable)           
         if repository == 'default':
@@ -158,6 +162,7 @@ class Project(object):
         """Check if the working copy has modifications and prompt to commit or revert them."""
         # we really need to extend this to the dependencies, but we need to take extra special care that the
         # code ends up in the same condition as before the run
+        logger.debug("Updating working copy to use version: %s" % version)
         diff = ''
         changed = working_copy.has_changed()
         if version == 'latest':

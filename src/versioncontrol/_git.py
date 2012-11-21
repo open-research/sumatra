@@ -24,6 +24,9 @@ try:
 except:
     from git.exc import InvalidGitRepositoryError
 from base import Repository, WorkingCopy, VersionControlError
+import logging
+
+logger = logging.getLogger("Sumatra")
 
 
 def findrepo(path):
@@ -85,6 +88,7 @@ class GitWorkingCopy(WorkingCopy):
             return head.commit.sha
     
     def use_version(self, version):
+        logger.debug("Using git version: %s" % version)
         if version is not 'master':
             assert not self.has_changed()
         g = git.Git(self.path)

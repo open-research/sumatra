@@ -21,6 +21,11 @@ import warnings
 import cmd
 import tempfile
 import tee
+import logging
+from sumatra.core import have_internet_connection
+
+logger = logging.getLogger("Sumatra")
+
 
 class PlatformInformation(object):
     """
@@ -126,9 +131,12 @@ class LaunchMode(object):
         """
         network_name = platform.node()
         bits, linkage = platform.architecture()
-        try:
-            ip_addr = socket.gethostbyname(network_name)
-        except socket.gaierror: # see http://stackoverflow.com/questions/166506/finding-local-ip-addresses-in-python
+        if have_internet_connection():
+            try:
+                ip_addr = socket.gethostbyname(network_name)  # any way to control the timeout?
+            except socket.gaierror: # see http://stackoverflow.com/questions/166506/finding-local-ip-addresses-in-python
+                ip_addr = "127.0.0.1"
+        else:
             ip_addr = "127.0.0.1"
         return [PlatformInformation(architecture_bits=bits,
                                     architecture_linkage=linkage,

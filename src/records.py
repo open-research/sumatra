@@ -22,6 +22,9 @@ from formatting import get_formatter
 import dependency_finder
 from sumatra.core import TIMESTAMP_FORMAT
 from versioncontrol import VersionControlError
+import logging
+
+logger = logging.getLogger("Sumatra")
 
 
 def assert_equal(a, b, msg=''):
@@ -67,6 +70,7 @@ class Record(object):
     def register(self, working_copy):
         """Record information about the environment."""
         # Check the code hasn't changed and the version is correct
+        logger.debug("Checking code")
         if len(self.diff) == 0:
             assert not working_copy.has_changed()
         assert_equal(working_copy.current_version(), self.version, "version")
@@ -76,6 +80,7 @@ class Record(object):
                 normpath(join(cwd_relative_to_wc, basename(self.main_file)))):
             raise VersionControlError("Main file %s is not under version control" % self.main_file)
         # Record dependencies
+        logger.debug("Recording dependencies")
         self.dependencies = []
         if self.executable.requires_script:
             if self.main_file is None:
@@ -88,6 +93,7 @@ class Record(object):
                     self.dependencies.extend(dependency_finder.find_dependencies(main_file, self.executable))
             # if self.on_changed is 'error', should check that all the dependencies have empty diffs and raise an UncommittedChangesError otherwise
         # Record platform information
+        logger.debug("Recording platform information")
         self.platforms = self.launch_mode.get_platform_information()
 
     def run(self, with_label=False):
@@ -100,6 +106,7 @@ class Record(object):
                      datastore root. This allows the program being run to
                      create files in a directory specific to this run.
         """
+        logger.debug("Launching computation")
         data_label = None
         if with_label:
             if with_label == 'parameters':
