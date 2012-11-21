@@ -21,7 +21,7 @@ import os
 import sys
 import warnings
 
-from sumatra.dependency_finder import core, neuron, python, genesis, matlab
+from sumatra.dependency_finder import core, neuron, python, genesis, matlab, make
     
 
 def find_dependencies(filename, executable):
@@ -35,6 +35,8 @@ def find_dependencies(filename, executable):
         return neuron.find_dependencies(filename, executable)
     elif executable.name == "GENESIS":
         return genesis.find_dependencies(filename, executable)
+    elif executable.name == "GNU Make":
+        return make.find_dependencies(filename, executable)
     else:
         warnings.warn("find_dependencies() not yet implemented for %s" % executable.name)
         return []
