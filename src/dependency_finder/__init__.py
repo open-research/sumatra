@@ -21,6 +21,8 @@ import os
 import sys
 import warnings
 
+from sumatra.dependency_finder import core, neuron, python, genesis, matlab, make
+
 def find_dependencies(filename, executable):
     """Return a list of dependencies for a given script and programming
        language."""
@@ -37,5 +39,3 @@ def find_dependencies(filename, executable):
     else:
         warnings.warn("find_dependencies() not yet implemented for %s" % executable.name)
         return []
-    
-from sumatra.dependency_finder import core, neuron, python, genesis, matlab, make

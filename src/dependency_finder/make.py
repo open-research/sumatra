@@ -32,7 +32,6 @@ class Dependency(core.BaseDependency):
             except:
                 return []
             dependencies = dependency_finder.find_dependencies(self.path, executable)
-            print executable, self.path, dependencies
         
         return dependencies
             
@@ -41,6 +40,7 @@ def strip(l):
     return l.strip()
 
 def build_dependency_graph(makefile_path):
+    """parse Makefile and build a dependency graph"""
     depends = {}
     all_sources = []
     with file(makefile_path) as fid:
@@ -66,6 +66,7 @@ def build_dependency_graph(makefile_path):
     return {'edges': depends, 'nodes': all_sources}
 
 def find_sources_without_deps(graph):
+    """find nodes in dependency graph that do not depend on anything"""
     sources = graph['nodes']
     deps = graph['edges']
     pure_sources = [src for src in sources if not src in deps]
