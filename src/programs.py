@@ -167,6 +167,16 @@ class GENESISSimulator(Executable):
         os.remove("genesis_version.out")
         return version.strip()
 
+class MakeExecutable(Executable):
+    name = "GNU Make"
+    default_executable_name = "make"
+    requires_script = True
+    
+    def __init__(self, path, version=None, options="", name=None):
+        Executable.__init__(self, path, version, options, name)
+        #this is required to take Makefile file name from command line
+        if not "-f" in self.options:
+            self.options += ' -f'
 
 registered_program_names = {}
 registered_executables = {}
@@ -190,6 +200,7 @@ register_executable(PythonExecutable, 'Python', ('python', 'python2', 'python3',
 register_executable(MatlabExecutable, 'Matlab', ('matlab',), ('.m',))
 register_executable(NESTSimulator, 'NEST', ('nest',), ('.sli',))
 register_executable(GENESISSimulator, 'GENESIS', ('genesis',), ('.g',))
+register_executable(MakeExecutable, 'GNU Make', ('make',), ())
 
 
 def get_executable(path=None, script_file=None):

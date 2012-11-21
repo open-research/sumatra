@@ -5,8 +5,10 @@ Unit tests for the sumatra.programs module
 import unittest
 import sys
 import os
+import re
 from sumatra.programs import Executable, version_pattern, get_executable, \
-                             PythonExecutable, NESTSimulator, NEURONSimulator
+                             PythonExecutable, NESTSimulator, NEURONSimulator, \
+                             MakeExecutable
 
 class TestVersionRegExp(unittest.TestCase):
     
@@ -18,6 +20,7 @@ class TestVersionRegExp(unittest.TestCase):
             "abcdefg": None,
             "usage: ls [-ABCFGHLPRSTWabcdefghiklmnopqrstuwx1] [file ...]": None,
             "4.2rc3": "4.2rc3",
+            "GNU Make 3.81": "3.81"
         }
         for input, output in examples.items():
             match = version_pattern.search(input)
@@ -56,6 +59,22 @@ class TestExecutable(unittest.TestCase):
         self.assertEqual(prog1, prog2)
         assert prog1 != prog3
 
+class TestMainExecutable(unittest.TestCase):
+    
+    def setUp(self):
+        self.make_path = None
+        for p in ['/usr/bin/make',
+                  '/usr/local/make']:
+            if os.path.exists(p):
+                self.make_path = p
+
+    def test_find_version(self):
+        prog = Executable(self.make_path)
+        assert float(prog.version)>3
+
+    def test__get_executable__(self):
+        prog = get_executable(self.make_path)
+        assert isinstance(prog, MakeExecutable)
 
 class TestNEURONSimulator(unittest.TestCase):
     pass
