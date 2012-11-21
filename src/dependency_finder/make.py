@@ -1,6 +1,8 @@
 import re
 from sumatra.dependency_finder import core
+
 import os
+from sumatra.programs import get_executable
 
 class Dependency(core.BaseDependency):
     """
@@ -20,6 +22,20 @@ class Dependency(core.BaseDependency):
         self.version = version
     def is_file(self):
         return os.path.exists(self.path)
+    
+    def find_sub_dependencies(self):
+        from sumatra import dependency_finder
+        dependencies = []
+        if self.is_file():
+            try:
+                executable = get_executable(script_file=self.path)
+            except:
+                return []
+            dependencies = dependency_finder.find_dependencies(self.path, executable)
+            print executable, self.path, dependencies
+        
+        return dependencies
+            
     
 def strip(l):
     return l.strip()
@@ -61,6 +77,10 @@ def find_dependencies(filename, executable):
     heuristics = [core.find_versions_from_versioncontrol,]
     dependencies = [Dependency(name) for name in sources]
     dependencies = [d for d in dependencies if d.is_file()]
-    return core.find_versions(dependencies, heuristics)
+    dependencies = core.find_versions(dependencies, heuristics)
+    extra_dependencies = [d.find_sub_dependencies() for d in dependencies]
+    for d in extra_dependencies:
+        dependencies += d
+    return dependencies
     
     
