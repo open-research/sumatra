@@ -72,16 +72,17 @@ def find_sources_without_deps(graph):
     pure_sources = [src for src in sources if not src in deps]
     return pure_sources
 
-def find_dependencies(filename, executable):
+def find_dependencies(filename, executable, follow_dependencies=False):
     dep_graph = build_dependency_graph(filename)
     sources = find_sources_without_deps(dep_graph)
     heuristics = [core.find_versions_from_versioncontrol,]
     dependencies = [Dependency(name) for name in sources]
     dependencies = [d for d in dependencies if d.is_file()]
     dependencies = core.find_versions(dependencies, heuristics)
-    extra_dependencies = [d.find_sub_dependencies() for d in dependencies]
-    for d in extra_dependencies:
-        dependencies += d
+    if follow_dependencies:
+        extra_dependencies = [d.find_sub_dependencies() for d in dependencies]
+        for d in extra_dependencies:
+            dependencies += d
     return dependencies
     
     

@@ -127,7 +127,35 @@ class TestPythonDependency(unittest.TestCase):
         dep2 = df.python.Dependency("unittest", path)
         self.assertNotEqual(dep1, dep2)
 
-
+class TestMakeDependency(unittest.TestCase):
+    
+    def setUp(self):
+        self.saved_path = sys.path[:]
+        self.example_project = os.path.join(tmpdir, "python")
+        assert os.path.exists(self.example_project)
+        self.executable = MockExecutable('GNU make')
+        self.makefile_path = os.path.join(self.example_project, "Makefile.in")
+        os.chdir(self.example_project)
+    
+    def tearDown(self):
+        sys.path = self.saved_path
+        os.unlink(self.makefile_path)
+    
+    def test__find_simple_makefile_dependencies(self):
+        
+        with file(self.makefile_path, 'w') as fid:
+            fid.write('out : main.py\n\n')
+        dependencies = df.make.find_dependencies(self.makefile_path, self.executable, follow_dependencies=False)
+        self.assertEqual(len(dependencies), 1)
+        self.assertEqual(dependencies[0].name, 'main.py')
+                
+    def test__find_and_follow_makefile_dependencies(self):
+        
+        with file(self.makefile_path, 'w') as fid:
+            fid.write('out : main.py\n\n')
+        dependencies = df.make.find_dependencies(self.makefile_path, self.executable, follow_dependencies=True)
+        self.assertGreater(len(set(d.name for d in dependencies)), 1)
+        
 class TestNEURONDependency(unittest.TestCase):
     
     def setUp(self):
