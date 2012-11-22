@@ -53,7 +53,7 @@ class Project(object):
                  default_main_file=None, default_launch_mode=None,
                  data_store='default', record_store='default',
                  on_changed='error', description='', data_label=None,
-                 input_datastore=None):
+                 input_datastore=None, store_all_files=False):
         self.path = os.getcwd()
         if not os.path.exists(".smt"):
             os.mkdir(".smt")
@@ -64,6 +64,7 @@ class Project(object):
         self.default_repository = default_repository # maybe we should be storing the working copy instead, as this has a ref to the repository anyway
         self.default_main_file = default_main_file
         self.default_launch_mode = default_launch_mode
+        self.default_store_all_files = store_all_files
         if data_store == 'default':
             data_store = datastore.FileSystemDataStore(None)
         self.data_store = data_store # a data store object
@@ -92,7 +93,7 @@ class Project(object):
         for name in ('name', 'default_executable', 'default_repository',
                      'default_launch_mode', 'data_store', 'record_store',
                      'default_main_file', 'on_changed', 'description',
-                     'data_label', '_most_recent', 'input_datastore',):
+                     'data_label', '_most_recent', 'input_datastore','default_store_all_files'):
             attr = getattr(self, name, None)
             if hasattr(attr, "__getstate__"):
                 state[name] = {'type': attr.__class__.__module__ + "." + attr.__class__.__name__}
@@ -123,6 +124,7 @@ class Project(object):
     def new_record(self, parameters={}, input_data=[], script_args="",
                    executable='default', repository='default',
                    main_file='default', version='latest', launch_mode='default',
+                   store_all_files='default',
                    label=None, reason=None):
         logger.debug("Creating new record")
         if executable == 'default':
@@ -133,24 +135,28 @@ class Project(object):
             main_file = self.default_main_file
         if launch_mode == 'default':
             launch_mode = deepcopy(self.default_launch_mode)
+        if store_all_files == 'default':
+            store_all_files = self.default_store_all_files
         working_copy = repository.get_working_copy()
         version, diff = self.update_code(working_copy, version)
         record = Record(executable, repository, main_file, version, launch_mode,
                         self.data_store, parameters, input_data, script_args, 
                         label=label, reason=reason, diff=diff,
                         on_changed=self.on_changed,
-                        input_datastore=self.input_datastore)
+                        input_datastore=self.input_datastore,
+                        store_all_files=store_all_files)
         if not isinstance(executable, programs.MatlabExecutable):
             record.register(working_copy)
         return record
     
     def launch(self, parameters={}, input_data=[], script_args="",
                executable='default', repository='default', main_file='default',
-               version='latest', launch_mode='default', label=None, reason=None):
+               version='latest', launch_mode='default', store_all_files='default',
+               label=None, reason=None):
         """Launch a new simulation or analysis."""
         record = self.new_record(parameters, input_data, script_args,
                                  executable, repository, main_file, version,
-                                 launch_mode, label, reason) 
+                                 launch_mode, store_all_files, label, reason) 
         record.run(with_label=self.data_label)
         if 'matlab' in record.executable.name.lower():
             record.register(record.repository.get_working_copy())

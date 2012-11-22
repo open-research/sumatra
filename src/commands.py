@@ -111,6 +111,7 @@ def init(argv):
     parser.add_option('-c', '--on-changed', default='error', help="the action to take if the code in the repository or any of the depdendencies has changed. Defaults to %default") # need to add list of allowed values
     parser.add_option('-s', '--store', help="specify the path to the record store, either an existing one or one to be created.")
     parser.add_option('-A', '--archive', metavar='PATH', help="specify a directory in which to archive output datafiles. If not specified, datafiles are not archived.")
+    parser.add_option('-S', '--store-all-files', action='store_true', help="store all files found in data directory in the data store")
 
     (options, args) = parser.parse_args(argv)
 
@@ -168,7 +169,8 @@ def init(argv):
                       record_store=record_store,
                       on_changed=options.on_changed,
                       data_label=options.addlabel,
-                      input_datastore=input_datastore)
+                      input_datastore=input_datastore,
+                      store_all_files=options.store_all_files or 'default')
     project.save()
 
 def configure(argv):
@@ -186,6 +188,8 @@ def configure(argv):
     parser.add_option('-m', '--main', help="the name of the script that would be supplied on the command line if running the simulator normally, e.g. init.hoc.")
     parser.add_option('-c', '--on-changed', help="may be 'store-diff' or 'error': the action to take if the code in the repository or any of the dependencies has changed. Defaults to 'error'", choices=['store-diff', 'error'])
     parser.add_option('-A', '--archive', metavar='PATH', help="specify a directory in which to archive output datafiles. If not specified, or if 'false', datafiles are not archived.")
+    parser.add_option('-S', '--store-all-files', action='store_true', help="store all files found in data directory in the data store")
+
 
     (options, args) = parser.parse_args(argv)
     if len(args) != 0:
@@ -221,6 +225,8 @@ def configure(argv):
         project.on_changed = options.on_changed
     if options.addlabel:
         project.data_label = options.addlabel
+    if options.store_all_files:
+        project.default_store_all_files = options.store_all_files
     project.save()
 
 
@@ -269,6 +275,7 @@ def run(argv):
                       help="run a distributed computation on N processes using MPI. If this option is not used, or if N=0, a normal, serial simulation/analysis is run.")
     parser.add_option('-t', '--tag', help="tag you want to add to the project")
     parser.add_option('-D', '--debug', action='store_true', help="print debugging information.")
+    parser.add_option('-S', '--store-all-files', action='store_true', help="store all files found in data directory in the data store")
 
     (options, args) = parser.parse_args(argv)
 
@@ -303,11 +310,12 @@ def run(argv):
     label = options.label
     try:
         run_label = project.launch(parameters, input_data, script_args,
-                                   label=label, reason=reason,
                                    executable=executable,
                                    main_file=options.main or 'default',
                                    version=options.version or 'latest',
-                                   launch_mode=launch_mode)
+                                   launch_mode=launch_mode,
+                                   store_all_files=options.store_all_files or 'default',
+                                   label=label, reason=reason)
     except (UncommittedModificationsError, MissingInformationError), err:
         print err
         sys.exit(1)

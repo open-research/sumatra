@@ -43,7 +43,7 @@ class Record(object):
     def __init__(self, executable, repository, main_file, version, launch_mode,
                  datastore, parameters={}, input_data=[], script_arguments='',
                  label=None, reason='', diff='', user='', on_changed='error',
-                 input_datastore=None, stdout_stderr='Not launched.'):
+                 input_datastore=None, stdout_stderr='Not launched.', store_all_files=False):
         self.timestamp = datetime.now() # might need to allow for this to be set as argument to allow for distributed/batch simulations on machines with out-of-sync clocks
         self.label = label or self.timestamp.strftime(TIMESTAMP_FORMAT)
         assert len(self.label) > 0
@@ -66,6 +66,7 @@ class Record(object):
         self.user = user
         self.on_changed = on_changed
         self.stdout_stderr = stdout_stderr
+        self.store_all_files = store_all_files
 
     def register(self, working_copy):
         """Record information about the environment."""
@@ -96,7 +97,7 @@ class Record(object):
         logger.debug("Recording platform information")
         self.platforms = self.launch_mode.get_platform_information()
 
-    def run(self, with_label=False, store_all_data=False):
+    def run(self, with_label=False):
         """
         Launch the simulation or analysis.
 
@@ -141,10 +142,10 @@ class Record(object):
         # Run post-processing scripts
         # pass # skip this if there is an error
         # Search for newly-created datafiles
-        if not store_all_data:
+        if not self.store_all_files:
             self.output_data = self.datastore.find_new_data(self.timestamp)
         else:
-            self.output_data = self.datastore.find_all_data()
+            self.output_data = self.datastore.find_all_data(self.timestamp)
         if self.output_data:
             print "Data keys are", self.output_data
         else:
