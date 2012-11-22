@@ -68,11 +68,21 @@ class ArchivingFileSystemDataStore(FileSystemDataStore):
     def __getstate__(self):
         return {'root': self.root, 'archive': self.archive_store}
     
-    def find_new_data(self, timestamp):
-        """Finds newly created/changed data items"""
-        new_files = self._find_new_data_files(timestamp)
+    def _find_data_files(self, timestamp, ignore_old=True, ignoredirs=[".smt", ".hg", ".svn", ".git", ".bzr"]):
+        new_files = super(ArchivingFileSystemDataStore,self)._find_data_files(timestamp, ignore_old, ignoredirs)
         label = timestamp.strftime(TIMESTAMP_FORMAT)
         archive_paths = self._archive(label, new_files)
+        return archive_paths
+        
+    def find_new_data(self, timestamp):
+        """Finds newly created/changed data items"""
+        archive_paths = self._find_data_files(timestamp)
+        return [ArchivedDataFile(path, self).generate_key()
+                for path in archive_paths]#
+    
+    def find_all_data(self, timestamp):
+        """Finds all data items"""
+        archive_paths = self._find_data_files(timestamp, ignore_old=False)
         return [ArchivedDataFile(path, self).generate_key()
                 for path in archive_paths]
     

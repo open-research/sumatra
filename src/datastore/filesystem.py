@@ -85,7 +85,7 @@ class FileSystemDataStore(DataStore):
             os.makedirs(self._root)
     root = property(fget=__get_root, fset=__set_root)
     
-    def _find_new_data_files(self, timestamp, ignoredirs=[".smt", ".hg", ".svn", ".git", ".bzr"]):
+    def _find_data_files(self, timestamp, ignore_old=True,ignoredirs=[".smt", ".hg", ".svn", ".git", ".bzr"]):
         """Finds newly created/changed files in dataroot."""
         # The timestamp-based approach creates problems when running several
         # experiments at once, since datafiles created by other experiments may
@@ -104,15 +104,20 @@ class FileSystemDataStore(DataStore):
                 full_path = os.path.join(root, file)
                 relative_path = os.path.join(root[length_dataroot:],file)
                 last_modified = datetime.datetime.fromtimestamp(os.stat(full_path).st_mtime)
-                if  last_modified >= timestamp:
+                if  (last_modified >= timestamp) or not ignore_old:
                     new_files.append(relative_path)
         return new_files
     
     def find_new_data(self, timestamp):
         """Finds newly created/changed data items"""
         return [DataFile(path, self).generate_key()
-                for path in self._find_new_data_files(timestamp)]
+                for path in self._find_data_files(timestamp)]
     
+    def find_all_data(self, timestamp):
+        """Finds all data items"""
+        return [DataFile(path, self).generate_key()
+                for path in self._find_data_files(timestamp, ignore_old=False)]
+        
     def get_data_item(self, key):
         """
         Return the file that matches the given key.

@@ -51,7 +51,12 @@ class TestFileSystemDataStore(unittest.TestCase):
         tomorrow = self.now + datetime.timedelta(1)
         self.assertEqual(set(self.ds.find_new_data(tomorrow)),
                          set([]))
-
+    
+    def test__find_all_data_with_future_timestamp__should_return_all_test_files(self):
+        tomorrow = self.now + datetime.timedelta(1)
+        self.assertEqual(set(key.path for key in self.ds.find_all_data(tomorrow)),
+                         self.test_files)
+    
     def test__get_content__should_return_short_file_content(self):
         digest = hashlib.sha1(self.test_data).hexdigest()
         key = DataKey('test_file1', digest)
@@ -115,6 +120,11 @@ class TestArchivingFileSystemDataStore(unittest.TestCase):
         tomorrow = self.now + datetime.timedelta(1)
         self.assertEqual(set(self.ds.find_new_data(tomorrow)),
                          set([]))
+    
+    def test__find_all_data_with_future_timestamp__should_return_all_test_files(self):
+        tomorrow = self.now + datetime.timedelta(1)
+        self.assertEqual(set("/".join(key.path.split("/")[1:]) for key in self.ds.find_all_data(tomorrow)),
+                         self.test_files)
 
     def test__archive__should_create_a_tarball(self):
         self.ds._archive('test', self.test_files)

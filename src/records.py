@@ -96,7 +96,7 @@ class Record(object):
         logger.debug("Recording platform information")
         self.platforms = self.launch_mode.get_platform_information()
 
-    def run(self, with_label=False):
+    def run(self, with_label=False, store_all_data=False):
         """
         Launch the simulation or analysis.
 
@@ -141,7 +141,10 @@ class Record(object):
         # Run post-processing scripts
         # pass # skip this if there is an error
         # Search for newly-created datafiles
-        self.output_data = self.datastore.find_new_data(self.timestamp)
+        if not store_all_data:
+            self.output_data = self.datastore.find_new_data(self.timestamp)
+        else:
+            self.output_data = self.datastore.find_all_data()
         if self.output_data:
             print "Data keys are", self.output_data
         else:
