@@ -136,6 +136,8 @@ class Project(object):
         if launch_mode == 'default':
             launch_mode = deepcopy(self.default_launch_mode)
         if store_all_files == 'default':
+            if not hasattr(self, 'default_store_all_files'):
+                self.default_store_all_files = False
             store_all_files = self.default_store_all_files
         working_copy = repository.get_working_copy()
         version, diff = self.update_code(working_copy, version)
