@@ -159,7 +159,7 @@ def init(argv):
     else:
         output_datastore = FileSystemDataStore(options.datapath)
     input_datastore = FileSystemDataStore(options.input)
-
+    
     project = Project(name=project_name,
                       default_executable=executable,
                       default_repository=repository,
@@ -170,7 +170,7 @@ def init(argv):
                       on_changed=options.on_changed,
                       data_label=options.addlabel,
                       input_datastore=input_datastore,
-                      store_all_files=options.store_all_files or 'default')
+                      default_store_all_files=options.store_all_files)
     project.save()
 
 def configure(argv):

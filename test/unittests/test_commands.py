@@ -47,6 +47,7 @@ class MockProject(object):
     default_repository = "some repository"
     default_main_file = "walk_silly.py"
     default_executable = MockExecutable(path="a.out")
+    default_store_all_files = False
     on_changed = "sound the alarm"
     data_label = "pluck from the ether"
     saved = False
@@ -198,6 +199,14 @@ class InitCommandTests(unittest.TestCase):
         self.assertIsInstance(prj.data_store, datastore.ArchivingFileSystemDataStore)
         self.assertEqual(prj.data_store.archive_store, os.path.abspath(".smt/archive"))
 
+    def test_store_all_files_option_set_to_true(self):
+        commands.load_project = no_project
+        commands.Project = MockProject
+        commands.init(["NewProject", "-S"])
+        prj = MockProject.instances[-1]
+        self.assertTrue(prj.default_store_all_files)
+        self.assertNotEqual(prj.default_store_all_files, 'default')
+        
     def test_archive_option_set_to_path(self):
         some_path = "./test_commands_archive_option"
         commands.load_project = no_project
@@ -238,6 +247,11 @@ class ConfigureCommandTests(unittest.TestCase):
         commands.configure(["-m", "norwegian.py"])
         assert self.prj.saved
         self.assertEqual(self.prj.default_main_file, "norwegian.py")
+        
+    def test_set_store_all_files(self):
+        commands.configure(["-S"])
+        assert self.prj.saved
+        self.assertTrue(self.prj.default_store_all_files)
 
     def test_set_default_script_multiple(self):
         commands.configure(["-m", "norwegian.sli mauve.sli"])
@@ -406,6 +420,7 @@ class RunCommandTests(unittest.TestCase):
                     'reason': '',
                     'version': 'latest',
                     'launch_mode': launch.SerialLaunchMode(),
+                    'store_all_files': 'default',
                     'script_args': ''}
         self.assertEqual(self.prj.launch_args, expected)
 
@@ -420,6 +435,7 @@ class RunCommandTests(unittest.TestCase):
                          'reason': '',
                          'version': 'latest',
                          'launch_mode': launch.SerialLaunchMode(),
+                         'store_all_files': 'default',
                          'script_args': 'some_parameter_file'})
 
     def test_with_single_input_file(self):
@@ -437,6 +453,7 @@ class RunCommandTests(unittest.TestCase):
                          'reason': '',
                          'version': 'latest',
                          'launch_mode': launch.SerialLaunchMode(),
+                          'store_all_files': 'default',
                          'script_args': 'this.is.not.a.parameter.file'})
         os.remove("this.is.not.a.parameter.file")
 
@@ -461,6 +478,7 @@ class RunCommandTests(unittest.TestCase):
                          'reason': 'test',
                          'version': '234',
                          'launch_mode': launch.SerialLaunchMode(),
+                          'store_all_files': 'default',
                          'script_args': "spam <parameters> eggs this.is.not.a.parameter.file beans"})
         os.remove("this.is.not.a.parameter.file")
         os.remove("test.param")

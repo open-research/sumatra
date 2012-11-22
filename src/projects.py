@@ -53,7 +53,7 @@ class Project(object):
                  default_main_file=None, default_launch_mode=None,
                  data_store='default', record_store='default',
                  on_changed='error', description='', data_label=None,
-                 input_datastore=None, store_all_files=False):
+                 input_datastore=None, default_store_all_files=False):
         self.path = os.getcwd()
         if not os.path.exists(".smt"):
             os.mkdir(".smt")
@@ -64,7 +64,7 @@ class Project(object):
         self.default_repository = default_repository # maybe we should be storing the working copy instead, as this has a ref to the repository anyway
         self.default_main_file = default_main_file
         self.default_launch_mode = default_launch_mode
-        self.default_store_all_files = store_all_files
+        self.default_store_all_files = default_store_all_files
         if data_store == 'default':
             data_store = datastore.FileSystemDataStore(None)
         self.data_store = data_store # a data store object

@@ -135,6 +135,7 @@ class TestProject(unittest.TestCase):
         rec = proj.new_record()
         self.assertEqual(rec.repository, proj.default_repository)
         self.assertEqual(rec.main_file, "test.py")
+        self.assertEqual(rec.store_all_files, proj.default_store_all_files)
 
     def test__update_code(self):
         proj = Project("test_project",
