@@ -46,6 +46,11 @@ class TestFileSystemDataStore(unittest.TestCase):
     def test__find_new_data__should_return_list_of_keys_matching_new_files(self):
         self.assertEqual(set(key.path for key in self.ds.find_new_data(self.now)),
                          self.test_files)
+        
+    def test__find_new_data__should_handle_extra_path_sep_in_data_root_path(self):
+        ds = FileSystemDataStore(self.root_dir+os.path.sep)
+        self.assertEqual(set(key.path for key in ds.find_new_data(self.now)),
+                         self.test_files)
 
     def test__find_new_data_with_future_timestamp__should_return_empty_list(self):
         tomorrow = self.now + datetime.timedelta(1)
