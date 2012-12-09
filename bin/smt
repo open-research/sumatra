@@ -8,16 +8,13 @@ from sumatra import commands, __version__
 from sumatra.versioncontrol.base import VersionControlError
 from sumatra.recordstore.base import RecordStoreAccessError
 
-modes = ("init", "configure", "info", "run", "list", "delete", "comment", "tag",
-         "repeat", "diff", "export", "upgrade", "sync")
-
 usage = """Usage: smt <subcommand> [options] [args]
         
 Simulation/analysis management tool version %s 
 
 Available subcommands:  
   """ % __version__ 
-usage += "\n  ".join(modes)
+usage += "\n  ".join(commands.modes)
 
 if len(sys.argv) < 2:
     print usage

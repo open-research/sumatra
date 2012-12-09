@@ -32,6 +32,9 @@ logger.addHandler(h)
 
 logger.debug("STARTING")
 
+modes = ("init", "configure", "info", "run", "list", "delete", "comment", "tag",
+         "repeat", "diff", "help", "export", "upgrade", "sync")
+
 def parse_executable_str(exec_str):
     """
     Split the string describing the executable into a path part and an
@@ -502,7 +505,7 @@ def help(argv):
                           description=description)
     (options, args) = parser.parse_args(argv)
     if len(args) != 1:
-        parser.error('Please specify a command on which you would like help.')
+        parser.error('Please specify a command on which you would like help.\n\nAvailable commands:\n  ' + "\n  ".join(modes))
     cmd = args[0]
     try:
         func = globals()[cmd]

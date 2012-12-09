@@ -1,8 +1,7 @@
 import sys, StringIO
 from sumatra import commands
 
-modes = ["init", "configure", "info", "run", "list", "delete", "comment",
-         "tag", "repeat", "diff", "help", "upgrade", "sync"]
+modes = list(commands.modes)
 modes.sort()
 
 usage = {}
