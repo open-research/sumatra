@@ -19,12 +19,24 @@ try:
     have_django = True
 except ImportError:
     have_django = False
-from http_store import HttpRecordStore
+try:
+    import httplib2
+    have_http = True
+except ImportError:
+    have_http = False
+    
+if have_http:
+    from http_store import HttpRecordStore
+    
 DefaultRecordStore = have_django and DjangoRecordStore or ShelveRecordStore
+
 
 def get_record_store(path):
     if path[:4] == "http":
-        store = HttpRecordStore(path)
+        if have_http:
+            store = HttpRecordStore(path)
+        else:
+            raise Exception("Cannot access record store: httplib2 is not installed.")
     elif os.path.exists(path):
         try:
             store = ShelveRecordStore(path)
