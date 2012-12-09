@@ -106,7 +106,7 @@ class GitWorkingCopy(WorkingCopy):
     def diff(self):
         """Difference between working copy and repository."""
         g = git.Git(self.path)
-        return g.diff('HEAD')
+        return g.diff('HEAD', color='never')
 
     def content(self, digest):
         repo = git.Repo(self.path)
