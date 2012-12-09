@@ -38,14 +38,24 @@ class UncommittedModificationsError(Exception):
     pass
 
 vcs_list = []
+vcs_unavailable = []
 
 for vcs in ['mercurial', 'subversion', 'git', 'bazaar']:
     try:
         __import__('sumatra.versioncontrol._%s' % vcs)
         vcs_list.append(sys.modules['sumatra.versioncontrol._%s' % vcs])
     except ImportError, err:
-        pass
-    
+        vcs_unavailable.append(vcs)
+
+
+def vcs_err_msg():
+    err_msg = ""
+    if vcs_list:
+        err_msg += "\nTried: %s" % ", ".join(vcs.__name__.split(".")[-1][1:].title() for vcs in vcs_list)
+    if vcs_unavailable:
+           err_msg += "\nNot installed: %s" % ", ".join(vcs.title() for vcs in vcs_unavailable)
+    return err_msg
+
     
 def get_working_copy(path=None):
     path = path or os.getcwd()
@@ -53,10 +63,13 @@ def get_working_copy(path=None):
         for vcs in vcs_list:
             if vcs.may_have_working_copy(path):
                 return vcs.get_working_copy(path)
-        raise VersionControlError("No working copy found at %s. Tried %s." % (path, ", ".join(vcs.__name__ for vcs in vcs_list))) # add some diagnostic information
+        err_msg = "No working copy found at %s." % path + vcs_err_msg()
+        raise VersionControlError(err_msg)
     else:
-        raise VersionControlError("No version control systems found.")
-            
+        err_msg = "No version control systems found. Please see the documentation for information on installing the required packages."
+        raise VersionControlError(err_msg)
+
+
 def get_repository(url):
     if url:
         repos = None
@@ -70,7 +83,7 @@ def get_repository(url):
         else:
             raise VersionControlError("No version control systems found.")
         if repos is None:
-            raise Exception("Can't find repository at URL '%s'" % url)
+            raise VersionControlError("Can't find repository at URL '%s'" % url + vcs_err_msg())
         else:
             return repos
     else:
