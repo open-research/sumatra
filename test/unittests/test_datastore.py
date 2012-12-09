@@ -94,7 +94,8 @@ class TestArchivingFileSystemDataStore(unittest.TestCase):
 
     def tearDown(self):
         for path in (self.root_dir, self.archive_dir):
-            shutil.rmtree(path)
+            if os.path.exists(path):
+                shutil.rmtree(path)
         del self.ds
 
     def test__init__should_create_root_and_archive_if_they_dont_exist(self):

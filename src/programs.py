@@ -26,6 +26,7 @@ import os.path
 import re
 import subprocess
 import sys
+import warnings
 
 version_pattern = re.compile(r'\b(?P<version>\d[\.\d]*([a-z]*\d)*)\b')
 version_pattern_matlab = re.compile(r'(?<=Version: )(?P<version>\d.+)\b')
@@ -42,7 +43,7 @@ class Executable(object):
             try:
                 self.path = self._find_executable(path or self.default_executable_name)
             except Warning, errmsg:
-                print errmsg
+                warnings.warn(errmsg)
                 self.path = path
         if self.name is None:
             self.name = name or os.path.basename(self.path)

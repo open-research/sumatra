@@ -62,8 +62,6 @@ class ArchivingFileSystemDataStore(FileSystemDataStore):
     def __init__(self, root, archive=".smt/archive"):
         self.root = root or "./Data"
         self.archive_store = archive
-        if not os.path.exists(self.archive_store):
-            os.mkdir(self.archive_store)
     
     def __getstate__(self):
         return {'root': self.root, 'archive': self.archive_store}
@@ -80,6 +78,8 @@ class ArchivingFileSystemDataStore(FileSystemDataStore):
         """
         Archives files and, by default, deletes the originals.
         """
+        if not os.path.exists(self.archive_store):
+            os.mkdir(self.archive_store)
         tf = tarfile.open(label + ".tar.gz",'w:gz')
         logging.info("Archiving data to file %s" % tf.name)
         # Add data files
