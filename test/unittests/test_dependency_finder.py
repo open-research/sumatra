@@ -34,9 +34,9 @@ class TestPythonModuleFunctions(unittest.TestCase):
     
     def test__find_versions_by_attribute(self):
         import main
-        self.assertEqual(df.python.find_version_by_attribute(main), "1.2.3b")
-        del main.get_version
         self.assertEqual(df.python.find_version_by_attribute(main), "1.2.3a")
+        del main.__version__
+        self.assertEqual(df.python.find_version_by_attribute(main), "1.2.3b")
         
     def test__find_versions_from_egg(self):
         dep = df.python.Dependency("main", os.path.join(self.example_project, "main.py"))
