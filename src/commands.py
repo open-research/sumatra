@@ -552,14 +552,8 @@ def export(argv):
     (options, args) = parser.parse_args(argv)
     if len(args) != 0:
         parser.error('%prog export does not take any arguments.')
-    # copy the project data
-    import shutil
-    shutil.copy(".smt/project", ".smt/project_export.json")
-    # export the record data
     project = load_project()
-    f = open(".smt/records_export.json", 'w')
-    f.write(project.record_store.export(project.name))
-    f.close()
+    project.export()
 
 def sync(argv):
     usage = "%prog sync PATH1 [PATH2]"

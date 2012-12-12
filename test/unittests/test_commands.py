@@ -8,6 +8,7 @@ except ImportError:
     import unittest
 import os
 import hashlib
+import shutil
 from sumatra import commands, launch, datastore
 
 originals = [] # use for storing originals of mocked objects
@@ -42,15 +43,55 @@ def mock_get_executable(path=None, script_file=None):
         raise Exception('Either path or script_file must be specified')
 
 
+class MockRecordStore(object):
+    def __init__(self, path):
+        self.path = path
+    def sync(self, other, project):
+        return []
+    def sync_all(self, other):
+        return []
+
+
+class MockRepository(object):
+    def __init__(self, url):
+        self.url = url
+        self._checkout_called = False
+    def checkout(self):
+        self._checkout_called = True
+
+
+class MockRecord(object):
+    parameters = {'foo': 23}
+    repository = MockRepository("http://hg.example.com")
+    input_data = []
+    script_arguments = ""
+    executable = MockExecutable()
+    main_file = "main.py"
+    version = "42"
+    launch_mode = "dummy"
+    def __init__(self, label):
+        self.label = label
+
+
+class MockWorkingCopy(object):
+    repository = MockRepository("http://mock_repository")
+    
+
 class MockProject(object):
+    name = None
     instances = []
     default_repository = "some repository"
     default_main_file = "walk_silly.py"
     default_executable = MockExecutable(path="a.out")
     on_changed = "sound the alarm"
     data_label = "pluck from the ether"
+    record_store = MockRecordStore("default")
     saved = False
     info_called = False
+    exported = False
+    comments = {}
+    tags = {}
+    removed_tags = {}
     def __init__(self, **kwargs):
         self.data_store = MockDataStore("/path/to/root")
         self.input_datastore = MockDataStore("/path/to/root")
@@ -74,24 +115,26 @@ class MockProject(object):
             self._records_deleted.append(label)
     def delete_by_tag(self, tag, delete_data=False):
         self._records_deleted.append("records_tagged_with_%s" % tag)
+    def export(self): self.exported = True
+    def most_recent(self):
+        return MockRecord("most_recent")
+    def add_comment(self, label, comment):
+        self.comments[label] = comment
+    def add_tag(self, label, tag):
+        self.tags[label] = tag
+    def remove_tag(self, label, tag):
+        self.removed_tags[label] = tag
+    def compare(self, label1, label2):
+        return False
+    def show_diff(self, label1, label2, **kwargs):
+        return "diff"
 
-
-class MockRepository(object):
-    def __init__(self, url):
-        self.url = url
-        self._checkout_called = False
-    def checkout(self):
-        self._checkout_called = True
-
-class MockWorkingCopy(object):
-    repository = MockRepository("http://mock_repository")
 
 def no_project():
     raise Exception("There is no Sumatra project here")
 
 def mock_mkdir(path, mode=0777):
     print "Pretending to create directory %s" % path
-
 
 def mock_build_parameters(filename):
     if filename != "this.is.not.a.parameter.file":
@@ -102,8 +145,6 @@ def mock_build_parameters(filename):
     else:
         raise SyntaxError
 
-def mock_get_repository(path):
-    return MockRepository(path)
 
 def store_original(module, name):
     global originals
@@ -112,12 +153,13 @@ def store_original(module, name):
 def setup():
     store_original(os, "mkdir")
     os.mkdir = mock_mkdir
-    for name in ("build_parameters", "get_executable", "get_repository", "get_working_copy", "FileSystemDataStore"):
+    for name in ("build_parameters", "get_executable", "get_repository", "get_working_copy", "FileSystemDataStore", "get_record_store"):
         store_original(commands, name)
     commands.build_parameters = mock_build_parameters
     commands.get_executable = mock_get_executable
     commands.get_repository = MockRepository
     commands.get_working_copy = MockWorkingCopy
+    commands.get_record_store = MockRecordStore
     commands.FileSystemDataStore = MockDataStore
 
 def teardown():
@@ -208,6 +250,13 @@ class InitCommandTests(unittest.TestCase):
         self.assertEqual(prj.data_store.archive_store, os.path.abspath(some_path))
         if os.path.exists(some_path):
             os.rmdir(some_path)
+
+    def test_store_option_should_get_record_store(self):
+        commands.load_project = no_project
+        commands.Project = MockProject
+        commands.init(["NewProject", "-s", "/path/to/store",])
+        prj = MockProject.instances[-1]
+        self.assertEqual(prj.record_store.path, "/path/to/store")
 
 
 class ConfigureCommandTests(unittest.TestCase):
@@ -516,12 +565,14 @@ class CommentCommandTests(unittest.TestCase):
     def test_with_no_args(self):
         self.assertRaises(SystemExit, commands.comment, [])
 
-    #def test_single_arg_interpreted_as_comment_on_last_record(self):
-    #    self.fail()
-    #
-    #def test_two_args_interpreted_as_label_and_comment(self):
-    #    self.fail()
-    #
+    def test_single_arg_interpreted_as_comment_on_last_record(self):
+        commands.comment(["that was amazing"])
+        self.assertEqual(self.prj.comments["most_recent"], "that was amazing")
+    
+    def test_two_args_interpreted_as_label_and_comment(self):
+        commands.comment(["some_label", "that was appalling"])
+        self.assertEqual(self.prj.comments["some_label"], "that was appalling")
+    
     #def test_invalid_label(self):
     #    self.fail()
     #
@@ -541,6 +592,21 @@ class TestTagCommand(unittest.TestCase):
     def test_with_no_args(self):
         self.assertRaises(SystemExit, commands.tag, [])
 
+    def test_single_arg_interpreted_as_tag_on_last_record(self):
+        commands.tag(["foo"])
+        self.assertEqual(self.prj.tags["most_recent"], "foo")
+    
+    def test_tag_multiple_records(self):
+        commands.tag(["foo", "a", "b", "c"])
+        self.assertEqual(self.prj.tags["a"], "foo")
+        self.assertEqual(self.prj.tags["b"], "foo")
+        self.assertEqual(self.prj.tags["c"], "foo")
+
+    def test_remove_tag(self):
+        commands.tag(["-r", "foo", "a", "b"])
+        self.assertEqual(self.prj.removed_tags["a"], "foo")
+        self.assertEqual(self.prj.removed_tags["b"], "foo")
+
 
 class RepeatCommandTests(unittest.TestCase):
 
@@ -551,6 +617,9 @@ class RepeatCommandTests(unittest.TestCase):
     def test_with_no_args(self):
         self.assertRaises(SystemExit, commands.repeat, [])
 
+    def test_repeat_last(self):
+        commands.repeat(['last'])
+        
 
 class DiffCommandTests(unittest.TestCase):
 
@@ -564,6 +633,9 @@ class DiffCommandTests(unittest.TestCase):
     def test_with_one_arg(self):
         self.assertRaises(SystemExit, commands.diff, ["label1"])
 
+    def test_with_two_args(self):
+        commands.diff(["label1", "label2"])
+
 
 class HelpCommandTests(unittest.TestCase):
 
@@ -573,6 +645,54 @@ class HelpCommandTests(unittest.TestCase):
 
     def test_with_no_args(self):
         self.assertRaises(SystemExit, commands.help, [])
+
+    #def test_help_info(self):
+    #    commands.help(["info"])
+
+    def test_help_foo(self):
+        self.assertRaises(SystemExit, commands.help, ["foo"])
+
+class UpgradeCommandTests(unittest.TestCase):
+
+    def setUp(self):
+        self.prj = MockProject()
+        commands.load_project = lambda: self.prj
+
+    #def test_project_upgraded(self):
+    #    self.fail()  # need to mock shutil, open
+
+    def test_with_args(self):
+        self.assertRaises(SystemExit, commands.upgrade, ['foo'])
+
+
+class ExportCommandTests(unittest.TestCase):
+
+    def setUp(self):
+        self.prj = MockProject()
+        commands.load_project = lambda: self.prj
+
+    def test_project_exported(self):
+        commands.export([])
+        assert self.prj.exported
+
+    def test_with_args(self):
+        self.assertRaises(SystemExit, commands.export, ['foo'])
+
+
+class SyncCommandTests(unittest.TestCase):
+
+    def setUp(self):
+        self.prj = MockProject()
+        commands.load_project = lambda: self.prj
+
+    def test_with_no_args(self):
+        self.assertRaises(SystemExit, commands.sync, [])
+
+    def test_with_single_path(self):
+        commands.sync(["/path/to/store"])
+        
+    def test_with_two_paths(self):
+        commands.sync(["/path/to/store1", "/path/to/store2"])
 
 
 class ArgumentParsingTests(unittest.TestCase):

@@ -241,6 +241,16 @@ class Project(object):
         formatter = get_diff_formatter()(diff)
         return formatter.format(mode)
 
+    def export(self):
+        # copy the project data
+        import shutil
+        shutil.copy(".smt/project", ".smt/project_export.json")
+        # export the record data
+        f = open(".smt/records_export.json", 'w')
+        f.write(self.record_store.export(self.name))
+        f.close()
+        
+        
 
 def _load_project_from_json(path):
     f = open(_get_project_file(path), 'r')
