@@ -75,7 +75,7 @@ class TestRecordDifference(unittest.TestCase):
         self.assertEqual(diff.executable_differs, False)
         self.assertEqual(diff.code_differs, False)
         self.assertEqual(diff.parameters_differ, True)
-        self.assertEqual(diff.output_data_differs, False)
+        self.assertEqual(diff.output_data_differ, False)
         assert diff.__nonzero__()
         
     def test__nonzero__should_return_True__for_identical_parameters(self):
@@ -90,7 +90,7 @@ class TestRecordDifference(unittest.TestCase):
         self.assertEqual(diff.executable_differs, False)
         self.assertEqual(diff.code_differs, False)
         self.assertEqual(diff.parameters_differ, False)
-        self.assertEqual(diff.output_data_differs, False)
+        self.assertEqual(diff.output_data_differ, False)
         self.assertEqual(diff.__nonzero__(), False)
 
     def test__dependency_differences(self):

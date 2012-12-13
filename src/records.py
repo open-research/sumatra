@@ -203,12 +203,8 @@ class RecordDifference(object):
             if rec.parameters:
                 rec.parameters.pop("sumatra_label", 1)
         self.parameters_differ = recordA.parameters != recordB.parameters
-        self.input_data_differ = recordA.input_data != recordB.input_data  # now that input_data is a list of DataKeys, need to make this a property, like data_differ
         self.script_arguments_differ = recordA.script_arguments != recordB.script_arguments
         self.launch_mode_differs = recordA.launch_mode != recordB.launch_mode
-        #self.platforms
-        #self.datastore = datastore
-        #self.output_data = None
         self.diff_differs = recordA.diff != recordB.diff
 
     def __nonzero__(self):
@@ -222,7 +218,7 @@ class RecordDifference(object):
         """
         return reduce(or_, (self.executable_differs, self.code_differs,
                             self.input_data_differ, self.script_arguments_differ,
-                            self.parameters_differ, self.output_data_differs))
+                            self.parameters_differ, self.output_data_differ))
 
     def __repr__(self):
         s = "RecordDifference(%s, %s):" % (self.recordA.label, self.recordB.label)
@@ -232,7 +228,7 @@ class RecordDifference(object):
             s += 'C'
         if self.parameters_differ:
             s += 'P'
-        if self.output_data_differs:
+        if self.output_data_differ:
             s += 'D'
         if self.input_data_differ:
             s += 'I'
@@ -270,10 +266,12 @@ class RecordDifference(object):
                 diffs[name] = (None, depsB[name])
         return diffs
 
-    def _list_datakeys(self):
+    def _list_datakeys(self, direction):
         keys = {self.recordA.label: {}, self.recordB.label: {}}
+        assert direction in ('input_data', 'output_data')
         for rec in self.recordA, self.recordB:
-            for key in rec.output_data:
+            dataset = getattr(rec, direction)
+            for key in dataset:
                 ignore = False
                 name = basename(key.path) # not sure this makes sense for archive data store
                 if key.metadata['mimetype']:
@@ -286,39 +284,42 @@ class RecordDifference(object):
                         ignore = True
                         break
                 if not ignore:
-                    keys[rec.label][name] = key
+                    keys[rec.label][key.digest] = key
         return keys
 
-    @property
-    def output_data_differs(self):
-        keys = self._list_datakeys()
-        filenamesA = set(keys[self.recordA.label].keys())
-        filenamesB = set(keys[self.recordB.label].keys())
-        if len(filenamesA) == len(filenamesB) == 0:
+    def _data_differ(self, direction):
+        keys = self._list_datakeys(direction)
+        A = set(keys[self.recordA.label].keys())
+        B = set(keys[self.recordB.label].keys())
+        if len(A) == len(B) == 0:
             return False
-        if filenamesA.difference(filenamesB):
+        if A.difference(B):
             return True
-        differs = {}
-        for filename in filenamesA:
-            differs[filename] = keys[self.recordA.label][filename].digest != keys[self.recordB.label][filename].digest # doesn't account for same-after-sorting
-        return reduce(or_, differs.values())
+        else:
+            return False
+
+    @property
+    def output_data_differ(self):
+        return self._data_differ('output_data')
+
+    @property
+    def input_data_differ(self):
+        return self._data_differ('input_data')
+
+    def _data_differences(self, direction):
+        keys = self._list_datakeys(direction)
+        A = set(keys[self.recordA.label])
+        B = set(keys[self.recordB.label])
+        return ([keys[self.recordA.label][digest] for digest in A.difference(B)],
+                [keys[self.recordB.label][digest] for digest in B.difference(A)])
 
     @property
     def output_data_differences(self):
-        keys = self._list_datakeys()
-        A = keys[self.recordA.label]
-        B = keys[self.recordB.label]
-        diffs = {}
-        for name in A:
-            if name in B:
-                if A[name].digest != B[name].digest:
-                    diffs[name] = (A[name], B[name])
-            else:
-                diffs[name] = (A[name], None)
-        for name in B:
-            if name not in B:
-                diffs[name] = (None, B[name])
-        return diffs
+        return self._data_differences('output_data')
+
+    @property
+    def input_data_differences(self):
+        return self._data_differences('input_data')
 
     @property
     def launch_mode_differences(self):
