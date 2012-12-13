@@ -38,8 +38,8 @@ class MockRecordDifference(object):
     repository_differs = True
     launch_mode_differs = True
     launch_mode_differences = {}
-    data_differs = True
-    data_differences = {}
+    output_data_differs = True
+    output_data_differences = {}
     main_file_differs = True
     version_differs = True
     diff_differs = True

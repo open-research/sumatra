@@ -163,7 +163,7 @@ class TextDiffFormatter(Formatter):
                 yn(D.input_data_differ),
                 yn(D.script_arguments_differ),
                 yn(D.parameters_differ),
-                yn(D.data_differs))
+                yn(D.output_data_differs))
             )
         return output
     
@@ -213,7 +213,7 @@ class TextDiffFormatter(Formatter):
             output += "Script argument differences:\n"
             for record in (self.diff.recordA, self.diff.recordB):
                 output += "  %s: %s\n" % (record.label, record.script_arguments)
-        diffs = self.diff.data_differences
+        diffs = self.diff.output_data_differences
         if diffs:
             output += "Output data differences:\n"
             for name, (depA, depB) in diffs.items():

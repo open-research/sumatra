@@ -222,7 +222,7 @@ class RecordDifference(object):
         """
         return reduce(or_, (self.executable_differs, self.code_differs,
                             self.input_data_differ, self.script_arguments_differ,
-                            self.parameters_differ, self.data_differs))
+                            self.parameters_differ, self.output_data_differs))
 
     def __repr__(self):
         s = "RecordDifference(%s, %s):" % (self.recordA.label, self.recordB.label)
@@ -232,7 +232,7 @@ class RecordDifference(object):
             s += 'C'
         if self.parameters_differ:
             s += 'P'
-        if self.data_differs:
+        if self.output_data_differs:
             s += 'D'
         if self.input_data_differ:
             s += 'I'
@@ -290,7 +290,7 @@ class RecordDifference(object):
         return keys
 
     @property
-    def data_differs(self):  # rename to "output_data_differs"
+    def output_data_differs(self):
         keys = self._list_datakeys()
         filenamesA = set(keys[self.recordA.label].keys())
         filenamesB = set(keys[self.recordB.label].keys())
@@ -304,7 +304,7 @@ class RecordDifference(object):
         return reduce(or_, differs.values())
 
     @property
-    def data_differences(self): # rename to "output_data_differences"
+    def output_data_differences(self):
         keys = self._list_datakeys()
         A = keys[self.recordA.label]
         B = keys[self.recordB.label]

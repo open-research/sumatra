@@ -75,7 +75,7 @@ class TestRecordDifference(unittest.TestCase):
         self.assertEqual(diff.executable_differs, False)
         self.assertEqual(diff.code_differs, False)
         self.assertEqual(diff.parameters_differ, True)
-        self.assertEqual(diff.data_differs, False)
+        self.assertEqual(diff.output_data_differs, False)
         assert diff.__nonzero__()
         
     def test__nonzero__should_return_True__for_identical_parameters(self):
@@ -90,7 +90,7 @@ class TestRecordDifference(unittest.TestCase):
         self.assertEqual(diff.executable_differs, False)
         self.assertEqual(diff.code_differs, False)
         self.assertEqual(diff.parameters_differ, False)
-        self.assertEqual(diff.data_differs, False)
+        self.assertEqual(diff.output_data_differs, False)
         self.assertEqual(diff.__nonzero__(), False)
 
     def test__dependency_differences(self):
@@ -104,14 +104,14 @@ class TestRecordDifference(unittest.TestCase):
         diff = RecordDifference(r1, r2)
         diff.dependency_differences
 
-    def test__data_differences(self):
+    def test__output_data_differences(self):
         r1 = Record(MockExecutable(), MockRepository(), "test.py",
                        999, MockLaunchMode(), MockDataStore())
         time.sleep(1)
         r2 = Record(MockExecutable(), MockRepository(), "test.py",
                        999, MockLaunchMode(), MockDataStore())
         diff = RecordDifference(r1, r2)
-        diff.data_differences
+        diff.output_data_differences
 
 if __name__ == '__main__':
     unittest.main()
