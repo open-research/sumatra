@@ -368,7 +368,7 @@ class ParameterSet(dict):
     def pretty(self, indent='  ', expand_urls=False):
         """
         Return a unicode string representing the structure of the `ParameterSet`.
-        `eval`uating the string should recreate the object.
+        `eval`\uating the string should recreate the object.
         """
         def walk(d, indent, ind_incr):
             s = []

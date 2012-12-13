@@ -1,0 +1,85 @@
+====================
+Finding dependencies
+====================
+
+.. automodule:: sumatra.dependency_finder
+
+
+.. autofunction:: find_dependencies
+
+.. automodule:: sumatra.dependency_finder.core
+
+.. autofunction:: find_versions
+
+.. autofunction:: find_versions_from_versioncontrol
+
+.. autofunction:: find_file
+
+Python
+------
+
+.. automodule:: sumatra.dependency_finder.python
+
+.. autofunction:: find_versions_by_attribute
+
+.. autofunction:: find_versions_from_egg
+
+.. autofunction:: find_imported_packages
+
+.. autofunction:: find_dependencies
+
+
+.. autoclass: Dependency
+   :members:
+   :undoc-members:
+   :inherited-members:
+   :show-inheritance:
+
+
+Matlab
+------
+
+.. automodule:: sumatra.dependency_finder.matlab
+
+.. autofunction:: find_dependencies
+
+.. autofunction:: save_dependencies
+
+.. autoclass: Dependency
+   :members:
+   :undoc-members:
+   :inherited-members:
+   :show-inheritance:
+
+NEURON
+------
+
+.. automodule:: sumatra.dependency_finder.neuron
+
+.. autofunction:: find_xopened_files
+
+.. autofunction:: find_loaded_files
+
+.. autofunction:: find_dependencies
+
+.. autoclass: Dependency
+   :members:
+   :undoc-members:
+   :inherited-members:
+   :show-inheritance:
+
+
+GENESIS
+-------
+
+.. automodule:: sumatra.dependency_finder.genesis
+
+.. autofunction:: find_included_files
+
+.. autofunction:: find_dependencies
+
+.. autoclass: Dependency
+   :members:
+   :undoc-members:
+   :inherited-members:
+   :show-inheritance:

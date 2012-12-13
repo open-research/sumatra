@@ -1,0 +1,13 @@
+=================
+Managing projects
+=================
+
+.. automodule:: sumatra.projects
+
+.. autoclass:: Project
+   :members:
+   :undoc-members:
+   :inherited-members:
+   :show-inheritance:
+
+.. autofunction:: load_project

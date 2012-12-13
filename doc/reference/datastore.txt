@@ -1,0 +1,39 @@
+=====================
+Input and output data
+=====================
+
+.. currentmodule:: sumatra.datastore
+
+.. automodule:: sumatra.datastore
+
+.. autoclass:: DataKey
+   :members:
+   :undoc-members:
+   :inherited-members:
+   :show-inheritance:
+
+.. autoclass:: FileSystemDataStore
+   :members:
+   :undoc-members:
+   :inherited-members:
+   :show-inheritance:
+   
+   
+.. autoclass:: ArchivingFileSystemDataStore
+   :members:
+   :undoc-members:
+   :inherited-members:
+   :show-inheritance:
+
+
+.. autoclass:: sumatra.datastore.filesystem.DataFile
+   :members:
+   :undoc-members:
+   :inherited-members:
+   :show-inheritance:
+   
+.. autoclass:: sumatra.datastore.archivingfs.ArchivedDataFile
+   :members:
+   :undoc-members:
+   :inherited-members:
+   :show-inheritance:

@@ -1,0 +1,19 @@
+===============================
+Handling provenance information
+===============================
+
+.. automodule:: sumatra.records
+
+.. autoclass:: Record
+   :members:
+   :undoc-members:
+   :inherited-members:
+   :show-inheritance:
+   
+
+
+.. autoclass:: RecordDifference
+   :members:
+   :undoc-members:
+   :inherited-members:
+   :show-inheritance:

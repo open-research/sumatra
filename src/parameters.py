@@ -17,6 +17,7 @@ ConfigParserParameterSet - handles parameter files in traditional config file
                            format, as parsed by the standard Python ConfigParser
                            module.
 JSONParameterSet         - handles parameter files in JSON format
+
 """
 # YAMLParameterSet should be useful and straightforward to
 # implement. XMLParameterSet could also be useful, but is unlikely to be

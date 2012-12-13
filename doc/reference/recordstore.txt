@@ -1,0 +1,45 @@
+==============================
+Storing provenance information
+==============================
+
+.. automodule:: sumatra.recordstore
+
+.. autoclass:: ShelveRecordStore
+   :members:
+   :undoc-members:
+   :inherited-members:
+   :show-inheritance:
+   
+.. autoclass:: DjangoRecordStore
+   :members:
+   :undoc-members:
+   :inherited-members:
+   :show-inheritance:
+   
+.. autoclass:: HttpRecordStore
+   :members:
+   :undoc-members:
+   :inherited-members:
+   :show-inheritance:
+   
+.. autofunction:: get_record_store
+
+
+Transferring provenance information
+-----------------------------------
+
+.. automodule:: sumatra.recordstore.serialization
+
+.. autofunction:: encode_record
+
+.. autofunction:: encode_project_info
+
+.. autofunction:: build_record
+
+.. autofunction:: decode_record
+
+.. autofunction:: decode_records
+
+.. autofunction:: decode_project_list
+
+.. autofunction:: decode_project_data

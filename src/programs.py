@@ -8,9 +8,11 @@ Classes
 Executable       - represents a generic executable, about which nothing is known
                    except its name. The base class for specific simulator/
                    analysis tool classes.
+PythonExecutable - represents the Python interpreter executable.
+MatlabExecutable - represents the Matlab interpreter executable.
 NESTSimulator    - represents the NEST neuroscience simulator.
 NEURONSimulator  - represents the NEURON neuroscience simulator.
-PythonExecutable - represents the Python interpreter executable.
+GENESISSimulator - represents the GENESIS neuroscience simulator.
 
 Functions
 ---------

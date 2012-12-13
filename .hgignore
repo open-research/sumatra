@@ -10,3 +10,4 @@ bulbNet
 .tox
 .cache
 htmlcov
+cover
