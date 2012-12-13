@@ -1,0 +1,19 @@
+===========================
+Sumatra 0.5.0 release notes
+===========================
+
+* working directory now captured (as a parameter of LaunchMode)
+* data differences now based on content, not name, i.e. henceforth two files with identical content but different names (e.g. because the name contains a timestamp) will evaluate as being the same. (cf ticket:111)
+* improved error messages when a required version control wrapper is not installed
+
+
+
+Not yet merged
+* switch from optparse to argparse (which allows...)
+* Added "upstream" attribute to the Repository class (which means...)
+* Added `MirroredFileSystemDataStore`, which supports the case where files exist both on the local filesystem and on some web server (e.g. DropBox).
+
+Interfaces to documentation systems
+-----------------------------------
+
+* reStructuredText/Sphinx: smtlink role and smtimage directive

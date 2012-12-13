@@ -43,14 +43,13 @@ class Dependency(core.BaseDependency):
             self.path = path
         else:
             self.path = os.path.abspath(name)
-        if not os.path.exists(self.path):
-            raise IOError("File %s does not exist." % self.path)
         self.diff = ''
         self.version = version
 
     def in_stdlib(self, executable_path):
         stdlib_path = _nrn_install_prefix(executable_path)
         return self.path.find(stdlib_path) == 0
+
 
 def find_xopened_files(file_path):
     """

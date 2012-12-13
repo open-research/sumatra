@@ -156,9 +156,7 @@ class TestNEURONDependency(unittest.TestCase):
         dep1 = df.neuron.Dependency(os.path.join(self.example_project, "main.hoc"))
         dep2 = df.neuron.Dependency(os.path.join(self.example_project, "dependency.hoc"))
         self.assertNotEqual(dep1, dep2)
-        
-    def test__init__with_nonexistent_path(self):
-        self.assertRaises(IOError, df.neuron.Dependency, "foo.hoc")
+
 
 def setup():
     global tmpdir

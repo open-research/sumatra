@@ -9,11 +9,13 @@ class Dependency(core.BaseDependency):
     Contains information about a Matlab toolbox.
     """
     module = 'matlab'
+    
     def __init__(self, module_name, path, version='unknown', diff=''):
         self.name = module_name
         self.path = path
         self.version = version
         self.diff = diff
+
 
 def save_dependencies(cmd, filename):
     ''' save all dependencies to the file in the current folder '''
@@ -25,6 +27,7 @@ def save_dependencies(cmd, filename):
     output = p.stdout.read() 
     # import pdb; pdb.set_trace() 
     return result, output
+
 
 def find_dependencies(filename, executable):
     #ifile = os.path.join(os.getcwd(), 'depfun.data')

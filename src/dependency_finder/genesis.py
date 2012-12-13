@@ -33,7 +33,7 @@ import subprocess
 
 class Dependency(core.BaseDependency):
     """
-    Contains information about a Hoc file, and tries to determine version information.
+    Contains information about a .g file, and tries to determine version information.
     """
     module = 'genesis'
     
@@ -43,8 +43,6 @@ class Dependency(core.BaseDependency):
             self.path = path
         else:
             self.path = os.path.abspath(name)
-        if not os.path.exists(self.path):
-            raise IOError("File %s does not exist." % self.path)
         self.diff = diff
         self.version = version
 
