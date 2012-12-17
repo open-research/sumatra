@@ -63,20 +63,23 @@ class LaunchMode(object):
     Base class for launch modes (serial, distributed, batch, ...)
     """
     
+    def __init__(self, working_directory=None):
+        self.working_directory = working_directory or os.getcwd()
+    
     def __getstate__(self):
         """
         Since each subclass has different attributes, we provide this method
         as a standard way of obtaining these attributes, for database storage,
         etc. Returns a dict.
         """
-        return {}
+        return {'working_directory': self.working_directory}
     
     def pre_run(self, executable):
         """Run tasks before the simulation/analysis proper.""" # e.g. nrnivmodl
         # this implementation is a temporary hack. "pre_run" should probably be an Executable instance, not a string
         if hasattr(executable, "pre_run"):
             p = subprocess.Popen(executable.pre_run, shell=True, stdout=None,
-                                 stderr=None, close_fds=True)
+                                 stderr=None, close_fds=True, cwd=self.working_directory)
             result = p.wait()
 
     def generate_command(self, paths):
@@ -98,7 +101,7 @@ class LaunchMode(object):
             dependencies in order to avoid opening of Matlab shell two times '''
             result, output = save_dependencies(cmd, main_file)       
         else:
-            result, output = tee.system2(cmd, stdout=True)
+            result, output = tee.system2(cmd, cwd=self.working_directory, stdout=True)  # cwd only relevant for local launch, not for MPI, for example
         self.stdout_stderr = "".join(output)
         if result == 0:
             return True
@@ -158,16 +161,13 @@ class SerialLaunchMode(LaunchMode):
     def __str__(self):
         return "serial"
     
-    def __getstate__(self):
-        return {}
-    
     def generate_command(self, executable, main_file, arguments):
         __doc__ = LaunchMode.__doc__
         if executable.requires_script:
             check_files_exist(executable.path, *main_file.split())
             if isinstance(executable, MatlabExecutable):
                 #if sys.platform == 'win32' or sys.platform == 'win64':
-                cmd = "%s -nodesktop -r \"%s('%s')\"" %(executable.name, main_file.split('.')[0], arguments) # only for windows
+                cmd = "%s -nodesktop -r \"%s('%s')\"" % (executable.name, main_file.split('.')[0], arguments) # only for windows
                 # cmd = "%s -nodesktop -r \"%s('%s')\"" %(executable.name, main_file.split('.')[0], 'in.param') # only for windows
             else:
                 cmd = "%s %s %s %s" % (executable.path, executable.options, main_file, arguments)
@@ -188,7 +188,8 @@ class DistributedLaunchMode(LaunchMode):
     generalised in future releases.
     """
     
-    def __init__(self, n, mpirun="mpiexec", hosts=[], pfi_path="/usr/local/bin/pfi.py"):
+    def __init__(self, n, mpirun="mpiexec", hosts=[],
+                 pfi_path="/usr/local/bin/pfi.py", working_directory=None):
         """
         `n` - the number of hosts to run on.
         `mpirun` - the path to the mpirun or mpiexec executable. If a full path
@@ -197,8 +198,9 @@ class DistributedLaunchMode(LaunchMode):
         `pfi_path` - the path to the pfi.py script provided with Sumatra, which
                      should be installed on every node and is used to obtain
                     platform information.
+        `working_directory` - directory in which to run on the hosts
         """
-        LaunchMode.__init__(self)
+        LaunchMode.__init__(self, working_directory)
         class MPI(Executable):
             name = mpirun
             default_executable_name = mpirun
@@ -206,7 +208,7 @@ class DistributedLaunchMode(LaunchMode):
             mpi_cmd = MPI(path=mpirun)
         else:
             mpi_cmd = MPI(path=None)
-        self.mpirun = mpi_cmd.path #"/usr/local/bin/mpiexec"
+        self.mpirun = mpi_cmd.path
         # should warn if mpirun not found
         self.hosts = hosts
         self.n = n
@@ -229,10 +231,12 @@ class DistributedLaunchMode(LaunchMode):
         #                                       executable.path,
         #                                       main_file,
         #                                       parameter_file)
-        cmd = "%s -n %d" % ( # MPICH2-specific - need to generalize
+        cmd = "%s -n %d --wdir %s" % ( # MPICH2-specific - need to generalize
             self.mpirun,
-            self.n
+            self.n,
+            self.working_directory
         )
+        # need to include working_directory in command
         if executable.requires_script:
             check_files_exist(self.mpirun, executable.path, *main_file.split())
             cmd += " %s %s %s %s %s" % (executable.path, mpi_options,
@@ -272,5 +276,6 @@ class DistributedLaunchMode(LaunchMode):
 
     def __getstate__(self):
         """Return a dict containing the values needed to recreate this instance."""
-        return {'mpirun': self.mpirun, 'n': self.n, 'hosts': self.hosts, 'pfi_path': self.pfi_path}
-    
+        return {'mpirun': self.mpirun, 'n': self.n, 'hosts': self.hosts,
+                'pfi_path': self.pfi_path,
+                'working_directory': self.working_directory}
