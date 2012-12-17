@@ -17,11 +17,9 @@ ConfigParserParameterSet - handles parameter files in traditional config file
                            format, as parsed by the standard Python ConfigParser
                            module.
 JSONParameterSet         - handles parameter files in JSON format
+YAMLParameterSet         - handles parameter files in YAML format
 
 """
-# YAMLParameterSet should be useful and straightforward to
-# implement. XMLParameterSet could also be useful, but is unlikely to be
-# straightforward.
 
 from __future__ import with_statement
 import os.path
@@ -33,6 +31,80 @@ try:
     import json
 except ImportError:
     import simplejson as json
+
+try:
+    import yaml
+    yaml_loaded = True
+except ImportError:
+    yaml_loaded = False
+
+
+class YAMLParameterSet(object):
+    """
+    Handles parameter files in YAML format, as parsed by the
+    PyYAML module
+    """
+
+    def __init__(self, initialiser):
+        """
+        Create a new parameter set from a file or string.
+        """
+        if yaml_loaded:
+            try:
+                if os.path.exists(initialiser):
+                    with open(initialiser) as fid:
+                        self.values = yaml.load(fid)
+                else:
+                    if initialiser:
+                        self.values = yaml.load(initialiser)
+                    else:
+                        self.values = {}
+            except yaml.YAMLError:
+                raise SyntaxError("Misformatted YAML file")
+        else:
+            raise ImportError("Cannot import PyYAML module")
+
+    def __str__(self):
+        return self.pretty()
+
+    def __getitem__(self, name):
+        return self.values[name]
+
+    def __eq__(self, other):
+        return self.as_dict() == other.as_dict()
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def pretty(self, expand_urls=False):
+        """
+        Return a string representation of the parameter set, suitable for
+        creating a new, identical parameter set.
+
+        expand_urls is present for compatibility with NTParameterSet, and is
+                    not used.
+        """
+
+        output = yaml.dump(self.values, indent=4)
+        return output
+
+    def as_dict(self):
+        return self.values
+
+    def save(self, filename):
+        with open(filename, "w") as f:
+            yaml.dump(self.values, f)
+
+    def update(self, E, **F):
+        __doc__ = dict.update.__doc__
+        self.values.update(E, **F)
+
+    def pop(self, key, d=None):
+        if key in self.values:
+            return self.values.pop(key)
+        else:
+            return d
+
 
 class NTParameterSet(NeuroTools.parameters.ParameterSet):
     # just a re-name, to clarify things
@@ -320,6 +392,12 @@ class JSONParameterSet(object):
 
 
 def build_parameters(filename):
+
+    try:
+        parameters = YAMLParameterSet(filename)
+        return parameters
+    except SyntaxError:
+        pass
 
     try:
         parameters = JSONParameterSet(filename)

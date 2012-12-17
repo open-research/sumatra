@@ -2,7 +2,10 @@
 Unit tests for the sumatra.parameters module
 """
 from __future__ import with_statement
-import unittest
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
 import os
 from copy import deepcopy
 try:
@@ -11,7 +14,8 @@ except ImportError:
     import simplejson as json
 from textwrap import dedent
 from sumatra.parameters import SimpleParameterSet, JSONParameterSet, \
-        NTParameterSet, ConfigParserParameterSet, build_parameters
+        NTParameterSet, ConfigParserParameterSet, build_parameters, \
+        YAMLParameterSet, yaml_loaded
 
 
 class TestNTParameterSet(unittest.TestCase):
@@ -214,6 +218,47 @@ class TestJSONParameterSet(unittest.TestCase):
         init = self.__class__.test_parameters
         P1 = JSONParameterSet(init)
         P2 = JSONParameterSet(P1.pretty())
+        self.assertEqual(P1.as_dict(), P2.as_dict())
+
+class TestYAMLParameterSet(unittest.TestCase):
+    test_parameters = dedent("""
+        {
+            "a" : 2,
+            "b" : "hello",
+            "c" : {"a":1, "b":2},
+            "d" : [1, 2, 3, 4]
+        }
+        """)
+
+    @unittest.skipUnless(yaml_loaded, "PyYAML not available")
+    def setUp(self):
+        pass
+
+    def test__init__should_accept_an_empty_initializer(self):
+        P = YAMLParameterSet("")
+        self.assertEqual(P.as_dict(), {})
+
+    def test__init__should_accept_a_filename_or_string(self):
+        init = self.__class__.test_parameters
+        P1 = YAMLParameterSet(init)
+        with open("test_file", "w") as f:
+            f.write(init)
+        P2 = YAMLParameterSet("test_file")
+        self.assertEqual(P1.as_dict(), P2.as_dict())
+        os.remove("test_file")
+
+    def test_save(self):
+        init = self.__class__.test_parameters
+        P1 = YAMLParameterSet(init)
+        P1.save("test_file")
+        P2 = YAMLParameterSet("test_file")
+        self.assertEqual(P1.as_dict(), P2.as_dict())
+        os.remove("test_file")
+
+    def test__pretty__output_should_be_useable_to_create_an_identical_parameterset(self):
+        init = self.__class__.test_parameters
+        P1 = YAMLParameterSet(init)
+        P2 = YAMLParameterSet(P1.pretty())
         self.assertEqual(P1.as_dict(), P2.as_dict())
 
 class TestModuleFunctions(unittest.TestCase):

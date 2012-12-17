@@ -6,6 +6,7 @@ Sumatra 0.5.0 release notes
 * data differences now based on content, not name, i.e. henceforth two files with identical content but different names (e.g. because the name contains a timestamp) will evaluate as being the same. (cf ticket:111)
 * improved error messages when a required version control wrapper is not installed
 * dependencies now capture the source from which the version was obtained (e.g. repository url)
+* YAML-format parameter files are now supported (thanks to Tristan Webb)
 
 
 Not yet merged
