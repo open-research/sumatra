@@ -68,6 +68,7 @@ def encode_record(record, indent=None):
             #"language": d.language,
             "module": d.module,
             "diff": d.diff,
+            "source": d.source,  # added in 0.5
             } for d in record.dependencies],
         "platforms": [{
             "system_name": p.system_name, 
@@ -182,8 +183,9 @@ def build_record(data):
     record.platforms = [launch.PlatformInformation(**keys2str(pldata)) for pldata in data["platforms"]]
     record.dependencies = []
     for depdata in data["dependencies"]:
-        dep = getattr(dependency_finder, depdata["module"]).Dependency(depdata["name"], depdata["path"], depdata["version"])
-        dep.diff = depdata["diff"]
+        dep = getattr(dependency_finder, depdata["module"]).Dependency(
+            depdata["name"], depdata["path"], depdata["version"],
+            depdata["diff"], depdata["source"])
         record.dependencies.append(dep)
     return record
 

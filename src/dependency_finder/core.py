@@ -35,6 +35,7 @@ def find_versions_from_versioncontrol(dependencies):
                 if wc.has_changed():
                     dependency.diff = wc.diff()
                 dependency.version = wc.current_version()
+                dependency.source = wc.repository.url
     return dependencies
 
 
@@ -80,9 +81,13 @@ class BaseDependency(object):
     Contains information about a program component, and tries to determine version information.
     """
     
-    def __init__(self, name, path=None, version=None, on_changed='error'):
-        pass
-        
+    def __init__(self, name, path=None, version='unknown', diff='', source=None):
+        self.name = name
+        self.path = path
+        self.diff = diff
+        self.version = version
+        self.source = source  # e.g. url of (upstream?) repository
+ 
     def __repr__(self):
         return "%s (%s) version=%s%s" % (self.name, self.path, self.version, self.diff and "*" or '')
         

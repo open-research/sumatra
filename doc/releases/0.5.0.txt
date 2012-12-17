@@ -5,7 +5,7 @@ Sumatra 0.5.0 release notes
 * working directory now captured (as a parameter of LaunchMode)
 * data differences now based on content, not name, i.e. henceforth two files with identical content but different names (e.g. because the name contains a timestamp) will evaluate as being the same. (cf ticket:111)
 * improved error messages when a required version control wrapper is not installed
-
+* dependencies now capture the source from which the version was obtained (e.g. repository url)
 
 
 Not yet merged

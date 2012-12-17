@@ -120,6 +120,8 @@ def find_versions_by_attribute(dependencies, executable):
     for d in dependencies:
         if d.version == 'unknown':
             d.version = versions[i]
+            if d.version != 'unknown':
+                d.source = "attribute"  # would be nice to pass back the attribute name
             i += 1
     return dependencies
 
@@ -136,7 +138,7 @@ def find_versions_from_egg(dependencies):
                         for line in f.readlines():
                             if line[:7] == 'Version':
                                 dependency.version = line.split(' ')[1].strip()
-                                attr_name = 'egg-info'
+                                dependency.source = 'egg-info'
                                 break
     return dependencies
 
@@ -148,7 +150,6 @@ def find_versions_from_egg(dependencies):
 #   * could also look in the __init__.py for a Subversion $Id:$ tag
 
 
-
 class Dependency(core.BaseDependency):
     """
     Contains information about a Python module or package, and tries to
@@ -156,11 +157,8 @@ class Dependency(core.BaseDependency):
     """
     module = 'python'
 
-    def __init__(self, module_name, path, version='unknown', diff=''):
-        self.name = module_name
-        self.path = path
-        self.diff = diff
-        self.version = version
+    def __init__(self, module_name, path, version='unknown', diff='', source=None):
+        super(Dependency, self).__init__(module_name, path, version, diff, source)
 
     @classmethod
     def from_module(cls, module, executable_path):

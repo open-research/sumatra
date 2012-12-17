@@ -88,16 +88,15 @@ class Dependency(BaseModel):
     path = models.CharField(max_length=200)
     version = models.CharField(max_length=20)
     diff = models.TextField(blank=True)
+    source = models.CharField(max_length=200, null=True, blank=True)
     module = models.CharField(max_length=50) # should be called language, or something
     
     def __unicode__(self):
         return "%s (%s) version=%s" % (self.name, self.path, self.version)
     
     def to_sumatra(self):
-        dep = getattr(dependency_finder, self.module).Dependency(self.name, self.path, self.version)
-        if self.diff:
-            dep.diff = self.diff
-        return dep
+        return getattr(dependency_finder, self.module).Dependency(
+                    self.name, self.path, self.version, self.diff, self.source)
         
     class Meta:
         ordering = ['name']

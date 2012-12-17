@@ -10,11 +10,8 @@ class Dependency(core.BaseDependency):
     """
     module = 'matlab'
     
-    def __init__(self, module_name, path, version='unknown', diff=''):
-        self.name = module_name
-        self.path = path
-        self.version = version
-        self.diff = diff
+    def __init__(self, module_name, path, version='unknown', diff='', source=None):
+        super(Dependency, self).__init__(module_name, path, version, diff, source)
 
 
 def save_dependencies(cmd, filename):

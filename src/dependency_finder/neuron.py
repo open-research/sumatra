@@ -37,14 +37,10 @@ class Dependency(core.BaseDependency):
     """
     module = 'neuron'
     
-    def __init__(self, name, path=None, version='unknown', diff=''):
-        self.name = os.path.basename(name) # or maybe should be path relative to main file?
-        if path:
-            self.path = path
-        else:
-            self.path = os.path.abspath(name)
-        self.diff = ''
-        self.version = version
+    def __init__(self, name, path=None, version='unknown', diff='', source=None):
+        super(Dependency, self).__init__(os.path.basename(name),
+                                         path or os.path.abspath(name),
+                                         version, diff, source)
 
     def in_stdlib(self, executable_path):
         stdlib_path = _nrn_install_prefix(executable_path)

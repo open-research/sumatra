@@ -37,14 +37,11 @@ class Dependency(core.BaseDependency):
     """
     module = 'genesis'
     
-    def __init__(self, name, path=None, version='unknown', diff=''):
-        self.name = os.path.basename(name) # or maybe should be path relative to main file?
-        if path:
-            self.path = path
-        else:
-            self.path = os.path.abspath(name)
-        self.diff = diff
-        self.version = version
+    def __init__(self, name, path=None, version='unknown', diff='', source=None):
+        # name maybe should be path relative to main file?
+        super(Dependency, self).__init__(os.path.basename(name),
+                                         path or os.path.abspath(name),
+                                         version, diff, source)
 
 
 def get_sim_path():
