@@ -63,6 +63,7 @@ class MockDependency(object):
     version = "1.0"
     diff = ""
     module = "python"
+    source = "http://git.example.com/"
 
 class MockPlatformInformation(object):
     architecture_bits = 32
@@ -143,12 +144,13 @@ def teardown():
     clean_up()
     vcs_list.remove(sys.modules[__name__])
 
+
 class BaseTestRecordStore(object):
 
     def tearDown(self):
         django_store1.delete_all()
         django_store2.delete_all()
-        for filename in ("test_record_store2",):
+        for filename in ("test_record_store2", "test_record_store2.db"):
             if os.path.exists(filename):
                 os.remove(filename)
 
@@ -256,8 +258,9 @@ class TestShelveRecordStore(unittest.TestCase, BaseTestRecordStore):
 
     def tearDown(self):
         BaseTestRecordStore.tearDown(self)
-        if os.path.exists("test_record_store"):
-            os.remove("test_record_store")
+        for filename in ("test_record_store", "test_record_store.db"):
+            if os.path.exists(filename):
+                os.remove(filename)
 
     def test_record_store_is_pickleable(self):
         import pickle
@@ -265,8 +268,7 @@ class TestShelveRecordStore(unittest.TestCase, BaseTestRecordStore):
         s = pickle.dumps(self.store)
         del self.store
         unpickled = pickle.loads(s)
-        assert unpickled._shelf_name == "test_record_store"
-        assert os.path.exists(unpickled._shelf_name)
+        self.assertEqual(unpickled._shelf_name, "test_record_store")
 
 
 class TestDjangoRecordStore(unittest.TestCase, BaseTestRecordStore):
