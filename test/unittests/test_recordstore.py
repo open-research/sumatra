@@ -39,6 +39,7 @@ register_executable(MockExecutable, "a.out", "/usr/local/bin/a.out", [])
 
 class MockRepository(object):
     url = "http://svn.example.com/"
+    upstream = None
     type = "MockRepository"
     def __init__(self, *args, **kwargs):
         pass

@@ -102,10 +102,11 @@ class BazaarWorkingCopy(WorkingCopy):
 
 class BazaarRepository(Repository):
     
-    def __init__(self, url):
-        Repository.__init__(self, url)
+    def __init__(self, url, upstream=None):
+        Repository.__init__(self, url, upstream)
         self.url = url
         self.__repository = None
+        # use bzrlib.info.gather_location_info to get upstream?
     
     @property
     def exists(self):

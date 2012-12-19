@@ -26,6 +26,7 @@ def encode_record(record, indent=None):
         "repository": {
             "url": record.repository.url,
             "type": record.repository.__class__.__name__,
+            "upstream": record.repository.upstream,  # added in 0.5
         },
         "main_file": record.main_file,
         "version": record.version,
@@ -127,6 +128,7 @@ def build_record(data):
     if repos_cls is None:  
         repos_cls = versioncontrol.base.Repository
     repository = repos_cls(rdata["url"])
+    repository.upstream = rdata.get("upstream", None)
     pdata = data["parameters"]
     if pdata["type"] == "dict":
         parameter_set = eval(pdata["content"])

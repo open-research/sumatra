@@ -106,6 +106,7 @@ class Repository(BaseModel):
     # the following should be unique together.
     type = models.CharField(max_length=20)
     url = models.URLField(verify_exists=False)
+    upstream = models.URLField(verify_exists=False, null=True, blank=True)
 
     def __unicode__(self):
         return self.url
@@ -113,7 +114,9 @@ class Repository(BaseModel):
     def to_sumatra(self):
         for m in versioncontrol.vcs_list:
             if hasattr(m, self.type):
-                return getattr(m, self.type)(self.url)
+                repos = getattr(m, self.type)(self.url)
+                repos.upstream = self.upstream
+                return repos
         raise Exception("Repository type %s not supported." % self.type)
 
 
