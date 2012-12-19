@@ -110,8 +110,11 @@ class BazaarRepository(Repository):
     
     @property
     def exists(self):
-        if self._repository:
-            return True
+        try:
+            self._repository
+        except VersionControlError:
+            pass
+        return bool(self.__repository)
     
     @property
     def _repository(self):

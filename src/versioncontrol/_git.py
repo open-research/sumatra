@@ -140,8 +140,11 @@ class GitRepository(Repository):
     
     @property
     def exists(self):
-        if self._repository:
-            return True
+        try:
+            self._repository
+        except VersionControlError:
+            pass
+        return bool(self.__repository)
     
     @property
     def _repository(self):
@@ -169,6 +172,7 @@ class GitRepository(Repository):
         return get_working_copy(path)
 
     def _get_upstream(self):
-        config = self._repository.config_reader()
-        if config.has_option('remote "origin"', 'url'):
-            return config.get('remote "origin"', 'url')
+        if self.exists:
+            config = self._repository.config_reader()
+            if config.has_option('remote "origin"', 'url'):
+                return config.get('remote "origin"', 'url')

@@ -270,11 +270,9 @@ class TestMercurialRepository(unittest.TestCase, BaseTestRepository):
         r = self._create_repository()
         self.assertEqual(r._repository.url(), "file:%s" % self.repository_path)
 
-    def test__exists__with_nonexistent_repos__should_raise_Exception(self):
+    def test__exists__with_nonexistent_repos__should_return_False(self):
         repos = MercurialRepository("file:///tmp/")
-        def f():
-            repos.exists
-        self.assertRaises(Exception, f)
+        self.assertFalse(repos.exists)
     
     def test__can_create_project_in_subdir(self):
         #Test if a Sumatra project can be created in one of the subdirectories of a repository
@@ -305,11 +303,9 @@ class TestGitRepository(unittest.TestCase, BaseTestRepository):
     def _create_repository(self):
         return GitRepository(self.repository_path)
 
-    def test__exists__with_nonexistent_repos__should_raise_Exception(self):
+    def test__exists__with_nonexistent_repos__should_return_False(self):
         repos = GitRepository("/tmp/")
-        def f():
-            repos.exists
-        self.assertRaises(Exception, f)
+        self.assertFalse(repos.exists)
 
     def test__can_create_project_in_subdir(self):
         #Test if a Sumatra project can be created in one of the subdirectories of a repository
@@ -365,11 +361,9 @@ class TestBazaarRepository(unittest.TestCase, BaseTestRepository):
     def _create_repository(self):
         return BazaarRepository(self.repository_path)
 
-    def test__exists__with_nonexistent_repos__should_raise_Exception(self):
+    def test__exists__with_nonexistent_repos__should_return_False(self):
         repos = BazaarRepository("/tmp/")
-        def f():
-            repos.exists
-        self.assertRaises(Exception, f)
+        self.assertFalse(repos.exists)
 
     def test__checkout_of_remote_repos(self):
         tmpdir = tempfile.mkdtemp()

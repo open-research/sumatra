@@ -125,8 +125,11 @@ class MercurialRepository(Repository):
 
     @property
     def exists(self):
-        if self._repository:
-            return True
+        try:
+            self._repository
+        except VersionControlError:
+            pass
+        return bool(self.__repository)
 
     @property
     def _repository(self):
@@ -156,7 +159,8 @@ class MercurialRepository(Repository):
         return get_working_copy(path)
 
     def _get_upstream(self):
-        config = SafeConfigParser()
-        config.read(os.path.join(".hg", "hgrc"))
-        if config.has_option('paths', 'default'):
-            return config.get('paths', 'default')
+        if self.exists:
+            config = SafeConfigParser()
+            config.read(os.path.join(".hg", "hgrc"))
+            if config.has_option('paths', 'default'):
+                return config.get('paths', 'default')
