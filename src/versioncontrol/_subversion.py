@@ -88,7 +88,7 @@ class SubversionWorkingCopy(WorkingCopy):
 
 class SubversionRepository(Repository):
     
-    def __init__(self, url):
+    def __init__(self, url, upstream=None):
         Repository.__init__(self, url)
         self._client = pysvn.Client()
         # check that there is a valid Subversion repository at the URL,

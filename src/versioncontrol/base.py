@@ -11,14 +11,17 @@ class VersionControlError(Exception):
 
 class Repository(object):
     
-    def __init__(self, url):
+    def __init__(self, url, upstream=None):
         if url == ".":
             url = os.path.abspath(url)
         self.url = url
-        self.upstream = None
+        self.upstream = upstream
         
     def __str__(self):
-        return "%s at %s" % (self.__class__.__name__, self.url)
+        s = "%s at %s" % (self.__class__.__name__, self.url)
+        if self.upstream:
+            s += " (upstream: %s)" % self.upstream
+        return s
     
     def __eq__(self, other):
         return self.__class__ == other.__class__ and self.url == other.url

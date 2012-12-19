@@ -128,10 +128,11 @@ def move_contents(src, dst):
 
 class GitRepository(Repository):
     
-    def __init__(self, url):
+    def __init__(self, url, upstream=None):
         check_version()
-        Repository.__init__(self, url)
+        Repository.__init__(self, url, upstream)
         self.__repository = None
+        self.upstream = self.upstream or self._get_upstream()
     
     @property
     def exists(self):
@@ -162,3 +163,8 @@ class GitRepository(Repository):
 
     def get_working_copy(self, path=None):
         return get_working_copy(path)
+
+    def _get_upstream(self):
+        config = self._repository.config_reader()
+        if config.has_option('remote "origin"', 'url'):
+            return config.get('remote "origin"', 'url')

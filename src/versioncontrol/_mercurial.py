@@ -28,6 +28,7 @@ except ImportError:
 import os
 import binascii
 import functools
+from ConfigParser import SafeConfigParser
 from base import VersionControlError
 
 from base import Repository, WorkingCopy
@@ -116,10 +117,11 @@ class MercurialWorkingCopy(WorkingCopy):
 
 class MercurialRepository(Repository):
     
-    def __init__(self, url):
-        Repository.__init__(self, url)
+    def __init__(self, url, upstream=None):
+        Repository.__init__(self, url, upstream)
         self._ui = ui.ui()  # get a ui object
         self.__repository = None
+        self.upstream = self.upstream or self._get_upstream()
 
     @property
     def exists(self):
@@ -152,3 +154,9 @@ class MercurialRepository(Repository):
 
     def get_working_copy(self, path=None):
         return get_working_copy(path)
+
+    def _get_upstream(self):
+        config = SafeConfigParser()
+        config.read(os.path.join(".hg", "hgrc"))
+        if config.has_option('paths', 'default'):
+            return config.get('paths', 'default')
