@@ -29,6 +29,8 @@ class MockWorkingCopy(object):
         pass
     def contains(self, path):
         return True
+    def get_username(self):
+        return "The Knights Who Say Ni"
         
 class MockRepository(object):
     url = "http://svn.example.com"

@@ -7,12 +7,13 @@ Sumatra 0.5.0 release notes
 * improved error messages when a required version control wrapper is not installed
 * dependencies now capture the source from which the version was obtained (e.g. repository url)
 * YAML-format parameter files are now supported (thanks to Tristan Webb)
+* Added "upstream" attribute to the Repository class (which means...)
+* Added `MirroredFileSystemDataStore`, which supports the case where files exist both on the local filesystem and on some web server (e.g. DropBox).
+* the name/e-mail of the user who launched the computation is now captured (first trying ~/.smtrc, then the version control system)
 
 
 Not yet merged
 * switch from optparse to argparse (which allows...)
-* Added "upstream" attribute to the Repository class (which means...)
-* Added `MirroredFileSystemDataStore`, which supports the case where files exist both on the local filesystem and on some web server (e.g. DropBox).
 
 Interfaces to documentation systems
 -----------------------------------

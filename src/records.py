@@ -21,6 +21,7 @@ from operator import or_
 from formatting import get_formatter
 import dependency_finder
 from sumatra.core import TIMESTAMP_FORMAT
+from sumatra.users import get_user
 from versioncontrol import VersionControlError
 import logging
 
@@ -95,6 +96,8 @@ class Record(object):
         # Record platform information
         logger.debug("Recording platform information")
         self.platforms = self.launch_mode.get_platform_information()
+        # Record information about the current user
+        self.user = get_user(working_copy)
 
     def run(self, with_label=False):
         """

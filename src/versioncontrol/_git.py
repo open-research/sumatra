@@ -119,6 +119,11 @@ class GitWorkingCopy(WorkingCopy):
         """Does the repository contain the file with the given path?"""
         return path in self.repository._repository.git.ls_files().split()
         
+    def get_username(self):
+        config = self.repository._repository.config_reader()
+        return "%s <%s>" % (config.get('user', 'name'),
+                            config.get('user', 'email'))
+
 
 def move_contents(src, dst):
     for file in os.listdir(src):

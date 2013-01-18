@@ -90,6 +90,9 @@ class SubversionWorkingCopy(WorkingCopy):
         shutil.rmtree(tmpdir)
         return result
 
+    def get_username(self):
+        return self.repository._client.get_default_username() or ''
+
 
 class SubversionRepository(Repository):
     

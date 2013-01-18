@@ -99,6 +99,10 @@ class BazaarWorkingCopy(WorkingCopy):
         # textstream
         return iostream.getvalue()
 
+    def get_username(self):
+        config = self.workingtree.branch.get_config()
+        return config.username()
+
 
 class BazaarRepository(Repository):
     
