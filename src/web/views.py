@@ -3,6 +3,7 @@ Defines view functions and forms for the Sumatra web interface.
 """
 
 import os
+import os.path
 import mimetypes
 import csv
 from django.http import HttpResponse, HttpResponseRedirect, Http404
@@ -275,12 +276,39 @@ def show_file(request, project, label):
                                        'truncated':truncated
                                        })
 
+        elif encoding == 'gzip':
+            import gzip
+            with gzip.open(data_store.root + os.path.sep + path, 'r') as gf:
+                content = gf.read()
+            if 'csv' in path:
+                lines = content.splitlines()
+                if truncated:
+                    lines = [lines[0]] + lines[-min(100,len(lines)):]
+                reader = csv.reader(lines)
+                return render_to_response("show_csv.html",
+                                          {'path': path, 
+                                           'label': label,
+                                           'digest': digest,
+                                           'project_name': project,
+                                           'reader': reader,
+                                           'truncated':truncated
+                                           })
+            else:
+                return render_to_response("show_file.html",
+                                      {'path': path, 
+                                        'label': label,
+                                        'content': content,
+                                        'project_name': project,
+                                        'truncated':truncated,
+                                        'digest': digest
+                                       })
         elif mimetype == None or mimetype.split("/")[0] == "text":
             content = data_store.get_content(data_key, max_length=max_display_length)
             if max_display_length is not None and len(content) >= max_display_length:
                 truncated = True
             return render_to_response("show_file.html",
-                                      {'path': path, 'label': label,
+                                      {'path': path, 
+                                       'label': label,
                                        'digest': digest,
                                        'project_name': project,
                                        'content': content,
@@ -288,7 +316,8 @@ def show_file(request, project, label):
                                        })
         elif mimetype in ("image/png", "image/jpeg", "image/gif", "image/x-png"): # need to check digests match
             return render_to_response("show_image.html",
-                                      {'path': path, 'label': label,
+                                      {'path': path, 
+                                       'label': label,
                                        'digest': digest,
                                        'project_name': project,})
         elif mimetype == 'application/zip':
@@ -298,20 +327,31 @@ def show_file(request, project, label):
                 contents = zf.namelist()
                 zf.close()
                 return render_to_response("show_file.html",
-                                      {'path': path, 'label': label, 'digest': digest,
-                                       'content': "\n".join(contents),'project_name': project
+                                      {'path': path, 
+                                      'label': label, 
+                                      'digest': digest,
+                                       'content': "\n".join(contents),
+                                       'project_name': project
                                        })
             else:
                 raise IOError("Not a valid zip file")
         else:
-            return render_to_response("show_file.html", {'path': path, 'label': label,
-                                                         'project_name': project, 'digest': digest,
-                                                         'content': "Can't display this file (mimetype assumed to be %s)" % mimetype})
+            return render_to_response("show_file.html", 
+                {'path': path, 
+                'label': label,
+                 'project_name': project, 
+                 'digest': digest,
+                 'content': "Can't display this file (mimetype assumed to be %s)" % mimetype
+                 })
     except (IOError, KeyError), e:
-        return render_to_response("show_file.html", {'path': path, 'label': label,
-                                                     'project_name': project, 'digest': digest,
-                                                     'content': "File not found.",
-                                                     'errmsg': e})
+        return render_to_response("show_file.html", 
+            {'path': path, 
+            'label': label,
+             'project_name': project, 
+             'digest': digest,
+             'content': "File not found.",
+             'errmsg': e
+             })
 
 def download_file(request, project, label):
     label = unescape(label)
