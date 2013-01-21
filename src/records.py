@@ -43,9 +43,9 @@ class Record(object):
     def __init__(self, executable, repository, main_file, version, launch_mode,
                  datastore, parameters={}, input_data=[], script_arguments='',
                  label=None, reason='', diff='', user='', on_changed='error',
-                 input_datastore=None, stdout_stderr='Not launched.'):
+                 input_datastore=None, stdout_stderr='Not launched.', timestamp_format=TIMESTAMP_FORMAT):
         self.timestamp = datetime.now() # might need to allow for this to be set as argument to allow for distributed/batch simulations on machines with out-of-sync clocks
-        self.label = label or self.timestamp.strftime(TIMESTAMP_FORMAT)
+        self.label = label or self.timestamp.strftime(timestamp_format)
         assert len(self.label) > 0
         self.reason = reason
         self.duration = None
