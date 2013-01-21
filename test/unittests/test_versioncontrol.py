@@ -335,7 +335,7 @@ class TestSubversionRepository(unittest.TestCase, BaseTestRepository):
         assert hasattr(r._client, "checkout")
         
     def test__init__with_nonexistent_repos__should_raise_Exception(self):
-        self.assertRaises(Exception, SubversionRepository, "file:///tmp/")
+        self.assertRaises(Exception, SubversionRepository, "file:///tmp/chnseriguchs")
    
     def test__checkout__with_nonexistent_repos__should_raise_Exception(self):
         r = self._create_repository()
@@ -432,7 +432,7 @@ class TestPackageFunctions(unittest.TestCase):
         assert isinstance(repos, MercurialRepository), type(repos)
         
     def test__get_repository__from_invalid_url_should_raise_Exception(self):
-        self.assertRaises(Exception, get_repository, "file:///tmp/")
+        self.assertRaises(Exception, get_repository, "file:///tmp/iugnoirutgvnir")
 
     @unittest.skipUnless(have_pysvn, "Could not import pysvn")
     def test__get_repository_from_working_copy(self):
