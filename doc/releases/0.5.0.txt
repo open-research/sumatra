@@ -19,3 +19,4 @@ Interfaces to documentation systems
 -----------------------------------
 
 * reStructuredText/Sphinx: smtlink role and smtimage directive
+* LaTeX \smtincludegraphics command

@@ -6,7 +6,18 @@
 
 \NeedsTeXFormat{LaTeX2e}[1994/12/01]
 \ProvidesPackage{sumatra}[2013/01/21 v0.1 Sumatra in LaTeX]
-\RequirePackage{graphicx, keyval, ifthen, ifplatform, hyperref}
+\RequirePackage{graphicx, keyval, ifthen, ifplatform, hyperref, kvoptions}
+
+% define package-level defaults
+\SetupKeyvalOptions{
+  family=sumatradefault,
+  prefix=sumatradefault
+}
+
+\DeclareStringOption{project}[None]
+\DeclareStringOption{recordstore}[None]
+
+\ProcessKeyvalOptions*
 
 % file for passing arguments to Python
 \newwrite\pythoninput
@@ -29,8 +40,14 @@
     \immediate\openout\pythoninput=\jobname.sumatra
     \immediate\write\pythoninput{[sumatra]}
     \immediate\write\pythoninput{label: #2}
-    \immediate\write\pythoninput{project: \sumatraproject}
-    \immediate\write\pythoninput{record_store: \sumatrarecordstore}
+    \ifthenelse{\equal{\sumatraproject}{None}}{%
+        \immediate\write\pythoninput{project: \sumatradefaultproject}}{%
+        \immediate\write\pythoninput{project: \sumatraproject}
+    }
+    \ifthenelse{\equal{\sumatrarecordstore}{None}}{%
+        \immediate\write\pythoninput{record_store: \sumatradefaultrecordstore}}{%
+        \immediate\write\pythoninput{record_store: \sumatrarecordstore}
+    }
     \ifthenelse{\equal{\sumatradigest}{}}{}{%
         \immediate\write\pythoninput{digest: \sumatradigest}
     }
@@ -47,12 +64,14 @@
     \immediate\write18{python includefigure.py \jobname.sumatra > \jobname.sumatra.tex 2> \jobname.sumatra.err}
     \immediate\input\jobname.sumatra.tex
 
+% need to be able to catch errors in Python job
+
 } % end of definition of \smtincludegraphics
 
 % smt options for the \smtincludegraphics command
 \define@key{smt}{project}{\def\sumatraproject{#1}}
 \define@key{smt}{recordstore}{\def\sumatrarecordstore{#1}}
-\define@key{smt}{digest}{{\def\sumatradigest{#1}}}
+\define@key{smt}{digest}{\def\sumatradigest{#1}}
 
 % options that are passed through to \includegraphics
 \define@key{smt}{width}{\def\figwidth{#1}}
