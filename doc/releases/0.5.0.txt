@@ -10,7 +10,7 @@ Sumatra 0.5.0 release notes
 * Added "upstream" attribute to the Repository class (which means...)
 * Added `MirroredFileSystemDataStore`, which supports the case where files exist both on the local filesystem and on some web server (e.g. DropBox).
 * the name/e-mail of the user who launched the computation is now captured (first trying ~/.smtrc, then the version control system)
-
+* there is now a choice of methods for auto-generating labels when they are not supplied by the user: timestamp-based (the default and previously the only option) and uuid-based. Use the "-g" option to "smt configure".
 
 Not yet merged
 * switch from optparse to argparse (which allows...)

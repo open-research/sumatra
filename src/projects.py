@@ -22,6 +22,7 @@ import os
 import sys
 import cPickle as pickle
 from copy import deepcopy
+import uuid
 from sumatra.records import Record
 from sumatra import programs, datastore
 from sumatra.formatting import get_formatter, get_diff_formatter
@@ -38,6 +39,11 @@ logger = logging.getLogger("Sumatra")
 
 DEFAULT_PROJECT_FILE = "project"
 
+LABEL_GENERATORS = {
+    'timestamp': lambda: None, # this is the default, implemented in the Record class
+    'uuid': lambda: str(uuid.uuid4()).split('-')[-1]
+}
+
 
 def _remove_left_margin(s): # replace this by textwrap.dedent?
     lines = s.strip().split('\n')
@@ -53,7 +59,7 @@ class Project(object):
                  default_main_file=None, default_launch_mode=None,
                  data_store='default', record_store='default',
                  on_changed='error', description='', data_label=None,
-                 input_datastore=None):
+                 input_datastore=None, label_generator='timestamp'):
         self.path = os.getcwd()
         if not os.path.exists(".smt"):
             os.mkdir(".smt")
@@ -74,7 +80,8 @@ class Project(object):
         self.on_changed = on_changed
         self.description = description
         self.data_label = data_label
-        self._most_recent = None
+        self.label_generator = label_generator
+        self._most_recent = None            
         self.save()
         print "Sumatra project successfully set up"
         
@@ -92,7 +99,8 @@ class Project(object):
         for name in ('name', 'default_executable', 'default_repository',
                      'default_launch_mode', 'data_store', 'record_store',
                      'default_main_file', 'on_changed', 'description',
-                     'data_label', '_most_recent', 'input_datastore',):
+                     'data_label', '_most_recent', 'input_datastore',
+                     'label_generator'):
             attr = getattr(self, name, None)
             if hasattr(attr, "__getstate__"):
                 state[name] = {'type': attr.__class__.__module__ + "." + attr.__class__.__name__}
@@ -117,6 +125,7 @@ class Project(object):
         Record store        : %(record_store)s
         Code change policy  : %(on_changed)s
         Append label to     : %(_data_label)s
+        Label generator     : %(label_generator)s
         """
         return _remove_left_margin(template % self.__dict__)
     
@@ -135,6 +144,8 @@ class Project(object):
             launch_mode = deepcopy(self.default_launch_mode)
         working_copy = repository.get_working_copy()
         version, diff = self.update_code(working_copy, version)
+        if label is None:
+            label = LABEL_GENERATORS[self.label_generator]()
         record = Record(executable, repository, main_file, version, launch_mode,
                         self.data_store, parameters, input_data, script_args, 
                         label=label, reason=reason, diff=diff,

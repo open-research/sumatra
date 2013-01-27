@@ -28,7 +28,7 @@ try:
     have_bzr = True
 except ImportError:
     have_bzr = False
-from sumatra.versioncontrol import get_repository, get_working_copy
+from sumatra.versioncontrol import get_repository, get_working_copy, VersionControlError
 
 
 class BaseTestWorkingCopy(object):
@@ -432,7 +432,7 @@ class TestPackageFunctions(unittest.TestCase):
         assert isinstance(repos, MercurialRepository), type(repos)
         
     def test__get_repository__from_invalid_url_should_raise_Exception(self):
-        self.assertRaises(Exception, get_repository, "file:///tmp/iugnoirutgvnir")
+        self.assertRaises(VersionControlError, get_repository, "file:///tmp/iugnoirutgvnir")
 
     @unittest.skipUnless(have_pysvn, "Could not import pysvn")
     def test__get_repository_from_working_copy(self):
