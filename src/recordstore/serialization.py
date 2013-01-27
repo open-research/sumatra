@@ -164,12 +164,12 @@ def build_record(data):
                        data["version"], launch_mode, data_store, parameter_set,
                        input_data, data.get("script_arguments", ""), 
                        data["label"], data["reason"], data["diff"],
-                       data.get("user", ""), input_datastore=input_datastore)
+                       data.get("user", ""), input_datastore=input_datastore,
+                       timestamp=datetime.strptime(data["timestamp"], "%Y-%m-%d %H:%M:%S"))
     tags = data["tags"]
     if not hasattr(tags, "__iter__"):
         tags = (tags,)
     record.tags = set(tags)
-    record.timestamp = datetime.strptime(data["timestamp"], "%Y-%m-%d %H:%M:%S")
     record.output_data = []
     if "output_data" in data:
         for keydata in data["output_data"]:
