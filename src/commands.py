@@ -115,6 +115,7 @@ def init(argv):
     parser.add_option('-s', '--store', help="specify the path to the record store, either an existing one or one to be created.")
     parser.add_option('-A', '--archive', metavar='PATH', help="specify a directory in which to archive output datafiles. If not specified, datafiles are not archived.")
     parser.add_option('-g', '--labelgenerator', choices=['timestamp', 'uuid'], default='timestamp', metavar='OPTION', help="specify which method Sumatra should use to generate labels")
+    parser.add_option('-t', '--timestamp_format', help="the timestamp format given to strftime", default=TIMESTAMP_FORMAT)
 
     (options, args) = parser.parse_args(argv)
 
@@ -173,7 +174,8 @@ def init(argv):
                       on_changed=options.on_changed,
                       data_label=options.addlabel,
                       input_datastore=input_datastore,
-                      label_generator=options.labelgenerator)
+                      label_generator=options.labelgenerator,
+                      timestamp_format=options.timestamp_format)
     project.save()
 
 def configure(argv):
@@ -192,7 +194,8 @@ def configure(argv):
     parser.add_option('-c', '--on-changed', help="may be 'store-diff' or 'error': the action to take if the code in the repository or any of the dependencies has changed. Defaults to 'error'", choices=['store-diff', 'error'])
     parser.add_option('-A', '--archive', metavar='PATH', help="specify a directory in which to archive output datafiles. If not specified, or if 'false', datafiles are not archived.")
     parser.add_option('-g', '--labelgenerator', choices=['timestamp', 'uuid'], metavar='OPTION', help="specify which method Sumatra should use to generate labels")
-
+    parser.add_option('-t', '--timestamp_format', help="the timestamp format given to strftime")
+    
     (options, args) = parser.parse_args(argv)
     if len(args) != 0:
         parser.error('configure does not take any arguments')
@@ -229,6 +232,8 @@ def configure(argv):
         project.data_label = options.addlabel
     if options.labelgenerator:
         project.label_generator = options.labelgenerator
+    if options.timestamp_format:
+        project.timestamp_format = timestamp_format
     project.save()
 
 

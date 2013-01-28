@@ -45,13 +45,13 @@ class Record(object):
                  datastore, parameters={}, input_data=[], script_arguments='',
                  label=None, reason='', diff='', user='', on_changed='error',
                  input_datastore=None, stdout_stderr='Not launched.',
-                 timestamp=None):
+                 timestamp=None, timestamp_format=TIMESTAMP_FORMAT):
         # we allow for the timestamp to be set as an argument to allow for
         # distributed/batch simulations on machines with out-of-sync clocks,
         # but only do this if you really know what you're doing, otherwise the
         # association of output data with this record may be incorrect
         self.timestamp = timestamp or datetime.now() 
-        self.label = label or self.timestamp.strftime(TIMESTAMP_FORMAT)
+        self.label = label or self.timestamp.strftime(timestamp_format)
         assert len(self.label) > 0
         self.reason = reason
         self.duration = None
