@@ -14,6 +14,8 @@ It consists of:
   records, linking to data files, etc.
 * a web interface with a built-in web-server, *smtweb*, for browsing and
   annotating simulation/analysis results.
+* a LaTeX package and Sphinx extension for including Sumatra-tracked figures and
+  links to provenance information in papers and other documents.
 * a Python API, on which smt and smtweb are based, that can be used in your own
   scripts in place of using smt, or could be integrated into a GUI-based
   application.
@@ -36,6 +38,7 @@ Table of Contents
    web_interface
    gui
    parallel_computations
+   publishing
    using_the_api
    parameter_files
    upgrading

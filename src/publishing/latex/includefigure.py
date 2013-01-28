@@ -60,7 +60,7 @@ def main(argv):
     # check digest, if supplied
     if 'digest' in sumatra_options:
         if sumatra_options['digest'] != image_file.digest:
-            raise Exception('Digests do not match')
+            raise Exception('Digests do not match')  # should also calculate digest of the actually-downloaded file
     
     if hasattr(image_file, 'url'):
         image_uri = image_file.url

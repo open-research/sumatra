@@ -61,7 +61,7 @@
     \immediate\closeout\pythoninput
     
     % run the Python job
-    \immediate\write18{python includefigure.py \jobname.sumatra > \jobname.sumatra.tex 2> \jobname.sumatra.err}
+    \immediate\write18{python -m sumatra.publishing.latex.includefigure \jobname.sumatra > \jobname.sumatra.tex 2> \jobname.sumatra.err}
     \immediate\input\jobname.sumatra.tex
 
 % need to be able to catch errors in Python job

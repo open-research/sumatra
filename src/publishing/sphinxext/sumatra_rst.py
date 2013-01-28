@@ -13,8 +13,6 @@ If using a MirroredFileSystemDataStore could just use URL
    
 The project name and recordstore directive are optional if rst2xxxx is used in a Sumatra project directory
 
-Any way to make project and recordstore globally accessible, to have them as
-defaults set only a one place in the document?
 """
 
 from docutils.parsers.rst import directives, states

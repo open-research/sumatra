@@ -22,6 +22,7 @@ fields = ['label', 'timestamp', 'reason', 'outcome', 'duration', 'repository',
           'main_file', 'version', 'script_arguments', 'executable',
           'parameters', 'input_data', 'launch_mode', 'output_data', 'tags']
 
+
 class Formatter(object):
     
     def __init__(self, records):
@@ -103,7 +104,34 @@ class TextTable(object):
         for row in self.rows:
             output += format % tuple(str(getattr(row, header))[:self.max_column_width] for header in self.headers)
         return output
-        
+
+
+class ShellFormatter(Formatter):
+    """
+    Create a shell script that can be used to repeat a series of computations.
+    """
+    
+    def short(self):
+        output = "#!/bin/sh\n"
+        for record in self.records:
+            output += "\n# %s\n" % record.label
+            output += "# Originally run at %s by %s" % (record.timestamp, record.user)
+            # add info about original environment
+            # add info about dependencies and versions
+            output += "cd %s\n" % record.launch_mode.working_directory
+            output += "%s -r %s\n" % (record.repository.use_version_cmd, record.version)
+            # if record.diff:
+            #     todo - need to apply diff
+            # may need to write suitable parameter file - just write it or add a cat command to the bash script?
+            # todo - need to handle pre_run
+            # can we add assertions about the SHA1 hash of any input files?
+            output += record.launch_mode.generate_command() + "\n"
+        return output
+    
+    def long(self):
+        # perhaps have all the comments in the long version but not the short one
+        return self.short()
+
 
 class HTMLFormatter(Formatter):
     
