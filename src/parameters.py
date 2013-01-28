@@ -61,6 +61,8 @@ class YAMLParameterSet(object):
                         self.values = {}
             except yaml.YAMLError:
                 raise SyntaxError("Misformatted YAML file")
+            if not isinstance(self.values, dict):
+                raise SyntaxError("YAML file cannot be represented as a dict")
         else:
             raise ImportError("Cannot import PyYAML module")
 

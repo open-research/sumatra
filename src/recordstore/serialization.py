@@ -146,8 +146,8 @@ def build_record(data):
             ds_parameters = eval(ds_parameters)
         return getattr(datastore, ddata["type"])(**keys2str(ds_parameters))
     data_store = build_data_store(data["datastore"])
-    if "input_data_store" in data: # 0.4 onwards
-        input_datastore = build_data_store(data["input_data_store"])
+    if "input_datastore" in data: # 0.4 onwards
+        input_datastore = build_data_store(data["input_datastore"])
     else:
         input_datastore = datastore.FileSystemDataStore("/")
     input_data = data.get("input_data", [])
