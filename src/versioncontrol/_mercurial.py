@@ -28,7 +28,6 @@ except ImportError:
 import os
 import binascii
 import functools
-from ConfigParser import SafeConfigParser
 from base import VersionControlError
 
 from base import Repository, WorkingCopy
@@ -102,7 +101,7 @@ class MercurialWorkingCopy(WorkingCopy):
         return "".join(diff)
 
     def content(self, hex):
-        repo = hg.repository(ui.ui(), self.path)
+        repo = self.repository._repository
         i = 1
         if hex in repo.parents()[0].hex():
             ctx = repo.parents()[0] 
@@ -114,12 +113,14 @@ class MercurialWorkingCopy(WorkingCopy):
                 return ctx.filectx(ctx.files()[0]).data() # presume that we have only one file [0]
             i += 1
 
+    def get_username(self):
+        return self.repository._repository.ui.username()
+
 
 class MercurialRepository(Repository):
     
     def __init__(self, url, upstream=None):
         Repository.__init__(self, url, upstream)
-        self._ui = ui.ui()  # get a ui object
         self.__repository = None
         self.upstream = self.upstream or self._get_upstream()
 
@@ -135,10 +136,10 @@ class MercurialRepository(Repository):
     def _repository(self):
         if self.__repository is None:
             try:
-                self.__repository = hg.repository(self._ui, self.url)
+                self.__repository = hg.repository(ui.ui(), self.url)
                 # need to add a check that this actually is a Mercurial repository
             except (RepoError, Exception), err:
-                raise VersionControlError("Cannot access Mercurial repository at %s: %s" % (self.url, err))    
+                raise VersionControlError("Cannot access Mercurial repository at %s: %s" % (self.url, err))
         return self.__repository    
 
     def checkout(self, path="."):
@@ -149,9 +150,9 @@ class MercurialRepository(Repository):
             hg.update(self._repository, None)
         else:
             try:
-                hg.clone(self._ui, {}, self.url, path, update=True)
+                hg.clone(self._repository.ui, {}, self.url, path, update=True)
             except:  # hg.clone fails for older versions of mercurial, e.g. 1.5
-                local_repos = hg.repository(self._ui, path, create=True)
+                local_repos = hg.repository(self._repository.ui, path, create=True)
                 local_repos.pull(self._repository)
                 hg.update(local_repos, None)
 
@@ -160,7 +161,4 @@ class MercurialRepository(Repository):
 
     def _get_upstream(self):
         if self.exists:
-            config = SafeConfigParser()
-            config.read(os.path.join(".hg", "hgrc"))
-            if config.has_option('paths', 'default'):
-                return config.get('paths', 'default')
+            return self._repository.ui.config('paths', 'default')

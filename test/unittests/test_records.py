@@ -8,10 +8,14 @@ from sumatra.records import Record, RecordDifference
 
 
 class MockExecutable(object):
+    def __init__(self, version="1"):
+        self.version = version
     def __eq__(self, other):
-        return True
+        return self.version == other.version
     def __ne__(self, other):
         return not self.__eq__(other)
+    def write_parameters(self, params, filename):
+        pass
     
 class MockRepository(object):
     def __eq__(self, other):
@@ -20,7 +24,10 @@ class MockRepository(object):
         return not self.__eq__(other)
 
 class MockLaunchMode(object):
-    pass
+    def pre_run(self, executable):
+        pass
+    def run(self, *args, **kwargs):
+        pass
 
 class MockFile(object):
     def __init__(self, name):
@@ -40,10 +47,13 @@ class MockFile(object):
         return not self.__eq__(other)
 
 class MockDataStore(object):
+    root = "/tmp"
     #def list_files(self, key):
     #    return [MockFile("1.dat"), MockFile("2.dat")]
     def copy(self):
         return self
+    def find_new_data(self, timestamp):
+        pass
 
 class MockDependency(object):
     def __init__(self, name):
@@ -51,7 +61,12 @@ class MockDependency(object):
         
 
 class TestRecord(unittest.TestCase):
-    pass
+    
+    def test__run(self):
+        r1 = Record(MockExecutable("1"), MockRepository(), "test.py",
+                    999, MockLaunchMode(), MockDataStore(), {"a": 3}, label="A")
+        r1.run(with_label='parameters')
+
 
 class TestRecordDifference(unittest.TestCase):
     
@@ -106,12 +121,24 @@ class TestRecordDifference(unittest.TestCase):
 
     def test__output_data_differences(self):
         r1 = Record(MockExecutable(), MockRepository(), "test.py",
-                       999, MockLaunchMode(), MockDataStore())
+                    999, MockLaunchMode(), MockDataStore())
         time.sleep(1)
         r2 = Record(MockExecutable(), MockRepository(), "test.py",
-                       999, MockLaunchMode(), MockDataStore())
+                    999, MockLaunchMode(), MockDataStore())
         diff = RecordDifference(r1, r2)
         diff.output_data_differences
+
+    def test__repr(self):
+        r1 = Record(MockExecutable("1"), MockRepository(), "test.py",
+                    999, MockLaunchMode(), MockDataStore(), {"a": 3}, label="A")
+        time.sleep(1)
+        r2 = Record(MockExecutable("2"), MockRepository(), "test.py",
+                    999, MockLaunchMode(), MockDataStore(), {"a": 2}, label="B")
+        r1.dependencies = [MockDependency("foo"), MockDependency("bar")]
+        r2.dependencies = [MockDependency("bar"), MockDependency("eric")]
+        diff = RecordDifference(r1, r2)        
+        self.assertEqual(repr(diff), "RecordDifference(A, B):XCP")
+
 
 if __name__ == '__main__':
     unittest.main()

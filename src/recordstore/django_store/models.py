@@ -249,12 +249,11 @@ class Record(BaseModel):
             self.reason,
             self.diff,
             self.user,
-            input_datastore=self.input_datastore.to_sumatra())
-
+            input_datastore=self.input_datastore.to_sumatra(),
+            timestamp=self.timestamp)
         record.stdout_stderr = self.stdout_stderr
         record.duration = self.duration
         record.outcome = self.outcome
-        record.timestamp = self.timestamp
         record.tags = set(tag.name for tag in Tag.objects.get_for_object(self))
         record.output_data = [key.to_sumatra() for key in self.output_data.all()]
         record.dependencies = [dep.to_sumatra() for dep in self.dependencies.all()]

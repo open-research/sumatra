@@ -1,0 +1,78 @@
+%
+% Defines commands to include images captured by Sumatra in a LaTeX document 
+%
+% Requires the shell-escape option
+%
+
+\NeedsTeXFormat{LaTeX2e}[1994/12/01]
+\ProvidesPackage{sumatra}[2013/01/21 v0.1 Sumatra in LaTeX]
+\RequirePackage{graphicx, keyval, ifthen, ifplatform, hyperref, kvoptions}
+
+% define package-level defaults
+\SetupKeyvalOptions{
+  family=sumatradefault,
+  prefix=sumatradefault
+}
+
+\DeclareStringOption{project}[None]
+\DeclareStringOption{recordstore}[None]
+
+\ProcessKeyvalOptions*
+
+% file for passing arguments to Python
+\newwrite\pythoninput
+
+% command to include an image whose URI is obtained from a Sumatra record store 
+\def\smtincludegraphics{\@ifnextchar[\@smtincludegraphics{\@smtincludegraphics[]}}
+
+\def\@smtincludegraphics[#1]#2{%
+
+    % macros for command options
+    \def\sumatraproject{None}
+    \def\sumatrarecordstore{None}
+    \def\sumatradigest{}
+    \def\figwidth{}
+    \def\figheight{}
+    
+    \setkeys{smt}{#1}
+    
+    % write input file for includefigure.py
+    \immediate\openout\pythoninput=\jobname.sumatra
+    \immediate\write\pythoninput{[sumatra]}
+    \immediate\write\pythoninput{label: #2}
+    \ifthenelse{\equal{\sumatraproject}{None}}{%
+        \immediate\write\pythoninput{project: \sumatradefaultproject}}{%
+        \immediate\write\pythoninput{project: \sumatraproject}
+    }
+    \ifthenelse{\equal{\sumatrarecordstore}{None}}{%
+        \immediate\write\pythoninput{record_store: \sumatradefaultrecordstore}}{%
+        \immediate\write\pythoninput{record_store: \sumatrarecordstore}
+    }
+    \ifthenelse{\equal{\sumatradigest}{}}{}{%
+        \immediate\write\pythoninput{digest: \sumatradigest}
+    }
+    \immediate\write\pythoninput{[graphics]}
+    \ifthenelse{\equal{\figwidth}{}}{}{%
+        \immediate\write\pythoninput{width: \figwidth}
+    }
+    \ifthenelse{\equal{\figheight}{}}{}{%
+        \immediate\write\pythoninput{height: \figheight}
+    }
+    \immediate\closeout\pythoninput
+    
+    % run the Python job
+    \immediate\write18{python -m sumatra.publishing.latex.includefigure \jobname.sumatra > \jobname.sumatra.tex 2> \jobname.sumatra.err}
+    \immediate\input\jobname.sumatra.tex
+
+% need to be able to catch errors in Python job
+
+} % end of definition of \smtincludegraphics
+
+% smt options for the \smtincludegraphics command
+\define@key{smt}{project}{\def\sumatraproject{#1}}
+\define@key{smt}{recordstore}{\def\sumatrarecordstore{#1}}
+\define@key{smt}{digest}{\def\sumatradigest{#1}}
+
+% options that are passed through to \includegraphics
+\define@key{smt}{width}{\def\figwidth{#1}}
+\define@key{smt}{height}{\def\figheight{#1}}

@@ -93,6 +93,7 @@ To see the current configuration of your project, use the ``info`` command::
     Record store        : Relational database record store using the Django ORM (database file=/path/to/my/project/.smt/records)
     Code change policy  : error
     Append label to     : None
+    Label generator     : timestamp
     
 Sumatra automatically records the identity and versions of the simulation files
 and the simulator executable, stores links to any files created by the

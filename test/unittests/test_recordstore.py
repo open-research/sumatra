@@ -13,7 +13,7 @@ from django.core import management
 
 from sumatra.records import Record
 from sumatra.programs import register_executable, Executable
-from sumatra.recordstore import shelve_store, django_store, http_store
+from sumatra.recordstore import shelve_store, django_store, http_store, serialization
 from sumatra.versioncontrol import vcs_list
 import sumatra.launch
 import sumatra.datastore
@@ -375,6 +375,9 @@ class MockHttp(object):
                         n += 1
                 status = 200
                 content = str(n)
+        elif len(parts) == 0: # list projects uri
+            status = 200
+            content = '[{"id": "TestProject"}]'
         if self.debug:
             print ">>>>>", status, content
         return MockResponse(status), content
@@ -407,6 +410,39 @@ class TestHttpRecordStore(unittest.TestCase, BaseTestRecordStore):
         s = pickle.dumps(self.store)
         del self.store
         unpickled = pickle.loads(s)
+        
+    def test_process_url(self):
+        url, username, password = http_store.process_url("http://foo:bar@example.com:8000/path/file.html")
+        self.assertEqual(username, "foo")
+        self.assertEqual(password, "bar")
+        self.assertEqual(url, "http://example.com:8000/path/file.html")
+
+    def test_list_projects(self):
+        self.assertEqual(self.store.list_projects(), [self.project.name])
+
+
+class TestSerialization(unittest.TestCase):
+    maxDiff = None
+    
+    def test_build_record_v0p4(self):
+        with open("example_0.4.json") as fp:
+            record = serialization.build_record(json.load(fp))
+        self.assertEqual(record.label, "haggling")
+
+    def test_build_record_v0p3(self):
+        with open("example_0.3.json") as fp:
+            record = serialization.build_record(json.load(fp))
+        self.assertEqual(record.label, "haggling")
+
+    def test_round_trip(self):
+        with open("example_0.5.json") as fp:
+            data_in = json.load(fp)
+        record = serialization.build_record(data_in)
+        data_out = json.loads(serialization.encode_record(record, indent=2))
+        self.assertEqual(data_in, data_out)
+
+    def test_encode_project_info(self):
+        serialization.encode_project_info("foo", "description of foo")
 
 
 if __name__ == '__main__':

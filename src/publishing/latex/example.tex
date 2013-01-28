@@ -1,0 +1,27 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage[pdftex]{graphicx}
+\usepackage[utf8x]{inputenc}
+\usepackage[recordstore=https://smt.andrewdavison.info/records, project=Destexhe_JCNS_2009]{sumatra}
+
+\title{Example of embedding Sumatra results in a \LaTeX\ document}
+
+\author{Andrew P. Davison\vspace{1ex}\\
+\small Unit\'e de Neurosciences, Information et Complexit\'e,\\
+\small CNRS UPR 3293, Gif sur Yvette, France\\
+ \\}
+\date{}
+
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+\smtincludegraphics
+    [width=\textwidth,
+     digest=e2d1054c2893f19f50c43ddd5a344b59383df648
+    ]{20120907-153528}
+
+\end{document}

@@ -72,7 +72,7 @@ def find_file(path, current_directory, search_dirs):
         search_path = op.join(dir, path)
         if op.exists(search_path):
             return search_path
-    raise Exception("File %s does not exist" % path)
+    raise IOError("File %s does not exist" % path)
 
 
 
