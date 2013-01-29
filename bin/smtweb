@@ -36,7 +36,7 @@ def main(argv):
         will be used.""")
     parser = OptionParser(usage=usage,
                           description=description)
-        parser.add_option('-a', '--allips', default=False, action="store_true",
+    parser.add_option('-a', '--allips', default=False, action="store_true",
                       help="run server on all IPs, not just localhost")
     parser.add_option('-p', '--port', metavar='PORT', default="8000",
                       help="run server on this port number PORT")
