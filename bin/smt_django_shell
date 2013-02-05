@@ -1,0 +1,52 @@
+#!/usr/bin/env python
+"""
+Script to launch the Django shell, for debugging.
+"""
+
+import sys
+import os
+from django.core import management
+from django.conf import settings
+from sumatra.projects import load_project
+from sumatra.recordstore.django_store import DjangoRecordStore, db_config
+from sumatra.web import __file__ as sumatra_web
+from optparse import OptionParser
+from textwrap import dedent
+
+
+def main(argv):
+    """Launch the Django shell"""
+    usage = "%prog [PATH]"
+    description = dedent("""\
+        Launch the Django shell, for debugging. If PATH is provided, it is taken as
+        the location of the record store. Otherwise, there must be a Sumatra
+        project in the working directory and the record store for that project
+        will be used.""")
+    parser = OptionParser(usage=usage,
+                          description=description)
+    (options, args) = parser.parse_args(argv)
+
+    if args:
+        recordstore = DjangoRecordStore(db_file=args[0])
+    else:
+        project = load_project()
+        if not isinstance(project.record_store, DjangoRecordStore):
+            print "This project is not using the Django record store."
+            sys.exit(1)
+        del project
+    db_config.configure()
+    root_dir = os.path.dirname(sumatra_web)
+    settings.ROOT_URLCONF = 'sumatra.web.urls'
+    settings.ADMIN_MEDIA_PREFIX = '/media/admin/' # seems we need to define this even though we're not using the admin application
+    settings.MEDIA_ROOT = os.path.join(root_dir, "media")
+    settings.TEMPLATE_DIRS = (os.path.join(os.getcwd(), ".smt", "templates"),
+                              os.path.join(root_dir, "templates"),)
+    settings.INSTALLED_APPS = list(settings.INSTALLED_APPS) + ['sumatra.web']
+    settings.MIDDLEWARE_CLASSES = tuple()
+    
+    management.setup_environ(settings)
+    management.call_command('shell')
+    
+
+if __name__ == "__main__":
+    main(sys.argv[1:])
