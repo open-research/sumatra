@@ -395,11 +395,12 @@ class JSONParameterSet(object):
 
 def build_parameters(filename):
 
-    try:
-        parameters = YAMLParameterSet(filename)
-        return parameters
-    except SyntaxError:
-        pass
+    if yaml_loaded:
+        try:
+            parameters = YAMLParameterSet(filename)
+            return parameters
+        except SyntaxError:
+            pass
 
     try:
         parameters = JSONParameterSet(filename)
