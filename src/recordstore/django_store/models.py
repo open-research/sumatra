@@ -265,3 +265,6 @@ class Record(BaseModel):
     
     def tag_objects(self):
         return Tag.objects.get_for_object(self) 
+
+    def command_line(self):
+        return self.to_sumatra().command_line

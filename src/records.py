@@ -187,6 +187,10 @@ class Record(object):
         self.datastore.delete(*self.output_data)
         self.output_data = []
 
+    @property
+    def command_line(self):
+        return self.launch_mode.generate_command(self.executable, self.main_file, self.script_arguments)
+
 
 class RecordDifference(object):
     """Represents the difference between two Record objects."""
