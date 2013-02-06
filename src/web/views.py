@@ -9,6 +9,7 @@ import csv
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response
 from django.views.generic import list_detail
+from django.views.generic.dates import MonthArchiveView
 from services import DefaultTemplate, AjaxTemplate, ProjectUpdateForm, RecordUpdateForm, unescape
 from sumatra.recordstore.django_store.models import Project, Tag, Record
 from sumatra.datastore import get_data_store, DataKey
@@ -404,3 +405,23 @@ def show_diff(request, project, label, package):
                                                  'package': package,
                                                  'parent_version': dependency.version,
                                                  'diff': dependency.diff})
+
+class Timeline(MonthArchiveView):
+    date_field = 'timestamp'
+    template_name = 'timeline.html'
+    #paginate_by = 20
+
+    def get_queryset(self):
+        return Record.objects.filter(user__startswith=self.kwargs['user'])
+
+    def get_context_data(self, **kwargs):
+        context = super(Timeline, self).get_context_data(**kwargs)
+        context['user_name'] = self.kwargs['user']
+        return context
+
+    # note there seems to be a bug with next_month and previous_month,
+    # when the timestamp is the last day of the month
+    # because django.views.generic.dates._get_next_prev_month is
+    # comparing a datetime (the timestamp) to a date-cast-to-a-time, which
+    # has an implicit time of 00:00
+    # also see https://code.djangoproject.com/ticket/391

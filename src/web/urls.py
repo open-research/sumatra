@@ -5,6 +5,7 @@ Define URL dispatching for the Sumatra web interface.
 from django.conf.urls.defaults import *
 from django.views.generic import list_detail
 from django.conf import settings
+from sumatra.web.views import Timeline
 
 P = {
     'project': r'(?P<project>\w+[\w ]*)',
@@ -25,9 +26,10 @@ urlpatterns = patterns('sumatra.web.views',
     (r'^%(project)s/simulation$' % P, 'run_sim'),
     (r'^%(project)s/settings$' % P, 'settings'), 
     (r'^%(project)s/search$' % P, 'search'),
-    (r'^%(project)s/settags$' % P, 'set_tags'),  
+    (r'^%(project)s/settags$' % P, 'set_tags'),
 )
 
 urlpatterns += patterns('',
+    (r'^timeline/(?P<user>\w+[\w ]*)/', Timeline.as_view()), 
     (r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT, 'show_indexes': True}),
 )
