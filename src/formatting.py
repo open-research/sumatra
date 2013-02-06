@@ -17,6 +17,7 @@ get_formatter() - return an approriate Formatter object for a given requested
 """
 
 import textwrap
+import cgi
 
 fields = ['label', 'timestamp', 'reason', 'outcome', 'duration', 'repository',
           'main_file', 'version', 'script_arguments', 'executable',
@@ -143,14 +144,14 @@ class HTMLFormatter(Formatter):
         def format_record(record):
             output = "  <dt>%s</dt>\n  <dd>\n    <dl>\n" % record.label
             for field in fields:
-                output += "      <dt>%s</dt><dd>%s</dd>\n" % (field, getattr(record, field))
+                output += "      <dt>%s</dt><dd>%s</dd>\n" % (field, cgi.escape(str(getattr(record, field))))
             output += "    </dl>\n  </dd>"
             return output
         return "<dl>\n" + "\n".join(format_record(record) for record in self.records) + "\n</dl>"
 
     def table(self):
         def format_record(record):
-            return "  <tr>\n    <td>" + "</td>\n    <td>".join(str(getattr(record, field)) for field in fields) + "    </td>\n  </tr>"
+            return "  <tr>\n    <td>" + "</td>\n    <td>".join(cgi.escape(str(getattr(record, field))) for field in fields) + "    </td>\n  </tr>"
         return "<table>\n" + \
                "  <tr>\n    <th>" + "</th>\n    <th>".join(field.title() for field in fields) + "    </th>\n  </tr>\n" + \
                "\n".join(format_record(record) for record in self.records) + \

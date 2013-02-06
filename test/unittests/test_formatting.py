@@ -27,6 +27,7 @@ class MockRecord(Record):
         self.parameters = {'a': 2, 'b': 4}
         self.launch_mode = 'serial'
         self.output_data = []
+        self.user = 'King Arthur <boss@camelot.gov>'
 
 
 class MockRecordDifference(object):
