@@ -30,6 +30,10 @@ except ImportError:
     have_bzr = False
 from sumatra.versioncontrol import get_repository, get_working_copy, VersionControlError
 
+skip_ci = False
+if "JENKINS_SKIP_TESTS" in os.environ:
+    skip_ci = os.environ["JENKINS_SKIP_TESTS"] == "1"
+
 
 class BaseTestWorkingCopy(object):
     
@@ -337,6 +341,7 @@ class TestSubversionRepository(unittest.TestCase, BaseTestRepository):
     def test__init__with_nonexistent_repos__should_raise_Exception(self):
         self.assertRaises(Exception, SubversionRepository, "file:///tmp/chnseriguchs")
    
+    @unittest.skipIf(skip_ci, "Skipping test on CI server")
     def test__checkout__with_nonexistent_repos__should_raise_Exception(self):
         r = self._create_repository()
         self.assertRaises(Exception, r.checkout, path="file:///tmp/")
