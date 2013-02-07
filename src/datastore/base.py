@@ -3,6 +3,7 @@
 """
 
 import hashlib
+import os.path
 
 IGNORE_DIGEST = "0"*40
 
@@ -62,3 +63,21 @@ class DataItem(object):
     def generate_key(self):    
         return DataKey(self.path, self.digest, mimetype=self.mimetype,
                        encoding=self.encoding, size=self.size)
+
+    def save_copy(self, path):
+        """
+        Save a copy of the data to a local file.
+        
+        If path is an existing directory, the data item path will be appended
+        to it, otherwise path is treated as a full path including filename,
+        either absolute or relative to the working directory.
+        
+        Return the full path of the final file.
+        """
+        if os.path.isdir(path):
+            full_path = os.path.join(path, self.path)
+        else:
+            full_path = path
+        with open(full_path, "w") as fp:
+            fp.write(self.content)
+        return full_path

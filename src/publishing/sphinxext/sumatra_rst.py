@@ -24,9 +24,12 @@ from docutils import nodes, utils
 from sumatra.projects import load_project
 from sumatra.recordstore import get_record_store
 from sumatra.publishing.utils import determine_project, determine_record_store, \
-                                     determine_project_name, get_image_uri, \
-                                     download_to_local_directory, record_link_url
+                                     determine_project_name, record_link_url, \
+                                     get_image
 import os.path
+
+
+LOCAL_IMAGE_CACHE = "smt_images"  # should use tempfile?
 
 
 def smt_link_role(role, rawtext, text, lineno, inliner, options={}, content=[]):
@@ -112,7 +115,11 @@ class SumatraImage(Image):
         record = record_store.get(project_name, record_label)
         if len(self.arguments) == 2:
             raise NotImplementedError
-        reference = get_image_uri(record, self.options, self.error)
+        image = get_image(record, self.options, self.error)  # automatically checks digest
+        if hasattr(image, "url"):
+            reference = image.url
+        else:
+            reference = image.save_copy(LOCAL_IMAGE_CACHE)
 
         # set values for alt and target, if they have not been specified
         if not 'target' in self.options and hasattr(record_store, 'server_url'):

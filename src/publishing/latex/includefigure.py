@@ -5,8 +5,11 @@
 import sys
 from ConfigParser import SafeConfigParser
 from sumatra.publishing.utils import determine_project, determine_record_store, \
-                                     determine_project_name, get_image_uri, \
-                                     download_to_local_directory, record_link_url
+                                     determine_project_name, get_image, \
+                                     record_link_url
+
+
+LOCAL_IMAGE_CACHE = "smt_images"  # should use tempfile?
 
 
 def generate_latex_command(sumatra_options, graphics_options):
@@ -18,10 +21,9 @@ def generate_latex_command(sumatra_options, graphics_options):
     # get record, obtain image uri
     record_label = sumatra_options['label']
     record = record_store.get(project_name, record_label)
-    image_uri = get_image_uri(record, sumatra_options)
-    
+    image = get_image(record, sumatra_options)  # automatically checks digest
     # download the image to a temporary directory
-    local_filename = download_to_local_directory(image_uri)
+    local_filename = image.save_copy(LOCAL_IMAGE_CACHE)
 
     include_graphics_cmd = "\includegraphics"
     if graphics_options:

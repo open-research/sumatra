@@ -55,6 +55,9 @@ class DataFile(DataItem):
             content = content[:-1]
         return content
     
+    # should probably override save_copy() from base class,
+    # as a filesystem copy will be much faster
+    
 
 class FileSystemDataStore(DataStore):
     """

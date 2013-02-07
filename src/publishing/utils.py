@@ -55,32 +55,14 @@ def determine_project_name(prj, sumatra_options, err=Exception):
     return project_name
 
 
-def get_image_uri(record, sumatra_options, err=Exception):
-    image_file = record.output_data[0]
-    assert isinstance(image_file, DataKey), type(image_file)
-    
-    # check digest, if supplied
-    if 'digest' in sumatra_options:
-        if sumatra_options['digest'] != image_file.digest:
-            raise err('Digests do not match')  # should also calculate digest of the actually-downloaded file
-    
-    if hasattr(image_file, 'url'):
-        image_uri = image_file.url
-    else:
-        image_uri = "http://data.andrewdavison.info/Destexhe_JCNS_2009/" + image_file.path  ## temporary hack
-        #raise NotImplementedError  # get file content, write local temporary file
-    return image_uri
-
-
-def download_to_local_directory(image_uri):
-    # should probably use DataStore interface to do this, but just using urlretrieve for now
-    local_image_cache = "smt_images"  # should use tempfile?
-    remote_filename = os.path.basename(urlparse(image_uri).path)
-    local_filename = os.path.join(local_image_cache, remote_filename)
-    if not os.path.exists(local_filename):
-        mkdir(local_image_cache)  
-        urlretrieve(image_uri, local_filename)
-    return local_filename
+def get_image(record, sumatra_options, err=Exception):
+    image_key = record.output_data[0]
+    assert isinstance(image_key, DataKey)
+    # check expected digest, if supplied, against key.digest
+    if ('digest' in sumatra_options
+        and sumatra_options['digest'] != image_key.digest):
+        raise err('Digests do not match')
+    return record.datastore.get_data_item(image_key)  # checks key.digest against file contents
 
 
 def record_link_url(server_url, project_name, record_label):
