@@ -7,6 +7,7 @@ Sumatra-tracked computations in documents, with links to full provenance
 information: i.e. the full details of the code, input data and computational
 environment used to generate the figure/result.
 
+
 LaTeX
 -----
 
@@ -122,7 +123,10 @@ so mix results from multiple projects in a single document. Here is a rather com
 The smtlink role
 ~~~~~~~~~~~~~~~~
 
-:rst:role:`smtlink`
+If using a :class:`HttpRecordStore`, the :rst:role:`smtlink` role inserts an
+icon in the document, which is a hyperlink to a given record in the store.
+
+To use this, you must set the `sumatra_link_icon` option, as discussed above.
 
 
 .. _Sphinx: http://sphinx-doc.org

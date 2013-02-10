@@ -25,7 +25,7 @@ from sumatra.projects import load_project
 from sumatra.recordstore import get_record_store
 from sumatra.publishing.utils import determine_project, determine_record_store, \
                                      determine_project_name, record_link_url, \
-                                     get_image
+                                     get_image, get_record_label_and_image_path
 import os.path
 
 
@@ -111,11 +111,9 @@ class SumatraImage(Image):
         # determine the project (short) name
         project_name = determine_project_name(prj, sumatra_options, self.error)
         
-        record_label = self.arguments[0]
+        record_label, image_path = get_record_label_and_image_path(self.arguments[0])
         record = record_store.get(project_name, record_label)
-        if len(self.arguments) == 2:
-            raise NotImplementedError
-        image = get_image(record, self.options, self.error)  # automatically checks digest
+        image = get_image(record, image_path, self.options, self.error)  # automatically checks digest
         if hasattr(image, "url"):
             reference = image.url
         else:

@@ -51,9 +51,9 @@ class MockRecord(object):
     def __init__(self, label):
         self.label = label
         key = DataKey("bar.jpg", "0123456789abcdef")
-        key.path = "bar.jpg"
+        other_key = DataKey("subdirectory/baz.png", "fedcba9876543210")
         #key.url = "http://example.com/my_data/bar.jpg"
-        self.output_data = [key]
+        self.output_data = [key, other_key]
         self.datastore = MockDataStore()
 
 
@@ -143,6 +143,23 @@ class TestLaTeX(unittest.TestCase):
         sys.stdout.seek(0)
         self.assertEqual(sys.stdout.read().strip(),
                          "\includegraphics[width=\textwidth]{smt_images/bar.jpg}")
+        sys.stdout = sys.__stdout__
+
+    @patch(utils, 'get_record_store', MockRecordStore) 
+    def test_generate_latex_command__with_path(self):
+        sumatra_options = {
+            "label": "foo:subdirectory/baz.png",
+            "project": "MyProject",
+            "record_store": "/path/to/db",
+        }
+        graphics_options = {
+            "width": "\textwidth",
+        }
+        sys.stdout = StringIO()
+        cmd = includefigure.generate_latex_command(sumatra_options, graphics_options)
+        sys.stdout.seek(0)
+        self.assertEqual(sys.stdout.read().strip(),
+                         "\includegraphics[width=\textwidth]{smt_images/subdirectory/baz.png}")
         sys.stdout = sys.__stdout__
 
 

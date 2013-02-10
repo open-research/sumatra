@@ -6,7 +6,7 @@ import sys
 from ConfigParser import SafeConfigParser
 from sumatra.publishing.utils import determine_project, determine_record_store, \
                                      determine_project_name, get_image, \
-                                     record_link_url
+                                     record_link_url, get_record_label_and_image_path
 
 
 LOCAL_IMAGE_CACHE = "smt_images"  # should use tempfile?
@@ -19,9 +19,9 @@ def generate_latex_command(sumatra_options, graphics_options):
     project_name = determine_project_name(prj, sumatra_options)    
     
     # get record, obtain image uri
-    record_label = sumatra_options['label']
+    record_label, image_path = get_record_label_and_image_path(sumatra_options['label'])
     record = record_store.get(project_name, record_label)
-    image = get_image(record, sumatra_options)  # automatically checks digest
+    image = get_image(record, image_path, sumatra_options)  # automatically checks digest
     # download the image to a temporary directory
     local_filename = image.save_copy(LOCAL_IMAGE_CACHE)
 
