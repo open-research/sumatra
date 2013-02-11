@@ -43,7 +43,7 @@ def get_repository(url):
 class SubversionWorkingCopy(WorkingCopy):
     
     def __init__(self, path=None):
-        WorkingCopy.__init__(self)
+        WorkingCopy.__init__(self, path)
         self.path = os.path.realpath(path or os.getcwd())
         client = pysvn.Client()
         url = client.info(self.path).url

@@ -48,8 +48,7 @@ def get_repository(url):
 class BazaarWorkingCopy(WorkingCopy):
 
     def __init__(self, path=None):
-        WorkingCopy.__init__(self)
-        self.path = path or os.getcwd()
+        WorkingCopy.__init__(self, path)
         self.workingtree = WorkingTree.open(self.path)
         self.repository = BazaarRepository(self.workingtree.branch.user_url)
         #self.repository.working_copy = self

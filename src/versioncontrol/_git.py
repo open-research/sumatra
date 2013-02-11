@@ -66,7 +66,7 @@ def get_repository(url):
     if repos.exists:
         return repos
     else:
-        raise VersionControlError("Cannot access Mercurial repository at %s" % self.url)   
+        raise VersionControlError("Cannot access Git repository at %s" % self.url)   
 
 
 class GitWorkingCopy(WorkingCopy):
@@ -76,8 +76,7 @@ class GitWorkingCopy(WorkingCopy):
 
     def __init__(self, path=None):
         check_version()
-        WorkingCopy.__init__(self)
-        self.path = path or os.getcwd()
+        WorkingCopy.__init__(self, path)
         self.repository = GitRepository(self.path)
 
     def current_version(self):

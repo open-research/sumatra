@@ -28,7 +28,8 @@ except ImportError:
 import os
 import binascii
 import functools
-from base import VersionControlError
+from base import VersionControlError, UncommittedModificationsError
+
 
 from base import Repository, WorkingCopy
 
@@ -60,8 +61,7 @@ def get_repository(url):
 class MercurialWorkingCopy(WorkingCopy):
 
     def __init__(self, path=None):
-        WorkingCopy.__init__(self)
-        self.path = path or os.getcwd()
+        WorkingCopy.__init__(self, path)
         self.repository = MercurialRepository(self.path)
 
     def current_version(self):
@@ -72,7 +72,8 @@ class MercurialWorkingCopy(WorkingCopy):
         return binascii.hexlify(ctx.node()[:6])
     
     def use_version(self, version):
-        assert not self.has_changed()
+        if self.has_changed():
+            raise UncommittedModificationsError
         hg.clean(self.repository._repository, version)
 
     def use_latest_version(self):

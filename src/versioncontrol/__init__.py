@@ -32,10 +32,8 @@ get_repository()   - determine whether a revision control system repository
 import sys
 import os
 
-from base import VersionControlError
+from base import VersionControlError, UncommittedModificationsError
 
-class UncommittedModificationsError(Exception):
-    pass
 
 vcs_list = []
 vcs_unavailable = []
@@ -58,6 +56,13 @@ def vcs_err_msg():
 
     
 def get_working_copy(path=None):
+    """
+    Return a :class:`WorkingCopy` object which represents, and enables limited
+    interaction with, the version control working copy at *path*.
+    
+    If *path* is not specified, the current working directory is used.
+    If no working copy is found at *path*, raises a :class:`VersionControlError`.
+    """
     path = path or os.getcwd()
     if vcs_list:
         for vcs in vcs_list:
@@ -71,6 +76,12 @@ def get_working_copy(path=None):
 
 
 def get_repository(url):
+    """
+    Return a :class:`Repository` object which represents, and enables limited
+    interaction with, the version control repository at *url*.
+    
+    If no repository is found at *url*, raises a :class:`VersionControlError`.
+    """
     if url:
         repos = None
         if vcs_list:
