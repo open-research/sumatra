@@ -55,6 +55,6 @@ and just to check it worked::
     20110309-141853
     20110309-141849
 
-.. _Django: http://www.djangoproject.com/
+.. _Django: https://www.djangoproject.com/
 .. _ORM: http://en.wikipedia.org/wiki/Object-relational_mapping
  

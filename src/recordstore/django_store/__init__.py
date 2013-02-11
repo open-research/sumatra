@@ -91,6 +91,14 @@ db_config = DjangoConfiguration()
 
 
 class DjangoRecordStore(RecordStore):
+    """
+    Handles storage of simulation/analysis records in a relational database, via
+    the Django object-relational mapper (ORM), which means that any database
+    supported by Django could in principle be used, although for now we assume
+    SQLite.
+    
+    This record store is needed for the *smtweb* interface.
+    """
     
     def __init__(self, db_file='.smt/records'):    
         self._db_label = db_config.add_database(db_file)

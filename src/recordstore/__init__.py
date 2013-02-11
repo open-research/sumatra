@@ -31,22 +31,26 @@ if have_http:
 DefaultRecordStore = have_django and DjangoRecordStore or ShelveRecordStore
 
 
-def get_record_store(path):
-    if path[:4] == "http":
+def get_record_store(uri):
+    """
+    Return the :class:`RecordStore` object found at the given URI (which may be
+    a URL or filesystem path).
+    """
+    if uri[:4] == "http":
         if have_http:
-            store = HttpRecordStore(path)
+            store = HttpRecordStore(uri)
         else:
             raise Exception("Cannot access record store: httplib2 is not installed.")
-    elif os.path.exists(path):
+    elif os.path.exists(uri):
         try:
-            store = ShelveRecordStore(path)
+            store = ShelveRecordStore(uri)
         except Exception, err:
             if have_django:
-                store = DjangoRecordStore(path)
+                store = DjangoRecordStore(uri)
             else:
                 raise err
-    elif os.path.splitext(path)[1] == ".shelf":
-        store = ShelveRecordStore(path)
+    elif os.path.splitext(uri)[1] == ".shelf":
+        store = ShelveRecordStore(uri)
     else:
-        store = DefaultRecordStore(path)
+        store = DefaultRecordStore(uri)
     return store

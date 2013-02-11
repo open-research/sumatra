@@ -12,6 +12,7 @@ from sumatra.records import Record
 
 
 def encode_record(record, indent=None):
+    """Encode a Sumatra record as JSON."""
     data = {
         "label": record.label, # 0.1: 'group'
         "timestamp": record.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
@@ -87,6 +88,7 @@ def encode_record(record, indent=None):
 
 
 def encode_project_info(long_name, description):
+    """Encode a Sumatra project as JSON"""
     data = {}
     if long_name:
         data["name"] = long_name
@@ -107,14 +109,18 @@ def keys2str(D):
 
 
 def decode_project_list(content):
+    """docstring"""
     return json.loads(content)
 
 
 def decode_project_data(content):
+    """docstring"""
     return json.loads(content)
+# shouldn't this be called decode_project_info, for symmetry?
 
 
 def build_record(data):
+    """Create a Sumatra record from a nested dictionary."""
     edata = data["executable"]
     cls = programs.registered_program_names.get(edata["name"], programs.Executable)
     executable = cls(edata["path"], edata["version"], edata.get("options", ""))
@@ -193,8 +199,10 @@ def build_record(data):
 
 
 def decode_record(content):
+    """Create a Sumatra record from a JSON string."""
     return build_record(json.loads(content))
 
     
 def decode_records(content):
+    """Create multiple Sumatra records from a JSON string."""
     return [build_record(data) for data in json.loads(content)]

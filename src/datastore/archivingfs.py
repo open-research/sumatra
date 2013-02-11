@@ -62,6 +62,7 @@ class ArchivingFileSystemDataStore(FileSystemDataStore):
     def __init__(self, root, archive=".smt/archive"):
         self.root = root or "./Data"
         self.archive_store = archive
+        # should allow specification of archive format, e.g. tar.gz or zip
     
     def __getstate__(self):
         return {'root': self.root, 'archive': self.archive_store}

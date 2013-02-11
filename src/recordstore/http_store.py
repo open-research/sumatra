@@ -39,6 +39,23 @@ def process_url(url):
 
 
 class HttpRecordStore(RecordStore):
+    """
+    Handles storage of simulation/analysis records on a remote server using HTTP.
+
+    The server should support the following URL structure and HTTP methods:
+    
+    =========================================    ================
+    /                                            GET
+    /<project_name>/[?tags=<tag1>,<tag2>,...]    GET
+    /<project_name>/tag/<tag>/                   GET, DELETE
+    /<project_name>/<record_label>/              GET, PUT, DELETE
+    =========================================    ================
+    
+    and should both accept and return JSON-encoded data when the Accept header is
+    "application/json".
+    
+    The required JSON structure can be seen in :mod:`recordstore.serialization`.
+    """
     
     def __init__(self, server_url, username=None, password=None,
                  disable_ssl_certificate_validation=True):
@@ -89,11 +106,13 @@ class HttpRecordStore(RecordStore):
         return response, content
     
     def create_project(self, project_name, long_name='', description=''):
+        """Create an empty project in the record store."""
         response, content = self._put_project(project_name, long_name, description)
         if response.status != 201:
             raise RecordStoreAccessError("%d\n%s" % (response.status, content))
     
     def update_project_info(self, project_name, long_name='', description=''):
+        """Update a project's long name and description."""
         response, content = self._put_project(project_name, long_name, description)
         if response.status != 200:
             raise RecordStoreAccessError("%d\n%s" % (response.status, content))
@@ -109,6 +128,7 @@ class HttpRecordStore(RecordStore):
             raise RecordStoreAccessError("%d\n%s" % (response.status, content))
     
     def project_info(self, project_name):
+        """Return a project's long name and description."""
         project_url = "%s%s/" % (self.server_url, project_name)
         response, content = self._get(project_url, 'project')
         if response.status != 200:

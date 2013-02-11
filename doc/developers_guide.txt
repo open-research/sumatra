@@ -122,9 +122,9 @@ All code should conform as much as possible to `PEP 8`_, and should run with
 Python 2.6 and 2.7.
 
 .. _Python: http://www.python.org
-.. _Django: http://www.djangoproject.com/
+.. _Django: https://www.djangoproject.com/
 .. _django-tagging: http://code.google.com/p/django-tagging/
-.. _nose: http://somethingaboutorange.com/mrl/projects/nose/
+.. _nose: https://nose.readthedocs.org/en/latest/
 .. _unittest2: http://pypi.python.org/pypi/unittest2
 .. _Distribute: http://pypi.python.org/pypi/distribute
 .. _mpi4py: http://mpi4py.scipy.org/
