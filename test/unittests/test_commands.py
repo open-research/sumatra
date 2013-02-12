@@ -288,6 +288,12 @@ class ConfigureCommandTests(unittest.TestCase):
         assert self.prj.saved
         self.assertEqual(self.prj.default_main_file, "norwegian.py")
 
+    def test_set_timestamp_format(self):
+        sample_timestamp_fmt = "%Y-%m-%d_%H:%M:%S"
+        commands.configure(["-t", sample_timestamp_fmt])
+        assert self.prj.saved
+        self.assertEqual(self.prj.timestamp_format, sample_timestamp_fmt)
+
     def test_set_default_script_multiple(self):
         commands.configure(["-m", "norwegian.sli mauve.sli"])
         assert self.prj.saved
