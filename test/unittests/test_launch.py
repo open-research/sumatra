@@ -120,7 +120,11 @@ class TestDistributedLaunchMode(unittest.TestCase, BaseTestLaunchMode):
             
     def test_getstate_should_return_an_appropriate_dict(self):
         self.assertEqual(self.lm.__getstate__(),
-                         {'mpirun': self.lm.mpirun, 'n': 2, 'hosts': ["node1", "node2"], 'pfi_path': '/usr/local/bin/pfi.py'})
+                         {'working_directory': self.lm.working_directory,
+                          'mpirun': self.lm.mpirun,
+                          'n': 2,
+                          'hosts': ["node1", "node2"],
+                          'pfi_path': '/usr/local/bin/pfi.py'})
 
 
 if __name__ == '__main__':
