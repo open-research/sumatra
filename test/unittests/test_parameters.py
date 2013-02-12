@@ -357,7 +357,7 @@ class TestModuleFunctions(unittest.TestCase):
         init = "x = 2\ny = 3"
         with open("test_file.simple", "w") as f:
             f.write(init)
-        init2 = "{\n  'x': 2,\n  'y': {'a': 3, 'b': 4}\n}"
+        init2 = '{\n  "x": 2,\n  "y": {"a": 3, "b": 4}\n}'
         with open("test_file.hierarchical", "w") as f:
             f.write(init2)
         init3 = "[sectionA]\na = 2\nb = 3\n[sectionB]\nc = hello\nd = world"
