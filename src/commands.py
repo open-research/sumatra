@@ -233,7 +233,7 @@ def configure(argv):
     if options.labelgenerator:
         project.label_generator = options.labelgenerator
     if options.timestamp_format:
-        project.timestamp_format = timestamp_format
+        project.timestamp_format = options.timestamp_format
     project.save()
 
 
