@@ -377,7 +377,7 @@ class TestModuleFunctions(unittest.TestCase):
     def test__build_parameters_hierarchical(self):
         P = build_parameters("test_file.hierarchical")
         self.assertEqual(P.as_dict(), {'x': 2, 'y': {'a': 3, 'b': 4}})
-        self.assertIsInstance(P, (JSONParameterSet, YAMLParameterSet))
+        self.assertIsInstance(P, (JSONParameterSet, YAMLParameterSet, NTParameterSet))
     
     def test__build_parameters_config(self):
         P = build_parameters("test_file.config")
