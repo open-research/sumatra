@@ -388,9 +388,9 @@ def comment(argv):
     usage = "%prog comment [options] [LABEL] [COMMENT]"
     description = dedent("""\
       This command is used to describe the outcome of the simulation/analysis. If LABEL
-      is omitted, the comment will be added to the most recent experiment.
-      If the '-f/--file' option is set, COMMENT should be the name of a file
-      containing the comment, otherwise it should be a string of text.""")
+      is omitted, the comment will be added to the most recent experiment (any existing
+      comment will be overwritten). If the '-f/--file' option is set, COMMENT should be
+      the name of a file containing the comment, otherwise it should be a string of text.""")
     parser = OptionParser(usage=usage,
                           description=description)
     parser.add_option('-r', '--replace', action='store_true',
