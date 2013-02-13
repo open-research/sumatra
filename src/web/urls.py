@@ -9,7 +9,7 @@ from sumatra.web.views import Timeline
 
 P = {
     'project': r'(?P<project>\w+[\w ]*)',
-    'label': r'(?P<label>\w+[\w|\-\.]*)',
+    'label': r'(?P<label>\w+[\w|\-\.:]*)',
 }
 
 urlpatterns = patterns('sumatra.web.views',
