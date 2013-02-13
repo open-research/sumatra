@@ -163,7 +163,7 @@ def system2(cmd, cwd=None, logger=_sentinel, stdout=_sentinel, log_command=_sent
 			mylogger("Returned: %d\n" % (returncode))
 
 	if not returncode == 0: # running a tool that returns non-zero? this deserves a warning
-		logging.warning("Returned: %d from: %s\nOutput %s" % (returncode, cmd, '\n'.join(output)))
+		logging.warning("Returned: %d from: %s\nOutput %s" % (returncode, cmd, ''.join(output)))
 
 	return(returncode, output)	
 		
