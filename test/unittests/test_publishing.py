@@ -12,10 +12,15 @@ import os
 import shutil
 from textwrap import dedent
 from StringIO import StringIO
-from docutils.core import publish_string
+try:
+    from docutils.core import publish_string
+    have_docutils = True
+except ImportError:
+    have_docutils = False
 from sumatra.publishing import utils
 from sumatra.publishing.latex import includefigure
-from sumatra.publishing.sphinxext import sumatra_rst
+if have_docutils:
+    from sumatra.publishing.sphinxext import sumatra_rst
 import sumatra.recordstore
 from sumatra.datastore import DataKey
 from .utils import patch
@@ -162,7 +167,7 @@ class TestLaTeX(unittest.TestCase):
                          "\includegraphics[width=\textwidth]{smt_images/subdirectory/baz.png}")
         sys.stdout = sys.__stdout__
 
-
+@unittest.skipUnless(have_docutils, "docutils not available")
 class TestSphinx(unittest.TestCase):
     """
     [general]

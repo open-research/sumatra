@@ -5,6 +5,7 @@ Unit tests for the sumatra.programs module
 import unittest
 import sys
 import os
+from subprocess import check_output
 from sumatra.programs import Executable, version_pattern, get_executable, \
                              PythonExecutable, NESTSimulator, NEURONSimulator
 
@@ -36,7 +37,8 @@ class TestExecutable(unittest.TestCase):
         
     def test__init__with_only_prog_name__should_try_to_find_full_path(self):
         prog = Executable("ls")
-        self.assertEqual(prog.path, "/bin/ls")
+        actual_path = check_output("which ls", shell=True).strip()
+        self.assertEqual(prog.path, actual_path)
         
     def test__init__should_find_version_if_possible(self):
         #prog = Executable("/bin/ls")

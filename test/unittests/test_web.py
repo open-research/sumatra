@@ -2,7 +2,10 @@
 Unit tests for the sumatra.web module
 """
 
-import unittest
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
 import os
 from pprint import pprint
 
@@ -92,7 +95,7 @@ class TestWebInterface(unittest.TestCase):
         sumatra.web.views.get_data_store = lambda t,p: MockDataStore()
         c = Client()
         response = c.get("/%s/record1/datafile?path=test_file.csv&digest=mock" % MockProject.name)
-        assert 'show_csv.html' in [t.name for t in response.template]
+        assert 'show_csv.html' in [t.name for t in response.template], "available templates: %s" % ', '.join(t.name for t in response.template)
 
     def test__show_file_txt(self):
         sumatra.web.views.get_data_store = lambda t,p: MockDataStore()
