@@ -9,7 +9,10 @@ import csv
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response
 from django.views.generic import list_detail
-from django.views.generic.dates import MonthArchiveView
+try:
+    from django.views.generic.dates import MonthArchiveView
+except ImportError: # older versions of Django
+    MonthArchiveView = object
 from services import DefaultTemplate, AjaxTemplate, ProjectUpdateForm, RecordUpdateForm, unescape
 from sumatra.recordstore.django_store.models import Project, Tag, Record
 from sumatra.datastore import get_data_store, DataKey

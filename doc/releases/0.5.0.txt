@@ -21,6 +21,7 @@ Sumatra 0.5.0 release notes
   supplied by the user: timestamp-based (the default and previously the only
   option) and uuid-based. Use the "-g" option to "smt configure".
 * you can also specify the timestamp format to use (thanks to Yoav Ram).
+* improved API reference documentation.
 
 
 Interfaces to documentation systems

@@ -30,6 +30,6 @@ urlpatterns = patterns('sumatra.web.views',
 )
 
 urlpatterns += patterns('',
-    (r'^timeline/(?P<user>\w+[\w ]*)/', Timeline.as_view()), 
+    #(r'^timeline/(?P<user>\w+[\w ]*)/', Timeline.as_view()), 
     (r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT, 'show_indexes': True}),
 )

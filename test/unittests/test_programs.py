@@ -2,10 +2,16 @@
 Unit tests for the sumatra.programs module
 """
 
-import unittest
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
 import sys
 import os
-from subprocess import check_output
+try:
+    from subprocess import check_output
+except ImportError:
+    check_output = False
 from sumatra.programs import Executable, version_pattern, get_executable, \
                              PythonExecutable, NESTSimulator, NEURONSimulator
 
@@ -34,7 +40,8 @@ class TestExecutable(unittest.TestCase):
     def test__init__with_a_full_path_should_just_set_it(self):
         prog = Executable("/bin/ls")
         self.assertEqual(prog.path, "/bin/ls")
-        
+    
+    @unittest.skipUnless(check_output, "test requires Python 2.7")
     def test__init__with_only_prog_name__should_try_to_find_full_path(self):
         prog = Executable("ls")
         actual_path = check_output("which ls", shell=True).strip()

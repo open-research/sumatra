@@ -107,3 +107,18 @@ Automatic archiving of data written to the local filesystem
    
 .. autoclass:: sumatra.datastore.archivingfs.ArchivedDataFile
    :show-inheritance:
+
+
+Mirroring data to a remote webserver
+------------------------------------
+
+.. autoclass:: MirroredFileSystemDataStore
+   :show-inheritance:
+
+   .. attribute:: mirror_base_url
+   
+      URL to which the file path will be appended to obtain the final URL of a file
+
+   
+.. autoclass:: sumatra.datastore.mirroredfs.MirroredDataFile
+   :show-inheritance:
