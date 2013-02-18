@@ -14,7 +14,7 @@ import re
 import logging
 
 from sumatra.programs import get_executable
-from sumatra.datastore import FileSystemDataStore, ArchivingFileSystemDataStore
+from sumatra.datastore import FileSystemDataStore, ArchivingFileSystemDataStore, MirroredFileSystemDataStore
 from sumatra.projects import Project, load_project
 from sumatra.launch import SerialLaunchMode, DistributedLaunchMode
 from sumatra.parameters import build_parameters
@@ -116,6 +116,7 @@ def init(argv):
     parser.add_option('-A', '--archive', metavar='PATH', help="specify a directory in which to archive output datafiles. If not specified, datafiles are not archived.")
     parser.add_option('-g', '--labelgenerator', choices=['timestamp', 'uuid'], default='timestamp', metavar='OPTION', help="specify which method Sumatra should use to generate labels (options: timestamp, uuid)")
     parser.add_option('-t', '--timestamp_format', help="the timestamp format given to strftime", default=TIMESTAMP_FORMAT)
+    parser.add_option('-M', '--mirror', metavar='URL', help="specify a URL at which your datafiles will be mirrored.")
 
     (options, args) = parser.parse_args(argv)
 
@@ -155,11 +156,15 @@ def init(argv):
     else:
         record_store = 'default'
 
+    if options.archive and options.mirror:
+        raise Exception("Currently, it is not possible to specify both --archive and --mirror options")
     if options.archive and options.archive.lower() != 'false':
         if options.archive.lower() == "true":
             options.archive = ".smt/archive"
         options.archive = os.path.abspath(options.archive)
         output_datastore = ArchivingFileSystemDataStore(options.datapath, options.archive)
+    elif options.mirror:
+        output_datastore = MirroredFileSystemDataStore(options.datapath, options.mirror)
     else:
         output_datastore = FileSystemDataStore(options.datapath)
     input_datastore = FileSystemDataStore(options.input)
