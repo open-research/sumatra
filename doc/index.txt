@@ -30,7 +30,6 @@ Table of Contents
    introduction
    installation
    getting_started
-   managing_a_project
    command_reference
    web_interface
    gui
@@ -51,3 +50,5 @@ Table of Contents
 .. * :ref:`modindex`
 .. * :ref:`search`
 
+
+.. managing_a_project to be added once finished

@@ -4,10 +4,27 @@ Finding dependencies
 
 .. automodule:: sumatra.dependency_finder
 
+For users of the API, the principal function of interest is the following.
 
 .. autofunction:: find_dependencies
 
-.. automodule:: sumatra.dependency_finder.core
+This function returns a list of :class:`Dependency` objects. There is a
+different :class:`Dependency` subclass for each programming language, but all
+have the following attributes:
+
+.. autoclass:: sumatra.dependency_finder.core.BaseDependency
+   :members:
+   :undoc-members:
+
+If you are interested in improving the dependency finder for an existing
+program/language, or in adding a dependency finder for a new program or language,
+you may be interested in the following.
+
+
+Language-independent heuristics and utilities
+---------------------------------------------
+
+.. currentmodule:: sumatra.dependency_finder.core
 
 .. autofunction:: find_versions
 
@@ -18,7 +35,7 @@ Finding dependencies
 Python
 ------
 
-.. automodule:: sumatra.dependency_finder.python
+.. currentmodule:: sumatra.dependency_finder.python
 
 .. autofunction:: find_versions_by_attribute
 
@@ -39,7 +56,7 @@ Python
 Matlab
 ------
 
-.. automodule:: sumatra.dependency_finder.matlab
+.. currentmodule:: sumatra.dependency_finder.matlab
 
 .. autofunction:: find_dependencies
 
@@ -54,7 +71,7 @@ Matlab
 NEURON
 ------
 
-.. automodule:: sumatra.dependency_finder.neuron
+.. currentmodule:: sumatra.dependency_finder.neuron
 
 .. autofunction:: find_xopened_files
 
@@ -72,7 +89,7 @@ NEURON
 GENESIS
 -------
 
-.. automodule:: sumatra.dependency_finder.genesis
+.. currentmodule:: sumatra.dependency_finder.genesis
 
 .. autofunction:: find_included_files
 

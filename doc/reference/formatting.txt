@@ -4,6 +4,9 @@ Formatting output
 
 .. automodule:: sumatra.formatting
 
+Formatting Sumatra records
+--------------------------
+
 .. autoclass:: TextFormatter
    :members:
    :undoc-members:
@@ -18,8 +21,12 @@ Formatting output
 
 
 .. autofunction:: get_formatter
-   
-.. autoclass: TextDiffFormatter
+
+
+Formatting the difference between two records
+---------------------------------------------
+
+.. autoclass:: TextDiffFormatter
    :members:
    :undoc-members:
    :inherited-members:

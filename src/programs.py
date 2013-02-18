@@ -5,24 +5,30 @@ files, to support the ability to customize Sumatra's behaviour for specific tool
 Classes
 -------
 
-Executable       - represents a generic executable, about which nothing is known
-                   except its name. The base class for specific simulator/
-                   analysis tool classes.
-PythonExecutable - represents the Python interpreter executable.
-MatlabExecutable - represents the Matlab interpreter executable.
-NESTSimulator    - represents the NEST neuroscience simulator.
-NEURONSimulator  - represents the NEURON neuroscience simulator.
-GENESISSimulator - represents the GENESIS neuroscience simulator.
+Executable
+    represents a generic executable, about which nothing is known except its
+    name. The base class for specific simulator/analysis tool classes.
+PythonExecutable
+    represents the Python interpreter executable.
+MatlabExecutable
+    represents the Matlab interpreter executable.
+NESTSimulator
+    represents the NEST neuroscience simulator.
+NEURONSimulator
+    represents the NEURON neuroscience simulator.
+GENESISSimulator
+    represents the GENESIS neuroscience simulator.
 
 Functions
 ---------
 
-get_executable()      - Return an appropriate subclass of Executable, given
-                        either the path to an executable file or a script file
-                        that can be run with a given tool.
-register_executable() - Register new subclasses of Executable that can be
-                        returned by get_executable().
+get_executable()
+    Return an appropriate subclass of Executable, given either the path to an
+    executable file or a script file that can be run with a given tool.
+register_executable()
+    Register new subclasses of Executable that can be returned by get_executable().
 """
+
 from __future__ import with_statement
 import os.path
 import re

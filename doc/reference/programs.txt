@@ -9,37 +9,6 @@ Providing information about programs
    :undoc-members:
    :inherited-members:
    :show-inheritance:
-
-
-.. autoclass:: PythonExecutable
-   :members:
-   :undoc-members:
-   :inherited-members:
-   :show-inheritance:
-   
-.. autoclass:: MatlabExecutable
-   :members:
-   :undoc-members:
-   :inherited-members:
-   :show-inheritance:
-   
-.. autoclass:: NEURONSimulator
-   :members:
-   :undoc-members:
-   :inherited-members:
-   :show-inheritance:
-   
-.. autoclass:: NESTSimulator
-   :members:
-   :undoc-members:
-   :inherited-members:
-   :show-inheritance:
-
-.. autoclass:: GENESISSimulator
-   :members:
-   :undoc-members:
-   :inherited-members:
-   :show-inheritance:
    
 .. autofunction:: get_executable
 

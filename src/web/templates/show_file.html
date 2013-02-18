@@ -4,6 +4,10 @@
 
 <h3>{{path}}</h3>
 
+{% if mimetype %}
+<p>Mimetype: {{mimetype}}
+{% endif %}
+
 <div class="plaintext">
 <pre>
 {{content|escape}}

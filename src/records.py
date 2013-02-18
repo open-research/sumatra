@@ -38,7 +38,9 @@ class MissingInformationError(Exception):
 
 class Record(object):
     """
-
+    The :class:`Record` class has two main roles: capturing information about
+    the context of a computation, and storing this information for later
+    retrieval.
     """
 
     def __init__(self, executable, repository, main_file, version, launch_mode,
@@ -108,11 +110,13 @@ class Record(object):
         """
         Launch the simulation or analysis.
 
-        with_label - adds the record label either to the parameter file
-                     (with_label="parameters") or to the end of the command
-                     line (with_label="cmdline"), and appends the label to the
-                     datastore root. This allows the program being run to
-                     create files in a directory specific to this run.
+        *with_label*
+            adds the record label either to the parameter file
+            (`with_label="parameters"`) or to the end of the command line
+            (`with_label="cmdline"`), and appends the label to the datastore
+            root. This allows the program being run to create files in a
+            directory specific to this run.
+
         """
         logger.debug("Launching computation")
         data_label = None
@@ -162,6 +166,14 @@ class Record(object):
         return "Record #%s" % self.label
 
     def describe(self, format='text', mode='long'):
+        """
+        Return a description of the record.
+        
+        *mode*:
+            either 'long' or 'short'
+        *format*
+            either 'text' or 'html'
+        """
         formatter = get_formatter(format)([self])
         return formatter.format(mode)
 
@@ -189,6 +201,10 @@ class Record(object):
 
     @property
     def command_line(self):
+        """
+        Return the command-line string for the computation captured by this
+        record.
+        """
         return self.launch_mode.generate_command(self.executable, self.main_file, self.script_arguments)
 
 

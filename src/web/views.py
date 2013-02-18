@@ -274,7 +274,8 @@ def show_file(request, project, label):
                                        'digest': digest,
                                        'project_name': project,
                                        'reader': reader,
-                                       'truncated':truncated
+                                       'truncated':truncated,
+                                       'mimetype': mimetype
                                        })
 
         elif encoding == 'gzip':
@@ -292,7 +293,8 @@ def show_file(request, project, label):
                                            'digest': digest,
                                            'project_name': project,
                                            'reader': reader,
-                                           'truncated':truncated
+                                           'truncated':truncated,
+                                           'mimetype': mimetype
                                            })
             else:
                 return render_to_response("show_file.html",
@@ -301,7 +303,8 @@ def show_file(request, project, label):
                                         'content': content,
                                         'project_name': project,
                                         'truncated':truncated,
-                                        'digest': digest
+                                        'digest': digest,
+                                        'mimetype': mimetype
                                        })
         elif mimetype == None or mimetype.split("/")[0] == "text":
             content = data_store.get_content(data_key, max_length=max_display_length)
@@ -314,12 +317,14 @@ def show_file(request, project, label):
                                        'project_name': project,
                                        'content': content,
                                        'truncated': truncated,
+                                       'mimetype': mimetype
                                        })
         elif mimetype in ("image/png", "image/jpeg", "image/gif", "image/x-png"): # need to check digests match
             return render_to_response("show_image.html",
                                       {'path': path, 
                                        'label': label,
                                        'digest': digest,
+                                       'mimetype': mimetype,
                                        'project_name': project,})
         elif mimetype == 'application/zip':
             import zipfile
@@ -329,10 +334,11 @@ def show_file(request, project, label):
                 zf.close()
                 return render_to_response("show_file.html",
                                       {'path': path, 
-                                      'label': label, 
-                                      'digest': digest,
+                                       'label': label, 
+                                       'digest': digest,
                                        'content': "\n".join(contents),
-                                       'project_name': project
+                                       'project_name': project,
+                                       'mimetype': mimetype
                                        })
             else:
                 raise IOError("Not a valid zip file")
@@ -342,6 +348,7 @@ def show_file(request, project, label):
                 'label': label,
                  'project_name': project, 
                  'digest': digest,
+                 'mimetype': mimetype,
                  'content': "Can't display this file (mimetype assumed to be %s)" % mimetype
                  })
     except (IOError, KeyError), e:

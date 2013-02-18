@@ -79,11 +79,12 @@ def _nrn_install_prefix(executable_path):
 
 def find_loaded_files(file_path, executable_path):
     """
-    Find all files that are loaded with load_file(), whether directly or
+    Find all files that are loaded with :func:`load_file()`, whether directly or
     indirectly, by a given Hoc file. Note that this only handles cases whether
     the path is given directly, not where it has been previously assigned to a
-    strdef. Also note that this is more complicated than xopen(), since NEURON
-    also looks in any directories in $HOC_LIBRARY_PATH and $NEURONHOME/lib/hoc.
+    strdef. Also note that this is more complicated than :func:`xopen()`, since
+    NEURON also looks in any directories in ``$HOC_LIBRARY_PATH`` and
+    ``$NEURONHOME/lib/hoc``.
     """
     op = os.path
     search_dirs = []

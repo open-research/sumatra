@@ -4,6 +4,10 @@
 {% block content %}
 <h3>{{path}}</h3>
 
+{% if mimetype %}
+<p>Mimetype: {{mimetype}}
+{% endif %}
+
 <img src="image?path={{path}}&digest={{digest}}" alt="/{{label}}:{{path}}"/>
 
 <p><a href="download?path={{path}}&digest={{digest}}" class="btn">Download image</a></p>

@@ -4,6 +4,10 @@
 
 <h3>{{path}}</h3>
 
+{% if mimetype %}
+<p>Mimetype: {{mimetype}}
+{% endif %}
+
 <table class="csvfile">
 {% for row in reader %}
  <tr>

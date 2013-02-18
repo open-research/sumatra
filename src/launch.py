@@ -1,13 +1,6 @@
 """
 The launch module handles launching of simulations/analyses as sub-processes, and
 obtaining information about the platform(s) on which the simulations are run.
-
-Classes
--------
-
-PlatformInformation   - a container for platform information
-SerialLaunchMode      - handles launching local, serial computations
-DistributedLaunchMode - handles launching distributed computations using MPI
 """
 
 import platform
@@ -162,7 +155,6 @@ class SerialLaunchMode(LaunchMode):
         return "serial"
     
     def generate_command(self, executable, main_file, arguments):
-        __doc__ = LaunchMode.__doc__
         if executable.requires_script:
             check_files_exist(executable.path, *main_file.split())
             if isinstance(executable, MatlabExecutable):
@@ -178,6 +170,7 @@ class SerialLaunchMode(LaunchMode):
             else:
                 cmd = "%s %s %s" % (executable.path, executable.options, arguments)
         return cmd
+    generate_command.__doc__ = LaunchMode.generate_command.__doc__
 
 
 class DistributedLaunchMode(LaunchMode):
@@ -219,7 +212,6 @@ class DistributedLaunchMode(LaunchMode):
         return "distributed (n=%d, mpiexec=%s, hosts=%s)" % (self.n, self.mpirun, self.hosts)
     
     def generate_command(self, executable, main_file, arguments):
-        __doc__ = LaunchMode.__doc__
         check_files_exist(self.mpirun, executable.path, *main_file.split())
         if hasattr(executable, "mpi_options"):
             mpi_options = executable.mpi_options
@@ -246,16 +238,9 @@ class DistributedLaunchMode(LaunchMode):
             cms += " %s %s %s %s" % (executable.path, mpi_options,
                                         executable.options, arguments)
         return cmd
+    generate_command.__doc__ = LaunchMode.generate_command.__doc__
     
     def get_platform_information(self):
-        __doc__ = LaunchMode.__doc__ + """
-        Requires the script pfi.py to be placed on the user's path on
-        each node of the machine.
-        
-        This is currently not useful, as I don't think there is any guarantee
-        that we get the same n nodes that the command is run on. Need to look
-        more into this.
-        """
         try:
             import mpi4py.MPI
             MPI = mpi4py.MPI
@@ -273,6 +258,14 @@ class DistributedLaunchMode(LaunchMode):
                 platform_information.append(PlatformInformation(**comm.recv(source=rank, tag=rank).values()[0]))
             comm.Disconnect()
         return platform_information
+    get_platform_information.__doc__ =  LaunchMode.get_platform_information.__doc__ + """
+        Requires the script :file:`pfi.py` to be placed on the user's path on
+        each node of the machine.
+        
+        This is currently not useful, as I don't think there is any guarantee
+        that we get the same *n* nodes that the command is run on. Need to look
+        more into this.
+        """
 
     def __getstate__(self):
         """Return a dict containing the values needed to recreate this instance."""

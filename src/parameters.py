@@ -9,15 +9,19 @@ the moment, the only methods that are used are `update()` and `save()`
 Classes
 -------
 
-NTParameterSet           - handles parameter files in the NeuroTools parameter
-                           set format, based on nested dictionaries
-SimpleParameterSet       - handles parameter files in a simple "name = value"
-                           format, with no nesting or grouping.
-ConfigParserParameterSet - handles parameter files in traditional config file
-                           format, as parsed by the standard Python ConfigParser
-                           module.
-JSONParameterSet         - handles parameter files in JSON format
-YAMLParameterSet         - handles parameter files in YAML format
+NTParameterSet:
+    handles parameter files in the NeuroTools parameter set format, based on
+    nested dictionaries.
+SimpleParameterSet:
+    handles parameter files in a simple "name = value" format, with no nesting
+    or grouping.
+ConfigParserParameterSet
+    handles parameter files in traditional config file format, as parsed by the
+    standard Python :mod:`ConfigParser` module.
+JSONParameterSet
+    handles parameter files in JSON format
+YAMLParameterSet
+    handles parameter files in YAML format
 
 """
 

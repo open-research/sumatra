@@ -22,6 +22,7 @@ Requirements
     
 .. can setup.py install all these?
 
+We strongly recommend developing within a virtualenv_.
 
 Getting the source code
 -----------------------
@@ -30,7 +31,14 @@ We use the Mercurial version control system. To get a copy of the code::
 
     $ cd /some/directory
     $ hg clone https://neuralensemble.org/hg/sumatra sumatra_src
-    
+
+If you get an ``SSL3_GET_SERVER_CERTIFICATE`` error, you can either use the
+:option:`--insecure` option to :command:`hg clone`, or add the following lines
+to your :file:`~/.hgrc` file::
+
+  [hostfingerprints]
+  neuralensemble.org = 7c:a8:72:19:79:b2:ec:d8:27:59:34:dc:a3:13:d9:5e:c3:aa:53:0e
+
 Now you need to make sure that the ``sumatra`` package is on your PYTHONPATH and
 that the ``smt`` and ``smtweb`` scripts are on your PATH. You can do this either
 by installing Sumatra::
@@ -133,3 +141,4 @@ Python 2.6 and 2.7.
 .. _coverage: http://nedbatchelder.com/code/coverage/
 .. _`PEP 8`: http://www.python.org/dev/peps/pep-0008/
 .. _`issue tracker`: http://neuralensemble.org/trac/sumatra
+.. _virtualenv: http://www.virtualenv.org

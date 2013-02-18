@@ -2,18 +2,6 @@
 The formatting module provides classes for formatting simulation/analysis
 records in different ways: summary, list or table; and in different mark-up
 formats: currently text or HTML.
-
-Classes
--------
-
-TextFormatter - formats records as text
-HTMLFormatter - formats records as HTML
-
-Function
---------
-
-get_formatter() - return an approriate Formatter object for a given requested
-                  format.
 """
 
 import textwrap
@@ -31,15 +19,27 @@ class Formatter(object):
         self.records = records
         
     def format(self, mode='short'):
+        """
+        Format a record according to the given mode. ``mode`` may be 'short',
+        'long' or 'table'.
+        """
         return getattr(self, mode)()
 
 
 class TextFormatter(Formatter):
+    """
+    Format the information from a list of Sumatra records as text.
+    """
     
     def short(self):
+        """Return a list of record labels, one per line."""
         return "\n".join(record.label for record in self.records)
             
     def long(self, text_width=80, left_column_width=17):
+        """
+        Return detailed information about a list of records, as text with a
+        limited column width. Lines that are too long will be wrapped round.
+        """
         output = ""
         for record in self.records:
             output += "-" * text_width + "\n"
@@ -75,6 +75,10 @@ class TextFormatter(Formatter):
         return output
     
     def table(self):
+        """
+        Return information about a list of records as text, in a simple
+        tabular format.
+        """
         tt = TextTable(fields, self.records)
         return str(tt)
     
@@ -136,11 +140,22 @@ class ShellFormatter(Formatter):
 
 
 class HTMLFormatter(Formatter):
+    """
+    Format information about a group of Sumatra records as HTML fragments, to
+    be included in a larger document.
+    """
     
     def short(self):
+        """
+        Return a list of record labels as an HTML unordered list.
+        """
         return "<ul>\n<li>" + "</li>\n<li>".join(record.label for record in self.records) + "</li>\n</ul>"
     
     def long(self):
+        """
+        Return detailed information about a list of records as an HTML
+        description list.
+        """
         def format_record(record):
             output = "  <dt>%s</dt>\n  <dd>\n    <dl>\n" % record.label
             for field in fields:
@@ -150,6 +165,9 @@ class HTMLFormatter(Formatter):
         return "<dl>\n" + "\n".join(format_record(record) for record in self.records) + "\n</dl>"
 
     def table(self):
+        """
+        Return detailed information about a list of records as an HTML table.
+        """
         def format_record(record):
             return "  <tr>\n    <td>" + "</td>\n    <td>".join(cgi.escape(str(getattr(record, field))) for field in fields) + "    </td>\n  </tr>"
         return "<table>\n" + \
@@ -159,11 +177,16 @@ class HTMLFormatter(Formatter):
 
 
 class TextDiffFormatter(Formatter):
+    """
+    Format information about the differences between two Sumatra records in
+    text format.
+    """
     
     def __init__(self, diff):
         self.diff = diff
         
     def short(self):
+        """Return a summary of the differences between two records."""
         def yn(x):
             return x and "yes" or "no"
         D = self.diff
@@ -198,6 +221,9 @@ class TextDiffFormatter(Formatter):
         return output
     
     def long(self):
+        """
+        Return a detailed description of the differences between two records.
+        """
         output = ''
         if self.diff.executable_differs:
             output += "Executable differences:\n"
@@ -262,9 +288,17 @@ formatters = {
     'html': HTMLFormatter,
     'textdiff': TextDiffFormatter,
 }
-        
+
 def get_formatter(format):
+    """
+    Return a :class:`Formatter` object of the appropriate type. ``format``
+    may be 'text, 'html' or 'textdiff'
+    """
     return formatters[format]
 
 def get_diff_formatter():
+    """
+    Return a :class:`DiffFormatter` object of the appropriate type. Only
+    text format is currently available.
+    """
     return TextDiffFormatter
