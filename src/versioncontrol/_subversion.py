@@ -21,6 +21,7 @@ import os
 import tempfile
 import shutil
 import logging
+from urlparse import urlparse
 from sumatra.core import have_internet_connection
 
 from base import Repository, WorkingCopy, VersionControlError
@@ -99,7 +100,7 @@ class SubversionRepository(Repository):
     def __init__(self, url, upstream=None):
         Repository.__init__(self, url)
         self._client = pysvn.Client()
-        if have_internet_connection():
+        if urlparse(url).scheme == 'file' or have_internet_connection():
             # check that there is a valid Subversion repository at the URL,
             # without doing a checkout.
             try:
