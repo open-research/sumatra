@@ -43,8 +43,7 @@
     "stdout_stderr": "No output.",
     "repository": {
         "url": "https://hg.example.com/MyProject",
-        "type": "MercurialRepository",
-        "upstream": null
+        "type": "MercurialRepository"
     },
     "tags": ["foo", "bar"],
     "timestamp": "2012-09-28 11:40:20",
@@ -53,7 +52,6 @@
         {
             "name": "matplotlib",
             "module": "python",
-            "source": null,
             "version": "1.0.1",
             "diff": "",
             "path": "/path/to/matplotlib"
@@ -61,7 +59,6 @@
         {
             "name": "numpy",
             "module": "python",
-            "source": null,
             "version": "1.5.1",
             "diff": "",
             "path": "/path/to/numpy"

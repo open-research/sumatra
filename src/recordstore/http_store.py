@@ -19,6 +19,8 @@ from sumatra.recordstore import serialization
 import httplib2
 from urlparse import urlparse, urlunparse
 
+API_VERSION = 2
+
 
 def domain(url):
     return urlparse(url).netloc
@@ -87,7 +89,7 @@ class HttpRecordStore(RecordStore):
         self.__init__(state['server_url'], state['username'], state['password'])
 
     def _get(self, url, media_type):
-        headers = {'Accept': 'application/vnd.sumatra.%s-v1+json, application/json' % media_type}
+        headers = {'Accept': 'application/vnd.sumatra.%s-v%d+json, application/json' % (media_type, API_VERSION)}
         response, content = self.client.request(url, headers=headers)
         return response, content
 
@@ -100,7 +102,7 @@ class HttpRecordStore(RecordStore):
     def _put_project(self, project_name, long_name='', description=''):
         url = "%s%s/" % (self.server_url, project_name)
         data = serialization.encode_project_info(long_name, description)
-        headers = {'Content-Type': 'application/vnd.sumatra.project-v1+json'}
+        headers = {'Content-Type': 'application/vnd.sumatra.project-v%d+json' % API_VERSION}
         response, content = self.client.request(url, 'PUT', data,
                                                 headers=headers)
         return response, content
@@ -140,7 +142,7 @@ class HttpRecordStore(RecordStore):
         if not self.has_project(project_name):
             self.create_project(project_name)
         url = "%s%s/%s/" % (self.server_url, project_name, record.label)
-        headers = {'Content-Type': 'application/vnd.sumatra.record-v1+json'}
+        headers = {'Content-Type': 'application/vnd.sumatra.record-v%d+json' % API_VERSION}
         data = serialization.encode_record(record)
         response, content = self.client.request(url, 'PUT', data,
                                                 headers=headers)

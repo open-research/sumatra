@@ -191,9 +191,11 @@ def build_record(data):
     record.platforms = [launch.PlatformInformation(**keys2str(pldata)) for pldata in data["platforms"]]
     record.dependencies = []
     for depdata in data["dependencies"]:
-        dep = getattr(dependency_finder, depdata["module"]).Dependency(
-            depdata["name"], depdata["path"], depdata["version"],
-            depdata["diff"], depdata["source"])
+        dep_args = [depdata["name"], depdata["path"], depdata["version"],
+                    depdata["diff"]]
+        if "source" in depdata:  # 0.5 onwards
+            dep_args.append(depdata["source"])
+        dep = getattr(dependency_finder, depdata["module"]).Dependency(*dep_args)
         record.dependencies.append(dep)
     return record
 

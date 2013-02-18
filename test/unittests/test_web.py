@@ -8,6 +8,7 @@ except ImportError:
     import unittest
 import os
 from pprint import pprint
+import mimetypes
 
 import sumatra.web
 from django.core.exceptions import ObjectDoesNotExist
@@ -91,6 +92,7 @@ class TestWebInterface(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context["record"].label, "record1")
 
+    @unittest.skipUnless(mimetypes.guess_type("myfile.csv")[0] == 'text/csv', 'CSV mimetype not recognized on this system')
     def test__show_file_csv(self):
         sumatra.web.views.get_data_store = lambda t,p: MockDataStore()
         c = Client()
