@@ -23,7 +23,7 @@ def mkdir(path):
 
 
 def determine_project(sumatra_options):
-    if 'project_dir' in sumatra_options:
+    if 'project_dir' in sumatra_options and sumatra_options['project_dir']:
         prj = load_project(sumatra_options['project_dir'])
     elif os.path.exists(os.path.join('.smt', 'project')):
         prj = load_project()
@@ -33,7 +33,7 @@ def determine_project(sumatra_options):
 
 
 def determine_record_store(prj, sumatra_options, err=Exception):
-    if 'record_store' in sumatra_options:
+    if 'record_store' in sumatra_options and sumatra_options["record_store"]:
         record_store = get_record_store(sumatra_options["record_store"])
     elif prj is None:
         raise err(
@@ -46,7 +46,7 @@ def determine_record_store(prj, sumatra_options, err=Exception):
 
 def determine_project_name(prj, sumatra_options, err=Exception):
     # determine the project (short) name
-    if 'project' in sumatra_options:
+    if 'project' in sumatra_options and sumatra_options['project']:
         project_name = sumatra_options['project']
     elif prj is None:
         raise err('project name not defined')

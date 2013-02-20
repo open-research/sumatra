@@ -84,7 +84,7 @@ simulations or analyses, in a Sphinx_ document, you should first add
 
     sumatra_record_store = "/path/to/record/store"
     sumatra_project_name = "MyProject"
-    sumatra_link_icon: "icon_info.png"
+    sumatra_link_icon = "icon_info.png"
 
 .. todo:: link_icon should be optional: should have a default shipped with Sumatra
 

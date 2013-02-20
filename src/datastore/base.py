@@ -137,6 +137,9 @@ class DataItem(object):
             full_path = os.path.join(path, self.path)
         else:
             full_path = path
+        dir = os.path.dirname(full_path)
+        if not os.path.exists(dir):
+            os.makedirs(dir)
         with open(full_path, "w") as fp:
             fp.write(self.content)
         return full_path
