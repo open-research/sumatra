@@ -28,7 +28,7 @@ string_table      - Convert a table written as a multi-line string into a dict o
 
 import urllib, copy, warnings, math, urllib2
 from urlparse import urlparse
-from os import environ
+from os import environ, path
 from sumatra.external.NeuroTools.random import ParameterDist, GammaDist, UniformDist, NormalDist
 
 if 'HTTP_PROXY' in environ:
@@ -236,17 +236,23 @@ class ParameterSet(dict):
         
         self._url = None
         if isinstance(initialiser, basestring): # url or str
-            try:
-                # can't handle cases where authentication is required
-                # should be rewritten using urllib2 
-                f= urllib2.urlopen(initialiser)
+            if path.exists(initialiser):
+                f = open(initialiser)
                 pstr = f.read()
                 self._url = initialiser
-            except IOError, e:
-                pstr = initialiser
-                self._url = None
-            else:
                 f.close()
+            else:
+                try:
+                    # can't handle cases where authentication is required
+                    # should be rewritten using urllib2 
+                    f= urllib2.urlopen(initialiser)
+                    pstr = f.read()
+                    self._url = initialiser
+                except IOError, e:
+                    pstr = initialiser
+                    self._url = None
+                else:
+                    f.close()
 
             initialiser = ParameterSet.read_from_str(pstr)
         
