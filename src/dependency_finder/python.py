@@ -70,7 +70,7 @@ def run_script(executable_path, script):
 def find_version_by_attribute(module):
     from types import ModuleType
     version = 'unknown'
-    for attr_name in '__version__', 'version', 'get_version', 'VERSION':
+    for attr_name in '__version__', 'version', 'get_version', 'VERSION', 'Version':
         if hasattr(module, attr_name):
             attr = getattr(module, attr_name)
             if callable(attr):
