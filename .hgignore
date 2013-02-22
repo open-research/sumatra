@@ -11,3 +11,6 @@ bulbNet
 .cache
 htmlcov
 cover
+.coverage
+MANIFEST
+Sumatra.komodoproject

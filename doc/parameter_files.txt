@@ -53,6 +53,12 @@ JSON
 See http://www.json.org/.
 
 
+YAML
+----
+
+See http://www.yaml.org
+
+
 NeuroTools format
 -----------------
 

@@ -16,8 +16,7 @@ Requirements
     * if using Python 2.6, unittest2_ >= 0.5.1
     * Distribute_ >= 0.6.14
     * (optional) mpi4py_ >= 1.2.2
-    * (optional) tox_ >= 0.9 (makes it easier to test with multiple Python versions)
-    * (optional) twill_ >= 0.9 (needed for testing web interface)
+    * (optional) twill_ >= 0.9 (for testing web interface)
     * (optional) coverage_ >= 3.3.1 (for measuring test coverage)
     
 .. can setup.py install all these?
@@ -38,6 +37,9 @@ to your :file:`~/.hgrc` file::
 
   [hostfingerprints]
   neuralensemble.org = 7c:a8:72:19:79:b2:ec:d8:27:59:34:dc:a3:13:d9:5e:c3:aa:53:0e
+
+.. note:: an alternative is to fork the `Sumatra mirror on Bitbucket`_, then
+          clone your own fork.
 
 Now you need to make sure that the ``sumatra`` package is on your PYTHONPATH and
 that the ``smt`` and ``smtweb`` scripts are on your PATH. You can do this either
@@ -60,6 +62,7 @@ To update to the latest version from the repository::
     $ hg pull -u
 
 
+
 Running the test suite
 ----------------------
 
@@ -73,13 +76,10 @@ You will see some error messages, but don't worry - these are just tests of
 Sumatra's error handling. At the end, if you see "OK", then all the tests
 passed, otherwise it will report how many tests failed or produced errors.
 
-::
+If any of the tests fail, check out the `continuous integration server`_ to see
+if these are "known" failures, otherwise please `open a bug report`_.
 
-    $ cd ..
-    $ python smt_test.py
-    $ python smtweb_test.py
-    
-.. [say what should happen here...]
+(many thanks to the `NEST Initiative`_ for hosting the CI server).
 
 
 Writing tests
@@ -107,7 +107,9 @@ If you have a NeuralEnsemble account, you can now push your changes to the
 central repository::
 
     $ hg push https://neuralensemble.org/hg/sumatra
-    
+
+If you are using Bitbucket, you can open a pull request.
+
 Otherwise, you can create a patch::
 
     $ hg export tip > descriptive_name.patch
@@ -142,3 +144,7 @@ Python 2.6 and 2.7.
 .. _`PEP 8`: http://www.python.org/dev/peps/pep-0008/
 .. _`issue tracker`: http://neuralensemble.org/trac/sumatra
 .. _virtualenv: http://www.virtualenv.org
+.. _`Sumatra mirror on Bitbucket`: https://bitbucket.org/apdavison/sumatra
+.. _`continuous integration server`: https://qa.nest-initiative.org/view/Sumatra/job/sumatra/
+.. _`NEST Initiative`: http://www.nest-initiative.org/
+.. _`open a bug report`: https://neuralensemble.org/trac/sumatra/newticket
