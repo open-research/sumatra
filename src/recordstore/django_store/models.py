@@ -9,6 +9,9 @@ import os.path
 import tagging.fields
 from tagging.models import Tag
 from datetime import datetime
+import django
+from distutils.version import LooseVersion
+
 
 class SumatraObjectsManager(models.Manager):
     
@@ -105,8 +108,12 @@ class Dependency(BaseModel):
 class Repository(BaseModel):
     # the following should be unique together.
     type = models.CharField(max_length=20)
-    url = models.URLField(verify_exists=False)
-    upstream = models.URLField(verify_exists=False, null=True, blank=True)
+    if LooseVersion(django.get_version()) < LooseVersion('1.5'):
+        url = models.URLField(verify_exists=False)
+        upstream = models.URLField(verify_exists=False, null=True, blank=True)
+    else:
+        url = models.URLField()
+        upstream = models.URLField(null=True, blank=True)
 
     def __unicode__(self):
         return self.url
