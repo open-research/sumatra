@@ -74,6 +74,7 @@ class Record(object):
         self.user = user
         self.on_changed = on_changed
         self.stdout_stderr = stdout_stderr
+        self.repeats = None
 
     def register(self, working_copy):
         """Record information about the environment."""

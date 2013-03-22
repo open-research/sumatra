@@ -20,6 +20,7 @@
             <div class="control-group">
                 <table id = 'gen_info'>
                     <tr><th>Label:</th><td>{{record.label}}</td></tr>
+                    {% if record.repeats %}<tr><th>Repeat of:</th><td><a href="../{{record.repeats}}">{{record.repeats}}</a></td></tr>{% endif %}
                     <tr><th>Reason:</th><td>{{form.reason}}</td></tr>
                     <tr><th>Outcome:</th><td>{{form.outcome}}</td></tr>
                     <tr><th>Timestamp:</th><td>{{record.timestamp|date:"d/m/Y H:i:s"}}</td></tr>

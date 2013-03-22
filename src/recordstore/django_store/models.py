@@ -234,6 +234,7 @@ class Record(BaseModel):
     project = models.ForeignKey(Project, null=True)
     script_arguments = models.TextField(blank=True)
     stdout_stderr = models.TextField(blank=True)
+    repeats = models.CharField(max_length=100, null=True, blank=True)
 
     # parameters which will be used in the fulltext search (see sumatra.web.services fulltext_search)
     params_search = ('label','reason', 'duration', 'main_file', 'outcome', 'user', 'tags') 
@@ -265,6 +266,7 @@ class Record(BaseModel):
         record.output_data = [key.to_sumatra() for key in self.output_data.all()]
         record.dependencies = [dep.to_sumatra() for dep in self.dependencies.all()]
         record.platforms = [pi.to_sumatra() for pi in self.platforms.all()]
+        record.repeats = self.repeats
         return record
             
     def __unicode__(self):

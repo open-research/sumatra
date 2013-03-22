@@ -10,7 +10,7 @@ import cgi
 fields = ['label', 'timestamp', 'reason', 'outcome', 'duration', 'repository',
           'main_file', 'version', 'script_arguments', 'executable',
           'parameters', 'input_data', 'launch_mode', 'output_data',
-          'user', 'tags']
+          'user', 'tags', 'repeats']
 
 
 class Formatter(object):

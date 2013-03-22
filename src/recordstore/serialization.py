@@ -83,6 +83,7 @@ def encode_record(record, indent=None):
             "network_name": p.network_name, 
             "processor": p.processor
             } for p in record.platforms],
+        "repeats": record.repeats,  # added in 0.6
         }
     return json.dumps(data, indent=indent)
 
@@ -197,6 +198,7 @@ def build_record(data):
             dep_args.append(depdata["source"])
         dep = getattr(dependency_finder, depdata["module"]).Dependency(*dep_args)
         record.dependencies.append(dep)
+    record.repeats = data.get("repeats", None)
     return record
 
 

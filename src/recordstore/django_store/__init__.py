@@ -198,6 +198,7 @@ class DjangoRecordStore(RecordStore):
         for pi in record.platforms:
             db_record.platforms.add(self._get_db_obj('PlatformInformation', pi))
         db_record.diff = record.diff
+        db_record.repeats = record.repeats
         db_record.save(using=self._db_label)
         
     def get(self, project_name, label):

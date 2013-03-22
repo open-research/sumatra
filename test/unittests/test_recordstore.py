@@ -110,6 +110,7 @@ class MockRecord(object):
         self.user = "michaelpalin"
         self.input_data = []
         self.script_arguments = "arg1 arg2"
+        self.repeats = None
 
     def __eq__(self, other):
         return self.label == other.label and self.duration == other.duration
@@ -310,7 +311,7 @@ def check_record(record):
                                       "datastore", "outcome", "output_data",
                                       "dependencies", "input_data",
                                       "script_arguments", "stdout_stderr",
-                                      "input_datastore"])
+                                      "input_datastore", "repeats"])
 
 class MockCredentials(object):
         credentials = [['domain', 'username', 'password']]
@@ -434,8 +435,13 @@ class TestSerialization(unittest.TestCase):
             record = serialization.build_record(json.load(fp))
         self.assertEqual(record.label, "haggling")
 
-    def test_round_trip(self):
+    def test_build_record_v0p5(self):
         with open("example_0.5.json") as fp:
+            record = serialization.build_record(json.load(fp))
+        self.assertEqual(record.label, "haggling")    
+
+    def test_round_trip(self):
+        with open("example_0.6.json") as fp:
             data_in = json.load(fp)
         record = serialization.build_record(data_in)
         data_out = json.loads(serialization.encode_record(record, indent=2))

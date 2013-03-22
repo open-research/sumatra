@@ -165,7 +165,7 @@ class Project(object):
     def launch(self, parameters={}, input_data=[], script_args="",
                executable='default', repository='default', main_file='default',
                version='latest', launch_mode='default', label=None, reason=None, 
-               timestamp_format='default'):
+               timestamp_format='default', repeats=None):
         """Launch a new simulation or analysis."""
         record = self.new_record(parameters, input_data, script_args,
                                  executable, repository, main_file, version,
@@ -173,6 +173,8 @@ class Project(object):
         record.run(with_label=self.data_label)
         if 'matlab' in record.executable.name.lower():
             record.register(record.repository.get_working_copy())
+        if repeats:
+            record.repeats = repeats
         self.add_record(record)
         self.save()
         return record.label
@@ -286,8 +288,8 @@ class Project(object):
                                 repository=original.repository,
                                 version=original.version,
                                 launch_mode=original.launch_mode,
-                                label="%s_repeat" % original.label,
-                                reason="Repeat experiment %s" % original.label)
+                                reason="Repeat experiment %s" % original.label,
+                                repeats=original.label)
         return new_label, original.label
 
 
