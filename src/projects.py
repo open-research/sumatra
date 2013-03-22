@@ -268,8 +268,28 @@ class Project(object):
         f = open(".smt/records_export.json", 'w')
         f.write(self.record_store.export(self.name))
         f.close()
-        
-        
+    
+    def repeat(self, original_label):
+        if original_label == 'last':
+            tmp = self.most_recent()
+        else:
+            tmp = self.get_record(original_label)
+        original = deepcopy(tmp)
+        if hasattr(tmp.parameters, '_url'): # for some reason, _url is not copied.
+            original.parameters._url = tmp.parameters._url # this is a hackish solution - needs fixed properly
+        original.repository.checkout() # should do nothing if there is already a checkout
+        new_label = self.launch(parameters=original.parameters,
+                                input_data=original.input_data,
+                                script_args=original.script_arguments,
+                                executable=original.executable,
+                                main_file=original.main_file,
+                                repository=original.repository,
+                                version=original.version,
+                                launch_mode=original.launch_mode,
+                                label="%s_repeat" % original.label,
+                                reason="Repeat experiment %s" % original.label)
+        return new_label, original.label
+
 
 def _load_project_from_json(path):
     f = open(_get_project_file(path), 'r')

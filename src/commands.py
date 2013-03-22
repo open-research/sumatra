@@ -35,6 +35,7 @@ logger.debug("STARTING")
 modes = ("init", "configure", "info", "run", "list", "delete", "comment", "tag",
          "repeat", "diff", "help", "export", "upgrade", "sync")
 
+
 def parse_executable_str(exec_str):
     """
     Split the string describing the executable into a path part and an
@@ -64,6 +65,7 @@ def parse_command_line_parameter(p):
             except ValueError:
                 pass
     return {name: value}
+
 
 def parse_arguments(args, input_datastore):
     cmdline_parameters = {}
@@ -182,6 +184,7 @@ def init(argv):
                       label_generator=options.labelgenerator,
                       timestamp_format=options.timestamp_format)
     project.save()
+
 
 def configure(argv):
     """Modify the settings for the current project."""
@@ -354,6 +357,7 @@ def list(argv):
     project = load_project()
     print project.format_records(tags=tags, mode=options.mode, format=options.format)
 
+
 def delete(argv):
     """Delete records or records with a particular tag from a project."""
     usage = "%prog delete [options] LIST"
@@ -388,6 +392,7 @@ def delete(argv):
             except Exception: # could be KeyError or DoesNotExist: should create standard NoSuchRecord or RecordDoesNotExist exception
                 warnings.warn("Could not delete record '%s' because it does not exist" % label)
 
+
 def comment(argv):
     """Add a comment to an existing record."""
     usage = "%prog comment [options] [LABEL] [COMMENT]"
@@ -419,6 +424,7 @@ def comment(argv):
     label = label or project.most_recent().label
     project.add_comment(label, comment)
 
+
 def tag(argv):
     """Tag, or remove a tag, from a record or records."""
     usage = "%prog tag [options] TAG [LIST]"
@@ -448,6 +454,7 @@ def tag(argv):
     else:
         parser.error('Please provide a tag.')
 
+
 def repeat(argv):
     """Re-run a previous simulation or analysis."""
     usage = "%prog repeat LABEL"
@@ -462,35 +469,19 @@ def repeat(argv):
     else:
         original_label = args[0]
     project = load_project()
-    if original_label == 'last':
-        tmp = project.most_recent()
-    else:
-        tmp = project.get_record(original_label)
-    original = deepcopy(tmp)
-    if hasattr(tmp.parameters, '_url'): # for some reason, _url is not copied.
-        original.parameters._url = tmp.parameters._url # this is a hackish solution - needs fixed properly
-    original.repository.checkout() # should do nothing if there is already a checkout
-    new_label = project.launch(parameters=original.parameters,
-                               input_data=original.input_data,
-                               script_args=original.script_arguments,
-                               executable=original.executable,
-                               main_file=original.main_file,
-                               repository=original.repository,
-                               version=original.version,
-                               launch_mode=original.launch_mode,
-                               label="%s_repeat" % original.label,
-                               reason="Repeat experiment %s" % original.label)
-    diff = project.compare(original.label, new_label)
+    new_label, original_label = project.repeat(original_label)
+    diff = project.compare(original_label, new_label)
     if diff:
         formatter = get_diff_formatter()(diff)
         msg = ["The new record does not match the original. It differs as follows.",
                formatter.format('short'),
-               "run smt diff --long %s %s to see the differences in detail." % (original.label, new_label)]
+               "run smt diff --long %s %s to see the differences in detail." % (original_label, new_label)]
         msg = "\n".join(msg)
     else:
         msg = "The new record exactly matches the original."
     print msg
     project.add_comment(new_label, msg)
+
 
 def diff(argv):
     """Show the differences, if any, between two records."""
@@ -513,6 +504,7 @@ def diff(argv):
     project = load_project()
     print project.show_diff(label1, label2, mode=options.mode, ignore_filenames=options.ignore)
 
+
 def help(argv):
     usage = "%prog help [CMD]"
     description = dedent("""Get help on an %prog command.""")
@@ -527,6 +519,7 @@ def help(argv):
         func(['--help'])
     except KeyError:
         parser.error('"%s" is not an smt command.' % cmd)
+
 
 def upgrade(argv):
     usage = "%prog upgrade"
@@ -558,6 +551,7 @@ def upgrade(argv):
         print "Record file not found"
         sys.exit(1)
 
+
 def export(argv):
     usage = "%prog export"
     description = dedent("""\
@@ -569,6 +563,7 @@ def export(argv):
         parser.error('%prog export does not take any arguments.')
     project = load_project()
     project.export()
+
 
 def sync(argv):
     usage = "%prog sync PATH1 [PATH2]"

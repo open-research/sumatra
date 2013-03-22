@@ -129,7 +129,7 @@ class Record(object):
                 data_label = self.label
             else:
                 raise Exception("with_label must be either 'parameters' or 'cmdline'")
-            self.datastore.root  = join(self.datastore.root, self.label)
+            self.datastore.root = join(self.datastore.root, self.label)
         # run pre-simulation/analysis tasks, e.g. nrnivmodl
         self.launch_mode.pre_run(self.executable)
         # Write the executable-specific parameter file
