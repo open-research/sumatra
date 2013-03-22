@@ -90,9 +90,10 @@ class Record(object):
         # Record dependencies
         logger.debug("Recording dependencies")
         self.dependencies = []
-        if self.executable.requires_script:
-            if self.main_file is None:
+        if self.main_file is None:
+            if self.executable.requires_script:            
                 raise MissingInformationError("main script file not specified")
+        else:
             if len(self.main_file.split()) == 1: # this assumes filenames cannot contain spaces
                 self.dependencies = dependency_finder.find_dependencies(self.main_file, self.executable)
             else: # if self.main_file contains multiple file names

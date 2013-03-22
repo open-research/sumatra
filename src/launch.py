@@ -155,7 +155,7 @@ class SerialLaunchMode(LaunchMode):
         return "serial"
     
     def generate_command(self, executable, main_file, arguments):
-        if executable.requires_script:
+        if main_file is not None:
             check_files_exist(executable.path, *main_file.split())
             if isinstance(executable, MatlabExecutable):
                 #if sys.platform == 'win32' or sys.platform == 'win64':
@@ -229,7 +229,7 @@ class DistributedLaunchMode(LaunchMode):
             self.working_directory
         )
         # need to include working_directory in command
-        if executable.requires_script:
+        if main_file is not None:
             check_files_exist(self.mpirun, executable.path, *main_file.split())
             cmd += " %s %s %s %s %s" % (executable.path, mpi_options,
                                         executable.options, main_file, arguments)
