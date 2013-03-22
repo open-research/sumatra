@@ -241,6 +241,7 @@ class ParameterSet(dict):
                 pstr = f.read()
                 self._url = initialiser
                 f.close()
+                self.source_file = initialiser
             else:
                 try:
                     # can't handle cases where authentication is required
@@ -344,7 +345,7 @@ class ParameterSet(dict):
         """For pickling."""
         return self
    
-    def save(self, url=None, expand_urls=False):
+    def save(self, url=None, expand_urls=False, add_extension=False):
         """
         Write the parameter set to a text file.
         
@@ -362,6 +363,9 @@ class ParameterSet(dict):
             self._url = url
         scheme, netloc, path, parameters, query, fragment = urlparse(url)
         if scheme == 'file' or (scheme=='' and netloc==''):
+            if add_extension:
+                path += ".param"
+                url += ".param"
             f = open(path, 'w')
             f.write(self.pretty(expand_urls=expand_urls))
             f.close()
@@ -370,6 +374,7 @@ class ParameterSet(dict):
                 raise Exception("Saving using the %s protocol is not implemented" % scheme)
             else:
                 raise Exception("No protocol (http, ftp, etc) specified.")
+        return url
         
     def pretty(self, indent='  ', expand_urls=False):
         """

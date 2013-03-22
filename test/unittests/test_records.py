@@ -15,7 +15,7 @@ class MockExecutable(object):
     def __ne__(self, other):
         return not self.__eq__(other)
     def write_parameters(self, params, filename):
-        pass
+        return filename
     
 class MockRepository(object):
     def __eq__(self, other):

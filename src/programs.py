@@ -104,8 +104,9 @@ class Executable(object):
         self.__dict__ = d
     
     @staticmethod
-    def write_parameters(parameters, filename):
-        parameters.save(filename)
+    def write_parameters(parameters, filebasename):
+        filename = parameters.save(filebasename, add_extension=True)
+        return filename
 
 
 class NEURONSimulator(Executable):
@@ -116,7 +117,8 @@ class NEURONSimulator(Executable):
     requires_script = True
 
     @staticmethod
-    def write_parameters(parameters, filename):
+    def write_parameters(parameters, filebasename):
+        filename = filebasename + ".hoc"
         with open(filename, 'w') as fp:
             for name, value in parameters.as_dict().items():
                 if isinstance(value, basestring):
@@ -124,6 +126,7 @@ class NEURONSimulator(Executable):
                     fp.write('%s = "%s"\n' % (name, value))
                 else:
                     fp.write('%s = %g\n' % (name, value))
+        return filename
 
 
 class PythonExecutable(Executable):

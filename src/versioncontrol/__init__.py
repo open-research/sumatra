@@ -51,7 +51,7 @@ def vcs_err_msg():
     if vcs_list:
         err_msg += "\nTried: %s" % ", ".join(vcs.__name__.split(".")[-1][1:].title() for vcs in vcs_list)
     if vcs_unavailable:
-           err_msg += "\nNot installed or missing Python bindings: %s" % ", ".join(vcs.title() for vcs in vcs_unavailable)
+        err_msg += "\nNot installed or missing Python bindings: %s" % ", ".join(vcs.title() for vcs in vcs_unavailable)
     return err_msg
 
     

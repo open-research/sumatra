@@ -76,7 +76,7 @@ class TestNESTSimulator(unittest.TestCase):
 
 class MockParameterSet(object):
     saved = False
-    def save(self, filename):
+    def save(self, filename, add_extension=False):
         self.saved = True
         
 

@@ -58,6 +58,7 @@ class YAMLParameterSet(object):
                 if os.path.exists(initialiser):
                     with open(initialiser) as fid:
                         self.values = yaml.load(fid)
+                    self.source_file = initialiser
                 else:
                     if initialiser:
                         self.values = yaml.load(initialiser)
@@ -97,9 +98,12 @@ class YAMLParameterSet(object):
     def as_dict(self):
         return self.values
 
-    def save(self, filename):
+    def save(self, filename, add_extension=False):
+        if add_extension:
+            filename += ".yaml"
         with open(filename, "w") as f:
             yaml.dump(self.values, f)
+        return filename
 
     def update(self, E, **F):
         __doc__ = dict.update.__doc__
@@ -138,6 +142,7 @@ class SimpleParameterSet(object):
             if os.path.exists(initialiser):
                 with open(initialiser) as f:
                     content = f.readlines()
+                self.source_file = initialiser
             else:
                 content = initialiser.split("\n")
             for line in content:
@@ -205,11 +210,14 @@ class SimpleParameterSet(object):
     def as_dict(self):
         return self.values.copy()
 
-    def save(self, filename):
+    def save(self, filename, add_extension=False):
+        if add_extension:
+            filename += ".param"
         if os.path.exists(filename):
             shutil.copy(filename, filename + ".orig")
         with open(filename, 'w') as f:
             f.write(self.pretty())
+        return filename
 
     def update(self, E, **F):
         __doc__ = dict.update.__doc__
@@ -244,6 +252,7 @@ class ConfigParserParameterSet(SafeConfigParser):
         try:
             if os.path.exists(initialiser):
                 self.read(initialiser)
+                self.source_file = initialiser
             else:
                 input = StringIO(str(initialiser)) # configparser has some problems with unicode. Using str() is a crude, and probably partial fix.
                 input.seek(0)
@@ -292,9 +301,12 @@ class ConfigParserParameterSet(SafeConfigParser):
             D[section] = dict(self.items(section))
         return D
 
-    def save(self, filename):
+    def save(self, filename, add_extension=False):
+        if add_extension:
+            filename += ".cfg"
         with open(filename, "w") as f:
             self.write(f)
+        return filename
 
     def update(self, E, **F):
         __doc__ = dict.update.__doc__
@@ -347,6 +359,7 @@ class JSONParameterSet(object):
             if os.path.exists(initialiser):
                 with open(initialiser) as fid:
                     self.values = json.load(fid)
+                self.source_file = initialiser
             else:
                 if initialiser:
                     self.values = json.loads(initialiser)
@@ -382,9 +395,12 @@ class JSONParameterSet(object):
     def as_dict(self):
         return self.values
 
-    def save(self, filename):
+    def save(self, filename, add_extension=False):
+        if add_extension:
+            filename += ".json"
         with open(filename, "w") as f:
             json.dump(self.values, f)
+        return filename
 
     def update(self, E, **F):
         __doc__ = dict.update.__doc__
@@ -398,6 +414,14 @@ class JSONParameterSet(object):
 
 
 def build_parameters(filename):
+    # if filename has an appropriate extension, e.g. ".json", we should
+    # make that the first one tried.
+    
+    try:
+        parameters = JSONParameterSet(filename)
+        return parameters
+    except SyntaxError:
+        pass
 
     if yaml_loaded:
         try:
@@ -405,12 +429,6 @@ def build_parameters(filename):
             return parameters
         except SyntaxError:
             pass
-
-    try:
-        parameters = JSONParameterSet(filename)
-        return parameters
-    except SyntaxError:
-        pass
 
     try:
         parameters = NTParameterSet("file://%s" % os.path.abspath(filename))
