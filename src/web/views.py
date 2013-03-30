@@ -8,7 +8,7 @@ import mimetypes
 import csv
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response
-from django.views.generic import list_detail
+from django.views.generic.list import ListView
 try:
     from django.views.generic.dates import MonthArchiveView
 except ImportError: # older versions of Django
@@ -40,17 +40,24 @@ def list_records(request, project):
         return render_to_response('record_list.html', defTempOb.getDict())
 
 
-def list_projects(request):
-    projects = Project.objects.all() 
-    extra_context = {'active':'List of projects'}  #returns the first project
-    if not len(projects):  
-        extra_context['project_name'] = load_project().name
-        if not load_project().default_executable: # empty project: without any records inside
-            extra_context['show_modal'] = True    
-    else:
-        extra_context['project_name'] = projects[0]
-    return list_detail.object_list(request, queryset=projects,
-                                   template_name="project_list.html", extra_context=extra_context)
+class ProjectListView(ListView):
+    template_name = 'project_list.html'
+
+    def get_queryset(self):
+        return Project.objects.all()
+
+    def get_context_data(self, **kwargs):
+        context = super(ProjectListView, self).get_context_data(**kwargs)
+        projects = self.get_queryset()
+
+        context['active'] = 'List of projects'
+        if not len(projects):  
+            context['project_name'] = load_project().name
+            if not load_project().default_executable: # empty project: without any records inside
+                context['show_modal'] = True    
+        else:
+            context['project_name'] = projects[0]
+        return context
 
 
 def show_project(request, project):
