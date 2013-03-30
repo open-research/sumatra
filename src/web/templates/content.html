@@ -38,8 +38,12 @@
                                 {% endif %}
                             </li>
                         </ul>
+                        {% if page_list.has_next %}
                         <div id = 'next_page_number' style='display:none'>{{page_list.next_page_number}}</div>
-                        <div id = 'previous_page_number' style='display:none'>{{page_list.previous_page_number}}</div>
+                        {% endif %}
+                        {% if page_list.has_previous %}
+                            <div id = 'previous_page_number' style='display:none'>{{page_list.previous_page_number}}</div>
+                        {% endif %}
                         <div style='float:left; margin-left:10px;'>
                             <a class="page gradient {% if not page_list.has_previous %}inactive{% endif %}" id='older'><i class="pagin icon-chevron-left"></i></a>
                             <a class="page gradient {% if not page_list.has_next %}inactive{% endif %}" id='newer'><i class="pagin icon-chevron-right"></i></a>
