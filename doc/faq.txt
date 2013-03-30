@@ -32,10 +32,10 @@ or::
     
 Then Sumatra will add the record label (which is generated from the timestamp
 unless you use the '``--label``' option to ``smt run``) to either the command
-line or the parameter file for your script. It is then up to your script to
-read this value and use it to name your output files accordingly. Here is an
-example for a Python script, using the ``cmdline`` option and "./Data" set as
-the datastore root::
+line or the parameter file (as ``sumatra_label``) for your script. It is then up to
+your script to read this value and use it to name your output files
+accordingly. Here is an example for a Python script, using the ``cmdline``
+option and "./Data" set as the datastore root::
 
     import sys
     import os.path
