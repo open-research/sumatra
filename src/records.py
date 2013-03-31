@@ -84,9 +84,10 @@ class Record(object):
         assert_equal(working_copy.current_version(), self.version, "version")
         # Check the main file is in the working copy
         cwd_relative_to_wc = relpath(os.getcwd(), working_copy.path)
-        if not working_copy.contains(
-                normpath(join(cwd_relative_to_wc, basename(self.main_file)))):
-            raise VersionControlError("Main file %s is not under version control" % self.main_file)
+        if self.main_file:
+            if not working_copy.contains(
+                    normpath(join(cwd_relative_to_wc, basename(self.main_file)))):
+                raise VersionControlError("Main file %s is not under version control" % self.main_file)
         # Record dependencies
         logger.debug("Recording dependencies")
         self.dependencies = []
@@ -134,8 +135,8 @@ class Record(object):
         # Write the executable-specific parameter file
         script_arguments = self.script_arguments
         if self.parameters:
-            self.parameter_file = "%s.param" % self.label.replace("/", "_")
-            self.executable.write_parameters(self.parameters, self.parameter_file)
+            parameter_file_basename = self.label.replace("/", "_")
+            self.parameter_file = self.executable.write_parameters(self.parameters, parameter_file_basename)
             script_arguments = script_arguments.replace("<parameters>", self.parameter_file)
         # Run simulation/analysis
         start_time = time.time()
