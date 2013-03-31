@@ -86,7 +86,7 @@ class Record(object):
         cwd_relative_to_wc = relpath(os.getcwd(), working_copy.path)
         if self.main_file:
             if not working_copy.contains(
-                    normpath(join(cwd_relative_to_wc, basename(self.main_file)))):
+                    normpath(join(cwd_relative_to_wc, self.main_file))):
                 raise VersionControlError("Main file %s is not under version control" % self.main_file)
         # Record dependencies
         logger.debug("Recording dependencies")
