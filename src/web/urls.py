@@ -3,9 +3,8 @@ Define URL dispatching for the Sumatra web interface.
 """
 
 from django.conf.urls.defaults import *
-from django.views.generic import list_detail
 from django.conf import settings
-from sumatra.web.views import Timeline
+from sumatra.web.views import Timeline, ProjectListView
 
 P = {
     'project': r'(?P<project>\w+[\w ]*)',
@@ -13,7 +12,7 @@ P = {
 }
 
 urlpatterns = patterns('sumatra.web.views',
-    (r'^$', 'list_projects'),
+    (r'^$', ProjectListView.as_view()),
     (r'^%(project)s/$' % P, 'list_records'),
     (r'^%(project)s/about/$' % P, 'show_project'),
     (r'^%(project)s/delete/$' % P, 'delete_records'),
