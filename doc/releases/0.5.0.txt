@@ -2,7 +2,7 @@
 Sumatra 0.5.0 release notes
 ===========================
 
-*February 18th 2012*
+*February 18th 2013*
 
 Welcome to Sumatra 0.5.0!
 

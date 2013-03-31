@@ -1,0 +1,13 @@
+===========================
+Sumatra 0.5.1 release notes
+===========================
+
+*March 31st 2013*
+
+Sumatra 0.5.1 is a bug-fix release. It adds support for Django 1.5, and fixes
+the following bugs:
+
+* ticket:162 "Can't use main files not in current directory when using git"
+* ticket:163 "If main file is set but executable is unrecognized, main file isn't run"
+* ticket:164 "Command line JSON parameter files which are not intended as 'parameter files' get broken"
+* uncaught exception in `have_internet_connection()`

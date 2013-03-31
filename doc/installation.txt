@@ -21,8 +21,8 @@ or::
 Alternatively, you can download the Sumatra package from either PyPI or the
 `INCF Software Centre`_ and install it as follows::
 
-    $ tar xzf Sumatra-0.5.0.tar.gz
-    $ cd Sumatra-0.5.0
+    $ tar xzf Sumatra-0.5.1.tar.gz
+    $ cd Sumatra-0.5.1
     # python setup.py install
     
 The last step may need to be run as root, or using sudo.
