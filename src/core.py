@@ -1,4 +1,5 @@
 import urllib2
+import socket
 
 
 TIMESTAMP_FORMAT = "%Y%m%d-%H%M%S"
@@ -13,6 +14,6 @@ def have_internet_connection():
     try:
         response = urllib2.urlopen(test_address,timeout=1)
         return True
-    except urllib2.URLError as err:
+    except (urllib2.URLError, socket.timeout) as err:
         pass
     return False
