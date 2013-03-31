@@ -1,0 +1,22 @@
+=============
+API reference
+=============
+
+
+.. insert diagram showing how the different modules interrelate
+
+
+.. toctree::
+   :maxdepth: 3
+
+   reference/datastore
+   reference/dependency_finder
+   reference/recordstore
+   reference/versioncontrol
+   reference/formatting
+   reference/launch
+   reference/parameters
+   reference/programs
+   reference/projects
+   reference/records
+   
