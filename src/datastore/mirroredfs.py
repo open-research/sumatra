@@ -7,9 +7,9 @@ user to take care of this.
 """
 
 import logging
-from urllib import urlopen
-from base import DataItem, DataKey
-from filesystem import FileSystemDataStore, DataFile
+from ..compatibility import urlopen
+from .base import DataItem, DataKey
+from .filesystem import FileSystemDataStore, DataFile
 
 
 class MirroredDataFile(DataItem):

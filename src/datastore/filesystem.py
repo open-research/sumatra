@@ -9,8 +9,8 @@ import logging
 import mimetypes
 from subprocess import Popen
 import warnings
-
-from base import DataStore, DataKey, DataItem, IGNORE_DIGEST
+from ..compatibility import string_type
+from .base import DataStore, DataKey, DataItem, IGNORE_DIGEST
 
 
 class DataFile(DataItem):
@@ -81,7 +81,7 @@ class FileSystemDataStore(DataStore):
     def __get_root(self):
         return self._root
     def __set_root(self, value):
-        if not isinstance(value, basestring):
+        if not isinstance(value, string_type):
             raise TypeError("root must be a string")
         self._root = value
         if not os.path.exists(self._root):

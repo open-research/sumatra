@@ -26,20 +26,26 @@ string_table      - Convert a table written as a multi-line string into a dict o
 
 """
 
-import urllib, copy, warnings, math, urllib2
-from urlparse import urlparse
+import copy, warnings, math
+try:
+    from urllib2 import build_opener, install_opener, urlopen, ProxyHandler, HTTPHandler  # Python 2
+    from urlparse import urlparse
+except ImportError:
+    from urllib.request import build_opener, install_opener, urlopen, ProxyHandler, HTTPHandler  # Python 3
+    from urllib.parse import urlparse
 from os import environ, path
 from sumatra.external.NeuroTools.random import ParameterDist, GammaDist, UniformDist, NormalDist
+from ...compatibility import string_type
 
 if 'HTTP_PROXY' in environ:
     HTTP_PROXY = environ['HTTP_PROXY'] # user has to define it
     ''' next lines are for communication to urllib of proxy information '''
-    proxy_support = urllib2.ProxyHandler({"https":HTTP_PROXY})
-    opener = urllib2.build_opener(proxy_support, urllib2.HTTPHandler)
-    urllib2.install_opener(opener)
+    proxy_support = ProxyHandler({"https": HTTP_PROXY})
+    opener = build_opener(proxy_support, HTTPHandler)
+    install_opener(opener)
 
 def isiterable(x):
-    return (hasattr(x,'__iter__') and not isinstance(x, basestring))
+    return (hasattr(x,'__iter__') and not isinstance(x, string_type))
 
 def contains_instance(collection, cls):
     return any(isinstance(o, cls) for o in collection)
@@ -108,7 +114,7 @@ class ParameterRange(Parameter):
 
     def __init__(self, value, units=None, name="", shuffle=False):
         if not isiterable(value):
-            raise TypeError,"A ParameterRange value must be iterable"
+            raise TypeError("A ParameterRange value must be iterable")
         Parameter.__init__(self, value.__iter__().next(), units, name)
         self._iter_values = value.__iter__()
         if shuffle:
@@ -208,9 +214,9 @@ class ParameterSet(dict):
                 D = eval(content, global_dict)           
             else:
                 D = eval(s, global_dict)
-        except SyntaxError, e:
+        except SyntaxError as e:
             raise SyntaxError("Invalid string for ParameterSet definition: %s\n%s" % (s,e))
-        except TypeError, e:
+        except TypeError as e:
             raise SyntaxError("Invalid string for ParameterSet definition: %s" % e)
         return D or {}
     
@@ -235,7 +241,7 @@ class ParameterSet(dict):
             return ParameterSet(d, label)
         
         self._url = None
-        if isinstance(initialiser, basestring): # url or str
+        if isinstance(initialiser, string_type): # url or str
             if path.exists(initialiser):
                 f = open(initialiser)
                 pstr = f.read()
@@ -246,10 +252,10 @@ class ParameterSet(dict):
                 try:
                     # can't handle cases where authentication is required
                     # should be rewritten using urllib2 
-                    f= urllib2.urlopen(initialiser)
+                    f = urlopen(initialiser)
                     pstr = f.read()
                     self._url = initialiser
-                except IOError, e:
+                except IOError as e:
                     pstr = initialiser
                     self._url = None
                 else:
@@ -379,7 +385,7 @@ class ParameterSet(dict):
     def pretty(self, indent='  ', expand_urls=False):
         """
         Return a unicode string representing the structure of the `ParameterSet`.
-        `eval`\uating the string should recreate the object.
+        evaluating the string should recreate the object.
         """
         def walk(d, indent, ind_incr):
             s = []
@@ -391,7 +397,7 @@ class ParameterSet(dict):
                         s.append('%s"%s": {' % (indent, k))
                         s.append(walk(v, indent+ind_incr,  ind_incr))
                         s.append('%s},' % indent)
-                elif isinstance(v, basestring):
+                elif isinstance(v, string_type):
                     s.append('%s"%s": "%s",' % (indent, k, v))
                 else: # what if we have a dict or ParameterSet inside a list? currently they are not expanded. Should they be?
                     s.append('%s"%s": %s,' % (indent, k, v))
@@ -709,7 +715,7 @@ class ParameterTable(ParameterSet):
                                 'column', 'columns', 'column_labels']
     
     def __init__(self, initialiser, label=None):
-        if isinstance(initialiser, basestring): # url or table string
+        if isinstance(initialiser, string_type): # url or table string
             tabledict = string_table(initialiser)
             # if initialiser is a URL, string_table() should return an empty dict
             # since URLs do not contain spaces.

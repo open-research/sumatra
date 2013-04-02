@@ -12,6 +12,7 @@ from time import strptime
 import datetime
 import os
 import json
+from functools import reduce
 
 
 def init_websettings():

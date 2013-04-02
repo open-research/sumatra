@@ -105,7 +105,7 @@ class SubversionRepository(Repository):
             # without doing a checkout.
             try:
                 self._client.ls(url)
-            except pysvn._pysvn.ClientError, errmsg:
+            except pysvn._pysvn.ClientError as errmsg:
                 raise VersionControlError(errmsg)
     
     def checkout(self, path='.'):

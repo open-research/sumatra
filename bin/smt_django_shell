@@ -31,7 +31,7 @@ def main(argv):
     else:
         project = load_project()
         if not isinstance(project.record_store, DjangoRecordStore):
-            print "This project is not using the Django record store."
+            print("This project is not using the Django record store.")
             sys.exit(1)
         del project
     db_config.configure()

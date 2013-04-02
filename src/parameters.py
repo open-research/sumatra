@@ -28,8 +28,11 @@ YAMLParameterSet
 from __future__ import with_statement
 import os.path
 import shutil
-from ConfigParser import SafeConfigParser, MissingSectionHeaderError
-from cStringIO import StringIO
+try:
+    from ConfigParser import SafeConfigParser, MissingSectionHeaderError  # Python 2
+except ImportError:
+    from configparser import SafeConfigParser, MissingSectionHeaderError  # Python 3
+
 from sumatra.external import NeuroTools
 try:
     import json
@@ -41,6 +44,8 @@ try:
     yaml_loaded = True
 except ImportError:
     yaml_loaded = False
+
+from .compatibility import string_type, StringIO
 
 
 class YAMLParameterSet(object):
@@ -199,7 +204,7 @@ class SimpleParameterSet(object):
         output = []
         for name, value in self.values.items():
             type = self.types[name]
-            if issubclass(type, basestring):
+            if issubclass(type, string_type):
                 output.append('%s = "%s"' % (name, value))
             else:
                 output.append('%s = %s' % (name, value))
@@ -222,7 +227,7 @@ class SimpleParameterSet(object):
     def update(self, E, **F):
         __doc__ = dict.update.__doc__
         def _update(name, value):
-            if not isinstance(value, (int, float, basestring, list)):
+            if not isinstance(value, (int, float, string_type, list)):
                 raise TypeError("value must be a numeric value or a string")
             self.values[name] = value
             self.types[name] = type(value)
@@ -318,7 +323,7 @@ class ConfigParserParameterSet(SafeConfigParser):
                 option = name
             if not self.has_section(section):
                 self.add_section(section)
-            if not isinstance(value, basestring):
+            if not isinstance(value, string_type):
                 value = str(value)
             self.set(section, option, value)
         if hasattr(E, "items"):

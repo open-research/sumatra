@@ -256,10 +256,10 @@ def info(argv):
         parser.error('info does not take any arguments')
     try:
         project = load_project()
-    except IOError, err:
-        print err
+    except IOError as err:
+        print(err)
         sys.exit(1)
-    print project.info()
+    print(project.info())
 
 
 def run(argv):
@@ -329,8 +329,8 @@ def run(argv):
                                    main_file=options.main or 'default',
                                    version=options.version or 'latest',
                                    launch_mode=launch_mode)
-    except (UncommittedModificationsError, MissingInformationError), err:
-        print err
+    except (UncommittedModificationsError, MissingInformationError) as err:
+        print(err)
         sys.exit(1)
     if options.tag:
         project.add_tag(run_label, options.tag)
@@ -355,7 +355,7 @@ def list(argv):
     tags = args
 
     project = load_project()
-    print project.format_records(tags=tags, mode=options.mode, format=options.format)
+    print(project.format_records(tags=tags, mode=options.mode, format=options.format))
 
 
 def delete(argv):
@@ -382,7 +382,7 @@ def delete(argv):
     if options.tag:
         for tag in args:
             n = project.delete_by_tag(tag, delete_data=options.data)
-            print n, "records deleted."
+            print("%s records deleted." % n)
     else:
         for label in args:
             if label == 'last':
@@ -479,7 +479,7 @@ def repeat(argv):
         msg = "\n".join(msg)
     else:
         msg = "The new record exactly matches the original."
-    print msg
+    print(msg)
     project.add_comment(new_label, msg)
 
 
@@ -502,7 +502,8 @@ def diff(argv):
         options.ignore = []
 
     project = load_project()
-    print project.show_diff(label1, label2, mode=options.mode, ignore_filenames=options.ignore)
+    print(project.show_diff(label1, label2, mode=options.mode,
+                            ignore_filenames=options.ignore))
 
 
 def help(argv):
@@ -548,7 +549,7 @@ def upgrade(argv):
         project.record_store.import_(project.name, f.read())
         f.close()
     else:
-        print "Record file not found"
+        print("Record file not found")
         sys.exit(1)
 
 
@@ -591,5 +592,5 @@ def sync(argv):
         parser.error('%prog sync requires either one or two arguments.')
 
     if collisions:
-        print "Synchronization incomplete: there are two records with the same name for the following: %s" % ", ".join(collisions)
+        print("Synchronization incomplete: there are two records with the same name for the following: %s" % ", ".join(collisions))
         sys.exit(1)

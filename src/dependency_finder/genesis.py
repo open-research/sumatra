@@ -82,9 +82,10 @@ def find_included_files(file_path):
         curdir = os.path.dirname(start_path)
         new_paths = [core.find_file(p, curdir, search_dirs) for p in new_paths]
         if new_paths:
-            print start_path, "loads the following:\n ", "\n  ".join(new_paths)
+            print("%s loads the following:\n %s" % (start_path,
+                                                    "\n  ".join(new_paths)))
         else:
-            print start_path, "loads no files"
+            print("%s loads no files" % start_path)
         paths.extend(new_paths)
         for path in new_paths:
             find(path, paths)

@@ -2,6 +2,7 @@
 Unit tests for the sumatra.recordstore package
 """
 
+from __future__ import unicode_literals
 try:
     import unittest2 as unittest
 except ImportError:
@@ -23,6 +24,8 @@ try:
 except ImportError:
     import simplejson as json
 import urlparse
+from sumatra.compatibility import string_type
+
 
 originals = []
 django_store1 = None
@@ -227,7 +230,7 @@ class BaseTestRecordStore(object):
 
     def test_str(self):
         #this test is pointless, just to increase coverage
-        assert isinstance(str(self.store), basestring)
+        assert isinstance(str(self.store), string_type)
 
     def test_most_recent(self):
         self.add_some_records()
@@ -328,7 +331,10 @@ class MockHttp(object):
         u = urlparse.urlparse(uri)
         parts = u.path.split("/")[1:-1]
         if self.debug:
-            print "\n<<<<<", uri, u.path, len(parts), method, body, headers, u.params, u.query
+            print("\n<<<<< %s %s %d %s %s %s %s %s" % (uri, u.path, len(parts),
+                                                       method, body, headers,
+                                                       u.params, u.query))
+            
         if len(parts) == 2: # record uri
             if method == "PUT":
                 record = json.loads(body)
@@ -346,7 +352,7 @@ class MockHttp(object):
                 status = 200
             elif method == "DELETE":
                 self.records.pop(parts[1])
-                most_recent = u""
+                most_recent = ""
                 for record in self.records.itervalues():
                     if record["timestamp"] > most_recent:
                         most_recent = record["timestamp"]
@@ -380,7 +386,7 @@ class MockHttp(object):
             status = 200
             content = '[{"id": "TestProject"}]'
         if self.debug:
-            print ">>>>>", status, content
+            print(">>>>> %s %s" % (status, content))
         return MockResponse(status), content
 
 

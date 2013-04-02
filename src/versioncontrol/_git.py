@@ -155,7 +155,7 @@ class GitRepository(Repository):
         if self.__repository is None:
             try:
                 self.__repository = git.Repo(self.url)   
-            except InvalidGitRepositoryError, err:
+            except InvalidGitRepositoryError as err:
                 raise VersionControlError("Cannot access Git repository at %s: %s" % (self.url, err))    
         return self.__repository    
     

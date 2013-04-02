@@ -22,10 +22,10 @@ get_data_store() - return a DataStore object based on a class name and
                    constructor arguments.
 """
 
-from base import DataKey, IGNORE_DIGEST
-from filesystem import FileSystemDataStore
-from archivingfs import ArchivingFileSystemDataStore
-from mirroredfs import MirroredFileSystemDataStore
+from .base import DataKey, IGNORE_DIGEST
+from .filesystem import FileSystemDataStore
+from .archivingfs import ArchivingFileSystemDataStore
+from .mirroredfs import MirroredFileSystemDataStore
 
 
 def get_data_store(type, parameters):

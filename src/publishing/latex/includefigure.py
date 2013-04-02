@@ -5,7 +5,10 @@
 import sys
 import os
 import logging
-from ConfigParser import SafeConfigParser
+try:
+    from ConfigParser import SafeConfigParser
+except ImportError:
+    from configparser import SafeConfigParser
 from sumatra.publishing.utils import determine_project, determine_record_store, \
                                      determine_project_name, get_image, \
                                      record_link_url, get_record_label_and_image_path
@@ -48,7 +51,7 @@ def generate_latex_command(sumatra_options, graphics_options):
     else:
         cmd = include_graphics_cmd
         
-    print cmd
+    print(cmd)
 
 
 def read_config(filename):

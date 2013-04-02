@@ -18,11 +18,13 @@ from os.path import relpath, normpath, join, basename, exists
 import re
 import getpass
 from operator import or_
-from formatting import get_formatter
-import dependency_finder
+from functools import reduce
+from .formatting import get_formatter
+from . import dependency_finder
 from sumatra.core import TIMESTAMP_FORMAT
 from sumatra.users import get_user
-from versioncontrol import VersionControlError
+from .versioncontrol import VersionControlError
+from .compatibility import string_type
 import logging
 
 logger = logging.getLogger("Sumatra")
@@ -158,9 +160,9 @@ class Record(object):
         # Search for newly-created datafiles
         self.output_data = self.datastore.find_new_data(self.timestamp)
         if self.output_data:
-            print "Data keys are", self.output_data
+            print("Data keys are %s" % self.output_data)
         else:
-            print "No data produced."
+            print("No data produced.")
         if self.parameters and exists(self.parameter_file):
             time.sleep(0.5) # execution of matlab: parameter_file is not always deleted immediately
             os.remove(self.parameter_file)
@@ -222,8 +224,8 @@ class RecordDifference(object):
                  ignore_filenames=[]):
         self.recordA = recordA
         self.recordB = recordB
-        assert not isinstance(ignore_mimetypes, basestring) # catch a
-        assert not isinstance(ignore_filenames, basestring) # common error
+        assert not isinstance(ignore_mimetypes, string_type) # catch a
+        assert not isinstance(ignore_filenames, string_type) # common error
         self.ignore_mimetypes += ignore_mimetypes
         self.ignore_filenames += ignore_filenames
         self.executable_differs = recordA.executable != recordB.executable

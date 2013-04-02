@@ -13,9 +13,9 @@ http_store   - provides the HttpRecordStore class
 
 import os
 from sumatra.recordstore import serialization
-from shelve_store import ShelveRecordStore
+from .shelve_store import ShelveRecordStore
 try:
-    from django_store import DjangoRecordStore
+    from .django_store import DjangoRecordStore
     have_django = True
 except ImportError:
     have_django = False
@@ -26,7 +26,7 @@ except ImportError:
     have_http = False
     
 if have_http:
-    from http_store import HttpRecordStore
+    from .http_store import HttpRecordStore
     
 DefaultRecordStore = have_django and DjangoRecordStore or ShelveRecordStore
 
@@ -44,7 +44,7 @@ def get_record_store(uri):
     elif os.path.exists(uri):
         try:
             store = ShelveRecordStore(uri)
-        except Exception, err:
+        except Exception as err:
             if have_django:
                 store = DjangoRecordStore(uri)
             else:

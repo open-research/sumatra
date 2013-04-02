@@ -71,6 +71,14 @@ class MockDataStore(object):
             return ""
 
 
+def assert_used_template(template_name, response):
+    if hasattr(response, "template"):  # Django < 1.5
+        templates_used = response.template
+    else:
+        templates_used = response.templates
+    assert template_name in [t.name for t in templates_used], "Response: %s\nContext: %s" % (response.content, response.context) 
+
+
 class TestWebInterface(unittest.TestCase):
 
     def test_project_root(self):
@@ -97,32 +105,32 @@ class TestWebInterface(unittest.TestCase):
         sumatra.web.views.get_data_store = lambda t,p: MockDataStore()
         c = Client()
         response = c.get("/%s/record1/datafile?path=test_file.csv&digest=mock" % MockProject.name)
-        assert 'show_csv.html' in [t.name for t in response.template], "Response: %s\nContext: %s" % (response.content, response.context) 
+        assert_used_template('show_csv.html', response) 
 
     def test__show_file_txt(self):
         sumatra.web.views.get_data_store = lambda t,p: MockDataStore()
         c = Client()
         response = c.get("/%s/record1/datafile?path=test_file.txt&digest=mock" % MockProject.name)
-        assert 'show_file.html' in [t.name for t in response.template]
+        assert_used_template('show_file.html', response)
 
     def test__show_file_image(self):
         sumatra.web.views.get_data_store = lambda t,p: MockDataStore()
         c = Client()
         response = c.get("/%s/record1/datafile?path=test_file.png&digest=mock" % MockProject.name)
-        assert 'show_image.html' in [t.name for t in response.template]
+        assert_used_template('show_image.html', response)
 
     def test__show_file_other(self):
         sumatra.web.views.get_data_store = lambda t,p: MockDataStore()
         c = Client()
         response = c.get("/%s/record1/datafile?path=test_file.doc&digest=mock" % MockProject.name)
-        assert 'show_file.html' in [t.name for t in response.template]
+        assert_used_template('show_file.html', response)
         assert "Can't display" in response.context["content"]
 
     def test__show_nonexistent_file(self):
         sumatra.web.views.get_data_store = lambda t,p: MockDataStore()
         c = Client()
         response = c.get("/%s/record1/datafile?path=non_existent_file.txt&digest=mock" % MockProject.name)
-        assert 'show_file.html' in [t.name for t in response.template]
+        assert_used_template('show_file.html', response)
         assert "File not found" in response.context["content"]
 
     def test__show_image(self):
@@ -135,7 +143,7 @@ class TestWebInterface(unittest.TestCase):
         sumatra.web.views.get_data_store = lambda t,p: MockDataStore()
         c = Client()
         response = c.get("/%s/record1/diff/" % MockProject.name)
-        assert 'show_diff.html' in [t.name for t in response.template]
+        assert_used_template('show_diff.html', response)
 
 
 class TestFilters(unittest.TestCase):

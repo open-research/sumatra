@@ -32,7 +32,7 @@ get_repository()   - determine whether a revision control system repository
 import sys
 import os
 
-from base import VersionControlError, UncommittedModificationsError
+from .base import VersionControlError, UncommittedModificationsError
 
 
 vcs_list = []
@@ -42,7 +42,7 @@ for vcs in ['mercurial', 'subversion', 'git', 'bazaar']:
     try:
         __import__('sumatra.versioncontrol._%s' % vcs)
         vcs_list.append(sys.modules['sumatra.versioncontrol._%s' % vcs])
-    except ImportError, err:
+    except ImportError as err:
         vcs_unavailable.append(vcs)
 
 
@@ -89,7 +89,7 @@ def get_repository(url):
                 try:
                     repos =  vcs.get_repository(url)
                     break
-                except Exception, e:
+                except Exception as e:
                     pass
         else:
             raise VersionControlError("No version control systems found.")

@@ -16,7 +16,7 @@ from textwrap import dedent
 from sumatra.parameters import SimpleParameterSet, JSONParameterSet, \
         NTParameterSet, ConfigParserParameterSet, build_parameters, \
         YAMLParameterSet, yaml_loaded
-
+from sumatra.compatibility import string_type
 
 class TestNTParameterSet(unittest.TestCase):
 
@@ -43,7 +43,7 @@ class TestNTParameterSet(unittest.TestCase):
     def test__str(self):
         P = NTParameterSet(self.example)
         as_string = str(P)
-        self.assertIsInstance(as_string, basestring)
+        self.assertIsInstance(as_string, string_type)
         self.assertEqual(P, NTParameterSet(as_string))
     
     def test__pop(self):
@@ -161,7 +161,7 @@ class TestSimpleParameterSet(unittest.TestCase):
     def test__str(self):
         P = SimpleParameterSet("x = 2\ny = 3")
         as_string = str(P)
-        self.assertIsInstance(as_string, basestring)
+        self.assertIsInstance(as_string, string_type)
         self.assertEqual(P, SimpleParameterSet(as_string))
     
     def test__pop(self):
@@ -220,7 +220,7 @@ class TestConfigParserParameterSet(unittest.TestCase):
         init = self.__class__.test_parameters
         P = ConfigParserParameterSet(init)
         as_string = str(P)
-        self.assertIsInstance(as_string, basestring)
+        self.assertIsInstance(as_string, string_type)
         self.assertEqual(P, ConfigParserParameterSet(as_string))
     
     def test__pop(self):
@@ -275,7 +275,7 @@ class TestJSONParameterSet(unittest.TestCase):
         init = self.__class__.test_parameters
         P = JSONParameterSet(init)
         as_string = str(P)
-        self.assertIsInstance(as_string, basestring)
+        self.assertIsInstance(as_string, string_type)
     
     def test__pop(self):
         init = self.__class__.test_parameters
@@ -341,7 +341,7 @@ class TestYAMLParameterSet(unittest.TestCase):
         init = self.__class__.test_parameters
         P = YAMLParameterSet(init)
         as_string = str(P)
-        self.assertIsInstance(as_string, basestring)
+        self.assertIsInstance(as_string, string_type)
     
     def test__pop(self):
         init = self.__class__.test_parameters

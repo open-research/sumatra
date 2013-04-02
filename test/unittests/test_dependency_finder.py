@@ -187,11 +187,11 @@ def setup():
     tmpdir = tempfile.mkdtemp()
     shutil.rmtree(tmpdir)
     shutil.copytree(os.path.join(os.path.pardir, "example_projects"), tmpdir)
-    print os.listdir(tmpdir)
+    print(os.listdir(tmpdir))
 
 def teardown():
     global tmpdir
-    print "removing tmpdir"
+    print("removing tmpdir")
     shutil.rmtree(tmpdir) # this only gets called when running with nose. Perhaps use atexit, or do this on a class-by-class basis and use __del__
 
 

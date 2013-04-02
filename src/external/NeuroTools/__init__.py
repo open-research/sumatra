@@ -5,5 +5,5 @@ go back to being an external dependency.
 
 """
 
-import parameters, random
+from . import parameters, random
 

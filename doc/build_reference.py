@@ -1,5 +1,6 @@
-import sys, StringIO
+import sys
 from sumatra import commands
+from sumatra.compatibility import StringIO
 
 modes = list(commands.modes)
 modes.sort()
@@ -10,7 +11,7 @@ sys.argv[0] = 'smt'
 
 for mode in modes:
     main = getattr(commands, mode)
-    usage[mode] = StringIO.StringIO()
+    usage[mode] = StringIO()
     sys.stdout = usage[mode]
     try:
         main(['--help'])

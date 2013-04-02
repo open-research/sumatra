@@ -35,9 +35,13 @@ import re
 import subprocess
 import sys
 import warnings
+from .compatibility import string_type
+from .core import get_encoding
+
 
 version_pattern = re.compile(r'\b(?P<version>\d[\.\d]*([a-z]*\d)*)\b')
 version_pattern_matlab = re.compile(r'(?<=Version: )(?P<version>\d.+)\b')
+
 
 class Executable(object):
     # store compilation/configuration options? yes, if we can determine them
@@ -50,7 +54,7 @@ class Executable(object):
         else:
             try:
                 self.path = self._find_executable(path or self.default_executable_name)
-            except Warning, errmsg:
+            except Warning as errmsg:
                 warnings.warn(errmsg)
                 self.path = path
         if self.name is None:
@@ -76,15 +80,16 @@ class Executable(object):
         else:
             executable = os.path.join(found[0], executable_name) 
             if len(found) == 1:
-                print 'Using', executable
+                print('Using %s' % executable)
             else:
-                print 'Multiple versions found, using %s. If you wish to use a different version, please specify it explicitly' % executable
+                print('Multiple versions found, using %s. If you wish to use a different version, please specify it explicitly' % executable)
         return executable
 
     def _get_version(self):
         p = subprocess.Popen("%s --version" % self.path, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
         returncode = p.wait()
-        match = version_pattern.search(p.stdout.read())
+        output = p.stdout.read().decode(get_encoding())
+        match = version_pattern.search(output)
         if match:
             version = match.groupdict()['version']
         else:
@@ -121,7 +126,7 @@ class NEURONSimulator(Executable):
         filename = filebasename + ".hoc"
         with open(filename, 'w') as fp:
             for name, value in parameters.as_dict().items():
-                if isinstance(value, basestring):
+                if isinstance(value, string_type):
                     fp.write('strdef %s\n' % name)
                     fp.write('%s = "%s"\n' % (name, value))
                 else:
@@ -163,7 +168,7 @@ class GENESISSimulator(Executable):
     requires_script = True
 
     def _get_version(self):
-        print "Writing genesis version script"
+        print("Writing genesis version script")
         with open("genesis_version.g", "w") as fd:
             fd.write("""openfile genesis_version.out w
                         writefile genesis_version.out {version}
@@ -172,7 +177,7 @@ class GENESISSimulator(Executable):
                     """)
         p = subprocess.Popen("%s genesis_version.g" % self.path, shell=True) #stdout=subprocess.PIPE, stderr=subprocess.STDOUT, stdin=subprocess.PIPE, shell=True)
         returncode = p.wait()
-        print returncode
+        print(returncode)
         with open("genesis_version.out") as fd:
             version = fd.read()
         os.remove("genesis_version.g")

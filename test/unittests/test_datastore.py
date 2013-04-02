@@ -14,6 +14,7 @@ from sumatra.datastore.base import DataStore
 from sumatra.datastore.filesystem import DataFile
 from sumatra.core import TIMESTAMP_FORMAT
 
+
 class TestFileSystemDataStore(unittest.TestCase):
 
     def setUp(self):
@@ -25,9 +26,9 @@ class TestFileSystemDataStore(unittest.TestCase):
         self.now = datetime.datetime.now()
         os.mkdir(os.path.join(self.root_dir, 'test_dir'))
         self.test_files = set(['test_file1', 'test_file2', 'test_dir/test_file3'])
-        self.test_data = 'licgsnireugcsenrigucsic\ncrgqgjch,kgch'
+        self.test_data = b'licgsnireugcsenrigucsic\ncrgqgjch,kgch'
         for filename in self.test_files:
-            with open(os.path.join(self.root_dir, filename), 'w') as f:
+            with open(os.path.join(self.root_dir, filename), 'wb') as f:
                 f.write(self.test_data)
 
     def tearDown(self):
@@ -87,9 +88,9 @@ class TestArchivingFileSystemDataStore(unittest.TestCase):
         self.now = datetime.datetime.now()
         os.mkdir(os.path.join(self.root_dir, 'test_dir'))
         self.test_files = set(['test_file1', 'test_file2', 'test_dir/test_file3'])
-        self.test_data = 'licgsnireugcsenrigucsic\ncrgqgjch,kgch'
+        self.test_data = b'licgsnireugcsenrigucsic\ncrgqgjch,kgch'
         for filename in self.test_files:
-            with open(os.path.join(self.root_dir, filename), 'w') as f:
+            with open(os.path.join(self.root_dir, filename), 'wb') as f:
                 f.write(self.test_data)
 
     def tearDown(self):
@@ -149,8 +150,8 @@ class TestDataFile(unittest.TestCase):
 
     def setUp(self):
         self.test_file = 'test_file1'
-        self.test_data = 'licgsnireugcsenrigucsic\ncrgqgjch,kgch'
-        with open(self.test_file, 'w') as f:
+        self.test_data = b'licgsnireugcsenrigucsic\ncrgqgjch,kgch'
+        with open(self.test_file, 'wb') as f:
             f.write(self.test_data)
         self.data_file = DataFile(self.test_file, MockDataStore())
 
@@ -168,13 +169,13 @@ class TestDataFile(unittest.TestCase):
 
     def test_sorted_content(self):
         self.assertEqual(self.data_file.sorted_content,
-                         'crgqgjch,kgch\nlicgsnireugcsenrigucsic')
+                         b'crgqgjch,kgch\nlicgsnireugcsenrigucsic')
         os.remove("%s,sorted" % self.test_file)
 
     def test_eq(self):
         same_data_file = DataFile(self.test_file, MockDataStore())
         self.assertEqual(self.data_file, same_data_file)
-        with open("test_file2", 'w') as f:
+        with open("test_file2", 'wb') as f:
             f.write(self.data_file.sorted_content)
         sorted_data_file = DataFile("test_file2", MockDataStore())
         self.assertEqual(self.data_file, sorted_data_file)

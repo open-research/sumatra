@@ -139,7 +139,7 @@ class MercurialRepository(Repository):
             try:
                 self.__repository = hg.repository(ui.ui(), self.url)
                 # need to add a check that this actually is a Mercurial repository
-            except (RepoError, Exception), err:
+            except (RepoError, Exception) as err:
                 raise VersionControlError("Cannot access Mercurial repository at %s: %s" % (self.url, err))
         return self.__repository    
 

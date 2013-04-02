@@ -135,8 +135,8 @@ class MockProject(object):
 def no_project():
     raise Exception("There is no Sumatra project here")
 
-def mock_mkdir(path, mode=0777):
-    print "Pretending to create directory %s" % path
+def mock_mkdir(path, mode=511):  # octal 777 "-rwxrwxrwx"
+    print("Pretending to create directory %s" % path)
 
 def mock_build_parameters(filename):
     if filename != "this.is.not.a.parameter.file":
@@ -480,8 +480,8 @@ class RunCommandTests(unittest.TestCase):
                          'script_args': 'some_parameter_file'})
 
     def test_with_single_input_file(self):
-        data_content = "0.0 242\n0.1 2345\n0.2 42451\n"
-        f = open("this.is.not.a.parameter.file", 'w')
+        data_content = b"0.0 242\n0.1 2345\n0.2 42451\n"
+        f = open("this.is.not.a.parameter.file", 'wb')
         f.write(data_content)
         f.close()
         commands.run(["this.is.not.a.parameter.file"]) # file exists but is not a parameter file so is treated as input data
@@ -501,8 +501,8 @@ class RunCommandTests(unittest.TestCase):
         f = open("test.param", 'w')
         f.write("a = 2\nb = 3\n")
         f.close()
-        data_content = "23496857243968b24cbc4275dc82470a\n"
-        f = open("this.is.not.a.parameter.file", 'w')
+        data_content = b"23496857243968b24cbc4275dc82470a\n"
+        f = open("this.is.not.a.parameter.file", 'wb')
         f.write(data_content)
         f.close()
         commands.run(["-l", "vikings", "-v", "234", "--reason='test'",
@@ -720,7 +720,7 @@ class ArgumentParsingTests(unittest.TestCase):
 
     def test_parse_command_line_parameter_with_list(self):
         result = commands.parse_command_line_parameter("c=[1,2,3,4,5]")
-        self.assertEqual(result, {'c': range(1,6)})
+        self.assertEqual(result, {'c': [1, 2, 3, 4, 5]})
 
     def test_parse_command_line_parameter_with_tuple(self):
         result = commands.parse_command_line_parameter("d=('a','b','c')")

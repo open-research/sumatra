@@ -6,8 +6,7 @@ Utility functions for use in publishing modules
 
 import os
 import errno
-from urllib import urlretrieve
-from urlparse import urlparse
+from ..compatibility import urlretrieve, urlparse
 from sumatra.projects import load_project
 from sumatra.recordstore import get_record_store
 from sumatra.datastore import DataKey

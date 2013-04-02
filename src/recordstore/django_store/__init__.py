@@ -13,6 +13,7 @@ from django.core import management
 import os
 from textwrap import dedent
 import imp
+from ...compatibility import StringIO
 
 # Check that django-tagging is available. It would be better to try importing
 # it, but that seems to mess with Django's internals.
@@ -76,7 +77,7 @@ class DjangoConfiguration(object):
                 os.makedirs(os.path.dirname(db_file))
             if not os.path.exists(db_file):
                 management.call_command('syncdb', database=label, verbosity=0)
-                print "Created record store"
+                print("Created record store")
 
     def configure(self):
         settings = django_conf.settings
@@ -218,7 +219,7 @@ class DjangoRecordStore(RecordStore):
                 db_records = db_records.filter(tags__contains=tag)
         try:
             records = [db_record.to_sumatra() for db_record in db_records]
-        except Exception, err:
+        except Exception as err:
             errmsg = dedent("""\
                 Sumatra could not retrieve the record from the record store.
                 Possibly your record store was created with an older version of Sumatra.
@@ -254,8 +255,8 @@ class DjangoRecordStore(RecordStore):
         """
         Dump the database contents to a JSON-encoded string
         """
-        import sys, StringIO
-        data = StringIO.StringIO()
+        import sys
+        data = StringIO()
         sys.stdout = data
         management.call_command('dumpdata', 'django_store', 'tagging', indent=indent)
         sys.stdout = sys.__stdout__

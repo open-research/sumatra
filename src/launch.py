@@ -13,7 +13,7 @@ from sumatra.dependency_finder.matlab import save_dependencies
 import warnings
 import cmd
 import tempfile
-import tee
+from . import tee
 import logging
 from sumatra.core import have_internet_connection
 
@@ -103,9 +103,8 @@ class LaunchMode(object):
 
     def __key(self):
         state = self.__getstate__()
-        state_keys = state.keys()
-        state_keys.sort()
-        return tuple([self.__class__] + [(k, state[k]) for k in state_keys])
+        return tuple([self.__class__]
+                     + [(k, state[k]) for k in sorted(state.keys())])
 
     def __eq__(self, other):
         if type(self) == type(other):

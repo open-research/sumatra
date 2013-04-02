@@ -1,5 +1,11 @@
-import urllib2
+"""
+
+"""
+
 import socket
+import sys
+import locale
+from .compatibility import urlopen, URLError
 
 
 TIMESTAMP_FORMAT = "%Y%m%d-%H%M%S"
@@ -12,8 +18,16 @@ def have_internet_connection():
     """
     test_address = 'http://74.125.113.99'  # google.com
     try:
-        response = urllib2.urlopen(test_address,timeout=1)
+        response = urlopen(test_address,timeout=1)
         return True
-    except (urllib2.URLError, socket.timeout) as err:
+    except (URLError, socket.timeout) as err:
         pass
     return False
+
+
+def get_encoding():
+    if sys.stdout.isatty():
+        encoding = sys.stdout.encoding
+    else:
+        encoding = locale.getpreferredencoding()
+    return encoding

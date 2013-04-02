@@ -22,10 +22,11 @@ from bzrlib import diff
     
 
 import os
-import StringIO
 
 from base import VersionControlError
 from base import Repository, WorkingCopy
+from ..compatibility import string_type, StringIO
+
 
 def may_have_working_copy(path=None):
     path = path or os.getcwd()
@@ -55,7 +56,7 @@ class BazaarWorkingCopy(WorkingCopy):
         self._current_version = self.repository._repository.revno()
 
     def _get_revision_tree(self, version):
-        if isinstance(version, basestring):
+        if isinstance(version, string_type):
             version = int(version)
         revision_id = self.workingtree.branch.get_rev_id(version)
         return self.workingtree.branch.repository.revision_tree(revision_id)
@@ -93,7 +94,7 @@ class BazaarWorkingCopy(WorkingCopy):
     
     def diff(self):
         """Difference between working copy and repository."""
-        iostream = StringIO.StringIO()
+        iostream = StringIO()
         diff.show_diff_trees(self.workingtree.basis_tree(), self.workingtree, iostream)
         # textstream
         return iostream.getvalue()
@@ -124,7 +125,7 @@ class BazaarRepository(Repository):
         if self.__repository is None:
             try:
                 self.__repository = Branch.open(self.url)
-            except Exception, err:
+            except Exception as err:
                 raise VersionControlError("Cannot access Bazaar repository at %s: %s" % (self.url, err))    
         return self.__repository
     

@@ -13,8 +13,8 @@ from contextlib import closing  # needed for Python 2.6
 from sumatra.core import TIMESTAMP_FORMAT 
 
 
-from base import DataItem, DataKey
-from filesystem import FileSystemDataStore
+from .base import DataItem, DataKey
+from .filesystem import FileSystemDataStore
 
 
 class ArchivedDataFile(DataItem):

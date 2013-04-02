@@ -20,7 +20,10 @@ load_project() - read project information from the working directory and return
 
 import os
 import sys
-import cPickle as pickle
+try:
+    import cPickle as pickle
+except ImportError:
+    import pickle
 from copy import deepcopy
 import uuid
 from sumatra.records import Record
@@ -86,7 +89,7 @@ class Project(object):
         self.timestamp_format = timestamp_format        
         self._most_recent = None            
         self.save()
-        print "Sumatra project successfully set up"
+        print("Sumatra project successfully set up")
         
     def __set_data_label(self, value):
         assert value in (None, 'parameters', 'cmdline')
@@ -237,7 +240,7 @@ class Project(object):
     def add_comment(self, label, comment):
         try:
             record = self.record_store.get(self.name, label)
-        except Exception, e:
+        except Exception as e:
             raise Exception("%s. label=<%s>" % (e,label))
         record.outcome = comment
         self.record_store.save(self.name, record)

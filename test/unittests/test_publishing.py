@@ -11,7 +11,6 @@ import sys
 import os
 import shutil
 from textwrap import dedent
-from StringIO import StringIO
 try:
     from docutils.core import publish_string
     have_docutils = True
@@ -23,6 +22,7 @@ if have_docutils:
     from sumatra.publishing.sphinxext import sumatra_rst
 import sumatra.recordstore
 from sumatra.datastore import DataKey
+from sumatra.compatibility import StringIO
 from .utils import patch
 
 

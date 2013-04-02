@@ -33,7 +33,6 @@ heuristics - a list of functions that will be called in sequence by
 from __future__ import with_statement
 import os
 import sys
-
 from modulefinder import Module
 import warnings
 import inspect
@@ -41,6 +40,7 @@ import logging
 
 from sumatra.dependency_finder import core
 from sumatra import versioncontrol
+from ..core import get_encoding
 
 logger = logging.getLogger("Sumatra")
 SENTINEL = "<SUMATRA>"
@@ -57,11 +57,13 @@ def run_script(executable_path, script):
     import subprocess
     script = str(script) # get problems if script is is unicode
     p = subprocess.Popen(executable_path, shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
-    output,err = p.communicate(textwrap.dedent(script)) # should handle err
+    encoding = get_encoding()
+    output, err = p.communicate(textwrap.dedent(script).encode(encoding)) # should handle err
+    output = output.decode(encoding)
     output = output[output.find(SENTINEL)+len(SENTINEL):]
     try:
         return_value = eval(output)
-    except SyntaxError, errmsg:
+    except SyntaxError as err:
         warnings.warn("Error in evaluating script output\n. Executable: %s\nScript: %s\nOutput: '%s'\nError: %s" % (executable_path, script, output, err))
         return_value = {}
     return return_value
@@ -216,6 +218,7 @@ def find_dependencies(filename, executable):
 if __name__ == "__main__":
     import sys
     from sumatra import programs
-    print "\n".join(str(d) for d in find_dependencies(sys.argv[1],
-                                                      programs.PythonExecutable(None),
-                                                      on_changed='store-diff'))
+    print("\n".join(str(d)
+                    for d in find_dependencies(sys.argv[1],
+                                               programs.PythonExecutable(None),
+                                               on_changed='store-diff')))

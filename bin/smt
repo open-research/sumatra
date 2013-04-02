@@ -17,18 +17,18 @@ Available subcommands:
 usage += "\n  ".join(commands.modes)
 
 if len(sys.argv) < 2:
-    print usage
+    print(usage)
     sys.exit(1)
 
 cmd = sys.argv[1]
 try:
     main = getattr(commands, cmd)
 except AttributeError:
-    print usage
+    print(usage)
     sys.exit(1)
 
 try:
     main(sys.argv[2:])
-except (VersionControlError, RecordStoreAccessError), err:
-    print "Error:", err.message
+except (VersionControlError, RecordStoreAccessError) as err:
+    print("Error: %s" % err.message)
     sys.exit(1)
