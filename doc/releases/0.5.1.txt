@@ -1,10 +1,10 @@
 ===========================
-Sumatra 0.5.1 release notes
+Sumatra 0.5.2 release notes
 ===========================
 
-*March 31st 2013*
+*April 2nd 2013*
 
-Sumatra 0.5.1 is a bug-fix release. It adds support for Django 1.5, and fixes
+Sumatra 0.5.2 is a bug-fix release. It adds support for Django 1.5, and fixes
 the following bugs:
 
 * ticket:162 "Can't use main files not in current directory when using git"
