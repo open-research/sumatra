@@ -93,7 +93,7 @@ class Executable(object):
         if match:
             version = match.groupdict()['version']
         else:
-            version = "unknown" #None
+            version = "unknown"
         return version
 
     def __eq__(self, other):
@@ -152,7 +152,7 @@ class MatlabExecutable(Executable):
         if match:
             version = match.groupdict()['version']
         else:
-            version = None
+            version = "unknown"
         return version
 
 

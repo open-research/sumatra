@@ -87,6 +87,8 @@ def find_version_by_attribute(module):
             break
     if isinstance(version, tuple):
         version = ".".join(str(c) for c in version)
+    elif version is None:
+        version = "unknown"
     return version
 
 
