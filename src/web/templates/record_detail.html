@@ -27,6 +27,7 @@
                     <tr><th>Duration:</th><td>{{record.duration|human_readable_duration}}</td></tr>
                     <tr><th>Executable:</th><td>{{record.executable.name}} version {{record.executable.version}} ({{record.executable.path}})</td></tr>
                     <tr><th>Launch mode:</th><td>{% ifequal record.launch_mode.type "SerialLaunchMode" %}serial{% else %}distributed, n={{record.launch_mode.get_parameters.n}}{% endifequal %}</td></tr>
+                    <tr><th>Working directory:</th><td>{{record.working_directory}}</td></tr>
                     <tr><th>Repository (local):</th><td>{{record.repository.url}}</td></tr>
                     {% if record.repository.upstream %}
                     <tr><th>Repository (remote):</th><td>{{record.repository.upstream|urlize}}</td></tr>

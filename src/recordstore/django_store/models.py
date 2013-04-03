@@ -277,3 +277,7 @@ class Record(BaseModel):
 
     def command_line(self):
         return self.to_sumatra().command_line
+    
+    def working_directory(self):
+        return self.launch_mode.get_parameters().get('working_directory', None)
+    
