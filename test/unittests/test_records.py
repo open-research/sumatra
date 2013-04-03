@@ -4,7 +4,19 @@ Unit tests for the sumatra.records module
 
 import unittest
 import time
-from sumatra.records import Record, RecordDifference
+import os
+from sumatra.records import Record, RecordDifference, check_file_under_version_control
+from contextlib import contextmanager
+
+
+@contextmanager
+def patch(module, func_name, replacement):
+    original = getattr(module, func_name)
+    setattr(module, func_name, replacement)
+    try:
+        yield
+    finally:
+        setattr(module, func_name, original)
 
 
 class MockExecutable(object):
@@ -58,7 +70,19 @@ class MockDataStore(object):
 class MockDependency(object):
     def __init__(self, name):
         self.name = name
-        
+
+
+class MockWorkingCopy(object):
+    def __init__(self, path):
+        self.path = path
+        self.contents = [
+            "my_main_file",
+            "subdir/foo",
+            "subdir/deepersubdir/bar"
+            ]
+    def contains(self, file_path):
+        return file_path in self.contents
+    
 
 class TestRecord(unittest.TestCase):
     
@@ -66,6 +90,34 @@ class TestRecord(unittest.TestCase):
         r1 = Record(MockExecutable("1"), MockRepository(), "test.py",
                     999, MockLaunchMode(), MockDataStore(), {"a": 3}, label="A")
         r1.run(with_label='parameters')
+
+class TestHelperFunctions(unittest.TestCase):
+    
+    def test__main_file_and_cwd_in_wc_root(self):
+        with patch(os, "getcwd", lambda: "/path/to/sumatra/project"):
+            check_file_under_version_control("my_main_file", MockWorkingCopy("/path/to/sumatra/project"))
+    
+    def test__main_file_in_wc_root_cwd_in_subdir(self):
+        with patch(os, "getcwd", lambda: "/path/to/sumatra/project/subdir"):
+            check_file_under_version_control("../my_main_file", MockWorkingCopy("/path/to/sumatra/project"))
+
+    def test__main_file_in_subdir_cwd_in_subdir(self):
+        with patch(os, "getcwd", lambda: "/path/to/sumatra/project/subdir"):
+            check_file_under_version_control("foo", MockWorkingCopy("/path/to/sumatra/project"))
+
+    def test__main_file_in_subdir_cwd_in_wc_root(self):
+        with patch(os, "getcwd", lambda: "/path/to/sumatra/project"):
+            check_file_under_version_control("subdir/foo", MockWorkingCopy("/path/to/sumatra/project"))
+
+    def test__main_file_and_cwd_in_different_subdirs(self):
+        with patch(os, "getcwd", lambda: "/path/to/sumatra/project/subdir"):
+            check_file_under_version_control("deepersubdir/bar", MockWorkingCopy("/path/to/sumatra/project"))
+
+    def test__main_file_abs_path(self):
+        with patch(os, "getcwd", lambda: "/path/to/sumatra/project"):
+            check_file_under_version_control("/path/to/sumatra/project/my_main_file", MockWorkingCopy("/path/to/sumatra/project"))
+
+    
 
 
 class TestRecordDifference(unittest.TestCase):

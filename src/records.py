@@ -38,6 +38,14 @@ class MissingInformationError(Exception):
     pass
 
 
+def check_file_under_version_control(file_path, working_copy):
+    cwd_relative_to_wc = relpath(os.getcwd(), working_copy.path)
+    file_relative_to_cwd = relpath(file_path, os.getcwd())
+    if not working_copy.contains(
+        normpath(join(cwd_relative_to_wc, file_relative_to_cwd))):
+            raise VersionControlError("File %s is not under version control" % file_path)
+
+
 class Record(object):
     """
     The :class:`Record` class has two main roles: capturing information about
@@ -86,11 +94,8 @@ class Record(object):
             assert not working_copy.has_changed()
         assert_equal(working_copy.current_version(), self.version, "version")
         # Check the main file is in the working copy
-        cwd_relative_to_wc = relpath(os.getcwd(), working_copy.path)
         if self.main_file:
-            if not working_copy.contains(
-                    normpath(join(cwd_relative_to_wc, self.main_file))):
-                raise VersionControlError("Main file %s is not under version control" % self.main_file)
+            check_file_under_version_control(self.main_file, working_copy)
         # Record dependencies
         logger.debug("Recording dependencies")
         self.dependencies = []
