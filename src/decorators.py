@@ -12,6 +12,20 @@ import time
 from sumatra.programs import PythonExecutable
 import sys
 import os
+import contextlib
+from .compatibility import StringIO
+
+
+@contextlib.contextmanager
+def _grab_stdout_stderr():
+    try:
+        output = StringIO()
+        sys.stdout, sys.stderr = output, output
+        yield output
+    finally:
+        sys.stdout, sys.stderr = sys.__stdout__, sys.__stderr__
+        output = output.getvalue()
+
 
 def capture(main):
     """
@@ -28,7 +42,9 @@ def capture(main):
                                     executable=executable)
         parameters.update({"sumatra_label": record.label})
         start_time = time.time()
-        main(parameters, *args, **kwargs)
+        with _grab_stdout_stderr() as stdout_stderr:
+            main(parameters, *args, **kwargs)
+            record.stdout_stderr = stdout_stderr.getvalue()
         record.duration = time.time() - start_time
         record.output_data = record.datastore.find_new_data(record.timestamp)
         project.add_record(record)
