@@ -35,11 +35,12 @@ def capture(main):
     def wrapped_main(parameters, *args, **kwargs):
         import sumatra.projects
         project = sumatra.projects.load_project()
-        main_file = os.path.abspath(sys.modules['__main__'].__file__)
+        main_file = sys.modules['__main__'].__file__
         executable = PythonExecutable(path=sys.executable)
         record = project.new_record(parameters=parameters,
                                     main_file=main_file,
                                     executable=executable)
+        record.launch_mode.working_directory = os.getcwd()
         parameters.update({"sumatra_label": record.label})
         start_time = time.time()
         with _grab_stdout_stderr() as stdout_stderr:
