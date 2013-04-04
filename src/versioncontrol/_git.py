@@ -29,27 +29,31 @@ import logging
 logger = logging.getLogger("Sumatra")
 
 
+def check_version():
+    if not hasattr(git, "Repo"):
+        raise VersionControlError("GitPython not installed. There is a 'git' package, but it is not GitPython (https://pypi.python.org/pypi/GitPython/)")
+    if int(git.__version__.split(".")[1]) < 2:
+        raise VersionControlError("Your Git Python binding is too old. You require at least version 0.2.0-beta1.")
+
+
 def findrepo(path):
+    check_version()
     try:
         repo = git.Repo(path)
     except InvalidGitRepositoryError:
         return
     else:
         return os.path.dirname(repo.git_dir)
-        
 
-def check_version():
-    if int(git.__version__.split(".")[1]) < 2:
-        raise VersionControlError("Your Git Python binding is too old. You require at least version 0.2.0-beta1.")
 
 def may_have_working_copy(path=None):
     """Test whether there is a Git working copy at the given path."""
-    check_version()
     path = path or os.getcwd()
     if findrepo(path):
         return True
     else:
         return False
+
 
 def get_working_copy(path=None):
     """Return a GitWorkingCopy instance for the given path, or the current
@@ -59,6 +63,7 @@ def get_working_copy(path=None):
         return GitWorkingCopy(repo_dir)
     else:
         raise VersionControlError("No Git working copy found at %s" % path)
+
 
 def get_repository(url):
     """Return a GitRepository instance for the given url."""
