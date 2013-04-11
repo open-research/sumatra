@@ -95,8 +95,10 @@
     <form class="form-horizontal">
         <fieldset class = 'field-acc'>
             <div class="control-group">
-                {% if parameters %}            
-                        {% for name, value in parameters.items %}<div class='label label-success' style='display:inline-block'>{{name}}</div><pre style='margin-top:5px'>{{value}}</pre>{% endfor %}
+                {% if parameters %}
+		        <table>
+                        {% for name, value in parameters.items %}<tr><td><div class='label label-success' style='display:inline-block'>{{name}}</div></td><td><pre style='margin-top:5px'>{{value}}</pre></td></tr>{% endfor %}
+			</table>
                 {% else %}
                     no parameters
                 {% endif %}
