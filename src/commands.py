@@ -533,6 +533,12 @@ def upgrade(argv):
     if len(args) != 0:
         parser.error('%prog upgrade does not take any arguments.')
 
+    if not os.path.exists(".smt/project_export.json"):
+        print("Project must have been exported (with the original version "
+              "of Sumatra) before upgrading.")
+        sys.exit(1)
+
+
     import shutil
     from datetime import datetime
     backup_dir = ".smt_backup_%s" % datetime.now().strftime(TIMESTAMP_FORMAT)
