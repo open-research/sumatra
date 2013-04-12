@@ -26,6 +26,7 @@ except ImportError:
     import pickle
 from copy import deepcopy
 import uuid
+import sumatra
 from sumatra.records import Record
 from sumatra import programs, datastore
 from sumatra.formatting import get_formatter, get_diff_formatter
@@ -87,6 +88,7 @@ class Project(object):
         self.data_label = data_label
         self.label_generator = label_generator
         self.timestamp_format = timestamp_format        
+        self.sumatra_version = sumatra.__version__
         self._most_recent = None            
         self.save()
         print("Sumatra project successfully set up")
@@ -106,7 +108,7 @@ class Project(object):
                      'default_launch_mode', 'data_store', 'record_store',
                      'default_main_file', 'on_changed', 'description',
                      'data_label', '_most_recent', 'input_datastore',
-                     'label_generator', 'timestamp_format'):
+                     'label_generator', 'timestamp_format', 'sumatra_version'):
             attr = getattr(self, name, None)
             if hasattr(attr, "__getstate__"):
                 state[name] = {'type': attr.__class__.__module__ + "." + attr.__class__.__name__}
@@ -133,6 +135,7 @@ class Project(object):
         Append label to     : %(_data_label)s
         Label generator     : %(label_generator)s
         Timestamp format    : %(timestamp_format)s
+        Sumatra version     : %(sumatra_version)s
         """
         return _remove_left_margin(template % self.__dict__)
     
