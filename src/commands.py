@@ -12,6 +12,7 @@ from copy import deepcopy
 import warnings
 import re
 import logging
+import sumatra
 
 from sumatra.programs import get_executable
 from sumatra.datastore import FileSystemDataStore, ArchivingFileSystemDataStore, MirroredFileSystemDataStore
@@ -533,6 +534,11 @@ def upgrade(argv):
     if len(args) != 0:
         parser.error('%prog upgrade does not take any arguments.')
 
+    project = load_project()
+    if hasattr(project, 'sumatra_version') and project.sumatra_version == sumatra.__version__:
+        print("No upgrade needed (project was created with an up-to-date version of Sumatra).")
+        sys.exit(1)
+
     if not os.path.exists(".smt/project_export.json"):
         print("Project must have been exported (with the original version "
               "of Sumatra) before upgrading.")
@@ -546,7 +552,7 @@ def upgrade(argv):
     # upgrade the project data
     os.mkdir(".smt")
     shutil.copy("%s/project_export.json" % backup_dir, ".smt/project")
-    project = load_project()
+    project.sumatra_version = sumatra.__version__
     project.save()
     # upgrade the record store
     filename = "%s/records_export.json" % backup_dir
@@ -557,6 +563,7 @@ def upgrade(argv):
     else:
         print("Record file not found")
         sys.exit(1)
+    print "Project successfully upgraded to Sumatra version {}.".format(project.sumatra_version)
 
 
 def export(argv):
