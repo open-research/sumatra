@@ -540,8 +540,8 @@ def upgrade(argv):
         sys.exit(1)
 
     if not os.path.exists(".smt/project_export.json"):
-        print("Project must have been exported (with the original version "
-              "of Sumatra) before upgrading.")
+        print("Error: project must have been exported (with the original "
+              "version of Sumatra) before upgrading.")
         sys.exit(1)
 
 
