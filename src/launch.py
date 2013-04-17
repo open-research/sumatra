@@ -75,6 +75,10 @@ class LaunchMode(object):
                                  stderr=None, close_fds=True, cwd=self.working_directory)
             result = p.wait()
 
+    def check_files(self, executable, main_file):
+        """Check that all files exist and are accessible."""
+        raise NotImplementedError("must be impemented by sub-classes")
+
     def generate_command(self, paths):
         """Return a string containing the command to be launched."""
         raise NotImplementedError("must be impemented by sub-classes")
@@ -86,6 +90,7 @@ class LaunchMode(object):
         command line. Return True if the computation finishes successfully,
         False otherwise.
         """
+        self.check_files(executable, main_file)
         cmd = self.generate_command(executable, main_file, arguments)
         if append_label:
             cmd += " " + append_label
@@ -153,9 +158,14 @@ class SerialLaunchMode(LaunchMode):
     def __str__(self):
         return "serial"
     
-    def generate_command(self, executable, main_file, arguments):
+    def check_files(self, executable, main_file):
         if main_file is not None:
             check_files_exist(executable.path, *main_file.split())
+        else:
+            check_files_exist(executable.path)
+    
+    def generate_command(self, executable, main_file, arguments):
+        if main_file is not None:
             if isinstance(executable, MatlabExecutable):
                 #if sys.platform == 'win32' or sys.platform == 'win64':
                 cmd = "%s -nodesktop -r \"%s('%s')\"" % (executable.name, main_file.split('.')[0], arguments) # only for windows
@@ -163,7 +173,6 @@ class SerialLaunchMode(LaunchMode):
             else:
                 cmd = "%s %s %s %s" % (executable.path, executable.options, main_file, arguments)
         else:
-            check_files_exist(executable.path)
             if executable.path == executable.name:  # temporary hack
                 cmd = "./%s %s %s" % (executable.path, executable.options, arguments)
             else:
@@ -209,9 +218,14 @@ class DistributedLaunchMode(LaunchMode):
     
     def __str__(self):
         return "distributed (n=%d, mpiexec=%s, hosts=%s)" % (self.n, self.mpirun, self.hosts)
+
+    def check_files(self, executable, main_file):
+        if main_file is not None:
+            check_files_exist(self.mpirun, executable.path, *main_file.split())
+        else:
+            check_files_exist(self.mpirun, executable.path)
     
     def generate_command(self, executable, main_file, arguments):
-        check_files_exist(self.mpirun, executable.path, *main_file.split())
         if hasattr(executable, "mpi_options"):
             mpi_options = executable.mpi_options
         else:
@@ -229,13 +243,11 @@ class DistributedLaunchMode(LaunchMode):
         )
         # need to include working_directory in command
         if main_file is not None:
-            check_files_exist(self.mpirun, executable.path, *main_file.split())
             cmd += " %s %s %s %s %s" % (executable.path, mpi_options,
                                         executable.options, main_file, arguments)
         else:
-            check_files_exist(self.mpirun, executable.path)
-            cms += " %s %s %s %s" % (executable.path, mpi_options,
-                                        executable.options, arguments)
+            cmd += " %s %s %s %s" % (executable.path, mpi_options,
+                                     executable.options, arguments)
         return cmd
     generate_command.__doc__ = LaunchMode.generate_command.__doc__
     
