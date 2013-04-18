@@ -38,7 +38,10 @@ def get_working_copy(path=None):
     return SubversionWorkingCopy(path)
 
 def get_repository(url):
-    return SubversionRepository(url)
+    repo = SubversionRepository(url)
+    if not repo.exists:
+        raise VersionControlError("There is no Subversion repository at %s" % url)
+    return repo
 
 
 class SubversionWorkingCopy(WorkingCopy):
@@ -100,13 +103,17 @@ class SubversionRepository(Repository):
     def __init__(self, url, upstream=None):
         Repository.__init__(self, url)
         self._client = pysvn.Client()
-        if urlparse(url).scheme == 'file' or have_internet_connection():
+    
+    @property
+    def exists(self):
+        if urlparse(self.url).scheme == 'file' or have_internet_connection():
             # check that there is a valid Subversion repository at the URL,
             # without doing a checkout.
             try:
-                self._client.ls(url)
+                self._client.ls(self.url)
             except pysvn._pysvn.ClientError as errmsg:
-                raise VersionControlError(errmsg)
+                return False
+        return True
     
     def checkout(self, path='.'):
         try:

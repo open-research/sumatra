@@ -338,8 +338,9 @@ class TestSubversionRepository(unittest.TestCase, BaseTestRepository):
         r = self._create_repository()
         assert hasattr(r._client, "checkout")
         
-    def test__init__with_nonexistent_repos__should_raise_Exception(self):
-        self.assertRaises(Exception, SubversionRepository, "file:///tmp/chnseriguchs")
+    def test__exists__with_nonexistent_repos__should_raise_Exception(self):
+        r = SubversionRepository("file:///tmp/chnseriguchs")
+        self.assertFalse(r.exists)
    
     @unittest.skipIf(skip_ci, "Skipping test on CI server")
     def test__checkout__with_nonexistent_repos__should_raise_Exception(self):
