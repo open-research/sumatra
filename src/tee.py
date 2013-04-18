@@ -85,7 +85,8 @@ def system2(cmd, cwd=None, logger=_sentinel, stdout=_sentinel, log_command=_sent
         #logging.debug("logger=%s stdout=%s" % (logger, stdout))
 
         f = sys.stdout
-        if not hasattr(f, 'encoding') or not f.encoding or f.encoding == 'ascii':
+        ascii_aliases = ('ascii', 'ANSI_X3.4-1968')
+        if not hasattr(f, 'encoding') or not f.encoding or f.encoding in ascii_aliases:
         # `ascii` is not a valid encoding by our standards, it's better to output to UTF-8 because it can encoding any Unicode text
                 encoding = 'utf_8'
         else:
@@ -149,8 +150,9 @@ def system2(cmd, cwd=None, logger=_sentinel, stdout=_sentinel, log_command=_sent
                         break
                 #line = line.rstrip('\n\r')
                 mylogger(line.rstrip('\n\r')) # they are added by logging anyway
+                #import pdb; pdb.set_trace()
                 if(stdout):
-                        print(line, end="")
+                        print(line.encode(encoding), end="")
                         sys.stdout.flush()
         returncode = p.wait()
         if(log_command):

@@ -107,10 +107,10 @@ class TestDistributedLaunchMode(unittest.TestCase, BaseTestLaunchMode):
     def test__init__should_not_raise_an_exception_if_the_mpiexec_is_not_found(self):
         lm = DistributedLaunchMode(2, "mpifoo", ["node1", "node2"])
 
-    def test__generate_command__should_raise_an_exception_if_the_mpiexec_is_not_found(self):
+    def test_check_files_should_raise_an_exception_if_the_mpiexec_is_not_found(self):
         lm = DistributedLaunchMode(2, "mpifoo", ["node1", "node2"])
         lm.mpirun = "mpifoo"
-        self.assertRaises(IOError, lm.generate_command, MockExecutable(sys.executable), "main_file", "arguments") # main_file does not exist either, but mpirun is checked first
+        self.assertRaises(IOError, lm.check_files, MockExecutable(sys.executable), "main_file") # main_file does not exist either, but mpirun is checked first
 
     def test__init__should_set_mpirun_to_the_full_path(self):
         for path in "/usr/bin/mpiexec", "/usr/local/bin/mpiexec":

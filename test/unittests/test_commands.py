@@ -83,6 +83,7 @@ class MockProject(object):
     default_repository = "some repository"
     default_main_file = "walk_silly.py"
     default_executable = MockExecutable(path="a.out")
+    default_launch_mode = launch.SerialLaunchMode
     on_changed = "sound the alarm"
     data_label = "pluck from the ether"
     record_store = MockRecordStore("default")
@@ -462,7 +463,6 @@ class RunCommandTests(unittest.TestCase):
                     'input_data': [],
                     'reason': '',
                     'version': 'latest',
-                    'launch_mode': launch.SerialLaunchMode(),
                     'script_args': ''}
         self.assertEqual(self.prj.launch_args, expected)
 
@@ -476,7 +476,6 @@ class RunCommandTests(unittest.TestCase):
                          'input_data': [],
                          'reason': '',
                          'version': 'latest',
-                         'launch_mode': launch.SerialLaunchMode(),
                          'script_args': 'some_parameter_file'})
 
     def test_with_single_input_file(self):
@@ -493,7 +492,6 @@ class RunCommandTests(unittest.TestCase):
                          'input_data': [datastore.DataKey('this.is.not.a.parameter.file', hashlib.sha1(data_content).hexdigest())],
                          'reason': '',
                          'version': 'latest',
-                         'launch_mode': launch.SerialLaunchMode(),
                          'script_args': 'this.is.not.a.parameter.file'})
         os.remove("this.is.not.a.parameter.file")
 
@@ -517,7 +515,6 @@ class RunCommandTests(unittest.TestCase):
                          'input_data': [datastore.DataKey('this.is.not.a.parameter.file', hashlib.sha1(data_content).hexdigest())],
                          'reason': 'test',
                          'version': '234',
-                         'launch_mode': launch.SerialLaunchMode(),
                          'script_args': "spam <parameters> eggs this.is.not.a.parameter.file beans"})
         os.remove("this.is.not.a.parameter.file")
         os.remove("test.param")

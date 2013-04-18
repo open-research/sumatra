@@ -12,12 +12,13 @@ from copy import deepcopy
 import warnings
 import re
 import logging
+import cProfile
 import sumatra
 
 from sumatra.programs import get_executable
 from sumatra.datastore import FileSystemDataStore, ArchivingFileSystemDataStore, MirroredFileSystemDataStore
 from sumatra.projects import Project, load_project
-from sumatra.launch import SerialLaunchMode, DistributedLaunchMode
+from sumatra.launch import get_launch_mode
 from sumatra.parameters import build_parameters
 from sumatra.recordstore import get_record_store
 from sumatra.versioncontrol import get_working_copy, get_repository, UncommittedModificationsError
@@ -120,6 +121,7 @@ def init(argv):
     parser.add_option('-g', '--labelgenerator', choices=['timestamp', 'uuid'], default='timestamp', metavar='OPTION', help="specify which method Sumatra should use to generate labels (options: timestamp, uuid)")
     parser.add_option('-t', '--timestamp_format', help="the timestamp format given to strftime", default=TIMESTAMP_FORMAT)
     parser.add_option('-M', '--mirror', metavar='URL', help="specify a URL at which your datafiles will be mirrored.")
+    parser.add_option('-L', '--launch_mode', choices=['serial', 'distributed', 'slurm-mpi'], default='serial', help="how computations should be launched. Defaults to %default")
 
     (options, args) = parser.parse_args(argv)
 
@@ -171,12 +173,14 @@ def init(argv):
     else:
         output_datastore = FileSystemDataStore(options.datapath)
     input_datastore = FileSystemDataStore(options.input)
+    
+    launch_mode = get_launch_mode(options.launch_mode)()
 
     project = Project(name=project_name,
                       default_executable=executable,
                       default_repository=repository,
                       default_main_file=options.main, # what if incompatible with executable?
-                      default_launch_mode=SerialLaunchMode(),
+                      default_launch_mode=launch_mode,
                       data_store=output_datastore,
                       record_store=record_store,
                       on_changed=options.on_changed,
@@ -204,7 +208,8 @@ def configure(argv):
     parser.add_option('-A', '--archive', metavar='PATH', help="specify a directory in which to archive output datafiles. If not specified, or if 'false', datafiles are not archived.")
     parser.add_option('-g', '--labelgenerator', choices=['timestamp', 'uuid'], metavar='OPTION', help="specify which method Sumatra should use to generate labels (options: timestamp, uuid)")
     parser.add_option('-t', '--timestamp_format', help="the timestamp format given to strftime")
-    
+    parser.add_option('-L', '--launch_mode', choices=['serial', 'distributed', 'slurm-mpi'], help="how computations should be launched. Defaults to %default")
+
     (options, args) = parser.parse_args(argv)
     if len(args) != 0:
         parser.error('configure does not take any arguments')
@@ -243,6 +248,8 @@ def configure(argv):
         project.label_generator = options.labelgenerator
     if options.timestamp_format:
         project.timestamp_format = options.timestamp_format
+    if options.launch_mode:
+        project.default_launch_mode = get_launch_mode(options.launch_mode)()
     project.save()
 
 
@@ -315,9 +322,10 @@ def run(argv):
     else:
         executable = 'default'
     if options.num_processes:
-        launch_mode = DistributedLaunchMode(n=options.num_processes)
-    else:
-        launch_mode = SerialLaunchMode()
+        if hasattr(project.default_launch_mode, 'n'):
+            project.default_launch_mode.n = options.num_processes
+        else:
+            parser.error("Your current launch mode does not support using multiple processes.")
     reason = options.reason or ''
     if reason:
         reason = reason.strip('\'"')
@@ -328,8 +336,7 @@ def run(argv):
                                    label=label, reason=reason,
                                    executable=executable,
                                    main_file=options.main or 'default',
-                                   version=options.version or 'latest',
-                                   launch_mode=launch_mode)
+                                   version=options.version or 'latest')
     except (UncommittedModificationsError, MissingInformationError) as err:
         print(err)
         sys.exit(1)

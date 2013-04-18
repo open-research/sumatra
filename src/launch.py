@@ -189,7 +189,7 @@ class DistributedLaunchMode(LaunchMode):
     generalised in future releases.
     """
     
-    def __init__(self, n, mpirun="mpiexec", hosts=[],
+    def __init__(self, n=1, mpirun="mpiexec", hosts=[],
                  pfi_path="/usr/local/bin/pfi.py", working_directory=None):
         """
         `n` - the number of hosts to run on.
@@ -241,7 +241,6 @@ class DistributedLaunchMode(LaunchMode):
             self.n,
             self.working_directory
         )
-        # need to include working_directory in command
         if main_file is not None:
             cmd += " %s %s %s %s %s" % (executable.path, mpi_options,
                                         executable.options, main_file, arguments)
@@ -283,3 +282,77 @@ class DistributedLaunchMode(LaunchMode):
         return {'mpirun': self.mpirun, 'n': self.n, 'hosts': self.hosts,
                 'pfi_path': self.pfi_path,
                 'working_directory': self.working_directory}
+
+
+class SlurmMPILaunchMode(LaunchMode):
+    """
+    Enable launching MPI computations with SLURM
+    (https://computing.llnl.gov/linux/slurm/)
+    """
+    
+    def __init__(self, n=1, mpirun="mpiexec", working_directory=None):
+        """
+        `n` - the number of hosts to run on.
+        `mpirun` - the path to the mpirun or mpiexec executable. If a full path
+                   is not given, the user's PATH will be searched.
+        `working_directory` - directory in which to run on the hosts
+        """
+        LaunchMode.__init__(self, working_directory)
+        class MPI(Executable):
+            name = mpirun
+            default_executable_name = mpirun
+        if os.path.exists(mpirun): # mpirun is a full path
+            mpi_cmd = MPI(path=mpirun)
+        else:
+            mpi_cmd = MPI(path=None)
+        self.mpirun = mpi_cmd.path
+        # should warn if mpirun not found
+        assert n > 0
+        self.n = int(n)
+    
+    def __str__(self):
+        return "slurm-mpi"
+    
+    def check_files(self, executable, main_file):
+        # should really check that files exist on whatever system SLURM sends the job to
+        if main_file is not None:
+            check_files_exist(executable.path, *main_file.split())
+        else:
+            check_files_exist(executable.path)
+        
+    def generate_command(self, executable, main_file, arguments):
+        if hasattr(executable, "mpi_options"):
+            mpi_options = executable.mpi_options
+        else:
+            mpi_options = ""
+        cmd = "salloc -n %d %s --wdir %s" % (
+            self.n,
+            self.mpirun,
+            self.working_directory
+        )
+        if main_file is not None:
+            cmd += " %s %s %s %s %s" % (executable.path, mpi_options,
+                                        executable.options, main_file, arguments)
+        else:
+            cmd += " %s %s %s %s" % (executable.path, mpi_options,
+                                     executable.options, arguments)
+        return cmd
+    generate_command.__doc__ = LaunchMode.generate_command.__doc__
+
+    def __getstate__(self):
+        """Return a dict containing the values needed to recreate this instance."""
+        return {'mpirun': self.mpirun, 'n': self.n,
+                'working_directory': self.working_directory}
+
+
+launch_modes = {
+    'serial': SerialLaunchMode,
+    'distributed': DistributedLaunchMode,
+    'slurm-mpi': SlurmMPILaunchMode,
+}
+
+def get_launch_mode(mode_name):
+    """
+    Return a :class:`LaunchMode` object of the appropriate type.
+    """
+    return launch_modes[mode_name]
