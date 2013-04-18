@@ -62,7 +62,7 @@ setup(
                    'Programming Language :: Python :: 2.7',
                    'Topic :: Scientific/Engineering'],
     cmdclass = {'sdist': sdist_hg},
-    install_requires = ['Django>=1.3', 'django-tagging', 'httplib2',
+    install_requires = ['Django>=1.4', 'django-tagging', 'httplib2',
                         'simplejson', 'docutils'],
     extras_require = {'svn': 'pysvn',
                       'hg': 'mercurial',

@@ -10,7 +10,7 @@ Requirements
 ------------
 
     * Python_ 2.6 and/or 2.7
-    * Django_ >= 1.2
+    * Django_ >= 1.4
     * django-tagging_ >= 0.3
     * nose_ >= 0.11.4
     * if using Python 2.6, unittest2_ >= 0.5.1

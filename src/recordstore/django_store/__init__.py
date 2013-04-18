@@ -83,7 +83,6 @@ class DjangoConfiguration(object):
         settings = django_conf.settings
         if not settings.configured:
             settings.configure(**self._settings)
-            management.setup_environ(settings)
             if not self.configured:
                 self._create_databases()
             self.configured = True
@@ -211,7 +210,7 @@ class DjangoRecordStore(RecordStore):
         return db_record.to_sumatra()
     
     def list(self, project_name, tags=None):
-        db_records = self._manager.filter(project__id=project_name)
+        db_records = self._manager.filter(project__id=project_name).select_related()
         if tags:
             if not hasattr(tags, "__len__"):
                 tags = [tags]
