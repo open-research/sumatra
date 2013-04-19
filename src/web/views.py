@@ -409,7 +409,7 @@ def show_image(request, project, label):
         return HttpResponse(mimetype="image/png") # should return a placeholder image?
 
 
-def show_diff(request, project, label, package):
+def show_diff(request, project, label, package=''):
     label = unescape(label)
     record = Record.objects.get(label=label, project__id=project)
     if package:

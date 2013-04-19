@@ -8,7 +8,7 @@ from sumatra.web.views import Timeline, ProjectListView
 
 P = {
     'project': r'(?P<project>\w+[\w ]*)',
-    'label': r'(?P<label>\w+[\w|\-\.:]*)',
+    'label': r'(?P<label>\w+[\w|\-\.:/\s]*)',
 }
 
 urlpatterns = patterns('sumatra.web.views',
@@ -21,6 +21,7 @@ urlpatterns = patterns('sumatra.web.views',
     (r'^%(project)s/%(label)s/datafile$' % P, 'show_file'),
     (r'^%(project)s/%(label)s/download$' % P, 'download_file'),
     (r'^%(project)s/%(label)s/image$' % P, 'show_image'),
+    (r'^%(project)s/%(label)s/diff' % P, 'show_diff'),
     (r'^%(project)s/%(label)s/diff/(?P<package>[\w_]+)*$' % P, 'show_diff'),
     (r'^%(project)s/simulation$' % P, 'run_sim'),
     (r'^%(project)s/settings$' % P, 'settings'), 
