@@ -49,6 +49,11 @@ class Repository(object):
         self.upstream = state['upstream']
 
     @property
+    def type(self):
+        return self.__class__.__name__[:-10]  # strip off "Repository"
+    
+
+    @property
     def exists(self):
         """Does the repository represented by this object actually exist?"""
         raise NotImplementedError

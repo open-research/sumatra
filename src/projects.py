@@ -234,7 +234,7 @@ class Project(object):
     
     def format_records(self, format='text', mode='short', tags=None):
         records = self.record_store.list(self.name, tags)
-        formatter = get_formatter(format)(records)
+        formatter = get_formatter(format)(records, project=self)
         return formatter.format(mode) 
     
     def most_recent(self):

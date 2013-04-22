@@ -6,6 +6,7 @@ formats: currently text or HTML.
 
 import textwrap
 import cgi
+import re
 
 fields = ['label', 'timestamp', 'reason', 'outcome', 'duration', 'repository',
           'main_file', 'version', 'script_arguments', 'executable',
@@ -15,8 +16,9 @@ fields = ['label', 'timestamp', 'reason', 'outcome', 'duration', 'repository',
 
 class Formatter(object):
     
-    def __init__(self, records):
+    def __init__(self, records, project=None):
         self.records = records
+        self.project = project
         
     def format(self, mode='short'):
         """
@@ -176,6 +178,47 @@ class HTMLFormatter(Formatter):
                "\n</table>"
 
 
+class LaTeXFormatter(Formatter):
+    SUBSTITUTIONS = (
+        (re.compile(r'\\'), r'\\textbackslash'),
+        (re.compile(r'([{}_#%&$])'), r'\\\1'),
+        (re.compile(r'~'), r'\~{}'),
+        (re.compile(r'\^'), r'\^{}'),
+        (re.compile(r'"'), r"''"),
+        (re.compile(r'\.\.\.+'), r'\\ldots'),
+        (re.compile(r'\<'), r'\\textless{}'),
+        (re.compile(r'\>'), r'\\textgreater{}')
+        )
+    
+    @staticmethod
+    def _escape_tex(value):
+        """Inspired by http://flask.pocoo.org/snippets/55/"""
+        newval = value
+        for pattern, replacement in LaTeXFormatter.SUBSTITUTIONS:
+            newval = pattern.sub(replacement, newval)
+        newval = newval.replace('/', '/ ')
+        return newval
+    
+    def long(self):
+        from os.path import dirname, join
+        from jinja2 import Environment, FileSystemLoader
+        template_paths = [join(dirname(__file__), "formatting")]
+        if self.project:
+            template_paths.insert(0, join(self.project.path, ".smt"))
+        env = Environment(loader=FileSystemLoader(template_paths))
+        env.block_start_string = '{%'
+        env.block_end_string = '%}'
+        env.variable_start_string = '@'
+        env.variable_end_string = '@'
+        env.filters['human_readable_duration'] = human_readable_duration
+        env.filters['escape_tex'] = LaTeXFormatter._escape_tex
+        template = env.get_template('latex_template.tex')
+        return template.render(records=self.records,
+                               project=self.project,
+                               paper_size='a4paper')
+
+
+
 class TextDiffFormatter(Formatter):
     """
     Format information about the differences between two Sumatra records in
@@ -286,6 +329,7 @@ class TextDiffFormatter(Formatter):
 formatters = {
     'text': TextFormatter,
     'html': HTMLFormatter,
+    'latex': LaTeXFormatter,
     'textdiff': TextDiffFormatter,
 }
 
@@ -296,9 +340,53 @@ def get_formatter(format):
     """
     return formatters[format]
 
+
 def get_diff_formatter():
     """
     Return a :class:`DiffFormatter` object of the appropriate type. Only
     text format is currently available.
     """
     return TextDiffFormatter
+
+
+def _quotient_remainder(dividend, divisor):
+    q = dividend // divisor
+    r = dividend - q * divisor
+    return (q, r)
+
+
+def human_readable_duration(seconds):
+    """
+    Coverts seconds to human readable unit
+
+    >>> human_readable_duration(((6 * 60 + 32) * 60 + 12))
+    '6h 32m 12.00s'
+    >>> human_readable_duration((((8 * 24 + 7) * 60 + 6) * 60 + 5))
+    '8d 7h 6m 5.00s'
+    >>> human_readable_duration((((8 * 24 + 7) * 60 + 6) * 60))
+    '8d 7h 6m'
+    >>> human_readable_duration((((8 * 24 + 7) * 60) * 60))
+    '8d 7h'
+    >>> human_readable_duration((((8 * 24) * 60) * 60))
+    '8d'
+    >>> human_readable_duration((((8 * 24) * 60) * 60) + 0.12)
+    '8d 0.12s'
+
+    """
+    from math import modf
+    (fractional_part, integer_part) = modf(seconds)
+    (d, rem) = _quotient_remainder(int(integer_part), 60 * 60 * 24)
+    (h, rem) = _quotient_remainder(rem, 60 * 60)
+    (m, rem) = _quotient_remainder(rem, 60)
+    s = rem + fractional_part
+    
+    return ' '.join(
+        templ.format(val)
+        for (val, templ) in [
+            (d, '{0}d'),
+            (h, '{0}h'),
+            (m, '{0}m'),
+            (s, '{0:.2f}s'),
+            ]
+        if val != 0
+        )

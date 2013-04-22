@@ -1,0 +1,18 @@
+===========================
+Sumatra 0.6.0 release notes
+===========================
+
+*DATE 2013*
+
+Welcome to Sumatra 0.6.0!
+
+* addition of LaTeX export: "smt list -l -f latex > myproject.tex" [need to document this]
+
+
+Bug fixes
+---------
+
+A `handful of bugs`_ have been fixed.
+
+.. _`handful of bugs`: https://neuralensemble.org/trac/sumatra/query?status=closed&group=resolution&milestone=0.6
+.. _Bitbucket: https://bitbucket.org/apdavison/sumatra

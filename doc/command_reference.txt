@@ -70,6 +70,8 @@ configure
                             labels (options: timestamp, uuid)
       -t TIMESTAMP_FORMAT, --timestamp_format=TIMESTAMP_FORMAT
                             the timestamp format given to strftime
+      -L LAUNCH_MODE, --launch_mode=LAUNCH_MODE
+                            how computations should be launched. Defaults to none
 
 delete
 ------
@@ -197,6 +199,9 @@ init
                             the timestamp format given to strftime
       -M URL, --mirror=URL  specify a URL at which your datafiles will be
                             mirrored.
+      -L LAUNCH_MODE, --launch_mode=LAUNCH_MODE
+                            how computations should be launched. Defaults to
+                            serial
 
 list
 ----
@@ -211,7 +216,7 @@ list
       -h, --help            show this help message and exit
       -l, --long            prints full information for each record
       -T, --table           prints information in tab-separated columns
-      -f FMT, --format=FMT  FMT can be 'text' (default) or 'html'.
+      -f FMT, --format=FMT  FMT can be 'text' (default), 'html' or 'latex'.
 
 repeat
 ------

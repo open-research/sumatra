@@ -357,8 +357,8 @@ def list(argv):
                       help="prints full information for each record"),
     parser.add_option('-T', '--table', action="store_const", const="table",
                       dest="mode", help="prints information in tab-separated columns")
-    parser.add_option('-f', '--format', metavar='FMT', choices=['text', 'html'], default='text',
-                      help="FMT can be 'text' (default) or 'html'.")
+    parser.add_option('-f', '--format', metavar='FMT', choices=['text', 'html', 'latex'], default='text',
+                      help="FMT can be 'text' (default), 'html' or 'latex'.")
     (options, args) = parser.parse_args(argv)
     tags = args
 

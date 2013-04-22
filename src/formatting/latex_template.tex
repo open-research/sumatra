@@ -1,0 +1,175 @@
+\documentclass[@paper_size@, 10pt]{article}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage[pdftex]{graphicx}
+\usepackage[utf8x]{inputenc}
+\usepackage{framed, color}
+\usepackage{listings}
+\usepackage{sectsty}
+\usepackage{url}
+
+\allsectionsfont{\sffamily}
+\definecolor{shadecolor}{rgb}{1,0.9,0.6}
+\definecolor{lightgrey}{rgb}{0.9,0.9,0.9}
+\definecolor{darkgreen}{rgb}{0.3,0.8,0.3}
+\definecolor{paleyellow}{rgb}{1,0.95,0.8}
+\setcounter{secnumdepth}{0}
+\setcounter{tocdepth}{1}
+
+\lstset{
+    basicstyle=\normalsize,
+    backgroundcolor=\color{paleyellow},
+    breaklines=true
+}
+
+\lstdefinelanguage{diff}{
+  morecomment=[f][\color{red}]-,
+  morecomment=[f][\color{darkgreen}]+,
+  morecomment=[f][\color{magenta}]{---},
+  morecomment=[f][\color{magenta}]{+++},
+}
+
+\title{@project.name@}
+
+\author{}
+\date{}
+
+
+\begin{document}
+
+\maketitle
+
+@project.description@
+
+\tableofcontents
+
+\newpage
+
+{% for record in records %}
+
+\begin{shaded}
+
+\section{@record.label@}
+
+
+\begin{lstlisting}
+@record.command_line@
+\end{lstlisting}
+
+\begin{description}\setlength{\itemsep}{0pt}
+    \item[Date:] @record.timestamp.date()@
+    \item[Time:] @record.timestamp.time()@
+    \item[User:] @record.user|escape_tex@
+    {% if record.tags -%}
+    \item[Tags:] @record.tags@
+    {%- endif %}
+    {% if record.repeats -%}
+    \item[Repeat of:] @record.repeats@
+    {%- endif %}
+    \item[Duration:] @record.duration|human_readable_duration@
+    \item[Working directory:] \path{@record.launch_mode.working_directory@}
+\end{description}
+
+
+
+@record.reason@
+
+@record.outcome@
+
+
+\subsection{Platform}
+
+\footnotesize
+\begin{tabular}{cccccccc}
+Name & IP address & Processor & Machine & Architecture & System type & Release \\ \hline
+    {% for platform in record.platforms %}
+    @platform.network_name@ &
+    @platform.ip_addr@ &
+    @platform.processor|escape_tex@ &
+    @platform.machine|escape_tex@ &
+    @platform.architecture_bits@ @platform.architecture_linkage@ &
+    @platform.system_name@ &
+    @platform.release|escape_tex@ &
+    {% endfor %}
+\end{tabular}
+\normalsize
+
+\subsection{Code}
+
+\begin{description}\setlength{\itemsep}{0pt}
+    \item[@record.executable.name@ version:] @record.executable.version@
+    \item[Code version:] @record.version@
+    \item[Repository:] @record.repository.type@ repository at
+        {%- if record.repository.upstream -%}
+            \url{@record.repository.upstream|urlize@}
+        {%- else -%}
+            \path{@record.repository.url|urlize@}
+        {%- endif -%}
+\end{description}
+
+{% if record.diff %}
+\subsubsection{Difference:}
+\begin{lstlisting}[language=diff, basicstyle=\footnotesize]
+    @record.diff@
+\end{lstlisting}
+{% endif %}
+
+\subsubsection{Dependencies:}
+
+\footnotesize
+\begin{tabular}{p{0.1\textwidth}p{0.6\textwidth}p{0.3\textwidth}}
+{% for dep in record.dependencies -%}
+@dep.name|escape_tex@ & \path{@dep.path@} & @dep.version@{% if dep.diff %}*{% endif %} \\
+{% endfor %}
+\end{tabular}
+\normalsize
+
+\subsection{Parameters}
+\begin{lstlisting}
+@record.parameters@
+\end{lstlisting}
+
+\subsection{Inputs}
+
+{% if record.input_data %}
+\begin{tabular}{llll}
+Path & Digest & Mimetype & File size \\ \hline
+{% for file in record.input_data -%}
+    \path{@file.path@} &
+    @file.digest@ &
+    @file.metadata.mimetype|default@ &
+    @file.metadata.size|filesizeformat@ \\
+{% endfor %}
+\end{tabular}
+{% else %}
+None
+{% endif %}
+
+\subsection{Outputs}
+
+\begin{description}
+\item[Datastore root:] @record.datastore.root@
+\end{description}
+
+\begin{tabular}{llll}
+Path & Digest & Mimetype & File size \\ \hline
+{% for file in record.output_data -%}
+    \path{@file.path@} &
+    @file.digest@ &
+    @file.metadata.mimetype|default@ &
+    @file.metadata.size|filesizeformat@ \\
+{% endfor %}
+\end{tabular}
+
+{% if record.stdout_stderr %}
+\begin{lstlisting}
+@record.stdout_stderr@
+\end{lstlisting}
+{% endif %}
+
+\end{shaded}
+
+\newpage
+
+{% endfor %}
+
+\end{document}
