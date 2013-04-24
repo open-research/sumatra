@@ -26,7 +26,7 @@ def have_internet_connection():
 
 
 def get_encoding():
-    if sys.stdout.isatty():
+    if hasattr(sys.stdout, "isatty") and sys.stdout.isatty():
         encoding = sys.stdout.encoding
     else:
         encoding = locale.getpreferredencoding()
