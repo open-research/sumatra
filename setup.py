@@ -33,7 +33,7 @@ setup(
                 'sumatra.external', 'sumatra.datastore',
                 'sumatra.external.NeuroTools',
                 'sumatra.recordstore', 'sumatra.recordstore.django_store',
-                'sumatra.versioncontrol',
+                'sumatra.versioncontrol', 'sumatra.formatting',
                 'sumatra.web', 'sumatra.web.templatetags',
                 'sumatra.publishing',
                 'sumatra.publishing.latex', 'sumatra.publishing.sphinxext'],
