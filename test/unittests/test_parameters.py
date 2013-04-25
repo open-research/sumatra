@@ -2,7 +2,10 @@
 Unit tests for the sumatra.parameters module
 """
 from __future__ import with_statement
-import unittest
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
 import os
 from copy import deepcopy
 try:
@@ -11,13 +14,14 @@ except ImportError:
     import simplejson as json
 from textwrap import dedent
 from sumatra.parameters import SimpleParameterSet, JSONParameterSet, \
-        NTParameterSet, ConfigParserParameterSet, build_parameters
-
+        NTParameterSet, ConfigParserParameterSet, build_parameters, \
+        YAMLParameterSet, yaml_loaded
+from sumatra.compatibility import string_type
 
 class TestNTParameterSet(unittest.TestCase):
 
-    def test__json_should_be_accepted(self):
-        example = {
+    def setUp(self):
+        self.example = {
                     "y": {
                         "a": -2,
                         "b": [4, 5, 6],
@@ -28,11 +32,29 @@ class TestNTParameterSet(unittest.TestCase):
                     "mylabel": "camelot",
                     "have_horse": False,
         }
-        P = NTParameterSet(json.dumps(example))
+
+    def test__json_should_be_accepted(self):
+        P = NTParameterSet(json.dumps(self.example))
         self.assertEqual(P.y.a, -2)
         self.assertEqual(P.y.b, [4, 5, 6])
         self.assertEqual(P.x, 2.9)
         self.assertEqual(P.mylabel, "camelot")
+
+    def test__str(self):
+        P = NTParameterSet(self.example)
+        as_string = str(P)
+        self.assertIsInstance(as_string, string_type)
+        self.assertEqual(P, NTParameterSet(as_string))
+    
+    def test__pop(self):
+        P = NTParameterSet(self.example)
+        self.assertEqual(P.pop('x'), 2.9)
+        self.assertEqual(P.pop('have_horse'), False)
+        self.assertEqual(P.pop('y'), {"a": -2,
+                                      "b": [4, 5, 6],
+                                      "c": 5})
+        self.assertEqual(P.as_dict(), {'z': 100, 'mylabel': 'camelot'})
+
 
 class TestSimpleParameterSet(unittest.TestCase):
 
@@ -52,6 +74,11 @@ class TestSimpleParameterSet(unittest.TestCase):
     def test__init__should_accept_an_empty_initializer(self):
         P = SimpleParameterSet("")
         self.assertEqual(P.values, {})
+
+    def test__init__should_accept_dict(self):
+        P = SimpleParameterSet({'x': 2, 'y': 3})
+        self.assertEqual(P["x"], 2)
+        self.assertEqual(P["y"], 3)
 
     def test__init__should_accept_a_filename_or_string(self):
         init = "x = 2\ny = 3"
@@ -131,6 +158,17 @@ class TestSimpleParameterSet(unittest.TestCase):
         self.assertEqual(P["tumoltuae"], 42)
         self.assertRaises(TypeError, P.update, "bar", {})
 
+    def test__str(self):
+        P = SimpleParameterSet("x = 2\ny = 3")
+        as_string = str(P)
+        self.assertIsInstance(as_string, string_type)
+        self.assertEqual(P, SimpleParameterSet(as_string))
+    
+    def test__pop(self):
+        P = SimpleParameterSet("x = 2\ny = 3")
+        self.assertEqual(P.pop('x'), 2)
+        self.assertEqual(P.as_dict(), {'y': 3})
+
 
 class TestConfigParserParameterSet(unittest.TestCase):
     test_parameters = dedent("""
@@ -178,6 +216,23 @@ class TestConfigParserParameterSet(unittest.TestCase):
         P = ConfigParserParameterSet(init)
         Q = deepcopy(P)
 
+    def test__str(self):
+        init = self.__class__.test_parameters
+        P = ConfigParserParameterSet(init)
+        as_string = str(P)
+        self.assertIsInstance(as_string, string_type)
+        self.assertEqual(P, ConfigParserParameterSet(as_string))
+    
+    def test__pop(self):
+        init = self.__class__.test_parameters
+        P = ConfigParserParameterSet(init)
+        self.assertEqual(P.pop('sectionA.b'), '3')
+
+    def test__getitem(self):
+        init = self.__class__.test_parameters
+        P = ConfigParserParameterSet(init)
+        self.assertEqual(P['sectionA'], {'a': '2', 'b': '3'})
+        self.assertEqual(P['sectionB.c'], 'hello')
 
 class TestJSONParameterSet(unittest.TestCase):
     test_parameters = dedent("""
@@ -216,23 +271,120 @@ class TestJSONParameterSet(unittest.TestCase):
         P2 = JSONParameterSet(P1.pretty())
         self.assertEqual(P1.as_dict(), P2.as_dict())
 
+    def test__str(self):
+        init = self.__class__.test_parameters
+        P = JSONParameterSet(init)
+        as_string = str(P)
+        self.assertIsInstance(as_string, string_type)
+    
+    def test__pop(self):
+        init = self.__class__.test_parameters
+        P = JSONParameterSet(init)
+        self.assertEqual(P.pop('a'), 2)
+        self.assertEqual(P.pop('c'), {"a":1, "b":2})
+        self.assertEqual(P.as_dict(), {'b': "hello", "d" : [1, 2, 3, 4]})
+
+
+class TestYAMLParameterSet(unittest.TestCase):
+    test_parameters = dedent("""
+            a:   2
+            b:   "hello"
+            c:
+              a: 1
+              b: 2
+            d:   [1, 2, 3, 4]
+        """)
+
+    @unittest.skipUnless(yaml_loaded, "PyYAML not available")
+    def setUp(self):
+        pass
+
+    def test__init__should_accept_an_empty_initializer(self):
+        P = YAMLParameterSet("")
+        self.assertEqual(P.as_dict(), {})
+
+    def test__init__should_accept_a_filename_or_string(self):
+        init = self.__class__.test_parameters
+        P1 = YAMLParameterSet(init)
+        with open("test_file", "w") as f:
+            f.write(init)
+        P2 = YAMLParameterSet("test_file")
+        self.assertEqual(P1.as_dict(), P2.as_dict())
+        os.remove("test_file")
+
+    def test_save(self):
+        init = self.__class__.test_parameters
+        P1 = YAMLParameterSet(init)
+        P1.save("test_file")
+        P2 = YAMLParameterSet("test_file")
+        self.assertEqual(P1.as_dict(), P2.as_dict())
+        os.remove("test_file")
+
+    def test__pretty__output_should_be_useable_to_create_an_identical_parameterset(self):
+        init = self.__class__.test_parameters
+        P1 = YAMLParameterSet(init)
+        P2 = YAMLParameterSet(P1.pretty())
+        self.assertEqual(P1.as_dict(), P2.as_dict())
+
+    def test__as_dict(self):
+        init = self.__class__.test_parameters
+        P = YAMLParameterSet(init)
+        self.assertEqual(P.as_dict(),
+                         {
+                            "a" : 2,
+                            "b" : "hello",
+                            "c" : {"a":1, "b":2},
+                            "d" : [1, 2, 3, 4]
+                        })
+
+    def test__str(self):
+        init = self.__class__.test_parameters
+        P = YAMLParameterSet(init)
+        as_string = str(P)
+        self.assertIsInstance(as_string, string_type)
+    
+    def test__pop(self):
+        init = self.__class__.test_parameters
+        P = YAMLParameterSet(init)
+        self.assertEqual(P.pop('a'), 2)
+        self.assertEqual(P.pop('c'), {"a":1, "b":2})
+        self.assertEqual(P.as_dict(), {'b': "hello", "d" : [1, 2, 3, 4]})
+
+
 class TestModuleFunctions(unittest.TestCase):
 
     def setUp(self):
         init = "x = 2\ny = 3"
-        with open("test_file", "w") as f:
+        with open("test_file.simple", "w") as f:
             f.write(init)
-        init2 = "{\n  'x': 2,\n  'y': {'a': 3, 'b': 4}\n}"
-        with open("test_file2", "w") as f:
+        init2 = '{\n  "x": 2,\n  "y": {"a": 3, "b": 4}\n}'
+        with open("test_file.hierarchical", "w") as f:
             f.write(init2)
         init3 = "[sectionA]\na = 2\nb = 3\n[sectionB]\nc = hello\nd = world"
-        with open("test_file3", "w") as f:
+        with open("test_file.config", "w") as f:
             f.write(init3)
 
     def tearDown(self):
-        os.remove("test_file")
-        os.remove("test_file2")
-        os.remove("test_file3")
+        os.remove("test_file.simple")
+        os.remove("test_file.hierarchical")
+        os.remove("test_file.config")
+
+    def test__build_parameters_simple(self):
+        P = build_parameters("test_file.simple")
+        self.assertEqual(P.as_dict(), {'x': 2, 'y': 3})
+        self.assertIsInstance(P, SimpleParameterSet)
+        
+    def test__build_parameters_hierarchical(self):
+        P = build_parameters("test_file.hierarchical")
+        self.assertEqual(P.as_dict(), {'x': 2, 'y': {'a': 3, 'b': 4}})
+        self.assertIsInstance(P, (JSONParameterSet, YAMLParameterSet, NTParameterSet))
+    
+    def test__build_parameters_config(self):
+        P = build_parameters("test_file.config")
+        self.assertEqual(P.as_dict(), {'sectionA': {'a': '2', 'b': '3'}, 'sectionB': {'c': 'hello', 'd': 'world'}})
+        self.assertIsInstance(P, ConfigParserParameterSet)
+
+    
 
 # these tests should now be applied to commands.parse_arguments and/or commands.parse_command_line_parameter()
     #def test__build_parameters__should_add_new_command_line_parameters_to_the_file_parameters(self):

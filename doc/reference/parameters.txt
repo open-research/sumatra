@@ -1,0 +1,7 @@
+======================
+Parameter file formats
+======================
+
+.. automodule:: sumatra.parameters
+
+

@@ -93,6 +93,7 @@ To see the current configuration of your project, use the ``info`` command::
     Record store        : Relational database record store using the Django ORM (database file=/path/to/my/project/.smt/records)
     Code change policy  : error
     Append label to     : None
+    Label generator     : timestamp
     
 Sumatra automatically records the identity and versions of the simulation files
 and the simulator executable, stores links to any files created by the
@@ -183,9 +184,10 @@ option, e.g.::
     Usage: smt comment [options] [LABEL] [COMMENT]
 
     This command is used to describe the outcome of the simulation/analysis. If
-    LABEL is omitted, the comment will be added to the most recent experiment.
-    If the '-f/--file' option is set, COMMENT should be the name of a file
-    containing the comment, otherwise it should be a string of text.
+    LABEL is omitted, the comment will be added to the most recent experiment (any
+    existing comment will be overwritten). If the '-f/--file' option is set,
+    COMMENT should be the name of a file containing the comment, otherwise it
+    should be a string of text.
 
     Options:
       -h, --help     show this help message and exit

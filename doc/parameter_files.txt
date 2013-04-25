@@ -53,6 +53,12 @@ JSON
 See http://www.json.org/.
 
 
+YAML
+----
+
+See http://www.yaml.org
+
+
 NeuroTools format
 -----------------
 
@@ -129,5 +135,5 @@ include a plugin system which will greatly simplify adding your own
 customizations.
     
 
-.. _ConfigParser: http://docs.python.org/library/configparser.html
+.. _ConfigParser: http://docs.python.org/2/library/configparser.html
 .. _`NeuroTools parameter format`: http://neuralensemble.org/trac/NeuroTools/wiki/parameters

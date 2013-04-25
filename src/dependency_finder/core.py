@@ -35,6 +35,7 @@ def find_versions_from_versioncontrol(dependencies):
                 if wc.has_changed():
                     dependency.diff = wc.diff()
                 dependency.version = wc.current_version()
+                dependency.source = wc.repository.url
     return dependencies
 
 
@@ -47,9 +48,11 @@ def find_versions(dependencies, heuristics):
     """
     Try to find version information by calling a series of functions in turn.
     
-    `dependencies` - a list of Dependency objects.
-    `heuristics`   - a list of functions that accept a component as the single
-                     argument and return a version number or 'unknown'.
+    *dependencies*:
+        a list of Dependency objects.
+    *heuristics*:
+        a list of functions that accept a component as the single
+        argument and return a version number or 'unknown'.
                    
     Returns a possibly modified list of dependencies
     """
@@ -61,7 +64,7 @@ def find_versions(dependencies, heuristics):
 def find_file(path, current_directory, search_dirs):
     """
     Look for path as an absolute path then relative to the current directory,
-    then relative to search_dirs.
+    then relative to *search_dirs*.
     Return the absolute path.
     """
     op = os.path
@@ -71,18 +74,38 @@ def find_file(path, current_directory, search_dirs):
         search_path = op.join(dir, path)
         if op.exists(search_path):
             return search_path
-    raise Exception("File %s does not exist" % path)
+    raise IOError("File %s does not exist" % path)
 
 
 
 class BaseDependency(object):
     """
     Contains information about a program component, and tries to determine version information.
+    
+    *name*:
+        an identifying name, e.g. the module name in Python
+    *path*:
+        the location of the dependency file in the local filesystem
+    *version*:
+        the version of the dependency, if that can be determined, otherwise
+        'unknown'. Always a string, even if the version can also be represented
+        as a number.
+    *diff*:
+        if the dependency is under version control and has been modified, the
+        diff between the actual version and the last-committed version.
+    *source*:
+        an identifier for where the dependency came from, if known, e.g. the
+        url of a version control repository or the name of a Linux package.
+    
     """
     
-    def __init__(self, name, path=None, version=None, on_changed='error'):
-        pass
-        
+    def __init__(self, name, path=None, version='unknown', diff='', source=None):
+        self.name = name
+        self.path = path
+        self.diff = diff
+        self.version = version
+        self.source = source  # e.g. url of (upstream?) repository
+ 
     def __repr__(self):
         return "%s (%s) version=%s%s" % (self.name, self.path, self.version, self.diff and "*" or '')
         

@@ -37,20 +37,15 @@ class Dependency(core.BaseDependency):
     """
     module = 'neuron'
     
-    def __init__(self, name, path=None, version='unknown', diff=''):
-        self.name = os.path.basename(name) # or maybe should be path relative to main file?
-        if path:
-            self.path = path
-        else:
-            self.path = os.path.abspath(name)
-        if not os.path.exists(self.path):
-            raise IOError("File %s does not exist." % self.path)
-        self.diff = ''
-        self.version = version
+    def __init__(self, name, path=None, version='unknown', diff='', source=None):
+        super(Dependency, self).__init__(os.path.basename(name),
+                                         path or os.path.abspath(name),
+                                         version, diff, source)
 
     def in_stdlib(self, executable_path):
         stdlib_path = _nrn_install_prefix(executable_path)
         return self.path.find(stdlib_path) == 0
+
 
 def find_xopened_files(file_path):
     """
@@ -84,11 +79,12 @@ def _nrn_install_prefix(executable_path):
 
 def find_loaded_files(file_path, executable_path):
     """
-    Find all files that are loaded with load_file(), whether directly or
+    Find all files that are loaded with :func:`load_file()`, whether directly or
     indirectly, by a given Hoc file. Note that this only handles cases whether
     the path is given directly, not where it has been previously assigned to a
-    strdef. Also note that this is more complicated than xopen(), since NEURON
-    also looks in any directories in $HOC_LIBRARY_PATH and $NEURONHOME/lib/hoc.
+    strdef. Also note that this is more complicated than :func:`xopen()`, since
+    NEURON also looks in any directories in ``$HOC_LIBRARY_PATH`` and
+    ``$NEURONHOME/lib/hoc``.
     """
     op = os.path
     search_dirs = []

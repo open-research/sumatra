@@ -13,8 +13,6 @@ If using a MirroredFileSystemDataStore could just use URL
    
 The project name and recordstore directive are optional if rst2xxxx is used in a Sumatra project directory
 
-Any way to make project and recordstore globally accessible, to have them as
-defaults set only a one place in the document?
 """
 
 from docutils.parsers.rst import directives, states
@@ -25,15 +23,20 @@ from docutils import nodes, utils
 
 from sumatra.projects import load_project
 from sumatra.recordstore import get_record_store
-from sumatra.datastore import DataKey
+from sumatra.publishing.utils import determine_project, determine_record_store, \
+                                     determine_project_name, record_link_url, \
+                                     get_image, get_record_label_and_image_path
 import os.path
+
+
+LOCAL_IMAGE_CACHE = "smt_images"  # should use tempfile?
 
 
 def smt_link_role(role, rawtext, text, lineno, inliner, options={}, content=[]):
     label = text
     settings = inliner.document.settings
     ref = "%s/%s/%s/" % (settings.sumatra_record_store,
-                         settings.sumatra_project_name,
+                         settings.sumatra_project,
                          label)
     set_classes(options)
     node = nodes.reference(rawtext, '', refuri=ref,
@@ -42,6 +45,22 @@ def smt_link_role(role, rawtext, text, lineno, inliner, options={}, content=[]):
     return [node], []
 
 roles.register_local_role('smtlink', smt_link_role)
+
+
+
+def build_options(global_settings, local_options):
+    if hasattr(global_settings, 'env'):  # using sphinx
+        config = global_settings.env.config
+    else:
+        config = global_settings         # using plain docutils
+    # convert config into dict, and strip "sumatra_" prefix
+    combined_options = {}
+    for name in ("record_store", "project", "link_icon"):
+        full_name = "sumatra_" + name
+        if hasattr(config, full_name):
+            combined_options[name] = getattr(config, full_name)
+    combined_options.update(local_options)
+    return combined_options
 
 
 class SumatraImage(Image):
@@ -81,65 +100,32 @@ class SumatraImage(Image):
                        '", "'.join(self.align_h_values)))
         messages = []
         # previous code from Image.run()
+        # --------------------------------------------------------------------
 
-        if hasattr(self.state.document.settings, 'env'):  # using sphinx
-            config = self.state.document.settings.env.config
-        else:
-            config = self.state.document.settings         # using plain docutils
-        
+        sumatra_options = build_options(self.state.document.settings, self.options)
+
         # determine which record store to use
-        if hasattr(config, 'sumatra_project_dir'):
-            prj = load_project(config.sumatra_project_dir)
-        elif os.path.exists(os.path.join('.smt', 'project')):
-            prj = load_project()
-        else:
-            prj = None
-        if 'record_store' in self.options:
-            record_store = get_record_store(self.options["record_store"])
-        elif hasattr(config, 'sumatra_record_store'):
-            record_store = get_record_store(config.sumatra_record_store)
-        elif prj is None:
-            raise self.error(
-                'Neither project_dir nor record_store defined'
-            )
-        else:
-            record_store = prj.record_store
+        prj = determine_project(sumatra_options)
+        record_store = determine_record_store(prj, sumatra_options, self.error)
         
         # determine the project (short) name
-        if 'project' in self.options:
-            project_name = self.options['project']
-        elif hasattr(config, 'sumatra_project_name'):
-            project_name = config.sumatra_project_name
-        elif prj is None:
-            raise self.error('project name not defined')
-        else:
-            project_name = prj.name
+        project_name = determine_project_name(prj, sumatra_options, self.error)
         
-        record_label = self.arguments[0]
+        record_label, image_path = get_record_label_and_image_path(self.arguments[0])
         record = record_store.get(project_name, record_label)
-        if len(self.arguments) == 2:
-            raise NotImplementedError
+        image = get_image(record, image_path, self.options, self.error)  # automatically checks digest
+        if hasattr(image, "url"):
+            reference = image.url
         else:
-            image_file = record.output_data[0]
-        assert isinstance(image_file, DataKey), type(image_file)
-        
-        # check digest, if supplied
-        if 'digest' in self.options:
-            if self.options['digest'] != image_file.digest:
-                raise self.error('Digests do not match')
-        
-        if hasattr(image_file, 'url'):
-            reference = image_file.url
-        else:
-            reference = "http://data.andrewdavison.info/Destexhe_JCNS_2009/" + image_file.path  ## temporary hack
-            #raise NotImplementedError  # get file content, write local temporary file
-        
+            reference = image.save_copy(LOCAL_IMAGE_CACHE)
+
         # set values for alt and target, if they have not been specified
         if not 'target' in self.options and hasattr(record_store, 'server_url'):
-            self.options['target'] = "%s%s/%s/" % (record_store.server_url, project_name, record_label)
+            self.options['target'] = record_link_url(record_store.server_url, project_name, record_label)
         if not 'alt' in self.options:
             self.options['alt'] = "Data file generated by computation %s" % record_label
         
+        # --------------------------------------------------------------------
         # following code from Image.run()
         self.options['uri'] = reference
         reference_node = None

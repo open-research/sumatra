@@ -11,12 +11,6 @@ from sumatra.launch import SerialLaunchMode, DistributedLaunchMode, PlatformInfo
 import sys
 import os
 
-try:
-    import mpi4py.MPI
-    have_mpi = True
-except ImportError:
-    have_mpi = False
-
 class MockExecutable(object):
     requires_script = True
     def __init__(self, path):
@@ -100,9 +94,10 @@ class TestSerialLaunchMode(unittest.TestCase, BaseTestLaunchMode):
 
 class TestDistributedLaunchMode(unittest.TestCase, BaseTestLaunchMode):
     
-    @unittest.skipUnless(have_mpi, "Need to install mpi4py")
     def setUp(self):
         self.lm = DistributedLaunchMode(2, "mpiexec", ["node1", "node2"])
+        if self.lm.mpirun is None:
+            raise unittest.SkipTest("mpiexec not found")
 
     def tearDown(self):
         for path in "valid_test_script.py", "invalid_test_script.py", "test_parameters":
@@ -112,10 +107,10 @@ class TestDistributedLaunchMode(unittest.TestCase, BaseTestLaunchMode):
     def test__init__should_not_raise_an_exception_if_the_mpiexec_is_not_found(self):
         lm = DistributedLaunchMode(2, "mpifoo", ["node1", "node2"])
 
-    def test__generate_command__should_raise_an_exception_if_the_mpiexec_is_not_found(self):
+    def test_check_files_should_raise_an_exception_if_the_mpiexec_is_not_found(self):
         lm = DistributedLaunchMode(2, "mpifoo", ["node1", "node2"])
         lm.mpirun = "mpifoo"
-        self.assertRaises(IOError, lm.generate_command, MockExecutable(sys.executable), "main_file", "arguments") # main_file does not exist either, but mpirun is checked first
+        self.assertRaises(IOError, lm.check_files, MockExecutable(sys.executable), "main_file") # main_file does not exist either, but mpirun is checked first
 
     def test__init__should_set_mpirun_to_the_full_path(self):
         for path in "/usr/bin/mpiexec", "/usr/local/bin/mpiexec":
@@ -125,7 +120,11 @@ class TestDistributedLaunchMode(unittest.TestCase, BaseTestLaunchMode):
             
     def test_getstate_should_return_an_appropriate_dict(self):
         self.assertEqual(self.lm.__getstate__(),
-                         {'mpirun': self.lm.mpirun, 'n': 2, 'hosts': ["node1", "node2"], 'pfi_path': '/usr/local/bin/pfi.py'})
+                         {'working_directory': self.lm.working_directory,
+                          'mpirun': self.lm.mpirun,
+                          'n': 2,
+                          'hosts': ["node1", "node2"],
+                          'pfi_path': '/usr/local/bin/pfi.py'})
 
 
 if __name__ == '__main__':

@@ -36,6 +36,8 @@ def main(argv):
         will be used.""")
     parser = OptionParser(usage=usage,
                           description=description)
+    parser.add_option('-a', '--allips', default=False, action="store_true",
+                      help="run server on all IPs, not just localhost")
     parser.add_option('-p', '--port', metavar='PORT', default="8000",
                       help="run server on this port number PORT")
     parser.add_option('-n', '--no-browser', default=False, action="store_true",
@@ -48,7 +50,7 @@ def main(argv):
         project = load_project()
         if not isinstance(project.record_store, DjangoRecordStore):
             # should make the web interface independent of the record store, if possible
-            print "This project cannot be accessed using the web interface."
+            print("This project cannot be accessed using the web interface.")
             sys.exit(1)
         del project
     db_config.configure()
@@ -64,11 +66,14 @@ def main(argv):
     management.setup_environ(settings)
     if not options.no_browser:
         thread.start_new_thread(delayed_new_tab, ("http://127.0.0.1:%s" % options.port, 3))
-    management.call_command('runserver', options.port, use_reloader=False)
+
+    if options.allips:
+        address = '0.0.0.0'
+    else:
+        address = '127.0.0.1'
+    address += ':' + options.port
+    management.call_command('runserver', address, use_reloader=False)
     
 
 if __name__ == "__main__":
     main(sys.argv[1:])
-
-
-

@@ -17,7 +17,7 @@ version = __version__.split(".")
 major_version = int(version[0])
 minor_version = int(version[1][0])
 if major_version != 0 or minor_version not in (1, 2, 3):
-    print "This script is only intended for use with Sumatra 0.1, 0.2, 0.2.1 or 0.3.0. You are using %s" % __version__
+    print("This script is only intended for use with Sumatra 0.1, 0.2, 0.2.1 or 0.3.0. You are using %s" % __version__)
     sys.exit(1)
 
 STORE_FILE = {

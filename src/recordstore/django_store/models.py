@@ -9,6 +9,9 @@ import os.path
 import tagging.fields
 from tagging.models import Tag
 from datetime import datetime
+import django
+from distutils.version import LooseVersion
+
 
 class SumatraObjectsManager(models.Manager):
     
@@ -88,16 +91,15 @@ class Dependency(BaseModel):
     path = models.CharField(max_length=200)
     version = models.CharField(max_length=20)
     diff = models.TextField(blank=True)
+    source = models.CharField(max_length=200, null=True, blank=True)
     module = models.CharField(max_length=50) # should be called language, or something
     
     def __unicode__(self):
         return "%s (%s) version=%s" % (self.name, self.path, self.version)
     
     def to_sumatra(self):
-        dep = getattr(dependency_finder, self.module).Dependency(self.name, self.path, self.version)
-        if self.diff:
-            dep.diff = self.diff
-        return dep
+        return getattr(dependency_finder, self.module).Dependency(
+                    self.name, self.path, self.version, self.diff, self.source)
         
     class Meta:
         ordering = ['name']
@@ -106,7 +108,12 @@ class Dependency(BaseModel):
 class Repository(BaseModel):
     # the following should be unique together.
     type = models.CharField(max_length=20)
-    url = models.URLField(verify_exists=False)
+    if LooseVersion(django.get_version()) < LooseVersion('1.5'):
+        url = models.URLField(verify_exists=False)
+        upstream = models.URLField(verify_exists=False, null=True, blank=True)
+    else:
+        url = models.URLField()
+        upstream = models.URLField(null=True, blank=True)
 
     def __unicode__(self):
         return self.url
@@ -114,7 +121,9 @@ class Repository(BaseModel):
     def to_sumatra(self):
         for m in versioncontrol.vcs_list:
             if hasattr(m, self.type):
-                return getattr(m, self.type)(self.url)
+                repos = getattr(m, self.type)(self.url)
+                repos.upstream = self.upstream
+                return repos
         raise Exception("Repository type %s not supported." % self.type)
 
 
@@ -225,6 +234,7 @@ class Record(BaseModel):
     project = models.ForeignKey(Project, null=True)
     script_arguments = models.TextField(blank=True)
     stdout_stderr = models.TextField(blank=True)
+    repeats = models.CharField(max_length=100, null=True, blank=True)
 
     # parameters which will be used in the fulltext search (see sumatra.web.services fulltext_search)
     params_search = ('label','reason', 'duration', 'main_file', 'outcome', 'user', 'tags') 
@@ -247,16 +257,16 @@ class Record(BaseModel):
             self.reason,
             self.diff,
             self.user,
-            input_datastore=self.input_datastore.to_sumatra())
-
+            input_datastore=self.input_datastore.to_sumatra(),
+            timestamp=self.timestamp)
         record.stdout_stderr = self.stdout_stderr
         record.duration = self.duration
         record.outcome = self.outcome
-        record.timestamp = self.timestamp
         record.tags = set(tag.name for tag in Tag.objects.get_for_object(self))
         record.output_data = [key.to_sumatra() for key in self.output_data.all()]
         record.dependencies = [dep.to_sumatra() for dep in self.dependencies.all()]
         record.platforms = [pi.to_sumatra() for pi in self.platforms.all()]
+        record.repeats = self.repeats
         return record
             
     def __unicode__(self):
@@ -264,3 +274,10 @@ class Record(BaseModel):
     
     def tag_objects(self):
         return Tag.objects.get_for_object(self) 
+
+    def command_line(self):
+        return self.to_sumatra().command_line
+    
+    def working_directory(self):
+        return self.launch_mode.get_parameters().get('working_directory', None)
+    

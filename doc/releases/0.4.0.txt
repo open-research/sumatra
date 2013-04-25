@@ -115,6 +115,6 @@ A `whole bunch of bugs`_ were fixed in Sumatra 0.4.
 
 .. _`Google Summer of Code`: http://www.google-melange.com/gsoc/homepage/google/gsoc2012
 .. _INCF: http://www.incf.org
-.. _`this blog post`: http://samarkanov.com/blog/xxx
+.. _`this blog post`: http://samarkanov.com/blog/sumatra-running-the-simulations-from-web-interface/
 .. _reStructuredText: docutils.sourceforge.net/rst.html
 .. _`whole bunch of bugs`: https://neuralensemble.org/trac/sumatra/query?status=closed&group=resolution&milestone=0.4

@@ -28,7 +28,11 @@ try:
     have_bzr = True
 except ImportError:
     have_bzr = False
-from sumatra.versioncontrol import get_repository, get_working_copy
+from sumatra.versioncontrol import get_repository, get_working_copy, VersionControlError
+
+skip_ci = False
+if "JENKINS_SKIP_TESTS" in os.environ:
+    skip_ci = os.environ["JENKINS_SKIP_TESTS"] == "1"
 
 
 class BaseTestWorkingCopy(object):
@@ -270,11 +274,9 @@ class TestMercurialRepository(unittest.TestCase, BaseTestRepository):
         r = self._create_repository()
         self.assertEqual(r._repository.url(), "file:%s" % self.repository_path)
 
-    def test__exists__with_nonexistent_repos__should_raise_Exception(self):
+    def test__exists__with_nonexistent_repos__should_return_False(self):
         repos = MercurialRepository("file:///tmp/")
-        def f():
-            repos.exists
-        self.assertRaises(Exception, f)
+        self.assertFalse(repos.exists)
     
     def test__can_create_project_in_subdir(self):
         #Test if a Sumatra project can be created in one of the subdirectories of a repository
@@ -305,11 +307,9 @@ class TestGitRepository(unittest.TestCase, BaseTestRepository):
     def _create_repository(self):
         return GitRepository(self.repository_path)
 
-    def test__exists__with_nonexistent_repos__should_raise_Exception(self):
+    def test__exists__with_nonexistent_repos__should_return_False(self):
         repos = GitRepository("/tmp/")
-        def f():
-            repos.exists
-        self.assertRaises(Exception, f)
+        self.assertFalse(repos.exists)
 
     def test__can_create_project_in_subdir(self):
         #Test if a Sumatra project can be created in one of the subdirectories of a repository
@@ -338,9 +338,11 @@ class TestSubversionRepository(unittest.TestCase, BaseTestRepository):
         r = self._create_repository()
         assert hasattr(r._client, "checkout")
         
-    def test__init__with_nonexistent_repos__should_raise_Exception(self):
-        self.assertRaises(Exception, SubversionRepository, "file:///tmp/")
+    def test__exists__with_nonexistent_repos__should_raise_Exception(self):
+        r = SubversionRepository("file:///tmp/chnseriguchs")
+        self.assertFalse(r.exists)
    
+    @unittest.skipIf(skip_ci, "Skipping test on CI server")
     def test__checkout__with_nonexistent_repos__should_raise_Exception(self):
         r = self._create_repository()
         self.assertRaises(Exception, r.checkout, path="file:///tmp/")
@@ -365,11 +367,9 @@ class TestBazaarRepository(unittest.TestCase, BaseTestRepository):
     def _create_repository(self):
         return BazaarRepository(self.repository_path)
 
-    def test__exists__with_nonexistent_repos__should_raise_Exception(self):
+    def test__exists__with_nonexistent_repos__should_return_False(self):
         repos = BazaarRepository("/tmp/")
-        def f():
-            repos.exists
-        self.assertRaises(Exception, f)
+        self.assertFalse(repos.exists)
 
     def test__checkout_of_remote_repos(self):
         tmpdir = tempfile.mkdtemp()
@@ -438,7 +438,7 @@ class TestPackageFunctions(unittest.TestCase):
         assert isinstance(repos, MercurialRepository), type(repos)
         
     def test__get_repository__from_invalid_url_should_raise_Exception(self):
-        self.assertRaises(Exception, get_repository, "file:///tmp/")
+        self.assertRaises(VersionControlError, get_repository, "file:///tmp/iugnoirutgvnir")
 
     @unittest.skipUnless(have_pysvn, "Could not import pysvn")
     def test__get_repository_from_working_copy(self):

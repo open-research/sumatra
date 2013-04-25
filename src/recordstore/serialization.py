@@ -9,9 +9,10 @@ except ImportError:
 from datetime import datetime
 from sumatra import programs, launch, datastore, versioncontrol, parameters, dependency_finder
 from sumatra.records import Record
-
+from ..compatibility import string_type
 
 def encode_record(record, indent=None):
+    """Encode a Sumatra record as JSON."""
     data = {
         "label": record.label, # 0.1: 'group'
         "timestamp": record.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
@@ -26,6 +27,7 @@ def encode_record(record, indent=None):
         "repository": {
             "url": record.repository.url,
             "type": record.repository.__class__.__name__,
+            "upstream": record.repository.upstream,  # added in 0.5
         },
         "main_file": record.main_file,
         "version": record.version,
@@ -68,6 +70,7 @@ def encode_record(record, indent=None):
             #"language": d.language,
             "module": d.module,
             "diff": d.diff,
+            "source": d.source,  # added in 0.5
             } for d in record.dependencies],
         "platforms": [{
             "system_name": p.system_name, 
@@ -80,11 +83,13 @@ def encode_record(record, indent=None):
             "network_name": p.network_name, 
             "processor": p.processor
             } for p in record.platforms],
+        "repeats": record.repeats,  # added in 0.6
         }
     return json.dumps(data, indent=indent)
 
 
 def encode_project_info(long_name, description):
+    """Encode a Sumatra project as JSON"""
     data = {}
     if long_name:
         data["name"] = long_name
@@ -105,14 +110,18 @@ def keys2str(D):
 
 
 def decode_project_list(content):
+    """docstring"""
     return json.loads(content)
 
 
 def decode_project_data(content):
+    """docstring"""
     return json.loads(content)
+# shouldn't this be called decode_project_info, for symmetry?
 
 
 def build_record(data):
+    """Create a Sumatra record from a nested dictionary."""
     edata = data["executable"]
     cls = programs.registered_program_names.get(edata["name"], programs.Executable)
     executable = cls(edata["path"], edata["version"], edata.get("options", ""))
@@ -126,6 +135,7 @@ def build_record(data):
     if repos_cls is None:  
         repos_cls = versioncontrol.base.Repository
     repository = repos_cls(rdata["url"])
+    repository.upstream = rdata.get("upstream", None)
     pdata = data["parameters"]
     if pdata["type"] == "dict":
         parameter_set = eval(pdata["content"])
@@ -134,24 +144,24 @@ def build_record(data):
         parameter_set = getattr(parameters, pdata["type"])(pdata["content"])
     ldata = data["launch_mode"]
     lm_parameters = ldata["parameters"]
-    if isinstance(lm_parameters, basestring): # prior to 0.3
+    if isinstance(lm_parameters, string_type): # prior to 0.3
         lm_parameters = eval(lm_parameters)
     launch_mode = getattr(launch, ldata["type"])(**keys2str(lm_parameters))
     def build_data_store(ddata):
         ds_parameters = ddata["parameters"]
-        if isinstance(ds_parameters, basestring): # prior to 0.3
+        if isinstance(ds_parameters, string_type): # prior to 0.3
             ds_parameters = eval(ds_parameters)
         return getattr(datastore, ddata["type"])(**keys2str(ds_parameters))
     data_store = build_data_store(data["datastore"])
-    if "input_data_store" in data: # 0.4 onwards
-        input_datastore = build_data_store(data["input_data_store"])
+    if "input_datastore" in data: # 0.4 onwards
+        input_datastore = build_data_store(data["input_datastore"])
     else:
         input_datastore = datastore.FileSystemDataStore("/")
     input_data = data.get("input_data", [])
-    if isinstance(input_data, basestring): # 0.3
+    if isinstance(input_data, string_type): # 0.3
         input_data = eval(input_data)
     if input_data:
-        if isinstance(input_data[0], basestring): # versions prior to 0.4
+        if isinstance(input_data[0], string_type): # versions prior to 0.4
             input_data = [datastore.DataKey(path, digest=datastore.IGNORE_DIGEST)
                           for path in input_data]
         else:
@@ -161,12 +171,12 @@ def build_record(data):
                        data["version"], launch_mode, data_store, parameter_set,
                        input_data, data.get("script_arguments", ""), 
                        data["label"], data["reason"], data["diff"],
-                       data.get("user", ""), input_datastore=input_datastore)
+                       data.get("user", ""), input_datastore=input_datastore,
+                       timestamp=datetime.strptime(data["timestamp"], "%Y-%m-%d %H:%M:%S"))
     tags = data["tags"]
     if not hasattr(tags, "__iter__"):
         tags = (tags,)
     record.tags = set(tags)
-    record.timestamp = datetime.strptime(data["timestamp"], "%Y-%m-%d %H:%M:%S")
     record.output_data = []
     if "output_data" in data:
         for keydata in data["output_data"]:
@@ -182,15 +192,21 @@ def build_record(data):
     record.platforms = [launch.PlatformInformation(**keys2str(pldata)) for pldata in data["platforms"]]
     record.dependencies = []
     for depdata in data["dependencies"]:
-        dep = getattr(dependency_finder, depdata["module"]).Dependency(depdata["name"], depdata["path"], depdata["version"])
-        dep.diff = depdata["diff"]
+        dep_args = [depdata["name"], depdata["path"], depdata["version"],
+                    depdata["diff"]]
+        if "source" in depdata:  # 0.5 onwards
+            dep_args.append(depdata["source"])
+        dep = getattr(dependency_finder, depdata["module"]).Dependency(*dep_args)
         record.dependencies.append(dep)
+    record.repeats = data.get("repeats", None)
     return record
 
 
 def decode_record(content):
+    """Create a Sumatra record from a JSON string."""
     return build_record(json.loads(content))
 
     
 def decode_records(content):
+    """Create multiple Sumatra records from a JSON string."""
     return [build_record(data) for data in json.loads(content)]

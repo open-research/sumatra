@@ -1,0 +1,22 @@
+===============================
+Handling provenance information
+===============================
+
+.. currentmodule:: sumatra.records
+
+The records module defines the :class:`Record` class, which gathers and stores
+information about an individual simulation or analysis run.
+
+.. autoclass:: Record
+   :members:
+   :undoc-members:
+   :inherited-members:
+   :show-inheritance:
+   
+
+
+.. autoclass:: RecordDifference
+   :members:
+   :undoc-members:
+   :inherited-members:
+   :show-inheritance:

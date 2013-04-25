@@ -1,0 +1,19 @@
+=================
+Managing projects
+=================
+
+.. currentmodule:: sumatra.projects
+
+The projects module defines the :class:`Project` class, which stores information
+about a computation-based project and contains a number of methods for managing
+and running computational experiments, whether simulations, analyses or
+whatever. This is the main class that is used directly when using Sumatra within
+your own scripts.
+
+.. autoclass:: Project
+   :members:
+   :undoc-members:
+   :inherited-members:
+   :show-inheritance:
+
+.. autofunction:: load_project

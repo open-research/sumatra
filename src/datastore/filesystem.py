@@ -9,8 +9,8 @@ import logging
 import mimetypes
 from subprocess import Popen
 import warnings
-
-from base import DataStore, DataKey, DataItem, IGNORE_DIGEST
+from ..compatibility import string_type
+from .base import DataStore, DataKey, DataItem, IGNORE_DIGEST
 
 
 class DataFile(DataItem):
@@ -55,6 +55,9 @@ class DataFile(DataItem):
             content = content[:-1]
         return content
     
+    # should probably override save_copy() from base class,
+    # as a filesystem copy will be much faster
+    
 
 class FileSystemDataStore(DataStore):
     """
@@ -78,7 +81,7 @@ class FileSystemDataStore(DataStore):
     def __get_root(self):
         return self._root
     def __set_root(self, value):
-        if not isinstance(value, basestring):
+        if not isinstance(value, string_type):
             raise TypeError("root must be a string")
         self._root = value
         if not os.path.exists(self._root):
@@ -124,15 +127,7 @@ class FileSystemDataStore(DataStore):
         if key.digest != IGNORE_DIGEST and df.digest != key.digest:
             raise KeyError("Digests do not match.") # add info about file sizes?
         return df
-    
-    def get_content(self, key, max_length=None):
-        """
-        Return the contents of a file identified by a key.
         
-        If `max_length` is given, the return value will be truncated.
-        """
-        return self.get_data_item(key).get_content(max_length)
-    
     def delete(self, *keys):
         """
         Delete the files corresponding to the given keys.
@@ -144,9 +139,6 @@ class FileSystemDataStore(DataStore):
                 warnings.warn("Tried to delete %s, but it did not exist." % key)
             else:
                 os.remove(data_item.full_path)
-
-    def generate_keys(self, *paths):
-        return [self.data_item_class(path, self).generate_key() for path in paths]
 
     def contains_path(self, path):
         return os.path.exists(os.path.join(self.root, path))

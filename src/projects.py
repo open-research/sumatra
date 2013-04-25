@@ -20,13 +20,19 @@ load_project() - read project information from the working directory and return
 
 import os
 import sys
-import cPickle as pickle
+try:
+    import cPickle as pickle
+except ImportError:
+    import pickle
 from copy import deepcopy
+import uuid
+import sumatra
 from sumatra.records import Record
 from sumatra import programs, datastore
 from sumatra.formatting import get_formatter, get_diff_formatter
 from sumatra.recordstore import DefaultRecordStore
 from sumatra.versioncontrol import UncommittedModificationsError, get_working_copy
+from sumatra.core import TIMESTAMP_FORMAT
 import mimetypes
 try:
     import json
@@ -37,6 +43,11 @@ import logging
 logger = logging.getLogger("Sumatra")
 
 DEFAULT_PROJECT_FILE = "project"
+
+LABEL_GENERATORS = {
+    'timestamp': lambda: None, # this is the default, implemented in the Record class
+    'uuid': lambda: str(uuid.uuid4()).split('-')[-1]
+}
 
 
 def _remove_left_margin(s): # replace this by textwrap.dedent?
@@ -53,7 +64,8 @@ class Project(object):
                  default_main_file=None, default_launch_mode=None,
                  data_store='default', record_store='default',
                  on_changed='error', description='', data_label=None,
-                 input_datastore=None):
+                 input_datastore=None, label_generator='timestamp',
+                 timestamp_format=TIMESTAMP_FORMAT):
         self.path = os.getcwd()
         if not os.path.exists(".smt"):
             os.mkdir(".smt")
@@ -74,9 +86,12 @@ class Project(object):
         self.on_changed = on_changed
         self.description = description
         self.data_label = data_label
-        self._most_recent = None
+        self.label_generator = label_generator
+        self.timestamp_format = timestamp_format        
+        self.sumatra_version = sumatra.__version__
+        self._most_recent = None            
         self.save()
-        print "Sumatra project successfully set up"
+        print("Sumatra project successfully set up")
         
     def __set_data_label(self, value):
         assert value in (None, 'parameters', 'cmdline')
@@ -92,7 +107,8 @@ class Project(object):
         for name in ('name', 'default_executable', 'default_repository',
                      'default_launch_mode', 'data_store', 'record_store',
                      'default_main_file', 'on_changed', 'description',
-                     'data_label', '_most_recent', 'input_datastore',):
+                     'data_label', '_most_recent', 'input_datastore',
+                     'label_generator', 'timestamp_format', 'sumatra_version'):
             attr = getattr(self, name, None)
             if hasattr(attr, "__getstate__"):
                 state[name] = {'type': attr.__class__.__module__ + "." + attr.__class__.__name__}
@@ -117,13 +133,16 @@ class Project(object):
         Record store        : %(record_store)s
         Code change policy  : %(on_changed)s
         Append label to     : %(_data_label)s
+        Label generator     : %(label_generator)s
+        Timestamp format    : %(timestamp_format)s
+        Sumatra version     : %(sumatra_version)s
         """
         return _remove_left_margin(template % self.__dict__)
     
     def new_record(self, parameters={}, input_data=[], script_args="",
                    executable='default', repository='default',
                    main_file='default', version='latest', launch_mode='default',
-                   label=None, reason=None):
+                   label=None, reason=None, timestamp_format='default'):
         logger.debug("Creating new record")
         if executable == 'default':
             executable = deepcopy(self.default_executable)           
@@ -133,27 +152,35 @@ class Project(object):
             main_file = self.default_main_file
         if launch_mode == 'default':
             launch_mode = deepcopy(self.default_launch_mode)
+        if timestamp_format == 'default':
+            timestamp_format = self.timestamp_format
         working_copy = repository.get_working_copy()
         version, diff = self.update_code(working_copy, version)
+        if label is None:
+            label = LABEL_GENERATORS[self.label_generator]()
         record = Record(executable, repository, main_file, version, launch_mode,
                         self.data_store, parameters, input_data, script_args, 
                         label=label, reason=reason, diff=diff,
                         on_changed=self.on_changed,
-                        input_datastore=self.input_datastore)
+                        input_datastore=self.input_datastore,
+                        timestamp_format=timestamp_format)
         if not isinstance(executable, programs.MatlabExecutable):
             record.register(working_copy)
         return record
     
     def launch(self, parameters={}, input_data=[], script_args="",
                executable='default', repository='default', main_file='default',
-               version='latest', launch_mode='default', label=None, reason=None):
+               version='latest', launch_mode='default', label=None, reason=None, 
+               timestamp_format='default', repeats=None):
         """Launch a new simulation or analysis."""
         record = self.new_record(parameters, input_data, script_args,
                                  executable, repository, main_file, version,
-                                 launch_mode, label, reason) 
+                                 launch_mode, label, reason, timestamp_format) 
         record.run(with_label=self.data_label)
         if 'matlab' in record.executable.name.lower():
             record.register(record.repository.get_working_copy())
+        if repeats:
+            record.repeats = repeats
         self.add_record(record)
         self.save()
         return record.label
@@ -207,7 +234,7 @@ class Project(object):
     
     def format_records(self, format='text', mode='short', tags=None):
         records = self.record_store.list(self.name, tags)
-        formatter = get_formatter(format)(records)
+        formatter = get_formatter(format)(records, project=self)
         return formatter.format(mode) 
     
     def most_recent(self):
@@ -216,7 +243,7 @@ class Project(object):
     def add_comment(self, label, comment):
         try:
             record = self.record_store.get(self.name, label)
-        except Exception, e:
+        except Exception as e:
             raise Exception("%s. label=<%s>" % (e,label))
         record.outcome = comment
         self.record_store.save(self.name, record)
@@ -249,8 +276,28 @@ class Project(object):
         f = open(".smt/records_export.json", 'w')
         f.write(self.record_store.export(self.name))
         f.close()
-        
-        
+    
+    def repeat(self, original_label):
+        if original_label == 'last':
+            tmp = self.most_recent()
+        else:
+            tmp = self.get_record(original_label)
+        original = deepcopy(tmp)
+        if hasattr(tmp.parameters, '_url'): # for some reason, _url is not copied.
+            original.parameters._url = tmp.parameters._url # this is a hackish solution - needs fixed properly
+        original.repository.checkout() # should do nothing if there is already a checkout
+        new_label = self.launch(parameters=original.parameters,
+                                input_data=original.input_data,
+                                script_args=original.script_arguments,
+                                executable=original.executable,
+                                main_file=original.main_file,
+                                repository=original.repository,
+                                version=original.version,
+                                launch_mode=original.launch_mode,
+                                reason="Repeat experiment %s" % original.label,
+                                repeats=original.label)
+        return new_label, original.label
+
 
 def _load_project_from_json(path):
     f = open(_get_project_file(path), 'r')

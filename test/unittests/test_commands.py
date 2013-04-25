@@ -83,6 +83,7 @@ class MockProject(object):
     default_repository = "some repository"
     default_main_file = "walk_silly.py"
     default_executable = MockExecutable(path="a.out")
+    default_launch_mode = launch.SerialLaunchMode
     on_changed = "sound the alarm"
     data_label = "pluck from the ether"
     record_store = MockRecordStore("default")
@@ -128,13 +129,15 @@ class MockProject(object):
         return False
     def show_diff(self, label1, label2, **kwargs):
         return "diff"
+    def repeat(self, original_label):
+        return "repeated", original_label
 
 
 def no_project():
     raise Exception("There is no Sumatra project here")
 
-def mock_mkdir(path, mode=0777):
-    print "Pretending to create directory %s" % path
+def mock_mkdir(path, mode=511):  # octal 777 "-rwxrwxrwx"
+    print("Pretending to create directory %s" % path)
 
 def mock_build_parameters(filename):
     if filename != "this.is.not.a.parameter.file":
@@ -287,6 +290,12 @@ class ConfigureCommandTests(unittest.TestCase):
         commands.configure(["-m", "norwegian.py"])
         assert self.prj.saved
         self.assertEqual(self.prj.default_main_file, "norwegian.py")
+
+    def test_set_timestamp_format(self):
+        sample_timestamp_fmt = "%Y-%m-%d_%H:%M:%S"
+        commands.configure(["-t", sample_timestamp_fmt])
+        assert self.prj.saved
+        self.assertEqual(self.prj.timestamp_format, sample_timestamp_fmt)
 
     def test_set_default_script_multiple(self):
         commands.configure(["-m", "norwegian.sli mauve.sli"])
@@ -454,7 +463,6 @@ class RunCommandTests(unittest.TestCase):
                     'input_data': [],
                     'reason': '',
                     'version': 'latest',
-                    'launch_mode': launch.SerialLaunchMode(),
                     'script_args': ''}
         self.assertEqual(self.prj.launch_args, expected)
 
@@ -468,12 +476,11 @@ class RunCommandTests(unittest.TestCase):
                          'input_data': [],
                          'reason': '',
                          'version': 'latest',
-                         'launch_mode': launch.SerialLaunchMode(),
                          'script_args': 'some_parameter_file'})
 
     def test_with_single_input_file(self):
-        data_content = "0.0 242\n0.1 2345\n0.2 42451\n"
-        f = open("this.is.not.a.parameter.file", 'w')
+        data_content = b"0.0 242\n0.1 2345\n0.2 42451\n"
+        f = open("this.is.not.a.parameter.file", 'wb')
         f.write(data_content)
         f.close()
         commands.run(["this.is.not.a.parameter.file"]) # file exists but is not a parameter file so is treated as input data
@@ -485,7 +492,6 @@ class RunCommandTests(unittest.TestCase):
                          'input_data': [datastore.DataKey('this.is.not.a.parameter.file', hashlib.sha1(data_content).hexdigest())],
                          'reason': '',
                          'version': 'latest',
-                         'launch_mode': launch.SerialLaunchMode(),
                          'script_args': 'this.is.not.a.parameter.file'})
         os.remove("this.is.not.a.parameter.file")
 
@@ -493,8 +499,8 @@ class RunCommandTests(unittest.TestCase):
         f = open("test.param", 'w')
         f.write("a = 2\nb = 3\n")
         f.close()
-        data_content = "23496857243968b24cbc4275dc82470a\n"
-        f = open("this.is.not.a.parameter.file", 'w')
+        data_content = b"23496857243968b24cbc4275dc82470a\n"
+        f = open("this.is.not.a.parameter.file", 'wb')
         f.write(data_content)
         f.close()
         commands.run(["-l", "vikings", "-v", "234", "--reason='test'",
@@ -509,7 +515,6 @@ class RunCommandTests(unittest.TestCase):
                          'input_data': [datastore.DataKey('this.is.not.a.parameter.file', hashlib.sha1(data_content).hexdigest())],
                          'reason': 'test',
                          'version': '234',
-                         'launch_mode': launch.SerialLaunchMode(),
                          'script_args': "spam <parameters> eggs this.is.not.a.parameter.file beans"})
         os.remove("this.is.not.a.parameter.file")
         os.remove("test.param")
@@ -712,7 +717,7 @@ class ArgumentParsingTests(unittest.TestCase):
 
     def test_parse_command_line_parameter_with_list(self):
         result = commands.parse_command_line_parameter("c=[1,2,3,4,5]")
-        self.assertEqual(result, {'c': range(1,6)})
+        self.assertEqual(result, {'c': [1, 2, 3, 4, 5]})
 
     def test_parse_command_line_parameter_with_tuple(self):
         result = commands.parse_command_line_parameter("d=('a','b','c')")

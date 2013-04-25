@@ -22,10 +22,11 @@ from bzrlib import diff
     
 
 import os
-import StringIO
 
 from base import VersionControlError
 from base import Repository, WorkingCopy
+from ..compatibility import string_type, StringIO
+
 
 def may_have_working_copy(path=None):
     path = path or os.getcwd()
@@ -48,15 +49,14 @@ def get_repository(url):
 class BazaarWorkingCopy(WorkingCopy):
 
     def __init__(self, path=None):
-        WorkingCopy.__init__(self)
-        self.path = path or os.getcwd()
+        WorkingCopy.__init__(self, path)
         self.workingtree = WorkingTree.open(self.path)
         self.repository = BazaarRepository(self.workingtree.branch.user_url)
         #self.repository.working_copy = self
         self._current_version = self.repository._repository.revno()
 
     def _get_revision_tree(self, version):
-        if isinstance(version, basestring):
+        if isinstance(version, string_type):
             version = int(version)
         revision_id = self.workingtree.branch.get_rev_id(version)
         return self.workingtree.branch.repository.revision_tree(revision_id)
@@ -94,30 +94,38 @@ class BazaarWorkingCopy(WorkingCopy):
     
     def diff(self):
         """Difference between working copy and repository."""
-        iostream = StringIO.StringIO()
+        iostream = StringIO()
         diff.show_diff_trees(self.workingtree.basis_tree(), self.workingtree, iostream)
         # textstream
         return iostream.getvalue()
 
+    def get_username(self):
+        config = self.workingtree.branch.get_config()
+        return config.username()
+
 
 class BazaarRepository(Repository):
     
-    def __init__(self, url):
-        Repository.__init__(self, url)
+    def __init__(self, url, upstream=None):
+        Repository.__init__(self, url, upstream)
         self.url = url
         self.__repository = None
+        # use bzrlib.info.gather_location_info to get upstream?
     
     @property
     def exists(self):
-        if self._repository:
-            return True
+        try:
+            self._repository
+        except VersionControlError:
+            pass
+        return bool(self.__repository)
     
     @property
     def _repository(self):
         if self.__repository is None:
             try:
                 self.__repository = Branch.open(self.url)
-            except Exception, err:
+            except Exception as err:
                 raise VersionControlError("Cannot access Bazaar repository at %s: %s" % (self.url, err))    
         return self.__repository
     

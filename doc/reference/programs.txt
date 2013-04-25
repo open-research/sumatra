@@ -1,0 +1,15 @@
+====================================
+Providing information about programs
+====================================
+
+.. automodule:: sumatra.programs
+
+.. autoclass:: Executable
+   :members:
+   :undoc-members:
+   :inherited-members:
+   :show-inheritance:
+   
+.. autofunction:: get_executable
+
+.. autofunction:: register_executable

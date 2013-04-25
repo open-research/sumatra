@@ -2,6 +2,7 @@
 Unit tests for the sumatra.recordstore package
 """
 
+from __future__ import unicode_literals
 try:
     import unittest2 as unittest
 except ImportError:
@@ -13,7 +14,7 @@ from django.core import management
 
 from sumatra.records import Record
 from sumatra.programs import register_executable, Executable
-from sumatra.recordstore import shelve_store, django_store, http_store
+from sumatra.recordstore import shelve_store, django_store, http_store, serialization
 from sumatra.versioncontrol import vcs_list
 import sumatra.launch
 import sumatra.datastore
@@ -23,6 +24,8 @@ try:
 except ImportError:
     import simplejson as json
 import urlparse
+from sumatra.compatibility import string_type
+
 
 originals = []
 django_store1 = None
@@ -39,6 +42,7 @@ register_executable(MockExecutable, "a.out", "/usr/local/bin/a.out", [])
 
 class MockRepository(object):
     url = "http://svn.example.com/"
+    upstream = None
     type = "MockRepository"
     def __init__(self, *args, **kwargs):
         pass
@@ -63,6 +67,7 @@ class MockDependency(object):
     version = "1.0"
     diff = ""
     module = "python"
+    source = "http://git.example.com/"
 
 class MockPlatformInformation(object):
     architecture_bits = 32
@@ -108,6 +113,7 @@ class MockRecord(object):
         self.user = "michaelpalin"
         self.input_data = []
         self.script_arguments = "arg1 arg2"
+        self.repeats = None
 
     def __eq__(self, other):
         return self.label == other.label and self.duration == other.duration
@@ -143,12 +149,13 @@ def teardown():
     clean_up()
     vcs_list.remove(sys.modules[__name__])
 
+
 class BaseTestRecordStore(object):
 
     def tearDown(self):
         django_store1.delete_all()
         django_store2.delete_all()
-        for filename in ("test_record_store2",):
+        for filename in ("test_record_store2", "test_record_store2.db"):
             if os.path.exists(filename):
                 os.remove(filename)
 
@@ -223,7 +230,7 @@ class BaseTestRecordStore(object):
 
     def test_str(self):
         #this test is pointless, just to increase coverage
-        assert isinstance(str(self.store), basestring)
+        assert isinstance(str(self.store), string_type)
 
     def test_most_recent(self):
         self.add_some_records()
@@ -256,8 +263,9 @@ class TestShelveRecordStore(unittest.TestCase, BaseTestRecordStore):
 
     def tearDown(self):
         BaseTestRecordStore.tearDown(self)
-        if os.path.exists("test_record_store"):
-            os.remove("test_record_store")
+        for filename in ("test_record_store", "test_record_store.db"):
+            if os.path.exists(filename):
+                os.remove(filename)
 
     def test_record_store_is_pickleable(self):
         import pickle
@@ -265,8 +273,7 @@ class TestShelveRecordStore(unittest.TestCase, BaseTestRecordStore):
         s = pickle.dumps(self.store)
         del self.store
         unpickled = pickle.loads(s)
-        assert unpickled._shelf_name == "test_record_store"
-        assert os.path.exists(unpickled._shelf_name)
+        self.assertEqual(unpickled._shelf_name, "test_record_store")
 
 
 class TestDjangoRecordStore(unittest.TestCase, BaseTestRecordStore):
@@ -307,7 +314,7 @@ def check_record(record):
                                       "datastore", "outcome", "output_data",
                                       "dependencies", "input_data",
                                       "script_arguments", "stdout_stderr",
-                                      "input_datastore"])
+                                      "input_datastore", "repeats"])
 
 class MockCredentials(object):
         credentials = [['domain', 'username', 'password']]
@@ -324,7 +331,10 @@ class MockHttp(object):
         u = urlparse.urlparse(uri)
         parts = u.path.split("/")[1:-1]
         if self.debug:
-            print "\n<<<<<", uri, u.path, len(parts), method, body, headers, u.params, u.query
+            print("\n<<<<< %s %s %d %s %s %s %s %s" % (uri, u.path, len(parts),
+                                                       method, body, headers,
+                                                       u.params, u.query))
+            
         if len(parts) == 2: # record uri
             if method == "PUT":
                 record = json.loads(body)
@@ -342,7 +352,7 @@ class MockHttp(object):
                 status = 200
             elif method == "DELETE":
                 self.records.pop(parts[1])
-                most_recent = u""
+                most_recent = ""
                 for record in self.records.itervalues():
                     if record["timestamp"] > most_recent:
                         most_recent = record["timestamp"]
@@ -372,8 +382,11 @@ class MockHttp(object):
                         n += 1
                 status = 200
                 content = str(n)
+        elif len(parts) == 0: # list projects uri
+            status = 200
+            content = '[{"id": "TestProject"}]'
         if self.debug:
-            print ">>>>>", status, content
+            print(">>>>> %s %s" % (status, content))
         return MockResponse(status), content
 
 
@@ -404,6 +417,44 @@ class TestHttpRecordStore(unittest.TestCase, BaseTestRecordStore):
         s = pickle.dumps(self.store)
         del self.store
         unpickled = pickle.loads(s)
+        
+    def test_process_url(self):
+        url, username, password = http_store.process_url("http://foo:bar@example.com:8000/path/file.html")
+        self.assertEqual(username, "foo")
+        self.assertEqual(password, "bar")
+        self.assertEqual(url, "http://example.com:8000/path/file.html")
+
+    def test_list_projects(self):
+        self.assertEqual(self.store.list_projects(), [self.project.name])
+
+
+class TestSerialization(unittest.TestCase):
+    maxDiff = None
+    
+    def test_build_record_v0p4(self):
+        with open("example_0.4.json") as fp:
+            record = serialization.build_record(json.load(fp))
+        self.assertEqual(record.label, "haggling")
+
+    def test_build_record_v0p3(self):
+        with open("example_0.3.json") as fp:
+            record = serialization.build_record(json.load(fp))
+        self.assertEqual(record.label, "haggling")
+
+    def test_build_record_v0p5(self):
+        with open("example_0.5.json") as fp:
+            record = serialization.build_record(json.load(fp))
+        self.assertEqual(record.label, "haggling")    
+
+    def test_round_trip(self):
+        with open("example_0.6.json") as fp:
+            data_in = json.load(fp)
+        record = serialization.build_record(data_in)
+        data_out = json.loads(serialization.encode_record(record, indent=2))
+        self.assertEqual(data_in, data_out)
+
+    def test_encode_project_info(self):
+        serialization.encode_project_info("foo", "description of foo")
 
 
 if __name__ == '__main__':

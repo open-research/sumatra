@@ -20,16 +20,22 @@
             <div class="control-group">
                 <table id = 'gen_info'>
                     <tr><th>Label:</th><td>{{record.label}}</td></tr>
+                    {% if record.repeats %}<tr><th>Repeat of:</th><td><a href="../{{record.repeats}}">{{record.repeats}}</a></td></tr>{% endif %}
                     <tr><th>Reason:</th><td>{{form.reason}}</td></tr>
                     <tr><th>Outcome:</th><td>{{form.outcome}}</td></tr>
                     <tr><th>Timestamp:</th><td>{{record.timestamp|date:"d/m/Y H:i:s"}}</td></tr>
                     <tr><th>Duration:</th><td>{{record.duration|human_readable_duration}}</td></tr>
                     <tr><th>Executable:</th><td>{{record.executable.name}} version {{record.executable.version}} ({{record.executable.path}})</td></tr>
                     <tr><th>Launch mode:</th><td>{% ifequal record.launch_mode.type "SerialLaunchMode" %}serial{% else %}distributed, n={{record.launch_mode.get_parameters.n}}{% endifequal %}</td></tr>
-                    <tr><th>Repository:</th><td>{{record.repository.url}}</td></tr>
+                    <tr><th>Working directory:</th><td>{{record.working_directory}}</td></tr>
+                    <tr><th>Repository (local):</th><td>{{record.repository.url}}</td></tr>
+                    {% if record.repository.upstream %}
+                    <tr><th>Repository (remote):</th><td>{{record.repository.upstream|urlize}}</td></tr>
+                    {% endif %}
                     <tr><th>Main file:</th><td>{{record.main_file}}</td></tr>
                     <tr><th>Version:</th><td>{{record.version}}{% if record.diff %}* (<a href="diff/">diff</a>){% endif %}</td></tr>
                     {% if record.script_arguments %}<tr><th>Arguments:</th><td>{{record.script_arguments}}</td></tr>{% endif %}
+                    <tr><th>User:</th><td>{{record.user}}</td></tr>
                     <tr><th>Tags:</th><td>{{form.tags}}</td></tr>
                 </table>
             </div>

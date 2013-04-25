@@ -9,29 +9,117 @@ the moment, the only methods that are used are `update()` and `save()`
 Classes
 -------
 
-NTParameterSet           - handles parameter files in the NeuroTools parameter
-                           set format, based on nested dictionaries
-SimpleParameterSet       - handles parameter files in a simple "name = value"
-                           format, with no nesting or grouping.
-ConfigParserParameterSet - handles parameter files in traditional config file
-                           format, as parsed by the standard Python ConfigParser
-                           module.
-JSONParameterSet         - handles parameter files in JSON format
+NTParameterSet:
+    handles parameter files in the NeuroTools parameter set format, based on
+    nested dictionaries.
+SimpleParameterSet:
+    handles parameter files in a simple "name = value" format, with no nesting
+    or grouping.
+ConfigParserParameterSet
+    handles parameter files in traditional config file format, as parsed by the
+    standard Python :mod:`ConfigParser` module.
+JSONParameterSet
+    handles parameter files in JSON format
+YAMLParameterSet
+    handles parameter files in YAML format
+
 """
-# YAMLParameterSet should be useful and straightforward to
-# implement. XMLParameterSet could also be useful, but is unlikely to be
-# straightforward.
 
 from __future__ import with_statement
 import os.path
 import shutil
-from ConfigParser import SafeConfigParser, MissingSectionHeaderError
-from cStringIO import StringIO
+try:
+    from ConfigParser import SafeConfigParser, MissingSectionHeaderError  # Python 2
+except ImportError:
+    from configparser import SafeConfigParser, MissingSectionHeaderError  # Python 3
+
 from sumatra.external import NeuroTools
 try:
     import json
 except ImportError:
     import simplejson as json
+
+try:
+    import yaml
+    yaml_loaded = True
+except ImportError:
+    yaml_loaded = False
+
+from .compatibility import string_type, StringIO
+
+
+class YAMLParameterSet(object):
+    """
+    Handles parameter files in YAML format, as parsed by the
+    PyYAML module
+    """
+
+    def __init__(self, initialiser):
+        """
+        Create a new parameter set from a file or string.
+        """
+        if yaml_loaded:
+            try:
+                if os.path.exists(initialiser):
+                    with open(initialiser) as fid:
+                        self.values = yaml.load(fid)
+                    self.source_file = initialiser
+                else:
+                    if initialiser:
+                        self.values = yaml.load(initialiser)
+                    else:
+                        self.values = {}
+            except yaml.YAMLError:
+                raise SyntaxError("Misformatted YAML file")
+            if not isinstance(self.values, dict):
+                raise SyntaxError("YAML file cannot be represented as a dict")
+        else:
+            raise ImportError("Cannot import PyYAML module")
+
+    def __str__(self):
+        return self.pretty()
+
+    def __getitem__(self, name):
+        return self.values[name]
+
+    def __eq__(self, other):
+        return self.as_dict() == other.as_dict()
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def pretty(self, expand_urls=False):
+        """
+        Return a string representation of the parameter set, suitable for
+        creating a new, identical parameter set.
+
+        expand_urls is present for compatibility with NTParameterSet, and is
+                    not used.
+        """
+
+        output = yaml.dump(self.values, indent=4)
+        return output
+
+    def as_dict(self):
+        return self.values
+
+    def save(self, filename, add_extension=False):
+        if add_extension:
+            filename += ".yaml"
+        with open(filename, "w") as f:
+            yaml.dump(self.values, f)
+        return filename
+
+    def update(self, E, **F):
+        __doc__ = dict.update.__doc__
+        self.values.update(E, **F)
+
+    def pop(self, key, d=None):
+        if key in self.values:
+            return self.values.pop(key)
+        else:
+            return d
+
 
 class NTParameterSet(NeuroTools.parameters.ParameterSet):
     # just a re-name, to clarify things
@@ -59,6 +147,7 @@ class SimpleParameterSet(object):
             if os.path.exists(initialiser):
                 with open(initialiser) as f:
                     content = f.readlines()
+                self.source_file = initialiser
             else:
                 content = initialiser.split("\n")
             for line in content:
@@ -115,7 +204,7 @@ class SimpleParameterSet(object):
         output = []
         for name, value in self.values.items():
             type = self.types[name]
-            if issubclass(type, basestring):
+            if issubclass(type, string_type):
                 output.append('%s = "%s"' % (name, value))
             else:
                 output.append('%s = %s' % (name, value))
@@ -126,16 +215,19 @@ class SimpleParameterSet(object):
     def as_dict(self):
         return self.values.copy()
 
-    def save(self, filename):
+    def save(self, filename, add_extension=False):
+        if add_extension:
+            filename += ".param"
         if os.path.exists(filename):
             shutil.copy(filename, filename + ".orig")
         with open(filename, 'w') as f:
             f.write(self.pretty())
+        return filename
 
     def update(self, E, **F):
         __doc__ = dict.update.__doc__
         def _update(name, value):
-            if not isinstance(value, (int, float, basestring, list)):
+            if not isinstance(value, (int, float, string_type, list)):
                 raise TypeError("value must be a numeric value or a string")
             self.values[name] = value
             self.types[name] = type(value)
@@ -165,6 +257,7 @@ class ConfigParserParameterSet(SafeConfigParser):
         try:
             if os.path.exists(initialiser):
                 self.read(initialiser)
+                self.source_file = initialiser
             else:
                 input = StringIO(str(initialiser)) # configparser has some problems with unicode. Using str() is a crude, and probably partial fix.
                 input.seek(0)
@@ -213,9 +306,12 @@ class ConfigParserParameterSet(SafeConfigParser):
             D[section] = dict(self.items(section))
         return D
 
-    def save(self, filename):
+    def save(self, filename, add_extension=False):
+        if add_extension:
+            filename += ".cfg"
         with open(filename, "w") as f:
             self.write(f)
+        return filename
 
     def update(self, E, **F):
         __doc__ = dict.update.__doc__
@@ -227,7 +323,7 @@ class ConfigParserParameterSet(SafeConfigParser):
                 option = name
             if not self.has_section(section):
                 self.add_section(section)
-            if not isinstance(value, basestring):
+            if not isinstance(value, string_type):
                 value = str(value)
             self.set(section, option, value)
         if hasattr(E, "items"):
@@ -268,6 +364,7 @@ class JSONParameterSet(object):
             if os.path.exists(initialiser):
                 with open(initialiser) as fid:
                     self.values = json.load(fid)
+                self.source_file = initialiser
             else:
                 if initialiser:
                     self.values = json.loads(initialiser)
@@ -303,9 +400,12 @@ class JSONParameterSet(object):
     def as_dict(self):
         return self.values
 
-    def save(self, filename):
+    def save(self, filename, add_extension=False):
+        if add_extension:
+            filename += ".json"
         with open(filename, "w") as f:
             json.dump(self.values, f)
+        return filename
 
     def update(self, E, **F):
         __doc__ = dict.update.__doc__
@@ -319,12 +419,21 @@ class JSONParameterSet(object):
 
 
 def build_parameters(filename):
-
+    # if filename has an appropriate extension, e.g. ".json", we should
+    # make that the first one tried.
+    
     try:
         parameters = JSONParameterSet(filename)
         return parameters
     except SyntaxError:
         pass
+
+    if yaml_loaded:
+        try:
+            parameters = YAMLParameterSet(filename)
+            return parameters
+        except SyntaxError:
+            pass
 
     try:
         parameters = NTParameterSet("file://%s" % os.path.abspath(filename))

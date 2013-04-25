@@ -12,11 +12,13 @@ from copy import deepcopy
 import warnings
 import re
 import logging
+import cProfile
+import sumatra
 
 from sumatra.programs import get_executable
-from sumatra.datastore import FileSystemDataStore, ArchivingFileSystemDataStore
+from sumatra.datastore import FileSystemDataStore, ArchivingFileSystemDataStore, MirroredFileSystemDataStore
 from sumatra.projects import Project, load_project
-from sumatra.launch import SerialLaunchMode, DistributedLaunchMode
+from sumatra.launch import get_launch_mode
 from sumatra.parameters import build_parameters
 from sumatra.recordstore import get_record_store
 from sumatra.versioncontrol import get_working_copy, get_repository, UncommittedModificationsError
@@ -118,6 +120,10 @@ def init(argv):
     parser.add_argument('-c', '--on-changed', default='error', help="the action to take if the code in the repository or any of the depdendencies has changed. Defaults to %default") # need to add list of allowed values
     parser.add_argument('-s', '--store', help="specify the path to the record store, either an existing one or one to be created.")
     parser.add_argument('-A', '--archive', metavar='PATH', help="specify a directory in which to archive output datafiles. If not specified, datafiles are not archived.")
+    parser.add_argument('-g', '--labelgenerator', choices=['timestamp', 'uuid'], default='timestamp', metavar='OPTION', help="specify which method Sumatra should use to generate labels (options: timestamp, uuid)")
+    parser.add_argument('-t', '--timestamp_format', help="the timestamp format given to strftime", default=TIMESTAMP_FORMAT)
+    parser.add_argument('-M', '--mirror', metavar='URL', help="specify a URL at which your datafiles will be mirrored.")
+    parser.add_argument('-L', '--launch_mode', choices=['serial', 'distributed', 'slurm-mpi'], default='serial', help="how computations should be launched. Defaults to %default")
 
     args = parser.parse_args(argv)
 
@@ -153,25 +159,32 @@ def init(argv):
     else:
         record_store = 'default'
 
+    if args.archive and args.mirror:
+        raise Exception("Currently, it is not possible to specify both --archive and --mirror options")
     if args.archive and args.archive.lower() != 'false':
         if args.archive.lower() == "true":
             args.archive = ".smt/archive"
         args.archive = os.path.abspath(args.archive)
         output_datastore = ArchivingFileSystemDataStore(args.datapath, args.archive)
+    elif args.mirror:
+        output_datastore = MirroredFileSystemDataStore(args.datapath, args.mirror)
     else:
         output_datastore = FileSystemDataStore(args.datapath)
-    input_datastore = FileSystemDataStore(args.input)
+    input_datastore = FileSystemDataStore(args.input)    
+    launch_mode = get_launch_mode(args.launch_mode)()
 
     project = Project(name=args.project_name,
                       default_executable=executable,
                       default_repository=repository,
                       default_main_file=args.main, # what if incompatible with executable?
-                      default_launch_mode=SerialLaunchMode(),
+                      default_launch_mode=launch_mode,
                       data_store=output_datastore,
                       record_store=record_store,
                       on_changed=args.on_changed,
                       data_label=args.addlabel,
-                      input_datastore=input_datastore)
+                      input_datastore=input_datastore,
+                      label_generator=args.labelgenerator,
+                      timestamp_format=args.timestamp_format)
     project.save()
 
 
@@ -190,6 +203,9 @@ def configure(argv):
     parser.add_argument('-m', '--main', help="the name of the script that would be supplied on the command line if running the simulator normally, e.g. init.hoc.")
     parser.add_argument('-c', '--on-changed', help="may be 'store-diff' or 'error': the action to take if the code in the repository or any of the dependencies has changed. Defaults to 'error'", choices=['store-diff', 'error'])
     parser.add_argument('-A', '--archive', metavar='PATH', help="specify a directory in which to archive output datafiles. If not specified, or if 'false', datafiles are not archived.")
+    parser.add_argument('-g', '--labelgenerator', choices=['timestamp', 'uuid'], metavar='OPTION', help="specify which method Sumatra should use to generate labels (options: timestamp, uuid)")
+    parser.add_argument('-t', '--timestamp_format', help="the timestamp format given to strftime")
+    parser.add_argument('-L', '--launch_mode', choices=['serial', 'distributed', 'slurm-mpi'], help="how computations should be launched. Defaults to %default")
 
     args = parser.parse_args(argv)
     project = load_project()
@@ -219,10 +235,17 @@ def configure(argv):
         project.default_executable = get_executable(executable_path,
                                                     script_file=args.main or project.default_main_file)
         project.default_executable.options = executable_options
+
     if args.on_changed:
         project.on_changed = args.on_changed
     if args.addlabel:
         project.data_label = args.addlabel
+    if args.labelgenerator:
+        project.label_generator = args.labelgenerator
+    if args.timestamp_format:
+        project.timestamp_format = args.timestamp_format
+    if args.launch_mode:
+        project.default_launch_mode = get_launch_mode(args.launch_mode)()
     project.save()
 
 
@@ -235,10 +258,10 @@ def info(argv):
     args = parser.parse_args(argv)
     try:
         project = load_project()
-    except IOError, err:
-        print err
+    except IOError as err:
+        print(err)
         sys.exit(1)
-    print project.info()
+    print(project.info())
 
 
 def run(argv):
@@ -294,9 +317,10 @@ def run(argv):
     else:
         executable = 'default'
     if args.num_processes:
-        launch_mode = DistributedLaunchMode(n=args.num_processes)
-    else:
-        launch_mode = SerialLaunchMode()
+        if hasattr(project.default_launch_mode, 'n'):
+            project.default_launch_mode.n = args.num_processes
+        else:
+            parser.error("Your current launch mode does not support using multiple processes.")
     reason = args.reason or ''
     if reason:
         reason = reason.strip('\'"')
@@ -307,10 +331,9 @@ def run(argv):
                                    label=label, reason=reason,
                                    executable=executable,
                                    main_file=args.main or 'default',
-                                   version=args.version or 'latest',
-                                   launch_mode=launch_mode)
-    except (UncommittedModificationsError, MissingInformationError), err:
-        print err
+                                   version=args.version or 'latest')
+    except (UncommittedModificationsError, MissingInformationError) as err:
+        print(err)
         sys.exit(1)
     if args.tag:
         project.add_tag(run_label, args.tag)
@@ -330,12 +353,12 @@ def list(argv):
                         help="prints full information for each record"),
     parser.add_argument('-T', '--table', action="store_const", const="table",
                         dest="mode", help="prints information in tab-separated columns")
-    parser.add_argument('-f', '--format', metavar='FMT', choices=['text', 'html'], default='text',
-                        help="FMT can be 'text' (default) or 'html'.")
+    parser.add_argument('-f', '--format', metavar='FMT', choices=['text', 'html', 'latex'], default='text',
+                        help="FMT can be 'text' (default), 'html' or 'latex'.")
     args = parser.parse_args(argv)
 
     project = load_project()
-    print project.format_records(tags=args.tags, mode=args.mode, format=args.format)
+    print(project.format_records(tags=args.tags, mode=args.mode, format=args.format))
 
 
 def delete(argv):
@@ -357,10 +380,11 @@ def delete(argv):
     args = parser.parse_args(argv)
 
     project = load_project()
+
     if args.tag:
         for tag in args.labels:
             n = project.delete_by_tag(tag, delete_data=args.data)
-            print n, "records deleted."
+            print("%s records deleted." % n)
     else:
         for label in args.labels:
             if label == 'last':
@@ -376,9 +400,9 @@ def comment(argv):
     usage = "%(prog)s comment [options] [LABEL] COMMENT"
     description = dedent("""\
       This command is used to describe the outcome of the simulation/analysis. If LABEL
-      is omitted, the comment will be added to the most recent experiment.
-      If the '-f/--file' option is set, COMMENT should be the name of a file
-      containing the comment, otherwise it should be a string of text.""")
+      is omitted, the comment will be added to the most recent experiment (any existing
+      comment will be overwritten). If the '-f/--file' option is set, COMMENT should be
+      the name of a file containing the comment, otherwise it should be a string of text.""")
     parser = ArgumentParser(usage=usage,
                             description=description)
     parser.add_argument('label', nargs='?', metavar='LABEL', help="the record to which the comment will be added")
@@ -438,34 +462,17 @@ def repeat(argv):
     args = parser.parse_args(argv)
     original_label = args.label
     project = load_project()
-    if original_label == 'last':
-        tmp = project.most_recent()
-    else:
-        tmp = project.get_record(original_label)
-    original = deepcopy(tmp)
-    if hasattr(tmp.parameters, '_url'): # for some reason, _url is not copied.
-        original.parameters._url = tmp.parameters._url # this is a hackish solution - needs fixed properly
-    original.repository.checkout() # should do nothing if there is already a checkout
-    new_label = project.launch(parameters=original.parameters,
-                               input_data=original.input_data,
-                               script_args=original.script_arguments,
-                               executable=original.executable,
-                               main_file=original.main_file,
-                               repository=original.repository,
-                               version=original.version,
-                               launch_mode=original.launch_mode,
-                               label="%s_repeat" % original.label,
-                               reason="Repeat experiment %s" % original.label)
-    diff = project.compare(original.label, new_label)
+    new_label, original_label = project.repeat(original_label)
+    diff = project.compare(original_label, new_label)
     if diff:
         formatter = get_diff_formatter()(diff)
         msg = ["The new record does not match the original. It differs as follows.",
                formatter.format('short'),
-               "run smt diff --long %s %s to see the differences in detail." % (original.label, new_label)]
+               "run smt diff --long %s %s to see the differences in detail." % (original_label, new_label)]
         msg = "\n".join(msg)
     else:
         msg = "The new record exactly matches the original."
-    print msg
+    print(msg)
     project.add_comment(new_label, msg)
 
 
@@ -487,7 +494,8 @@ def diff(argv):
         args.ignore = []
 
     project = load_project()
-    print project.show_diff(args.label1, args.label2, mode=args.mode, ignore_filenames=args.ignore)
+    print(project.show_diff(args.label1, args.label2, mode=args.mode,
+                            ignore_filenames=args.ignore))
 
 
 def help(argv):
@@ -516,6 +524,17 @@ def upgrade(argv):
                             description=description)
     args = parser.parse_args(argv)
 
+    project = load_project()
+    if hasattr(project, 'sumatra_version') and project.sumatra_version == sumatra.__version__:
+        print("No upgrade needed (project was created with an up-to-date version of Sumatra).")
+        sys.exit(1)
+
+    if not os.path.exists(".smt/project_export.json"):
+        print("Error: project must have been exported (with the original "
+              "version of Sumatra) before upgrading.")
+        sys.exit(1)
+
+
     import shutil
     from datetime import datetime
     backup_dir = ".smt_backup_%s" % datetime.now().strftime(TIMESTAMP_FORMAT)
@@ -523,7 +542,7 @@ def upgrade(argv):
     # upgrade the project data
     os.mkdir(".smt")
     shutil.copy("%s/project_export.json" % backup_dir, ".smt/project")
-    project = load_project()
+    project.sumatra_version = sumatra.__version__
     project.save()
     # upgrade the record store
     filename = "%s/records_export.json" % backup_dir
@@ -532,8 +551,10 @@ def upgrade(argv):
         project.record_store.import_(project.name, f.read())
         f.close()
     else:
-        print "Record file not found"
+        print("Record file not found")
         sys.exit(1)
+    print("Project successfully upgraded to Sumatra version {}.".format(project.sumatra_version))
+
 
 
 def export(argv):
@@ -572,5 +593,5 @@ def sync(argv):
         collisions = store1.sync(store2, project.name)
 
     if collisions:
-        print "Synchronization incomplete: there are two records with the same name for the following: %s" % ", ".join(collisions)
+        print("Synchronization incomplete: there are two records with the same name for the following: %s" % ", ".join(collisions))
         sys.exit(1)

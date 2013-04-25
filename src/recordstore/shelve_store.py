@@ -22,6 +22,14 @@ def check_name(f):
 
 
 class ShelveRecordStore(RecordStore):
+    """
+    Handles storage of simulation/analysis records based on the Python standard
+    :mod:`shelve` module.
+    
+    The advantage of this record store is that it has no dependencies. The
+    disadvantages are that it allows only local access and does not support
+    the *smtweb* interface.
+    """
     
     def __init__(self, shelf_name=".smt/records"):
         self._shelf_name = shelf_name

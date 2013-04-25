@@ -10,3 +10,7 @@ bulbNet
 .tox
 .cache
 htmlcov
+cover
+.coverage
+MANIFEST
+Sumatra.komodoproject

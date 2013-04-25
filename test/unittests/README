@@ -1,1 +1,1 @@
-nosetests --with-coverage --cover-erase --cover-package=sumatra
+nosetests --with-coverage --cover-erase --cover-package=sumatra --cover-html

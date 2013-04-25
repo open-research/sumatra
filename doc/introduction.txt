@@ -136,7 +136,7 @@ or in watching a talk given at a workshop_ on "*Reproducible Research-Tools and 
 
 .. _Subversion: http://subversion.tigris.org/
 .. _Git: http://git-scm.com
-.. _Mercurial: http://www.selenic.com/mercurial
+.. _Mercurial: http://mercurial.selenic.com/
 .. _Bazaar: http://bazaar-vcs.org
 .. _MPI: http://en.wikipedia.org/wiki/Message_Passing_Interface
 .. _preprint: http://andrewdavison.info/media/files/reproducible_research_CiSE.pdf

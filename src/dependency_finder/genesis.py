@@ -33,20 +33,15 @@ import subprocess
 
 class Dependency(core.BaseDependency):
     """
-    Contains information about a Hoc file, and tries to determine version information.
+    Contains information about a .g file, and tries to determine version information.
     """
     module = 'genesis'
     
-    def __init__(self, name, path=None, version='unknown', diff=''):
-        self.name = os.path.basename(name) # or maybe should be path relative to main file?
-        if path:
-            self.path = path
-        else:
-            self.path = os.path.abspath(name)
-        if not os.path.exists(self.path):
-            raise IOError("File %s does not exist." % self.path)
-        self.diff = diff
-        self.version = version
+    def __init__(self, name, path=None, version='unknown', diff='', source=None):
+        # name maybe should be path relative to main file?
+        super(Dependency, self).__init__(os.path.basename(name),
+                                         path or os.path.abspath(name),
+                                         version, diff, source)
 
 
 def get_sim_path():
@@ -87,9 +82,10 @@ def find_included_files(file_path):
         curdir = os.path.dirname(start_path)
         new_paths = [core.find_file(p, curdir, search_dirs) for p in new_paths]
         if new_paths:
-            print start_path, "loads the following:\n ", "\n  ".join(new_paths)
+            print("%s loads the following:\n %s" % (start_path,
+                                                    "\n  ".join(new_paths)))
         else:
-            print start_path, "loads no files"
+            print("%s loads no files" % start_path)
         paths.extend(new_paths)
         for path in new_paths:
             find(path, paths)

@@ -1,0 +1,94 @@
+===============
+Version control
+===============
+
+.. module:: sumatra.versioncontrol
+
+The :mod:`versioncontrol` sub-package provides an abstraction layer around
+different revision/version control systems (VCSs). Only the functionality required for
+recording version numbers and switching the working copy between different
+versions is wrapped - for more complex tasks such as merging, branching, etc.,
+the version control tool should be used directly.
+
+
+Repository objects
+==================
+
+A :class:`Repository` object represents a version control repository. Its main
+roles in Sumatra are
+
+    1. to contain the information necessary to identify the repository for
+       reproducibility purposes (i.e. its URL)
+    2. to provide a uniform interface for obtaining a working copy ("checkout"
+       in Subversion parlance, "clone" for Git/Mercurial)
+       
+There are four subclasses of the abstract base :class:`Repository` class:
+
+* :class:`SubversionRepository`,
+* :class:`MercurialRepository`,
+* :class:`GitRepository`,
+* :class:`BazaarRepository`.
+
+These subclasses are only available if the appropriate Python bindings for the
+underlying VCS are installed - see :doc:`../installation`.
+Each of the subclasses implements the following interface:
+
+.. autoclass:: sumatra.versioncontrol.base.Repository
+    :members:
+    :inherited-members:
+    :undoc-members:
+    
+    .. attribute:: url
+       
+       The repository URL, generally a local file system path for distributed VCSs.
+    
+    .. attribute:: upstream
+    
+        For distributed VCSs, the repository from which the local repository was cloned.
+    
+
+Working copy objects
+====================
+
+:class:`WorkingCopy` objects provide functionality for inspecting the status
+of a version control working copy (which files have been modified, what version
+is currently checked out) and to change the version in use (to repeat previous
+computations, etc.)
+
+There are four subclasses of the abstract base :class:`WorkingCopy` class:
+
+* :class:`SubversionWorkingCopy`,
+* :class:`MercurialWorkingCopy`,
+* :class:`GitWorkingCopy`,
+* :class:`BazaarWorkingCopy`.
+
+Each of these subclasses implements the following interface:
+    
+.. autoclass:: sumatra.versioncontrol.base.WorkingCopy
+    :members:
+    :inherited-members:
+    :undoc-members:
+
+
+Functions
+=========
+
+It is seldom necessary to create a :class:`Repository` or :class:`WorkingCopy`
+object directly, or even to know which version control system is in use.
+Instead, the following functions will return the correct object, given a URL
+or a filesystem path.
+
+.. autofunction:: sumatra.versioncontrol.get_repository
+
+.. autofunction:: sumatra.versioncontrol.get_working_copy
+
+
+Exceptions
+==========
+    
+.. autoclass:: VersionControlError
+    :members:
+
+.. autoclass:: UncommittedModificationsError
+    :members:
+

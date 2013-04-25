@@ -27,6 +27,9 @@ class MockRecord(Record):
         self.parameters = {'a': 2, 'b': 4}
         self.launch_mode = 'serial'
         self.output_data = []
+        self.user = 'King Arthur <boss@camelot.gov>'
+        self.repeats = None
+
 
 class MockRecordDifference(object):
     recordA = MockRecord()
@@ -38,8 +41,8 @@ class MockRecordDifference(object):
     repository_differs = True
     launch_mode_differs = True
     launch_mode_differences = {}
-    data_differs = True
-    data_differences = {}
+    output_data_differ = True
+    output_data_differences = (['foo'], [])
     main_file_differs = True
     version_differs = True
     diff_differs = True

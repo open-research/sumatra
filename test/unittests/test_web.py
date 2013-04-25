@@ -2,9 +2,13 @@
 Unit tests for the sumatra.web module
 """
 
-import unittest
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
 import os
 from pprint import pprint
+import mimetypes
 
 import sumatra.web
 from django.core.exceptions import ObjectDoesNotExist
@@ -50,13 +54,12 @@ def teardown():
 class MockProject(object):
     name = "TestProject"
 
+TEST_LABELS = ('record1', 'record:2', 'record.3', 'record 4', 'record/5', 'record-6')
+
 def add_some_records():
     global store
-    r1 = test_recordstore.MockRecord("record1")
-    r2 = test_recordstore.MockRecord("record2")
-    r3 = test_recordstore.MockRecord("record3")
-    for r in r1, r2, r3:
-        #print "saving record %s" % r.label
+    for label in TEST_LABELS:
+        r = test_recordstore.MockRecord(label)
         store.save(MockProject.name, r)
 
 class MockDataStore(object):
@@ -65,6 +68,14 @@ class MockDataStore(object):
             raise IOError()
         else:
             return ""
+
+
+def assert_used_template(template_name, response):
+    if hasattr(response, "template"):  # Django < 1.5
+        templates_used = response.template
+    else:
+        templates_used = response.templates
+    assert template_name in [t.name for t in templates_used], "Response: %s\nContext: %s" % (response.content, response.context) 
 
 
 class TestWebInterface(unittest.TestCase):
@@ -84,40 +95,42 @@ class TestWebInterface(unittest.TestCase):
     def test__record_detail(self):
         add_some_records()
         c = Client()
-        response = c.get("/%s/record1/" % MockProject.name)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context["record"].label, "record1")
+        for label in TEST_LABELS:
+            response = c.get("/%s/%s/" % (MockProject.name, label))
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.context["record"].label, label)
 
+    @unittest.skipUnless(mimetypes.guess_type("myfile.csv")[0] == 'text/csv', 'CSV mimetype not recognized on this system')
     def test__show_file_csv(self):
         sumatra.web.views.get_data_store = lambda t,p: MockDataStore()
         c = Client()
         response = c.get("/%s/record1/datafile?path=test_file.csv&digest=mock" % MockProject.name)
-        assert 'show_csv.html' in [t.name for t in response.template]
+        assert_used_template('show_csv.html', response) 
 
     def test__show_file_txt(self):
         sumatra.web.views.get_data_store = lambda t,p: MockDataStore()
         c = Client()
         response = c.get("/%s/record1/datafile?path=test_file.txt&digest=mock" % MockProject.name)
-        assert 'show_file.html' in [t.name for t in response.template]
+        assert_used_template('show_file.html', response)
 
     def test__show_file_image(self):
         sumatra.web.views.get_data_store = lambda t,p: MockDataStore()
         c = Client()
         response = c.get("/%s/record1/datafile?path=test_file.png&digest=mock" % MockProject.name)
-        assert 'show_image.html' in [t.name for t in response.template]
+        assert_used_template('show_image.html', response)
 
     def test__show_file_other(self):
         sumatra.web.views.get_data_store = lambda t,p: MockDataStore()
         c = Client()
         response = c.get("/%s/record1/datafile?path=test_file.doc&digest=mock" % MockProject.name)
-        assert 'show_file.html' in [t.name for t in response.template]
+        assert_used_template('show_file.html', response)
         assert "Can't display" in response.context["content"]
 
     def test__show_nonexistent_file(self):
         sumatra.web.views.get_data_store = lambda t,p: MockDataStore()
         c = Client()
         response = c.get("/%s/record1/datafile?path=non_existent_file.txt&digest=mock" % MockProject.name)
-        assert 'show_file.html' in [t.name for t in response.template]
+        assert_used_template('show_file.html', response)
         assert "File not found" in response.context["content"]
 
     def test__show_image(self):
@@ -129,8 +142,8 @@ class TestWebInterface(unittest.TestCase):
     def test__show_diff(self):
         sumatra.web.views.get_data_store = lambda t,p: MockDataStore()
         c = Client()
-        response = c.get("/%s/record1/diff/" % MockProject.name)
-        assert 'show_diff.html' in [t.name for t in response.template]
+        response = c.get("/%s/record1/diff" % MockProject.name)
+        assert_used_template('show_diff.html', response)
 
 
 class TestFilters(unittest.TestCase):

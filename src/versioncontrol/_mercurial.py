@@ -28,7 +28,8 @@ except ImportError:
 import os
 import binascii
 import functools
-from base import VersionControlError
+from base import VersionControlError, UncommittedModificationsError
+
 
 from base import Repository, WorkingCopy
 
@@ -60,8 +61,7 @@ def get_repository(url):
 class MercurialWorkingCopy(WorkingCopy):
 
     def __init__(self, path=None):
-        WorkingCopy.__init__(self)
-        self.path = path or os.getcwd()
+        WorkingCopy.__init__(self, path)
         self.repository = MercurialRepository(self.path)
 
     def current_version(self):
@@ -72,7 +72,8 @@ class MercurialWorkingCopy(WorkingCopy):
         return binascii.hexlify(ctx.node()[:6])
     
     def use_version(self, version):
-        assert not self.has_changed()
+        if self.has_changed():
+            raise UncommittedModificationsError
         hg.clean(self.repository._repository, version)
 
     def use_latest_version(self):
@@ -101,7 +102,7 @@ class MercurialWorkingCopy(WorkingCopy):
         return "".join(diff)
 
     def content(self, hex):
-        repo = hg.repository(ui.ui(), self.path)
+        repo = self.repository._repository
         i = 1
         if hex in repo.parents()[0].hex():
             ctx = repo.parents()[0] 
@@ -113,27 +114,33 @@ class MercurialWorkingCopy(WorkingCopy):
                 return ctx.filectx(ctx.files()[0]).data() # presume that we have only one file [0]
             i += 1
 
+    def get_username(self):
+        return self.repository._repository.ui.username()
+
 
 class MercurialRepository(Repository):
     
-    def __init__(self, url):
-        Repository.__init__(self, url)
-        self._ui = ui.ui()  # get a ui object
+    def __init__(self, url, upstream=None):
+        Repository.__init__(self, url, upstream)
         self.__repository = None
+        self.upstream = self.upstream or self._get_upstream()
 
     @property
     def exists(self):
-        if self._repository:
-            return True
+        try:
+            self._repository
+        except VersionControlError:
+            pass
+        return bool(self.__repository)
 
     @property
     def _repository(self):
         if self.__repository is None:
             try:
-                self.__repository = hg.repository(self._ui, self.url)
+                self.__repository = hg.repository(ui.ui(), self.url)
                 # need to add a check that this actually is a Mercurial repository
-            except (RepoError, Exception), err:
-                raise VersionControlError("Cannot access Mercurial repository at %s: %s" % (self.url, err))    
+            except (RepoError, Exception) as err:
+                raise VersionControlError("Cannot access Mercurial repository at %s: %s" % (self.url, err))
         return self.__repository    
 
     def checkout(self, path="."):
@@ -144,11 +151,15 @@ class MercurialRepository(Repository):
             hg.update(self._repository, None)
         else:
             try:
-                hg.clone(self._ui, {}, self.url, path, update=True)
+                hg.clone(self._repository.ui, {}, self.url, path, update=True)
             except:  # hg.clone fails for older versions of mercurial, e.g. 1.5
-                local_repos = hg.repository(self._ui, path, create=True)
+                local_repos = hg.repository(self._repository.ui, path, create=True)
                 local_repos.pull(self._repository)
                 hg.update(local_repos, None)
 
     def get_working_copy(self, path=None):
         return get_working_copy(path)
+
+    def _get_upstream(self):
+        if self.exists:
+            return self._repository.ui.config('paths', 'default')

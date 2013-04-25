@@ -29,27 +29,31 @@ import logging
 logger = logging.getLogger("Sumatra")
 
 
+def check_version():
+    if not hasattr(git, "Repo"):
+        raise VersionControlError("GitPython not installed. There is a 'git' package, but it is not GitPython (https://pypi.python.org/pypi/GitPython/)")
+    if int(git.__version__.split(".")[1]) < 2:
+        raise VersionControlError("Your Git Python binding is too old. You require at least version 0.2.0-beta1.")
+
+
 def findrepo(path):
+    check_version()
     try:
         repo = git.Repo(path)
     except InvalidGitRepositoryError:
         return
     else:
         return os.path.dirname(repo.git_dir)
-        
 
-def check_version():
-    if int(git.__version__.split(".")[1]) < 2:
-        raise VersionControlError("Your Git Python binding is too old. You require at least version 0.2.0-beta1.")
 
 def may_have_working_copy(path=None):
     """Test whether there is a Git working copy at the given path."""
-    check_version()
     path = path or os.getcwd()
     if findrepo(path):
         return True
     else:
         return False
+
 
 def get_working_copy(path=None):
     """Return a GitWorkingCopy instance for the given path, or the current
@@ -60,13 +64,14 @@ def get_working_copy(path=None):
     else:
         raise VersionControlError("No Git working copy found at %s" % path)
 
+
 def get_repository(url):
     """Return a GitRepository instance for the given url."""
     repos = GitRepository(url)
     if repos.exists:
         return repos
     else:
-        raise VersionControlError("Cannot access Mercurial repository at %s" % self.url)   
+        raise VersionControlError("Cannot access Git repository at %s" % self.url)   
 
 
 class GitWorkingCopy(WorkingCopy):
@@ -76,8 +81,7 @@ class GitWorkingCopy(WorkingCopy):
 
     def __init__(self, path=None):
         check_version()
-        WorkingCopy.__init__(self)
-        self.path = path or os.getcwd()
+        WorkingCopy.__init__(self, path)
         self.repository = GitRepository(self.path)
 
     def current_version(self):
@@ -119,6 +123,11 @@ class GitWorkingCopy(WorkingCopy):
         """Does the repository contain the file with the given path?"""
         return path in self.repository._repository.git.ls_files().split()
         
+    def get_username(self):
+        config = self.repository._repository.config_reader()
+        return "%s <%s>" % (config.get('user', 'name'),
+                            config.get('user', 'email'))
+
 
 def move_contents(src, dst):
     for file in os.listdir(src):
@@ -132,22 +141,26 @@ def move_contents(src, dst):
 
 class GitRepository(Repository):
     
-    def __init__(self, url):
+    def __init__(self, url, upstream=None):
         check_version()
-        Repository.__init__(self, url)
+        Repository.__init__(self, url, upstream)
         self.__repository = None
+        self.upstream = self.upstream or self._get_upstream()
     
     @property
     def exists(self):
-        if self._repository:
-            return True
+        try:
+            self._repository
+        except VersionControlError:
+            pass
+        return bool(self.__repository)
     
     @property
     def _repository(self):
         if self.__repository is None:
             try:
                 self.__repository = git.Repo(self.url)   
-            except InvalidGitRepositoryError, err:
+            except InvalidGitRepositoryError as err:
                 raise VersionControlError("Cannot access Git repository at %s: %s" % (self.url, err))    
         return self.__repository    
     
@@ -166,3 +179,9 @@ class GitRepository(Repository):
 
     def get_working_copy(self, path=None):
         return get_working_copy(path)
+
+    def _get_upstream(self):
+        if self.exists:
+            config = self._repository.config_reader()
+            if config.has_option('remote "origin"', 'url'):
+                return config.get('remote "origin"', 'url')

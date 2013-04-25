@@ -60,13 +60,33 @@ class TestCoreModuleFunctions(unittest.TestCase):
     def setUp(self):
         self.example_project = os.path.join(tmpdir, "python")
         assert os.path.exists(self.example_project)
+        self.somemodule_path = os.path.abspath(os.path.join(self.example_project, "subpackage", "somemodule.py"))
 
     def test__find_versions(self):
         #better to test this using mocks
         dep = df.python.Dependency("main", os.path.join(self.example_project, "main.py"))
         df.core.find_versions([dep], [df.python.find_versions_from_egg])
         self.assertEqual(dep.version, "1.2.3egg")
-        
+
+    def test__find_file_full_path(self):
+        self.assertEqual(df.core.find_file(os.path.join(self.example_project, "subpackage", "somemodule.py"),
+                                           None,
+                                           None),
+                         self.somemodule_path)
+    
+    def test__find_file_current_directory(self):
+        self.assertEqual(df.core.find_file("somemodule.py",
+                                           os.path.join(self.example_project, "subpackage"),
+                                           []),
+                         self.somemodule_path)
+    
+    def test__find_file_nonexistentfile(self):
+        self.assertRaises(IOError,
+                          df.core.find_file,
+                          "adifferentmodule.py",
+                          os.path.join(self.example_project, "subpackage"),
+                          [])
+    
         
 class TestMainModuleFunctions(unittest.TestCase):
     
@@ -110,6 +130,10 @@ class TestPythonDependency(unittest.TestCase):
     def test__init(self):
         dep = df.python.Dependency("main", os.path.join(self.example_project, "main.py"), version="1.2.3b")
         self.assertEqual(dep.version, "1.2.3b")
+
+    def test__from_module(self):
+        dep = df.python.Dependency.from_module(sys.modules['numpy'], None)
+        self.assertEqual(dep.name, "numpy")
 
     def test__str(self):
         dep = df.python.Dependency("main", "/some/path")
@@ -156,20 +180,18 @@ class TestNEURONDependency(unittest.TestCase):
         dep1 = df.neuron.Dependency(os.path.join(self.example_project, "main.hoc"))
         dep2 = df.neuron.Dependency(os.path.join(self.example_project, "dependency.hoc"))
         self.assertNotEqual(dep1, dep2)
-        
-    def test__init__with_nonexistent_path(self):
-        self.assertRaises(IOError, df.neuron.Dependency, "foo.hoc")
+
 
 def setup():
     global tmpdir
     tmpdir = tempfile.mkdtemp()
     shutil.rmtree(tmpdir)
     shutil.copytree(os.path.join(os.path.pardir, "example_projects"), tmpdir)
-    print os.listdir(tmpdir)
+    print(os.listdir(tmpdir))
 
 def teardown():
     global tmpdir
-    print "removing tmpdir"
+    print("removing tmpdir")
     shutil.rmtree(tmpdir) # this only gets called when running with nose. Perhaps use atexit, or do this on a class-by-class basis and use __del__
 
 

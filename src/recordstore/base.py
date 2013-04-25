@@ -6,29 +6,49 @@ from sumatra.recordstore import serialization
 
 
 class RecordStore(object):
+    """
+    Base class for record store implementations.
+    """
     
     def list_projects(self):
+        """Return the names of all projects that have records in this store."""
         raise NotImplementedError
 
     def save(self, project_name, record):
+        """Store the given record under the given project."""
         raise NotImplementedError
         
     def get(self, project_name, label):
+        """Retrieve the record with the given label from the given project."""
         raise NotImplementedError
     
     def list(self, project_name, tags=None):
+        """
+        Return a list of records for the given project.
+        
+        If *tags* is not provided, list all records, otherwise list only records
+        that have been tagged with one or more of the tags.
+        """
         raise NotImplementedError
     
     def labels(self, project_name):
+        """Return the labels of all records in the given project."""
         raise NotImplementedError
     
     def delete(self, project_name, label):
+        """Delete the record with the given label from the given project."""
+        raise NotImplementedError
+
+    def delete_all(self):
+        """Delete all records from the store."""
         raise NotImplementedError
         
     def delete_by_tag(self, project_name, tag):
+        """Delete all records from the given project that have been tagged with the given tag."""
         raise NotImplementedError
         
     def most_recent(self, project_name):
+        """Return the most recent record from the given project."""
         raise NotImplementedError
     
     def export(self, project_name, indent=2):
@@ -71,9 +91,18 @@ class RecordStore(object):
         return non_synchronizable
     
     def sync_all(self, other):
+        """Synchronize all records from all projects between two record stores."""
         all_projects = set(self.list_projects()).union(other.list_projects())
         for project_name in all_projects:
             self.sync(other, project_name)
+            
+    def has_project(self, project_name):
+        """Does the store contain any records for the given project?"""
+        raise NotImplementedError
+    
+    def list_projects(self, project_name):
+        """Return the names of all projects that have records in the store."""
+        raise NotImplementedError
 
 
 class RecordStoreAccessError(OSError):

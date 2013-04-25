@@ -218,5 +218,5 @@ The templates you can customize are called "base.html", "record_list.html",
 is to copy the default template from "/path/to/sumatra/web/templates"
 to "/path/to/myproject/.smt/templates" and then modify it.
 
-.. _Django: http://www.djangoproject.com/
-.. _`Django templates`: http://docs.djangoproject.com/en/1.4/topics/templates/
+.. _Django: https://www.djangoproject.com/
+.. _`Django templates`: https://docs.djangoproject.com/en/1.4/topics/templates/

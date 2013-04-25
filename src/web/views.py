@@ -3,11 +3,16 @@ Defines view functions and forms for the Sumatra web interface.
 """
 
 import os
+import os.path
 import mimetypes
 import csv
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response
-from django.views.generic import list_detail
+from django.views.generic.list import ListView
+try:
+    from django.views.generic.dates import MonthArchiveView
+except ImportError: # older versions of Django
+    MonthArchiveView = object
 from services import DefaultTemplate, AjaxTemplate, ProjectUpdateForm, RecordUpdateForm, unescape
 from sumatra.recordstore.django_store.models import Project, Tag, Record
 from sumatra.datastore import get_data_store, DataKey
@@ -35,17 +40,24 @@ def list_records(request, project):
         return render_to_response('record_list.html', defTempOb.getDict())
 
 
-def list_projects(request):
-    projects = Project.objects.all() 
-    extra_context = {'active':'List of projects'}  #returns the first project
-    if not len(projects):  
-        extra_context['project_name'] = load_project().name
-        if not load_project().default_executable: # empty project: without any records inside
-            extra_context['show_modal'] = True    
-    else:
-        extra_context['project_name'] = projects[0]
-    return list_detail.object_list(request, queryset=projects,
-                                   template_name="project_list.html", extra_context=extra_context)
+class ProjectListView(ListView):
+    template_name = 'project_list.html'
+
+    def get_queryset(self):
+        return Project.objects.all()
+
+    def get_context_data(self, **kwargs):
+        context = super(ProjectListView, self).get_context_data(**kwargs)
+        projects = self.get_queryset()
+
+        context['active'] = 'List of projects'
+        if not len(projects):  
+            context['project_name'] = load_project().name
+            if not load_project().default_executable: # empty project: without any records inside
+                context['show_modal'] = True    
+        else:
+            context['project_name'] = projects[0]
+        return context
 
 
 def show_project(request, project):
@@ -272,24 +284,57 @@ def show_file(request, project, label):
                                        'digest': digest,
                                        'project_name': project,
                                        'reader': reader,
-                                       'truncated':truncated
+                                       'truncated':truncated,
+                                       'mimetype': mimetype
                                        })
 
+        elif encoding == 'gzip':
+            import gzip
+            with gzip.open(data_store.root + os.path.sep + path, 'r') as gf:
+                content = gf.read()
+            if 'csv' in path:
+                lines = content.splitlines()
+                if truncated:
+                    lines = [lines[0]] + lines[-min(100,len(lines)):]
+                reader = csv.reader(lines)
+                return render_to_response("show_csv.html",
+                                          {'path': path, 
+                                           'label': label,
+                                           'digest': digest,
+                                           'project_name': project,
+                                           'reader': reader,
+                                           'truncated':truncated,
+                                           'mimetype': mimetype
+                                           })
+            else:
+                return render_to_response("show_file.html",
+                                      {'path': path, 
+                                        'label': label,
+                                        'content': content,
+                                        'project_name': project,
+                                        'truncated':truncated,
+                                        'digest': digest,
+                                        'mimetype': mimetype
+                                       })
         elif mimetype == None or mimetype.split("/")[0] == "text":
             content = data_store.get_content(data_key, max_length=max_display_length)
             if max_display_length is not None and len(content) >= max_display_length:
                 truncated = True
             return render_to_response("show_file.html",
-                                      {'path': path, 'label': label,
+                                      {'path': path, 
+                                       'label': label,
                                        'digest': digest,
                                        'project_name': project,
                                        'content': content,
                                        'truncated': truncated,
+                                       'mimetype': mimetype
                                        })
         elif mimetype in ("image/png", "image/jpeg", "image/gif", "image/x-png"): # need to check digests match
             return render_to_response("show_image.html",
-                                      {'path': path, 'label': label,
+                                      {'path': path, 
+                                       'label': label,
                                        'digest': digest,
+                                       'mimetype': mimetype,
                                        'project_name': project,})
         elif mimetype == 'application/zip':
             import zipfile
@@ -298,20 +343,33 @@ def show_file(request, project, label):
                 contents = zf.namelist()
                 zf.close()
                 return render_to_response("show_file.html",
-                                      {'path': path, 'label': label, 'digest': digest,
-                                       'content': "\n".join(contents),'project_name': project
+                                      {'path': path, 
+                                       'label': label, 
+                                       'digest': digest,
+                                       'content': "\n".join(contents),
+                                       'project_name': project,
+                                       'mimetype': mimetype
                                        })
             else:
                 raise IOError("Not a valid zip file")
         else:
-            return render_to_response("show_file.html", {'path': path, 'label': label,
-                                                         'project_name': project, 'digest': digest,
-                                                         'content': "Can't display this file (mimetype assumed to be %s)" % mimetype})
+            return render_to_response("show_file.html", 
+                {'path': path, 
+                'label': label,
+                 'project_name': project, 
+                 'digest': digest,
+                 'mimetype': mimetype,
+                 'content': "Can't display this file (mimetype assumed to be %s)" % mimetype
+                 })
     except (IOError, KeyError), e:
-        return render_to_response("show_file.html", {'path': path, 'label': label,
-                                                     'project_name': project, 'digest': digest,
-                                                     'content': "File not found.",
-                                                     'errmsg': e})
+        return render_to_response("show_file.html", 
+            {'path': path, 
+            'label': label,
+             'project_name': project, 
+             'digest': digest,
+             'content': "File not found.",
+             'errmsg': e
+             })
 
 def download_file(request, project, label):
     label = unescape(label)
@@ -351,7 +409,7 @@ def show_image(request, project, label):
         return HttpResponse(mimetype="image/png") # should return a placeholder image?
 
 
-def show_diff(request, project, label, package):
+def show_diff(request, project, label, package=''):
     label = unescape(label)
     record = Record.objects.get(label=label, project__id=project)
     if package:
@@ -364,3 +422,23 @@ def show_diff(request, project, label, package):
                                                  'package': package,
                                                  'parent_version': dependency.version,
                                                  'diff': dependency.diff})
+
+class Timeline(MonthArchiveView):
+    date_field = 'timestamp'
+    template_name = 'timeline.html'
+    #paginate_by = 20
+
+    def get_queryset(self):
+        return Record.objects.filter(user__startswith=self.kwargs['user'])
+
+    def get_context_data(self, **kwargs):
+        context = super(Timeline, self).get_context_data(**kwargs)
+        context['user_name'] = self.kwargs['user']
+        return context
+
+    # note there seems to be a bug with next_month and previous_month,
+    # when the timestamp is the last day of the month
+    # because django.views.generic.dates._get_next_prev_month is
+    # comparing a datetime (the timestamp) to a date-cast-to-a-time, which
+    # has an implicit time of 00:00
+    # also see https://code.djangoproject.com/ticket/391

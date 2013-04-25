@@ -21,8 +21,8 @@ or::
 Alternatively, you can download the Sumatra package from either PyPI or the
 `INCF Software Centre`_ and install it as follows::
 
-    $ tar xzf Sumatra-0.4.0.tar.gz
-    $ cd Sumatra-0.4.0
+    $ tar xzf Sumatra-0.5.1.tar.gz
+    $ cd Sumatra-0.5.1
     # python setup.py install
     
 The last step may need to be run as root, or using sudo.
@@ -33,10 +33,10 @@ Installing Django
 
 If you wish to use the web interface, you will also need to install Django_. On
 Linux, you may be able to do this via your package management system: see
-http://code.djangoproject.com/wiki/Distributions.
+https://code.djangoproject.com/wiki/Distributions.
 
 Otherwise, it is very easy to install manually: see
-http://docs.djangoproject.com/en/dev/topics/install/#installing-official-release
+https://docs.djangoproject.com/en/dev/topics/install/#installing-official-release
 
 You will also need to install the `django-tagging`_ and docutils_ packages,
 which may be in your package management system, otherwise they can be installed
@@ -56,8 +56,8 @@ main Mercurial/Bazaar packages is sufficient. For Git, you need to install the
 GitPython_ package.
 
 .. _python.org: http://www.python.org
-.. _Django: http://www.djangoproject.com
-.. _Mercurial: http://www.selenic.com/mercurial/
+.. _Django: https://www.djangoproject.com
+.. _Mercurial: http://mercurial.selenic.com/
 .. _Subversion: http://subversion.tigris.org/
 .. _Git: http://git-scm.com/
 .. _Bazaar: http://bazaar.canonical.com/

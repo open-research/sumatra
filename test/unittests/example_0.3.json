@@ -1,0 +1,73 @@
+{
+    "script_arguments": "arg1 arg2 arg3",
+    "platforms": [
+        {
+            "system_name": "Linux",
+            "ip_addr": "127.0.1.1",
+            "architecture_bits": "64bit",
+            "machine": "x86_64",
+            "architecture_linkage": "ELF",
+            "version": "#50-Ubuntu SMP Mon Sep 12 21:17:25 UTC 2011",
+            "release": "2.6.38-11-generic",
+            "network_name": "my_pc",
+            "processor": "x86_64"
+        }
+    ],
+    "duration": 2.196953773498535,
+    "diff": "",
+    "datastore": {
+        "type": "ArchivingFileSystemDataStore",
+        "parameters": {
+            "root": ".",
+            "archive": "/path/to/archive"
+        }
+    },
+    "executable": {
+        "path": "/path/to/bin/python",
+        "version": "2.7.1",
+        "name": "Python",
+        "options": ""
+    },
+    "parameters": {
+        "content": "{}",
+        "type": "dict"
+    },
+    "label": "haggling",
+    "version": "5f6221aa3a14",
+    "stdout_stderr": "No output.",
+    "repository": {
+        "url": "https://hg.example.com/MyProject",
+        "type": "MercurialRepository",
+        "upstream": null
+    },
+    "tags": ["foo", "bar"],
+    "timestamp": "2012-09-28 11:40:20",
+    "reason": "Determine the answer to the ultimate question of life, the universe and everything",
+    "dependencies": [
+        {
+            "name": "matplotlib",
+            "module": "python",
+            "source": null,
+            "version": "1.0.1",
+            "diff": "",
+            "path": "/path/to/matplotlib"
+        },
+        {
+            "name": "numpy",
+            "module": "python",
+            "source": null,
+            "version": "1.5.1",
+            "diff": "",
+            "path": "/path/to/numpy"
+        }
+    ],
+    "user": "",
+    "data_key": "['haggling/output.png']",
+    "input_data": "[]",
+    "launch_mode": {
+        "type": "SerialLaunchMode",
+        "parameters": {}
+    },
+    "main_file": "plot.py",
+    "outcome": "42"
+}

@@ -12,6 +12,7 @@ from time import strptime
 import datetime
 import os
 import json
+from functools import reduce
 
 
 def init_websettings():
@@ -91,7 +92,7 @@ class DefaultTemplate(object):
         global_conf_file = os.path.expanduser(os.path.join("~", ".smtrc"))
         if os.path.exists(global_conf_file):
             with open(global_conf_file) as fp:
-                self.settings = json.load(fp)
+                self.settings = json.load(fp)  # should really merge in any missing settings
         else:
             self.settings = init_websettings()   
 

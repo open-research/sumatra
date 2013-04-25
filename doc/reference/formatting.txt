@@ -1,0 +1,35 @@
+=================
+Formatting output
+=================
+
+.. automodule:: sumatra.formatting
+
+Formatting Sumatra records
+--------------------------
+
+.. autoclass:: TextFormatter
+   :members:
+   :undoc-members:
+   :inherited-members:
+   :show-inheritance:
+   
+.. autoclass:: HTMLFormatter
+   :members:
+   :undoc-members:
+   :inherited-members:
+   :show-inheritance:
+
+
+.. autofunction:: get_formatter
+
+
+Formatting the difference between two records
+---------------------------------------------
+
+.. autoclass:: TextDiffFormatter
+   :members:
+   :undoc-members:
+   :inherited-members:
+   :show-inheritance:
+   
+.. autofunction:: get_diff_formatter

@@ -1,0 +1,67 @@
+==============================
+Storing provenance information
+==============================
+
+.. currentmodule:: sumatra.recordstore
+
+The :mod:`recordstore` module provides an abstraction layer around storage of
+simulation/analysis records, providing a common interface to different storage
+methods (simple serialisation, relational database, etc.)
+
+Base class
+----------
+
+All record store classes have the following methods. Some stores have
+additional methods (see below).
+
+.. autoclass:: sumatra.recordstore.base.RecordStore
+   :members:
+   :undoc-members:
+
+
+Minimal record store
+--------------------
+
+.. autoclass:: ShelveRecordStore
+   :show-inheritance:
+
+
+Django-based record store
+-------------------------
+   
+.. autoclass:: DjangoRecordStore
+   :show-inheritance:
+
+
+Client for remote record store
+------------------------------
+
+.. autoclass:: HttpRecordStore
+   :show-inheritance:
+   
+   .. automethod:: create_project
+   
+   .. automethod:: project_info
+   
+   .. automethod:: update_project_info
+
+Module functions
+----------------
+
+.. autofunction:: get_record_store
+
+
+Transferring provenance information
+-----------------------------------
+
+.. automodule:: sumatra.recordstore.serialization
+
+.. autofunction:: encode_record
+
+.. autofunction:: encode_project_info
+
+.. autofunction:: build_record
+
+.. autofunction:: decode_record
+
+.. autofunction:: decode_records

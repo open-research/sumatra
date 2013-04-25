@@ -21,6 +21,7 @@ import os
 import tempfile
 import shutil
 import logging
+from urlparse import urlparse
 from sumatra.core import have_internet_connection
 
 from base import Repository, WorkingCopy, VersionControlError
@@ -37,13 +38,16 @@ def get_working_copy(path=None):
     return SubversionWorkingCopy(path)
 
 def get_repository(url):
-    return SubversionRepository(url)
+    repo = SubversionRepository(url)
+    if not repo.exists:
+        raise VersionControlError("There is no Subversion repository at %s" % url)
+    return repo
 
 
 class SubversionWorkingCopy(WorkingCopy):
     
     def __init__(self, path=None):
-        WorkingCopy.__init__(self)
+        WorkingCopy.__init__(self, path)
         self.path = os.path.realpath(path or os.getcwd())
         client = pysvn.Client()
         url = client.info(self.path).url
@@ -90,19 +94,26 @@ class SubversionWorkingCopy(WorkingCopy):
         shutil.rmtree(tmpdir)
         return result
 
+    def get_username(self):
+        return self.repository._client.get_default_username() or ''
+
 
 class SubversionRepository(Repository):
     
-    def __init__(self, url):
+    def __init__(self, url, upstream=None):
         Repository.__init__(self, url)
         self._client = pysvn.Client()
-        if have_internet_connection():
+    
+    @property
+    def exists(self):
+        if urlparse(self.url).scheme == 'file' or have_internet_connection():
             # check that there is a valid Subversion repository at the URL,
             # without doing a checkout.
             try:
-                self._client.ls(url)
-            except pysvn._pysvn.ClientError, errmsg:
-                raise VersionControlError(errmsg)
+                self._client.ls(self.url)
+            except pysvn._pysvn.ClientError as errmsg:
+                return False
+        return True
     
     def checkout(self, path='.'):
         try:

@@ -29,6 +29,8 @@ class MockWorkingCopy(object):
         pass
     def contains(self, path):
         return True
+    def get_username(self):
+        return "The Knights Who Say Ni"
         
 class MockRepository(object):
     url = "http://svn.example.com"
@@ -136,6 +138,19 @@ class TestProject(unittest.TestCase):
         self.assertEqual(rec.repository, proj.default_repository)
         self.assertEqual(rec.main_file, "test.py")
 
+    def test_new_record_with_uuid_label_generator_should_generate_unique_id(self):
+        self.write_test_script("test.py")
+        proj = Project("test_project",
+                       record_store=MockRecordStore(),
+                       default_main_file="test.py",
+                       default_executable=MockExecutable(),
+                       default_launch_mode=MockLaunchMode(),
+                       default_repository=MockRepository(),
+                       label_generator='uuid')
+        rec1 = proj.new_record()
+        rec2 = proj.new_record()
+        self.assertNotEqual(rec1.label, rec2.label)
+
     def test__update_code(self):
         proj = Project("test_project",
                        record_store=MockRecordStore(),
@@ -198,6 +213,7 @@ class TestProject(unittest.TestCase):
         self.assertEqual(proj._most_recent, "record2")
         proj.delete_record("record2")
         self.assertEqual(proj._most_recent, "last") # should really be "record1", but we are not testing RecordStore here
+
 
 
 class TestModuleFunctions(unittest.TestCase):

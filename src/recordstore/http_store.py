@@ -19,6 +19,8 @@ from sumatra.recordstore import serialization
 import httplib2
 from urlparse import urlparse, urlunparse
 
+API_VERSION = 2
+
 
 def domain(url):
     return urlparse(url).netloc
@@ -39,6 +41,23 @@ def process_url(url):
 
 
 class HttpRecordStore(RecordStore):
+    """
+    Handles storage of simulation/analysis records on a remote server using HTTP.
+
+    The server should support the following URL structure and HTTP methods:
+    
+    =========================================    ================
+    /                                            GET
+    /<project_name>/[?tags=<tag1>,<tag2>,...]    GET
+    /<project_name>/tag/<tag>/                   GET, DELETE
+    /<project_name>/<record_label>/              GET, PUT, DELETE
+    =========================================    ================
+    
+    and should both accept and return JSON-encoded data when the Accept header is
+    "application/json".
+    
+    The required JSON structure can be seen in :mod:`recordstore.serialization`.
+    """
     
     def __init__(self, server_url, username=None, password=None,
                  disable_ssl_certificate_validation=True):
@@ -70,7 +89,7 @@ class HttpRecordStore(RecordStore):
         self.__init__(state['server_url'], state['username'], state['password'])
 
     def _get(self, url, media_type):
-        headers = {'Accept': 'application/vnd.sumatra.%s-v1+json, application/json' % media_type}
+        headers = {'Accept': 'application/vnd.sumatra.%s-v%d+json, application/json' % (media_type, API_VERSION)}
         response, content = self.client.request(url, headers=headers)
         return response, content
 
@@ -83,17 +102,19 @@ class HttpRecordStore(RecordStore):
     def _put_project(self, project_name, long_name='', description=''):
         url = "%s%s/" % (self.server_url, project_name)
         data = serialization.encode_project_info(long_name, description)
-        headers = {'Content-Type': 'application/vnd.sumatra.project-v1+json'}
+        headers = {'Content-Type': 'application/vnd.sumatra.project-v%d+json' % API_VERSION}
         response, content = self.client.request(url, 'PUT', data,
                                                 headers=headers)
         return response, content
     
     def create_project(self, project_name, long_name='', description=''):
+        """Create an empty project in the record store."""
         response, content = self._put_project(project_name, long_name, description)
         if response.status != 201:
             raise RecordStoreAccessError("%d\n%s" % (response.status, content))
     
     def update_project_info(self, project_name, long_name='', description=''):
+        """Update a project's long name and description."""
         response, content = self._put_project(project_name, long_name, description)
         if response.status != 200:
             raise RecordStoreAccessError("%d\n%s" % (response.status, content))
@@ -109,6 +130,7 @@ class HttpRecordStore(RecordStore):
             raise RecordStoreAccessError("%d\n%s" % (response.status, content))
     
     def project_info(self, project_name):
+        """Return a project's long name and description."""
         project_url = "%s%s/" % (self.server_url, project_name)
         response, content = self._get(project_url, 'project')
         if response.status != 200:
@@ -120,7 +142,7 @@ class HttpRecordStore(RecordStore):
         if not self.has_project(project_name):
             self.create_project(project_name)
         url = "%s%s/%s/" % (self.server_url, project_name, record.label)
-        headers = {'Content-Type': 'application/vnd.sumatra.record-v1+json'}
+        headers = {'Content-Type': 'application/vnd.sumatra.record-v%d+json' % API_VERSION}
         data = serialization.encode_record(record)
         response, content = self.client.request(url, 'PUT', data,
                                                 headers=headers)

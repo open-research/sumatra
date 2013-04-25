@@ -1,0 +1,124 @@
+=====================
+Input and output data
+=====================
+
+.. currentmodule:: sumatra.datastore
+
+The :mod:`datastore` module provides an abstraction layer around data storage,
+allowing different methods of storing simulation/analysis results (local
+filesystem, remote filesystem, database, etc.) to provide a common interface.
+
+The interface is built around three types of object: a :class:`DataStore` may
+contain many :class:`DataItem`\s, each of which is identified by a
+:class:`DataKey`.
+
+There is a single :class:`DataKey` class. :class:`DataStore` and
+:class:`DataItem` are abstract base classes, and must be subclassed to provide
+different functionality.
+
+Base classes
+------------
+
+.. autoclass:: DataKey
+   :members:
+   :undoc-members:
+   :inherited-members:
+
+   .. attribute:: path
+   
+      a token used to retrieve a :class:`DataItem`. For filesystem-based
+      :class:`DataStore`\s, this will be a relative path. For database-backed
+      stores (none of which have been implemented yet :-) it could be a primary
+      key or an object encapsulating a query.
+   
+   .. attribute:: digest
+
+      the SHA1 digest of the contents of the associated :class:`DataItem`. This
+      attribute is calculated on creation of the :class:`DataKey`.
+   
+   .. attribute:: metadata
+
+      a :class:`dict` containing metadata, such as file size and mimetype.
+
+
+.. autoclass:: sumatra.datastore.base.DataItem
+   :members:
+   :undoc-members:
+   :inherited-members:
+
+
+.. autoclass:: sumatra.datastore.base.DataStore
+   :members:
+   :undoc-members:
+   :inherited-members:
+   
+
+Storing data on the local filesystem
+------------------------------------
+
+.. autoclass:: FileSystemDataStore
+   :show-inheritance:
+
+   .. attribute:: root
+
+   The absolute path on the underlying file system to the root directory of the
+   data store.
+
+
+.. autoclass:: sumatra.datastore.filesystem.DataFile
+   :show-inheritance:
+
+    .. attribute:: path
+    
+       path relative to the :class:`FileSystemDataStore` root
+    
+    .. attribute:: full_path
+    
+       absolute path relative to the underlying filesystem.
+    
+    .. attribute:: size
+    
+       file size in bytes
+   
+    .. attribute:: name
+    
+       file name
+
+    .. attribute:: extension
+
+       file extension
+
+    .. attribute:: mimetype
+    
+       if the mimetype cannot be guessed, this will be None
+    
+
+   
+Automatic archiving of data written to the local filesystem
+-----------------------------------------------------------
+
+.. autoclass:: ArchivingFileSystemDataStore
+   :show-inheritance:
+
+   .. attribute:: archive_store
+   
+      Directory within which data will be archived.
+
+   
+.. autoclass:: sumatra.datastore.archivingfs.ArchivedDataFile
+   :show-inheritance:
+
+
+Mirroring data to a remote webserver
+------------------------------------
+
+.. autoclass:: MirroredFileSystemDataStore
+   :show-inheritance:
+
+   .. attribute:: mirror_base_url
+   
+      URL to which the file path will be appended to obtain the final URL of a file
+
+   
+.. autoclass:: sumatra.datastore.mirroredfs.MirroredDataFile
+   :show-inheritance:
