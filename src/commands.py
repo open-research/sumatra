@@ -282,7 +282,6 @@ def run(argv):
       around the equals sign).""")
     parser = ArgumentParser(usage=usage,
                             description=description)
-    parser.add_argument('args', nargs='*')
     parser.add_argument('-v', '--version', metavar='REV',
                         help="use version REV of the code (if this is not the same as the working copy, it will be checked out of the repository). If this option is not specified, the most recent version in the repository will be used. If there are changes in the working copy, the user will be prompted to commit them first")
     parser.add_argument('-l', '--label', help="specify a label for the experiment. If no label is specified, the label will be based on PARAMFILE and the timestamp.")
@@ -294,13 +293,13 @@ def run(argv):
     parser.add_argument('-t', '--tag', help="tag you want to add to the project")
     parser.add_argument('-D', '--debug', action='store_true', help="print debugging information.")
 
-    args = parser.parse_args(argv)
+    args, user_args = parser.parse_known_args(argv)
 
     if args.debug:
         logger.setLevel(logging.DEBUG)
 
     project = load_project()
-    parameters, input_data, script_args = parse_arguments(args.args, project.input_datastore)
+    parameters, input_data, script_args = parse_arguments(user_args, project.input_datastore)
     if len(parameters) == 0:
         parameters = {}
     elif len(parameters) == 1:
