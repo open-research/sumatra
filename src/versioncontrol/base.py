@@ -49,7 +49,7 @@ class Repository(object):
         self.upstream = state['upstream']
 
     @property
-    def type(self):
+    def vcs_type(self):
         return self.__class__.__name__[:-10]  # strip off "Repository"
     
 
