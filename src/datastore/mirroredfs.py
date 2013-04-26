@@ -7,6 +7,8 @@ user to take care of this.
 """
 
 import logging
+import os
+import mimetypes
 from ..compatibility import urlopen
 from .base import DataItem, DataKey
 from .filesystem import FileSystemDataStore, DataFile
@@ -20,10 +22,22 @@ class MirroredDataFile(DataItem):
     
     def __init__(self, path, store):
         self.path = path
+        self.full_path = os.path.join(store.root, path)
+        if os.path.exists(self.full_path):
+            stats = os.stat(self.full_path)
+            self.size = stats.st_size
+        else:
+            self.size = -1
+        self.name = os.path.basename(self.full_path)
+        self.extension = os.path.splitext(self.full_path)
+        self.mimetype, self.encoding = mimetypes.guess_type(self.full_path)
         self.url = store.mirror_base_url + self.path
     
     def get_content(self, max_length=None):
-        f = urlopen(self.url)
+        if os.path.exists(self.full_path):  # first try to access local version
+            f = open(self.full_path, 'rb')
+        else:  # otherwise try the mirrored version
+            f = urlopen(self.url)
         if max_length:
             content = f.read(max_length)
         else:
