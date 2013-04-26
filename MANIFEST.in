@@ -8,6 +8,7 @@ include src/web/media/js/*.js
 recursive-include src/web/media/extras/fontawesome *
 include src/web/templates/*.html
 include src/publishing/latex/sumatra.sty
+include src/formatting/latex_template.tex
 recursive-include test/example_projects *
 recursive-include test/example_repositories *
 include test/unittests/*.py
