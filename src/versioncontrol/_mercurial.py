@@ -73,7 +73,7 @@ class MercurialWorkingCopy(WorkingCopy):
     
     def use_version(self, version):
         if self.has_changed():
-            raise UncommittedModificationsError
+            raise UncommittedModificationsError(self.status())
         hg.clean(self.repository._repository, version)
 
     def use_latest_version(self):
@@ -88,9 +88,11 @@ class MercurialWorkingCopy(WorkingCopy):
 
     def has_changed(self):
         status = self.status()
+        status = self.status()  # for some reason, calling "status()" sometimes changes the status. Need to investigate further, but calling it twice seems to work, as a temporary hack. 
         changed = False
         for st in 'modified', 'removed', 'missing':
             if status[st]:
+                print "!!!!!", st, status[st]
                 changed = True
                 break
         return changed

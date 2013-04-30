@@ -61,10 +61,7 @@ class BaseTestWorkingCopy(object):
         self.assertEqual(self.wc.diff(), "")
         self.change_file()
         assert "+omega = 42" in self.wc.diff()
-    
-    def test__current_version(self):
-        self.assertEqual(self.wc.current_version(), self.latest_version)
-    
+        
     def test__use_version(self):
         P = self.read_parameters("%s/default.param" % self.tmpdir)
         self.assertEqual(self.read_parameters("%s/default.param" % self.tmpdir)['seed'],

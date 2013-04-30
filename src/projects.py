@@ -31,7 +31,7 @@ from sumatra.records import Record
 from sumatra import programs, datastore
 from sumatra.formatting import get_formatter, get_diff_formatter
 from sumatra.recordstore import DefaultRecordStore
-from sumatra.versioncontrol import UncommittedModificationsError, get_working_copy
+from sumatra.versioncontrol import UncommittedModificationsError, get_working_copy, VersionControlError
 from sumatra.core import TIMESTAMP_FORMAT
 import mimetypes
 try:
@@ -141,7 +141,7 @@ class Project(object):
     
     def new_record(self, parameters={}, input_data=[], script_args="",
                    executable='default', repository='default',
-                   main_file='default', version='latest', launch_mode='default',
+                   main_file='default', version='current', launch_mode='default',
                    label=None, reason=None, timestamp_format='default'):
         logger.debug("Creating new record")
         if executable == 'default':
@@ -170,7 +170,7 @@ class Project(object):
     
     def launch(self, parameters={}, input_data=[], script_args="",
                executable='default', repository='default', main_file='default',
-               version='latest', launch_mode='default', label=None, reason=None, 
+               version='current', launch_mode='default', label=None, reason=None, 
                timestamp_format='default', repeats=None):
         """Launch a new simulation or analysis."""
         record = self.new_record(parameters, input_data, script_args,
@@ -185,24 +185,31 @@ class Project(object):
         self.save()
         return record.label
     
-    def update_code(self, working_copy, version='latest'):
+    def update_code(self, working_copy, version='current'):
         """Check if the working copy has modifications and prompt to commit or revert them."""
         # we really need to extend this to the dependencies, but we need to take extra special care that the
         # code ends up in the same condition as before the run
         logger.debug("Updating working copy to use version: %s" % version)
         diff = ''
         changed = working_copy.has_changed()
-        if version == 'latest':
-            if changed and self.on_changed == "error":
-                raise UncommittedModificationsError("Code has changed, please commit your changes")
-            working_copy.use_latest_version()
-            version = working_copy.current_version()
-            if changed and self.on_changed == "store-diff":
-                diff = working_copy.diff()
-        else:
+        if version == 'current' or version == working_copy.current_version:
             if changed:
-                raise UncommittedModificationsError("Code has changed. These changes will be lost when switching to a different version, so please commit your changes and then retry.")
-            working_copy.use_version(version) # what if there are local modifications and we're using store-diff? Do we store patches and then restore them?
+                if self.on_changed == "error":
+                    raise UncommittedModificationsError("Code has changed, please commit your changes")    
+                elif self.on_changed == "store-diff":
+                    diff = working_copy.diff()
+                else:
+                    raise ValueError("store-diff must be either 'error' or 'store-diff'")
+        elif changed:
+            raise UncommittedModificationsError(
+                "Code has changed. These changes will be lost when switching "
+                "to a different version, so please commit or stash your "
+                "changes and then retry.")
+        elif version == 'latest':
+            working_copy.use_latest_version()
+        else:
+            working_copy.use_version(version)
+        version = working_copy.current_version()
         return version, diff
     
     def add_record(self, record):
@@ -285,7 +292,14 @@ class Project(object):
         original = deepcopy(tmp)
         if hasattr(tmp.parameters, '_url'): # for some reason, _url is not copied.
             original.parameters._url = tmp.parameters._url # this is a hackish solution - needs fixed properly
-        original.repository.checkout() # should do nothing if there is already a checkout
+        try:
+            working_copy = get_working_copy()
+        except VersionControlError:
+            original.repository.checkout()
+            working_copy = original.repository.get_working_copy()
+        if working_copy.repository != original.repository:
+            raise NotImplementedError("Ability to switch repositories not yet implemented.")
+        current_version = working_copy.current_version()
         new_label = self.launch(parameters=original.parameters,
                                 input_data=original.input_data,
                                 script_args=original.script_arguments,
@@ -296,6 +310,7 @@ class Project(object):
                                 launch_mode=original.launch_mode,
                                 reason="Repeat experiment %s" % original.label,
                                 repeats=original.label)
+        working_copy.use_version(current_version)  # ensure we switch back to the original working copy state
         return new_label, original.label
 
 

@@ -124,7 +124,7 @@ class SubversionRepository(Repository):
             for entry in repos_contents:
                 filename = entry["name"][len(self.url)+1:]
                 if os.path.exists(filename):
-                    os.rename(filename,os.path.join(".smt_backup", filename))
+                    os.rename(filename, os.path.join(".smt_backup", filename))
             self._client.checkout(self.url, path)
 
     def get_working_copy(self, path=None):

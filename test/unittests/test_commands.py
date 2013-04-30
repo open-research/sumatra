@@ -462,7 +462,7 @@ class RunCommandTests(unittest.TestCase):
                     'label': None,
                     'input_data': [],
                     'reason': '',
-                    'version': 'latest',
+                    'version': 'current',
                     'script_args': ''}
         self.assertEqual(self.prj.launch_args, expected)
 
@@ -475,7 +475,7 @@ class RunCommandTests(unittest.TestCase):
                          'label': None,
                          'input_data': [],
                          'reason': '',
-                         'version': 'latest',
+                         'version': 'current',
                          'script_args': 'some_parameter_file'})
 
     def test_with_single_input_file(self):
@@ -491,7 +491,7 @@ class RunCommandTests(unittest.TestCase):
                          'label': None,
                          'input_data': [datastore.DataKey('this.is.not.a.parameter.file', hashlib.sha1(data_content).hexdigest())],
                          'reason': '',
-                         'version': 'latest',
+                         'version': 'current',
                          'script_args': 'this.is.not.a.parameter.file'})
         os.remove("this.is.not.a.parameter.file")
 

@@ -330,7 +330,7 @@ def run(argv):
                                    label=label, reason=reason,
                                    executable=executable,
                                    main_file=args.main or 'default',
-                                   version=args.version or 'latest')
+                                   version=args.version or 'current')
     except (UncommittedModificationsError, MissingInformationError) as err:
         print(err)
         sys.exit(1)
