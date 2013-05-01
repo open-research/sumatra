@@ -39,6 +39,9 @@ class Repository(object):
     def __ne__(self, other):
         return not self.__eq__(other)
 
+    def __hash__(self):
+        return hash(self.url) ^ hash(self.upstream) ^ hash(self.__class__.__name__)
+
     def __getstate__(self):
         """For pickling"""
         return {'url': self.url, 'upstream': self.upstream}
@@ -52,7 +55,6 @@ class Repository(object):
     def vcs_type(self):
         return self.__class__.__name__[:-10]  # strip off "Repository"
     
-
     @property
     def exists(self):
         """Does the repository represented by this object actually exist?"""

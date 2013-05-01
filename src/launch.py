@@ -15,6 +15,7 @@ import cmd
 import tempfile
 from . import tee
 import logging
+import operator
 from sumatra.core import have_internet_connection
 
 logger = logging.getLogger("Sumatra")
@@ -37,6 +38,17 @@ class PlatformInformation(object):
     # some numpy information?
     # numpy.distutils.system_info import get_info
     # get_info('blas_opt')
+
+    def __str__(self):
+        return "Processor: %s  Operating system kernel: %s  IP address: %s)" % (self.machine, self.version, self.ip_addr)
+
+    def __eq__(self, other):
+        return reduce(operator.and_,
+                      ((getattr(self, name) == getattr(other, name))
+                        for name in ("machine", "ip_addr", "version")))    
+
+    def __hash__(self):
+        return hash(self.machine) ^ hash(self.ip_addr) ^ hash(self.version)
 
 
 def check_files_exist(*paths):
