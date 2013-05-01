@@ -121,6 +121,8 @@ class MercurialWorkingCopy(WorkingCopy):
 
 
 class MercurialRepository(Repository):
+    use_version_cmd = "hg update -r"
+    apply_patch_cmd = "hg import --no-commit"
     
     def __init__(self, url, upstream=None):
         Repository.__init__(self, url, upstream)

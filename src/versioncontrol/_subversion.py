@@ -99,7 +99,9 @@ class SubversionWorkingCopy(WorkingCopy):
 
 
 class SubversionRepository(Repository):
-    
+    use_version_cmd = "svn update -r"
+    apply_patch_cmd = "svn patch"
+
     def __init__(self, url, upstream=None):
         Repository.__init__(self, url)
         self._client = pysvn.Client()

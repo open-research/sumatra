@@ -140,6 +140,8 @@ def move_contents(src, dst):
 
 
 class GitRepository(Repository):
+    use_version_cmd = "git checkout"
+    apply_patch_cmd = "git apply"
     
     def __init__(self, url, upstream=None):
         check_version()

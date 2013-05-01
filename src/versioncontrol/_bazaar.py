@@ -105,6 +105,8 @@ class BazaarWorkingCopy(WorkingCopy):
 
 
 class BazaarRepository(Repository):
+    use_version_cmd = "bzr update -r"
+    apply_patch_cmd = "bzr patch"
     
     def __init__(self, url, upstream=None):
         Repository.__init__(self, url, upstream)
