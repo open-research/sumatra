@@ -161,6 +161,9 @@ def set_tags(request, project):
 def delete_records(request, project):
     records_to_delete = request.POST.getlist('delete[]')
     delete_data = request.POST.get('delete_data', False)
+    if isinstance(delete_data, basestring):
+        # Convert strings returned from Javascript function into Python bools
+        delete_data = {'false': False, 'true': True}[delete_data]
     records = Record.objects.filter(label__in=records_to_delete, project__id=project)
     if records:
         for record in records:
@@ -168,7 +171,6 @@ def delete_records(request, project):
                 datastore = record.datastore.to_sumatra()
                 datastore.delete(*[data_key.to_sumatra()
                                    for data_key in record.output_data.all()])
-
             record.delete()
     return HttpResponse('OK')
 
