@@ -25,26 +25,23 @@ YAMLParameterSet
 
 """
 
-from __future__ import with_statement
+from __future__ import with_statement, absolute_import
 import os.path
 import shutil
 try:
     from ConfigParser import SafeConfigParser, MissingSectionHeaderError  # Python 2
 except ImportError:
     from configparser import SafeConfigParser, MissingSectionHeaderError  # Python 3
-
-from sumatra.external import NeuroTools
 try:
     import json
 except ImportError:
     import simplejson as json
-
 try:
     import yaml
     yaml_loaded = True
 except ImportError:
     yaml_loaded = False
-
+import parameters
 from .compatibility import string_type, StringIO
 
 
@@ -121,7 +118,7 @@ class YAMLParameterSet(object):
             return d
 
 
-class NTParameterSet(NeuroTools.parameters.ParameterSet):
+class NTParameterSet(parameters.ParameterSet):
     # just a re-name, to clarify things
     pass
 
