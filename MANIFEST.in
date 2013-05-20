@@ -2,13 +2,13 @@ include doc/*.txt
 include doc/images/*.png
 include doc/releases/*.txt
 include COPYING
-include src/web/media/css/*.css
-include src/web/media/img/*.png
-include src/web/media/js/*.js
-recursive-include src/web/media/extras/fontawesome *
-include src/web/templates/*.html
-include src/publishing/latex/sumatra.sty
-include src/formatting/latex_template.tex
+include sumatra/web/media/css/*.css
+include sumatra/web/media/img/*.png
+include sumatra/web/media/js/*.js
+recursive-include sumatra/web/media/extras/fontawesome *
+include sumatra/web/templates/*.html
+include sumatra/publishing/latex/sumatra.sty
+include sumatra/formatting/latex_template.tex
 recursive-include test/example_projects *
 recursive-include test/example_repositories *
 include test/unittests/*.py

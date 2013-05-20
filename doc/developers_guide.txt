@@ -53,7 +53,7 @@ changes to the code) *or* by creating symbolic links from somewhere on your PATH
 and PYTHONPATH, for example::
 
     $ cd /some/directory
-    $ ln -s sumatra_src/src sumatra
+    $ ln -s sumatra_src/sumatra
     $ export PYTHONPATH=/some/directory:${PYTHONPATH}
     $ export PATH=/some/directory/sumatra_src/bin:${PATH}
 
