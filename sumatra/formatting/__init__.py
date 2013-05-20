@@ -195,7 +195,9 @@ class ShellFormatter(Formatter):
             output += command_line + "\n"
         output += cleanup
         return output
-    
+
+# could try embedding patches within shell script using heredoc
+
     def long(self):
         # perhaps have all the comments in the long version but not the short one
         return self.short()

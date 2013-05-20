@@ -6,7 +6,102 @@ Sumatra 0.6.0 release notes
 
 Welcome to Sumatra 0.6.0!
 
-* addition of LaTeX export: "smt list -l -f latex > myproject.tex" [need to document this]
+This version of Sumatra sees a number of new features, improvements to existing
+ones, and bug fixes:
+
+
+New export formats: LaTeX and bash script
+-----------------------------------------
+
+You can now export your project history as a LaTeX document, allowing you to
+easily generate a PDF listing details of all the simulations or data analyses
+you've run.  
+
+::
+
+    $ smt list -l -f latex > myproject.tex
+
+Using tags, you can also restrict the output to only a subset of
+the history.
+
+You can also generate a shell script, which can be executed to repeat the
+sequence of computations captured by Sumatra, or saved as an executable record
+of your work. The shell script includes all version control commands needed to
+ensure the correct version of the code is used at each step.
+
+::
+
+    $ smt list -l -f shell > myproject.sh
+
+
+Working with multiple VCS branches
+----------------------------------
+
+Previous versions of Sumatra would always update to the latest version of the
+code in your version control repository before running the computation.
+
+Now, "smt run" will never change the working copy, which makes it much easier
+to work with multiple version control branches and to go back to running earlier
+versions of your code.
+
+
+Improvements to the Web browser interface
+-----------------------------------------
+
+There have been a number of small improvements to the browser interface:
+
+  * a slightly more compact and easier-to-read (table-like) layout for parameters;
+  * the working directory is now displayed in the record detail view;
+  * the interface now works if record label contain spaces or forward slashes.
+
+The minimal Django version needed is now 1.4.
+
+
+Integration with the SLURM resource manager
+-------------------------------------------
+
+Preliminary support for launching MPI computations via SLURM_ has been added.
+
+::
+
+  $ smt configure --launch_mode=slurm-mpi
+  $ smt run -n 256 input_file1 input_file2
+  
+This will launch 256 tasks using :command:`salloc` and :command:`mpiexec`.
+
+Command-line options for SLURM can also be set using :command:`smt configure`
+
+::
+
+  $ smt configure --launch_mode_options=" --tasks-per-node=1"
+
+If you are using :command:`mpiexec` on its own, without a resource manager, you
+can set MPI command-line options in the same way.
+
+
+Improvements to the @capture decorator
+--------------------------------------
+
+The ``@capture`` decorator, which makes it easy to add Sumatra support to
+Python scripts (as an alternative to using the :command:`smt` command), now captures stdout and stderr.
+
+
+Improvements to parameter file handling
+---------------------------------------
+
+Where a parameter file has a standard mime type (like json, yaml), Sumatra
+uses the appropriate extension if rewriting the file (e.g. to add parameters
+specified on the command line), rather than the generic ".param".
+
+
+Miscellaneous improvements
+--------------------------
+
+:command:`smt run` now passes unknown keyword args on to the user script.
+
+When repeating a computation, the label of the original is now stored in the `repeats` attribute of `Record`, rather than appending "_repeat" to the original label. The new record will get a new unique label. This means a record can be repeated more than once, and is a more reliable method of indicating a repeat.
+
+A Sumatra project now knows the version of Sumatra with which it was created.
 
 
 Bug fixes
@@ -14,5 +109,6 @@ Bug fixes
 
 A `handful of bugs`_ have been fixed.
 
-.. _`handful of bugs`: https://neuralensemble.org/trac/sumatra/query?status=closed&group=resolution&milestone=0.6
+.. _`handful of bugs`: https://neuralensemble.org/trac/sumatra/query?status=closed&resolution=fixed&milestone=0.6&type=defect
 .. _Bitbucket: https://bitbucket.org/apdavison/sumatra
+.. _SLURM: https://computing.llnl.gov/linux/slurm/
