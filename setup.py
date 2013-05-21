@@ -4,7 +4,6 @@ import distribute_setup
 distribute_setup.use_setuptools()
 from setuptools import setup
 from distutils.command.sdist import sdist
-from src.__init__ import __version__
 import os
 
 
@@ -19,7 +18,6 @@ class sdist_hg(sdist):
     def get_tip_revision(self, path=os.getcwd()):
         from mercurial.hg import repository
         from mercurial.ui import ui
-        from mercurial import node
         repo = repository(ui(), path)
         tip = repo.changelog.tip()
         return str(repo.changelog.rev(tip))
@@ -27,7 +25,7 @@ class sdist_hg(sdist):
 
 setup(
     name = "Sumatra",
-    version = __version__,
+    version = "0.6.0dev",
     package_dir = {'sumatra': 'sumatra'},
     packages = ['sumatra', 'sumatra.dependency_finder', 'sumatra.datastore',
                 'sumatra.recordstore', 'sumatra.recordstore.django_store',
@@ -43,7 +41,7 @@ setup(
                                 'formatting/latex_template.tex']},
     scripts = ['bin/smt', 'bin/smtweb'],
     author = "Sumatra authors and contributors",
-    author_email = "andrewpdavison@gmail.com",
+    author_email = "andrew.davison@unic.cnrs-gif.fr",
     description = "A tool for automated tracking of computation-based scientific projects",
     long_description = open('README').read(),
     license = "CeCILL http://www.cecill.info",
