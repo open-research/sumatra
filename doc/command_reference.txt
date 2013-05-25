@@ -204,8 +204,12 @@ init
                             any of the depdendencies has changed. Defaults to
                             error
       -s STORE, --store STORE
-                            specify the path to the record store, either an
-                            existing one or one to be created.
+                            specify the path or the URI to the record
+                            store, either an existing one or one to be
+                            created. The URI takes the form
+                            `postgres://username:password@hostname/databasename`
+                            for Postgres or simply the local or
+                            absolute path for Sqlite.
       -A PATH, --archive PATH
                             specify a directory in which to archive output
                             datafiles. If not specified, datafiles are not
