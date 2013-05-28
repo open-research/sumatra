@@ -15,7 +15,6 @@ import cmd
 import tempfile
 from . import tee
 import logging
-import operator
 from sumatra.core import have_internet_connection
 
 logger = logging.getLogger("Sumatra")
@@ -39,17 +38,6 @@ class PlatformInformation(object):
     # numpy.distutils.system_info import get_info
     # get_info('blas_opt')
 
-    def __str__(self):
-        return "Processor: %s  Operating system kernel: %s  IP address: %s)" % (self.machine, self.version, self.ip_addr)
-
-    def __eq__(self, other):
-        return reduce(operator.and_,
-                      ((getattr(self, name) == getattr(other, name))
-                        for name in ("machine", "ip_addr", "version")))    
-
-    def __hash__(self):
-        return hash(self.machine) ^ hash(self.ip_addr) ^ hash(self.version)
-
 
 def check_files_exist(*paths):
     """
@@ -68,8 +56,9 @@ class LaunchMode(object):
     Base class for launch modes (serial, distributed, batch, ...)
     """
     
-    def __init__(self, working_directory=None):
+    def __init__(self, working_directory=None, options=None):
         self.working_directory = working_directory or os.getcwd()
+        self.options = options
     
     def __getstate__(self):
         """
@@ -77,7 +66,8 @@ class LaunchMode(object):
         as a standard way of obtaining these attributes, for database storage,
         etc. Returns a dict.
         """
-        return {'working_directory': self.working_directory}
+        return {'working_directory': self.working_directory,
+                'options': options}
     
     def pre_run(self, executable):
         """Run tasks before the simulation/analysis proper.""" # e.g. nrnivmodl
@@ -201,19 +191,20 @@ class DistributedLaunchMode(LaunchMode):
     generalised in future releases.
     """
     
-    def __init__(self, n=1, mpirun="mpiexec", hosts=[],
+    def __init__(self, n=1, mpirun="mpiexec", hosts=[], options=None,
                  pfi_path="/usr/local/bin/pfi.py", working_directory=None):
         """
         `n` - the number of hosts to run on.
         `mpirun` - the path to the mpirun or mpiexec executable. If a full path
                  is not given, the user's PATH will be searched.
         `hosts` - a list of host names to run on. **Currently not used.**
+        `options` - extra command line options for mpirun/mpiexec
         `pfi_path` - the path to the pfi.py script provided with Sumatra, which
                      should be installed on every node and is used to obtain
                     platform information.
         `working_directory` - directory in which to run on the hosts
         """
-        LaunchMode.__init__(self, working_directory)
+        LaunchMode.__init__(self, working_directory, options)
         class MPI(Executable):
             name = mpirun
             default_executable_name = mpirun
@@ -241,7 +232,7 @@ class DistributedLaunchMode(LaunchMode):
         if hasattr(executable, "mpi_options"):
             mpi_options = executable.mpi_options
         else:
-            mpi_options = ""
+            mpi_options = self.options or ""
         #cmd = "%s -np %d -host %s %s %s %s" % (self.mpirun,
         #                                       self.n,
         #                                       ",".join(hosts),
@@ -292,7 +283,7 @@ class DistributedLaunchMode(LaunchMode):
     def __getstate__(self):
         """Return a dict containing the values needed to recreate this instance."""
         return {'mpirun': self.mpirun, 'n': self.n, 'hosts': self.hosts,
-                'pfi_path': self.pfi_path,
+                'pfi_path': self.pfi_path, 'options': self.options,
                 'working_directory': self.working_directory}
 
 
@@ -302,14 +293,15 @@ class SlurmMPILaunchMode(LaunchMode):
     (https://computing.llnl.gov/linux/slurm/)
     """
     
-    def __init__(self, n=1, mpirun="mpiexec", working_directory=None):
+    def __init__(self, n=1, mpirun="mpiexec", working_directory=None, options=None):
         """
         `n` - the number of hosts to run on.
         `mpirun` - the path to the mpirun or mpiexec executable. If a full path
                    is not given, the user's PATH will be searched.
+        `options` - extra options for SLURM
         `working_directory` - directory in which to run on the hosts
         """
-        LaunchMode.__init__(self, working_directory)
+        LaunchMode.__init__(self, working_directory, options)
         class MPI(Executable):
             name = mpirun
             default_executable_name = mpirun
@@ -337,8 +329,9 @@ class SlurmMPILaunchMode(LaunchMode):
             mpi_options = executable.mpi_options
         else:
             mpi_options = ""
-        cmd = "salloc -n %d %s --wdir %s" % (
+        cmd = "salloc -n %d %s %s --wdir %s" % (
             self.n,
+            self.options or "",
             self.mpirun,
             self.working_directory
         )
@@ -348,12 +341,13 @@ class SlurmMPILaunchMode(LaunchMode):
         else:
             cmd += " %s %s %s %s" % (executable.path, mpi_options,
                                      executable.options, arguments)
+        print cmd
         return cmd
     generate_command.__doc__ = LaunchMode.generate_command.__doc__
 
     def __getstate__(self):
         """Return a dict containing the values needed to recreate this instance."""
-        return {'mpirun': self.mpirun, 'n': self.n,
+        return {'mpirun': self.mpirun, 'n': self.n, 'options': self.options,
                 'working_directory': self.working_directory}
 
 

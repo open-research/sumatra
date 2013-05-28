@@ -124,6 +124,7 @@ def init(argv):
     parser.add_argument('-t', '--timestamp_format', help="the timestamp format given to strftime", default=TIMESTAMP_FORMAT)
     parser.add_argument('-M', '--mirror', metavar='URL', help="specify a URL at which your datafiles will be mirrored.")
     parser.add_argument('-L', '--launch_mode', choices=['serial', 'distributed', 'slurm-mpi'], default='serial', help="how computations should be launched. Defaults to %(default)s")
+    parser.add_argument('-o', '--launch_mode_options', help="extra options for the given launch mode")
 
     args = parser.parse_args(argv)
 
@@ -171,7 +172,7 @@ def init(argv):
     else:
         output_datastore = FileSystemDataStore(args.datapath)
     input_datastore = FileSystemDataStore(args.input)    
-    launch_mode = get_launch_mode(args.launch_mode)()
+    launch_mode = get_launch_mode(args.launch_mode)(options=args.launch_mode_options.strip())
 
     project = Project(name=args.project_name,
                       default_executable=executable,
@@ -206,6 +207,7 @@ def configure(argv):
     parser.add_argument('-g', '--labelgenerator', choices=['timestamp', 'uuid'], metavar='OPTION', help="specify which method Sumatra should use to generate labels (options: timestamp, uuid)")
     parser.add_argument('-t', '--timestamp_format', help="the timestamp format given to strftime")
     parser.add_argument('-L', '--launch_mode', choices=['serial', 'distributed', 'slurm-mpi'], help="how computations should be launched.")
+    parser.add_argument('-o', '--launch_mode_options', help="extra options for the given launch mode, to be given in quotes with a leading space, e.g. ' --foo=3'")
 
     args = parser.parse_args(argv)
     project = load_project()
@@ -246,6 +248,8 @@ def configure(argv):
         project.timestamp_format = args.timestamp_format
     if args.launch_mode:
         project.default_launch_mode = get_launch_mode(args.launch_mode)()
+    if args.launch_mode_options:
+        project.default_launch_mode.options = args.launch_mode_options.strip()
     project.save()
 
 
@@ -330,7 +334,7 @@ def run(argv):
                                    label=label, reason=reason,
                                    executable=executable,
                                    main_file=args.main or 'default',
-                                   version=args.version or 'current')
+                                   version=args.version or 'latest')
     except (UncommittedModificationsError, MissingInformationError) as err:
         print(err)
         sys.exit(1)
@@ -338,7 +342,7 @@ def run(argv):
         project.add_tag(run_label, args.tag)
 
 
-def list(argv):  # add 'report' and 'log' as aliases
+def list(argv):
     """List records belonging to the current project."""
     usage = "%(prog)s list [options] [TAGS]"
     description = dedent("""\
@@ -352,8 +356,8 @@ def list(argv):  # add 'report' and 'log' as aliases
                         help="prints full information for each record"),
     parser.add_argument('-T', '--table', action="store_const", const="table",
                         dest="mode", help="prints information in tab-separated columns")
-    parser.add_argument('-f', '--format', metavar='FMT', choices=['text', 'html', 'latex', 'shell'], default='text',
-                        help="FMT can be 'text' (default), 'html', 'latex' or 'shell'.")
+    parser.add_argument('-f', '--format', metavar='FMT', choices=['text', 'html', 'latex'], default='text',
+                        help="FMT can be 'text' (default), 'html' or 'latex'.")
     args = parser.parse_args(argv)
 
     project = load_project()
