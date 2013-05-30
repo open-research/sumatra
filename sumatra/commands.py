@@ -171,8 +171,11 @@ def init(argv):
         output_datastore = MirroredFileSystemDataStore(args.datapath, args.mirror)
     else:
         output_datastore = FileSystemDataStore(args.datapath)
-    input_datastore = FileSystemDataStore(args.input)    
-    launch_mode = get_launch_mode(args.launch_mode)(options=args.launch_mode_options.strip())
+    input_datastore = FileSystemDataStore(args.input)
+    
+    if args.launch_mode_options:
+        args.launch_mode_options = args.launch_mode_options.strip()
+    launch_mode = get_launch_mode(args.launch_mode)(options=args.launch_mode_options)
 
     project = Project(name=args.project_name,
                       default_executable=executable,
@@ -334,7 +337,7 @@ def run(argv):
                                    label=label, reason=reason,
                                    executable=executable,
                                    main_file=args.main or 'default',
-                                   version=args.version or 'latest')
+                                   version=args.version or 'current')
     except (UncommittedModificationsError, MissingInformationError) as err:
         print(err)
         sys.exit(1)
@@ -342,7 +345,7 @@ def run(argv):
         project.add_tag(run_label, args.tag)
 
 
-def list(argv):
+def list(argv):  # add 'report' and 'log' as aliases
     """List records belonging to the current project."""
     usage = "%(prog)s list [options] [TAGS]"
     description = dedent("""\
@@ -356,8 +359,8 @@ def list(argv):
                         help="prints full information for each record"),
     parser.add_argument('-T', '--table', action="store_const", const="table",
                         dest="mode", help="prints information in tab-separated columns")
-    parser.add_argument('-f', '--format', metavar='FMT', choices=['text', 'html', 'latex'], default='text',
-                        help="FMT can be 'text' (default), 'html' or 'latex'.")
+    parser.add_argument('-f', '--format', metavar='FMT', choices=['text', 'html', 'latex', 'shell'], default='text',
+                        help="FMT can be 'text' (default), 'html', 'latex' or 'shell'")
     args = parser.parse_args(argv)
 
     project = load_project()

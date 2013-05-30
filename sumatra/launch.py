@@ -67,7 +67,7 @@ class LaunchMode(object):
         etc. Returns a dict.
         """
         return {'working_directory': self.working_directory,
-                'options': options}
+                'options': self.options}
     
     def pre_run(self, executable):
         """Run tasks before the simulation/analysis proper.""" # e.g. nrnivmodl

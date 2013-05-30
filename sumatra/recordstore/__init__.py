@@ -41,7 +41,7 @@ def get_record_store(uri):
             store = HttpRecordStore(uri)
         else:
             raise Exception("Cannot access record store: httplib2 is not installed.")
-    elif os.path.exists(uri):
+    elif os.path.exists(uri) or os.path.exists(uri + ".db"):
         try:
             store = ShelveRecordStore(uri)
         except Exception as err:
