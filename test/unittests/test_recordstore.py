@@ -471,7 +471,7 @@ class TestModuleFunctions(unittest.TestCase):
 
     def test_get_record_store_shelve(self):
         store = shelve_store.ShelveRecordStore(shelf_name="test_record_store.shelf")
-        store.shelf["foo"] = "bar"
+        store.shelf[str("foo")] = "bar"
         store.shelf.sync()
         del store
         assert os.path.exists("test_record_store.shelf") or os.path.exists("test_record_store.shelf.db")

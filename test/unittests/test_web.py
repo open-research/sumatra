@@ -9,7 +9,11 @@ except ImportError:
 import os
 from pprint import pprint
 import mimetypes
-
+try:
+    import docutils
+    have_docutils = True
+except ImportError:
+    have_docutils = False
 import sumatra.web
 from django.core.exceptions import ObjectDoesNotExist
 from django.core import management
@@ -92,6 +96,7 @@ class TestWebInterface(unittest.TestCase):
     # note: these tests need to be improved. In general, we don't check much
     # beyond "returns a 200 status code".
 
+    @unittest.skipUnless(have_docutils, "docutils not available")
     def test_project_list(self):
         c = Client()
         response = c.get('/')

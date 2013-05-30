@@ -15,6 +15,7 @@ from sumatra.formatting import (Formatter, TextFormatter, HTMLFormatter,
                                 TextDiffFormatter, get_formatter,
                                 ShellFormatter, LaTeXFormatter)
 from sumatra.core import TIMESTAMP_FORMAT
+from sumatra.programs import get_executable
 
 
 class MockRepository(object):
@@ -174,7 +175,10 @@ class TestLaTeXFormatter(unittest.TestCase):
         tmpdir = tempfile.mkdtemp()
         with open(os.path.join(tmpdir, "test.tex"), "w") as fp:
             fp.write(txt)
-        check_call(["pdflatex", "test.tex"], cwd=tmpdir, stdout=PIPE)  # check it builds
+        if get_executable("pdflatex").path == "pdflatex":  # pdflatex not found
+            raise unittest.SkipTest
+        else:
+            check_call(["pdflatex", "test.tex"], cwd=tmpdir, stdout=PIPE)  # check it builds
         shutil.rmtree(tmpdir)
 
 
