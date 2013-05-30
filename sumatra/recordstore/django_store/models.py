@@ -36,6 +36,7 @@ class SumatraObjectsManager(models.Manager):
                     attributes[name] = str(obj) # ParameterSet, DataKey
                 else:
                     raise
+
         return self.using(using).get_or_create(**attributes)            
         
 
@@ -107,7 +108,7 @@ class Dependency(BaseModel):
 
 class Repository(BaseModel):
     # the following should be unique together.
-    type = models.CharField(max_length=20)
+    type = models.CharField(max_length=100)
     if LooseVersion(django.get_version()) < LooseVersion('1.5'):
         url = models.URLField(verify_exists=False)
         upstream = models.URLField(verify_exists=False, null=True, blank=True)
@@ -128,7 +129,7 @@ class Repository(BaseModel):
 
 
 class ParameterSet(BaseModel):
-    type = models.CharField(max_length=30)
+    type = models.CharField(max_length=100)
     content = models.TextField()
     
     def to_sumatra(self):
@@ -144,8 +145,8 @@ class ParameterSet(BaseModel):
 
 
 class LaunchMode(BaseModel):
-    type = models.CharField(max_length=10)
-    parameters = models.CharField(max_length=100)
+    type = models.CharField(max_length=100)
+    parameters = models.CharField(max_length=1000)
     
     def to_sumatra(self):
         parameters = eval(self.parameters)
@@ -160,7 +161,7 @@ class LaunchMode(BaseModel):
     
 
 class Datastore(BaseModel):
-    type = models.CharField(max_length=30)
+    type = models.CharField(max_length=100)
     parameters = models.CharField(max_length=100)
 
     def to_sumatra(self):
@@ -192,13 +193,13 @@ class DataKey(BaseModel):
 
 
 class PlatformInformation(BaseModel):
-    architecture_bits = models.CharField(max_length=10)
-    architecture_linkage = models.CharField(max_length=10)
+    architecture_bits = models.CharField(max_length=100)
+    architecture_linkage = models.CharField(max_length=100)
     machine = models.CharField(max_length=20)
     network_name = models.CharField(max_length=100)
     ip_addr = models.IPAddressField()
-    processor = models.CharField(max_length=30)
-    release = models.CharField(max_length=30)
+    processor = models.CharField(max_length=100)
+    release = models.CharField(max_length=100)
     system_name = models.CharField(max_length=20)
     version = models.CharField(max_length=50)
     
@@ -230,7 +231,7 @@ class Record(BaseModel):
     dependencies = models.ManyToManyField(Dependency)
     platforms = models.ManyToManyField(PlatformInformation)
     diff = models.TextField(blank=True)
-    user = models.CharField(max_length=30)
+    user = models.CharField(max_length=100)
     project = models.ForeignKey(Project, null=True)
     script_arguments = models.TextField(blank=True)
     stdout_stderr = models.TextField(blank=True)
