@@ -14,7 +14,7 @@ import os
 from textwrap import dedent
 import imp
 from ...compatibility import StringIO
-import urlparse
+from ...compatibility import urlparse
 
 # Check that django-tagging is available. It would be better to try importing
 # it, but that seems to mess with Django's internals.
@@ -41,7 +41,7 @@ class DjangoConfiguration(object):
         self.configured = False
 
     def uri_to_db(self, uri):
-        parse_result = urlparse.urlparse(uri)
+        parse_result = urlparse(uri)
         db = {}
         if 'postgres' in parse_result.scheme:
             db['ENGINE'] = 'django.db.backends.postgresql_psycopg2'
@@ -88,10 +88,10 @@ class DjangoConfiguration(object):
                     os.makedirs(os.path.dirname(db_file))
                 if not os.path.exists(db_file):
                     management.call_command('syncdb', database=label, verbosity=0)
-                    print("Created sqlite record store")
+                    print("Created Sqlite record store")
             else:
                 management.call_command('syncdb', database=label, verbosity=0)
-                print "Created postgres record store"
+                print("Created Postgres record store")
 
     def configure(self):
         settings = django_conf.settings
