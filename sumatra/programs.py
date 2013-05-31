@@ -36,7 +36,7 @@ import subprocess
 import sys
 import warnings
 from .compatibility import string_type
-from .core import get_encoding
+from .core import run
 
 
 version_pattern = re.compile(r'\b(?P<version>\d[\.\d]*([a-z]*\d)*)\b')
@@ -86,10 +86,9 @@ class Executable(object):
         return executable
 
     def _get_version(self):
-        p = subprocess.Popen("%s --version" % self.path, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
-        returncode = p.wait()
-        output = p.stdout.read().decode(get_encoding())
-        match = version_pattern.search(output)
+        returncode, output, err = run("%s --version" % self.path,
+                                      shell=True, timeout=5)
+        match = version_pattern.search(output + err)
         if match:
             version = match.groupdict()['version']
         else:
