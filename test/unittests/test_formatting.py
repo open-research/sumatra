@@ -5,7 +5,6 @@ Unit tests for the sumatra.formatting module
 import unittest
 import tempfile
 from datetime import datetime
-from subprocess import check_call, PIPE
 import os
 import shutil
 from xml.etree import ElementTree
@@ -14,7 +13,7 @@ from sumatra.records import Record
 from sumatra.formatting import (Formatter, TextFormatter, HTMLFormatter,
                                 TextDiffFormatter, get_formatter,
                                 ShellFormatter, LaTeXFormatter)
-from sumatra.core import TIMESTAMP_FORMAT
+from sumatra.core import run, TIMESTAMP_FORMAT
 from sumatra.programs import get_executable
 
 
@@ -160,7 +159,8 @@ class TestShellFormatter(unittest.TestCase):
         tmpdir = tempfile.mkdtemp()
         with open(os.path.join(tmpdir,"test.sh"), "w") as fp:
             fp.write(txt)
-        check_call(["sh", "-n", "test.sh"], cwd=tmpdir)  # check syntax
+        returncode, stdout, stderr = run(["sh", "-n", "test.sh"], cwd=tmpdir)  # check syntax
+        self.assertEqual(returncode, 0)
         shutil.rmtree(tmpdir)
 
 
@@ -178,7 +178,8 @@ class TestLaTeXFormatter(unittest.TestCase):
         if get_executable("pdflatex").path == "pdflatex":  # pdflatex not found
             raise unittest.SkipTest
         else:
-            check_call(["pdflatex", "test.tex"], cwd=tmpdir, stdout=PIPE)  # check it builds
+            returncode, stdout, stderr = run(["pdflatex", "test.tex"], cwd=tmpdir)  # check it builds
+            self.assertEqual(returncode, 0, msg=stdout + stderr)
         shutil.rmtree(tmpdir)
 
 
