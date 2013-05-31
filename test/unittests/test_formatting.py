@@ -179,7 +179,12 @@ class TestLaTeXFormatter(unittest.TestCase):
             raise unittest.SkipTest
         else:
             returncode, stdout, stderr = run(["pdflatex", "test.tex"], cwd=tmpdir)  # check it builds
-            self.assertEqual(returncode, 0, msg=stdout + stderr)
+            output = stdout + stderr
+            if returncode != 0:
+                if "not found" in output:  # one of the required LaTeX packages is unavailable
+                    raise unittest.SkipTest
+                else:
+                    self.fail(output)
         shutil.rmtree(tmpdir)
 
 
