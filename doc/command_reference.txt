@@ -204,8 +204,18 @@ init
                             any of the depdendencies has changed. Defaults to
                             error
       -s STORE, --store STORE
-                            specify the path to the record store, either an
-                            existing one or one to be created.
+                            Specify the path, URL or URI to the record store (must
+                            be specified). This can either be an existing record
+                            store or one to be created. The argument can take the
+                            following forms: (1) `/path/to/sqlitedb` -
+                            DjangoRecordStore is used with the specified Sqlite
+                            database, (2) `http[s]://location` - remote
+                            HTTPRecordStore is used with a remote Sumatra server,
+                            (3)
+                            `postgres://username:password@hostname/databasename` -
+                            DjangoRecordStore is used with specified Postgres
+                            database. Not using the `--store` argument defaults to
+                            a DjangoRecordStore with Sqlite in `.smt/records`
       -A PATH, --archive PATH
                             specify a directory in which to archive output
                             datafiles. If not specified, datafiles are not

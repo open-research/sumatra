@@ -129,7 +129,7 @@ class ShellFormatter(Formatter):
         if self.tags:
             output += "# tagged with %s\n" % ",".join(tags)
         if self.project.description:
-            output += TextWrapper(initial_indent = "# ", subsequent_indent="# ").fill(self.project.description)
+            output += textwrap.TextWrapper(initial_indent = "# ", subsequent_indent="# ").fill(self.project.description)
         cleanup = "\n\n# Clean-up temporary files\n"
 
         output += "\n# Original hardware environment:\n"

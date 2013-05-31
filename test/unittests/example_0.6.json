@@ -83,7 +83,8 @@
     "launch_mode": {
         "type": "SerialLaunchMode",
         "parameters": {
-            "working_directory": "/current/working/directory"
+            "working_directory": "/current/working/directory",
+            "options": null
         }
     },
     "main_file": "plot.py",

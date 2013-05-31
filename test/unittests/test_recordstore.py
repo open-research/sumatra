@@ -14,7 +14,8 @@ from django.core import management
 
 from sumatra.records import Record
 from sumatra.programs import register_executable, Executable
-from sumatra.recordstore import shelve_store, django_store, http_store, serialization
+from sumatra.recordstore import (shelve_store, django_store, http_store,
+                                 serialization, get_record_store)
 from sumatra.versioncontrol import vcs_list
 import sumatra.launch
 import sumatra.datastore
@@ -456,6 +457,32 @@ class TestSerialization(unittest.TestCase):
     def test_encode_project_info(self):
         serialization.encode_project_info("foo", "description of foo")
 
+
+class TestModuleFunctions(unittest.TestCase):
+
+    def tearDown(self):
+        for filename in ("test_record_store.shelf", "test_record_store.shelf.db"):
+            if os.path.exists(filename):
+                os.remove(filename)
+
+    def test_get_record_store_http(self, ):
+        self.assertIsInstance(get_record_store("http://records.example.com/"),
+                              http_store.HttpRecordStore)
+
+    def test_get_record_store_shelve(self):
+        store = shelve_store.ShelveRecordStore(shelf_name="test_record_store.shelf")
+        store.shelf[str("foo")] = "bar"
+        store.shelf.sync()
+        del store
+        assert os.path.exists("test_record_store.shelf") or os.path.exists("test_record_store.shelf.db")
+        self.assertIsInstance(get_record_store("test_record_store.shelf"),
+                              shelve_store.ShelveRecordStore)
+
+    def test_get_record_store_create_shelve(self):
+        assert not os.path.exists("test_record_store.shelf")
+        self.assertIsInstance(get_record_store("test_record_store.shelf"),
+                              shelve_store.ShelveRecordStore)
+    
 
 if __name__ == '__main__':
     setup()

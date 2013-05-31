@@ -14,6 +14,7 @@ import os
 from textwrap import dedent
 import imp
 from ...compatibility import StringIO
+from ...compatibility import urlparse
 
 # Check that django-tagging is available. It would be better to try importing
 # it, but that seems to mess with Django's internals.
@@ -38,16 +39,31 @@ class DjangoConfiguration(object):
         }
         self._n_databases = 0
         self.configured = False
-   
-    def add_database(self, db_file):
+
+    def uri_to_db(self, uri):
+        parse_result = urlparse(uri)
+        db = {}
+        if 'postgres' in parse_result.scheme:
+            db['ENGINE'] = 'django.db.backends.postgresql_psycopg2'
+            db['NAME'] = os.path.split(parse_result.path)[-1]
+            db['HOST'] = parse_result.hostname
+            db['USER'] = parse_result.username
+            db['PASSWORD'] = parse_result.password
+        else:
+            db['ENGINE'] = 'django.db.backends.sqlite3'
+            db['NAME'] = os.path.abspath(parse_result.path)
+        return db
+        
+    def add_database(self, uri):
         """
         Add a database to the configuration and return a label. If the database
         already exists in the configuration, just return the existing label.
         """
-        db_file = os.path.abspath(db_file)
-        if self.contains_database(db_file):
-            for key, db in self._settings['DATABASES'].items():
-                if db_file == db['NAME']:
+        db = self.uri_to_db(uri)
+        
+        if self.contains_database(db):
+            for key, db_tmp in self._settings['DATABASES'].items():
+                if db == db_tmp:
                     label = key
                     break
         else:
@@ -57,27 +73,25 @@ class DjangoConfiguration(object):
                 label = 'default'
             else:
                 label = 'database%g' % self._n_databases
-            self._settings['DATABASES'][label] = {
-                'ENGINE': 'django.db.backends.sqlite3',
-                'NAME': os.path.abspath(db_file)
-            }
+            self._settings['DATABASES'][label] = db
             self._n_databases += 1
         return label
     
-    def contains_database(self, db_file):
-        return os.path.abspath(db_file) in self.get_db_files()
+    def contains_database(self, db):
+        return db in [db_tmp for label, db_tmp in self._settings['DATABASES'].items()]
     
-    def get_db_files(self):
-        return [D['NAME'] for D in self._settings['DATABASES'].values()]
-
     def _create_databases(self):
         for label, db in self._settings['DATABASES'].items():
-            db_file = db['NAME']
-            if not os.path.exists(os.path.dirname(db_file)):
-                os.makedirs(os.path.dirname(db_file))
-            if not os.path.exists(db_file):
+            if 'sqlite' in db['ENGINE']:
+                db_file = db['NAME']
+                if not os.path.exists(os.path.dirname(db_file)):
+                    os.makedirs(os.path.dirname(db_file))
+                if not os.path.exists(db_file):
+                    management.call_command('syncdb', database=label, verbosity=0)
+                    print("Created Sqlite record store")
+            else:
                 management.call_command('syncdb', database=label, verbosity=0)
-                print("Created record store")
+                print("Created Postgres record store")
 
     def configure(self):
         settings = django_conf.settings
@@ -100,7 +114,7 @@ class DjangoRecordStore(RecordStore):
     This record store is needed for the *smtweb* interface.
     """
     
-    def __init__(self, db_file='.smt/records'):    
+    def __init__(self, db_file='.smt/records'):
         self._db_label = db_config.add_database(db_file)
         self._db_file = db_file
                 

@@ -3,11 +3,60 @@ Unit tests for the sumatra.formatting module
 """
 
 import unittest
+import tempfile
 from datetime import datetime
-from sumatra.records import Record
-from sumatra.formatting import Formatter, TextFormatter, HTMLFormatter, TextDiffFormatter, get_formatter
-from sumatra.core import TIMESTAMP_FORMAT
+from subprocess import check_call, PIPE
+import os
+import shutil
 from xml.etree import ElementTree
+
+from sumatra.records import Record
+from sumatra.formatting import (Formatter, TextFormatter, HTMLFormatter,
+                                TextDiffFormatter, get_formatter,
+                                ShellFormatter, LaTeXFormatter)
+from sumatra.core import TIMESTAMP_FORMAT
+from sumatra.programs import get_executable
+
+
+class MockRepository(object):
+    vcs_type = "mockvcs"
+    use_version_cmd = "mck use-this-version"
+    apply_patch_cmd = "mck apply-this-patch"
+    def __init__(self, url, upstream=None):
+        self.url = url
+        self.upstream = upstream
+    def __hash__(self):
+        return hash(self.url)
+    def __eq__(self, other):
+        return self.url == other.url
+    def __repr__(self):
+        return "MockRepository(%s)" % self.url
+    
+
+class MockExecutable(object):
+    name = "brian"
+    version = "99.99"
+    def write_parameters(self, param, filebase):
+        return "filename"
+    def __repr__(self):
+        return "MockExecutable()" 
+
+
+class MockLaunchMode(object):
+    working_directory = "/path/to/wd"
+    def generate_command(self, ex, main, args):
+        return ex.name + " " + main + " " + args
+    def __repr__(self):
+        return "MockLaunchMode()" 
+
+
+class MockDataItem(object):
+    def __init__(self, path):
+        self.path = path
+        self.metadata = {'size': 1024}
+    def __repr__(self):
+        return self.path
+    
 
 class MockRecord(Record):
     def __init__(self):
@@ -16,19 +65,23 @@ class MockRecord(Record):
         self.reason = "determine how many shekels the gourd is worth"
         self.outcome = "apparently it is worth NaN shekels"
         self.duration = 1.2345
-        self.repository = "http://cvs.example.com/pfj/"
+        self.repository = MockRepository("http://cvs.example.com/pfj/")
         self.main_file = "haggle.py"
         self.version = "5.4.3"
-        self.executable = "brian"
+        self.executable = MockExecutable()
         self.tags = ["splitters",]
         self.script_arguments = "arg1 arg2"
-        self.input_data = ['somefile', 'anotherfile']
+        self.input_data = [MockDataItem('somefile'),
+                           MockDataItem('anotherfile')]
         self.diff = 'iuefciaeufhmc'
         self.parameters = {'a': 2, 'b': 4}
-        self.launch_mode = 'serial'
+        self.launch_mode = MockLaunchMode()
         self.output_data = []
         self.user = 'King Arthur <boss@camelot.gov>'
         self.repeats = None
+        self.platforms = []
+        self.dependencies = []
+        self.datastore = "datastore"
 
 
 class MockRecordDifference(object):
@@ -49,6 +102,12 @@ class MockRecordDifference(object):
     parameters_differ = True
     input_data_differ = True
     script_arguments_differ = True
+
+
+class MockProject(object):
+    name = "ExampleProject"
+    description = "This is an example project."
+    path = "/path/to/project"
 
 
 class TestTextFormatter(unittest.TestCase):
@@ -88,6 +147,39 @@ class TestTextFormatter(unittest.TestCase):
         lengths = [len(line) for line in txt.split("\n")[:-1]]
         for l in lengths:
             assert l == lengths[0]
+
+
+class TestShellFormatter(unittest.TestCase):
+
+    def setUp(self):
+        self.record_list = [ MockRecord(), MockRecord() ]
+
+    def test__short(self):
+        tf1 = ShellFormatter(self.record_list, project=MockProject())
+        txt = tf1.short()
+        tmpdir = tempfile.mkdtemp()
+        with open(os.path.join(tmpdir,"test.sh"), "w") as fp:
+            fp.write(txt)
+        check_call(["sh", "-n", "test.sh"], cwd=tmpdir)  # check syntax
+        shutil.rmtree(tmpdir)
+
+
+class TestLaTeXFormatter(unittest.TestCase):
+
+    def setUp(self):
+        self.record_list = [ MockRecord(), MockRecord() ]
+
+    def test__long(self):
+        tf1 = LaTeXFormatter(self.record_list, project=MockProject())
+        txt = tf1.long()
+        tmpdir = tempfile.mkdtemp()
+        with open(os.path.join(tmpdir, "test.tex"), "w") as fp:
+            fp.write(txt)
+        if get_executable("pdflatex").path == "pdflatex":  # pdflatex not found
+            raise unittest.SkipTest
+        else:
+            check_call(["pdflatex", "test.tex"], cwd=tmpdir, stdout=PIPE)  # check it builds
+        shutil.rmtree(tmpdir)
 
 
 class TestHTMLFormatter(unittest.TestCase):
