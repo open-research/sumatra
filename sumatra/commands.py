@@ -70,7 +70,7 @@ def parse_command_line_parameter(p):
     return {name: value}
 
 
-def parse_arguments(args, input_datastore):
+def parse_arguments(args, input_datastore, stdin=None, stdout=None):
     cmdline_parameters = {}
     script_args = []
     parameter_sets = []
@@ -93,6 +93,15 @@ def parse_arguments(args, input_datastore):
                 cmdline_parameters.update(parse_command_line_parameter(arg))
             else: # a flag or something, passed on unchanged
                 script_args.append(arg)
+    if stdin:
+        script_args.append("< %s" % stdin)
+        if input_datastore.contains_path(stdin):
+            data_key = input_datastore.generate_keys(stdin)
+            input_data.extend(data_key)
+        else:
+            raise IOError("File does not exist: %s" % stdin)
+    if stdout:
+        script_args.append("> %s" % stdout)
     assert len(parameter_sets) < 2, "No more than one parameter file may be supplied." # temporary restriction
     if cmdline_parameters:
         if parameter_sets:
@@ -299,6 +308,8 @@ def run(argv):
                         help="run a distributed computation on N processes using MPI. If this option is not used, or if N=0, a normal, serial simulation/analysis is run.")
     parser.add_argument('-t', '--tag', help="tag you want to add to the project")
     parser.add_argument('-D', '--debug', action='store_true', help="print debugging information.")
+    parser.add_argument('-i', '--stdin', help="specify the name of a file that should be connected to standard input.")
+    parser.add_argument('-o', '--stdout', help="specify the name of a file that should be connected to standard output.")
 
     args, user_args = parser.parse_known_args(argv)
 
@@ -306,7 +317,10 @@ def run(argv):
         logger.setLevel(logging.DEBUG)
 
     project = load_project()
-    parameters, input_data, script_args = parse_arguments(user_args, project.input_datastore)
+    parameters, input_data, script_args = parse_arguments(user_args,
+                                                          project.input_datastore,
+                                                          args.stdin,
+                                                          args.stdout)
     if len(parameters) == 0:
         parameters = {}
     elif len(parameters) == 1:

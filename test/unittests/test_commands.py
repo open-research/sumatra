@@ -523,6 +523,14 @@ class RunCommandTests(unittest.TestCase):
         # ought really to have a more specific Exception and to catch it so as to give a helpful error message to user
         self.assertRaises(Exception, commands.run, ["a=17", "umlue=43"])
 
+    def test_with_stdin_stdout(self):
+        with open("data.in", "w") as fp:
+            fp.write("1 2 3\n")
+        commands.run(["--stdin=data.in", "--stdout=data.out"])
+        self.assertEqual(self.prj.launch_args["script_args"],
+                         "< data.in > data.out")
+        os.remove("data.in")
+
 
 class ListCommandTests(unittest.TestCase):
 
