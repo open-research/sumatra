@@ -111,6 +111,13 @@ class TestSimpleParameterSet(unittest.TestCase):
     def test__string_parameters_should_be_able_to_contain_equals_signs(self):
         init = 'equation = "e = mc^2"'
         P = SimpleParameterSet(init)
+        self.assertEqual(P['equation'], 'e = mc^2')
+
+    def test__string_parameters_should_be_able_to_contain_comment_characters(self):
+        P = SimpleParameterSet('char = "#"')
+        self.assertEqual(P['char'], '#')
+        P = SimpleParameterSet('x = "#abc#"')
+        self.assertEqual(P['x'], '#abc#')
 
     def test__getitem__should_give_access_to_parameters(self):
         P = SimpleParameterSet("x = 2\ny = 3")

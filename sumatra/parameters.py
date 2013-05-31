@@ -153,13 +153,13 @@ class SimpleParameterSet(object):
                     parts = line.split("=")
                     name = parts[0].strip()
                     value = "=".join(parts[1:])
-                    if "#" in value:
-                        value, comment = value.split("#")[:2]
-                        self.comments[name] = comment
                     try:
                         self.values[name] = eval(value)
                     except NameError:
                         self.values[name] = unicode(value)
+                    if "#" in value:
+                        comment = "#".join(value.split("#")[1:])  # this fails if the value is a string containing '#'
+                        self.comments[name] = comment
                     self.types[name] = type(self.values[name])
                 elif line:
                     if line.strip()[0] == "#":
