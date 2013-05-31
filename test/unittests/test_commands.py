@@ -86,6 +86,7 @@ class MockProject(object):
     default_launch_mode = launch.SerialLaunchMode
     on_changed = "sound the alarm"
     data_label = "pluck from the ether"
+    allow_command_line_parameters = True
     record_store = MockRecordStore("default")
     saved = False
     info_called = False
@@ -522,6 +523,13 @@ class RunCommandTests(unittest.TestCase):
     def test_with_command_line_params_but_no_parameter_file(self):
         # ought really to have a more specific Exception and to catch it so as to give a helpful error message to user
         self.assertRaises(Exception, commands.run, ["a=17", "umlue=43"])
+
+    def test_with_command_line_params_disallowed(self):
+        self.prj.allow_command_line_parameters = False
+        commands.run(["a=17", "umlue=43", "beans"])
+        self.assertEqual(self.prj.launch_args["script_args"],
+                         "a=17 umlue=43 beans")
+        self.prj.allow_command_line_parameters = True
 
     def test_with_stdin_stdout(self):
         with open("data.in", "w") as fp:

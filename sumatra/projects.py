@@ -65,7 +65,8 @@ class Project(object):
                  data_store='default', record_store='default',
                  on_changed='error', description='', data_label=None,
                  input_datastore=None, label_generator='timestamp',
-                 timestamp_format=TIMESTAMP_FORMAT):
+                 timestamp_format=TIMESTAMP_FORMAT,
+                 allow_command_line_parameters=True):
         self.path = os.getcwd()
         if not os.path.exists(".smt"):
             os.mkdir(".smt")
@@ -89,6 +90,7 @@ class Project(object):
         self.label_generator = label_generator
         self.timestamp_format = timestamp_format        
         self.sumatra_version = sumatra.__version__
+        self.allow_command_line_parameters = allow_command_line_parameters
         self._most_recent = None            
         self.save()
         print("Sumatra project successfully set up")
@@ -108,7 +110,8 @@ class Project(object):
                      'default_launch_mode', 'data_store', 'record_store',
                      'default_main_file', 'on_changed', 'description',
                      'data_label', '_most_recent', 'input_datastore',
-                     'label_generator', 'timestamp_format', 'sumatra_version'):
+                     'label_generator', 'timestamp_format', 'sumatra_version',
+                     'allow_command_line_parameters'):
             attr = getattr(self, name, None)
             if hasattr(attr, "__getstate__"):
                 state[name] = {'type': attr.__class__.__module__ + "." + attr.__class__.__name__}

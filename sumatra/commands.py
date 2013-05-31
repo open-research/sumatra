@@ -70,7 +70,8 @@ def parse_command_line_parameter(p):
     return {name: value}
 
 
-def parse_arguments(args, input_datastore, stdin=None, stdout=None):
+def parse_arguments(args, input_datastore, stdin=None, stdout=None,
+                    allow_command_line_parameters=True):
     cmdline_parameters = {}
     script_args = []
     parameter_sets = []
@@ -89,7 +90,7 @@ def parse_arguments(args, input_datastore, stdin=None, stdout=None):
                 data_key = input_datastore.generate_keys(arg)
                 input_data.extend(data_key)
                 script_args.append(arg)
-            elif "=" in arg: # cmdline parameter
+            elif allow_command_line_parameters and "=" in arg: # cmdline parameter
                 cmdline_parameters.update(parse_command_line_parameter(arg))
             else: # a flag or something, passed on unchanged
                 script_args.append(arg)
@@ -220,6 +221,7 @@ def configure(argv):
     parser.add_argument('-t', '--timestamp_format', help="the timestamp format given to strftime")
     parser.add_argument('-L', '--launch_mode', choices=['serial', 'distributed', 'slurm-mpi'], help="how computations should be launched.")
     parser.add_argument('-o', '--launch_mode_options', help="extra options for the given launch mode, to be given in quotes with a leading space, e.g. ' --foo=3'")
+    parser.add_argument('-p', '--plain', action='store_true', help="pass arguments to the run command straight through to the program.")
 
     args = parser.parse_args(argv)
     project = load_project()
@@ -262,6 +264,8 @@ def configure(argv):
         project.default_launch_mode = get_launch_mode(args.launch_mode)()
     if args.launch_mode_options:
         project.default_launch_mode.options = args.launch_mode_options.strip()
+    if args.plain:
+        project.allow_command_line_parameters = False
     project.save()
 
 
@@ -320,7 +324,8 @@ def run(argv):
     parameters, input_data, script_args = parse_arguments(user_args,
                                                           project.input_datastore,
                                                           args.stdin,
-                                                          args.stdout)
+                                                          args.stdout,
+                                                          project.allow_command_line_parameters)
     if len(parameters) == 0:
         parameters = {}
     elif len(parameters) == 1:
