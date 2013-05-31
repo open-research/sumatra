@@ -187,10 +187,13 @@ class DjangoRecordStore(RecordStore):
         db_record.stdout_stderr = record.stdout_stderr
         # should perhaps check here for any orphan Tags, i.e., those that are no longer associated with any records, and delete them
         db_record.save() # need to save before using many-to-many relationship
-        for key in record.input_data:
-            db_record.input_data.add(self._get_db_obj('DataKey', key))
-        for key in record.output_data:
-            db_record.output_data.add(self._get_db_obj('DataKey', key))
+        chunk_size = 900  # SQLite has problems with inserts >= ca. 1000, so for safety we split it into chunks
+        for i in xrange(0, len(record.input_data), chunk_size):
+            db_keys = (self._get_db_obj('DataKey', key) for key in record.input_data[i:i+chunk_size])
+            db_record.input_data.add(*db_keys)
+        for i in xrange(0, len(record.output_data), chunk_size):
+            db_keys = (self._get_db_obj('DataKey', key) for key in record.output_data[i:i+chunk_size])
+            db_record.output_data.add(*db_keys)
         if record.dependencies:
             for dep in record.dependencies:
                 #print "Adding dependency %s to db_record" % dep
