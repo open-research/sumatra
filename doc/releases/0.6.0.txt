@@ -9,6 +9,7 @@ Welcome to Sumatra 0.6.0!
 This version of Sumatra sees a number of new features, improvements to existing
 ones, and bug fixes:
 
+.. todo:: document postgres support
 
 New export formats: LaTeX and bash script
 -----------------------------------------

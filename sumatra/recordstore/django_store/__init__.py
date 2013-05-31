@@ -13,8 +13,7 @@ from django.core import management
 import os
 from textwrap import dedent
 import imp
-from ...compatibility import StringIO
-from ...compatibility import urlparse
+from ...compatibility import StringIO, urlparse
 
 # Check that django-tagging is available. It would be better to try importing
 # it, but that seems to mess with Django's internals.
@@ -88,10 +87,10 @@ class DjangoConfiguration(object):
                     os.makedirs(os.path.dirname(db_file))
                 if not os.path.exists(db_file):
                     management.call_command('syncdb', database=label, verbosity=0)
-                    print("Created Sqlite record store")
+                    print("Created Django record store using SQLite")
             else:
                 management.call_command('syncdb', database=label, verbosity=0)
-                print("Created Postgres record store")
+                print("Created Django record store using PostgreSQL")
 
     def configure(self):
         settings = django_conf.settings

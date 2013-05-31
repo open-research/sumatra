@@ -14,3 +14,4 @@ cover
 .coverage
 MANIFEST
 Sumatra.komodoproject
+*.egg-info

@@ -35,6 +35,7 @@ Table of Contents
    gui
    parallel_computations
    publishing
+   reporting
    using_the_api
    parameter_files
    upgrading
