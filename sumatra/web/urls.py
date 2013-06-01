@@ -2,7 +2,7 @@
 Define URL dispatching for the Sumatra web interface.
 """
 
-from django.conf.urls.defaults import *
+from django.conf.urls import patterns
 from django.conf import settings
 from sumatra.projects import Project
 from sumatra.records import Record

@@ -63,7 +63,6 @@ def main(argv):
     settings.INSTALLED_APPS = list(settings.INSTALLED_APPS) + ['sumatra.web']
     settings.MIDDLEWARE_CLASSES = tuple()
     
-    management.setup_environ(settings)
     if not options.no_browser:
         thread.start_new_thread(delayed_new_tab, ("http://127.0.0.1:%s" % options.port, 3))
 

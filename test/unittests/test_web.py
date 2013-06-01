@@ -28,19 +28,15 @@ def setup():
     global store, orig_load_project, Client
     import django.conf
     settings = django.conf.settings
-    #store = DjangoRecordStore(db_file="test.db")
     test_recordstore.setup()
     store = test_recordstore.django_store1
-    #db_config.configure()
     settings.ROOT_URLCONF = 'sumatra.web.urls'
     settings.INSTALLED_APPS = list(settings.INSTALLED_APPS) + ['sumatra.web']
-    management.setup_environ(settings)
     import django.test.client
     Client = django.test.client.Client
     import django.test.utils
     django.test.utils.setup_test_environment()
 
-    #recordstore_setup()
     orig_load_project = sumatra.projects.load_project
     sumatra.projects.load_project = lambda: MockProject()
     add_some_records()
