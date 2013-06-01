@@ -75,6 +75,11 @@ configure
                             the timestamp format given to strftime
       -L {serial,distributed,slurm-mpi}, --launch_mode {serial,distributed,slurm-mpi}
                             how computations should be launched.
+      -o LAUNCH_MODE_OPTIONS, --launch_mode_options LAUNCH_MODE_OPTIONS
+                            extra options for the given launch mode, to be given
+                            in quotes with a leading space, e.g. ' --foo=3'
+      -p, --plain           pass arguments to the run command straight through to
+                            the program.
 
 delete
 ------
@@ -230,6 +235,8 @@ init
       -L {serial,distributed,slurm-mpi}, --launch_mode {serial,distributed,slurm-mpi}
                             how computations should be launched. Defaults to
                             serial
+      -o LAUNCH_MODE_OPTIONS, --launch_mode_options LAUNCH_MODE_OPTIONS
+                            extra options for the given launch mode
 
 list
 ----
@@ -260,10 +267,13 @@ repeat
     and check that the results are unchanged.
     
     positional arguments:
-      LABEL       label of record to be repeated
+      LABEL                 label of record to be repeated
     
     optional arguments:
-      -h, --help  show this help message and exit
+      -h, --help            show this help message and exit
+      -l NEW_LABEL, --label NEW_LABEL
+                            specify a label for the new experiment. If no label is
+                            specified, one will be generated automatically.
 
 run
 ---
@@ -292,8 +302,7 @@ run
                             be prompted to commit them first
       -l LABEL, --label LABEL
                             specify a label for the experiment. If no label is
-                            specified, the label will be based on PARAMFILE and
-                            the timestamp.
+                            specified, one will be generated automatically.
       -r REASON, --reason REASON
                             explain the reason for running this
                             simulation/analysis.
@@ -310,6 +319,12 @@ run
                             serial simulation/analysis is run.
       -t TAG, --tag TAG     tag you want to add to the project
       -D, --debug           print debugging information.
+      -i STDIN, --stdin STDIN
+                            specify the name of a file that should be connected to
+                            standard input.
+      -o STDOUT, --stdout STDOUT
+                            specify the name of a file that should be connected to
+                            standard output.
 
 sync
 ----

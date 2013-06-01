@@ -287,7 +287,7 @@ class Project(object):
         f.write(self.record_store.export(self.name))
         f.close()
     
-    def repeat(self, original_label):
+    def repeat(self, original_label, new_label=None):
         if original_label == 'last':
             tmp = self.most_recent()
         else:
@@ -311,6 +311,7 @@ class Project(object):
                                 repository=original.repository,
                                 version=original.version,
                                 launch_mode=original.launch_mode,
+                                label=new_label,
                                 reason="Repeat experiment %s" % original.label,
                                 repeats=original.label)
         working_copy.use_version(current_version)  # ensure we switch back to the original working copy state

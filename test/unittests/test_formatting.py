@@ -6,6 +6,7 @@ import unittest
 import tempfile
 from datetime import datetime
 import os
+import glob
 import shutil
 from xml.etree import ElementTree
 
@@ -152,6 +153,10 @@ class TestShellFormatter(unittest.TestCase):
 
     def setUp(self):
         self.record_list = [ MockRecord(), MockRecord() ]
+
+    def tearDown(self):
+        for filename in glob.glob("*.patch"):
+            os.remove(filename)
 
     def test__short(self):
         tf1 = ShellFormatter(self.record_list, project=MockProject())

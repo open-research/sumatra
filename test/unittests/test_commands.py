@@ -130,8 +130,8 @@ class MockProject(object):
         return False
     def show_diff(self, label1, label2, **kwargs):
         return "diff"
-    def repeat(self, original_label):
-        return "repeated", original_label
+    def repeat(self, original_label, new_label=None):
+        return (new_label or "repeated", original_label)
 
 
 def no_project():
@@ -640,7 +640,10 @@ class RepeatCommandTests(unittest.TestCase):
 
     def test_repeat_last(self):
         commands.repeat(['last'])
-        
+
+    def test_repeat_with_user_specified_label(self):
+        commands.repeat(['last', '-l', 'new_label'])
+
 
 class DiffCommandTests(unittest.TestCase):
 

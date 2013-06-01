@@ -9,7 +9,7 @@ Welcome to Sumatra 0.6.0!
 This version of Sumatra sees a number of new features, improvements to existing
 ones, and bug fixes:
 
-.. todo:: document postgres support
+.. todo:: mention postgres support, --stdin and --stdout options
 
 New export formats: LaTeX and bash script
 -----------------------------------------
@@ -98,11 +98,13 @@ specified on the command line), rather than the generic ".param".
 Miscellaneous improvements
 --------------------------
 
-:command:`smt run` now passes unknown keyword args on to the user script.
-
-When repeating a computation, the label of the original is now stored in the `repeats` attribute of `Record`, rather than appending "_repeat" to the original label. The new record will get a new unique label. This means a record can be repeated more than once, and is a more reliable method of indicating a repeat.
-
-A Sumatra project now knows the version of Sumatra with which it was created.
+* :command:`smt run` now passes unknown keyword args on to the user script.
+* When repeating a computation, the label of the original is now stored in the
+  `repeats` attribute of `Record`, rather than appending "_repeat" to the
+  original label. The new record will get a new unique label, or a label
+  specified by the user. This means a record can be repeated more than once,
+  and is a more reliable method of indicating a repeat.
+* A Sumatra project now knows the version of Sumatra with which it was created.
 
 
 Bug fixes

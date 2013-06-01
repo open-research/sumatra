@@ -304,7 +304,7 @@ def run(argv):
                             description=description)
     parser.add_argument('-v', '--version', metavar='REV',
                         help="use version REV of the code (if this is not the same as the working copy, it will be checked out of the repository). If this option is not specified, the most recent version in the repository will be used. If there are changes in the working copy, the user will be prompted to commit them first")
-    parser.add_argument('-l', '--label', help="specify a label for the experiment. If no label is specified, the label will be based on PARAMFILE and the timestamp.")
+    parser.add_argument('-l', '--label', help="specify a label for the experiment. If no label is specified, one will be generated automatically.")
     parser.add_argument('-r', '--reason', help="explain the reason for running this simulation/analysis.")
     parser.add_argument('-e', '--executable', metavar='PATH', help="Use this executable for this run. If not specified, the project's default executable will be used.")
     parser.add_argument('-m', '--main', help="the name of the script that would be supplied on the command line if running the simulation/analysis normally, e.g. init.hoc. If not specified, the project's default will be used.")
@@ -379,7 +379,7 @@ def list(argv):  # add 'report' and 'log' as aliases
     parser.add_argument('-T', '--table', action="store_const", const="table",
                         dest="mode", help="prints information in tab-separated columns")
     parser.add_argument('-f', '--format', metavar='FMT', choices=['text', 'html', 'latex', 'shell'], default='text',
-                        help="FMT can be 'text' (default), 'html', 'latex' or 'shell'")
+                        help="FMT can be 'text' (default), 'html', 'latex' or 'shell'.")
     args = parser.parse_args(argv)
 
     project = load_project()
@@ -483,11 +483,13 @@ def repeat(argv):
         conditions, and check that the results are unchanged.""")
     parser = ArgumentParser(usage=usage,
                             description=description)
-    parser.add_argument('label', metavar='LABEL', help='label of record to be repeated')
+    parser.add_argument('original_label', metavar='LABEL', help='label of record to be repeated')
+    parser.add_argument('-l', '--label', metavar='NEW_LABEL', help="specify a label for the new experiment. If no label is specified, one will be generated automatically.")
+
     args = parser.parse_args(argv)
-    original_label = args.label
+    original_label = args.original_label
     project = load_project()
-    new_label, original_label = project.repeat(original_label)
+    new_label, original_label = project.repeat(original_label, args.label)
     diff = project.compare(original_label, new_label)
     if diff:
         formatter = get_diff_formatter()(diff)
