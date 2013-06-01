@@ -12,6 +12,8 @@ from sumatra.recordstore import get_record_store
 from sumatra.datastore import DataKey
 
 
+_cache = {}
+
 def mkdir(path):
     try:
         os.makedirs(path)
@@ -21,13 +23,34 @@ def mkdir(path):
         else: raise
 
 
+class cache(object):
+    """Cache decorator"""
+    global _cache
+    def __init__(self, func):
+        self.func = func
+    def __call__(self, options):
+        assert isinstance(options, dict)
+        if 'project' in options and 'record_store' in options:
+            cache_key = (options['project'], options['record_store'])
+            if cache_key in _cache:
+                return _cache[cache_key]
+            else:
+                obj = self.func(options)
+                _cache[cache_key] = obj
+                return obj
+        else:
+            return self.func(options)
+
+
+@cache
 def determine_project(sumatra_options):
     if 'project_dir' in sumatra_options and sumatra_options['project_dir']:
         prj = load_project(sumatra_options['project_dir'])
-    elif os.path.exists(os.path.join('.smt', 'project')):
-        prj = load_project()
     else:
-        prj = None
+        try:
+            prj = load_project()
+        except IOError:
+            prj = None
     return prj
 
 
