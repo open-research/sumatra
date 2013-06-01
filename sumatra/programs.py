@@ -32,7 +32,6 @@ register_executable()
 from __future__ import with_statement
 import os.path
 import re
-import subprocess
 import sys
 import warnings
 from .compatibility import string_type
@@ -40,7 +39,7 @@ from .core import run
 
 
 version_pattern = re.compile(r'\b(?P<version>\d[\.\d]*([a-z]*\d)*)\b')
-version_pattern_matlab = re.compile(r'(?<=Version: )(?P<version>\d.+)\b')
+version_pattern_matlab = re.compile(r'(?<=SMT_DETECT_MATLAB_VERSION=)(?P<version>\d.+)\b')
 
 
 class Executable(object):
@@ -145,9 +144,9 @@ class MatlabExecutable(Executable):
     requires_script = True
 
     def _get_version(self):
-        p = subprocess.Popen("matlab -h", stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
-        returncode = p.wait()
-        match = version_pattern_matlab.search(p.stdout.read())
+        returncode, output, err = run("matlab -nodesktop -nosplash -nojvm -r \"disp(['SMT_DETECT_MATLAB_VERSION=' version()]);quit\"",
+                                      shell=True)
+        match = version_pattern_matlab.search(output + err)
         if match:
             version = match.groupdict()['version']
         else:
@@ -174,9 +173,7 @@ class GENESISSimulator(Executable):
                         closefile genesis_version.out
                         quit
                     """)
-        p = subprocess.Popen("%s genesis_version.g" % self.path, shell=True) #stdout=subprocess.PIPE, stderr=subprocess.STDOUT, stdin=subprocess.PIPE, shell=True)
-        returncode = p.wait()
-        print(returncode)
+        returncode, output, err = run("%s genesis_version.g" % self.path, shell=True)
         with open("genesis_version.out") as fd:
             version = fd.read()
         os.remove("genesis_version.g")
