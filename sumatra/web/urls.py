@@ -4,11 +4,13 @@ Define URL dispatching for the Sumatra web interface.
 
 from django.conf.urls.defaults import *
 from django.conf import settings
+from sumatra.projects import Project
+from sumatra.records import Record
 from sumatra.web.views import Timeline, ProjectListView
 
 P = {
-    'project': r'(?P<project>\w+[\w ]*)',
-    'label': r'(?P<label>\w+[\w|\-\.:/\s]*)',
+    'project': Project.valid_name_pattern,
+    'label': Record.valid_name_pattern,
 }
 
 urlpatterns = patterns('sumatra.web.views',

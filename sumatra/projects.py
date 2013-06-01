@@ -20,6 +20,7 @@ load_project() - read project information from the working directory and return
 
 import os
 import sys
+import re
 try:
     import cPickle as pickle
 except ImportError:
@@ -59,6 +60,7 @@ def _get_project_file(path):
 
 
 class Project(object):
+    valid_name_pattern = r'(?P<project>\w+[\w\- ]*)'
 
     def __init__(self, name, default_executable=None, default_repository=None,
                  default_main_file=None, default_launch_mode=None,
@@ -72,7 +74,10 @@ class Project(object):
             os.mkdir(".smt")
         if os.path.exists(_get_project_file(self.path)):
             raise Exception("Sumatra project already exists in this directory.")
-        self.name = name
+        if re.match(Project.valid_name_pattern, name):
+            self.name = name
+        else:
+            raise ValueError("Invalid project name. Names may only contain letters, numbers, spaces and hyphens")
         self.default_executable = default_executable
         self.default_repository = default_repository # maybe we should be storing the working copy instead, as this has a ref to the repository anyway
         self.default_main_file = default_main_file

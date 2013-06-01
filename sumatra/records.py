@@ -52,6 +52,7 @@ class Record(object):
     the context of a computation, and storing this information for later
     retrieval.
     """
+    valid_name_pattern = r'(?P<label>\w+[\w|\-\.:/\s]*)'
 
     def __init__(self, executable, repository, main_file, version, launch_mode,
                  datastore, parameters={}, input_data=[], script_arguments='',
@@ -64,7 +65,8 @@ class Record(object):
         # association of output data with this record may be incorrect
         self.timestamp = timestamp or datetime.now() 
         self.label = label or self.timestamp.strftime(timestamp_format)
-        assert len(self.label) > 0
+        if not re.match(Record.valid_name_pattern, self.label):
+            raise ValueError("Invalid record label.")
         self.reason = reason
         self.duration = None
         self.executable = executable # an Executable object incorporating path, version, maybe system information
