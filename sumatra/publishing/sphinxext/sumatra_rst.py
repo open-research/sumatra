@@ -117,6 +117,8 @@ class SumatraImage(Image):
         if hasattr(image, "url"):
             reference = image.url
         else:
+            if not os.path.exists(LOCAL_IMAGE_CACHE):
+                os.makedirs(LOCAL_IMAGE_CACHE)
             reference = image.save_copy(LOCAL_IMAGE_CACHE)
 
         # set values for alt and target, if they have not been specified

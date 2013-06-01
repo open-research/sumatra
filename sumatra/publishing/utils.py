@@ -55,13 +55,21 @@ def determine_project_name(prj, sumatra_options, err=Exception):
 
 
 def get_record_label_and_image_path(ref):
-    parts = ref.split(":")
-    if len(parts) == 2:
-        record_label, image_path =  parts
-    elif len(parts) == 1:
-        record_label, image_path =  parts[0], None
+    if '?' in ref:
+        parts = ref.split("?")
+        if len(parts) == 2:
+            record_label, image_path =  parts
+            image_path = "?" + image_path
+        else:
+            raise Exception("Invalid record/path query")
+    elif ':' in ref:
+        parts = ref.split(":")
+        if len(parts) == 2:
+            record_label, image_path =  parts
+        else:
+            raise Exception("Invalid record/path reference")
     else:
-        raise Exception("Invalid record/path reference")
+        record_label, image_path =  ref, None
     return record_label, image_path
 
 
@@ -70,10 +78,16 @@ def get_image(record, image_path, sumatra_options, err=Exception):
         image_key = record.output_data[0]
     else:
         image_key = None
-        for key in record.output_data:
-            if key.path == image_path:
-                image_key = key
-                break
+        if image_path.startswith("?"):
+            for key in record.output_data:
+                if image_path[1:] in key.path:
+                    image_key = key
+                    break
+        else:
+            for key in record.output_data:
+                if key.path == image_path:
+                    image_key = key
+                    break
         if image_key is None:
             raise ValueError("Record %s has no output data file with path %s. Valid paths are: %s" % (
                     record.label, image_path, ", ".join(key.path for key in record.output_data)))
