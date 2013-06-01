@@ -3,7 +3,10 @@ from django.conf import settings
 from django.template.defaultfilters import stringfilter
 from tagging.utils import parse_tag_input, edit_string_for_tags
 from django.utils.safestring import mark_safe
-from django.utils.encoding import force_bytes, force_text
+try:
+    from django.utils.encoding import force_bytes, force_text  # Django 1.5
+except ImportError:
+    from django.utils.encoding import smart_str as force_bytes, force_unicode as force_text # Django 1.4
 from os import name
 from sumatra.formatting import human_readable_duration
 
