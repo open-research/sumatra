@@ -10,6 +10,10 @@ line and to have Sumatra automatically add the record label to the parameter
 file; in future versions, the ability to search and filter your records based
 on parameters.
 
+If the name of your parameter file ends in a recognized extension, such as
+".json" or ".yaml", Sumatra will use the associated format, otherwise it
+chooses the appropriate format based on file contents.
+
 Supported formats
 =================
 
@@ -59,12 +63,12 @@ YAML
 See http://www.yaml.org
 
 
-NeuroTools format
------------------
+Hierarchical parameter set format
+---------------------------------
 
-`NeuroTools parameter format`_ is essentially the same as JSON, but with the
-addition of a ``url()`` function which allows sub-parameter sets to be
-included from other files. Example::
+The parameters_ package (formerly part of NeuroTools) provides a format based
+on JSON, but with the addition of a ``url()`` function which allows
+sub-parameter sets to be included from other files. Example::
 
     {
       "network": {
@@ -136,4 +140,4 @@ customizations.
     
 
 .. _ConfigParser: http://docs.python.org/2/library/configparser.html
-.. _`NeuroTools parameter format`: http://neuralensemble.org/trac/NeuroTools/wiki/parameters
+.. _parameters: https://parameters.readthedocs.org/en/latest/

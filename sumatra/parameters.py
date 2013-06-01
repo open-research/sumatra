@@ -416,33 +416,32 @@ class JSONParameterSet(object):
 
 
 def build_parameters(filename):
-    # if filename has an appropriate extension, e.g. ".json", we should
-    # make that the first one tried.
+    body, ext = os.path.splitext(filename)
+    if ext == ".json":
+        return JSONParameterSet(filename)
+    elif yaml_loaded and ext == ".yaml":
+        return YAMLParameterSet(filename)
     
     try:
         parameters = JSONParameterSet(filename)
         return parameters
     except SyntaxError:
         pass
-
     if yaml_loaded:
         try:
             parameters = YAMLParameterSet(filename)
             return parameters
         except SyntaxError:
             pass
-
     try:
         parameters = NTParameterSet("file://%s" % os.path.abspath(filename))
         return parameters
     except (SyntaxError, NameError):
         pass
-
     try:
         parameters = ConfigParserParameterSet(filename)
         return parameters
     except SyntaxError:
         pass
-
     parameters = SimpleParameterSet(filename)
     return parameters
