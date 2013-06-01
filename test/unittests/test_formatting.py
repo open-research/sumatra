@@ -59,9 +59,9 @@ class MockDataItem(object):
     
 
 class MockRecord(Record):
-    def __init__(self):
+    def __init__(self, label=None):
         self.timestamp = datetime.now()
-        self.label = self.timestamp.strftime(TIMESTAMP_FORMAT)
+        self.label = label or self.timestamp.strftime(TIMESTAMP_FORMAT)
         self.reason = "determine how many shekels the gourd is worth"
         self.outcome = "apparently it is worth NaN shekels"
         self.duration = 1.2345
@@ -172,7 +172,8 @@ class TestShellFormatter(unittest.TestCase):
 class TestLaTeXFormatter(unittest.TestCase):
 
     def setUp(self):
-        self.record_list = [ MockRecord(), MockRecord() ]
+        self.record_list = [ MockRecord(), MockRecord("nobel_prize") ]
+        # note that label with underscore should be escaped in LaTeX output
 
     def test__long(self):
         tf1 = LaTeXFormatter(self.record_list, project=MockProject())
