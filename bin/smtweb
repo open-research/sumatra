@@ -50,7 +50,7 @@ def main(argv):
         project = load_project()
         if not isinstance(project.record_store, DjangoRecordStore):
             # should make the web interface independent of the record store, if possible
-            print("This project cannot be accessed using the web interface.")
+            print("This project cannot be accessed using the web interface (record store is not of type DjangoRecordStore).")
             sys.exit(1)
         del project
     db_config.configure()
