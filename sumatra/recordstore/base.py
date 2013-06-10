@@ -100,10 +100,33 @@ class RecordStore(object):
         """Does the store contain any records for the given project?"""
         raise NotImplementedError
     
-    def list_projects(self, project_name):
+    def list_projects(self):
         """Return the names of all projects that have records in the store."""
         raise NotImplementedError
 
+    def update(self, project_name, field, value, tags=None):
+        """
+        Modify the records for a given project.
+        
+        Arguments:
+          *field*: the name of a record attribute, e.g. "datastore.root"
+          *value*: 
+        """
+        # there is only a limited number of attributes that should be
+        # modifiable, otherwise the whole point of using Sumatra for
+        # reproducibility is lost. Should we perhaps mark only certain
+        # attributes as modifiable?
+        # Note: this default implementation is likely to be slow. For most
+        #       subclasses it would be best to override this method.
+        for record in self.list(project_name, tags):
+            parts = field.split(".")
+            obj = record
+            for part in parts[:-1]:
+                obj = getattr(obj, part)
+            setattr(obj, parts[-1], value)
+            self.save(project_name, record)
+        
+    
 
 class RecordStoreAccessError(OSError):
     pass
