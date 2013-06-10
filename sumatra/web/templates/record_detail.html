@@ -58,8 +58,8 @@
                     {% for file in record.input_data.all %}
                            <tr class="{% cycle odd even %}"><td><a href="datafile?path={{file.path}}&digest={{file.digest}}&type=input">{{file.path}}</a></td>
                            <td>{{file.digest}}</td>
-                           <td>{{file.metadata.mimetype|default:""}}</td>
-                           <td>{{file.metadata.size|filesizeformat}}</td></tr>
+                           <td>{{file.get_metadata.mimetype|default:""}}</td>
+                           <td>{{file.get_metadata.size|filesizeformat}}</td></tr>
                     {% endfor %}
                 </table>
                 {% else %}
