@@ -35,7 +35,7 @@ logger.addHandler(h)
 logger.debug("STARTING")
 
 modes = ("init", "configure", "info", "run", "list", "delete", "comment", "tag",
-         "repeat", "diff", "help", "export", "upgrade", "sync")
+         "repeat", "diff", "help", "export", "upgrade", "sync", "migrate")
 
 
 def parse_executable_str(exec_str):
@@ -622,3 +622,31 @@ def sync(argv):
     if collisions:
         print("Synchronization incomplete: there are two records with the same name for the following: %s" % ", ".join(collisions))
         sys.exit(1)
+
+
+def migrate(argv):
+    usage = "%(prog)s migrate [options]"
+    description = dedent("""\
+        If you have moved your data files to a new location, update the record
+        store to reflect the new paths.
+        """)
+    # might also want to update the repository upstream
+    # should we keep a history of such changes?
+    parser = ArgumentParser(usage=usage,
+                            description=description)
+    parser.add_argument('-d', '--datapath', metavar='PATH', help="modify the path to the directory in which your results are stored.")
+    parser.add_argument('-i', '--input', metavar='PATH', help="modify the path to the directory in which your input data files are stored.")
+    parser.add_argument('-A', '--archive', metavar='PATH', help="modify the directory in which your results are archived.")
+    parser.add_argument('-M', '--mirror', metavar='URL', help="modify the URL at which your data files are mirrored.")
+    args = parser.parse_args(argv)
+    project = load_project()
+    field_map = {
+        "datapath": "datastore.root",
+        "input": "input_datastore.root",
+        "archive": "datastore.archive",
+        "mirror": "datastore.mirror_base_url"
+    }
+    for option_name, field in field_map.items():
+        value = getattr(args, option_name)
+        if value:   
+            project.record_store.update(project.name, field, value)

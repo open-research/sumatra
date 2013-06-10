@@ -9,7 +9,7 @@ Welcome to Sumatra 0.6.0!
 This version of Sumatra sees a number of new features, improvements to existing
 ones, and bug fixes:
 
-.. todo:: mention postgres support, --stdin and --stdout options
+.. todo:: mention postgres support, --stdin and --stdout options, change to absolute path for datastores, migrate command
 
 New export formats: LaTeX and bash script
 -----------------------------------------
