@@ -77,6 +77,9 @@ def teardown():
 
 class TestUtils(unittest.TestCase):
     
+    def setUp(self):
+        utils._cache = {}
+    
     @patch(utils, "load_project", MockProject)
     def test_determine_project_with_project_dir(self):
         prj = utils.determine_project({'project_dir': '/path/to/project'})
@@ -111,6 +114,9 @@ class TestUtils(unittest.TestCase):
 
 
 class TestLaTeX(unittest.TestCase):
+    
+    def setUp(self):
+        utils._cache = {}
     
     def test_read_config(self):
         config = dedent("""
@@ -176,7 +182,8 @@ class TestSphinx(unittest.TestCase):
     sumatra_link_icon: icon_info.png
     """
     
-    #def test_build_options(self):
+    def setUp(self):
+        utils._cache = {}
 
     def tearDown(self):
         os.remove("docutils.conf")

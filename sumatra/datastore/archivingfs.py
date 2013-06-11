@@ -60,7 +60,7 @@ class ArchivingFileSystemDataStore(FileSystemDataStore):
     data_item_class = ArchivedDataFile
     
     def __init__(self, root, archive=".smt/archive"):
-        self.root = root or "./Data"
+        super(ArchivingFileSystemDataStore, self).__init__(root)
         self.archive_store = archive
         # should allow specification of archive format, e.g. tar.gz or zip
     

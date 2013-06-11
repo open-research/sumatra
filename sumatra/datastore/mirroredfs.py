@@ -64,7 +64,7 @@ class MirroredFileSystemDataStore(FileSystemDataStore):
           new files
         mirror_base_url is a URL to which the file path should be appended
         """
-        self.root = root or "./Data"
+        super(MirroredFileSystemDataStore, self).__init__(root)
         self.mirror_base_url = mirror_base_url
     
     def __getstate__(self):

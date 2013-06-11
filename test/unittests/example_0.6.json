@@ -18,7 +18,7 @@
     "datastore": {
         "type": "ArchivingFileSystemDataStore",
         "parameters": {
-            "root": ".",
+            "root": "/path/to/root",
             "archive": "/path/to/archive"
         }
     },

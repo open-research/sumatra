@@ -204,7 +204,7 @@ class TestModuleFunctions(unittest.TestCase):
 
     def test__get_data_store__should_raise_Exception_if_wrong_parameters(self):
         self.assertRaises(TypeError, get_data_store, 'FileSystemDataStore', {'foo': 'kcjghnqlecg'})
-        self.assertRaises(TypeError, get_data_store, 'FileSystemDataStore', {'root': 42})
+        self.assertRaises((TypeError, AttributeError), get_data_store, 'FileSystemDataStore', {'root': 42})
 
 
 if __name__ == '__main__':

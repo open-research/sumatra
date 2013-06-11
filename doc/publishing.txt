@@ -51,6 +51,14 @@ then you can use just:
 
 without the path part.
 
+You can also use just a fragment of the image file name as a query term,
+replacing the ":" separator with "?":
+
+.. code-block:: latex
+
+   \smtincludegraphics{20120907-153528?my_fig}
+   
+
 All the usual ``\includegraphics`` options are supported, e.g.:
 
 .. code-block:: latex
@@ -112,7 +120,7 @@ so mix results from multiple projects in a single document. Here is a rather com
 
 .. code-block:: rest
 
-    .. smtimage:: 20120907-153528:my_figure.png
+    .. smtimage:: 20120907-153528?my_fig
        :record_store: http://sumatra.example.com/
        :project: MyOtherProject
        :digest: e2d1054c2893f19f50c43ddd5a344b59383df648

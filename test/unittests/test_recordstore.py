@@ -56,9 +56,9 @@ class MockLaunchMode(object):
 class MockDataStore(object):
     type = "FileSystemDataStore"
     def __init__(self, **parameters):
-        pass
+        self.root = parameters.get("root", None) or "/tmp"
     def __getstate__(self):
-        return {'root': "/tmp"}
+        return {'root': self.root}
     def copy(self):
         return self
 
@@ -254,6 +254,12 @@ class BaseTestRecordStore(object):
         self.store.sync(other_store, self.project.name)
         self.assertEqual(sorted(rec.label for rec in self.store.list(self.project.name)),
                          sorted(rec.label for rec in other_store.list(self.project.name)))
+
+    def test_update(self):
+        self.add_some_records()
+        self.store.update(self.project.name, "datastore.root", "/new/path/to/store")
+        updated_value, = set(rec.datastore.root for rec in self.store.list(self.project.name))
+        self.assertEqual(updated_value, "/new/path/to/store")
 
 
 class TestShelveRecordStore(unittest.TestCase, BaseTestRecordStore):

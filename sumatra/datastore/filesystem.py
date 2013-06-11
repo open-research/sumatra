@@ -67,7 +67,7 @@ class FileSystemDataStore(DataStore):
     data_item_class = DataFile
     
     def __init__(self, root):
-        self.root = root or "./Data"
+        self.root = os.path.abspath(root or "./Data")
 
     def __str__(self):
         return self.root
@@ -85,7 +85,10 @@ class FileSystemDataStore(DataStore):
             raise TypeError("root must be a string")
         self._root = value
         if not os.path.exists(self._root):
-            os.makedirs(self._root)
+            try:
+                os.makedirs(self._root)
+            except OSError:
+                pass  # should perhaps emit warning
     root = property(fget=__get_root, fset=__set_root)
     
     def _find_new_data_files(self, timestamp, ignoredirs=[".smt", ".hg", ".svn", ".git", ".bzr"]):

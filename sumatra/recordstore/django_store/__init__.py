@@ -21,7 +21,7 @@ imp.find_module("tagging")
 
 class DjangoConfiguration(object):
     """
-    To allow more than one DjangoRecordStore instances to exist at the same
+    To allow multiple DjangoRecordStore instances to exist at the same
     time, this class allows the database configuration to be built up in several
     steps, only actually doing the Django configuration step at the last
     possible moment.

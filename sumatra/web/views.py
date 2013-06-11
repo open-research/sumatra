@@ -337,7 +337,8 @@ def show_file(request, project, label):
                                        'label': label,
                                        'digest': digest,
                                        'mimetype': mimetype,
-                                       'project_name': project,})
+                                       'project_name': project,
+                                       'type': type})
         elif mimetype == 'application/zip':
             import zipfile
             if zipfile.is_zipfile(path):
@@ -397,11 +398,15 @@ def show_image(request, project, label):
     label = unescape(label)
     path = request.GET['path']
     digest = request.GET['digest']
+    type = request.GET.get('type', 'output')
     data_key = DataKey(path, digest)
     mimetype, encoding = mimetypes.guess_type(path)
     if mimetype in ("image/png", "image/jpeg", "image/gif", "image/x-png"):
         record = Record.objects.get(label=label, project__id=project)
-        data_store = get_data_store(record.datastore.type, eval(record.datastore.parameters))
+        if type == 'output':
+            data_store = get_data_store(record.datastore.type, eval(record.datastore.parameters))
+        else:
+            data_store = get_data_store(record.input_datastore.type, eval(record.input_datastore.parameters))
         try:
             content = data_store.get_content(data_key)
         except (IOError, KeyError):
