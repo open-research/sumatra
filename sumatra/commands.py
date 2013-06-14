@@ -37,6 +37,7 @@ logger.debug("STARTING")
 modes = ("init", "configure", "info", "run", "list", "delete", "comment", "tag",
          "repeat", "diff", "help", "export", "upgrade", "sync", "migrate")
 
+store_arg_help = "The argument can take the following forms: (1) `/path/to/sqlitedb` - DjangoRecordStore is used with the specified Sqlite database, (2) `http[s]://location` - remote HTTPRecordStore is used with a remote Sumatra server, (3) `postgres://username:password@hostname/databasename` - DjangoRecordStore is used with specified Postgres database."
 
 def parse_executable_str(exec_str):
     """
@@ -128,7 +129,7 @@ def init(argv):
     parser.add_argument('-r', '--repository', help="the URL of a Subversion or Mercurial repository containing the code. This will be checked out/cloned into the current directory.")
     parser.add_argument('-m', '--main', help="the name of the script that would be supplied on the command line if running the simulation or analysis normally, e.g. init.hoc.")
     parser.add_argument('-c', '--on-changed', default='error', help="the action to take if the code in the repository or any of the depdendencies has changed. Defaults to %(default)s") # need to add list of allowed values
-    parser.add_argument('-s', '--store', help="""Specify the path, URL or URI to the record store (must be specified). This can either be an existing record store or one to be created. The argument can take the following forms: (1) `/path/to/sqlitedb` - DjangoRecordStore is used with the specified Sqlite database, (2) `http[s]://location` - remote HTTPRecordStore is used with a remote Sumatra server, (3) `postgres://username:password@hostname/databasename` - DjangoRecordStore is used with specified Postgres database. Not using the `--store` argument defaults to a DjangoRecordStore with Sqlite in `.smt/records`""")
+    parser.add_argument('-s', '--store', help="Specify the path, URL or URI to the record store (must be specified). This can either be an existing record store or one to be created. {0} Not using the `--store` argument defaults to a DjangoRecordStore with Sqlite in `.smt/records`".format(store_arg_help))
     parser.add_argument('-A', '--archive', metavar='PATH', help="specify a directory in which to archive output datafiles. If not specified, datafiles are not archived.")
     parser.add_argument('-g', '--labelgenerator', choices=['timestamp', 'uuid'], default='timestamp', metavar='OPTION', help="specify which method Sumatra should use to generate labels (options: timestamp, uuid)")
     parser.add_argument('-t', '--timestamp_format', help="the timestamp format given to strftime", default=TIMESTAMP_FORMAT)
@@ -222,6 +223,7 @@ def configure(argv):
     parser.add_argument('-L', '--launch_mode', choices=['serial', 'distributed', 'slurm-mpi'], help="how computations should be launched.")
     parser.add_argument('-o', '--launch_mode_options', help="extra options for the given launch mode, to be given in quotes with a leading space, e.g. ' --foo=3'")
     parser.add_argument('-p', '--plain', action='store_true', help="pass arguments to the run command straight through to the program.")
+    parser.add_argument('-s', '--store', help="Change the record store to the specified path, URL or URI (must be specified). {0}".format(store_arg_help))
 
     args = parser.parse_args(argv)
     project = load_project()
@@ -266,6 +268,12 @@ def configure(argv):
         project.default_launch_mode.options = args.launch_mode_options.strip()
     if args.plain:
         project.allow_command_line_parameters = False
+    if args.store:
+        project.backup()
+        new_store = get_record_store(args.store)
+        old_store = project.record_store
+        new_store.sync(old_store, project.name)
+        project.record_store = new_store
     project.save()
 
 
@@ -562,10 +570,10 @@ def upgrade(argv):
         sys.exit(1)
 
 
+    # backup and remove .smt
     import shutil
-    from datetime import datetime
-    backup_dir = ".smt_backup_%s" % datetime.now().strftime(TIMESTAMP_FORMAT)
-    shutil.move(".smt", backup_dir)
+    backup_dir = project.backup()
+    shutil.rmtree(".smt")
     # upgrade the project data
     os.mkdir(".smt")
     shutil.copy("%s/project_export.json" % backup_dir, ".smt/project")

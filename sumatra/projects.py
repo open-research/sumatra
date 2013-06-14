@@ -322,6 +322,23 @@ class Project(object):
         working_copy.use_version(current_version)  # ensure we switch back to the original working copy state
         return new_label, original.label
 
+    def backup(self):
+        """        
+        Create a new backup directory in the same location as the
+        project directory and copy the contents of the project
+        directory into the backup directory. Uses `_get_project_file`
+        to extract the path to the project directory.
+        
+        :return:
+          - `backup_dir`: the directory used for the backup
+
+        """
+        import shutil
+        from datetime import datetime
+        smt_dir = os.path.split(_get_project_file(self.path))[0]
+        backup_dir = smt_dir + "_backup_%s" % datetime.now().strftime(TIMESTAMP_FORMAT)    
+        shutil.copytree(smt_dir, backup_dir)
+        return backup_dir
 
 def _load_project_from_json(path):
     f = open(_get_project_file(path), 'r')
