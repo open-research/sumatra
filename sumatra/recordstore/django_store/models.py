@@ -74,7 +74,7 @@ class Project(BaseModel):
 class Executable(BaseModel):
     path = models.CharField(max_length=200)
     name = models.CharField(max_length=50)
-    version = models.CharField(max_length=20)
+    version = models.CharField(max_length=100)
     options = models.CharField(max_length=50)
 
     def __unicode__(self):

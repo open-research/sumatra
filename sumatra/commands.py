@@ -226,7 +226,17 @@ def configure(argv):
     parser.add_argument('-s', '--store', help="Change the record store to the specified path, URL or URI (must be specified). {0}".format(store_arg_help))
 
     args = parser.parse_args(argv)
-    project = load_project()
+
+    if args.store:
+        new_store = get_record_store(args.store)
+        project = load_project()
+        project.backup()
+        old_store = project.record_store
+        new_store.sync(old_store, project.name)
+        project.record_store = new_store
+    else:
+        project = load_project()
+
     if args.archive:
         if args.archive.lower() == "true":
             args.archive = ".smt/archive"
@@ -268,12 +278,6 @@ def configure(argv):
         project.default_launch_mode.options = args.launch_mode_options.strip()
     if args.plain:
         project.allow_command_line_parameters = False
-    if args.store:
-        project.backup()
-        new_store = get_record_store(args.store)
-        old_store = project.record_store
-        new_store.sync(old_store, project.name)
-        project.record_store = new_store
     project.save()
 
 
