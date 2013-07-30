@@ -144,4 +144,4 @@ class FileSystemDataStore(DataStore):
                 os.remove(data_item.full_path)
 
     def contains_path(self, path):
-        return os.path.exists(os.path.join(self.root, path))
+        return os.path.isfile(os.path.join(self.root, path))

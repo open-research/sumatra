@@ -79,7 +79,7 @@ def parse_arguments(args, input_datastore, stdin=None, stdout=None,
     input_data = []
     for arg in args:
         have_parameters = False
-        if os.path.exists(arg): # could be a parameter file or a data file
+        if os.path.isfile(arg): # could be a parameter file or a data file
             try:
                parameter_sets.append(build_parameters(arg))
                script_args.append("<parameters>")

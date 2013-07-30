@@ -13,13 +13,14 @@ from sumatra import commands, launch, datastore
 
 originals = [] # use for storing originals of mocked objects
 
+
 class MockDataStore(object):
     def __init__(self, root):
         self.root = root
     def generate_keys(self, *paths):
         return [datastore.DataKey(path, datastore.IGNORE_DIGEST) for path in paths]
     def contains_path(self, path):
-        return os.path.exists(path)
+        return os.path.isfile(path)
 
 
 class MockExecutable(object):
@@ -419,6 +420,16 @@ class TestParseArguments(unittest.TestCase):
         self.assertEqual(os.path.basename(input_data[0].path), "this.is.not.a.parameter.file")
         self.assertEqual(script_args, "this.is.not.a.parameter.file")
         os.remove("this.is.not.a.parameter.file")
+
+    def test_with_arg_that_is_directory(self):
+        test_dir = "__pycache__"  # a directory that is likely to exist already, easier than creating one since we have mocked out os.mkdir
+        if os.path.exists(test_dir):
+            parameter_sets, input_data, script_args = commands.parse_arguments([test_dir], self.input_datastore)
+            self.assertEqual(parameter_sets, [])
+            self.assertEqual(input_data, [])
+            self.assertEqual(script_args, test_dir)
+        else:
+            raise unittest.SkipTest("test directory doesn't exist")
 
     def test_with_cmdline_parameters(self):
         f = open("test.param", 'w')
