@@ -20,9 +20,9 @@ import git
 import os
 import shutil
 try:
-    from git.errors import InvalidGitRepositoryError
+    from git.errors import InvalidGitRepositoryError, NoSuchPathError
 except:
-    from git.exc import InvalidGitRepositoryError
+    from git.exc import InvalidGitRepositoryError, NoSuchPathError
 from base import Repository, WorkingCopy, VersionControlError
 import logging
 
@@ -162,7 +162,7 @@ class GitRepository(Repository):
         if self.__repository is None:
             try:
                 self.__repository = git.Repo(self.url)   
-            except InvalidGitRepositoryError as err:
+            except (InvalidGitRepositoryError, NoSuchPathError) as err:
                 raise VersionControlError("Cannot access Git repository at %s: %s" % (self.url, err))    
         return self.__repository    
     
