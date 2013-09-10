@@ -392,10 +392,12 @@ def list(argv):  # add 'report' and 'log' as aliases
                         dest="mode", help="prints information in tab-separated columns")
     parser.add_argument('-f', '--format', metavar='FMT', choices=['text', 'html', 'latex', 'shell'], default='text',
                         help="FMT can be 'text' (default), 'html', 'latex' or 'shell'.")
+    parser.add_argument('-r', '--reverse', action="store_true", dest="reverse", default=False,
+                        help="list records in reverse order (default: newest first)"),
     args = parser.parse_args(argv)
 
     project = load_project()
-    print(project.format_records(tags=args.tags, mode=args.mode, format=args.format))
+    print(project.format_records(tags=args.tags, mode=args.mode, format=args.format, reverse=args.reverse))
 
 
 def delete(argv):
