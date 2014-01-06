@@ -109,8 +109,8 @@ class MockProject(object):
         self.launch_args.update(parameters=parameters,
                                 input_data=input_data,
                                 script_args=script_args)
-    def format_records(self, tags, mode, format):
-        self.format_args = {"tags": tags, "mode": mode, "format": format}
+    def format_records(self, format='text', mode='short', tags=None, reverse=False):
+        self.format_args = {"tags": tags, "mode": mode, "format": format, "reverse": reverse}
     def delete_record(self, label, delete_data=False):
         if "nota" in label:
             raise KeyError # or just emit a warning?
