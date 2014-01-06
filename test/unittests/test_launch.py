@@ -123,6 +123,7 @@ class TestDistributedLaunchMode(unittest.TestCase, BaseTestLaunchMode):
                          {'working_directory': self.lm.working_directory,
                           'mpirun': self.lm.mpirun,
                           'n': 2,
+                          'options': None,
                           'hosts': ["node1", "node2"],
                           'pfi_path': '/usr/local/bin/pfi.py'})
 
