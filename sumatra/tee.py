@@ -4,7 +4,7 @@
 # License: public domain
 from __future__ import print_function
 from __future__ import unicode_literals
-import logging, sys, subprocess, types, time, os, codecs
+import logging, sys, subprocess, types, time, os, codecs, platform
 
 if sys.version_info[0] == 3:
     string_types = str,
@@ -132,7 +132,7 @@ def system2(cmd, cwd=None, logger=_sentinel, stdout=_sentinel, log_command=_sent
         # reason: if I have 'quote_command' Sumatra does not work in Windows (it encloses the command in quotes. I did not understand why should we quote)
         # I have never catched "The input line is too long" (yet?)
         # cmd = quote_command(cmd)  
-        p = subprocess.Popen(cmd, cwd=cwd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        p = subprocess.Popen(cmd, cwd=cwd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, close_fds=(platform.system() == 'Linux'))
         if(log_command):
                 mylogger("Running: %s" % cmd)
         while True:
