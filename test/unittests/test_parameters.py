@@ -108,6 +108,10 @@ class TestSimpleParameterSet(unittest.TestCase):
         init = "# some data\n1.0 2.0 3.0\n4.0 5.0 6.0"
         self.assertRaises(SyntaxError, SimpleParameterSet, init)
 
+    def test__handles_null_bytes(self):
+        init = "foo=\x00\na=3\n"
+        self.assertRaises(SyntaxError, SimpleParameterSet, init)
+
     def test__string_parameters_should_be_able_to_contain_equals_signs(self):
         init = 'equation = "e = mc^2"'
         P = SimpleParameterSet(init)

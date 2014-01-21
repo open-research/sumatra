@@ -140,8 +140,12 @@ class SimpleParameterSet(object):
             for name, value in initialiser.items():
                 self.values[name] = value
                 self.types[name] = type(value)
-        else:
-            if os.path.exists(initialiser):
+        elif isinstance(initialiser, basestring):
+            try:
+                path_exists = os.path.exists(initialiser)
+            except Exception:  # e.g. null bytes in initialiser
+                path_exists = False
+            if path_exists:
                 with open(initialiser) as f:
                     content = f.readlines()
                 self.source_file = initialiser
@@ -157,6 +161,8 @@ class SimpleParameterSet(object):
                         self.values[name] = eval(value)
                     except NameError:
                         self.values[name] = unicode(value)
+                    except TypeError as err:  # e.g. null bytes
+                        raise SyntaxError("File is not a valid simple parameter file. %s" % err)
                     if "#" in value:
                         comment = "#".join(value.split("#")[1:])  # this fails if the value is a string containing '#'
                         self.comments[name] = comment
@@ -166,6 +172,8 @@ class SimpleParameterSet(object):
                         pass
                     else:
                         raise SyntaxError("File is not a valid simple parameter file. This line caused the error: %s" % line)
+        else:
+            raise TypeError("Parameter set initialiser must be a filename, string or dict.")
 
     def __str__(self):
         return self.pretty()
