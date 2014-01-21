@@ -33,7 +33,6 @@ class DjangoConfiguration(object):
             'DATABASES': {},
             'INSTALLED_APPS': ('sumatra.recordstore.django_store',
                                'django.contrib.contenttypes', # needed for tagging
-                               'django.contrib.markup',
                                'tagging'),
         }
         self._n_databases = 0
