@@ -253,10 +253,14 @@ class Project(object):
             records.reverse()
         formatter = get_formatter(format)(records, project=self, tags=tags)
         return formatter.format(mode) 
-    
+
     def most_recent(self):
-        return self.get_record(self._most_recent)
-    
+        try:
+            return self.get_record(self._most_recent)
+        except KeyError:  # the record pointed to by self._most_recent has been deleted
+            self._most_recent = self.record_store.most_recent(self.name)
+            return self.most_recent()
+
     def add_comment(self, label, comment):
         try:
             record = self.record_store.get(self.name, label)
