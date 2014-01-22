@@ -166,6 +166,7 @@ class Record(object):
         # pass # skip this if there is an error
         # Search for newly-created datafiles
         self.output_data = self.datastore.find_new_data(self.timestamp)
+        print("Record label for this run: '%s'" % self.label)
         if self.output_data:
             print("Data keys are %s" % self.output_data)
         else:
