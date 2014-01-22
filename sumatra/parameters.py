@@ -444,7 +444,7 @@ def build_parameters(filename):
     try:
         parameters = NTParameterSet("file://%s" % os.path.abspath(filename))
         return parameters
-    except (SyntaxError, NameError):
+    except (SyntaxError, NameError, UnicodeDecodeError):
         pass
     try:
         parameters = ConfigParserParameterSet(filename)
