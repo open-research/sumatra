@@ -94,7 +94,7 @@ def record_detail(request, project, label):
     if request.method == 'POST':
         if request.POST.has_key('delete'): # in this version the page record_detail doesn't have delete option
             record.delete() 
-            return HttpResponseRedirect('.')
+            return HttpResponseRedirect('..')
         elif request.POST.has_key('show_args'): # user clicks the link <parameters> in record_list.html
             parameter_set = record.parameters.to_sumatra()
             return HttpResponse(parameter_set)
