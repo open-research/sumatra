@@ -6,7 +6,7 @@ Since new versions of Sumatra extend its capabilities, and may change the way
 records are stored, when you install a new version of Sumatra you will need to
 upgrade your existing Sumatra projects to work with the new version.
 
-In future, this will probably be done automatically, but while Sumatra is still
+In the future, this will probably be done automatically, but while Sumatra is still
 rapidly evolving we are keeping it as a simple manual process to minimize the
 risk of data loss.
 
