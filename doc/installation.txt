@@ -21,8 +21,8 @@ or::
 Alternatively, you can download the Sumatra package from either PyPI or the
 `INCF Software Centre`_ and install it as follows::
 
-    $ tar xzf Sumatra-0.5.1.tar.gz
-    $ cd Sumatra-0.5.1
+    $ tar xzf Sumatra-0.6.0.tar.gz
+    $ cd Sumatra-0.6.0
     # python setup.py install
     
 The last step may need to be run as root, or using sudo.
@@ -40,9 +40,9 @@ https://docs.djangoproject.com/en/dev/topics/install/#installing-official-releas
 
 You will also need to install the `django-tagging`_ and docutils_ packages,
 which may be in your package management system, otherwise they can be installed
-from PyPI::
+using pip::
 
-    $ pip install django-tagging
+    $ pip install git+https://github.com/danirus/django-tagging.git#egg=tagging
     $ pip install docutils
 
 

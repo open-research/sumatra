@@ -1,0 +1,85 @@
+=============
+Record stores
+=============
+
+Sumatra supports multiple back-end databases for storing records. Sumatra uses
+the name "record store" for these databases, to distinguish them from other
+databases you may be using. Which one you should choose depends on your needs.
+
+
+Single user, one record store per project
+=========================================
+
+This is the default setting. If you create a new Sumatra project without specifying the :option:`--store` option, a
+file :file:`.smt/records` is created, which contains an SQLite_ database (if you have installed Django_) or a shelve_
+database (but in this case, you will not be able to use the web browser interface).
+
+Single user, all projects in a single record store
+==================================================
+
+If you have multiple projects, and you wish to store all the records in a single database, you can specify where
+this should be located, e.g.::
+
+  $ smt init --store=~/sumatra.db MyProject
+
+If the database file does not already exist, it will be created.
+
+For better performance (e.g., if you are running many Sumatra jobs at the same time) you can use PostgreSQL instead
+of SQLite. For this, you will need to install the psycopg_ package, then specify the database connection parameters in
+the form::
+
+  $ smt init --store=postgres://username:password@hostname/databasename MyProject
+
+
+Collaborating within a single lab
+=================================
+
+If two or more people within your lab are using Sumatra, you can all use the same Sumatra record store. For this,
+the easiest option is to use a shared file system (e.g., using SAMBA or NFS) or run your PostgreSQL database on its
+own server. If this is not possible, you should use the network record store described in the next section.
+
+
+Collaborating with people in a different lab
+============================================
+
+To collaborate with people in a different lab you can set up a server running `Sumatra Server`_ (distributed
+separately from Sumatra) or any other server software implementing the same API. You then set up your project as
+follows::
+
+  $ smt init --store=https://username:password@hostname/
+  
+Now when you run computations, Sumatra will send the records to the server, from where your collaborators can access
+them if they have an account on the server, or the project is set to public. Note that this does not transfer data files
+to the server, this has to be taken care of separately, using a mirroring data store.
+
+.. note:: at present, if the network connection fails the simulation record will be lost, so if you have a poor
+          network connection or very long-running computations, it is probably safer to use a local record store. In the
+          future we plan to add a caching mechanism which will keep a local copy of the record and retry the connection
+          to the server later.
+
+Open science
+============
+
+If you want to try `open notebook science`_ you should use the network record store as described in the previous
+section, and set your projects to public.
+
+
+Changing record stores
+======================
+
+The :command:`smt configure` command also accepts the :option:`--store` option. In this case, Sumatra will copy all the
+records from the old store to the new one. It will not delete the old one.
+
+.. warning:: this feature is quite new, so we recommend making a backup of your Sumatra project before attempting to
+             change record stores.
+
+
+
+.. _Django: https://www.djangoproject.com/
+.. _ORM: http://en.wikipedia.org/wiki/Object-relational_mapping
+.. _shelve: http://docs.python.org/2/library/shelve.html
+.. _PostgreSQL: http://www.postgresql.org
+.. _SQLite: http://www.sqlite.org
+.. _psycopg: https://pypi.python.org/pypi/psycopg/
+.. _`Sumatra Server`: https://bitbucket.org/apdavison/sumatra_server/wiki/Home
+.. _`open notebook science`: http://en.wikipedia.org/wiki/Open_notebook_science

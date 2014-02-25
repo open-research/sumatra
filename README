@@ -50,7 +50,7 @@ Requirements
 ============
 
 Sumatra requires Python versions 2.6 or 2.7. The web interface requires
-Django (>= 1.2) and the django-tagging package.
+Django (>= 1.4) and the django-tagging package.
 Sumatra requires that you keep your own code in a version control
 system (currently Subversion, Mercurial, Git and Bazaar are supported). If you
 are already using Mercurial or Bazaar there is nothing else to install. If you
@@ -65,10 +65,10 @@ Installation
 These instructions are for Unix, Mac OS X. They may work on Windows as well, but
 it hasn't been thoroughly tested.
 
-If you have downloaded the source package, Sumatra-0.5.1.tar.gz::
+If you have downloaded the source package, Sumatra-0.6.0.tar.gz::
 
-    $ tar xzf Sumatra-0.5.1.tar.gz
-    $ cd Sumatra-0.5.1
+    $ tar xzf Sumatra-0.6.0.tar.gz
+    $ cd Sumatra-0.6.0
     # python setup.py install
 
 The last step may have to be done as root.

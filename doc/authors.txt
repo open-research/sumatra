@@ -3,7 +3,7 @@ Authors and contributors
 ========================
 
 The following people have contributed code to Sumatra. The institutional
-affiliations are those at the time of the contribution, and may not be the
+affiliations are those at the times of the contributions, and may not be the
 current affiliation of a contributor.
 
 * Andrew Davison [1]
@@ -14,9 +14,12 @@ current affiliation of a contributor.
 * Konrad Hinsen [6]
 * Stephan Gabler [7]
 * Takafumi Arakaki [8]
-* Yoav Ram [9]
-* Tristan Webb [10]
-* Maximilian Albert [11]
+* Yoav Ram
+* Tristan Webb [9]
+* Maximilian Albert [10]
+* Daniel Wheeler [11]
+* Tim Joseph Dumol
+* Julia Evans
 
 1. Unité de Neuroscience, Information et Complexité, CNRS UPR 3293, Gif-sur-Yvette, France 
 2. Ecole Centrale de Lille, Lille, France
@@ -26,9 +29,9 @@ current affiliation of a contributor.
 6. Centre de biophysique moléculaire, CNRS UPR 4301, Orléans, France
 7. Max Planck Institute for Human Development, Berlin, Germany
 8. Laboratoire de Neurophysique et Physiologie, CNRS UMR 8119, Université Paris Descartes, Paris, France
-9. ?
-10. Warwick University, UK
-11. ?
+9. Warwick University, UK
+10. University of Southampton, UK
+11. National Institute of Standards and Technology, USA
 
 
 If I've somehow missed you off the list I'm very sorry - please let us know.
