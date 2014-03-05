@@ -126,7 +126,6 @@ class FileSystemDataStore(DataStore):
         try:
             df = self.data_item_class(key.path, self)
         except IOError:
-            raise  ####tmp
             raise KeyError("File %s does not exist." % key.path)
         if key.digest != IGNORE_DIGEST and df.digest != key.digest:
             raise KeyError("Digests do not match.") # add info about file sizes?
