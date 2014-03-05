@@ -16,6 +16,8 @@ import os
 import tempfile
 import shutil
 import re
+from itertools import islice, izip
+from datetime import datetime
 import sarge
 
 repository = "https://bitbucket.org/apdavison/ircr2013"
@@ -40,9 +42,30 @@ Timestamp format    : %Y%m%d-%H%M%S
 Sumatra version     : 0.6.0dev
 """
 
+record_pattern = re.compile(r"""Label            : (?P<label>[\w-]+)
+Timestamp        : (?P<timestamp>.*)
+Reason           : *(?P<reason>.*)
+Outcome          : *(?P<outcome>.*)
+Duration         : (?P<duration>\d+.\d*)
+Repository       : (?P<vcs>\w+)Repository at .*
+.*
+Main_File        : (?P<main>\w+.\w.)
+Version          : (?P<version>\w+)
+Script_Arguments : *(?P<script_args>.*)
+Executable       : (?P<executable_name>\w+) \(version: (?P<executable_version>[\w\.]+)\) at (?P<executable_path>.*)
+Parameters       : *(?P<parameters>.*)
+""")  # TO COMPLETE
+
 temporary_dir = None
 working_dir = None
 labels = []
+
+
+def pairs(iterable):
+    """
+    ABCDEF -> (A, B), (C, D), (E, F)
+    """
+    return izip(islice(iterable, 0, None, 2), islice(iterable, 1, None, 2))
 
 
 def setup():
@@ -91,14 +114,39 @@ def assert_config(p, expected_config):
         assert match.groupdict()[key] == value, "expected {} = {}, actually {}".format(key, value, match.groupdict()[key])
 
 
+def assert_records(p, expected_records):
+    """ """
+    matches = [match.groupdict() for match in record_pattern.finditer(p.stdout.text)]
+    match_dict = {match["label"]: match for match in matches}
+    for record in expected_records:
+        matching_record = match_dict[record["label"]]
+        for key in record:
+            assert record[key] == matching_record[key]
+
+
 def assert_file_exists(p, relative_path):
     """Assert that a file exists at the given path, relative to the working directory."""
     assert os.path.exists(os.path.join(working_dir, relative_path))
 
 
+def assert_label_equal(p, expected_label):
+    """ """
+    assert get_label(p) == expected_label
+
+
 def expected_short_list(labels):
     """Generate the expected output from the 'smt list' command, given the list of captured labels."""
     return "\n".join(reversed(labels))
+
+
+def substitute_labels(expected_records):
+    """ """
+    def wrapped(labels):
+        for record in expected_records:
+            index = record["label"]
+            record["label"] = labels[index]
+        return expected_records
+    return wrapped
 
 
 def build_command(template):
@@ -108,13 +156,39 @@ def build_command(template):
     return wrapped
 
 
-def run_test(command, check=None, checkarg=None):
+def edit_parameters(input, output, name, new_value):
+    """ """
+    def wrapped():
+        with open(os.path.join(working_dir, input), 'rb') as fpin:
+            with open(os.path.join(working_dir, output), 'wb') as fpout:
+                for line in fpin:
+                    if name in line:
+                        fpout.write("{} = {}\n".format(name, new_value))
+                    else:
+                        fpout.write(line)
+    return wrapped
+
+
+def modify_script(filename):
+    def wrapped():
+        with open(os.path.join(working_dir, filename), 'rb') as fp:
+            script = fp.readlines()
+        with open(os.path.join(working_dir, filename), 'wb') as fp:
+            for line in script:
+                if "print mean_bubble_size, median_bubble_size" in line:
+                    fp.write('print "Mean:", mean_bubble_size\nprint "Median:", median_bubble_size\n')
+                else:
+                    fp.write(line)
+    return wrapped
+
+
+def run_test(command, *checks):
     """Execute a command in a sub-process then check that the output matches some criterion."""
     global labels
     if callable(command):
         command = command(labels)
     p = run(command)
-    if check:
+    for check, checkarg in pairs(checks):
         if callable(checkarg):
             checkarg = checkarg(labels)
         check(p, checkarg)
@@ -128,11 +202,12 @@ run_test.__test__ = False  # nose should not treat this as a test
 test_steps = [
     ("Get the example code",
      "hg clone %s ." % repository,
-     assert_in_output, "updating to branch default"),  # TODO: update to the relevant version for the start of the project
+     assert_in_output, "updating to branch default"),
     ("Run the computation without Sumatra",
      "python glass_sem_analysis.py default_parameters MV_HFV_012.jpg",
-     assert_in_output, "2416.86315789 60.0"),  # TODO: #assert(Data subdirectory contains another subdirectory labelled with today's date)
-                                                       #assert(subdirectory contains three image files).
+     assert_in_output, "2416.86315789 60.0",
+     assert_file_exists, os.path.join("Data", datetime.now().strftime("%Y%m%d")),  # Data subdirectory contains another subdirectory labelled with today's date)
+     ),  #assert(subdirectory contains three image files).
     ("Set up a Sumatra project",
      "smt init -d Data -i . ProjectGlass",
      assert_in_output, "Sumatra project successfully set up"),
@@ -147,32 +222,21 @@ test_steps = [
      "smt info",
      assert_config, {"project_name": "ProjectGlass", "executable": "Python", "main": "glass_sem_analysis.py",
                      "code_change": "error"}),
-    ("Change some parameters",
-     "cp default_parameters no_filter"),  # TODO change *filter_size* to 1.")
+    edit_parameters("default_parameters", "no_filter", "filter_size", 1),
     ("Run with changed parameters and user-defined label",
-     "smt run -l example_label -r 'No filtering' no_filter MV_HFV_012.jpg",  # TODO: #assert(results have changed) #assert label1 is "example_label"
-     assert_in_output, "phases.png"),
+     "smt run -l example_label -r 'No filtering' no_filter MV_HFV_012.jpg",  # TODO: assert(results have changed)
+     assert_in_output, "phases.png",
+     assert_label_equal, "example_label"),
     ("Change parameters from the command line",
      "smt run -r 'Trying a different colourmap' default_parameters MV_HFV_012.jpg phases_colourmap=hot"),  # assert(results have changed)
     ("Add another comment",
      "smt comment 'The default colourmap is nicer'"),  #TODO  add a comment to an older record (e.g. this colourmap is nicer than 'hot')")
     ("Add tags on the command line",
      build_command("smt tag mytag {0} {1}")),
-    # Changing your code
-    # TODO modify the code
-    #The output printed by the ``glass_sem_analysis.py`` is not very useful. Let's add
-    #some labels. Open the file in a text editor and replace::
-
-    #    print mean_bubble_size, median_bubble_size
-    #
-    #with::
-    #
-    #    print "Mean:", mean_bubble_size
-    #    print "Median:", median_bubble_size
+    modify_script("glass_sem_analysis.py"),
     ("Run the modified code",
      "smt run -r 'Added labels to output' default_parameters MV_HFV_012.jpg",
-     #assert_in_output("Code has changed, please commit your changes"
-     ),
+     assert_in_output, "Code has changed, please commit your changes"),
     ("Commit changes...",
      "hg commit -m 'Added labels to output'"),
     ("...then run again",
@@ -181,14 +245,21 @@ test_steps = [
     ("Change configuration to store diff",
      "smt configure --on-changed=store-diff"),
     ("Run with store diff",
-     "smt run -r 'made a change' default_parameters MV_HFV_012.jpg"),  #  #assert(code runs, stores diff)
+     "smt run -r 'made a change' default_parameters MV_HFV_012.jpg"),  # assert(code runs, stores diff)
     ("Review previous computations - get a list of labels",
      "smt list",
      assert_in_output, expected_short_list),
     ("Review previous computations in detail",
      "smt list -l",
-     #assert(information in p.stdout.text should match our expectations)
-    ),
+     assert_records, substitute_labels([
+         {'label': 0, 'executable_name': 'Python', 'outcome': 'works fine', 'reason': 'initial run',
+          'version': 'a98585eddfc7', 'vcs': 'Mercurial', 'script_args': '<parameters> MV_HFV_012.jpg',
+          'main': 'glass_sem_analysis.py'},   # TODO: add checking of parameters
+         {'label': 1, 'outcome': '', 'reason': 'No filtering'},
+         {'label': 2, 'outcome': 'The default colourmap is nicer', 'reason': 'Trying a different colourmap'},
+         {'label': 3, 'outcome': '', 'reason': 'Added labels to output'},
+         {'label': 4, 'outcome': '', 'reason': 'made a change'},  # TODO: add checking of diff
+     ])),
     ("Filter the output of ``smt list`` based on tag",
      "smt list mytag",
      #assert(list is correct)
@@ -202,8 +273,11 @@ test_steps = [
 def test_all():
     """Test generator for Nose."""
     for step in test_steps:
-        run_test.description = step[0]
-        yield tuple([run_test] + list(step[1:]))
+        if callable(step):
+            step()
+        else:
+            run_test.description = step[0]
+            yield tuple([run_test] + list(step[1:]))
 
 # Still to test:
 #
@@ -218,8 +292,11 @@ if __name__ == '__main__':
     # Run the tests without using Nose.
     setup()
     for step in test_steps:
-        print step[0]  # description
-        run_test(*step[1:])
+        if callable(step):
+            step()
+        else:
+            print step[0]  # description
+            run_test(*step[1:])
     response = raw_input("Do you want to delete the temporary directory? ")
     if response in ["y", "Y", "yes"]:
         teardown()
