@@ -80,6 +80,17 @@ configure
                             in quotes with a leading space, e.g. ' --foo=3'
       -p, --plain           pass arguments to the run command straight through to
                             the program.
+      -s STORE, --store STORE
+                            Change the record store to the specified path, URL or
+                            URI (must be specified). The argument can take the
+                            following forms: (1) `/path/to/sqlitedb` -
+                            DjangoRecordStore is used with the specified Sqlite
+                            database, (2) `http[s]://location` - remote
+                            HTTPRecordStore is used with a remote Sumatra server,
+                            (3)
+                            `postgres://username:password@hostname/databasename` -
+                            DjangoRecordStore is used with specified Postgres
+                            database.
 
 delete
 ------
@@ -256,6 +267,29 @@ list
       -T, --table           prints information in tab-separated columns
       -f FMT, --format FMT  FMT can be 'text' (default), 'html', 'latex' or
                             'shell'.
+      -r, --reverse         list records in reverse order (default: newest first)
+
+migrate
+-------
+::
+
+    usage: smt migrate [options]
+    
+    If you have moved your data files to a new location, update the record store
+    to reflect the new paths.
+    
+    optional arguments:
+      -h, --help            show this help message and exit
+      -d PATH, --datapath PATH
+                            modify the path to the directory in which your results
+                            are stored.
+      -i PATH, --input PATH
+                            modify the path to the directory in which your input
+                            data files are stored.
+      -A PATH, --archive PATH
+                            modify the directory in which your results are
+                            archived.
+      -M URL, --mirror URL  modify the URL at which your data files are mirrored.
 
 repeat
 ------

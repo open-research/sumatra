@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-import distribute_setup
-distribute_setup.use_setuptools()
+#import distribute_setup
+#distribute_setup.use_setuptools()
 from setuptools import setup
 from distutils.command.sdist import sdist
 import os

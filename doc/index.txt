@@ -38,8 +38,8 @@ Table of Contents
    reporting
    using_the_api
    parameter_files
+   record_stores
    upgrading
-   migration
    developers_guide
    api_reference
    faq

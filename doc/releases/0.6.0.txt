@@ -9,7 +9,7 @@ Welcome to Sumatra 0.6.0!
 This version of Sumatra sees a number of new features, improvements to existing
 ones, and bug fixes:
 
-.. todo:: mention postgres support, --stdin and --stdout options, change to absolute path for datastores, migrate command
+.. todo:: mention postgres support, --stdin and --stdout options, change to absolute path for datastores, migrate command, configure --plain option
 
 New export formats: LaTeX and bash script
 -----------------------------------------
@@ -105,6 +105,7 @@ Miscellaneous improvements
   specified by the user. This means a record can be repeated more than once,
   and is a more reliable method of indicating a repeat.
 * A Sumatra project now knows the version of Sumatra with which it was created.
+* :command: `smt list` now has an option '-r'/'--reverse' which lists records oldest to newest.
 
 
 Bug fixes
