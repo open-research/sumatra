@@ -119,6 +119,14 @@ def decode_project_data(content):
 # shouldn't this be called decode_project_info, for symmetry?
 
 
+def datestring_to_datetime(s):
+    try:
+        timestamp = datetime.strptime(s, "%Y-%m-%d %H:%M:%S")
+    except ValueError:
+        timestamp = datetime.strptime(s, "%Y-%m-%dT%H:%M:%S")
+    return timestamp
+
+
 def build_record(data):
     """Create a Sumatra record from a nested dictionary."""
     edata = data["executable"]
@@ -171,7 +179,7 @@ def build_record(data):
                        input_data, data.get("script_arguments", ""), 
                        data["label"], data["reason"], data["diff"],
                        data.get("user", ""), input_datastore=input_datastore,
-                       timestamp=datetime.strptime(data["timestamp"], "%Y-%m-%d %H:%M:%S"))
+                       timestamp=datestring_to_datetime(data["timestamp"]))
     tags = data["tags"]
     if not hasattr(tags, "__iter__"):
         tags = (tags,)
