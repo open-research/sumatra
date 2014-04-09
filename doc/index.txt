@@ -38,6 +38,7 @@ Table of Contents
    reporting
    using_the_api
    parameter_files
+   handling_data
    record_stores
    upgrading
    developers_guide

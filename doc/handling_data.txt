@@ -1,0 +1,169 @@
+=====================
+Input and output data
+=====================
+
+If your simulation, data analysis or other computation consumes and/or produces data, Sumatra will try to track them
+for you.
+
+Sumatra does not, by default, make copies of your files, although this is an option. Rather, it stores the location of
+the data (e.g. the filesystem path) and, importantly, the SHA-1 hash of the file contents. This hash can later be used
+to check that the datafiles have not been corrupted or over-written.
+
+.. note:: in its underlying design, Sumatra is agnostic as to how and where data files are stored. At the moment,
+          however, Sumatra assumes that data are stored in files (rather than in a relational database, for example),
+          that input files are available on your local file system, and that output files will be written to the local
+          file system. If this does not fit with your current workflow, please contact the developers.
+
+
+Telling Sumatra about your input data files
+===========================================
+
+Sumatra currently handles two cases:
+
+  * your script or executable reads data from standard input (``stdin``);  
+  * the names of the input data files are given in the command-line invocation of your program.
+  
+If your workflow is different, e.g. if the filenames are hard-coded or provided in a parameter/configuration file,
+Sumatra will not at present track the files: please contact the developers if you need this functionality.
+
+Reading data from stdin
+-----------------------
+
+If your usual invocation is something like::
+
+  $ myprog << mydata.dat
+  
+Then to run and track this with Sumatra, use::
+
+  $ smt run -e myprog -i mydata.dat
+  
+
+Reading data from files
+-----------------------
+
+If you normally launch computations with something like::
+
+  $ python main.py config_file data_file1 data_file2
+  
+Then with Sumatra, run::
+
+  $ smt configure -e python -m main.py
+  $ smt run config_file data_file1 data_file2
+
+If your parameter/configuration file is in a format Sumatra recognizes, it will be treated specially (see :doc:`parameter_files`).
+Otherwise, it will be treated in the same way as the data files.
+
+
+Specifying relative paths
+-------------------------
+
+By default, Sumatra will store the full path of input data files. If you would prefer to store the path relative to
+your working directory or some other directory (this is useful if running computations for the same project on multiple
+computers, or if you need to relocate your project directory), you can specify this as follows::
+
+  $ smt configure --input .   # relative to working directory
+  
+
+Telling Sumatra where to find your output data files
+====================================================
+
+Sumatra will try to automatically detect any new data files created by your simulation or analysis script. To avoid the
+overhead of having to monitor the entire file system, you need to give Sumatra the path of a directory to monitor. By
+default, Sumatra will look in a subdirectory "Data" of the working directory, but this is rarely a very useful default,
+so you will usually want to configure it yourself::
+
+  $ smt configure --datapath /path/to/data
+
+
+Keeping a copy of output data
+-----------------------------
+
+In general, it is up to you and your scripts/programs to manage your output data files, for example including the
+date and time in each output filename to ensure it is unique and doesn't get over-written, making backups, etc.
+
+However, Sumatra does have an option to automatically make an archive copy of your output data, relieving you of the
+need to do so. To activate this, you need to choose a base directory in which to store your archives, e.g.::
+
+    $ smt configure --archive ./archive
+
+For each computation, Sumatra will then create a compressed tar archive of all your output data files, label it with
+the date and time, and store it in the archive directory. This is particularly useful if your program always uses the
+same output filename (such as "output.dat") as it avoids accidental over-writing.
+
+
+Dropbox, and other data-mirrors
+-------------------------------
+
+If you are collaborating with others, or if you wish to disseminate your results publicly (for example, in conjunction
+with the `Sumatra Server`_ remote record store) then you need to put your results online where they are accessible,
+and still let Sumatra know where to find them.
+
+Sumatra does not take care of putting your data online, this is up to you, but if there is a simple mapping between the
+local filesystem path and the online URL (e.g. using Dropbox with a public folder), you can tell Sumatra about it using
+the mirror option, e.g.::
+
+    $ smt configure --mirror https://dl.dropboxusercontent.com/u/xyzxyz/
+
+You will have to figure out what "xyzxyz" should be for your own public folder.
+
+
+Running multiple computations at the same time
+----------------------------------------------
+
+Sumatra infers which files have been created by your computation by taking a snapshot of the designated output directory
+immediately before launching your computation and then determining what has changed once the computation is finished.
+This means that if you have multiple processes writing to the same directory, Sumatra will get confused about which files
+were created by which process.
+
+A workaround is to ensure that each computation writes to a different directory, and then use :cmd:`smt configure --datapath`
+immediately before each run to tell Sumatra which directory to look in.
+
+A more streamlined version of this workflow is to use the :option:`--addlabel` option to have Sumatra automatically add
+the label/id of the computation to either the command line or the parameter file. It is then up to your script or
+program to read this label and use it as the subdirectory within which to write data. Sumatra will then look only in
+that directory for output data. This is simpler than it sounds. Suppose I have a Python script "myscript.py" which reads
+a data file, does some calculations and then writes data to a file "mydata/output.csv":
+
+.. code-block:: python
+
+    filename = os.path.join("mydata", "output.csv") 
+    with open(filename, "wb") as fp:
+        fp.write(data)
+
+Sumatra is configured as follows::
+
+    $ smt configure --datapath=mydata --addlabel=cmdline --executable=python --main=myscript.py
+
+The script should be modified as follows:
+
+.. code-block:: python
+
+    label = sys.argv[-1]   # Sumatra appends the label to the command line
+    subdir = os.path.join("mydata", label)
+    os.mkdir(subdir)
+    filename = os.path.join(subdir, "output.csv")
+    with open(filename, "wb") as fp:
+        fp.write(data)
+
+Now we can run the script many times in parallel, e.g.::
+
+    $ for input_file in *.dat; do smt run $input_file & done
+
+Each run will be given a separate, unique label by Sumatra (by default, based on the current date and time);
+the Python script reads this label from the command line and uses it to create a unique subdirectory into which it saves the output data;
+Sumatra knows to look only in this directory for files associated with the given run, so there is no chance of mixing up
+data from different runs.
+
+Writing data to stdout
+----------------------
+
+If you program writes data to standard output, i.e. you would normally run it using::
+
+    $ myprog >> output.txt
+    
+Then you can tell Sumatra to run it the same way, but in addition to track the output file, using::
+
+    $ smt run -o output.txt
+
+
+.. _`Sumatra Server`: https://bitbucket.org/apdavison/sumatra_server/wiki/Home

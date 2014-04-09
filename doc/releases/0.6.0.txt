@@ -2,14 +2,14 @@
 Sumatra 0.6.0 release notes
 ===========================
 
-*DATE 2013*
+*DATE 2014*
 
 Welcome to Sumatra 0.6.0!
 
-This version of Sumatra sees a number of new features, improvements to existing
-ones, and bug fixes:
+This version of Sumatra sees many new features, improvements to existing ones,
+and bug fixes:
 
-.. todo:: mention postgres support, --stdin and --stdout options, change to absolute path for datastores, migrate command, configure --plain option
+.. todo:: finish postgres support, change to absolute path for datastores
 
 New export formats: LaTeX and bash script
 -----------------------------------------
@@ -46,6 +46,19 @@ to work with multiple version control branches and to go back to running earlier
 versions of your code.
 
 
+Programs that read from stdin or write to stdout
+------------------------------------------------
+
+Programs that read from standard input or write to standard output can now be run
+with :command:`smt run`. For example, if the program is normally run using::
+
+    $ myprog < input > output
+
+You can run it with Sumatra using::
+
+    $ smt run -e myprog -i input -o output
+
+
 Improvements to the Web browser interface
 -----------------------------------------
 
@@ -56,6 +69,22 @@ There have been a number of small improvements to the browser interface:
   * the interface now works if record label contain spaces or forward slashes.
 
 The minimal Django version needed is now 1.4.
+
+
+Support for PostgreSQL
+----------------------
+
+The default record store for Sumatra is based on the Django ORM, using SQLite as the
+backend. It is now possible to use PostgreSQL instead of SQLite, which gives better
+performance and allows the Sumatra record store to be placed on a separate server.
+
+To set up a new Sumatra project using PostgreSQL, ....
+
+.. todo:: finish this
+
+::
+
+    $ smt init --store=postgres://username:password@hostname/databasename MyProject
 
 
 Integration with the SLURM resource manager
@@ -84,7 +113,8 @@ Improvements to the @capture decorator
 --------------------------------------
 
 The ``@capture`` decorator, which makes it easy to add Sumatra support to
-Python scripts (as an alternative to using the :command:`smt` command), now captures stdout and stderr.
+Python scripts (as an alternative to using the :command:`smt` command), now
+captures stdout and stderr.
 
 
 Improvements to parameter file handling
@@ -95,17 +125,34 @@ uses the appropriate extension if rewriting the file (e.g. to add parameters
 specified on the command line), rather than the generic ".param".
 
 
+Migrating data files
+--------------------
+
+If you move your input and/or output data files, either within the filesystem
+on your current computer or to a new computer, you need to tell Sumatra about
+it so that it can still find your files. For this there is a new command,
+:command:`smt migrate`. This command also handles changes to the location of
+the data archive, if you are using one, and changes to the base URL of any
+mirrored data stores. For usage information, run::
+
+    $ smt help migrate
+
+
 Miscellaneous improvements
 --------------------------
 
-* :command:`smt run` now passes unknown keyword args on to the user script.
+* :command:`smt run` now passes unknown keyword args on to the user program.
+  There is also a new option '--plain' which prevents arguments of the form
+  "x=y" being interpreted by Sumatra; instead they are passed straight
+  through to the program command line.
 * When repeating a computation, the label of the original is now stored in the
   `repeats` attribute of `Record`, rather than appending "_repeat" to the
   original label. The new record will get a new unique label, or a label
   specified by the user. This means a record can be repeated more than once,
   and is a more reliable method of indicating a repeat.
 * A Sumatra project now knows the version of Sumatra with which it was created.
-* :command: `smt list` now has an option '-r'/'--reverse' which lists records oldest to newest.
+* :command:`smt list` now has an option '-r'/'--reverse' which lists records
+  oldest to newest.
 
 
 Bug fixes
@@ -116,3 +163,4 @@ A `handful of bugs`_ have been fixed.
 .. _`handful of bugs`: https://neuralensemble.org/trac/sumatra/query?status=closed&resolution=fixed&milestone=0.6&type=defect
 .. _Bitbucket: https://bitbucket.org/apdavison/sumatra
 .. _SLURM: https://computing.llnl.gov/linux/slurm/
+.. _`Django ORM`: https://docs.djangoproject.com/en/dev/topics/db/models/

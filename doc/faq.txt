@@ -38,13 +38,14 @@ accordingly. Here is an example for a Python script, using the ``cmdline``
 option and "./Data" set as the datastore root::
 
     import sys
-    import os.path
+    import os
     options = sys.argv[1:]
-    label = options[-1] # label is added to the end of the command line
+    label = options[-1]  # label is added to the end of the command line
     
     # computations happen here, results stored in `output_data`
     
     output_dir = os.path.join("Data", label)
+    os.mkdir(output_dir)
     with open(os.path.join(output_dir, "mydata.txt"), 'w') as fp:
         fp.write(output_data)
 
