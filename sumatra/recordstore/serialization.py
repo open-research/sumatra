@@ -11,10 +11,11 @@ from sumatra import programs, launch, datastore, versioncontrol, parameters, dep
 from sumatra.records import Record
 from ..compatibility import string_type
 
+
 def encode_record(record, indent=None):
     """Encode a Sumatra record as JSON."""
     data = {
-        "label": record.label, # 0.1: 'group'
+        "label": record.label,  # 0.1: 'group'
         "timestamp": record.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
         "reason": record.reason,
         "duration": record.duration,
@@ -22,8 +23,8 @@ def encode_record(record, indent=None):
             "path": record.executable.path,
             "version": record.executable.version,
             "name": record.executable.name,
-            "options": record.executable.options, # added in 0.3
-         },
+            "options": record.executable.options,  # added in 0.3
+        },
         "repository": {
             "url": record.repository.url,
             "type": record.repository.__class__.__name__,
@@ -40,29 +41,29 @@ def encode_record(record, indent=None):
             "digest": key.digest,
             "metadata": key.metadata,
             } for key in record.input_data],
-        "script_arguments": record.script_arguments, # added in 0.3
+        "script_arguments": record.script_arguments,  # added in 0.3
         "launch_mode": {
-            "type": record.launch_mode.__class__.__name__, 
+            "type": record.launch_mode.__class__.__name__,
             "parameters": record.launch_mode.__getstate__(),
         },
         "datastore": {
             "type": record.datastore.__class__.__name__,
             "parameters": record.datastore.__getstate__(),
         },
-        "input_datastore": { # added in 0.4
+        "input_datastore": {  # added in 0.4
             "type": record.input_datastore.__class__.__name__,
             "parameters": record.input_datastore.__getstate__(),
         },
         "outcome": record.outcome or "",
-        "stdout_stderr": record.stdout_stderr, # added in 0.4
+        "stdout_stderr": record.stdout_stderr,  # added in 0.4
         "output_data": [{  # added in 0.4 (replaced 'data_key', which was a string)
             "path": key.path,
             "digest": key.digest,
             "metadata": key.metadata,
             } for key in record.output_data],
-        "tags": list(record.tags), # not sure if tags should be PUT, perhaps have separate URL for this?
+        "tags": list(record.tags),  # not sure if tags should be PUT, perhaps have separate URL for this?
         "diff": record.diff,
-        "user": record.user, # added in 0.2
+        "user": record.user,  # added in 0.2
         "dependencies": [{
             "path": d.path,
             "version": d.version,
@@ -73,14 +74,14 @@ def encode_record(record, indent=None):
             "source": d.source,  # added in 0.5
             } for d in record.dependencies],
         "platforms": [{
-            "system_name": p.system_name, 
-            "ip_addr": p.ip_addr, 
-            "architecture_bits": p.architecture_bits, 
-            "machine": p.machine, 
-            "architecture_linkage": p.architecture_linkage, 
-            "version": p.version, 
-            "release": p.release, 
-            "network_name": p.network_name, 
+            "system_name": p.system_name,
+            "ip_addr": p.ip_addr,
+            "architecture_bits": p.architecture_bits,
+            "machine": p.machine,
+            "architecture_linkage": p.architecture_linkage,
+            "version": p.version,
+            "release": p.release,
+            "network_name": p.network_name,
             "processor": p.processor
             } for p in record.platforms],
         "repeats": record.repeats,  # added in 0.6
@@ -104,7 +105,7 @@ def keys2str(D):
     to strings.
     """
     E = {}
-    for k,v in D.items():
+    for k, v in D.items():
         E[str(k)] = v
     return E
 
@@ -120,6 +121,15 @@ def decode_project_data(content):
 # shouldn't this be called decode_project_info, for symmetry?
 
 
+def datestring_to_datetime(s):
+    """docstring"""
+    try:
+        timestamp = datetime.strptime(s, "%Y-%m-%d %H:%M:%S")
+    except ValueError:
+        timestamp = datetime.strptime(s, "%Y-%m-%dT%H:%M:%S")
+    return timestamp
+
+
 def build_record(data):
     """Create a Sumatra record from a nested dictionary."""
     edata = data["executable"]
@@ -132,7 +142,7 @@ def build_record(data):
         if hasattr(m, rdata["type"]):
             repos_cls = getattr(m, rdata["type"])
             break
-    if repos_cls is None:  
+    if repos_cls is None:
         repos_cls = versioncontrol.base.Repository
     repository = repos_cls(rdata["url"])
     repository.upstream = rdata.get("upstream", None)
@@ -144,35 +154,35 @@ def build_record(data):
         parameter_set = getattr(parameters, pdata["type"])(pdata["content"])
     ldata = data["launch_mode"]
     lm_parameters = ldata["parameters"]
-    if isinstance(lm_parameters, string_type): # prior to 0.3
+    if isinstance(lm_parameters, string_type):  # prior to 0.3
         lm_parameters = eval(lm_parameters)
     launch_mode = getattr(launch, ldata["type"])(**keys2str(lm_parameters))
     def build_data_store(ddata):
         ds_parameters = ddata["parameters"]
-        if isinstance(ds_parameters, string_type): # prior to 0.3
+        if isinstance(ds_parameters, string_type):  # prior to 0.3
             ds_parameters = eval(ds_parameters)
         return getattr(datastore, ddata["type"])(**keys2str(ds_parameters))
     data_store = build_data_store(data["datastore"])
-    if "input_datastore" in data: # 0.4 onwards
+    if "input_datastore" in data:  # 0.4 onwards
         input_datastore = build_data_store(data["input_datastore"])
     else:
         input_datastore = datastore.FileSystemDataStore("/")
     input_data = data.get("input_data", [])
-    if isinstance(input_data, string_type): # 0.3
+    if isinstance(input_data, string_type):  # 0.3
         input_data = eval(input_data)
     if input_data:
-        if isinstance(input_data[0], string_type): # versions prior to 0.4
+        if isinstance(input_data[0], string_type):  # versions prior to 0.4
             input_data = [datastore.DataKey(path, digest=datastore.IGNORE_DIGEST)
                           for path in input_data]
         else:
             input_data = [datastore.DataKey(keydata["path"], keydata["digest"], **keys2str(keydata["metadata"]))
                           for keydata in input_data]
     record = Record(executable, repository, data["main_file"],
-                       data["version"], launch_mode, data_store, parameter_set,
-                       input_data, data.get("script_arguments", ""), 
-                       data["label"], data["reason"], data["diff"],
-                       data.get("user", ""), input_datastore=input_datastore,
-                       timestamp=datetime.strptime(data["timestamp"], "%Y-%m-%d %H:%M:%S"))
+                    data["version"], launch_mode, data_store, parameter_set,
+                    input_data, data.get("script_arguments", ""),
+                    data["label"], data["reason"], data["diff"],
+                    data.get("user", ""), input_datastore=input_datastore,
+                    timestamp=datestring_to_datetime(data["timestamp"]))
     tags = data["tags"]
     if not hasattr(tags, "__iter__"):
         tags = (tags,)
@@ -182,7 +192,7 @@ def build_record(data):
         for keydata in data["output_data"]:
             data_key = datastore.DataKey(keydata["path"], keydata["digest"], **keys2str(keydata["metadata"]))
             record.output_data.append(data_key)
-    elif "data_key" in data: # (versions prior to 0.4)
+    elif "data_key" in data:  # (versions prior to 0.4)
         for path in eval(data["data_key"]):
             data_key = datastore.DataKey(path, digest=datastore.IGNORE_DIGEST)
             record.output_data.append(data_key)
@@ -206,7 +216,7 @@ def decode_record(content):
     """Create a Sumatra record from a JSON string."""
     return build_record(json.loads(content))
 
-    
+
 def decode_records(content):
     """Create multiple Sumatra records from a JSON string."""
     return [build_record(data) for data in json.loads(content)]
