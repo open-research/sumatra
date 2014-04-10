@@ -19,7 +19,7 @@ from sumatra.recordstore import serialization
 import httplib2
 from urlparse import urlparse, urlunparse
 
-API_VERSION = 2
+API_VERSION = 3
 
 
 def domain(url):
@@ -45,20 +45,20 @@ class HttpRecordStore(RecordStore):
     Handles storage of simulation/analysis records on a remote server using HTTP.
 
     The server should support the following URL structure and HTTP methods:
-    
+
     =========================================    ================
     /                                            GET
     /<project_name>/[?tags=<tag1>,<tag2>,...]    GET
     /<project_name>/tag/<tag>/                   GET, DELETE
     /<project_name>/<record_label>/              GET, PUT, DELETE
     =========================================    ================
-    
+
     and should both accept and return JSON-encoded data when the Accept header is
     "application/json".
-    
+
     The required JSON structure can be seen in :mod:`recordstore.serialization`.
     """
-    
+
     def __init__(self, server_url, username=None, password=None,
                  disable_ssl_certificate_validation=True):
         self.server_url, _username, _password = process_url(server_url)
@@ -70,7 +70,7 @@ class HttpRecordStore(RecordStore):
                                     disable_ssl_certificate_validation=disable_ssl_certificate_validation)
         if username:
             self.client.add_credentials(username, password, domain(self.server_url))
-        
+
     def __str__(self):
         return "Interface to remote record store at %s using HTTP" % self.server_url
 
@@ -84,7 +84,7 @@ class HttpRecordStore(RecordStore):
             'username': username,
             'password': password,
         }
-    
+
     def __setstate__(self, state):
         self.__init__(state['server_url'], state['username'], state['password'])
 
@@ -106,19 +106,19 @@ class HttpRecordStore(RecordStore):
         response, content = self.client.request(url, 'PUT', data,
                                                 headers=headers)
         return response, content
-    
+
     def create_project(self, project_name, long_name='', description=''):
         """Create an empty project in the record store."""
         response, content = self._put_project(project_name, long_name, description)
         if response.status != 201:
             raise RecordStoreAccessError("%d\n%s" % (response.status, content))
-    
+
     def update_project_info(self, project_name, long_name='', description=''):
         """Update a project's long name and description."""
         response, content = self._put_project(project_name, long_name, description)
         if response.status != 200:
             raise RecordStoreAccessError("%d\n%s" % (response.status, content))
-    
+
     def has_project(self, project_name):
         project_url = "%s%s/" % (self.server_url, project_name)
         response, content = self._get(project_url, 'project')
@@ -128,7 +128,7 @@ class HttpRecordStore(RecordStore):
             return False
         else:
             raise RecordStoreAccessError("%d\n%s" % (response.status, content))
-    
+
     def project_info(self, project_name):
         """Return a project's long name and description."""
         project_url = "%s%s/" % (self.server_url, project_name)
@@ -137,7 +137,7 @@ class HttpRecordStore(RecordStore):
             raise RecordStoreAccessError("Error in accessing %s\n%s: %s" % (project_url, response.status, content))
         data = serialization.decode_project_data(content)
         return dict((k, data[k]) for k in ("name", "description"))
-    
+
     def save(self, project_name, record):
         if not self.has_project(project_name):
             self.create_project(project_name)
@@ -148,20 +148,20 @@ class HttpRecordStore(RecordStore):
                                                 headers=headers)
         if response.status not in (200, 201):
             raise RecordStoreAccessError("%d\n%s" % (response.status, content))
-    
+
     def _get_record(self, url):
         response, content = self._get(url, 'record')
         if response.status != 200:
             if response.status == 404:
-                raise KeyError("No record was found at %s" % url)                
+                raise KeyError("No record was found at %s" % url)
             else:
                 raise RecordStoreAccessError("%d\n%s" % (response.status, content))
         return serialization.decode_record(content)
-    
+
     def get(self, project_name, label):
         url = "%s%s/%s/" % (self.server_url, project_name, label)
         return self._get_record(url)
-    
+
     def list(self, project_name, tags=None):
         project_url = "%s%s/" % (self.server_url, project_name)
         if tags:
@@ -176,23 +176,23 @@ class HttpRecordStore(RecordStore):
         for record_url in record_urls:
             records.append(self._get_record(record_url))
         return records
-    
+
     def labels(self, project_name):
         return [record.label for record in self.list(project_name)] # probably inefficient
-    
+
     def delete(self, project_name, label):
         url = "%s%s/%s/" % (self.server_url, project_name, label)
         response, deleted_content = self.client.request(url, 'DELETE')
         if response.status != 204:
             raise RecordStoreAccessError("%d\n%s" % (response.status, deleted_content))
-        
+
     def delete_by_tag(self, project_name, tag):
         url = "%s%s/tag/%s/" % (self.server_url, project_name, tag)
         response, n_records = self.client.request(url, 'DELETE')
         if response.status != 200:
             raise RecordStoreAccessError("%d\n%s" % (response.status, n_records))
         return int(n_records)
-    
+
     def most_recent(self, project_name):
         url = "%s%s/last/" % (self.server_url, project_name)
         return self._get_record(url).label
