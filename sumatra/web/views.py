@@ -391,7 +391,7 @@ def download_file(request, project, label):
     except (IOError, KeyError):
         raise Http404
     dir, fname = os.path.split(path)
-    response = HttpResponse(mimetype=mimetype)
+    response = HttpResponse(content_type=mimetype)
     response['Content-Disposition'] = 'attachment; filename=%s' % fname
     response.write(content)
     return response
@@ -414,9 +414,9 @@ def show_image(request, project, label):
             content = data_store.get_content(data_key)
         except (IOError, KeyError):
             raise Http404
-        return HttpResponse(content, mimetype=mimetype)
+        return HttpResponse(content, content_type=mimetype)
     else:
-        return HttpResponse(mimetype="image/png")  # should return a placeholder image?
+        return HttpResponse(content_type="image/png")  # should return a placeholder image?
 
 
 def show_diff(request, project, label, package=''):
