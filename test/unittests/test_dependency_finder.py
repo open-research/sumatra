@@ -6,7 +6,11 @@ import unittest
 import sumatra.dependency_finder as df
 import sys
 import os
-import numpy
+try:
+    import numpy
+    have_numpy = True
+except ImportError:
+    have_numpy = False
 import tempfile
 import shutil
 import warnings
@@ -32,6 +36,7 @@ class TestPythonModuleFunctions(unittest.TestCase):
         sys.path = self.saved_path
         os.chdir(self.cwd)
     
+    @unittest.skipUnless(have_numpy, "test requires NumPy")
     def test__find_versions_by_attribute(self):
         import main
         self.assertEqual(df.python.find_version_by_attribute(main), "1.2.3a")
@@ -44,6 +49,7 @@ class TestPythonModuleFunctions(unittest.TestCase):
         df.python.find_versions_from_egg([dep])
         self.assertEqual(dep.version, "1.2.3egg")
     
+    @unittest.skipUnless(have_numpy, "test requires NumPy")
     def test__find_imported_packages(self):
         # the example project has numpy as its only import
         example_project_imports = df.python.find_imported_packages(os.path.join(tmpdir, "python", "main.py"), sys.executable)
@@ -131,6 +137,7 @@ class TestPythonDependency(unittest.TestCase):
         dep = df.python.Dependency("main", os.path.join(self.example_project, "main.py"), version="1.2.3b")
         self.assertEqual(dep.version, "1.2.3b")
 
+    @unittest.skipUnless(have_numpy, "test requires NumPy")
     def test__from_module(self):
         dep = df.python.Dependency.from_module(sys.modules['numpy'], None)
         self.assertEqual(dep.name, "numpy")
