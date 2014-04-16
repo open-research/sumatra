@@ -10,7 +10,7 @@ import shutil
 import logging
 import mimetypes
 from contextlib import closing  # needed for Python 2.6
-from sumatra.core import TIMESTAMP_FORMAT 
+from sumatra.core import TIMESTAMP_FORMAT
 
 
 from .base import DataItem, DataKey
@@ -20,7 +20,7 @@ from .filesystem import FileSystemDataStore
 class ArchivedDataFile(DataItem):
     """A file-like object, that represents a file inside a tar archive"""
     # current implementation just for real files
-    
+
     def __init__(self, path, store):
         self.path = path
         archive_label = self.path.split(os.path.sep)[0]
@@ -34,7 +34,7 @@ class ArchivedDataFile(DataItem):
         with closing(tarfile.open(self.tarfile_path, 'r')) as data_archive:
             info = data_archive.getmember(self.path)
         return info
-    
+
     def get_content(self, max_length=None):
         with closing(tarfile.open(self.tarfile_path, 'r')) as data_archive:
             f = data_archive.extractfile(self.path)
@@ -45,7 +45,7 @@ class ArchivedDataFile(DataItem):
             f.close()
             return content
     content = property(fget=get_content)
-    
+
     @property
     def sorted_content(self):
         raise NotImplementedError
@@ -58,15 +58,15 @@ class ArchivingFileSystemDataStore(FileSystemDataStore):
     real filesystem.
     """
     data_item_class = ArchivedDataFile
-    
+
     def __init__(self, root, archive=".smt/archive"):
         super(ArchivingFileSystemDataStore, self).__init__(root)
         self.archive_store = archive
         # should allow specification of archive format, e.g. tar.gz or zip
-    
+
     def __getstate__(self):
         return {'root': self.root, 'archive': self.archive_store}
-    
+
     def find_new_data(self, timestamp):
         """Finds newly created/changed data items"""
         new_files = self._find_new_data_files(timestamp)
@@ -74,14 +74,14 @@ class ArchivingFileSystemDataStore(FileSystemDataStore):
         archive_paths = self._archive(label, new_files)
         return [ArchivedDataFile(path, self).generate_key()
                 for path in archive_paths]
-    
+
     def _archive(self, label, files, delete_originals=True):
         """
         Archives files and, by default, deletes the originals.
         """
         if not os.path.exists(self.archive_store):
             os.mkdir(self.archive_store)
-        tf = tarfile.open(label + ".tar.gz",'w:gz')
+        tf = tarfile.open(label + ".tar.gz", 'w:gz')
         logging.info("Archiving data to file %s" % tf.name)
         # Add data files
         archive_paths = []
@@ -99,7 +99,7 @@ class ArchivingFileSystemDataStore(FileSystemDataStore):
                 os.remove(os.path.join(self.root, file_path))
         self._last_label = label # useful for testing
         return archive_paths
-    
+
     def delete(self, *keys):
         """Delete the files corresponding to the given keys."""
         raise NotImplementedError("Deletion of individual files not supported.")

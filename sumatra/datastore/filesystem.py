@@ -16,7 +16,7 @@ from .base import DataStore, DataKey, DataItem, IGNORE_DIGEST
 class DataFile(DataItem):
     """A file-like object, that represents a file in a local filesystem."""
     # current implementation just for real files
-    
+
     def __init__(self, path, store):
         self.path = path
         self.full_path = os.path.join(store.root, path)
@@ -29,7 +29,7 @@ class DataFile(DataItem):
         self.name = os.path.basename(self.full_path)
         self.extension = os.path.splitext(self.full_path)
         self.mimetype, self.encoding = mimetypes.guess_type(self.full_path)
-    
+
     def get_content(self, max_length=None):
         f = open(self.full_path, 'rb')
         if max_length:
@@ -39,7 +39,7 @@ class DataFile(DataItem):
         f.close()
         return content
     content = property(fget=get_content)
-    
+
     @property
     def sorted_content(self):
         sorted_path = "%s,sorted" % self.full_path
@@ -54,10 +54,10 @@ class DataFile(DataItem):
             assert len(content) == self.size + 1
             content = content[:-1]
         return content
-    
+
     # should probably override save_copy() from base class,
     # as a filesystem copy will be much faster
-    
+
 
 class FileSystemDataStore(DataStore):
     """
@@ -65,19 +65,19 @@ class FileSystemDataStore(DataStore):
     generally be a subdirectory of the real filesystem.
     """
     data_item_class = DataFile
-    
+
     def __init__(self, root):
         self.root = os.path.abspath(root or "./Data")
 
     def __str__(self):
         return self.root
-    
+
     def __getstate__(self):
         return {'root': self.root}
-    
+
     def __setstate__(self, state):
         self.__init__(**state)
-    
+
     def __get_root(self):
         return self._root
     def __set_root(self, value):
@@ -90,7 +90,7 @@ class FileSystemDataStore(DataStore):
             except OSError:
                 pass  # should perhaps emit warning
     root = property(fget=__get_root, fset=__set_root)
-    
+
     def _find_new_data_files(self, timestamp, ignoredirs=[".smt", ".hg", ".svn", ".git", ".bzr"]):
         """Finds newly created/changed files in dataroot."""
         # The timestamp-based approach creates problems when running several
@@ -113,12 +113,12 @@ class FileSystemDataStore(DataStore):
                 if  last_modified >= timestamp:
                     new_files.append(relative_path)
         return new_files
-    
+
     def find_new_data(self, timestamp):
         """Finds newly created/changed data items"""
         return [DataFile(path, self).generate_key()
                 for path in self._find_new_data_files(timestamp)]
-    
+
     def get_data_item(self, key):
         """
         Return the file that matches the given key.
@@ -130,7 +130,7 @@ class FileSystemDataStore(DataStore):
         if key.digest != IGNORE_DIGEST and df.digest != key.digest:
             raise KeyError("Digests do not match.") # add info about file sizes?
         return df
-        
+
     def delete(self, *keys):
         """
         Delete the files corresponding to the given keys.
