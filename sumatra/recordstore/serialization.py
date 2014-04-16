@@ -40,7 +40,7 @@ def encode_record(record, indent=None):
             "path": key.path,
             "digest": key.digest,
             "metadata": key.metadata,
-            } for key in record.input_data],
+        } for key in record.input_data],
         "script_arguments": record.script_arguments,  # added in 0.3
         "launch_mode": {
             "type": record.launch_mode.__class__.__name__,
@@ -60,7 +60,7 @@ def encode_record(record, indent=None):
             "path": key.path,
             "digest": key.digest,
             "metadata": key.metadata,
-            } for key in record.output_data],
+        } for key in record.output_data],
         "tags": list(record.tags),  # not sure if tags should be PUT, perhaps have separate URL for this?
         "diff": record.diff,
         "user": record.user,  # added in 0.2
@@ -72,7 +72,7 @@ def encode_record(record, indent=None):
             "module": d.module,
             "diff": d.diff,
             "source": d.source,  # added in 0.5
-            } for d in record.dependencies],
+        } for d in record.dependencies],
         "platforms": [{
             "system_name": p.system_name,
             "ip_addr": p.ip_addr,
@@ -83,9 +83,9 @@ def encode_record(record, indent=None):
             "release": p.release,
             "network_name": p.network_name,
             "processor": p.processor
-            } for p in record.platforms],
+        } for p in record.platforms],
         "repeats": record.repeats,  # added in 0.6
-        }
+    }
     return json.dumps(data, indent=indent)
 
 
@@ -157,6 +157,7 @@ def build_record(data):
     if isinstance(lm_parameters, string_type):  # prior to 0.3
         lm_parameters = eval(lm_parameters)
     launch_mode = getattr(launch, ldata["type"])(**keys2str(lm_parameters))
+
     def build_data_store(ddata):
         ds_parameters = ddata["parameters"]
         if isinstance(ds_parameters, string_type):  # prior to 0.3

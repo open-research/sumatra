@@ -8,11 +8,9 @@ import os.path
 import sys
 from argparse import ArgumentParser
 from textwrap import dedent
-from copy import deepcopy
 import warnings
 import re
 import logging
-import cProfile
 import sumatra
 
 from sumatra.programs import get_executable
@@ -39,13 +37,15 @@ modes = ("init", "configure", "info", "run", "list", "delete", "comment", "tag",
 
 store_arg_help = "The argument can take the following forms: (1) `/path/to/sqlitedb` - DjangoRecordStore is used with the specified Sqlite database, (2) `http[s]://location` - remote HTTPRecordStore is used with a remote Sumatra server, (3) `postgres://username:password@hostname/databasename` - DjangoRecordStore is used with specified Postgres database."
 
+
 def parse_executable_str(exec_str):
     """
     Split the string describing the executable into a path part and an
     options part.
     """
     first_space = exec_str.find(" ")
-    if first_space == -1: first_space = len(exec_str)
+    if first_space == -1:
+        first_space = len(exec_str)
     return exec_str[:first_space], exec_str[first_space:]
 
 
@@ -58,7 +58,7 @@ def parse_command_line_parameter(p):
     if pos == -1:
         raise Exception("Not a valid command line parameter. String must be of form 'name=value'")
     name = p[:pos]
-    value = p[pos+1:]
+    value = p[pos + 1:]
     if list_pattern.match(value) or tuple_pattern.match(value):
         value = eval(value)
     else:
@@ -79,21 +79,21 @@ def parse_arguments(args, input_datastore, stdin=None, stdout=None,
     input_data = []
     for arg in args:
         have_parameters = False
-        if os.path.isfile(arg): # could be a parameter file or a data file
+        if os.path.isfile(arg):  # could be a parameter file or a data file
             try:
-               parameter_sets.append(build_parameters(arg))
-               script_args.append("<parameters>")
-               have_parameters = True
+                parameter_sets.append(build_parameters(arg))
+                script_args.append("<parameters>")
+                have_parameters = True
             except SyntaxError:
-               pass
+                pass
         if not have_parameters:
             if input_datastore.contains_path(arg):
                 data_key = input_datastore.generate_keys(arg)
                 input_data.extend(data_key)
                 script_args.append(arg)
-            elif allow_command_line_parameters and "=" in arg: # cmdline parameter
+            elif allow_command_line_parameters and "=" in arg:  # cmdline parameter
                 cmdline_parameters.update(parse_command_line_parameter(arg))
-            else: # a flag or something, passed on unchanged
+            else:  # a flag or something, passed on unchanged
                 script_args.append(arg)
     if stdin:
         script_args.append("< %s" % stdin)
@@ -104,7 +104,7 @@ def parse_arguments(args, input_datastore, stdin=None, stdout=None,
             raise IOError("File does not exist: %s" % stdin)
     if stdout:
         script_args.append("> %s" % stdout)
-    assert len(parameter_sets) < 2, "No more than one parameter file may be supplied." # temporary restriction
+    assert len(parameter_sets) < 2, "No more than one parameter file may be supplied."  # temporary restriction
     if cmdline_parameters:
         if parameter_sets:
             parameter_sets[0].update(cmdline_parameters)
@@ -128,7 +128,7 @@ def init(argv):
     parser.add_argument('-e', '--executable', metavar='PATH', help="set the path to the executable. If this is not set, smt will try to infer the executable from the value of the --main option, if supplied, and will try to find the executable from the PATH environment variable, then by searching various likely locations on the filesystem.")
     parser.add_argument('-r', '--repository', help="the URL of a Subversion or Mercurial repository containing the code. This will be checked out/cloned into the current directory.")
     parser.add_argument('-m', '--main', help="the name of the script that would be supplied on the command line if running the simulation or analysis normally, e.g. init.hoc.")
-    parser.add_argument('-c', '--on-changed', default='error', help="the action to take if the code in the repository or any of the depdendencies has changed. Defaults to %(default)s") # need to add list of allowed values
+    parser.add_argument('-c', '--on-changed', default='error', help="the action to take if the code in the repository or any of the depdendencies has changed. Defaults to %(default)s")  # need to add list of allowed values
     parser.add_argument('-s', '--store', help="Specify the path, URL or URI to the record store (must be specified). This can either be an existing record store or one to be created. {0} Not using the `--store` argument defaults to a DjangoRecordStore with Sqlite in `.smt/records`".format(store_arg_help))
     parser.add_argument('-A', '--archive', metavar='PATH', help="specify a directory in which to archive output datafiles. If not specified, datafiles are not archived.")
     parser.add_argument('-g', '--labelgenerator', choices=['timestamp', 'uuid'], default='timestamp', metavar='OPTION', help="specify which method Sumatra should use to generate labels (options: timestamp, uuid)")
@@ -152,7 +152,7 @@ def init(argv):
         repository = get_repository(args.repository)
         repository.checkout()
     else:
-        repository = get_working_copy().repository # if no repository is specified, we assume there is a working copy in the current directory.
+        repository = get_working_copy().repository  # if no repository is specified, we assume there is a working copy in the current directory.
 
     if args.executable:
         executable_path, executable_options = parse_executable_str(args.executable)
@@ -161,7 +161,7 @@ def init(argv):
     elif args.main:
         try:
             executable = get_executable(script_file=args.main)
-        except Exception: # assume unrecognized extension - really need more specific exception type
+        except Exception:  # assume unrecognized extension - really need more specific exception type
             # should warn that extension unrecognized
             executable = None
     else:
@@ -183,7 +183,7 @@ def init(argv):
     else:
         output_datastore = FileSystemDataStore(args.datapath)
     input_datastore = FileSystemDataStore(args.input)
-    
+
     if args.launch_mode_options:
         args.launch_mode_options = args.launch_mode_options.strip()
     launch_mode = get_launch_mode(args.launch_mode)(options=args.launch_mode_options)
@@ -191,7 +191,7 @@ def init(argv):
     project = Project(name=args.project_name,
                       default_executable=executable,
                       default_repository=repository,
-                      default_main_file=args.main, # what if incompatible with executable?
+                      default_main_file=args.main,  # what if incompatible with executable?
                       default_launch_mode=launch_mode,
                       data_store=output_datastore,
                       record_store=record_store,
@@ -227,25 +227,20 @@ def configure(argv):
 
     args = parser.parse_args(argv)
 
+    project = load_project()
     if args.store:
         new_store = get_record_store(args.store)
-        project = load_project()
-        project.backup()
-        old_store = project.record_store
-        new_store.sync(old_store, project.name)
-        project.record_store = new_store
-    else:
-        project = load_project()
+        project.change_record_store(new_store)
 
     if args.archive:
         if args.archive.lower() == "true":
             args.archive = ".smt/archive"
-        if hasattr(project.data_store, 'archive_store'): # current data store is archiving
+        if hasattr(project.data_store, 'archive_store'):  # current data store is archiving
             if args.archive.lower() == 'false':
                 project.data_store = FileSystemDataStore(project.data_store.root)
             else:
                 project.data_store.archive_store = args.archive
-        else: # current data store is not archiving
+        else:  # current data store is not archiving
             if args.archive.lower() != 'false':
                 project.data_store = ArchivingFileSystemDataStore(args.datapath, args.archive)
     if args.datapath:
@@ -343,14 +338,14 @@ def run(argv):
     elif len(parameters) == 1:
         parameters = parameters[0]
     else:
-        parser.error("Only a single parameter file allowed.") # for now
+        parser.error("Only a single parameter file allowed.")  # for now
 
     if args.executable:
         executable_path, executable_options = parse_executable_str(args.executable)
         executable = get_executable(path=executable_path)
         executable.options = executable_options
     elif args.main:
-        executable = get_executable(script_file=args.main) # should we take the options from project.default_executable, if they match?
+        executable = get_executable(script_file=args.main)  # should we take the options from project.default_executable, if they match?
     else:
         executable = 'default'
     if args.num_processes:
@@ -430,7 +425,7 @@ def delete(argv):
                 label = project.most_recent().label
             try:
                 project.delete_record(label, delete_data=args.data)
-            except Exception: # could be KeyError or DoesNotExist: should create standard NoSuchRecord or RecordDoesNotExist exception
+            except Exception:  # could be KeyError or DoesNotExist: should create standard NoSuchRecord or RecordDoesNotExist exception
                 warnings.warn("Could not delete record '%s' because it does not exist" % label)
 
 
@@ -447,7 +442,7 @@ def comment(argv):
     parser.add_argument('label', nargs='?', metavar='LABEL', help="the record to which the comment will be added")
     parser.add_argument('comment', help="a string of text, or the name of a file containing the comment.")
     parser.add_argument('-r', '--replace', action='store_true',
-                        help="if this flag is set, any existing comment will be overwritten, otherwise, the new comment will be appended to the end, starting on a new line")
+                        help="if this flag is set, any existing comment will be overwritten, otherwise, the new comment will be appended to the end, starting on a new line")  # THIS IS NOT IMPLEMENTED
     parser.add_argument('-f', '--file', action='store_true',
                         help="interpret COMMENT as the path to a file containing the comment")
     args = parser.parse_args(argv)
@@ -575,7 +570,6 @@ def upgrade(argv):
               "version of Sumatra) before upgrading.")
         sys.exit(1)
 
-
     # backup and remove .smt
     import shutil
     backup_dir = project.backup()
@@ -597,7 +591,6 @@ def upgrade(argv):
     print("Project successfully upgraded to Sumatra version {}.".format(project.sumatra_version))
 
 
-
 def export(argv):
     usage = "%(prog)s export"
     description = dedent("""\
@@ -617,7 +610,7 @@ def sync(argv):
         given, and the command is run in a directory containing a Sumatra
         project, only that project's records be synchronized with the store at
         PATH1. Note that PATH1 and PATH2 may be either filesystem paths or URLs.
-        """) # need to say what happens if the sync is incomplete due to label collisions
+        """)  # need to say what happens if the sync is incomplete due to label collisions
     parser = ArgumentParser(usage=usage,
                             description=description)
     parser.add_argument('path1')
@@ -662,5 +655,5 @@ def migrate(argv):
     }
     for option_name, field in field_map.items():
         value = getattr(args, option_name)
-        if value:   
+        if value:
             project.record_store.update(project.name, field, value)

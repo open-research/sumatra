@@ -46,7 +46,7 @@ class Executable(object):
     # store compilation/configuration options? yes, if we can determine them
     requires_script = False  # does this executable require a script file
     name = None
-    
+
     def __init__(self, path, version=None, options="", name=None):
         if path and os.path.exists(path):
             self.path = path
@@ -59,7 +59,7 @@ class Executable(object):
         if self.name is None:
             self.name = name or os.path.basename(self.path)
         self.version = version or self._get_version()
-        self.options = options        
+        self.options = options
 
     def __repr__(self):
         s = "%s (version: %s) at %s" % (self.name, self.version, self.path)
@@ -73,11 +73,11 @@ class Executable(object):
             executable_name = executable_name + '.exe'
         for path in os.getenv('PATH').split(os.path.pathsep):
             if os.path.exists(os.path.join(path, executable_name)):
-                found += [path] 
+                found += [path]
         if not found:
             raise Warning('%s could not be found. Please supply the path to the %s executable.' % (self.name, executable_name))
         else:
-            executable = os.path.join(found[0], executable_name) 
+            executable = os.path.join(found[0], executable_name)
             if len(found) == 1:
                 print('Using %s' % executable)
             else:
@@ -96,16 +96,16 @@ class Executable(object):
 
     def __eq__(self, other):
         return type(self) == type(other) and self.path == other.path and self.name == other.name and self.version == other.version and self.options == other.options
-    
+
     def __ne__(self, other):
         return not self.__eq__(other)
-    
+
     def __getstate__(self):
         return {'path': self.path, 'version': self.version, 'options': self.options, 'name': self.name}
-    
+
     def __setstate__(self, d):
         self.__dict__ = d
-    
+
     @staticmethod
     def write_parameters(parameters, filebasename):
         filename = parameters.save(filebasename, add_extension=True)
@@ -158,7 +158,7 @@ class NESTSimulator(Executable):
     name = "NEST"
     default_executable_name = 'nest'
     requires_script = True
-    
+
 
 class GENESISSimulator(Executable):
     name = "GENESIS"
@@ -185,7 +185,7 @@ registered_program_names = {}
 registered_executables = {}
 registered_extensions = {}
 
-    
+
 def register_executable(cls, name, executables, extensions):
     """Register a new subclass of Executable that can be returned by get_executable()."""
     assert issubclass(cls, Executable)
@@ -195,7 +195,7 @@ def register_executable(cls, name, executables, extensions):
     for ext in extensions:
         registered_extensions[ext] = cls
 
-    
+
 register_executable(NEURONSimulator, 'NEURON', ('nrniv', 'nrngui'), ('.hoc', '.oc'))
 register_executable(PythonExecutable, 'Python', ('python', 'python2', 'python3',
                                                  'python2.5', 'python2.6', 'python2.7',
@@ -225,5 +225,5 @@ def get_executable(path=None, script_file=None):
         else:
             raise Exception("Extension not recognized.")
     else:
-        raise Exception('Either path or script_file must be specified')  
+        raise Exception('Either path or script_file must be specified')
     return program

@@ -16,12 +16,12 @@ import sys
 import warnings
 
 from sumatra.dependency_finder import core, neuron, python, genesis, matlab
-    
+
 
 def find_dependencies(filename, executable):
     """
     Return a list of dependencies for a given script and programming language.
-    
+
     *filename*:
         the path to the script whose dependencies should be found.
     *executable*:

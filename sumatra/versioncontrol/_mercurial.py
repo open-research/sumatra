@@ -33,14 +33,17 @@ from base import VersionControlError, UncommittedModificationsError
 
 from base import Repository, WorkingCopy
 
+
 def vectorized(generator_func):
     def wrapper(*args, **kwargs):
         return list(generator_func(*args, **kwargs))
     return functools.update_wrapper(wrapper, generator_func)
 
+
 def may_have_working_copy(path=None):
     path = path or os.getcwd()
     return bool(findrepo(path))
+
 
 def get_working_copy(path=None):
     repo_dir = findrepo(path or os.getcwd())
@@ -55,7 +58,7 @@ def get_repository(url):
     if repos.exists:
         return repos
     else:
-        raise VersionControlError("Cannot access Mercurial repository at %s" % self.url)    
+        raise VersionControlError("Cannot access Mercurial repository at %s" % self.url)
 
 
 class MercurialWorkingCopy(WorkingCopy):
@@ -65,12 +68,12 @@ class MercurialWorkingCopy(WorkingCopy):
         self.repository = MercurialRepository(self.path)
 
     def current_version(self):
-        if hasattr(self.repository._repository, 'workingctx'): # handle different versions of Mercurial 
+        if hasattr(self.repository._repository, 'workingctx'):  # handle different versions of Mercurial
             ctx = self.repository._repository.workingctx().parents()[0]
         else:
             ctx = self.repository._repository.parents()[0]
         return binascii.hexlify(ctx.node()[:6])
-    
+
     def use_version(self, version):
         if self.has_changed():
             raise UncommittedModificationsError(self.status())
@@ -88,7 +91,7 @@ class MercurialWorkingCopy(WorkingCopy):
 
     def has_changed(self):
         status = self.status()
-        status = self.status()  # for some reason, calling "status()" sometimes changes the status. Need to investigate further, but calling it twice seems to work, as a temporary hack. 
+        status = self.status()  # for some reason, calling "status()" sometimes changes the status. Need to investigate further, but calling it twice seems to work, as a temporary hack.
         changed = False
         for st in 'modified', 'removed', 'missing':
             if status[st]:
@@ -96,7 +99,7 @@ class MercurialWorkingCopy(WorkingCopy):
                 changed = True
                 break
         return changed
-    
+
     def diff(self):
         """Difference between working copy and repository."""
         opts = patch.mdiff.diffopts(nodates=True)
@@ -107,13 +110,13 @@ class MercurialWorkingCopy(WorkingCopy):
         repo = self.repository._repository
         i = 1
         if hex in repo.parents()[0].hex():
-            ctx = repo.parents()[0] 
+            ctx = repo.parents()[0]
             return ctx.filectx(ctx.files()[0]).data()
         while True:
             el = repo.parents(i)[0].hex()
-            if hex in el:  
-                ctx = repo.parents(i)[0]      
-                return ctx.filectx(ctx.files()[0]).data() # presume that we have only one file [0]
+            if hex in el:
+                ctx = repo.parents(i)[0]
+                return ctx.filectx(ctx.files()[0]).data()  # presume that we have only one file [0]
             i += 1
 
     def get_username(self):
@@ -123,7 +126,7 @@ class MercurialWorkingCopy(WorkingCopy):
 class MercurialRepository(Repository):
     use_version_cmd = "hg update -r"
     apply_patch_cmd = "hg import --no-commit"
-    
+
     def __init__(self, url, upstream=None):
         Repository.__init__(self, url, upstream)
         self.__repository = None
@@ -145,7 +148,7 @@ class MercurialRepository(Repository):
                 # need to add a check that this actually is a Mercurial repository
             except (RepoError, Exception) as err:
                 raise VersionControlError("Cannot access Mercurial repository at %s: %s" % (self.url, err))
-        return self.__repository    
+        return self.__repository
 
     def checkout(self, path="."):
         """Clone a repository."""

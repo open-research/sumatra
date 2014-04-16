@@ -13,7 +13,7 @@ try:
     from cStringIO import StringIO
 except ImportError:
     from io import StringIO
-    
+
 try:
     from urllib2 import urlopen, URLError
     from urllib import urlretrieve

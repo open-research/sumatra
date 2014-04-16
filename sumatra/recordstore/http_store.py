@@ -28,8 +28,9 @@ def domain(url):
 
 def process_url(url):
     """Strip out username and password if included in URL"""
-    username = None; password = None
-    if '@' in url: # allow encoding username and password in URL - deprecated in RFC 3986, but useful on the command-line
+    username = None
+    password = None
+    if '@' in url:  # allow encoding username and password in URL - deprecated in RFC 3986, but useful on the command-line
         parts = urlparse(url)
         username = parts.username
         password = parts.password
@@ -166,7 +167,7 @@ class HttpRecordStore(RecordStore):
         project_url = "%s%s/" % (self.server_url, project_name)
         if tags:
             if not hasattr(tags, "__iter__"):
-                tags=[tags]
+                tags = [tags]
             project_url += "?tags=%s" % ",".join(tags)
         response, content = self._get(project_url, 'project')
         if response.status != 200:
@@ -178,7 +179,7 @@ class HttpRecordStore(RecordStore):
         return records
 
     def labels(self, project_name):
-        return [record.label for record in self.list(project_name)] # probably inefficient
+        return [record.label for record in self.list(project_name)]  # probably inefficient
 
     def delete(self, project_name, label):
         url = "%s%s/%s/" % (self.server_url, project_name, label)

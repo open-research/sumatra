@@ -32,6 +32,7 @@ originals = []
 django_store1 = None
 django_store2 = None
 
+
 class MockExecutable(Executable):
     name = "a.out"
     path = "/usr/local/bin/a.out"
@@ -41,6 +42,7 @@ class MockExecutable(Executable):
         pass
 register_executable(MockExecutable, "a.out", "/usr/local/bin/a.out", [])
 
+
 class MockRepository(object):
     url = "http://svn.example.com/"
     upstream = None
@@ -48,10 +50,12 @@ class MockRepository(object):
     def __init__(self, *args, **kwargs):
         pass
 
+
 class MockLaunchMode(object):
     type = "SerialLaunchMode"
     def __getstate__(self):
         return {}
+
 
 class MockDataStore(object):
     type = "FileSystemDataStore"
@@ -62,6 +66,7 @@ class MockDataStore(object):
     def copy(self):
         return self
 
+
 class MockDependency(object):
     name = "some_module"
     path = "/usr/lib/python/some_module.py"
@@ -69,6 +74,7 @@ class MockDependency(object):
     diff = ""
     module = "python"
     source = "http://git.example.com/"
+
 
 class MockPlatformInformation(object):
     architecture_bits = 32
@@ -81,6 +87,7 @@ class MockPlatformInformation(object):
     system_name = ""
     version = ""
 
+
 class MockParameterSet(object):
     def __init__(self, initialiser):
         pass
@@ -89,11 +96,12 @@ class MockParameterSet(object):
     def pop(self, k, d):
         return None
 
+
 class MockRecord(object):
 
     def __init__(self, label):
         self.label = label
-        self.timestamp = datetime.now() #datetime(1901, 6, 1, 12, 0, 0)
+        self.timestamp = datetime.now()  # datetime(1901, 6, 1, 12, 0, 0)
         self.reason = "because"
         self.duration = 7543.2
         self.outcome = None
@@ -123,11 +131,13 @@ class MockRecord(object):
 class MockProject(object):
     name = "TestProject"
 
+
 def clean_up():
     pass
     #for filename in ("test.db", "test2.db"):
     #    if os.path.exists(filename):
     #        os.remove(filename)
+
 
 def setup():
     global django_store1, django_store2
@@ -141,6 +151,7 @@ def setup():
         django_store2 = django_store.DjangoRecordStore(db_file="test2.db")
     django_store.db_config.configure()
     vcs_list.append(sys.modules[__name__])
+
 
 def teardown():
     global django_store1, django_store2
@@ -223,7 +234,7 @@ class BaseTestRecordStore(object):
 
     def test_delete_nonexistent_label(self):
         self.add_some_records()
-        self.assertRaises(Exception, # could be KeyError or DoesNotExist
+        self.assertRaises(Exception,  # could be KeyError or DoesNotExist
                           self.store.delete,
                           self.project.name,
                           "notarecord")
@@ -311,6 +322,7 @@ class MockResponse(object):
     def __init__(self, status):
         self.status = status
 
+
 def check_record(record):
     # this is a rather basic test. Should also check the keys of the
     # subsidiary dicts, and the types of the values
@@ -341,8 +353,8 @@ class MockHttp(object):
             print("\n<<<<< %s %s %d %s %s %s %s %s" % (uri, u.path, len(parts),
                                                        method, body, headers,
                                                        u.params, u.query))
-            
-        if len(parts) == 2: # record uri
+
+        if len(parts) == 2:  # record uri
             if method == "PUT":
                 record = json.loads(body)
                 check_record(record)
@@ -366,20 +378,25 @@ class MockHttp(object):
                         self.last_record = record
                 content = ""
                 status = 204
-        elif len(parts) == 1: # project uri
-            if u.query:
-                tags = u.query.split("=")[1].split(",")
-                records = set([])
-                for tag in tags:
-                    records = records.union(["%s://%s/%s/%s/" % (u.scheme, u.netloc, parts[0],
-                                               path) for path in self.records.keys() if tag in self.records[path]['tags']])
-                records = list(records)
-            else:
-                records = ["%s://%s/%s/%s/" % (u.scheme, u.netloc, parts[0],
-                                                    path) for path in self.records.keys()]
-            content = json.dumps({"records": records})
-            status = 200
-        elif len(parts) == 3: # tagged records uri
+        elif len(parts) == 1:  # project uri
+            if method == "GET":
+                if u.query:
+                    tags = u.query.split("=")[1].split(",")
+                    records = set([])
+                    for tag in tags:
+                        records = records.union(["%s://%s/%s/%s/" % (
+                            u.scheme, u.netloc, parts[0], path)
+                            for path in self.records.keys() if tag in self.records[path]['tags']])
+                    records = list(records)
+                else:
+                    records = ["%s://%s/%s/%s/" % (u.scheme, u.netloc, parts[0], path)
+                               for path in self.records.keys()]
+                content = json.dumps({"records": records, "name": "TestProject", "description": ""})
+                status = 200
+            elif method == "PUT":
+                content = ""
+                status = 201
+        elif len(parts) == 3:  # tagged records uri
             if method == "DELETE":
                 tag = parts[2]
                 n = 0
@@ -389,7 +406,7 @@ class MockHttp(object):
                         n += 1
                 status = 200
                 content = str(n)
-        elif len(parts) == 0: # list projects uri
+        elif len(parts) == 0:  # list projects uri
             status = 200
             content = '[{"id": "TestProject"}]'
         if self.debug:
@@ -424,7 +441,7 @@ class TestHttpRecordStore(unittest.TestCase, BaseTestRecordStore):
         s = pickle.dumps(self.store)
         del self.store
         unpickled = pickle.loads(s)
-        
+
     def test_process_url(self):
         url, username, password = http_store.process_url("http://foo:bar@example.com:8000/path/file.html")
         self.assertEqual(username, "foo")
@@ -434,10 +451,16 @@ class TestHttpRecordStore(unittest.TestCase, BaseTestRecordStore):
     def test_list_projects(self):
         self.assertEqual(self.store.list_projects(), [self.project.name])
 
+    def test_create_project(self):
+        self.store.create_project("NewProject", "A new test project", "A long description")
+
+    def test_project_info(self):
+        self.assertEqual(self.store.project_info("TestProject")["name"], "TestProject")
+
 
 class TestSerialization(unittest.TestCase):
     maxDiff = None
-    
+
     def test_build_record_v0p4(self):
         with open("example_0.4.json") as fp:
             record = serialization.build_record(json.load(fp))

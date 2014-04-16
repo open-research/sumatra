@@ -36,7 +36,7 @@ class Dependency(core.BaseDependency):
     Contains information about a .g file, and tries to determine version information.
     """
     module = 'genesis'
-    
+
     def __init__(self, name, path=None, version='unknown', diff='', source=None):
         # name maybe should be path relative to main file?
         super(Dependency, self).__init__(os.path.basename(name),
@@ -56,17 +56,18 @@ def get_sim_path():
         for i in range(1, len(lines)):
             lines[i] = lines[i].replace("{getenv SIMPATH}", lines[0])
     return lines[-1].split()
-    
+
 
 def find_included_files(file_path):
     """
     Find all files that are included, whether directly or indirectly, by a given
     .g file. 
     """
-    comment_pattern = re.compile('/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+/') # see http://ostermiller.org/findcomment.html
+    comment_pattern = re.compile('/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+/')  # see http://ostermiller.org/findcomment.html
     include_pattern = re.compile(r'include (?P<path>[\w\./]+)')
     search_dirs = get_sim_path()
-    all_paths = []    
+    all_paths = []
+
     def find(start_path, paths):
         """
         Recursively look for files loaded by start_path, add them to paths.
@@ -74,6 +75,7 @@ def find_included_files(file_path):
         with open(start_path) as f:
             without_comments = comment_pattern.sub("", f.read())
         new_paths = include_pattern.findall(without_comments)
+
         def add_ext(path):
             if path[-2:] != ".g":
                 path += ".g"
@@ -98,7 +100,7 @@ def find_dependencies(filename, executable):
     Return a list of Dependency objects representing all files included,
     whether directly or indirectly, by a given .g file. 
     """
-    heuristics = [core.find_versions_from_versioncontrol,]
+    heuristics = [core.find_versions_from_versioncontrol, ]
     paths = find_included_files(filename)
     # also need to find .p files
     dependencies = [Dependency(name) for name in paths]

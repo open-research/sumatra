@@ -19,7 +19,6 @@ load_project() - read project information from the working directory and return
 """
 
 import os
-import sys
 import re
 try:
     import cPickle as pickle
@@ -31,6 +30,8 @@ import sumatra
 import django
 import sqlite3
 import time
+import shutil
+from datetime import datetime
 from sumatra.records import Record
 from sumatra import programs, datastore
 from sumatra.formatting import get_formatter, get_diff_formatter
@@ -49,14 +50,15 @@ logger = logging.getLogger("Sumatra")
 DEFAULT_PROJECT_FILE = "project"
 
 LABEL_GENERATORS = {
-    'timestamp': lambda: None, # this is the default, implemented in the Record class
+    'timestamp': lambda: None,  # this is the default, implemented in the Record class
     'uuid': lambda: str(uuid.uuid4()).split('-')[-1]
 }
 
 
-def _remove_left_margin(s): # replace this by textwrap.dedent?
+def _remove_left_margin(s):  # replace this by textwrap.dedent?
     lines = s.strip().split('\n')
     return "\n".join(line.strip() for line in lines)
+
 
 def _get_project_file(path):
     return os.path.join(path, ".smt", DEFAULT_PROJECT_FILE)
@@ -82,12 +84,12 @@ class Project(object):
         else:
             raise ValueError("Invalid project name. Names may only contain letters, numbers, spaces and hyphens")
         self.default_executable = default_executable
-        self.default_repository = default_repository # maybe we should be storing the working copy instead, as this has a ref to the repository anyway
+        self.default_repository = default_repository  # maybe we should be storing the working copy instead, as this has a ref to the repository anyway
         self.default_main_file = default_main_file
         self.default_launch_mode = default_launch_mode
         if data_store == 'default':
             data_store = datastore.FileSystemDataStore(None)
-        self.data_store = data_store # a data store object
+        self.data_store = data_store  # a data store object
         self.input_datastore = input_datastore or self.data_store
         if record_store == 'default':
             record_store = DefaultRecordStore(os.path.abspath(".smt/records"))
@@ -96,21 +98,21 @@ class Project(object):
         self.description = description
         self.data_label = data_label
         self.label_generator = label_generator
-        self.timestamp_format = timestamp_format        
+        self.timestamp_format = timestamp_format
         self.sumatra_version = sumatra.__version__
         self.allow_command_line_parameters = allow_command_line_parameters
-        self._most_recent = None            
+        self._most_recent = None
         self.save()
         print("Sumatra project successfully set up")
-        
+
     def __set_data_label(self, value):
         assert value in (None, 'parameters', 'cmdline')
         self._data_label = value
-        
+
     def __get_data_label(self):
         return self._data_label
     data_label = property(fset=__set_data_label, fget=__get_data_label)
-    
+
     def save(self):
         """Save state to some form of persistent storage. (file, database)."""
         state = {}
@@ -127,10 +129,10 @@ class Project(object):
                     state[name][key] = value
             else:
                 state[name] = attr
-        f = open(_get_project_file(self.path), 'w') # should check if file exists?
+        f = open(_get_project_file(self.path), 'w')  # should check if file exists?
         json.dump(state, f, indent=2)
         f.close()
-    
+
     def info(self):
         """Show some basic information about the project."""
         template = """
@@ -149,28 +151,28 @@ class Project(object):
         Sumatra version     : %(sumatra_version)s
         """
         return _remove_left_margin(template % self.__dict__)
-    
+
     def new_record(self, parameters={}, input_data=[], script_args="",
                    executable='default', repository='default',
                    main_file='default', version='current', launch_mode='default',
                    label=None, reason=None, timestamp_format='default'):
         logger.debug("Creating new record")
-        if executable == 'default':
-            executable = deepcopy(self.default_executable)           
-        if repository == 'default':
+        if executable is 'default':
+            executable = deepcopy(self.default_executable)
+        if repository is 'default':
             repository = deepcopy(self.default_repository)
-        if main_file == 'default':
+        if main_file is 'default':
             main_file = self.default_main_file
-        if launch_mode == 'default':
+        if launch_mode is 'default':
             launch_mode = deepcopy(self.default_launch_mode)
-        if timestamp_format == 'default':
+        if timestamp_format is 'default':
             timestamp_format = self.timestamp_format
         working_copy = repository.get_working_copy()
         version, diff = self.update_code(working_copy, version)
         if label is None:
             label = LABEL_GENERATORS[self.label_generator]()
         record = Record(executable, repository, main_file, version, launch_mode,
-                        self.data_store, parameters, input_data, script_args, 
+                        self.data_store, parameters, input_data, script_args,
                         label=label, reason=reason, diff=diff,
                         on_changed=self.on_changed,
                         input_datastore=self.input_datastore,
@@ -178,15 +180,15 @@ class Project(object):
         if not isinstance(executable, programs.MatlabExecutable):
             record.register(working_copy)
         return record
-    
+
     def launch(self, parameters={}, input_data=[], script_args="",
                executable='default', repository='default', main_file='default',
-               version='current', launch_mode='default', label=None, reason=None, 
+               version='current', launch_mode='default', label=None, reason=None,
                timestamp_format='default', repeats=None):
         """Launch a new simulation or analysis."""
         record = self.new_record(parameters, input_data, script_args,
                                  executable, repository, main_file, version,
-                                 launch_mode, label, reason, timestamp_format) 
+                                 launch_mode, label, reason, timestamp_format)
         record.run(with_label=self.data_label)
         if 'matlab' in record.executable.name.lower():
             record.register(record.repository.get_working_copy())
@@ -195,7 +197,7 @@ class Project(object):
         self.add_record(record)
         self.save()
         return record.label
-    
+
     def update_code(self, working_copy, version='current'):
         """Check if the working copy has modifications and prompt to commit or revert them."""
         # we really need to extend this to the dependencies, but we need to take extra special care that the
@@ -206,7 +208,7 @@ class Project(object):
         if version == 'current' or version == working_copy.current_version:
             if changed:
                 if self.on_changed == "error":
-                    raise UncommittedModificationsError("Code has changed, please commit your changes")    
+                    raise UncommittedModificationsError("Code has changed, please commit your changes")
                 elif self.on_changed == "store-diff":
                     diff = working_copy.diff()
                 else:
@@ -222,7 +224,7 @@ class Project(object):
             working_copy.use_version(version)
         version = working_copy.current_version()
         return version, diff
-    
+
     def add_record(self, record):
         """Add a simulation or analysis record."""
         success = False
@@ -234,18 +236,18 @@ class Project(object):
                 self.record_store.save(self.name, record)
                 success = True
                 self._most_recent = record.label
-            except django.db.utils.DatabaseError, sqlite3.OperationalError:
+            except (django.db.utils.DatabaseError, sqlite3.OperationalError):
                 print "Failed to save record due to database error. Trying again in {} seconds. (Attempt {}/{})".format(sleep_seconds, cnt, max_tries)
                 time.sleep(sleep_seconds)
                 cnt += 1
         if cnt == max_tries:
             print "Reached maximum number of attempts to save record. Aborting."
-    
+
     def get_record(self, label):
         """Search for a record with the supplied label and return it if found.
            Otherwise return None."""
         return self.record_store.get(self.name, label)
-    
+
     def delete_record(self, label, delete_data=False):
         """Delete a record. Return 1 if the record is found.
            Otherwise return 0."""
@@ -253,7 +255,7 @@ class Project(object):
             self.get_record(label).delete_data()
         self.record_store.delete(self.name, label)
         self._most_recent = self.record_store.most_recent(self.name)
-    
+
     def delete_by_tag(self, tag, delete_data=False):
         """Delete all records with a given tag. Return the number of records deleted."""
         if delete_data:
@@ -262,13 +264,13 @@ class Project(object):
         n = self.record_store.delete_by_tag(self.name, tag)
         self._most_recent = self.record_store.most_recent(self.name)
         return n
-    
+
     def format_records(self, format='text', mode='short', tags=None, reverse=False):
         records = self.record_store.list(self.name, tags)
         if reverse:
             records.reverse()
         formatter = get_formatter(format)(records, project=self, tags=tags)
-        return formatter.format(mode) 
+        return formatter.format(mode)
 
     def most_recent(self):
         try:
@@ -281,25 +283,25 @@ class Project(object):
         try:
             record = self.record_store.get(self.name, label)
         except Exception as e:
-            raise Exception("%s. label=<%s>" % (e,label))
+            raise Exception("%s. label=<%s>" % (e, label))
         record.outcome = comment
         self.record_store.save(self.name, record)
-        
+
     def add_tag(self, label, tag):
         record = self.record_store.get(self.name, label)
         record.tags.add(tag)
         self.record_store.save(self.name, record)
-    
+
     def remove_tag(self, label, tag):
         record = self.record_store.get(self.name, label)
         record.tags.remove(tag)
         self.record_store.save(self.name, record)
-    
+
     def compare(self, label1, label2, ignore_mimetypes=[], ignore_filenames=[]):
         record1 = self.record_store.get(self.name, label1)
         record2 = self.record_store.get(self.name, label2)
-        return record1.difference(record2, ignore_mimetypes, ignore_filenames)        
-    
+        return record1.difference(record2, ignore_mimetypes, ignore_filenames)
+
     def show_diff(self, label1, label2, mode='short', ignore_mimetypes=[], ignore_filenames=[]):
         diff = self.compare(label1, label2, ignore_mimetypes, ignore_filenames)
         formatter = get_diff_formatter()(diff)
@@ -307,21 +309,20 @@ class Project(object):
 
     def export(self):
         # copy the project data
-        import shutil
         shutil.copy(".smt/project", ".smt/project_export.json")
         # export the record data
         f = open(".smt/records_export.json", 'w')
         f.write(self.record_store.export(self.name))
         f.close()
-    
+
     def repeat(self, original_label, new_label=None):
         if original_label == 'last':
             tmp = self.most_recent()
         else:
             tmp = self.get_record(original_label)
         original = deepcopy(tmp)
-        if hasattr(tmp.parameters, '_url'): # for some reason, _url is not copied.
-            original.parameters._url = tmp.parameters._url # this is a hackish solution - needs fixed properly
+        if hasattr(tmp.parameters, '_url'):  # for some reason, _url is not copied.
+            original.parameters._url = tmp.parameters._url  # this is a hackish solution - needs fixed properly
         try:
             working_copy = get_working_copy()
         except VersionControlError:
@@ -345,22 +346,30 @@ class Project(object):
         return new_label, original.label
 
     def backup(self):
-        """        
+        """
         Create a new backup directory in the same location as the
         project directory and copy the contents of the project
         directory into the backup directory. Uses `_get_project_file`
         to extract the path to the project directory.
-        
+
         :return:
           - `backup_dir`: the directory used for the backup
 
         """
-        import shutil
-        from datetime import datetime
         smt_dir = os.path.split(_get_project_file(self.path))[0]
-        backup_dir = smt_dir + "_backup_%s" % datetime.now().strftime(TIMESTAMP_FORMAT)    
+        backup_dir = smt_dir + "_backup_%s" % datetime.now().strftime(TIMESTAMP_FORMAT)
         shutil.copytree(smt_dir, backup_dir)
         return backup_dir
+
+    def change_record_store(self, new_store):
+        """
+        Change the record store that is used by this project.
+        """
+        self.backup()
+        old_store = self.record_store
+        new_store.sync(old_store, self.name)
+        self.record_store = new_store
+
 
 def _load_project_from_json(path):
     f = open(_get_project_file(path), 'r')
@@ -370,19 +379,20 @@ def _load_project_from_json(path):
     prj.path = path
     for key, value in data.items():
         if isinstance(value, dict) and "type" in value:
-            parts = str(value["type"]).split(".") # make sure not unicode, see http://stackoverflow.com/questions/1971356/haystack-whoosh-index-generation-error/2683624#2683624
+            parts = str(value["type"]).split(".")  # make sure not unicode, see http://stackoverflow.com/questions/1971356/haystack-whoosh-index-generation-error/2683624#2683624
             module_name = ".".join(parts[:-1])
             class_name = parts[-1]
-            _temp = __import__(module_name, globals(), locals(), [class_name], -1) # from <module_name> import <class_name>
+            _temp = __import__(module_name, globals(), locals(), [class_name], -1)  # from <module_name> import <class_name>
             cls = getattr(_temp, class_name)
             args = {}
-            for k,v in value.items():
+            for k, v in value.items():
                 if k != 'type':
-                    args[str(k)] = v # need to use str() as json module uses all unicode
+                    args[str(k)] = v  # need to use str() as json module uses all unicode
             setattr(prj, key, cls(**args))
         else:
             setattr(prj, key, value)
     return prj
+
 
 def _load_project_from_pickle(path):
     # earlier versions of Sumatra saved Projects using pickle
@@ -390,6 +400,7 @@ def _load_project_from_pickle(path):
     prj = pickle.load(f)
     f.close()
     return prj
+
 
 def load_project(path=None):
     """
@@ -406,8 +417,8 @@ def load_project(path=None):
         if p == oldp:
             raise IOError("No Sumatra project exists in the current directory or above it.")
     mimetypes.init([os.path.join(p, ".smt", "mime.types")])
-    #try:
+    # try:
     prj = _load_project_from_json(p)
-    #except Exception:
+    # except Exception:
     #    prj = _load_project_from_pickle(p)
     return prj

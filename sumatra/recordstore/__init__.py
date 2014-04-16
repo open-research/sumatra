@@ -24,10 +24,10 @@ try:
     have_http = True
 except ImportError:
     have_http = False
-    
+
 if have_http:
     from .http_store import HttpRecordStore
-    
+
 DefaultRecordStore = have_django and DjangoRecordStore or ShelveRecordStore
 
 

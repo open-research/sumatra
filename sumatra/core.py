@@ -13,6 +13,7 @@ from .compatibility import urlopen, URLError
 
 TIMESTAMP_FORMAT = "%Y%m%d-%H%M%S"
 
+
 def have_internet_connection():
     """
     Not foolproof, but allows checking for an external connection with a short
@@ -21,7 +22,7 @@ def have_internet_connection():
     """
     test_address = 'http://74.125.113.99'  # google.com
     try:
-        response = urlopen(test_address,timeout=1)
+        response = urlopen(test_address, timeout=1)
         return True
     except (URLError, socket.timeout) as err:
         pass
@@ -40,11 +41,12 @@ def run(args, cwd=None, shell=False, kill_tree=True, timeout=-1, env=None):
     """
     Run a command with a timeout after which it will be forcibly
     killed.
-    
+
     Based on http://stackoverflow.com/a/3326559
     """
     class Alarm(Exception):
         pass
+
     def alarm_handler(signum, frame):
         raise Alarm
     p = subprocess.Popen(args, shell=shell, cwd=cwd, stdout=subprocess.PIPE,
@@ -63,7 +65,7 @@ def run(args, cwd=None, shell=False, kill_tree=True, timeout=-1, env=None):
         for pid in pids:
             # process might have died before getting to this line
             # so wrap to avoid OSError: no such process
-            try: 
+            try:
                 os.kill(pid, signal.SIGKILL)
             except OSError:
                 pass

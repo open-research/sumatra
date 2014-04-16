@@ -14,7 +14,7 @@ from distutils.version import LooseVersion
 
 
 class SumatraObjectsManager(models.Manager):
-    
+
     def get_or_create_from_sumatra_object(self, obj, using='default'):
         # automatically retrieving the field names is nice, but leads
         # to all the special cases below when we have subclasses that we
@@ -32,26 +32,26 @@ class SumatraObjectsManager(models.Manager):
                     attributes[name] = str(obj.__getstate__())
                 elif name == 'type':
                     attributes[name] = obj.__class__.__name__
-                elif name in ('content', 'metadata'):    
-                    attributes[name] = str(obj) # ParameterSet, DataKey
+                elif name in ('content', 'metadata'):
+                    attributes[name] = str(obj)  # ParameterSet, DataKey
                 else:
                     raise
 
-        return self.using(using).get_or_create(**attributes)            
-        
+        return self.using(using).get_or_create(**attributes)
+
 
 class BaseModel(models.Model):
     objects = SumatraObjectsManager()
-    
+
     class Meta:
         abstract = True
-    
+
     def field_names(self):
         field_names = self._meta.get_all_field_names()
         field_names.remove('id')
         field_names.remove('record')
         return field_names
-    
+
 
 class Project(BaseModel):
     id = models.SlugField(primary_key=True)
@@ -66,7 +66,7 @@ class Project(BaseModel):
 
     def __unicode__(self):
         return self.id
-    
+
     def last_updated(self):
         return self.record_set.all().aggregate(models.Max('timestamp'))["timestamp__max"] or datetime(1970, 1, 1, 0, 0, 0)
 
@@ -93,15 +93,15 @@ class Dependency(BaseModel):
     version = models.CharField(max_length=20)
     diff = models.TextField(blank=True)
     source = models.CharField(max_length=200, null=True, blank=True)
-    module = models.CharField(max_length=50) # should be called language, or something
-    
+    module = models.CharField(max_length=50)  # should be called language, or something
+
     def __unicode__(self):
         return "%s (%s) version=%s" % (self.name, self.path, self.version)
-    
+
     def to_sumatra(self):
         return getattr(dependency_finder, self.module).Dependency(
-                    self.name, self.path, self.version, self.diff, self.source)
-        
+            self.name, self.path, self.version, self.diff, self.source)
+
     class Meta:
         ordering = ['name']
 
@@ -118,7 +118,7 @@ class Repository(BaseModel):
 
     def __unicode__(self):
         return self.url
-    
+
     def to_sumatra(self):
         for m in versioncontrol.vcs_list:
             if hasattr(m, self.type):
@@ -131,7 +131,7 @@ class Repository(BaseModel):
 class ParameterSet(BaseModel):
     type = models.CharField(max_length=100)
     content = models.TextField()
-    
+
     def to_sumatra(self):
         if hasattr(parameters, self.type):
             ps = getattr(parameters, self.type)(self.content)
@@ -147,7 +147,7 @@ class ParameterSet(BaseModel):
 class LaunchMode(BaseModel):
     type = models.CharField(max_length=100)
     parameters = models.CharField(max_length=1000)
-    
+
     def to_sumatra(self):
         parameters = eval(self.parameters)
         if hasattr(launch, self.type):
@@ -158,7 +158,7 @@ class LaunchMode(BaseModel):
 
     def get_parameters(self):
         return eval(self.parameters)
-    
+
 
 class Datastore(BaseModel):
     type = models.CharField(max_length=100)
@@ -180,13 +180,13 @@ class DataKey(BaseModel):
     path = models.CharField(max_length=200)
     digest = models.CharField(max_length=40)
     metadata = models.TextField(blank=True)
-    
+
     class Meta:
         ordering = ('path',)
 
     def get_metadata(self):
-        return eval(self.metadata) # should probably use json.decode
-    
+        return eval(self.metadata)  # should probably use json.decode
+
     def to_sumatra(self):
         metadata = eval(self.metadata)
         return datastore.DataKey(self.path, self.digest, **metadata)
@@ -202,7 +202,7 @@ class PlatformInformation(BaseModel):
     release = models.CharField(max_length=100)
     system_name = models.CharField(max_length=20)
     version = models.CharField(max_length=50)
-    
+
     def to_sumatra(self):
         pi = {}
         for name in self.field_names():
@@ -211,12 +211,12 @@ class PlatformInformation(BaseModel):
 
 
 class Record(BaseModel):
-    label = models.CharField(max_length=100, unique=False) # make this a SlugField? samarkanov changed unique to False for the search form.
-    db_id = models.AutoField(primary_key=True) # django-tagging needs an integer as primary key - see http://code.google.com/p/django-tagging/issues/detail?id=15
+    label = models.CharField(max_length=100, unique=False)  # make this a SlugField? samarkanov changed unique to False for the search form.
+    db_id = models.AutoField(primary_key=True)  # django-tagging needs an integer as primary key - see http://code.google.com/p/django-tagging/issues/detail?id=15
     reason = models.TextField(blank=True)
     duration = models.FloatField(null=True)
-    executable = models.ForeignKey(Executable, null=True, blank=True) # null and blank for the search. If user doesn't want to specify the executable during the search
-    repository = models.ForeignKey(Repository, null=True, blank=True) # null and blank for the search.
+    executable = models.ForeignKey(Executable, null=True, blank=True)  # null and blank for the search. If user doesn't want to specify the executable during the search
+    repository = models.ForeignKey(Repository, null=True, blank=True)  # null and blank for the search.
     main_file = models.CharField(max_length=100)
     version = models.CharField(max_length=50)
     parameters = models.ForeignKey(ParameterSet)
@@ -238,7 +238,7 @@ class Record(BaseModel):
     repeats = models.CharField(max_length=100, null=True, blank=True)
 
     # parameters which will be used in the fulltext search (see sumatra.web.services fulltext_search)
-    params_search = ('label','reason', 'duration', 'main_file', 'outcome', 'user', 'tags') 
+    params_search = ('label', 'reason', 'duration', 'main_file', 'outcome', 'user', 'tags')
 
     class Meta:
         ordering = ('-timestamp',)
@@ -269,16 +269,15 @@ class Record(BaseModel):
         record.platforms = [pi.to_sumatra() for pi in self.platforms.all()]
         record.repeats = self.repeats
         return record
-            
+
     def __unicode__(self):
         return self.label
-    
+
     def tag_objects(self):
-        return Tag.objects.get_for_object(self) 
+        return Tag.objects.get_for_object(self)
 
     def command_line(self):
         return self.to_sumatra().command_line
-    
+
     def working_directory(self):
         return self.launch_mode.get_parameters().get('working_directory', None)
-    

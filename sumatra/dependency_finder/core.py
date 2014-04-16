@@ -30,7 +30,7 @@ def find_versions_from_versioncontrol(dependencies):
             try:
                 wc = versioncontrol.get_working_copy(dependency.path)
             except versioncontrol.VersionControlError:
-                pass # dependency.version remains "unknown"
+                pass  # dependency.version remains "unknown"
             else:
                 if wc.has_changed():
                     dependency.diff = wc.diff()
@@ -47,13 +47,13 @@ def find_versions_from_versioncontrol(dependencies):
 def find_versions(dependencies, heuristics):
     """
     Try to find version information by calling a series of functions in turn.
-    
+
     *dependencies*:
         a list of Dependency objects.
     *heuristics*:
         a list of functions that accept a component as the single
         argument and return a version number or 'unknown'.
-                   
+
     Returns a possibly modified list of dependencies
     """
     for heuristic in heuristics:
@@ -77,11 +77,11 @@ def find_file(path, current_directory, search_dirs):
     raise IOError("File %s does not exist" % path)
 
 
-
 class BaseDependency(object):
+
     """
     Contains information about a program component, and tries to determine version information.
-    
+
     *name*:
         an identifying name, e.g. the module name in Python
     *path*:
@@ -96,23 +96,23 @@ class BaseDependency(object):
     *source*:
         an identifier for where the dependency came from, if known, e.g. the
         url of a version control repository or the name of a Linux package.
-    
+
     """
-    
+
     def __init__(self, name, path=None, version='unknown', diff='', source=None):
         self.name = name
         self.path = path
         self.diff = diff
         self.version = version
         self.source = source  # e.g. url of (upstream?) repository
- 
+
     def __repr__(self):
         return "%s (%s) version=%s%s" % (self.name, self.path, self.version, self.diff and "*" or '')
-        
+
     def __eq__(self, other):
         return self.name == other.name and self.path == other.path and \
-               self.version == other.version and self.diff == other.diff
-        
+            self.version == other.version and self.diff == other.diff
+
     def __ne__(self, other):
         return not self.__eq__(other)
 

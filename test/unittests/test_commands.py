@@ -8,10 +8,9 @@ except ImportError:
     import unittest
 import os
 import hashlib
-import shutil
 from sumatra import commands, launch, datastore
 
-originals = [] # use for storing originals of mocked objects
+originals = []  # use for storing originals of mocked objects
 
 
 class MockDataStore(object):
@@ -51,6 +50,8 @@ class MockRecordStore(object):
         return []
     def sync_all(self, other):
         return []
+    def update(self, project, field, value):
+        self.updated = (field, value)
 
 
 class MockRepository(object):
@@ -76,7 +77,7 @@ class MockRecord(object):
 
 class MockWorkingCopy(object):
     repository = MockRepository("http://mock_repository")
-    
+
 
 class MockProject(object):
     name = None
@@ -113,7 +114,7 @@ class MockProject(object):
         self.format_args = {"tags": tags, "mode": mode, "format": format, "reverse": reverse}
     def delete_record(self, label, delete_data=False):
         if "nota" in label:
-            raise KeyError # or just emit a warning?
+            raise KeyError  # or just emit a warning?
         else:
             self._records_deleted.append(label)
     def delete_by_tag(self, tag, delete_data=False):
@@ -133,13 +134,17 @@ class MockProject(object):
         return "diff"
     def repeat(self, original_label, new_label=None):
         return (new_label or "repeated", original_label)
+    def change_record_store(self, new_store):
+        self.record_store = new_store
 
 
 def no_project():
     raise Exception("There is no Sumatra project here")
 
+
 def mock_mkdir(path, mode=511):  # octal 777 "-rwxrwxrwx"
     print("Pretending to create directory %s" % path)
+
 
 def mock_build_parameters(filename):
     if filename != "this.is.not.a.parameter.file":
@@ -155,6 +160,7 @@ def store_original(module, name):
     global originals
     originals.append((module, name, getattr(module, name)))
 
+
 def setup():
     store_original(os, "mkdir")
     os.mkdir = mock_mkdir
@@ -166,6 +172,7 @@ def setup():
     commands.get_working_copy = MockWorkingCopy
     commands.get_record_store = MockRecordStore
     commands.FileSystemDataStore = MockDataStore
+
 
 def teardown():
     for item in originals:
@@ -357,6 +364,11 @@ class ConfigureCommandTests(unittest.TestCase):
         self.assert_(not hasattr(self.prj.data_store, "archive_store"))
         self.prj.data_store = MockDataStore("/path/to/root")
 
+    def test_change_store(self):
+        new_store_path = "http://smt.example.com/records/"
+        commands.configure(["--store", new_store_path])
+        self.assertEqual(self.prj.record_store.path, new_store_path)
+
 
 class InfoCommandTests(unittest.TestCase):
 
@@ -479,7 +491,7 @@ class RunCommandTests(unittest.TestCase):
         self.assertEqual(self.prj.launch_args, expected)
 
     def test_with_single_script_arg(self):
-        commands.run(["some_parameter_file"]) # file doesn't exist so is treated as argument
+        commands.run(["some_parameter_file"])  # file doesn't exist so is treated as argument
         self.assertEqual(self.prj.launch_args,
                          {'executable': 'default',
                          'parameters': {},
@@ -495,7 +507,7 @@ class RunCommandTests(unittest.TestCase):
         f = open("this.is.not.a.parameter.file", 'wb')
         f.write(data_content)
         f.close()
-        commands.run(["this.is.not.a.parameter.file"]) # file exists but is not a parameter file so is treated as input data
+        commands.run(["this.is.not.a.parameter.file"])  # file exists but is not a parameter file so is treated as input data
         self.assertEqual(self.prj.launch_args,
                          {'executable': 'default',
                          'parameters': {},
@@ -524,7 +536,8 @@ class RunCommandTests(unittest.TestCase):
                          'parameters': {'this': 'mock', 'a': 17, 'umlue': 43},
                          'main_file': 'main.py',
                          'label': 'vikings',
-                         'input_data': [datastore.DataKey('this.is.not.a.parameter.file', hashlib.sha1(data_content).hexdigest())],
+                         'input_data': [datastore.DataKey('this.is.not.a.parameter.file',
+                                                          hashlib.sha1(data_content).hexdigest())],
                          'reason': 'test',
                          'version': '234',
                          'script_args': "spam <parameters> eggs this.is.not.a.parameter.file beans"})
@@ -600,11 +613,11 @@ class CommentCommandTests(unittest.TestCase):
     def test_single_arg_interpreted_as_comment_on_last_record(self):
         commands.comment(["that was amazing"])
         self.assertEqual(self.prj.comments["most_recent"], "that was amazing")
-    
+
     def test_two_args_interpreted_as_label_and_comment(self):
         commands.comment(["some_label", "that was appalling"])
         self.assertEqual(self.prj.comments["some_label"], "that was appalling")
-    
+
     #def test_invalid_label(self):
     #    self.fail()
     #
@@ -627,7 +640,7 @@ class TestTagCommand(unittest.TestCase):
     def test_single_arg_interpreted_as_tag_on_last_record(self):
         commands.tag(["foo"])
         self.assertEqual(self.prj.tags["most_recent"], "foo")
-    
+
     def test_tag_multiple_records(self):
         commands.tag(["foo", "a", "b", "c"])
         self.assertEqual(self.prj.tags["a"], "foo")
@@ -725,9 +738,20 @@ class SyncCommandTests(unittest.TestCase):
 
     def test_with_single_path(self):
         commands.sync(["/path/to/store"])
-        
+
     def test_with_two_paths(self):
         commands.sync(["/path/to/store1", "/path/to/store2"])
+
+
+class MigrateCommandTests(unittest.TestCase):
+
+    def setUp(self):
+        self.prj = MockProject()
+        commands.load_project = lambda: self.prj
+
+    def test_change_output_datastore(self):
+        commands.migrate(["--datapath", "/new/data/path"])
+        self.assertEqual(self.prj.record_store.updated, ("datastore.root", "/new/data/path"))
 
 
 class ArgumentParsingTests(unittest.TestCase):

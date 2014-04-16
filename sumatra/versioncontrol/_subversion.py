@@ -31,11 +31,13 @@ logger = logging.getLogger("Sumatra")
 
 def may_have_working_copy(path=None):
     path = path or os.getcwd()
-    #print "Testing for existence of ", os.path.join(path, ".svn")
+    # print "Testing for existence of ", os.path.join(path, ".svn")
     return os.path.exists(os.path.join(path, ".svn"))
+
 
 def get_working_copy(path=None):
     return SubversionWorkingCopy(path)
+
 
 def get_repository(url):
     repo = SubversionRepository(url)
@@ -45,7 +47,7 @@ def get_repository(url):
 
 
 class SubversionWorkingCopy(WorkingCopy):
-    
+
     def __init__(self, path=None):
         WorkingCopy.__init__(self, path)
         self.path = os.path.realpath(path or os.getcwd())
@@ -86,7 +88,7 @@ class SubversionWorkingCopy(WorkingCopy):
                 changed = True
                 break
         return changed
-    
+
     def diff(self):
         """Difference between working copy and repository."""
         tmpdir = tempfile.mkdtemp()
@@ -105,7 +107,7 @@ class SubversionRepository(Repository):
     def __init__(self, url, upstream=None):
         Repository.__init__(self, url)
         self._client = pysvn.Client()
-    
+
     @property
     def exists(self):
         if urlparse(self.url).scheme == 'file' or have_internet_connection():
@@ -116,15 +118,15 @@ class SubversionRepository(Repository):
             except pysvn._pysvn.ClientError as errmsg:
                 return False
         return True
-    
+
     def checkout(self, path='.'):
         try:
             self._client.checkout(self.url, path)
-        except pysvn._pysvn.ClientError: # assume this is an 'object of the same name already exists' error
+        except pysvn._pysvn.ClientError:  # assume this is an 'object of the same name already exists' error
             repos_contents = self._client.ls(self.url)
             os.mkdir(".smt_backup")
             for entry in repos_contents:
-                filename = entry["name"][len(self.url)+1:]
+                filename = entry["name"][len(self.url) + 1:]
                 if os.path.exists(filename):
                     os.rename(filename, os.path.join(".smt_backup", filename))
             self._client.checkout(self.url, path)

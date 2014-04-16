@@ -19,7 +19,7 @@ get_repository()        - return a BazaarRepository object for a given URL.
 from bzrlib.branch import Branch
 from bzrlib.workingtree import WorkingTree
 from bzrlib import diff
-    
+
 
 import os
 
@@ -32,18 +32,20 @@ def may_have_working_copy(path=None):
     path = path or os.getcwd()
     return os.path.exists(os.path.join(path, ".bzr"))
 
+
 def get_working_copy(path=None):
     try:
         return BazaarWorkingCopy(path)
     except:
         raise VersionControlError("No Bazaar working copy found at %s" % path)
 
+
 def get_repository(url):
     repos = BazaarRepository(url)
     if repos.exists:
         return repos
     else:
-        raise VersionControlError("Cannot access Bazaar repository at %s" % self.url)   
+        raise VersionControlError("Cannot access Bazaar repository at %s" % self.url)
 
 
 class BazaarWorkingCopy(WorkingCopy):
@@ -63,7 +65,7 @@ class BazaarWorkingCopy(WorkingCopy):
 
     def current_version(self):
         return str(self._current_version)
-    
+
     def use_version(self, version):
         self.use_latest_version()
         assert not self.has_changed()
@@ -91,7 +93,7 @@ class BazaarWorkingCopy(WorkingCopy):
 
     def has_changed(self):
         return self.workingtree.has_changes()
-    
+
     def diff(self):
         """Difference between working copy and repository."""
         iostream = StringIO()
@@ -107,13 +109,13 @@ class BazaarWorkingCopy(WorkingCopy):
 class BazaarRepository(Repository):
     use_version_cmd = "bzr update -r"
     apply_patch_cmd = "bzr patch"
-    
+
     def __init__(self, url, upstream=None):
         Repository.__init__(self, url, upstream)
         self.url = url
         self.__repository = None
         # use bzrlib.info.gather_location_info to get upstream?
-    
+
     @property
     def exists(self):
         try:
@@ -121,16 +123,16 @@ class BazaarRepository(Repository):
         except VersionControlError:
             pass
         return bool(self.__repository)
-    
+
     @property
     def _repository(self):
         if self.__repository is None:
             try:
                 self.__repository = Branch.open(self.url)
             except Exception as err:
-                raise VersionControlError("Cannot access Bazaar repository at %s: %s" % (self.url, err))    
+                raise VersionControlError("Cannot access Bazaar repository at %s: %s" % (self.url, err))
         return self.__repository
-    
+
     def checkout(self, path="."):
         """Clone a repository."""
         path = os.path.abspath(path)

@@ -36,7 +36,7 @@ class Dependency(core.BaseDependency):
     Contains information about a Hoc file, and tries to determine version information.
     """
     module = 'neuron'
-    
+
     def __init__(self, name, path=None, version='unknown', diff='', source=None):
         super(Dependency, self).__init__(os.path.basename(name),
                                          path or os.path.abspath(name),
@@ -55,11 +55,12 @@ def find_xopened_files(file_path):
     """
     xopen_pattern = re.compile(r'xopen\("(?P<path>\w+\.*\w*)"\)')
     all_paths = []
+
     def find(path, paths):
         current_dir = os.path.dirname(path)
         with open(path) as f:
             new_paths = xopen_pattern.findall(f.read())
-        #print "-", path, new_paths
+        # print "-", path, new_paths
         new_paths = [os.path.join(current_dir, path) for path in new_paths]
         paths.extend(new_paths)
         for path in new_paths:
@@ -89,7 +90,7 @@ def find_loaded_files(file_path, executable_path):
     op = os.path
     search_dirs = []
     if "HOC_LIBRARY_PATH" in os.environ:
-        search_dirs.extend(os.environ["HOC_LIBRARY_PATH".split(":")]) # could also be space-separated
+        search_dirs.extend(os.environ["HOC_LIBRARY_PATH".split(":")])  # could also be space-separated
     if "NEURONHOME" in os.environ:
         search_dirs.append(os.environ["NEURONHOME"])
     else:
@@ -97,6 +98,7 @@ def find_loaded_files(file_path, executable_path):
         search_dirs.append(op.join(prefix, "share/nrn/lib/hoc"))
     load_file_pattern = re.compile(r'load_file\("(?P<path>[\w\.\/]+)"\)')
     all_paths = []
+
     def find(start_path, paths):
         """
         Recursively look for files loaded by start_path, add them to paths.
@@ -105,9 +107,9 @@ def find_loaded_files(file_path, executable_path):
             new_paths = load_file_pattern.findall(f.read())
         curdir = op.dirname(start_path)
         new_paths = [core.find_file(p, curdir, search_dirs) for p in new_paths]
-        #if new_paths:
+        # if new_paths:
         #    print start_path, "loads the following:\n ", "\n  ".join(new_paths)
-        #else:
+        # else:
         #    print start_path, "loads no files"
         paths.extend(new_paths)
         for path in new_paths:
@@ -120,7 +122,7 @@ def find_dependencies(filename, executable):
     """Return a list of Dependency objects representing all Hoc files imported
     (directly or indirectly) by a given Hoc file."""
     executable_path = os.path.realpath(executable.path)
-    heuristics = [core.find_versions_from_versioncontrol,]
+    heuristics = [core.find_versions_from_versioncontrol, ]
     paths = find_xopened_files(filename).union(find_loaded_files(filename, executable.path))
     dependencies = [Dependency(name) for name in paths]
     dependencies = [d for d in dependencies if not d.in_stdlib(executable.path)]

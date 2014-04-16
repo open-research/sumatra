@@ -15,12 +15,12 @@ fields = ['label', 'timestamp', 'reason', 'outcome', 'duration', 'repository',
 
 
 class Formatter(object):
-    
+
     def __init__(self, records, project=None, tags=None):
         self.records = records
         self.project = project
         self.tags = None
-        
+
     def format(self, mode='short'):
         """
         Format a record according to the given mode. ``mode`` may be 'short',
@@ -33,11 +33,11 @@ class TextFormatter(Formatter):
     """
     Format the information from a list of Sumatra records as text.
     """
-    
+
     def short(self):
         """Return a list of record labels, one per line."""
         return "\n".join(record.label for record in self.records)
-            
+
     def long(self, text_width=80, left_column_width=17):
         """
         Return detailed information about a list of records, as text with a
@@ -49,8 +49,8 @@ class TextFormatter(Formatter):
             left_column = []
             right_column = []
             for field in fields:
-                left_column.append("%s%ds" % ("%-",left_column_width) % field.title())
-                entry = getattr(record,field)
+                left_column.append("%s%ds" % ("%-", left_column_width) % field.title())
+                entry = getattr(record, field)
                 if hasattr(entry, "pretty"):
                     new_lines = entry.pretty().split("\n")
                 else:
@@ -71,12 +71,12 @@ class TextFormatter(Formatter):
                     new_lines = ['']
                 right_column.extend(new_lines)
                 if len(new_lines) > 1:
-                    left_column.extend([' '*left_column_width]*(len(new_lines)-1))
+                    left_column.extend([' ' * left_column_width] * (len(new_lines) - 1))
                 #import pdb; pdb.set_trace()
             for left, right in zip(left_column, right_column):
                 output += left + ": " + right + "\n"
         return output
-    
+
     def table(self):
         """
         Return information about a list of records as text, in a simple
@@ -84,7 +84,7 @@ class TextFormatter(Formatter):
         """
         tt = TextTable(fields, self.records)
         return str(tt)
-    
+
 
 class TextTable(object):
     """
@@ -92,19 +92,19 @@ class TextTable(object):
     implementations around, e.g. http://pypi.python.org/pypi/texttable/0.6.0/
     but for now I'd like to avoid too many dependencies.
     """
-    
+
     def __init__(self, headers, rows, max_column_width=20):
         self.headers = headers
         self.rows = rows
         self.max_column_width = max_column_width
-        
+
     def calculate_column_widths(self):
         column_widths = []
         for header in self.headers:
             column_width = max([len(header)] + [len(str(getattr(row, header))) for row in self.rows])
             column_widths.append(min(self.max_column_width, column_width))
         return column_widths
-            
+
     def __str__(self):
         column_widths = self.calculate_column_widths()
         format = "| " + " | ".join("%%-%ds" % w for w in column_widths) + " |\n"
@@ -119,7 +119,7 @@ class ShellFormatter(Formatter):
     """
     Create a shell script that can be used to repeat a series of computations.
     """
-    
+
     def short(self):
         import operator
         output = ("#!/bin/sh\n"
@@ -129,13 +129,13 @@ class ShellFormatter(Formatter):
         if self.tags:
             output += "# tagged with %s\n" % ",".join(tags)
         if self.project.description:
-            output += textwrap.TextWrapper(initial_indent = "# ", subsequent_indent="# ").fill(self.project.description)
+            output += textwrap.TextWrapper(initial_indent="# ", subsequent_indent="# ").fill(self.project.description)
         cleanup = "\n\n# Clean-up temporary files\n"
 
         output += "\n# Original hardware environment:\n"
         platforms = list(set(reduce(operator.add, [record.platforms for record in self.records])))
         for i, platform in enumerate(platforms):
-            output += "#   Machine #%d: %s processor running %s. %s(%s)\n" % (i+1, platform.machine, platform.version, platform.network_name, platform.ip_addr, )
+            output += "#   Machine #%d: %s processor running %s. %s(%s)\n" % (i + 1, platform.machine, platform.version, platform.network_name, platform.ip_addr, )
 
         output += "\n# Original software environment:\n"
         repositories = set(record.repository for record in self.records)
@@ -145,12 +145,12 @@ class ShellFormatter(Formatter):
             output += "#   %s repository at %s\n" % (record.repository.vcs_type, record.repository.upstream or record.repository.url)
         dependency_sets = list(set(tuple(sorted(record.dependencies)) for record in self.records))
         for i, dependency_set in enumerate(dependency_sets):
-            output += "#   Dependency set #%d: %s\n" % (i+1, dependency_set)
+            output += "#   Dependency set #%d: %s\n" % (i + 1, dependency_set)
 
         current_directory = ''
         current_version = ''
         for record in reversed(self.records):  # oldest first
-            output += "\n# " + "-"*77 + "\n"
+            output += "\n# " + "-" * 77 + "\n"
             output += "# %s\n" % record.label
             output += "# Originally run on %s by %s\n" % (record.timestamp.strftime("%Y-%m-%d at %H:%M:%S"), record.user)
             if len(platforms) > 1:
@@ -208,13 +208,13 @@ class HTMLFormatter(Formatter):
     Format information about a group of Sumatra records as HTML fragments, to
     be included in a larger document.
     """
-    
+
     def short(self):
         """
         Return a list of record labels as an HTML unordered list.
         """
         return "<ul>\n<li>" + "</li>\n<li>".join(record.label for record in self.records) + "</li>\n</ul>"
-    
+
     def long(self):
         """
         Return detailed information about a list of records as an HTML
@@ -250,8 +250,8 @@ class LaTeXFormatter(Formatter):
         (re.compile(r'\.\.\.+'), r'\\ldots'),
         (re.compile(r'\<'), r'\\textless{}'),
         (re.compile(r'\>'), r'\\textgreater{}')
-        )
-    
+    )
+
     @staticmethod
     def _escape_tex(value):
         """Inspired by http://flask.pocoo.org/snippets/55/"""
@@ -260,7 +260,7 @@ class LaTeXFormatter(Formatter):
             newval = pattern.sub(replacement, newval)
         newval = newval.replace('/', '/ ')
         return newval
-    
+
     def long(self):
         from os.path import dirname, join
         from jinja2 import Environment, FileSystemLoader
@@ -280,16 +280,16 @@ class LaTeXFormatter(Formatter):
                                paper_size='a4paper')
 
 
-
 class TextDiffFormatter(Formatter):
+
     """
     Format information about the differences between two Sumatra records in
     text format.
     """
-    
+
     def __init__(self, diff):
         self.diff = diff
-        
+
     def short(self):
         """Return a summary of the differences between two records."""
         def yn(x):
@@ -310,21 +310,21 @@ class TextDiffFormatter(Formatter):
             Script arguments differ : %s
             Parameters differ       : %s
             Data differ             : %s""" % (
-                D.recordA.label,
-                D.recordB.label,
-                yn(D.executable_differs),
-                yn(D.code_differs),
-                yn(D.repository_differs), yn(D.main_file_differs),
-                yn(D.version_differs), yn(D.diff_differs),
-                yn(D.dependencies_differ),
-                yn(D.launch_mode_differs),
-                yn(D.input_data_differ),
-                yn(D.script_arguments_differ),
-                yn(D.parameters_differ),
-                yn(D.output_data_differ))
-            )
+            D.recordA.label,
+            D.recordB.label,
+            yn(D.executable_differs),
+            yn(D.code_differs),
+            yn(D.repository_differs), yn(D.main_file_differs),
+            yn(D.version_differs), yn(D.diff_differs),
+            yn(D.dependencies_differ),
+            yn(D.launch_mode_differs),
+            yn(D.input_data_differ),
+            yn(D.script_arguments_differ),
+            yn(D.parameters_differ),
+            yn(D.output_data_differ))
+        )
         return output
-    
+
     def long(self):
         """
         Return a detailed description of the differences between two records.
@@ -355,7 +355,7 @@ class TextDiffFormatter(Formatter):
                     output += "  %s is a dependency of %s but not of %s\n" % (name, self.diff.recordA.label, self.diff.recordB.label)
                 elif depA is None:
                     output += "  %s is a dependency of %s but not of %s\n" % (name, self.diff.recordB.label, self.diff.recordA.label)
-                    
+
         diffs = self.diff.launch_mode_differences
         if diffs:
             output += "Launch mode differences:\n"
@@ -380,11 +380,11 @@ class TextDiffFormatter(Formatter):
             if AnotB:
                 output += "  Generated by %s:\n" % self.diff.recordA.label
                 for key in AnotB:
-                    output += "    %s\n" % key 
+                    output += "    %s\n" % key
             if BnotA:
                 output += "  Generated by %s:\n" % self.diff.recordB.label
                 for key in BnotA:
-                    output += "    %s\n" % key 
+                    output += "    %s\n" % key
         return output
 
 
@@ -395,6 +395,7 @@ formatters = {
     'shell': ShellFormatter,
     'textdiff': TextDiffFormatter,
 }
+
 
 def get_formatter(format):
     """
@@ -442,7 +443,7 @@ def human_readable_duration(seconds):
     (h, rem) = _quotient_remainder(rem, 60 * 60)
     (m, rem) = _quotient_remainder(rem, 60)
     s = rem + fractional_part
-    
+
     return ' '.join(
         templ.format(val)
         for (val, templ) in [
@@ -450,6 +451,6 @@ def human_readable_duration(seconds):
             (h, '{0}h'),
             (m, '{0}m'),
             (s, '{0:.2f}s'),
-            ]
+        ]
         if val != 0
-        )
+    )
