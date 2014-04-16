@@ -26,6 +26,7 @@ from .base import DataKey, IGNORE_DIGEST
 from .filesystem import FileSystemDataStore
 from .archivingfs import ArchivingFileSystemDataStore
 from .mirroredfs import MirroredFileSystemDataStore
+from .davfs import DavFsDataStore
 
 
 def get_data_store(type, parameters):

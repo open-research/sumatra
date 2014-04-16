@@ -16,7 +16,8 @@ import cProfile
 import sumatra
 
 from sumatra.programs import get_executable
-from sumatra.datastore import FileSystemDataStore, ArchivingFileSystemDataStore, MirroredFileSystemDataStore
+from sumatra.datastore import (FileSystemDataStore, ArchivingFileSystemDataStore, MirroredFileSystemDataStore,
+                               DavFsDataStore)
 from sumatra.projects import Project, load_project
 from sumatra.launch import get_launch_mode
 from sumatra.parameters import build_parameters
@@ -130,12 +131,15 @@ def init(argv):
     parser.add_argument('-m', '--main', help="the name of the script that would be supplied on the command line if running the simulation or analysis normally, e.g. init.hoc.")
     parser.add_argument('-c', '--on-changed', default='error', help="the action to take if the code in the repository or any of the depdendencies has changed. Defaults to %(default)s") # need to add list of allowed values
     parser.add_argument('-s', '--store', help="Specify the path, URL or URI to the record store (must be specified). This can either be an existing record store or one to be created. {0} Not using the `--store` argument defaults to a DjangoRecordStore with Sqlite in `.smt/records`".format(store_arg_help))
-    parser.add_argument('-A', '--archive', metavar='PATH', help="specify a directory in which to archive output datafiles. If not specified, datafiles are not archived.")
     parser.add_argument('-g', '--labelgenerator', choices=['timestamp', 'uuid'], default='timestamp', metavar='OPTION', help="specify which method Sumatra should use to generate labels (options: timestamp, uuid)")
     parser.add_argument('-t', '--timestamp_format', help="the timestamp format given to strftime", default=TIMESTAMP_FORMAT)
-    parser.add_argument('-M', '--mirror', metavar='URL', help="specify a URL at which your datafiles will be mirrored.")
     parser.add_argument('-L', '--launch_mode', choices=['serial', 'distributed', 'slurm-mpi'], default='serial', help="how computations should be launched. Defaults to %(default)s")
     parser.add_argument('-o', '--launch_mode_options', help="extra options for the given launch mode")
+
+    datastore = parser.add_mutually_exclusive_group()
+    datastore.add_argument('-W', '--webdav', metavar='URL', help="specify a webdav URL (with username@password: if needed) as the archiving location for data")
+    datastore.add_argument('-A', '--archive', metavar='PATH', help="specify a directory in which to archive output datafiles. If not specified, or if 'false', datafiles are not archived.")
+    datastore.add_argument('-M', '--mirror', metavar='URL', help="specify a URL at which your datafiles will be mirrored.")
 
     args = parser.parse_args(argv)
 
@@ -171,9 +175,11 @@ def init(argv):
     else:
         record_store = 'default'
 
-    if args.archive and args.mirror:
-        raise Exception("Currently, it is not possible to specify both --archive and --mirror options")
-    if args.archive and args.archive.lower() != 'false':
+    if args.webdav:
+        # should we care about archive migration??
+        output_datastore = DavFsDataStore(args.datapath, args.webdav)
+        args.archive = '.smt/archive'
+    elif args.archive and args.archive.lower() != 'false':
         if args.archive.lower() == "true":
             args.archive = ".smt/archive"
         args.archive = os.path.abspath(args.archive)
@@ -183,7 +189,7 @@ def init(argv):
     else:
         output_datastore = FileSystemDataStore(args.datapath)
     input_datastore = FileSystemDataStore(args.input)
-    
+
     if args.launch_mode_options:
         args.launch_mode_options = args.launch_mode_options.strip()
     launch_mode = get_launch_mode(args.launch_mode)(options=args.launch_mode_options)
@@ -217,13 +223,17 @@ def configure(argv):
     parser.add_argument('-r', '--repository', help="the URL of a Subversion or Mercurial repository containing the code. This will be checked out/cloned into the current directory.")
     parser.add_argument('-m', '--main', help="the name of the script that would be supplied on the command line if running the simulator normally, e.g. init.hoc.")
     parser.add_argument('-c', '--on-changed', help="may be 'store-diff' or 'error': the action to take if the code in the repository or any of the dependencies has changed.", choices=['store-diff', 'error'])
-    parser.add_argument('-A', '--archive', metavar='PATH', help="specify a directory in which to archive output datafiles. If not specified, or if 'false', datafiles are not archived.")
     parser.add_argument('-g', '--labelgenerator', choices=['timestamp', 'uuid'], metavar='OPTION', help="specify which method Sumatra should use to generate labels (options: timestamp, uuid)")
     parser.add_argument('-t', '--timestamp_format', help="the timestamp format given to strftime")
     parser.add_argument('-L', '--launch_mode', choices=['serial', 'distributed', 'slurm-mpi'], help="how computations should be launched.")
     parser.add_argument('-o', '--launch_mode_options', help="extra options for the given launch mode, to be given in quotes with a leading space, e.g. ' --foo=3'")
     parser.add_argument('-p', '--plain', action='store_true', help="pass arguments to the run command straight through to the program.")
     parser.add_argument('-s', '--store', help="Change the record store to the specified path, URL or URI (must be specified). {0}".format(store_arg_help))
+
+    datastore = parser.add_mutually_exclusive_group()
+    datastore.add_argument('-W', '--webdav', metavar='URL', help="specify a webdav URL (with username@password: if needed) as the archiving location for data")
+    datastore.add_argument('-A', '--archive', metavar='PATH', help="specify a directory in which to archive output datafiles. If not specified, or if 'false', datafiles are not archived.")
+    datastore.add_argument('-M', '--mirror', metavar='URL', help="specify a URL at which your datafiles will be mirrored.")
 
     args = parser.parse_args(argv)
 
@@ -248,6 +258,10 @@ def configure(argv):
         else: # current data store is not archiving
             if args.archive.lower() != 'false':
                 project.data_store = ArchivingFileSystemDataStore(args.datapath, args.archive)
+    if args.webdav:
+        # should we care about archive migration??
+        project.data_store = DavFsDataStore(args.datapath, args.webdav)
+        project.data_store.archive_store = '.smt/archive'
     if args.datapath:
         project.data_store.root = args.datapath
     if args.input:
