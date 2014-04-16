@@ -2,7 +2,11 @@
 Handles storage of simulation/analysis records in a relational database, via the
 Django object-relational mapper (ORM), which means that any database
 supported by Django could in principle be used, although for now we assume
-SQLite.
+SQLite or PostgreSQL.
+
+
+:copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
+:license: CeCILL, see LICENSE for details.
 """
 
 
@@ -108,7 +112,7 @@ class DjangoRecordStore(RecordStore):
     Handles storage of simulation/analysis records in a relational database, via
     the Django object-relational mapper (ORM), which means that any database
     supported by Django could in principle be used, although for now we assume
-    SQLite.
+    SQLite or PostgreSQL.
 
     This record store is needed for the *smtweb* interface.
     """

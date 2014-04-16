@@ -1,5 +1,8 @@
 """
 Defines view functions and forms for the Sumatra web interface.
+
+:copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
+:license: CeCILL, see LICENSE for details.
 """
 
 import os

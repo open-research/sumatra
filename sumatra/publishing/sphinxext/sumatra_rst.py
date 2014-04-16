@@ -13,6 +13,9 @@ If using a MirroredFileSystemDataStore could just use URL
    
 The project name and recordstore directive are optional if rst2xxxx is used in a Sumatra project directory
 
+
+:copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
+:license: CeCILL, see LICENSE for details.
 """
 
 from docutils.parsers.rst import directives, states

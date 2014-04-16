@@ -16,6 +16,9 @@ Functions
 ---------
 load_project() - read project information from the working directory and return
                  a Project object.
+
+:copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
+:license: CeCILL, see LICENSE for details.
 """
 
 import os

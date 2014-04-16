@@ -14,6 +14,10 @@ may_have_working_copy() - determine whether a .git subdirectory exists at a give
                           path
 get_working_copy()      - return a GitWorkingCopy object for a given path
 get_repository()        - return a GitRepository object for a given URL.
+
+
+:copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
+:license: CeCILL, see LICENSE for details.
 """
 
 import git

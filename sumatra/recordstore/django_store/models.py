@@ -1,5 +1,9 @@
 """
 Definition of database tables and object retrieval for the DjangoRecordStore.
+
+
+:copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
+:license: CeCILL, see LICENSE for details.
 """
 
 from django.db import models

@@ -14,6 +14,10 @@ may_have_working_copy() - determine whether a .bzr subdirectory exists at a give
                           path
 get_working_copy()      - return a BazaarWorkingCopy object for a given path
 get_repository()        - return a BazaarRepository object for a given URL.
+
+
+:copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
+:license: CeCILL, see LICENSE for details.
 """
 
 from bzrlib.branch import Branch

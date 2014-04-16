@@ -28,6 +28,10 @@ Module variables
 
 heuristics - a list of functions that will be called in sequence by
              find_version()
+
+
+:copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
+:license: CeCILL, see LICENSE for details.
 """
 
 from __future__ import with_statement

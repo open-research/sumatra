@@ -27,6 +27,10 @@ get_executable()
     executable file or a script file that can be run with a given tool.
 register_executable()
     Register new subclasses of Executable that can be returned by get_executable().
+
+
+:copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
+:license: CeCILL, see LICENSE for details.
 """
 
 from __future__ import with_statement

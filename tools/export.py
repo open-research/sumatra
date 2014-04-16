@@ -1,5 +1,8 @@
 """
 Export a Sumatra project for version 0.1 or 0.2 to JSON.
+
+:copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
+:license: CeCILL, see LICENSE for details.
 """
 
 try:

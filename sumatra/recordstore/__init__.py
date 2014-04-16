@@ -9,6 +9,10 @@ Sub-packages/modules
 shelve_store - provides the ShelveRecordStore class
 django_store - provides the DjangoRecordStore class (if Django is installed)
 http_store   - provides the HttpRecordStore class
+
+
+:copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
+:license: CeCILL, see LICENSE for details.
 """
 
 import os

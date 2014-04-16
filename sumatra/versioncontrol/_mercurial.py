@@ -14,6 +14,10 @@ may_have_working_copy() - determine whether a .hg subdirectory exists at a given
                           path
 get_working_copy()      - return a MercurialWorkingCopy object for a given path
 get_repository()        - return a MercurialRepository object for a given URL.
+
+
+:copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
+:license: CeCILL, see LICENSE for details.
 """
 
 from mercurial import hg, ui, patch

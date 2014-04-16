@@ -1,5 +1,9 @@
 """
 Handles serialization/deserialization of record store contents to/from JSON.
+
+
+:copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
+:license: CeCILL, see LICENSE for details.
 """
 
 try:

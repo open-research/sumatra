@@ -16,6 +16,9 @@ find_version_from_versioncontrol - determines whether a file is under version
 find_version()                   - tries to find version information by calling a
                                    series of functions in turn.
 
+
+:copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
+:license: CeCILL, see LICENSE for details.
 """
 
 import os

@@ -1,6 +1,10 @@
 """
 The launch module handles launching of simulations/analyses as sub-processes, and
 obtaining information about the platform(s) on which the simulations are run.
+
+
+:copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
+:license: CeCILL, see LICENSE for details.
 """
 
 import platform

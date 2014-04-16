@@ -27,6 +27,10 @@ get_working_copy() - given a filesystem path, determine if a working copy exists
 get_repository()   - determine whether a revision control system repository
                      exists at a given URL and return an appropriate Repository
                      object if so.
+
+
+:copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
+:license: CeCILL, see LICENSE for details.
 """
 
 import sys

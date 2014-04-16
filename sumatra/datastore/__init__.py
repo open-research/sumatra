@@ -20,6 +20,10 @@ Functions
 
 get_data_store() - return a DataStore object based on a class name and
                    constructor arguments.
+
+
+:copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
+:license: CeCILL, see LICENSE for details.
 """
 
 from .base import DataKey, IGNORE_DIGEST

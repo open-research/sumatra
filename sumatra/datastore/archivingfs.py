@@ -1,6 +1,10 @@
 """
 Datastore based on files written to the local filesystem, archived in gzipped
 tar files, then retrieved from the tar files.
+
+
+:copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
+:license: CeCILL, see LICENSE for details.
 """
 
 from __future__ import with_statement

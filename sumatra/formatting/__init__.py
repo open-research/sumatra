@@ -2,6 +2,10 @@
 The formatting module provides classes for formatting simulation/analysis
 records in different ways: summary, list or table; and in different mark-up
 formats: currently text or HTML.
+
+
+:copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
+:license: CeCILL, see LICENSE for details.
 """
 
 import textwrap

@@ -2,6 +2,10 @@
 Commands provided by the smt tool.
 
 Each command corresponds to a function in this module.
+
+
+:copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
+:license: CeCILL, see LICENSE for details.
 """
 
 import os.path

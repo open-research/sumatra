@@ -8,6 +8,9 @@ version information. There is also a sub-module :mod:`core`, which contains
 heuristics that are independent of the language, e.g. where the dependencies are
 under version control.
 
+
+:copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
+:license: CeCILL, see LICENSE for details.
 """
 
 from __future__ import with_statement

@@ -1,6 +1,9 @@
 """
 Handles storage of simulation/analysis records based on the Python standard
 shelve module.
+
+:copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
+:license: CeCILL, see LICENSE for details.
 """
 
 from sumatra.recordstore.base import RecordStore

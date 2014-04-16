@@ -1,5 +1,8 @@
 """
-Find information about the current user
+Find information about the current user.
+
+:copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
+:license: CeCILL, see LICENSE for details.
 """
 
 from os.path import expanduser, join, exists

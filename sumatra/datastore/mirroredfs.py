@@ -4,6 +4,10 @@ available at some URL.
 
 The datastore itself does not take care of the mirroring, it is up to the
 user to take care of this.
+
+
+:copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
+:license: CeCILL, see LICENSE for details.
 """
 
 import logging

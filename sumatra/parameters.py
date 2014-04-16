@@ -23,6 +23,9 @@ JSONParameterSet
 YAMLParameterSet
     handles parameter files in YAML format
 
+
+:copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
+:license: CeCILL, see LICENSE for details.
 """
 
 from __future__ import with_statement, absolute_import
