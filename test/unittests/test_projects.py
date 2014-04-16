@@ -93,6 +93,7 @@ class MockRecord(object):
         self.main_file = "admin.php"
         self.version = "42"
         self.launch_mode = MockLaunchMode()
+        self.outcome = ""
     def difference(r1, r2, igm, igf):
         return ""
 

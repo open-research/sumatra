@@ -122,8 +122,14 @@ class MockProject(object):
     def export(self): self.exported = True
     def most_recent(self):
         return MockRecord("most_recent")
-    def add_comment(self, label, comment):
-        self.comments[label] = comment
+    def add_comment(self, label, comment, replace=False):
+        if replace:
+            self.comments[label] = comment
+        else:
+            if label in self.comments:
+                self.comments[label] = self.comments[label] + "\n" + comment
+            else:
+                self.comments[label] = comment
     def add_tag(self, label, tag):
         self.tags[label] = tag
     def remove_tag(self, label, tag):

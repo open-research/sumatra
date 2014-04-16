@@ -282,12 +282,15 @@ class Project(object):
             self._most_recent = self.record_store.most_recent(self.name)
             return self.most_recent()
 
-    def add_comment(self, label, comment):
+    def add_comment(self, label, comment, replace=False):
         try:
             record = self.record_store.get(self.name, label)
         except Exception as e:
             raise Exception("%s. label=<%s>" % (e, label))
-        record.outcome = comment
+        if replace or record.outcome is "":
+            record.outcome = comment
+        else:
+            record.outcome = record.outcome + "\n" + comment
         self.record_store.save(self.name, record)
 
     def add_tag(self, label, tag):

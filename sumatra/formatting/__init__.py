@@ -69,8 +69,11 @@ class TextFormatter(Formatter):
                         if field == 'version' and getattr(record, 'diff'):
                             # if there is a diff, append '*' to the version
                             entryStr += "*"
-                    new_lines = textwrap.wrap(entryStr, width=text_width,
-                                              replace_whitespace=False)
+                    entry_lines = entryStr.split("\n")
+                    new_lines = []
+                    for entry_line in entry_lines:
+                        new_lines.extend(
+                            textwrap.wrap(entry_line, width=text_width, replace_whitespace=False))
                 if len(new_lines) == 0:
                     new_lines = ['']
                 right_column.extend(new_lines)

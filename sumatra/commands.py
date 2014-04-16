@@ -437,16 +437,18 @@ def comment(argv):
     """Add a comment to an existing record."""
     usage = "%(prog)s comment [options] [LABEL] COMMENT"
     description = dedent("""\
-      This command is used to describe the outcome of the simulation/analysis. If LABEL
-      is omitted, the comment will be added to the most recent experiment (any existing
-      comment will be overwritten). If the '-f/--file' option is set, COMMENT should be
-      the name of a file containing the comment, otherwise it should be a string of text.""")
+      This command is used to describe the outcome of the simulation/analysis.
+      If LABEL is omitted, the comment will be added to the most recent experiment.
+      If the '-f/--file' option is set, COMMENT should be the name of a file
+      containing the comment, otherwise it should be a string of text.
+      By default, comments will be appended to any existing comments.
+      To overwrite existing comments, use the '-r/--replace flag.""")
     parser = ArgumentParser(usage=usage,
                             description=description)
     parser.add_argument('label', nargs='?', metavar='LABEL', help="the record to which the comment will be added")
     parser.add_argument('comment', help="a string of text, or the name of a file containing the comment.")
     parser.add_argument('-r', '--replace', action='store_true',
-                        help="if this flag is set, any existing comment will be overwritten, otherwise, the new comment will be appended to the end, starting on a new line")  # THIS IS NOT IMPLEMENTED
+                        help="if this flag is set, any existing comment will be overwritten, otherwise, the new comment will be appended to the end, starting on a new line")
     parser.add_argument('-f', '--file', action='store_true',
                         help="interpret COMMENT as the path to a file containing the comment")
     args = parser.parse_args(argv)
@@ -460,7 +462,7 @@ def comment(argv):
 
     project = load_project()
     label = args.label or project.most_recent().label
-    project.add_comment(label, comment)
+    project.add_comment(label, comment, replace=args.replace)
 
 
 def tag(argv):
