@@ -175,3 +175,9 @@ class RecordUpdateForm(forms.ModelForm):
     class Meta:
         model = models.Record
         fields = ('reason', 'outcome', 'tags')
+
+
+class TagUpdateForm(forms.ModelForm):
+    class Meta:
+        model = models.Record
+        fields = ('tags',)

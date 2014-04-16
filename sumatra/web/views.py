@@ -16,7 +16,7 @@ try:
     from django.views.generic.dates import MonthArchiveView
 except ImportError:  # older versions of Django
     MonthArchiveView = object
-from services import DefaultTemplate, AjaxTemplate, ProjectUpdateForm, RecordUpdateForm, unescape
+from services import DefaultTemplate, AjaxTemplate, ProjectUpdateForm, RecordUpdateForm, TagUpdateForm, unescape
 from sumatra.recordstore.django_store.models import Project, Tag, Record
 from sumatra.datastore import get_data_store, DataKey
 from sumatra.versioncontrol import get_working_copy
@@ -157,7 +157,7 @@ def set_tags(request, project):
         records_to_settags = records_to_settags.split(',')
         records = Record.objects.filter(label__in=records_to_settags, project__id=project)
         for record in records:
-            form = RecordUpdateForm(request.POST, instance=record)
+            form = TagUpdateForm(request.POST, instance=record)
             if form.is_valid():
                 form.save()
         return HttpResponseRedirect('.')
