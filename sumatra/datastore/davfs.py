@@ -50,6 +50,8 @@ class DavFsDataItem(ArchivedDataFile):
 class DavFsDataStore(ArchivingFileSystemDataStore):
     """ArchivingFileSystemDataStore that archives to webdav storage"""
 
+    data_item_class = DavFsDataItem
+
     def __init__(self, root, dav_url, dav_user=None, dav_pw=None):
         super(DavFsDataStore, self).__init__(root)
         parsed = urlparse(dav_url)

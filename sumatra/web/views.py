@@ -293,9 +293,7 @@ def show_file(request, project, label):
                                        })
 
         elif encoding == 'gzip':
-            import gzip
-            with gzip.open(data_store.root + os.path.sep + path, 'r') as gf:
-                content = gf.read()
+            content = data_store.get_content()
             if 'csv' in path:
                 lines = content.splitlines()
                 if truncated:
