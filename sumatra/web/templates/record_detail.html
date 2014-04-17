@@ -73,7 +73,7 @@
                 <table>
                     <tr><td colspan="4">{{record.input_datastore.access_parameters.root}}</td></tr>
                     {% for file in record.input_data.all %}
-                           <tr class="{% cycle odd even %}"><td><a href="datafile?path={{file.path}}&digest={{file.digest}}&type=input">{{file.path}}</a></td>
+                           <tr class="{% cycle odd even %}"><td><a href="datafile?path={{file.path|urlencode}}&digest={{file.digest}}&type=input">{{file.path}}</a></td>
                            <td>{{file.digest}}</td>
                            <td>{{file.get_metadata.mimetype|default:""}}</td>
                            <td>{{file.get_metadata.size|filesizeformat}}</td></tr>
@@ -96,7 +96,7 @@
                 <table>
                     <tr><td colspan="4">{{record.datastore.access_parameters.root}}</td></tr>
                         {% for file in record.output_data.all %}
-                                <tr class="{% cycle 'odd' 'even' %}"><td><a href="datafile?path={{file.path}}&digest={{file.digest}}">{{file.path}}</a></td>
+                                <tr class="{% cycle 'odd' 'even' %}"><td><a href="datafile?path={{file.path|urlencode}}&digest={{file.digest}}">{{file.path}}</a></td>
                                 <td>{{file.digest}}</td>
                                 <td>{{file.get_metadata.mimetype|default:""}}</td>
                                 <td>{{file.get_metadata.size|filesizeformat}}</td></tr>

@@ -323,7 +323,7 @@ def show_file(request, project, label):
                                            'digest': digest,
                                            'mimetype': mimetype
                                            })
-        elif mimetype == None or mimetype.split("/")[0] == "text":
+        elif mimetype is None or mimetype.split("/")[0] == "text":
             content = data_store.get_content(data_key, max_length=max_display_length)
             if max_display_length is not None and len(content) >= max_display_length:
                 truncated = True
