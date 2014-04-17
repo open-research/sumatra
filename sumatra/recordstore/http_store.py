@@ -18,6 +18,7 @@ The required JSON structure can be seen in recordstore.serialization.
 :license: CeCILL, see LICENSE for details.
 """
 
+from warnings import warn
 from sumatra.recordstore.base import RecordStore, RecordStoreAccessError
 from sumatra.recordstore import serialization
 import httplib2
@@ -207,3 +208,6 @@ class HttpRecordStore(RecordStore):
         if not self.has_project(project_name):
             self.create_project(project_name)
         super(HttpRecordStore, self).sync(other, project_name)
+
+    def clear(self):
+        warn("Cannot clear a remote record store directly. Contact the record store administrator")

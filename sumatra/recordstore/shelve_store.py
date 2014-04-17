@@ -6,6 +6,7 @@ shelve module.
 :license: CeCILL, see LICENSE for details.
 """
 
+import os
 from sumatra.recordstore.base import RecordStore
 from sumatra.recordstore import serialization
 import shelve
@@ -113,3 +114,6 @@ class ShelveRecordStore(RecordStore):
                 most_recent_timestamp = record.timestamp
                 most_recent = record.label
         return most_recent
+
+    def clear(self):
+        os.remove(self._shelf_name)

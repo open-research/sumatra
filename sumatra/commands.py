@@ -586,6 +586,7 @@ def upgrade(argv):
     project.sumatra_version = sumatra.__version__
     project.save()
     # upgrade the record store
+    project.record_store.clear()
     filename = "%s/records_export.json" % backup_dir
     if os.path.exists(filename):
         f = open(filename)

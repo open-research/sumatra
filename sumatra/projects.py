@@ -365,6 +365,7 @@ class Project(object):
         smt_dir = os.path.split(_get_project_file(self.path))[0]
         backup_dir = smt_dir + "_backup_%s" % datetime.now().strftime(TIMESTAMP_FORMAT)
         shutil.copytree(smt_dir, backup_dir)
+        # TODO: also backup the record store, if it is not contained in .smt ?
         return backup_dir
 
     def change_record_store(self, new_store):

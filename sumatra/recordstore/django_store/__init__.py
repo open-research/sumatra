@@ -11,7 +11,6 @@ SQLite or PostgreSQL.
 
 
 from sumatra.recordstore.base import RecordStore
-from sumatra.recordstore import serialization
 import django.conf as django_conf
 from django.core import management
 import os
@@ -89,9 +88,8 @@ class DjangoConfiguration(object):
                 db_file = db['NAME']
                 if not os.path.exists(os.path.dirname(db_file)):
                     os.makedirs(os.path.dirname(db_file))
-                if not os.path.exists(db_file):
-                    management.call_command('syncdb', database=label, verbosity=0)
-                    print("Created Django record store using SQLite")
+                management.call_command('syncdb', database=label, verbosity=0)
+                print("Created Django record store using SQLite")
             else:
                 management.call_command('syncdb', database=label, verbosity=0)
                 print("Created Django record store using PostgreSQL")
@@ -145,7 +143,7 @@ class DjangoRecordStore(RecordStore):
         global db_config
         settings = django_conf.settings
         settings._wrapped = None
-        assert settings.configured == False
+        assert settings.configured is False
         db_config = DjangoConfiguration()
         if db_file:
             self.__init__(db_file)
@@ -269,6 +267,22 @@ class DjangoRecordStore(RecordStore):
         """Delete everything from the database."""
         management.call_command('flush', database=self._db_label,
                                 interactive=False, verbosity=0)
+
+    def clear(self):
+        """
+        Drop all Sumatra-related tables from the database.
+
+        WARNING: this will delete all data. Make sure you have a backup first.
+        """
+        #management.call_command('sqlclear', 'django_store', database=self._db_label)  # this produces coloured output, need no_color option from Django 1.7
+        cmds = ["BEGIN;"] + ['DROP TABLE "django_store_{}";'.format(x)
+                             for x in ("record", "record_output_data", "record_input_data", "record_dependencies",
+                                       "record_platforms", "platforminformation", "datakey", "datastore", "launchmode",
+                                       "parameterset", "repository", "dependency", "executable", "project")] + ["COMMIT;"]
+        from django.db import connection
+        cur = connection.cursor()
+        for cmd in cmds:
+            cur.execute(cmd)
 
     def _dump(self, indent=2):
         """
