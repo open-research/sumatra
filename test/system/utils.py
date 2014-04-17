@@ -9,9 +9,10 @@ import tempfile
 import shutil
 import sarge
 
+DEBUG = False
 temporary_dir = None
 working_dir = None
-labels = []
+env = {}
 
 
 label_pattern = re.compile("Record label for this run: '(?P<label>\d{8}-\d{6})'")
@@ -49,12 +50,12 @@ Parameters       : *(?P<parameters>.*)
 
 def setup():
     """Create temporary directory for the Sumatra project."""
-    global temporary_dir, working_dir, labels
+    global temporary_dir, working_dir, env
     temporary_dir = os.path.realpath(tempfile.mkdtemp())
     working_dir = os.path.join(temporary_dir, "sumatra_exercise")
     os.mkdir(working_dir)
     print working_dir
-    labels = []
+    env["labels"] = []
 
 
 def teardown():
@@ -65,7 +66,7 @@ def teardown():
 
 def run(command):
     """Run a command in the Sumatra project directory and capture the output."""
-    return sarge.run(command, cwd=working_dir, stdout=sarge.Capture())
+    return sarge.run(command, cwd=working_dir, stdout=sarge.Capture(timeout=10, buffer_size=1))
 
 
 def assert_file_exists(p, relative_path):
@@ -120,25 +121,31 @@ def assert_label_equal(p, expected_label):
     assert get_label(p) == expected_label
 
 
-def expected_short_list(labels):
+def expected_short_list(env):
     """Generate the expected output from the 'smt list' command, given the list of captured labels."""
-    return "\n".join(reversed(labels))
+    return "\n".join(reversed(env["labels"]))
 
 
 def substitute_labels(expected_records):
     """ """
-    def wrapped(labels):
+    def wrapped(env):
         for record in expected_records:
             index = record["label"]
-            record["label"] = labels[index]
+            record["label"] = env["labels"][index]
         return expected_records
     return wrapped
 
 
-def build_command(template):
+def build_command(template, env_var):
     """Return a function which will return a string."""
-    def wrapped(args):
-        return template.format(*args)
+
+    def wrapped(env):
+        args = env[env_var]
+        if hasattr(args, "__len__") and not isinstance(args, basestring):
+            s = template.format(*args)
+        else:
+            s = template.format(args)
+        return s
     return wrapped
 
 
@@ -157,34 +164,21 @@ def edit_parameters(input, output, name, new_value):
     return wrapped
 
 
-def modify_script(filename):
-    global working_dir
-
-    def wrapped():
-        with open(os.path.join(working_dir, filename), 'rb') as fp:
-            script = fp.readlines()
-        with open(os.path.join(working_dir, filename), 'wb') as fp:
-            for line in script:
-                if "print mean_bubble_size, median_bubble_size" in line:
-                    fp.write('print "Mean:", mean_bubble_size\nprint "Median:", median_bubble_size\n')
-                else:
-                    fp.write(line)
-    return wrapped
-
-
 def run_test(command, *checks):
     """Execute a command in a sub-process then check that the output matches some criterion."""
-    global labels
+    global env, DEBUG
 
     if callable(command):
-        command = command(labels)
+        command = command(env)
     p = run(command)
+    if DEBUG:
+        print p.stdout.text
     for check, checkarg in pairs(checks):
         if callable(checkarg):
-            checkarg = checkarg(labels)
+            checkarg = checkarg(env)
         check(p, checkarg)
     label = get_label(p)
     if label is not None:
-        labels.append(label)
+        env["labels"].append(label)
         print "label is", label
 run_test.__test__ = False  # nose should not treat this as a test

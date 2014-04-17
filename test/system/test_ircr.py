@@ -6,9 +6,9 @@ electron microscope (SEM) images of glass samples. This example was taken from
 an online SciPy tutorial at http://scipy-lectures.github.com/intro/summary-exercises/image-processing.html
 
 Usage:
-    nosetests -v ircr.py
+    nosetests -v test_ircr.py
 or:
-    python ircr.py
+    python test_ircr.py
 """
 
 # Requirements: numpy, scipy, matplotlib, mercurial, sarge
@@ -16,12 +16,25 @@ import os
 from datetime import datetime
 import utils
 from utils import (setup, teardown, run_test, build_command, assert_file_exists, assert_in_output,
-                   assert_config, assert_label_equal, assert_records, edit_parameters, modify_script,
+                   assert_config, assert_label_equal, assert_records, edit_parameters,
                    expected_short_list, substitute_labels)
 
 #repository = "https://bitbucket.org/apdavison/ircr2013"
 #repository = "/Volumes/USERS/andrew/dev/ircr2013"  # during development
 repository = "/Users/andrew/dev/ircr2013"
+
+
+def modify_script(filename):
+    def wrapped():
+        with open(os.path.join(utils.working_dir, filename), 'rb') as fp:
+            script = fp.readlines()
+        with open(os.path.join(utils.working_dir, filename), 'wb') as fp:
+            for line in script:
+                if "print mean_bubble_size, median_bubble_size" in line:
+                    fp.write('print "Mean:", mean_bubble_size\nprint "Median:", median_bubble_size\n')
+                else:
+                    fp.write(line)
+    return wrapped
 
 
 test_steps = [
@@ -57,7 +70,7 @@ test_steps = [
     ("Add another comment",
      "smt comment 'The default colourmap is nicer'"),  #TODO  add a comment to an older record (e.g. this colourmap is nicer than 'hot')")
     ("Add tags on the command line",
-     build_command("smt tag mytag {0} {1}")),
+     build_command("smt tag mytag {0} {1}", "labels")),
     modify_script("glass_sem_analysis.py"),
     ("Run the modified code",
      "smt run -r 'Added labels to output' default_parameters MV_HFV_012.jpg",
@@ -125,8 +138,8 @@ if __name__ == '__main__':
         else:
             print step[0]  # description
             run_test(*step[1:])
-    response = raw_input("Do you want to delete the temporary directory? ")
-    if response in ["y", "Y", "yes"]:
+    response = raw_input("Do you want to delete the temporary directory (default: yes)? ")
+    if response not in ["n", "N", "no", "No"]:
         teardown()
     else:
         print "Temporary directory %s not removed" % utils.temporary_dir
