@@ -166,7 +166,7 @@ class LaunchMode(BaseModel):
 
 class Datastore(BaseModel):
     type = models.CharField(max_length=100)
-    parameters = models.CharField(max_length=100)
+    parameters = models.CharField(max_length=200)
 
     def to_sumatra(self):
         parameters = eval(self.parameters)
@@ -205,7 +205,7 @@ class PlatformInformation(BaseModel):
     processor = models.CharField(max_length=100)
     release = models.CharField(max_length=100)
     system_name = models.CharField(max_length=20)
-    version = models.CharField(max_length=50)
+    version = models.CharField(max_length=100)
 
     def to_sumatra(self):
         pi = {}

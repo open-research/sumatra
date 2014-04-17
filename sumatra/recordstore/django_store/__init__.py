@@ -51,6 +51,7 @@ class DjangoConfiguration(object):
             db['HOST'] = parse_result.hostname
             db['USER'] = parse_result.username
             db['PASSWORD'] = parse_result.password
+            db['PORT'] = parse_result.port or ''
         else:
             db['ENGINE'] = 'django.db.backends.sqlite3'
             db['NAME'] = os.path.abspath(parse_result.path)
@@ -89,10 +90,8 @@ class DjangoConfiguration(object):
                 if not os.path.exists(os.path.dirname(db_file)):
                     os.makedirs(os.path.dirname(db_file))
                 management.call_command('syncdb', database=label, verbosity=0)
-                print("Created Django record store using SQLite")
             else:
                 management.call_command('syncdb', database=label, verbosity=0)
-                print("Created Django record store using PostgreSQL")
 
     def configure(self):
         settings = django_conf.settings
