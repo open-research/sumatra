@@ -17,6 +17,6 @@ If this is insufficiently configurable for you, please take a look at the
 distribution, and get in touch with the Sumatra developers, for example by
 `creating a ticket`_ or asking a question on the `mailing list`_.
 
-.. _`creating a ticket`: https://neuralensemble.org/trac/sumatra/newticket
+.. _`creating a ticket`: https://bitbucket.org/apdavison/sumatra/issues/new
 .. _`mailing list`: http://groups.google.com/group/sumatra-users
 
