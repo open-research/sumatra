@@ -168,7 +168,7 @@ class DjangoRecordStore(RecordStore):
             db_project = models.Project.objects.using(self._db_label).get(id=project_name)
         except models.Project.DoesNotExist:
             db_project = models.Project(id=project_name)
-            db_project.save()
+            db_project.save(using=self._db_label)
         return db_project
 
     def _get_db_obj(self, db_class, obj):
@@ -200,7 +200,7 @@ class DjangoRecordStore(RecordStore):
         db_record.tags = ",".join(record.tags)
         db_record.stdout_stderr = record.stdout_stderr
         # should perhaps check here for any orphan Tags, i.e., those that are no longer associated with any records, and delete them
-        db_record.save()  # need to save before using many-to-many relationship
+        db_record.save(using=self._db_label)  # need to save before using many-to-many relationship
         chunk_size = 900  # SQLite has problems with inserts >= ca. 1000, so for safety we split it into chunks
         for i in xrange(0, len(record.input_data), chunk_size):
             db_keys = (self._get_db_obj('DataKey', key) for key in record.input_data[i:i + chunk_size])
