@@ -109,7 +109,7 @@ def assert_config(p, expected_config):
 def assert_records(p, expected_records):
     """ """
     matches = [match.groupdict() for match in record_pattern.finditer(p.stdout.text)]
-    match_dict = {match["label"]: match for match in matches}
+    match_dict = dict((match["label"], match) for match in matches)
     for record in expected_records:
         matching_record = match_dict[record["label"]]
         for key in record:

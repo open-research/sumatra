@@ -51,7 +51,7 @@ test_steps = [
      assert_in_output, "Sumatra project successfully set up"),
     ("Run the ``glass_sem_analysis.py`` script with Sumatra",
      "smt run -e python -m glass_sem_analysis.py -r 'initial run' default_parameters MV_HFV_012.jpg",
-     assert_in_output, ("2416.86315789 60.0", "Created Django record store using SQLite", "histogram.png")),
+     assert_in_output, ("2416.86315789 60.0", "histogram.png")),
     ("Comment on the outcome",
      "smt comment 'works fine'"),
     ("Set defaults",

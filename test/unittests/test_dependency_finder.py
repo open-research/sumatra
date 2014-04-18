@@ -2,7 +2,10 @@
 Unit tests for the sumatra.dependency_finder module
 """
 
-import unittest
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
 import sumatra.dependency_finder as df
 import sys
 import os
