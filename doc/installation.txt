@@ -5,17 +5,13 @@ Installation
 To run Sumatra you will need Python installed on your machine. If you are running
 Linux or OS X, you almost certainly already have it. If you don't have Python,
 you can install it from `python.org`_, or install one of the
-"value-added" distributions aimed at scientific users of Python: `Enthought`_ or
-`Python(x,y)`_.
+"value-added" distributions aimed at scientific users of Python: `Enthought`_,
+`Python(x,y)`_ or Anaconda_.
 
 The easiest way to install Sumatra is directly from the `Python Package Index`_
 (PyPI)::
 
     $ pip install sumatra
-
-or::
-
-    $ easy_install sumatra
 
 
 Alternatively, you can download the Sumatra package from either PyPI or the
@@ -25,24 +21,26 @@ Alternatively, you can download the Sumatra package from either PyPI or the
     $ cd Sumatra-0.6.0
     # python setup.py install
     
-The last step may need to be run as root, or using sudo.
+The last step may need to be run as root, or using sudo, although in general
+we recommend installing in an isolated environment created using virtualenv or conda.
 
 
 Installing Django
 -----------------
 
-If you wish to use the web interface, you will also need to install Django_. On
-Linux, you may be able to do this via your package management system: see
-https://code.djangoproject.com/wiki/Distributions.
+If you wish to use the web interface, you will also need to install Django_
+version 1.4 or later. On Linux, you may be able to do this via your package
+management system: see https://code.djangoproject.com/wiki/Distributions.
 
 Otherwise, it is very easy to install manually: see
 https://docs.djangoproject.com/en/dev/topics/install/#installing-official-release
 
-You will also need to install the `django-tagging`_ and docutils_ packages,
+You will also need to install the `parameters`, `django-tagging`_ and docutils_ packages,
 which may be in your package management system, otherwise they can be installed
 using pip::
 
-    $ pip install git+https://github.com/danirus/django-tagging.git#egg=tagging
+    $ pip install parameters
+    $ pip install django-tagging
     $ pip install docutils
 
 
@@ -61,11 +59,12 @@ GitPython_ package.
 .. _Subversion: http://subversion.tigris.org/
 .. _Git: http://git-scm.com/
 .. _Bazaar: http://bazaar.canonical.com/
-.. _`Python Package Index`: http://pypi.python.org/pypi/Sumatra/
+.. _`Python Package Index`: https://pypi.python.org/pypi/Sumatra/
 .. _`INCF Software Centre`: http://software.incf.org/software/sumatra/download
-.. _`django-tagging`: http://pypi.python.org/pypi/django-tagging/
+.. _`django-tagging`: https://pypi.python.org/pypi/django-tagging/
 .. _`pysvn bindings`: http://pysvn.tigris.org/project_downloads.html
-.. _`GitPython`: http://pypi.python.org/pypi/GitPython/
-.. _`Enthought`: http://www.enthought.com/products/epd.php
+.. _`GitPython`: https://pypi.python.org/pypi/GitPython/
+.. _`Enthought`: http://www.enthought.com/products/epd/
 .. _`Python(x,y)`: http://code.google.com/p/pythonxy/
+.. _Anaconda: http://docs.continuum.io/anaconda/
 .. _docutils: http://docutils.sourceforge.net

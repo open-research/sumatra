@@ -9,7 +9,7 @@ It is based on the initial letters of "Simulation Management Tool".
 (Sumatra was originally conceived for tracking simulations, it was only later
 that I realized it could equally well be used for any command-line driven
 computation). Despite a certain `geographical proximity`_, it has nothing to do
-with Java :-)
+with Java :-) (although it has certain similarities to Madagascar_).
 
 When I run more than one simulation at once, Sumatra mixes up the output files. How can I make it associate the right files with the right simulation?
 ------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -51,3 +51,4 @@ option and "./Data" set as the datastore root::
 
 
 .. _`geographical proximity`: http://commons.wikimedia.org/wiki/File:1842_Greenleaf_Map_of_the_East_Indies,_Borneo,_Java,_Sumatra,_Thailand,_Vietnam_-_Geographicus_-_EastIndies-greenleaf-1842.jpg
+.. _Madagascar: http://www.ahay.org/wiki/Main_Page

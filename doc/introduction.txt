@@ -126,12 +126,15 @@ For further background, see the following article:
         reproducibility in computational research.
         *Computing in Science and Engineering* **14**: 48-56 [preprint_]
 
-You may also be interested in exploring this interactive poster about Sumatra:
+For more detail on how Sumatra is implemented, see:
+    
+        Davison A.P., Mattioni M., Samarkanov D. and Teleńczuk B. (2014)
+        Sumatra: A Toolkit for Reproducible Research.
+        In: Implementing Reproducible Research, edited by V. Stodden, F. Leisch and R.D. Peng,
+        Chapman & Hall/CRC: Boca Raton, Florida., pp. 57-79. [PDF_]
 
-.. image:: /images/poster.png
-    :target: http://fgrz.ro/SnvSHa
-
-or in watching a talk given at a workshop_ on "*Reproducible Research-Tools and Strategies for Scientific Computing*" in Vancouver, Canada in July 2011.
+You might also be interested in watching a talk given at a workshop_ on
+"*Reproducible Research-Tools and Strategies for Scientific Computing*" in Vancouver, Canada in July 2011.
 [`video with slides`_ (Silverlight required)] [`video only`_ (YouTube)] [slides_].
 
 .. _Subversion: http://subversion.tigris.org/
@@ -144,3 +147,4 @@ or in watching a talk given at a workshop_ on "*Reproducible Research-Tools and 
 .. _`video only`: http://www.youtube.com/watch?v=7VcDvxvjqrc
 .. _slides: http://www.stodden.net/AMP2011/slides/sumatra_amp2011.pdf
 .. _workshop: http://www.stodden.net/AMP2011/
+.. _PDF: https://osf.io/w6fp4/osffiles/Andrew_Davison_chapter.pdf/version/1/download/

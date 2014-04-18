@@ -25,7 +25,7 @@ this should be located, e.g.::
 If the database file does not already exist, it will be created.
 
 For better performance (e.g., if you are running many Sumatra jobs at the same time) you can use PostgreSQL instead
-of SQLite. For this, you will need to install the psycopg_ package, then specify the database connection parameters in
+of SQLite. For this, you will need to install the psycopg2_ package, then specify the database connection parameters in
 the form::
 
   $ smt init --store=postgres://username:password@hostname/databasename MyProject
@@ -80,6 +80,6 @@ records from the old store to the new one. It will not delete the old one.
 .. _shelve: http://docs.python.org/2/library/shelve.html
 .. _PostgreSQL: http://www.postgresql.org
 .. _SQLite: http://www.sqlite.org
-.. _psycopg: https://pypi.python.org/pypi/psycopg/
+.. _psycopg2: https://pypi.python.org/pypi/psycopg2/
 .. _`Sumatra Server`: https://bitbucket.org/apdavison/sumatra_server/wiki/Home
 .. _`open notebook science`: http://en.wikipedia.org/wiki/Open_notebook_science

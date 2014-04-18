@@ -12,7 +12,7 @@ at https://groups.google.com/forum/#!forum/sumatra-users.
 
 As our example code, we will use a Python program for analyzing scanning
 electron microscope (SEM) images of glass samples. This example was taken from
-an online SciPy tutorial at http://scipy-lectures.github.com/intro/summary-exercises/image-processing.html
+an online SciPy tutorial at http://scipy-lectures.github.io/intro/summary-exercises/image-processing.html
 
 Get the example code
 --------------------

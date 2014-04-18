@@ -2,4 +2,6 @@
 Exporting and reporting
 =======================
 
-HTMLFormatter, ShellFormatter, LaTeXFormatter
+The :command:`smt list` command has various output formats: text (the default), HTML, LaTeX, and shell. The latter
+produces a shell script that could be run to repeat all the computations recorded in your Sumatra project.
+

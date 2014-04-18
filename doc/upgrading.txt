@@ -45,10 +45,6 @@ Install the new version and upgrade
 Now you can install the new version, e.g. with::
 
     $ pip install --upgrade sumatra
-    
-or::
-    
-    $ easy_install -U sumatra
 
 (or you can install from source, as explained in doc:`installation`).
 
@@ -58,7 +54,7 @@ Then run::
     $ smt upgrade
     
 The original :file:`.smt` directory will be copied to a time-stamped directory, e.g.
-:file:`.smt_backup_20110209132422`.
+:file:`.smt_backup_20140209132422`.
 
 
 .. _export.py: http://neuralensemble.org/trac/sumatra/browser/tools/export.py?format=txt
