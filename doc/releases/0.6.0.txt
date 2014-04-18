@@ -2,7 +2,7 @@
 Sumatra 0.6.0 release notes
 ===========================
 
-*DATE 2014*
+*18th April 2014*
 
 Welcome to Sumatra 0.6.0!
 
