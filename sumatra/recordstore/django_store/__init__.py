@@ -273,6 +273,8 @@ class DjangoRecordStore(RecordStore):
 
         WARNING: this will delete all data. Make sure you have a backup first.
         """
+        if not db_config.configured:
+            db_config.configure()
         #management.call_command('sqlclear', 'django_store', database=self._db_label)  # this produces coloured output, need no_color option from Django 1.7
         cmds = ["BEGIN;"] + ['DROP TABLE "django_store_{}";'.format(x)
                              for x in ("record", "record_output_data", "record_input_data", "record_dependencies",
@@ -282,6 +284,7 @@ class DjangoRecordStore(RecordStore):
         cur = connection.cursor()
         for cmd in cmds:
             cur.execute(cmd)
+        db_config._create_databases()
 
     def _dump(self, indent=2):
         """
