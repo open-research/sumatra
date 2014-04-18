@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
-#import distribute_setup
-#distribute_setup.use_setuptools()
+
 from setuptools import setup
 from distutils.command.sdist import sdist
 import os
@@ -25,7 +24,7 @@ class sdist_hg(sdist):
 
 setup(
     name = "Sumatra",
-    version = "0.6.0dev",
+    version = "0.6.0",
     package_dir = {'sumatra': 'sumatra'},
     packages = ['sumatra', 'sumatra.dependency_finder', 'sumatra.datastore',
                 'sumatra.recordstore', 'sumatra.recordstore.django_store',
@@ -35,7 +34,7 @@ setup(
                 'sumatra.publishing.latex', 'sumatra.publishing.sphinxext'],
     package_data = {'sumatra': ['web/media/css/*.css', 'web/media/js/*.js',
                                 'web/media/img/*', 'web/media/css/*.css', 'web/media/extras/fontawesome/font/*',
-                                'web/media/extras/fontawesome/sass/*', 'web/media/extras/fontawesome/css/*.css',          
+                                'web/media/extras/fontawesome/sass/*', 'web/media/extras/fontawesome/css/*.css',
                                 'web/templates/*.html',
                                 'publishing/latex/sumatra.sty',
                                 'formatting/latex_template.tex']},
@@ -45,7 +44,7 @@ setup(
     description = "A tool for automated tracking of computation-based scientific projects",
     long_description = open('README').read(),
     license = "CeCILL http://www.cecill.info",
-    keywords = "computational science neuroscience simulation analysis project-management",
+    keywords = "computational science simulation analysis project-management",
     url = "http://neuralensemble.org/sumatra/",
     classifiers = ['Development Status :: 4 - Beta',
                    'Environment :: Console',
@@ -65,6 +64,5 @@ setup(
                       'hg': 'mercurial',
                       'git': 'GitPython',
                       'bzr': 'bzr',
-                      'mpi': 'mpi4py'},
-    tests_require = ['twill'],
+                      'mpi': 'mpi4py'}
 )
