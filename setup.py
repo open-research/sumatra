@@ -24,7 +24,7 @@ class sdist_hg(sdist):
 
 setup(
     name = "Sumatra",
-    version = "0.6.0",
+    version = "0.6.1dev",
     package_dir = {'sumatra': 'sumatra'},
     packages = ['sumatra', 'sumatra.dependency_finder', 'sumatra.datastore',
                 'sumatra.recordstore', 'sumatra.recordstore.django_store',
