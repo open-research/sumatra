@@ -15,11 +15,11 @@
 </div>
 
 {% if truncated %}
-<p>File contents truncated. <a href="datafile?path={{path}}&digest={{digest}}&truncate=false" class="btn">Show entire contents</a></p>
+<p>File contents truncated. <a href="datafile?path={{path|urlencode}}&digest={{digest}}&truncate=false" class="btn">Show entire contents</a></p>
 {% endif %}
 
 {{errmsg}}
 {% if not errmsg %}
-<p><a href="download?path={{path}}&digest={{digest}}" class="btn">Download content</a></p>
+<p><a href="download?path={{path|urlencode}}&digest={{digest}}" class="btn">Download content</a></p>
 {% endif %}
 {% endblock %}
