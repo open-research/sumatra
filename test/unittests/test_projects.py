@@ -3,6 +3,7 @@ Unit tests for the sumatra.projects module
 """
 
 from __future__ import with_statement
+import datetime
 import shutil
 import os, sys
 import unittest
@@ -18,8 +19,23 @@ class MockDiffFormatter(object):
 sumatra.projects.get_diff_formatter = lambda: MockDiffFormatter
 
 
+# Support the singleton pattern (some cases below require
+# the same repository for multiple records).
+class SingletonType(type):
+    def __call__(cls, *args, **kwargs):
+        try:
+            return cls.__instance
+        except AttributeError:
+            cls.__instance = super(SingletonType, cls).__call__(*args, **kwargs)
+            return cls.__instance
+
+
 class MockRepository(object):
+    __metaclass__ = SingletonType
     url = "http://svn.example.com"
+    vcs_type = 'git'
+    use_version_cmd = ''
+    upstream = ''
 
     def __eq__(self, other):
         return self.url == other.url
@@ -64,6 +80,7 @@ class MockExecutable(object):
 
 
 class MockLaunchMode(object):
+    working_directory = '/foo/bar'
     def get_platform_information(self):
         return []
     def pre_run(self, prog):
@@ -94,8 +111,23 @@ class MockRecord(object):
         self.version = "42"
         self.launch_mode = MockLaunchMode()
         self.outcome = ""
+        self.timestamp = datetime.datetime(2042, 01, 23)
+        self.user = 'user'
+        self.duration = 2.3
+        self.datastore = MockDatastore()
+        self.platforms = []
+        self.dependencies = []
+        self.reason = 'Because'
+        self.repeats = None
+        self.diff = ''
+        self.command_line = '/path/to/program main.script'
     def difference(r1, r2, igm, igf):
         return ""
+
+
+class MockDatastore(object):
+    def __init__(self):
+        self.root = '/tmp/foo/bar'
 
 
 class MockRecordStore(object):
@@ -106,6 +138,9 @@ class MockRecordStore(object):
             return MockRecord(label=label*2)
         else:
             raise Exception()
+    def list(self, project_name, tags=None):
+        return [self.get(project_name, 'foo_label'),
+                self.get(project_name, 'bar_label')]
     def delete(self, project_name, label):
         self.deleted = label
     def delete_by_tag(self, project_name, tag):
@@ -182,6 +217,25 @@ class TestProject(unittest.TestCase):
                        default_launch_mode=MockLaunchMode(),
                        record_store=MockRecordStore())
         proj.launch(main_file="test.py")
+
+    def test_format_records(self):
+        self.write_test_script("test.py")
+        proj = Project("test_project",
+                       record_store=MockRecordStore(),
+                       default_main_file="test.py",
+                       default_executable=MockExecutable(),
+                       default_launch_mode=MockLaunchMode(),
+                       default_repository=MockRepository(),
+                       label_generator='uuid')
+        rec1 = proj.new_record()
+        rec2 = proj.new_record()
+        self.assertEqual(proj.format_records('text'), 'foo_labelfoo_label\nbar_labelbar_label')
+        self.assertEqual(proj.format_records('html'), '<ul>\n<li>foo_labelfoo_label</li>\n<li>bar_labelbar_label</li>\n</ul>')
+        # TODO: Add proper test for LaTeX once it supports 'short' mode
+        #       (currently we only check that we can call the method).
+        proj.format_records('latex', 'long')
+        # TODO: Find a good way to check the output of the shell formatter.
+        proj.format_records('shell')
 
     def test__get_record__calls_get_on_the_record_store(self):
         proj = Project("test_project",
