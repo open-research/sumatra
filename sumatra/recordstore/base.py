@@ -55,10 +55,15 @@ class RecordStore(object):
         """Return the most recent record from the given project."""
         raise NotImplementedError
 
-    def export(self, project_name, indent=2):
-        """Export store contents as JSON."""
+    def export_records(self, records, indent=2):
+        """Returns a string with a JSON representation of the given records."""
         return "[" + ",\n".join(serialization.encode_record(record, indent=indent)
-                                for record in self.list(project_name)) + "]"
+                                for record in records) + "]"
+
+    def export(self, project_name, indent=2):
+        """Returns a string with a JSON representation of the project record store."""
+        records = self.list(project_name)
+        return self.export_records(records, indent=indent)
 
     def import_(self, project_name, content):
         """Import records in JSON format."""
