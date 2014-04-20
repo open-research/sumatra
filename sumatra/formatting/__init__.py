@@ -12,6 +12,8 @@ import textwrap
 import cgi
 import re
 
+from sumatra.recordstore import serialization
+
 fields = ['label', 'timestamp', 'reason', 'outcome', 'duration', 'repository',
           'main_file', 'version', 'script_arguments', 'executable',
           'parameters', 'input_data', 'launch_mode', 'output_data',
@@ -31,6 +33,15 @@ class Formatter(object):
         'long' or 'table'.
         """
         return getattr(self, mode)()
+
+
+class JSONFormatter(Formatter):
+    def short(self, indent=2):
+        return "[" + ",\n".join(serialization.encode_record(record, indent=indent)
+                                for record in self.records) + "]"
+
+    def long(self, records, indent=2):
+        return self.short(indent=indent)
 
 
 class TextFormatter(Formatter):
@@ -400,6 +411,7 @@ formatters = {
     'html': HTMLFormatter,
     'latex': LaTeXFormatter,
     'shell': ShellFormatter,
+    'json': JSONFormatter,
     'textdiff': TextDiffFormatter,
 }
 

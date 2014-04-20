@@ -11,8 +11,6 @@ try:
 except ImportError:
     import simplejson as json
 from datetime import datetime
-from sumatra import programs, launch, datastore, versioncontrol, parameters, dependency_finder
-from sumatra.records import Record
 from ..compatibility import string_type
 
 
@@ -136,6 +134,8 @@ def datestring_to_datetime(s):
 
 def build_record(data):
     """Create a Sumatra record from a nested dictionary."""
+    from sumatra import programs, launch, datastore, versioncontrol, parameters, dependency_finder
+    from sumatra.records import Record
     edata = data["executable"]
     cls = programs.registered_program_names.get(edata["name"], programs.Executable)
     executable = cls(edata["path"], edata["version"], edata.get("options", ""))

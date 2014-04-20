@@ -73,6 +73,7 @@ class MockExecutable(object):
     path = sys.executable  # "/usr/local/bin/python"
     version = sys.version
     requires_script = True
+    options = ''
     def write_parameters(self, params, filename):
         pass
     def __getstate__(self):
@@ -91,7 +92,7 @@ class MockLaunchMode(object):
         return {}
 
 
-class MockSet(object):
+class MockSet(list):
     def add(self, x):
         self.added = x
     def remove(self, x):
@@ -115,12 +116,15 @@ class MockRecord(object):
         self.user = 'user'
         self.duration = 2.3
         self.datastore = MockDatastore()
+        self.input_datastore = MockDatastore()
         self.platforms = []
         self.dependencies = []
         self.reason = 'Because'
         self.repeats = None
         self.diff = ''
         self.command_line = '/path/to/program main.script'
+        self.stdout_stderr = ''
+        self.output_data = []
     def difference(r1, r2, igm, igf):
         return ""
 
@@ -128,6 +132,8 @@ class MockRecord(object):
 class MockDatastore(object):
     def __init__(self):
         self.root = '/tmp/foo/bar'
+    def __getstate__(self):
+        return {}
 
 
 class MockRecordStore(object):
@@ -231,11 +237,11 @@ class TestProject(unittest.TestCase):
         rec2 = proj.new_record()
         self.assertEqual(proj.format_records('text'), 'foo_labelfoo_label\nbar_labelbar_label')
         self.assertEqual(proj.format_records('html'), '<ul>\n<li>foo_labelfoo_label</li>\n<li>bar_labelbar_label</li>\n</ul>')
-        # TODO: Add proper test for LaTeX once it supports 'short' mode
-        #       (currently we only check that we can call the method).
+        # TODO: Find a good way to check the output of the following formatters
+        #       (currently we only check that we can call them without errors).
         proj.format_records('latex', 'long')
-        # TODO: Find a good way to check the output of the shell formatter.
         proj.format_records('shell')
+        proj.format_records('json')
 
     def test__get_record__calls_get_on_the_record_store(self):
         proj = Project("test_project",
