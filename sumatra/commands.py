@@ -660,7 +660,15 @@ def migrate(argv):
         "archive": "datastore.archive",
         "mirror": "datastore.mirror_base_url"
     }
-    for option_name, field in field_map.items():
-        value = getattr(args, option_name)
-        if value:
-            project.record_store.update(project.name, field, value)
+
+    values = [getattr(args, option_name) for option_name in field_map.keys()]
+
+    if not any(values):
+        warnings.warn(
+            "Command 'smt migrate' had no effect. Please provide at least one "
+            "argument. (Run 'smt help migrate' for help.)")
+    else:
+        for option_name, field in field_map.items():
+            value = getattr(args, option_name)
+            if value:
+                project.record_store.update(project.name, field, value)
