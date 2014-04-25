@@ -661,9 +661,7 @@ def migrate(argv):
         "mirror": "datastore.mirror_base_url"
     }
 
-    values = [getattr(args, option_name) for option_name in field_map.keys()]
-
-    if not any(values):
+    if not any(vars(args).values()):
         warnings.warn(
             "Command 'smt migrate' had no effect. Please provide at least one "
             "argument. (Run 'smt help migrate' for help.)")
