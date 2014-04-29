@@ -10,6 +10,10 @@ In the future, this will probably be done automatically, but while Sumatra is st
 rapidly evolving we are keeping it as a simple manual process to minimize the
 risk of data loss.
 
+If you accidentally upgraded your Sumatra version without exporting the old project
+first, you will need to roll back to the previous version in order to be able to do
+the export. See below for an example how to do this using ``pip``.
+
 Export using the old version
 ----------------------------
 
@@ -58,3 +62,22 @@ The original :file:`.smt` directory will be copied to a time-stamped directory, 
 
 
 .. _export.py: http://neuralensemble.org/trac/sumatra/browser/tools/export.py?format=txt
+
+
+Downgrading an accidentally upgraded Sumatra to export the project
+------------------------------------------------------------------
+
+Exporting a project will need to be done with the same Sumatra version that the project
+was run with last. If you accidentally upgraded your Sumatra version without exporting
+the old project first, you will need to roll back to the previously installed version.
+You can explicitly specify a version number with ``pip`` as follows:
+
+    $ pip install sumatra==0.5.3
+
+Replace 0.5.3 with the correct version number for your project. In case you are unsure,
+it may help to run the following command in your project directory:
+
+    $ cat .smt/project | grep sumatra_version
+
+You can also see a list of previously released versions on the PyPI website:
+https://pypi.python.org/packages/source/S/Sumatra/
