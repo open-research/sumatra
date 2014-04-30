@@ -3,19 +3,13 @@ Datastore via remote webdav connection
 '''
 
 import os
-import mimetypes
 import tarfile
 import logging
-import hashlib
-import shutil
 from fs.contrib.davfs import DAVFS
 from urlparse import urlparse
 from contextlib import closing  # needed for Python 2.6
 
-from ..compatibility import urlopen
-from .base import DataItem, DataKey
 from .archivingfs import ArchivingFileSystemDataStore, ArchivedDataFile, TIMESTAMP_FORMAT
-from .filesystem import FileSystemDataStore, DataFile
 
 
 class DavFsDataItem(ArchivedDataFile):
@@ -79,15 +73,15 @@ class DavFsDataStore(ArchivingFileSystemDataStore):
         if not fs.isdir(self.archive_store):
             fs.makedir(self.archive_store, recursive=True)
         tf_obj = fs.open(os.path.join(self.archive_store, label + ".tar.gz"), mode='wb')
-        tf = tarfile.open(fileobj=tf_obj, mode='w:gz')
-        logging.info("Archiving data to file %s" % tf.name)
-        # Add data files
-        archive_paths = []
-        for file_path in files:
-            archive_path = os.path.join(label, file_path)
-            tf.add(os.path.join(self.root, file_path), archive_path)
-            archive_paths.append(archive_path)
-        tf.close()
+        with tarfile.open(fileobj=tf_obj, mode='w:gz') as tf:
+            logging.info("Archiving data to file %s" % tf.name)
+            # Add data files
+            archive_paths = []
+            for file_path in files:
+                archive_path = os.path.join(label, file_path)
+                tf.add(os.path.join(self.root, file_path), archive_path)
+                archive_paths.append(archive_path)
+            tf.close()
         tf_obj.close()
 
         # Delete original files.
