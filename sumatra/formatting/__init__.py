@@ -119,7 +119,7 @@ class JSONFormatter(Formatter):
         return "[" + ",\n".join(record2json(record, indent=indent)
                                 for record in self.records) + "]"
 
-    def long(self, records, indent=2):
+    def long(self, indent=2):
         return self.short(indent=indent)
 
 

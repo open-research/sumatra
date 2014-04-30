@@ -7,6 +7,7 @@ Provides base RecordStore class.
 """
 
 from sumatra.recordstore import serialization
+from sumatra.formatting import get_formatter
 
 
 class RecordStore(object):
@@ -57,8 +58,8 @@ class RecordStore(object):
 
     def export_records(self, records, indent=2):
         """Returns a string with a JSON representation of the given records."""
-        return "[" + ",\n".join(serialization.encode_record(record, indent=indent)
-                                for record in records) + "]"
+        json_formatter = get_formatter('json')(records)
+        return json_formatter.long()
 
     def export(self, project_name, indent=2):
         """Returns a string with a JSON representation of the project record store."""
