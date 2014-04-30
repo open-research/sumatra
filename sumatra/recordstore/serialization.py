@@ -11,84 +11,13 @@ try:
 except ImportError:
     import simplejson as json
 from datetime import datetime
+from sumatra import programs, launch, datastore, versioncontrol, parameters, dependency_finder
+from sumatra.records import Record
 from ..compatibility import string_type
-
+from sumatra.formatting import record2json
 
 def encode_record(record, indent=None):
-    """Encode a Sumatra record as JSON."""
-    data = {
-        "label": record.label,  # 0.1: 'group'
-        "timestamp": record.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
-        "reason": record.reason,
-        "duration": record.duration,
-        "executable": {
-            "path": record.executable.path,
-            "version": record.executable.version,
-            "name": record.executable.name,
-            "options": record.executable.options,  # added in 0.3
-        },
-        "repository": {
-            "url": record.repository.url,
-            "type": record.repository.__class__.__name__,
-            "upstream": record.repository.upstream,  # added in 0.5
-        },
-        "main_file": record.main_file,
-        "version": record.version,
-        "parameters": {
-            "content": str(record.parameters),
-            "type": record.parameters.__class__.__name__,
-        },
-        "input_data": [{  # changed in 0.4 (previously a list of strings)
-            "path": key.path,
-            "digest": key.digest,
-            "metadata": key.metadata,
-        } for key in record.input_data],
-        "script_arguments": record.script_arguments,  # added in 0.3
-        "launch_mode": {
-            "type": record.launch_mode.__class__.__name__,
-            "parameters": record.launch_mode.__getstate__(),
-        },
-        "datastore": {
-            "type": record.datastore.__class__.__name__,
-            "parameters": record.datastore.__getstate__(),
-        },
-        "input_datastore": {  # added in 0.4
-            "type": record.input_datastore.__class__.__name__,
-            "parameters": record.input_datastore.__getstate__(),
-        },
-        "outcome": record.outcome or "",
-        "stdout_stderr": record.stdout_stderr,  # added in 0.4
-        "output_data": [{  # added in 0.4 (replaced 'data_key', which was a string)
-            "path": key.path,
-            "digest": key.digest,
-            "metadata": key.metadata,
-        } for key in record.output_data],
-        "tags": list(record.tags),  # not sure if tags should be PUT, perhaps have separate URL for this?
-        "diff": record.diff,
-        "user": record.user,  # added in 0.2
-        "dependencies": [{
-            "path": d.path,
-            "version": d.version,
-            "name": d.name,
-            #"language": d.language,
-            "module": d.module,
-            "diff": d.diff,
-            "source": d.source,  # added in 0.5
-        } for d in record.dependencies],
-        "platforms": [{
-            "system_name": p.system_name,
-            "ip_addr": p.ip_addr,
-            "architecture_bits": p.architecture_bits,
-            "machine": p.machine,
-            "architecture_linkage": p.architecture_linkage,
-            "version": p.version,
-            "release": p.release,
-            "network_name": p.network_name,
-            "processor": p.processor
-        } for p in record.platforms],
-        "repeats": record.repeats,  # added in 0.6
-    }
-    return json.dumps(data, indent=indent)
+    return record2json(record, indent)
 
 
 def encode_project_info(long_name, description):
@@ -134,8 +63,6 @@ def datestring_to_datetime(s):
 
 def build_record(data):
     """Create a Sumatra record from a nested dictionary."""
-    from sumatra import programs, launch, datastore, versioncontrol, parameters, dependency_finder
-    from sumatra.records import Record
     edata = data["executable"]
     cls = programs.registered_program_names.get(edata["name"], programs.Executable)
     executable = cls(edata["path"], edata["version"], edata.get("options", ""))
