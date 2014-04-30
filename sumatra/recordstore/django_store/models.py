@@ -162,7 +162,7 @@ class LaunchMode(BaseModel):
 
 class Datastore(BaseModel):
     type = models.CharField(max_length=100)
-    parameters = models.CharField(max_length=100)
+    parameters = models.CharField(max_length=300)
 
     def to_sumatra(self):
         parameters = eval(self.parameters)
