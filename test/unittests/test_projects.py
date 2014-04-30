@@ -92,7 +92,9 @@ class MockLaunchMode(object):
         return {}
 
 
-class MockSet(list):
+class MockSet(object):
+    def __iter__(self):
+        return iter(['foo'])
     def add(self, x):
         self.added = x
     def remove(self, x):
