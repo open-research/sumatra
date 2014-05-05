@@ -7,6 +7,7 @@ Provides base RecordStore class.
 """
 
 from sumatra.recordstore import serialization
+from sumatra.formatting import get_formatter
 
 
 class RecordStore(object):
@@ -55,10 +56,15 @@ class RecordStore(object):
         """Return the most recent record from the given project."""
         raise NotImplementedError
 
+    def export_records(self, records, indent=2):
+        """Returns a string with a JSON representation of the given records."""
+        json_formatter = get_formatter('json')(records)
+        return json_formatter.long()
+
     def export(self, project_name, indent=2):
-        """Export store contents as JSON."""
-        return "[" + ",\n".join(serialization.encode_record(record, indent=indent)
-                                for record in self.list(project_name)) + "]"
+        """Returns a string with a JSON representation of the project record store."""
+        records = self.list(project_name)
+        return self.export_records(records, indent=indent)
 
     def import_(self, project_name, content):
         """Import records in JSON format."""
