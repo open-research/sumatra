@@ -27,6 +27,10 @@ get_working_copy() - given a filesystem path, determine if a working copy exists
 get_repository()   - determine whether a revision control system repository
                      exists at a given URL and return an appropriate Repository
                      object if so.
+
+
+:copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
+:license: CeCILL, see LICENSE for details.
 """
 
 import sys
@@ -54,12 +58,12 @@ def vcs_err_msg():
         err_msg += "\nNot installed or missing Python bindings: %s" % ", ".join(vcs.title() for vcs in vcs_unavailable)
     return err_msg
 
-    
+
 def get_working_copy(path=None):
     """
     Return a :class:`WorkingCopy` object which represents, and enables limited
     interaction with, the version control working copy at *path*.
-    
+
     If *path* is not specified, the current working directory is used.
     If no working copy is found at *path*, raises a :class:`VersionControlError`.
     """
@@ -79,7 +83,7 @@ def get_repository(url):
     """
     Return a :class:`Repository` object which represents, and enables limited
     interaction with, the version control repository at *url*.
-    
+
     If no repository is found at *url*, raises a :class:`VersionControlError`.
     """
     if url:
@@ -87,7 +91,7 @@ def get_repository(url):
         if vcs_list:
             for vcs in vcs_list:
                 try:
-                    repos =  vcs.get_repository(url)
+                    repos = vcs.get_repository(url)
                     break
                 except Exception as e:
                     pass

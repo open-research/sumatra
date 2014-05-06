@@ -886,7 +886,7 @@ h2.topic{
 }
  
 #l-label, #label-t{
-    width: 160px; 
+    width: 140px; 
     cursor: pointer; 
 }
 
@@ -895,7 +895,7 @@ h2.topic{
 }
 
 #l-main, #main-t {
-    width: 180px;
+    width: 150px;
 }
 
 #l-date, #date-t {
@@ -903,15 +903,15 @@ h2.topic{
 }
 
 #l-reason, #reason-t {
-    width: 120px;
+    width: 100px;
 }
 
 #l-outcome, #outcome-t {
-    width: 120px;
+    width: 100px;
 }
 
 #l-duration, #duration-t {
-    width: 7re0px;
+    width: 70px;
 }
 
 .t-item{
@@ -961,7 +961,7 @@ input[type="radio"]:checked+label{ font-weight: bold }
     border-color: #EDF1F5;
     border-style: solid;
     border-width: 1px 0;
-    font-size: 13px;
+    font-size: 11px;
     list-style: none outside none;
     position: relative;
     min-height: 14px;
@@ -999,11 +999,12 @@ input[type="radio"]:checked+label{ font-weight: bold }
     margin-left:10px;
     width:70%;
     height:inherit;
-    background: url("../img/white_pixel.png") repeat-x scroll 0 0 #F0F9FF;
+    /*background: url("../img/white_pixel.png") repeat-x scroll 0 0 #F0F9FF;*/
     padding-left: 5px;
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
     border-radius: 5px;
+    padding-top: 2px;
 }
 
 #div-paginator{
@@ -1072,7 +1073,7 @@ div.headercode{
 
 .record.comfortable{
   line-height: 32px;
-  font-size: 14px;
+  font-size: 12px;
 }
 
 #ol-content{

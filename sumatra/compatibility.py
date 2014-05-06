@@ -1,6 +1,9 @@
 """
 Tricks to support Python 2 and Python 3 with the same code base.
 
+
+:copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
+:license: CeCILL, see LICENSE for details.
 """
 
 try:
@@ -13,7 +16,7 @@ try:
     from cStringIO import StringIO
 except ImportError:
     from io import StringIO
-    
+
 try:
     from urllib2 import urlopen, URLError
     from urllib import urlretrieve

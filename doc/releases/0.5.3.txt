@@ -1,0 +1,8 @@
+===========================
+Sumatra 0.5.3 release notes
+===========================
+
+*April 9th 2014*
+
+Sumatra 0.5.3 is a minor release that adds support for the ISO datetime format and fixes a problem when trying to
+move a project to another machine.

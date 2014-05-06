@@ -2,6 +2,8 @@
 Utility functions for use in publishing modules
 
 
+:copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
+:license: CeCILL, see LICENSE for details.
 """
 
 import os
@@ -14,20 +16,24 @@ from sumatra.datastore import DataKey
 
 _cache = {}
 
+
 def mkdir(path):
     try:
         os.makedirs(path)
     except OSError as exc:
         if exc.errno == errno.EEXIST and os.path.isdir(path):
             pass
-        else: raise
+        else:
+            raise
 
 
 class cache(object):
     """Cache decorator"""
     global _cache
+
     def __init__(self, func):
         self.func = func
+
     def __call__(self, options):
         assert isinstance(options, dict)
         if 'project' in options and 'record_store' in options:
@@ -81,18 +87,18 @@ def get_record_label_and_image_path(ref):
     if '?' in ref:
         parts = ref.split("?")
         if len(parts) == 2:
-            record_label, image_path =  parts
+            record_label, image_path = parts
             image_path = "?" + image_path
         else:
             raise Exception("Invalid record/path query")
     elif ':' in ref:
         parts = ref.split(":")
         if len(parts) == 2:
-            record_label, image_path =  parts
+            record_label, image_path = parts
         else:
             raise Exception("Invalid record/path reference")
     else:
-        record_label, image_path =  ref, None
+        record_label, image_path = ref, None
     return record_label, image_path
 
 
@@ -113,11 +119,11 @@ def get_image(record, image_path, sumatra_options, err=Exception):
                     break
         if image_key is None:
             raise ValueError("Record %s has no output data file with path %s. Valid paths are: %s" % (
-                    record.label, image_path, ", ".join(key.path for key in record.output_data)))
+                record.label, image_path, ", ".join(key.path for key in record.output_data)))
     assert isinstance(image_key, DataKey)
     # check expected digest, if supplied, against key.digest
     if ('digest' in sumatra_options
-        and sumatra_options['digest'] != image_key.digest):
+            and sumatra_options['digest'] != image_key.digest):
         raise err('Digests do not match')
     return record.datastore.get_data_item(image_key)  # checks key.digest against file contents
 

@@ -8,6 +8,9 @@ version information. There is also a sub-module :mod:`core`, which contains
 heuristics that are independent of the language, e.g. where the dependencies are
 under version control.
 
+
+:copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
+:license: CeCILL, see LICENSE for details.
 """
 
 from __future__ import with_statement
@@ -16,12 +19,12 @@ import sys
 import warnings
 
 from sumatra.dependency_finder import core, neuron, python, genesis, matlab
-    
+
 
 def find_dependencies(filename, executable):
     """
     Return a list of dependencies for a given script and programming language.
-    
+
     *filename*:
         the path to the script whose dependencies should be found.
     *executable*:

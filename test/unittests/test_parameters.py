@@ -18,19 +18,20 @@ from sumatra.parameters import SimpleParameterSet, JSONParameterSet, \
         YAMLParameterSet, yaml_loaded
 from sumatra.compatibility import string_type
 
+
 class TestNTParameterSet(unittest.TestCase):
 
     def setUp(self):
         self.example = {
-                    "y": {
-                        "a": -2,
-                        "b": [4, 5, 6],
-                        "c": 5,
-                    },
-                    "x": 2.9,
-                    "z": 100,
-                    "mylabel": "camelot",
-                    "have_horse": False,
+            "y": {
+                "a": -2,
+                "b": [4, 5, 6],
+                "c": 5,
+            },
+            "x": 2.9,
+            "z": 100,
+            "mylabel": "camelot",
+            "have_horse": False,
         }
 
     def test__json_should_be_accepted(self):
@@ -45,7 +46,7 @@ class TestNTParameterSet(unittest.TestCase):
         as_string = str(P)
         self.assertIsInstance(as_string, string_type)
         self.assertEqual(P, NTParameterSet(as_string))
-    
+
     def test__pop(self):
         P = NTParameterSet(self.example)
         self.assertEqual(P.pop('x'), 2.9)
@@ -54,6 +55,8 @@ class TestNTParameterSet(unittest.TestCase):
                                       "b": [4, 5, 6],
                                       "c": 5})
         self.assertEqual(P.as_dict(), {'z': 100, 'mylabel': 'camelot'})
+        self.assertEqual(P.pop('foo', 42), 42)
+        self.assertEqual(P.pop('foo', None), None)
 
 
 class TestSimpleParameterSet(unittest.TestCase):
@@ -169,16 +172,23 @@ class TestSimpleParameterSet(unittest.TestCase):
         self.assertEqual(P["tumoltuae"], 42)
         self.assertRaises(TypeError, P.update, "bar", {})
 
+    def test__update_kwargs(self):
+        P = SimpleParameterSet("x = 2\ny = 3")
+        P.update({}, z="hello")
+        self.assertEqual(P["z"], "hello")
+
     def test__str(self):
         P = SimpleParameterSet("x = 2\ny = 3")
         as_string = str(P)
         self.assertIsInstance(as_string, string_type)
         self.assertEqual(P, SimpleParameterSet(as_string))
-    
+
     def test__pop(self):
         P = SimpleParameterSet("x = 2\ny = 3")
         self.assertEqual(P.pop('x'), 2)
         self.assertEqual(P.as_dict(), {'y': 3})
+        self.assertEqual(P.pop('foo', 42), 42)
+        self.assertEqual(P.pop('foo', None), None)
 
 
 class TestConfigParserParameterSet(unittest.TestCase):
@@ -233,17 +243,19 @@ class TestConfigParserParameterSet(unittest.TestCase):
         as_string = str(P)
         self.assertIsInstance(as_string, string_type)
         self.assertEqual(P, ConfigParserParameterSet(as_string))
-    
+
     def test__pop(self):
         init = self.__class__.test_parameters
         P = ConfigParserParameterSet(init)
         self.assertEqual(P.pop('sectionA.b'), '3')
+        self.assertEqual(P.pop('sectionA.foo', 42), 42)
 
     def test__getitem(self):
         init = self.__class__.test_parameters
         P = ConfigParserParameterSet(init)
         self.assertEqual(P['sectionA'], {'a': '2', 'b': '3'})
         self.assertEqual(P['sectionB.c'], 'hello')
+
 
 class TestJSONParameterSet(unittest.TestCase):
     test_parameters = dedent("""
@@ -287,13 +299,21 @@ class TestJSONParameterSet(unittest.TestCase):
         P = JSONParameterSet(init)
         as_string = str(P)
         self.assertIsInstance(as_string, string_type)
-    
+
     def test__pop(self):
         init = self.__class__.test_parameters
         P = JSONParameterSet(init)
         self.assertEqual(P.pop('a'), 2)
-        self.assertEqual(P.pop('c'), {"a":1, "b":2})
-        self.assertEqual(P.as_dict(), {'b': "hello", "d" : [1, 2, 3, 4]})
+        self.assertEqual(P.pop('c'), {"a": 1, "b": 2})
+        self.assertEqual(P.as_dict(), {'b': "hello", "d": [1, 2, 3, 4]})
+        self.assertEqual(P.pop('foo', 42), 42)
+        self.assertEqual(P.pop('foo', None), None)
+
+    def test__update(self):
+        P = JSONParameterSet(self.__class__.test_parameters)
+        P.update([("x", 1), ("y", 2)], z=3)
+        self.assertEqual(P["x"], 1)
+        self.assertEqual(P["z"], 3)
 
 
 class TestYAMLParameterSet(unittest.TestCase):
@@ -342,24 +362,38 @@ class TestYAMLParameterSet(unittest.TestCase):
         P = YAMLParameterSet(init)
         self.assertEqual(P.as_dict(),
                          {
-                            "a" : 2,
-                            "b" : "hello",
-                            "c" : {"a":1, "b":2},
-                            "d" : [1, 2, 3, 4]
-                        })
+                             "a": 2,
+                             "b": "hello",
+                             "c": {"a": 1, "b": 2},
+                             "d": [1, 2, 3, 4]
+                         })
 
     def test__str(self):
         init = self.__class__.test_parameters
         P = YAMLParameterSet(init)
         as_string = str(P)
         self.assertIsInstance(as_string, string_type)
-    
+
     def test__pop(self):
         init = self.__class__.test_parameters
         P = YAMLParameterSet(init)
         self.assertEqual(P.pop('a'), 2)
-        self.assertEqual(P.pop('c'), {"a":1, "b":2})
-        self.assertEqual(P.as_dict(), {'b': "hello", "d" : [1, 2, 3, 4]})
+        self.assertEqual(P.pop('c'), {"a": 1, "b": 2})
+        self.assertEqual(P.as_dict(), {'b': "hello", "d": [1, 2, 3, 4]})
+        self.assertEqual(P.pop('foo', 42), 42)
+        self.assertEqual(P.pop('foo', None), None)
+
+    def test_equality(self):
+        P = YAMLParameterSet(self.__class__.test_parameters)
+        Q = YAMLParameterSet(self.__class__.test_parameters)
+        self.assertEqual(P, Q)
+        Q.update({"a": 3})
+        self.assertNotEqual(P, Q)
+
+    def test__update(self):
+        P = YAMLParameterSet(self.__class__.test_parameters)
+        P.update([("x", 1), ("y", 2)], z=3)
+        self.assertEqual(P["z"], 3)
 
 
 class TestModuleFunctions(unittest.TestCase):
@@ -374,28 +408,46 @@ class TestModuleFunctions(unittest.TestCase):
         init3 = "[sectionA]\na = 2\nb = 3\n[sectionB]\nc = hello\nd = world"
         with open("test_file.config", "w") as f:
             f.write(init3)
+        with open("test_file.json", "w") as f:
+            f.write(init2)
+        if yaml_loaded:
+            with open("test_file.yaml", "w") as f:
+                f.write(init2)
 
     def tearDown(self):
         os.remove("test_file.simple")
         os.remove("test_file.hierarchical")
         os.remove("test_file.config")
+        os.remove("test_file.json")
+        if yaml_loaded:
+            os.remove("test_file.yaml")
 
     def test__build_parameters_simple(self):
         P = build_parameters("test_file.simple")
         self.assertEqual(P.as_dict(), {'x': 2, 'y': 3})
         self.assertIsInstance(P, SimpleParameterSet)
-        
+
     def test__build_parameters_hierarchical(self):
         P = build_parameters("test_file.hierarchical")
         self.assertEqual(P.as_dict(), {'x': 2, 'y': {'a': 3, 'b': 4}})
         self.assertIsInstance(P, (JSONParameterSet, YAMLParameterSet, NTParameterSet))
-    
+
     def test__build_parameters_config(self):
         P = build_parameters("test_file.config")
         self.assertEqual(P.as_dict(), {'sectionA': {'a': '2', 'b': '3'}, 'sectionB': {'c': 'hello', 'd': 'world'}})
         self.assertIsInstance(P, ConfigParserParameterSet)
 
-    
+    def test__build_parameters_json(self):
+        P = build_parameters("test_file.json")
+        self.assertEqual(P.as_dict(), {'x': 2, 'y': {'a': 3, 'b': 4}})
+        self.assertIsInstance(P, JSONParameterSet)
+
+    @unittest.skipUnless(yaml_loaded, "PyYAML not available")
+    def test__build_parameters_yaml(self):
+        P = build_parameters("test_file.yaml")
+        self.assertEqual(P.as_dict(), {'x': 2, 'y': {'a': 3, 'b': 4}})
+        self.assertIsInstance(P, YAMLParameterSet)
+
 
 # these tests should now be applied to commands.parse_arguments and/or commands.parse_command_line_parameter()
     #def test__build_parameters__should_add_new_command_line_parameters_to_the_file_parameters(self):

@@ -14,11 +14,16 @@ may_have_working_copy() - determine whether a .git subdirectory exists at a give
                           path
 get_working_copy()      - return a GitWorkingCopy object for a given path
 get_repository()        - return a GitRepository object for a given URL.
+
+
+:copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
+:license: CeCILL, see LICENSE for details.
 """
 
 import git
 import os
 import shutil
+from ConfigParser import NoSectionError, NoOptionError
 try:
     from git.errors import InvalidGitRepositoryError, NoSuchPathError
 except:
@@ -71,7 +76,7 @@ def get_repository(url):
     if repos.exists:
         return repos
     else:
-        raise VersionControlError("Cannot access Git repository at %s" % self.url)   
+        raise VersionControlError("Cannot access Git repository at %s" % url)
 
 
 class GitWorkingCopy(WorkingCopy):
@@ -90,7 +95,7 @@ class GitWorkingCopy(WorkingCopy):
             return head.commit.hexsha
         except AttributeError:
             return head.commit.sha
-    
+
     def use_version(self, version):
         logger.debug("Using git version: %s" % version)
         if version is not 'master':
@@ -99,14 +104,14 @@ class GitWorkingCopy(WorkingCopy):
         g.checkout(version)
 
     def use_latest_version(self):
-        self.use_version('master') # note that we are assuming all code is in the 'master' branch
-        
+        self.use_version('master')  # note that we are assuming all code is in the 'master' branch
+
     def status(self):
         raise NotImplementedError()
 
     def has_changed(self):
         return self.repository._repository.is_dirty()
-    
+
     def diff(self):
         """Difference between working copy and repository."""
         g = git.Git(self.path)
@@ -122,18 +127,21 @@ class GitWorkingCopy(WorkingCopy):
     def contains(self, path):
         """Does the repository contain the file with the given path?"""
         return path in self.repository._repository.git.ls_files().split()
-        
+
     def get_username(self):
         config = self.repository._repository.config_reader()
-        return "%s <%s>" % (config.get('user', 'name'),
-                            config.get('user', 'email'))
+        try:
+            username, email = (config.get('user', 'name'), config.get('user', 'email'))
+        except (NoSectionError, NoOptionError):
+            return ""
+        return "%s <%s>" % (username, email)
 
 
 def move_contents(src, dst):
     for file in os.listdir(src):
         src_path = os.path.join(src, file)
         if os.path.isdir(src_path):
-            shutil.copytree(src_path, os.path.join(dst, file))    
+            shutil.copytree(src_path, os.path.join(dst, file))
         else:
             shutil.copy2(src_path, dst)
     shutil.rmtree(src)
@@ -142,13 +150,13 @@ def move_contents(src, dst):
 class GitRepository(Repository):
     use_version_cmd = "git checkout"
     apply_patch_cmd = "git apply"
-    
+
     def __init__(self, url, upstream=None):
         check_version()
         Repository.__init__(self, url, upstream)
         self.__repository = None
         self.upstream = self.upstream or self._get_upstream()
-    
+
     @property
     def exists(self):
         try:
@@ -156,20 +164,20 @@ class GitRepository(Repository):
         except VersionControlError:
             pass
         return bool(self.__repository)
-    
+
     @property
     def _repository(self):
         if self.__repository is None:
             try:
-                self.__repository = git.Repo(self.url)   
+                self.__repository = git.Repo(self.url)
             except (InvalidGitRepositoryError, NoSuchPathError) as err:
-                raise VersionControlError("Cannot access Git repository at %s: %s" % (self.url, err))    
-        return self.__repository    
-    
+                raise VersionControlError("Cannot access Git repository at %s: %s" % (self.url, err))
+        return self.__repository
+
     def checkout(self, path="."):
         """Clone a repository."""
         path = os.path.abspath(path)
-        g = git.Git(path)       
+        g = git.Git(path)
         if self.url == path:
             # already have a repository in the working directory
             pass

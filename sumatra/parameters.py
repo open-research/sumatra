@@ -23,15 +23,18 @@ JSONParameterSet
 YAMLParameterSet
     handles parameter files in YAML format
 
+
+:copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
+:license: CeCILL, see LICENSE for details.
 """
 
 from __future__ import with_statement, absolute_import
 import os.path
 import shutil
 try:
-    from ConfigParser import SafeConfigParser, MissingSectionHeaderError  # Python 2
+    from ConfigParser import SafeConfigParser, MissingSectionHeaderError, NoOptionError  # Python 2
 except ImportError:
-    from configparser import SafeConfigParser, MissingSectionHeaderError  # Python 3
+    from configparser import SafeConfigParser, MissingSectionHeaderError, NoOptionError  # Python 3
 try:
     import json
 except ImportError:
@@ -43,6 +46,8 @@ except ImportError:
     yaml_loaded = False
 import parameters
 from .compatibility import string_type, StringIO
+
+POP_NONE = "eiutbocqnluiegnclqiuetyvbietcbdgsfzpq"
 
 
 class YAMLParameterSet(object):
@@ -108,8 +113,8 @@ class YAMLParameterSet(object):
         return filename
 
     def update(self, E, **F):
-        __doc__ = dict.update.__doc__
         self.values.update(E, **F)
+    update.__doc__ = dict.update.__doc__
 
     def pop(self, key, d=None):
         if key in self.values:
@@ -187,13 +192,13 @@ class SimpleParameterSet(object):
     def __ne__(self, other):
         return not self.__eq__(other)
 
-    def pop(self, k, d=None):
+    def pop(self, k, d=POP_NONE):
         if k in self.values:
             v = self.values.pop(k)
             self.types.pop(k)
             self.comments.pop(k, None)
             return v
-        elif d:
+        elif d is not POP_NONE:
             return d
         else:
             raise KeyError("%s not found" % k)
@@ -230,20 +235,20 @@ class SimpleParameterSet(object):
         return filename
 
     def update(self, E, **F):
-        __doc__ = dict.update.__doc__
         def _update(name, value):
             if not isinstance(value, (int, float, string_type, list)):
                 raise TypeError("value must be a numeric value or a string")
             self.values[name] = value
             self.types[name] = type(value)
         if hasattr(E, "items"):
-            for name,value in E.items():
+            for name, value in E.items():
                 _update(name, value)
         else:
             for name, value in E:
                 _update(name, value)
-        for name,value in F.items():
+        for name, value in F.items():
             _update(name, value)
+    update.__doc__ = dict.update.__doc__
 
 
 class ConfigParserParameterSet(SafeConfigParser):
@@ -264,7 +269,7 @@ class ConfigParserParameterSet(SafeConfigParser):
                 self.read(initialiser)
                 self.source_file = initialiser
             else:
-                input = StringIO(str(initialiser)) # configparser has some problems with unicode. Using str() is a crude, and probably partial fix.
+                input = StringIO(str(initialiser))  # configparser has some problems with unicode. Using str() is a crude, and probably partial fix.
                 input.seek(0)
                 self.readfp(input)
         except MissingSectionHeaderError:
@@ -319,12 +324,11 @@ class ConfigParserParameterSet(SafeConfigParser):
         return filename
 
     def update(self, E, **F):
-        __doc__ = dict.update.__doc__
         def _update(name, value):
             if "." in name:
                 section, option = name.split(".")
             else:
-                section = "sumatra" # used for extra parameters added by sumatra
+                section = "sumatra"  # used for extra parameters added by sumatra
                 option = name
             if not self.has_section(section):
                 self.add_section(section)
@@ -332,19 +336,26 @@ class ConfigParserParameterSet(SafeConfigParser):
                 value = str(value)
             self.set(section, option, value)
         if hasattr(E, "items"):
-            for name,value in E.items():
+            for name, value in E.items():
                 _update(name, value)
         else:
             for name, value in E:
                 _update(name, value)
-        for name,value in F.items():
+        for name, value in F.items():
             _update(name, value)
+    update.__doc__ = dict.update.__doc__
 
-    def pop(self, name, d=None):
+    def pop(self, name, d=POP_NONE):
         if "." in name:
             section, option = name.split(".")
-            value = self.get(section, option)
-            self.remove_option(section, option)
+            try:
+                value = self.get(section, option)
+                self.remove_option(section, option)
+            except NoOptionError:
+                if d is not POP_NONE:
+                    value = d
+                else:
+                    raise KeyError('name')
             return value
         elif self.has_option("sumatra", name):
             value = self.get("sumatra", name)
@@ -413,8 +424,8 @@ class JSONParameterSet(object):
         return filename
 
     def update(self, E, **F):
-        __doc__ = dict.update.__doc__
         self.values.update(E, **F)
+    update.__doc__ = dict.update.__doc__
 
     def pop(self, key, d=None):
         if key in self.values:
@@ -429,7 +440,6 @@ def build_parameters(filename):
         return JSONParameterSet(filename)
     elif yaml_loaded and ext == ".yaml":
         return YAMLParameterSet(filename)
-    
     try:
         parameters = JSONParameterSet(filename)
         return parameters

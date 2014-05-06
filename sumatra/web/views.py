@@ -1,5 +1,8 @@
 """
 Defines view functions and forms for the Sumatra web interface.
+
+:copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
+:license: CeCILL, see LICENSE for details.
 """
 
 import os
@@ -13,7 +16,7 @@ try:
     from django.views.generic.dates import MonthArchiveView
 except ImportError:  # older versions of Django
     MonthArchiveView = object
-from services import DefaultTemplate, AjaxTemplate, ProjectUpdateForm, RecordUpdateForm, unescape
+from services import DefaultTemplate, AjaxTemplate, ProjectUpdateForm, RecordUpdateForm, TagUpdateForm, unescape
 from sumatra.recordstore.django_store.models import Project, Tag, Record
 from sumatra.datastore import get_data_store, DataKey
 from sumatra.versioncontrol import get_working_copy
@@ -154,7 +157,7 @@ def set_tags(request, project):
         records_to_settags = records_to_settags.split(',')
         records = Record.objects.filter(label__in=records_to_settags, project__id=project)
         for record in records:
-            form = RecordUpdateForm(request.POST, instance=record)
+            form = TagUpdateForm(request.POST, instance=record)
             if form.is_valid():
                 form.save()
         return HttpResponseRedirect('.')
@@ -318,7 +321,7 @@ def show_file(request, project, label):
                                            'digest': digest,
                                            'mimetype': mimetype
                                            })
-        elif mimetype == None or mimetype.split("/")[0] == "text":
+        elif mimetype is None or mimetype.split("/")[0] == "text":
             content = data_store.get_content(data_key, max_length=max_display_length)
             if max_display_length is not None and len(content) >= max_display_length:
                 truncated = True

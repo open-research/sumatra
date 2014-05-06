@@ -34,7 +34,7 @@ current affiliation of a contributor.
 11. National Institute of Standards and Technology, USA
 
 
-If I've somehow missed you off the list I'm very sorry - please let us know.
+If we've somehow missed you off the list I'm very sorry - please let us know.
 
 Many thanks also go to everyone who has reported bugs on the issue tracker.
 

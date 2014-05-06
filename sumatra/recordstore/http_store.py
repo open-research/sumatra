@@ -12,8 +12,13 @@ and should both accept and return JSON-encoded data when the Accept header is
 "application/json".
 
 The required JSON structure can be seen in recordstore.serialization.
+
+
+:copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
+:license: CeCILL, see LICENSE for details.
 """
 
+from warnings import warn
 from sumatra.recordstore.base import RecordStore, RecordStoreAccessError
 from sumatra.recordstore import serialization
 import httplib2
@@ -28,8 +33,9 @@ def domain(url):
 
 def process_url(url):
     """Strip out username and password if included in URL"""
-    username = None; password = None
-    if '@' in url: # allow encoding username and password in URL - deprecated in RFC 3986, but useful on the command-line
+    username = None
+    password = None
+    if '@' in url:  # allow encoding username and password in URL - deprecated in RFC 3986, but useful on the command-line
         parts = urlparse(url)
         username = parts.username
         password = parts.password
@@ -166,7 +172,7 @@ class HttpRecordStore(RecordStore):
         project_url = "%s%s/" % (self.server_url, project_name)
         if tags:
             if not hasattr(tags, "__iter__"):
-                tags=[tags]
+                tags = [tags]
             project_url += "?tags=%s" % ",".join(tags)
         response, content = self._get(project_url, 'project')
         if response.status != 200:
@@ -178,7 +184,7 @@ class HttpRecordStore(RecordStore):
         return records
 
     def labels(self, project_name):
-        return [record.label for record in self.list(project_name)] # probably inefficient
+        return [record.label for record in self.list(project_name)]  # probably inefficient
 
     def delete(self, project_name, label):
         url = "%s%s/%s/" % (self.server_url, project_name, label)
@@ -202,3 +208,6 @@ class HttpRecordStore(RecordStore):
         if not self.has_project(project_name):
             self.create_project(project_name)
         super(HttpRecordStore, self).sync(other, project_name)
+
+    def clear(self):
+        warn("Cannot clear a remote record store directly. Contact the record store administrator")

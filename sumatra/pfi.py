@@ -3,6 +3,9 @@
 Obtain platform information from every node of a cluster.
 
 This script should be placed somewhere on the user's path.
+
+:copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
+:license: CeCILL, see LICENSE for details.
 """
 
 from mpi4py import MPI

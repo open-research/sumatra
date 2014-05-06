@@ -36,32 +36,33 @@ To run it using Sumatra, you would use::
 Now we can see a list of the simulations we have run::
 
     $ smt list
-    20121017-114820
-    
+    20140418-154800
+
 This shows the label for each simulation we have run. Since we did not specify
 a label, one was automatically generated from the timestamp. To see more detail,
 use the ``--long`` option::
 
     $ smt list --long
     --------------------------------------------------------------------------------
-    Label            : 20121017-114820
-    Timestamp        : 2012-10-17 11:48:20.421631
-    Reason           : 
-    Outcome          : 
-    Duration         : 0.119576931
+    Label            : 20140418-154800
+    Timestamp        : 2014-04-18 15:48:00.439809
+    Reason           :
+    Outcome          :
+    Duration         : 0.216287851334
     Repository       : GitRepository at /path/to/myproject
     Main_File        : main.py
-    Version          : 560a4afae1565799a29ca259b6a400aa389e59dd
+    Version          : a75cf131a69ba831e915bc6a09987e832e65e7bc
     Script_Arguments : <parameters>
-    Executable       : Python (version: 2.7.1) at /usr/local/bin/python
-    Parameters       : seed = 45245
-                     : distr = "uniform"
-                     : n = 100
-                     : tau_m = 20.0
+    Executable       : Python (version: 2.6.8) at /usr/local/bin/python
+    Parameters       : seed = 65785 # seed for random number generator
+                     : distr = "uniform" # statistical distribution to draw values from
+                     : n = 100 # number of values to draw
     Input_Data       : []
     Launch_Mode      : serial
-    Output_Data      : [output.dat(dcb86788c2c793804a04e683fae99ad0bac8fb99)]
+    Output_Data      : [example2.dat(43a47cb379df2a7008fdeb38c6172278d000fdc4)]
+    User             : Arthur Dent <dent@example.com>
     Tags             :
+    Repeats          : None
     
 (most options also have a short form, ``-l`` in this case.)
 
@@ -84,16 +85,18 @@ To see the current configuration of your project, use the ``info`` command::
 
     $ smt info
     Project name        : MyProject
-    Default executable  : Python (version: 2.7.1) at /usr/local/bin/python
-    Default repository  : GitRepository at /path/to/my/project
+    Default executable  : Python (version: 2.6.8) at /usr/local/bin/python
+    Default repository  : GitRepository at /path/to/myproject
     Default main file   : main.py
     Default launch mode : serial
-    Data store (output) : ./Data
+    Data store (output) : /path/to/myproject/Data
     .          (input)  : /
-    Record store        : Relational database record store using the Django ORM (database file=/path/to/my/project/.smt/records)
+    Record store        : Django (/path/to/myproject/.smt/records)
     Code change policy  : error
     Append label to     : None
     Label generator     : timestamp
+    Timestamp format    : %Y%m%d-%H%M%S
+    Sumatra version     : 0.6.0
     
 Sumatra automatically records the identity and versions of the simulation files
 and the simulator executable, stores links to any files created by the
@@ -111,7 +114,7 @@ After the simulation is complete, you can add a description of the outcome::
 This adds the comment to the most recent simulation. You may also describe the outcome
 of an earlier simulation, by specifying its label::
 
-    $ smt comment 20121017-114820 "Eureka! Nobel prize here we come."
+    $ smt comment 20140418-154800 "Eureka! Nobel prize here we come."
     
 You can also tag a simulation record with one or more short keywords::
 
@@ -145,7 +148,7 @@ output is identical to that of the original run::
 Although it is better not to delete simulation records (so as to preserve a full
 record of the project, false starts and all), it is possible::
 
-    $ smt delete 20121017-123706
+    $ smt delete 20140418-154800
     
 It is also possible to delete all simulations with a given tag::
 
@@ -158,10 +161,10 @@ available by running ``smt`` by itself::
 
     $ smt
     Usage: smt <subcommand> [options] [args]
-  
-    Simulation/analysis management tool version 0.4.0.dev 
     
-    Available subcommands:  
+    Simulation/analysis management tool version 0.6.0
+    
+    Available subcommands:
       init
       configure
       info
@@ -172,24 +175,32 @@ available by running ``smt`` by itself::
       tag
       repeat
       diff
+      help
       export
       upgrade
       sync
+      migrate
 
 
 and help on a given command is available by running the command with the ``--help``
 option, e.g.::
 
     $ smt comment --help
-    Usage: smt comment [options] [LABEL] [COMMENT]
-
+    usage: smt comment [options] [LABEL] COMMENT
+    
     This command is used to describe the outcome of the simulation/analysis. If
-    LABEL is omitted, the comment will be added to the most recent experiment (any
-    existing comment will be overwritten). If the '-f/--file' option is set,
-    COMMENT should be the name of a file containing the comment, otherwise it
-    should be a string of text.
-
-    Options:
+    LABEL is omitted, the comment will be added to the most recent experiment. If
+    the '-f/--file' option is set, COMMENT should be the name of a file containing
+    the comment, otherwise it should be a string of text. By default, comments
+    will be appended to any existing comments. To overwrite existing comments, use
+    the '-r/--replace flag.
+    
+    positional arguments:
+      LABEL          the record to which the comment will be added
+      comment        a string of text, or the name of a file containing the
+                     comment.
+    
+    optional arguments:
       -h, --help     show this help message and exit
       -r, --replace  if this flag is set, any existing comment will be
                      overwritten, otherwise, the new comment will be appended to

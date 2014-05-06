@@ -28,6 +28,10 @@ Module variables
 
 heuristics - a list of functions that will be called in sequence by
              find_version()
+
+
+:copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
+:license: CeCILL, see LICENSE for details.
 """
 
 from __future__ import with_statement
@@ -55,12 +59,12 @@ def run_script(executable_path, script):
     # process-creation overhead.
     import textwrap
     import subprocess
-    script = str(script) # get problems if script is is unicode
+    script = str(script)  # get problems if script is is unicode
     p = subprocess.Popen(executable_path, shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
     encoding = get_encoding()
-    output, err = p.communicate(textwrap.dedent(script).encode(encoding)) # should handle err
+    output, err = p.communicate(textwrap.dedent(script).encode(encoding))  # should handle err
     output = output.decode(encoding)
-    output = output[output.find(SENTINEL)+len(SENTINEL):]
+    output = output[output.find(SENTINEL) + len(SENTINEL):]
     try:
         return_value = eval(output)
     except SyntaxError as err:
@@ -109,6 +113,7 @@ for name in module_names:
 sys.stdout.write("%(sentinel)s" + str(versions))
 """
 
+
 def find_versions_by_attribute(dependencies, executable):
     """Try to find version information from the attributes of a Python module."""
     context = {
@@ -135,7 +140,7 @@ def find_versions_from_egg(dependencies):
        obtain version information from this."""
     for dependency in dependencies:
         if dependency.version == 'unknown':
-            dir = os.path.dirname(dependency.path) # should check if dirname ends in ".egg" - may need parent directory
+            dir = os.path.dirname(dependency.path)  # should check if dirname ends in ".egg" - may need parent directory
             if os.path.isdir(dir):
                 if 'EGG-INFO' in os.listdir(dir):
                     with open(os.path.join(dir, 'EGG-INFO', 'PKG-INFO')) as f:
@@ -167,9 +172,9 @@ class Dependency(core.BaseDependency):
     @classmethod
     def from_module(cls, module, executable_path):
         """Create from modulefinder.Module instance."""
-        path = os.path.realpath(module.__path__[0]) # resolve any symbolic links
+        path = os.path.realpath(module.__path__[0])  # resolve any symbolic links
         if len(module.__path__) > 1:
-            raise Exception("This is not supposed to happen. Please tell the package developers about this.") # or I could figure out for myself when this could happen
+            raise Exception("This is not supposed to happen. Please tell the package developers about this.")  # or I could figure out for myself when this could happen
         return cls(module.__name__, module.__path__[0])
 
 
@@ -182,11 +187,11 @@ def find_imported_packages(filename, executable_path, debug=0, exclude_stdlib=Tr
     all the dependency finding and version checking in a subprocess with the
     correct version of Python.
     """
-    #Actually, we could check whether executable_path matches sys.executable, and
-    #then do it in this process. On the other hand, the dependency finding
-    #could run in parallel with the simulation (good for multicore): we could
-    #move setting of dependencies to after the simulation, rather than having it
-    #in record.register()
+    # Actually, we could check whether executable_path matches sys.executable, and
+    # then do it in this process. On the other hand, the dependency finding
+    # could run in parallel with the simulation (good for multicore): we could
+    # move setting of dependencies to after the simulation, rather than having it
+    # in record.register()
     script = """
         from modulefinder import ModuleFinder
         import sys, os

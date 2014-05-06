@@ -6,6 +6,10 @@ Usage:
 @capture
 def main(parameters, [other_args...]):
     <body of main function>
+
+
+:copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
+:license: CeCILL, see LICENSE for details.
 """
 
 import time

@@ -1,5 +1,9 @@
 """
 docstring goes here
+
+
+:copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
+:license: CeCILL, see LICENSE for details.
 """
 
 
@@ -171,3 +175,9 @@ class RecordUpdateForm(forms.ModelForm):
     class Meta:
         model = models.Record
         fields = ('reason', 'outcome', 'tags')
+
+
+class TagUpdateForm(forms.ModelForm):
+    class Meta:
+        model = models.Record
+        fields = ('tags',)

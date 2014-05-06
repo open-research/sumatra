@@ -9,10 +9,11 @@ comment
     usage: smt comment [options] [LABEL] COMMENT
     
     This command is used to describe the outcome of the simulation/analysis. If
-    LABEL is omitted, the comment will be added to the most recent experiment (any
-    existing comment will be overwritten). If the '-f/--file' option is set,
-    COMMENT should be the name of a file containing the comment, otherwise it
-    should be a string of text.
+    LABEL is omitted, the comment will be added to the most recent experiment. If
+    the '-f/--file' option is set, COMMENT should be the name of a file containing
+    the comment, otherwise it should be a string of text. By default, comments
+    will be appended to any existing comments. To overwrite existing comments, use
+    the '-r/--replace flag.
     
     positional arguments:
       LABEL          the record to which the comment will be added

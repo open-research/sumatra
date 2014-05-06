@@ -115,7 +115,7 @@ immediately before launching your computation and then determining what has chan
 This means that if you have multiple processes writing to the same directory, Sumatra will get confused about which files
 were created by which process.
 
-A workaround is to ensure that each computation writes to a different directory, and then use :cmd:`smt configure --datapath`
+A workaround is to ensure that each computation writes to a different directory, and then use :command:`smt configure --datapath`
 immediately before each run to tell Sumatra which directory to look in.
 
 A more streamlined version of this workflow is to use the :option:`--addlabel` option to have Sumatra automatically add

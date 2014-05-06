@@ -9,6 +9,10 @@ Record - gathers and stores information about an individual simulation or
          analysis run.
          Can be instantiated directly, but more usually created by the
          new_record() method of Project.
+
+
+:copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
+:license: CeCILL, see LICENSE for details.
 """
 
 from datetime import datetime

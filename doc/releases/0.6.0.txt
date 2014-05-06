@@ -2,14 +2,14 @@
 Sumatra 0.6.0 release notes
 ===========================
 
-*DATE 2014*
+*18th April 2014*
 
 Welcome to Sumatra 0.6.0!
 
 This version of Sumatra sees many new features, improvements to existing ones,
 and bug fixes:
 
-.. todo:: finish postgres support, change to absolute path for datastores
+.. todo:: change to absolute path for datastores
 
 New export formats: LaTeX and bash script
 -----------------------------------------
@@ -78,13 +78,13 @@ The default record store for Sumatra is based on the Django ORM, using SQLite as
 backend. It is now possible to use PostgreSQL instead of SQLite, which gives better
 performance and allows the Sumatra record store to be placed on a separate server.
 
-To set up a new Sumatra project using PostgreSQL, ....
-
-.. todo:: finish this
-
-::
+To set up a new Sumatra project using PostgreSQL, you will first have to create a
+database using the PostgreSQL tools (:command:`psql`, etc.). You then configure
+Sumatra as follows::
 
     $ smt init --store=postgres://username:password@hostname/databasename MyProject
+
+Note that the database tables will not be created until after the first :command:`smt run`.
 
 
 Integration with the SLURM resource manager
@@ -158,9 +158,9 @@ Miscellaneous improvements
 Bug fixes
 ---------
 
-A `handful of bugs`_ have been fixed.
+A `fair number of bugs`_ have been fixed.
 
-.. _`handful of bugs`: https://neuralensemble.org/trac/sumatra/query?status=closed&resolution=fixed&milestone=0.6&type=defect
+.. _`fair number of bugs`: https://bitbucket.org/apdavison/sumatra/issues?status=resolved&milestone=0.6&sort=created_on
 .. _Bitbucket: https://bitbucket.org/apdavison/sumatra
 .. _SLURM: https://computing.llnl.gov/linux/slurm/
 .. _`Django ORM`: https://docs.djangoproject.com/en/dev/topics/db/models/
