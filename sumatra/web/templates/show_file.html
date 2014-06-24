@@ -8,6 +8,20 @@
 <p>Mimetype: {{mimetype}}
 {% endif %}
 
+<h4> Associated records: </h4>
+
+<p>Output of:
+  {% for record in output_record %}
+  <a href="/{{project_name}}/{{record.label}}/"> 
+    {{record.label}}</a> 
+  {% endfor %} <br />
+
+  Used as input in: 
+  {% for record in input_records %} 
+  <a href="/{{project_name}}/{{record.label}}/"> 
+    {{record.label}}</a>, 
+  {% endfor %}</p>
+
 <div class="plaintext">
 <pre>
 {{content|escape}}

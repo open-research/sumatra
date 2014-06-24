@@ -274,6 +274,12 @@ def show_file(request, project, label):
         data_store = get_data_store(record.input_datastore.type, eval(record.input_datastore.parameters))
     truncated = False
     mimetype, encoding = mimetypes.guess_type(path)
+
+    input_records = Record.objects.filter(input_data__digest = data_key.digest)
+    # expecting len(output_record) == 1. Needs verification?
+    output_record = Record.objects.filter(output_data__digest = data_key.digest)
+
+
     try:
         if mimetype == "text/csv":
             content = data_store.get_content(data_key, max_length=max_display_length)
@@ -321,7 +327,9 @@ def show_file(request, project, label):
                                            'project_name': project,
                                            'truncated': truncated,
                                            'digest': digest,
-                                           'mimetype': mimetype
+                                           'mimetype': mimetype,
+                                           'input_records': input_records,
+                                           'output_record': output_record
                                            })
         elif mimetype is None or mimetype.split("/")[0] == "text":
             content = data_store.get_content(data_key, max_length=max_display_length)
@@ -334,7 +342,9 @@ def show_file(request, project, label):
                                        'project_name': project,
                                        'content': content,
                                        'truncated': truncated,
-                                       'mimetype': mimetype
+                                       'mimetype': mimetype,
+                                       'input_records': input_records,
+                                       'output_record': output_record
                                        })
         elif mimetype in ("image/png", "image/jpeg", "image/gif", "image/x-png"):  # need to check digests match
             return render_to_response("show_image.html",
@@ -356,7 +366,9 @@ def show_file(request, project, label):
                                            'digest': digest,
                                            'content': "\n".join(contents),
                                            'project_name': project,
-                                           'mimetype': mimetype
+                                           'mimetype': mimetype,
+                                           'input_records': input_records,
+                                           'output_record': output_record
                                            })
             else:
                 raise IOError("Not a valid zip file")
@@ -367,6 +379,8 @@ def show_file(request, project, label):
                                        'project_name': project,
                                        'digest': digest,
                                        'mimetype': mimetype,
+                                       'input_records': input_records,
+                                       'output_record': output_record,
                                        'content': "Can't display this file (mimetype assumed to be %s)" % mimetype
                                        })
     except (IOError, KeyError), e:

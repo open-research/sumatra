@@ -274,6 +274,9 @@ class Project(object):
             records.reverse()
         return records
 
+
+    # def find_data() here?
+
     def format_records(self, format='text', mode='short', tags=None, reverse=False):
         records = self.find_records(tags=tags, reverse=reverse)
         formatter = get_formatter(format)(records, project=self, tags=tags)
