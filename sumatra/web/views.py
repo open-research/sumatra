@@ -394,8 +394,8 @@ def show_file(request, project, label):
                                    'label': label,
                                    'project_name': project,
                                    'digest': digest,
-                                   #'input_records': input_records,
-                                   #'output_records': output_records,
+                                   'input_records': input_records,
+                                   'output_records': output_records,
                                    'content': "File not found.",
                                    'errmsg': e
                                    })
