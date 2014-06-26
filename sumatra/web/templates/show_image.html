@@ -2,11 +2,8 @@
 
 
 {% block content %}
-<h3>{{path}}</h3>
 
-{% if mimetype %}
-<p>Mimetype: {{mimetype}}
-{% endif %}
+{{ block.super }}
 
 <img src="image?path={{path|urlencode}}&digest={{digest}}&type={{type}}" alt="/{{label}}:{{path}}"/>
 

@@ -1,26 +1,9 @@
 {% extends "show_file_base.html" %}
 
+
 {% block content %}
 
-<h3>{{path}}</h3>
-
-{% if mimetype %}
-<p>Mimetype: {{mimetype}}
-{% endif %}
-
-<h4> Associated records: </h4>
-
-<p>Output of:
-  {% for record in output_record %}
-  <a href="/{{project_name}}/{{record.label}}/"> 
-    {{record.label}}</a> 
-  {% endfor %} <br />
-
-  Used as input in: 
-  {% for record in input_records %} 
-  <a href="/{{project_name}}/{{record.label}}/"> 
-    {{record.label}}</a>, 
-  {% endfor %}</p>
+{{ block.super }}
 
 <div class="plaintext">
 <pre>

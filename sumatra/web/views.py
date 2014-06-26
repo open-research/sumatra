@@ -276,8 +276,8 @@ def show_file(request, project, label):
     mimetype, encoding = mimetypes.guess_type(path)
 
     input_records = Record.objects.filter(input_data__digest = data_key.digest)
-    # expecting len(output_record) == 1. Needs verification?
-    output_record = Record.objects.filter(output_data__digest = data_key.digest)
+    # len(output_record) > 1 possible
+    output_records = Record.objects.filter(output_data__digest = data_key.digest)
 
 
     try:
@@ -317,7 +317,9 @@ def show_file(request, project, label):
                                            'project_name': project,
                                            'reader': reader,
                                            'truncated': truncated,
-                                           'mimetype': mimetype
+                                           'mimetype': mimetype,
+                                           'input_records': input_records,
+                                           'output_records': output_records
                                            })
             else:
                 return render_to_response("show_file.html",
@@ -329,7 +331,7 @@ def show_file(request, project, label):
                                            'digest': digest,
                                            'mimetype': mimetype,
                                            'input_records': input_records,
-                                           'output_record': output_record
+                                           'output_records': output_records
                                            })
         elif mimetype is None or mimetype.split("/")[0] == "text":
             content = data_store.get_content(data_key, max_length=max_display_length)
@@ -344,7 +346,7 @@ def show_file(request, project, label):
                                        'truncated': truncated,
                                        'mimetype': mimetype,
                                        'input_records': input_records,
-                                       'output_record': output_record
+                                       'output_records': output_records
                                        })
         elif mimetype in ("image/png", "image/jpeg", "image/gif", "image/x-png"):  # need to check digests match
             return render_to_response("show_image.html",
@@ -353,7 +355,10 @@ def show_file(request, project, label):
                                        'digest': digest,
                                        'mimetype': mimetype,
                                        'project_name': project,
-                                       'type': type})
+                                       'type': type,
+                                       'input_records': input_records,
+                                       'output_records': output_records
+                                       })
         elif mimetype == 'application/zip':
             import zipfile
             if zipfile.is_zipfile(path):
@@ -368,7 +373,7 @@ def show_file(request, project, label):
                                            'project_name': project,
                                            'mimetype': mimetype,
                                            'input_records': input_records,
-                                           'output_record': output_record
+                                           'output_records': output_records
                                            })
             else:
                 raise IOError("Not a valid zip file")
@@ -380,7 +385,7 @@ def show_file(request, project, label):
                                        'digest': digest,
                                        'mimetype': mimetype,
                                        'input_records': input_records,
-                                       'output_record': output_record,
+                                       'output_records': output_records,
                                        'content': "Can't display this file (mimetype assumed to be %s)" % mimetype
                                        })
     except (IOError, KeyError), e:
@@ -389,6 +394,8 @@ def show_file(request, project, label):
                                    'label': label,
                                    'project_name': project,
                                    'digest': digest,
+                                   #'input_records': input_records,
+                                   #'output_records': output_records,
                                    'content': "File not found.",
                                    'errmsg': e
                                    })

@@ -2,11 +2,7 @@
 
 {% block content %}
 
-<h3>{{path}}</h3>
-
-{% if mimetype %}
-<p>Mimetype: {{mimetype}}
-{% endif %}
+{{ block.super }}
 
 <table class="csvfile">
 {% for row in reader %}
