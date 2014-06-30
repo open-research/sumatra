@@ -84,12 +84,11 @@ def parse_arguments(args, input_datastore, stdin=None, stdout=None,
     for arg in args:
         have_parameters = False
         if os.path.isfile(arg):  # could be a parameter file or a data file
-            try:
-                parameter_sets.append(build_parameters(arg))
+            parameters = build_parameters(arg)
+            if parameters is not None:
+                parameter_sets.append(parameters)
                 script_args.append("<parameters>")
                 have_parameters = True
-            except SyntaxError:
-                pass
         if not have_parameters:
             if input_datastore.contains_path(arg):
                 data_key = input_datastore.generate_keys(arg)

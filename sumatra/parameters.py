@@ -55,6 +55,7 @@ class YAMLParameterSet(object):
     Handles parameter files in YAML format, as parsed by the
     PyYAML module
     """
+    extension = ".yaml"
 
     def __init__(self, initialiser):
         """
@@ -371,6 +372,7 @@ class JSONParameterSet(object):
     Handles parameter files in JSON format, as parsed by the
     standard Python json module.
     """
+    extension = ".json"
 
     def __init__(self, initialiser):
         """
@@ -434,32 +436,37 @@ class JSONParameterSet(object):
             return d
 
 
+class Registry(object):
+
+    def __init__(self):
+        self.components = []
+        self.extension_map = {}
+
+    def register(self, component):
+        self.components.append(component)
+        for attr in ("update", "save"):
+            assert hasattr(component, attr)
+        if hasattr(component, "extension"):
+            self.extension_map[component.extension] = component
+
+registry = Registry()
+registry.register(JSONParameterSet)
+registry.register(YAMLParameterSet)
+registry.register(NTParameterSet)
+registry.register(ConfigParserParameterSet)
+registry.register(SimpleParameterSet)
+
+
 def build_parameters(filename):
     body, ext = os.path.splitext(filename)
-    if ext == ".json":
-        return JSONParameterSet(filename)
-    elif yaml_loaded and ext == ".yaml":
-        return YAMLParameterSet(filename)
-    try:
-        parameters = JSONParameterSet(filename)
-        return parameters
-    except SyntaxError:
-        pass
-    if yaml_loaded:
-        try:
-            parameters = YAMLParameterSet(filename)
-            return parameters
-        except SyntaxError:
-            pass
-    try:
-        parameters = NTParameterSet("file://%s" % os.path.abspath(filename))
-        return parameters
-    except (SyntaxError, NameError, UnicodeDecodeError):
-        pass
-    try:
-        parameters = ConfigParserParameterSet(filename)
-        return parameters
-    except SyntaxError:
-        pass
-    parameters = SimpleParameterSet(filename)
+    parameters = None
+    if ext in registry.extension_map:
+        parameter_set_class = registry.extension_map[ext]
+        parameters = parameter_set_class(filename)
+    else:
+        for parameter_set_class in registry.components:
+            try:
+                parameters = parameter_set_class(filename)
+            except (SyntaxError, NameError, UnicodeDecodeError):
+                pass
     return parameters

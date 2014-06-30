@@ -159,7 +159,7 @@ def mock_build_parameters(filename):
                    "pretty": lambda self, expand_urls: str(self)})
         return ps(this="mock")
     else:
-        raise SyntaxError
+        return None
 
 
 def store_original(module, name):
