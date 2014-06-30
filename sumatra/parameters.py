@@ -448,7 +448,8 @@ class JSONParameterSet(ParameterSet):
 registry.add_component_type(ParameterSet)
 
 registry.register(JSONParameterSet)
-registry.register(YAMLParameterSet)
+if yaml_loaded:
+    registry.register(YAMLParameterSet)
 registry.register(NTParameterSet)
 registry.register(ConfigParserParameterSet)
 registry.register(SimpleParameterSet)
