@@ -10,12 +10,13 @@ SQLite or PostgreSQL.
 """
 
 
-from sumatra.recordstore.base import RecordStore
-import django.conf as django_conf
-from django.core import management
 import os
 from textwrap import dedent
 import imp
+import django.conf as django_conf
+from django.core import management
+from sumatra.recordstore.base import RecordStore
+from ...core import registry
 from ...compatibility import StringIO, urlparse
 
 # Check that django-tagging is available. It would be better to try importing
@@ -297,3 +298,10 @@ class DjangoRecordStore(RecordStore):
         sys.stdout = sys.__stdout__
         data.seek(0)
         return data.read()
+
+    @classmethod
+    def accepts_uri(cls, uri):
+        return uri[:8] == "postgres" or os.path.exists(uri) or os.path.exists(uri + ".db")
+
+
+registry.register(DjangoRecordStore)

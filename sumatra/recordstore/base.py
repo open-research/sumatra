@@ -8,12 +8,15 @@ Provides base RecordStore class.
 
 from sumatra.recordstore import serialization
 from sumatra.formatting import get_formatter
+from ..core import registry
 
 
 class RecordStore(object):
     """
     Base class for record store implementations.
     """
+    required_attributes = ("list_projects", "save", "get", "list", "labels", "delete",
+                           "delete_all", "delete_by_tag", "most_recent", "has_project")
 
     def list_projects(self):
         """Return the names of all projects that have records in this store."""
@@ -110,10 +113,6 @@ class RecordStore(object):
         """Does the store contain any records for the given project?"""
         raise NotImplementedError
 
-    def list_projects(self):
-        """Return the names of all projects that have records in the store."""
-        raise NotImplementedError
-
     def update(self, project_name, field, value, tags=None):
         """
         Modify the records for a given project.
@@ -135,6 +134,9 @@ class RecordStore(object):
                 obj = getattr(obj, part)
             setattr(obj, parts[-1], value)
             self.save(project_name, record)
+
+
+registry.add_component_type(RecordStore)
 
 
 class RecordStoreAccessError(OSError):

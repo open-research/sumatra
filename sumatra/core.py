@@ -98,7 +98,11 @@ class Registry(object):
                 for attr in base_class.required_attributes:
                     if not hasattr(component, attr):
                         raise TypeError("%s is missing required attribute %s" % (component, attr))
-                self.components[base_class][component.name] = component
+                if hasattr(component, "name"):
+                    name = component.name
+                else:
+                    name = component.__name__
+                self.components[base_class][name] = component
                 return
         raise TypeError("%s is not a Sumatra component." % component)
 

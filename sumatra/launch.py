@@ -370,5 +370,4 @@ def get_launch_mode(mode_name):
     """
     Return a :class:`LaunchMode` object of the appropriate type.
     """
-    #return launch_modes[mode_name]
     return registry.components[LaunchMode][mode_name]

@@ -26,12 +26,13 @@ get_data_store() - return a DataStore object based on a class name and
 :license: CeCILL, see LICENSE for details.
 """
 
-from .base import DataKey, IGNORE_DIGEST
+from .base import DataStore, DataKey, IGNORE_DIGEST
 from .filesystem import FileSystemDataStore
 from .archivingfs import ArchivingFileSystemDataStore
 from .mirroredfs import MirroredFileSystemDataStore
+from ..core import registry
 
 
 def get_data_store(type, parameters):
-    cls = eval(type)
+    cls = registry.components[DataStore][type]
     return cls(**parameters)

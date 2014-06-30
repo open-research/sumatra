@@ -7,10 +7,10 @@ shelve module.
 """
 
 import os
-from sumatra.recordstore.base import RecordStore
-from sumatra.recordstore import serialization
 import shelve
 from datetime import datetime
+from sumatra.recordstore.base import RecordStore
+from ..core import registry
 
 
 def check_name(f):
@@ -117,3 +117,10 @@ class ShelveRecordStore(RecordStore):
 
     def clear(self):
         os.remove(self._shelf_name)
+
+    @classmethod
+    def accepts_uri(cls, uri):
+        return os.path.exists(uri) or os.path.exists(uri + ".db") or os.path.splitext(uri)[1] == ".shelf"
+
+
+registry.register(ShelveRecordStore)

@@ -19,10 +19,16 @@ The required JSON structure can be seen in recordstore.serialization.
 """
 
 from warnings import warn
+from urlparse import urlparse, urlunparse
+try:
+    import httplib2
+    have_http = True
+except ImportError:
+    have_http = False
 from sumatra.recordstore.base import RecordStore, RecordStoreAccessError
 from sumatra.recordstore import serialization
-import httplib2
-from urlparse import urlparse, urlunparse
+from ..core import registry
+
 
 API_VERSION = 3
 
@@ -204,10 +210,17 @@ class HttpRecordStore(RecordStore):
         return self._get_record(url).label
 
     def sync(self, other, project_name):
-        __doc__ = super(HttpRecordStore, self).__doc__
         if not self.has_project(project_name):
             self.create_project(project_name)
         super(HttpRecordStore, self).sync(other, project_name)
 
     def clear(self):
         warn("Cannot clear a remote record store directly. Contact the record store administrator")
+
+    @classmethod
+    def accepts_uri(cls, uri):
+        return uri[:4] == "http"
+
+
+if have_http:
+    registry.register(HttpRecordStore)

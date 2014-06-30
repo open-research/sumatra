@@ -7,13 +7,15 @@
 
 import hashlib
 import os.path
+from ..core import registry
 
 IGNORE_DIGEST = "0"*40
 
 
 class DataStore(object):
     """Base class for data storage abstractions."""
-    
+    required_attributes = ("find_new_data", "get_data_item", "delete")
+
     def __getstate__(self):
         """
         Since each subclass has different attributes, we provide this method
@@ -28,21 +30,21 @@ class DataStore(object):
     def find_new_data(self, timestamp):
         """Finds newly created/changed data items"""
         raise NotImplementedError
-    
+
     def get_data_item(self, key):
         """
         Return the file that matches the given key.
         """
         raise NotImplementedError
-    
+
     def get_content(self, key, max_length=None):
         """
         Return the contents of a file identified by a key.
-        
+
         If `max_length` is given, the return value will be truncated.
         """
         return self.get_data_item(key).get_content(max_length)
-    
+
     def delete(self, *keys):
         """
         Delete the files corresponding to the given keys.
@@ -60,22 +62,24 @@ class DataStore(object):
         """Does the store contain a data item with the given path?"""
         raise NotImplementedError
 
+registry.add_component_type(DataStore)
+
 
 class DataKey(object):
     """
     Identifies a :class:`DataItem`, and may be used to retrieve a
     :class:`DataItem` from a :class:`DataStore`.
-    
+
     May also be used to store metadata (e.g. file size, mimetype) and be used as
     a proxy for the :class:`DataItem` on a system where the actual data is not
     available.
     """
-    
+
     def __init__(self, path, digest, **metadata):
         self.path = path
         self.digest = digest
         self.metadata = metadata
-    
+
     def __repr__(self):
         return "%s(%s)" % (self.path, self.digest)
 
@@ -84,14 +88,14 @@ class DataKey(object):
 
     def __ne__(self, other):
         return not self.__eq__(other)
-        
-        
+
+
 class DataItem(object):
     """Base class for data item classes, that may represent files or database records."""
-    
+
     def __str__(self):
         return self.path
-    
+
     @property
     def digest(self):
         """docstring"""
@@ -104,10 +108,10 @@ class DataItem(object):
             return True
         else:
             return self.sorted_content == other.sorted_content
-        
+
     def __ne__(self, other):
         return not self.__eq__(other)
-    
+
     def generate_key(self):
         """Generate a :class:`DataKey` uniquely identifying this data item."""
         return DataKey(self.path, self.digest, mimetype=self.mimetype,
@@ -116,24 +120,24 @@ class DataItem(object):
     def get_content(self, max_length=None):
         """
         Return the contents of the data item as a string.
-        
+
         If *max_length* is specified, return that number of bytes, otherwise
         return the entire content.
         """
         raise NotImplementedError
-    
+
     def sorted_content(self):
         """Return the contents of the data item, sorted by line."""
-        raise NotImplementedError    
+        raise NotImplementedError
 
     def save_copy(self, path):
         """
         Save a copy of the data to a local file.
-        
+
         If path is an existing directory, the data item path will be appended
         to it, otherwise path is treated as a full path including filename,
         either absolute or relative to the working directory.
-        
+
         Return the full path of the final file.
         """
         if os.path.isdir(path):

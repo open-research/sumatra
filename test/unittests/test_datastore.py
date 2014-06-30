@@ -4,7 +4,6 @@ Unit tests for the sumatra.datastore module
 
 from __future__ import with_statement
 import unittest
-import tempfile
 import shutil
 import os
 import datetime
@@ -199,8 +198,8 @@ class TestModuleFunctions(unittest.TestCase):
         if os.path.exists(root_dir):
             os.rmdir(root_dir)
 
-    def test__get_data_store__should_raise_NameError_if_wrong_type(self):
-        self.assertRaises(NameError, get_data_store, 'FooDataStore', {})
+    def test__get_data_store__should_raise_KeyError_if_wrong_type(self):
+        self.assertRaises(KeyError, get_data_store, 'FooDataStore', {})
 
     def test__get_data_store__should_raise_Exception_if_wrong_parameters(self):
         self.assertRaises(TypeError, get_data_store, 'FileSystemDataStore', {'foo': 'kcjghnqlecg'})
