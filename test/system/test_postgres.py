@@ -11,7 +11,10 @@ or:
 import os
 try:
     import docker
-    have_docker = True
+    if "DOCKER_HOST" in os.environ:
+        have_docker = True
+    else:
+        have_docker = False
 except ImportError:
     have_docker = False
 try:

@@ -11,6 +11,7 @@ import locale
 import os
 import signal
 import subprocess
+from collections import OrderedDict
 from .compatibility import urlopen, URLError
 
 
@@ -25,9 +26,9 @@ def have_internet_connection():
     """
     test_address = 'http://74.125.113.99'  # google.com
     try:
-        response = urlopen(test_address, timeout=1)
+        urlopen(test_address, timeout=1)
         return True
-    except (URLError, socket.timeout) as err:
+    except (URLError, socket.timeout):
         pass
     return False
 
@@ -80,4 +81,25 @@ def _get_process_children(pid):
     p = subprocess.Popen('ps --no-headers -o pid --ppid %d' % pid, shell=True,
                          stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout, stderr = p.communicate()
-    return [int(p) for p in stdout.split()]
+    return [int(child_pid) for child_pid in stdout.split()]
+
+
+class Registry(object):
+
+    def __init__(self):
+        self.components = {}
+
+    def add_component_type(self, base_class):
+        self.components[base_class] = OrderedDict()
+
+    def register(self, component):
+        for base_class in self.components:
+            if issubclass(component, base_class):
+                for attr in base_class.required_attributes:
+                    if not hasattr(component, attr):
+                        raise TypeError("%s is missing required attribute %s" % (component, attr))
+                self.components[base_class][component.name] = component
+                return
+        raise TypeError("%s is not a Sumatra component." % component)
+
+registry = Registry()

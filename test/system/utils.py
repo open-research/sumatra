@@ -30,7 +30,7 @@ Code change policy  : (?P<code_change>\w+)
 Append label to     : None
 Label generator     : timestamp
 Timestamp format    : %Y%m%d-%H%M%S
-Sumatra version     : 0.6.0dev
+Sumatra version     : 0.7dev
 """
 
 record_pattern = re.compile(r"""Label            : (?P<label>[\w-]+)

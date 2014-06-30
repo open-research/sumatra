@@ -57,6 +57,9 @@ to the server, this has to be taken care of separately, using a mirroring data s
           future we plan to add a caching mechanism which will keep a local copy of the record and retry the connection
           to the server later.
 
+The easiest way to try Sumatra Server out is to use Docker. 
+
+
 Open science
 ============
 

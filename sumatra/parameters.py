@@ -31,6 +31,7 @@ YAMLParameterSet
 from __future__ import with_statement, absolute_import
 import os.path
 import shutil
+import abc
 try:
     from ConfigParser import SafeConfigParser, MissingSectionHeaderError, NoOptionError  # Python 2
 except ImportError:
@@ -46,16 +47,22 @@ except ImportError:
     yaml_loaded = False
 import parameters
 from .compatibility import string_type, StringIO
+from .core import registry
 
 POP_NONE = "eiutbocqnluiegnclqiuetyvbietcbdgsfzpq"
 
 
-class YAMLParameterSet(object):
+class ParameterSet(object):
+    __metaclass__ = abc.ABCMeta
+    required_attributes = ("update", "save")
+
+
+class YAMLParameterSet(ParameterSet):
     """
     Handles parameter files in YAML format, as parsed by the
     PyYAML module
     """
-    extension = ".yaml"
+    name = ".yaml"
 
     def __init__(self, initialiser):
         """
@@ -124,15 +131,16 @@ class YAMLParameterSet(object):
             return d
 
 
-class NTParameterSet(parameters.ParameterSet):
+class NTParameterSet(parameters.ParameterSet, ParameterSet):
     # just a re-name, to clarify things
-    pass
+    name = ".ntparameterset"
 
 
-class SimpleParameterSet(object):
+class SimpleParameterSet(ParameterSet):
     """
     Handles parameter files in a simple "name = value" format, with no nesting or grouping.
     """
+    name = ".simpleparameterset"
 
     def __init__(self, initialiser):
         """
@@ -252,13 +260,14 @@ class SimpleParameterSet(object):
     update.__doc__ = dict.update.__doc__
 
 
-class ConfigParserParameterSet(SafeConfigParser):
+class ConfigParserParameterSet(SafeConfigParser, ParameterSet):
     """
     Handles parameter files in traditional config file format, as parsed by the
     standard Python ConfigParser module. Note that this format does not
     distinguish numbers from string representations of those numbers, so all
     parameter values are treated as strings.
     """
+    name = ".cfg"
 
     def __init__(self, initialiser):
         """
@@ -367,12 +376,12 @@ class ConfigParserParameterSet(SafeConfigParser):
         return value
 
 
-class JSONParameterSet(object):
+class JSONParameterSet(ParameterSet):
     """
     Handles parameter files in JSON format, as parsed by the
     standard Python json module.
     """
-    extension = ".json"
+    name = ".json"
 
     def __init__(self, initialiser):
         """
@@ -436,20 +445,8 @@ class JSONParameterSet(object):
             return d
 
 
-class Registry(object):
+registry.add_component_type(ParameterSet)
 
-    def __init__(self):
-        self.components = []
-        self.extension_map = {}
-
-    def register(self, component):
-        self.components.append(component)
-        for attr in ("update", "save"):
-            assert hasattr(component, attr)
-        if hasattr(component, "extension"):
-            self.extension_map[component.extension] = component
-
-registry = Registry()
 registry.register(JSONParameterSet)
 registry.register(YAMLParameterSet)
 registry.register(NTParameterSet)
@@ -460,11 +457,12 @@ registry.register(SimpleParameterSet)
 def build_parameters(filename):
     body, ext = os.path.splitext(filename)
     parameters = None
-    if ext in registry.extension_map:
-        parameter_set_class = registry.extension_map[ext]
+    extension_map = registry.components[ParameterSet]
+    if ext in extension_map:
+        parameter_set_class = extension_map[ext]
         parameters = parameter_set_class(filename)
     else:
-        for parameter_set_class in registry.components:
+        for parameter_set_class in extension_map.values():
             try:
                 parameters = parameter_set_class(filename)
             except (SyntaxError, NameError, UnicodeDecodeError):
