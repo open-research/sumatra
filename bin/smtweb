@@ -22,8 +22,12 @@ def delayed_new_tab(url, delay):
     Open a new browser tab with a time delay, to give the server enough
     time to start up.
     """
-    time.sleep(delay)
-    webbrowser.open_new_tab(url)
+    
+    #time.sleep(delay)
+    # maybe optional with python setup develop ?
+    # webbrowser.open_new_tab(url)
+
+    pass
 
 
 def main(argv):
