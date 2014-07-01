@@ -279,6 +279,15 @@ def show_file(request, project, label):
     # len(output_record) > 1 possible
     output_records = Record.objects.filter(output_data__digest = data_key.digest)
 
+    # eval(data_key.metadata); data_key.get_metadata()
+    # do not work since data_key object has no metadata
+    # can I load it from the DataStore somehow?
+
+    dkey = output_records[0].output_data.all()[0]
+    # equivalent to eval(dkey.metadata)
+    metadata = dkey.get_metadata() 
+    timestamp = str(output_records[0].timestamp)
+    
 
     try:
         if mimetype == "text/csv":
@@ -346,7 +355,9 @@ def show_file(request, project, label):
                                        'truncated': truncated,
                                        'mimetype': mimetype,
                                        'input_records': input_records,
-                                       'output_records': output_records
+                                       'output_records': output_records,
+                                       'metadata': metadata,
+                                       'time': timestamp
                                        })
         elif mimetype in ("image/png", "image/jpeg", "image/gif", "image/x-png"):  # need to check digests match
             return render_to_response("show_image.html",
