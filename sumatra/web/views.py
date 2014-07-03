@@ -124,7 +124,7 @@ def record_detail(request, project, label):
                 form.save()
     else:
         form = RecordUpdateForm(instance=record)
-    data_store = get_data_store(record.datastore.type, eval(record.datastore.parameters))
+    # data_store = get_data_store(record.datastore.type, eval(record.datastore.parameters)) doesn't get used?
     parameter_set = record.parameters.to_sumatra()
     if hasattr(parameter_set, "as_dict"):
         parameter_set = parameter_set.as_dict()
@@ -286,7 +286,7 @@ def show_file(request, project, label):
     dkey = output_records[0].output_data.all()[0]
     # equivalent to eval(dkey.metadata)
     metadata = dkey.get_metadata() 
-    timestamp = str(output_records[0].timestamp)
+    timestamp = output_records[0].timestamp
     
 
     try:

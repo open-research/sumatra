@@ -7,18 +7,84 @@
 {% block header %}
             <li class="divider"></li>
             <li><a href="/{{project_name}}/">{{project_name}}</a></li>
-            <li><a href="/{{project_name}}/{{label}}/"> {{label}}</a></li>
+            <li><a href="/{{project_name}}/{{path}}/">
+                {{path}}</a></li> <!--?? What are the urls? -->
 {% endblock %}
 
 {% block content %}
 
-<h3>{{path}}</h3>
+<!--<h3>{{path}}</h3>-->
 
-{% if mimetype %}
+<!--{% if mimetype %}
 <p>Mimetype: {{mimetype}}
-{% endif %}
+{% endif %}-->
 
-<h4> Associated records: </h4>
+
+
+  <div class="accordion">
+    <h2 class="nav-toggle">General info</h2>
+    <form action='{{ request.path }}' method='POST' 
+          id="actions" name="actions">
+      {{form.errors}}
+      <fieldset class = 'field-acc'>
+        <fieldset class = 'field-acc'>
+          <div class="control-group">
+            <table id = 'gen_info'>
+              <tr><th>Path:</th><td>{{path}}</td></tr>
+              <tr><th>Type:</th><td>{{mimetype}}</td></tr>
+              <tr><th>Size:</th><td>{{metadata.size|filesizeformat}}</td></tr>
+              <tr><th>Timestamp: </th><td>{{time|date:"d/m/Y H:i:s"}}</td></tr>
+              <tr><th>Description:</th><td>{{form.description}}</td></tr>
+            </table>
+          </div>
+        </fieldset>
+    </form>
+  </div>
+
+
+
+  <div class="accordion">
+    <h2 class="nav-toggle">Associated Records (Provenance)</h2>
+    <form action='{{ request.path }}' method='POST' 
+          id="actions" name="actions">
+      {{form.errors}}
+      <fieldset class = 'field-acc'>
+        <fieldset class = 'field-acc'>
+          <div class="control-group">
+            <table id = 'gen_info'>
+              <tr>
+                <th> Ouput of: </th>
+                <td>
+                  {% for record in output_records %}
+                  <a href="/{{project_name}}/{{record.label}}/"> 
+                    {{record.label}}</a> 
+                  {% endfor %}
+                </td>
+              </tr>
+              
+              <tr>
+                <th>   Used as input in: </th>
+                <td>
+                  {% for record in input_records %} 
+                  <a href="/{{project_name}}/{{record.label}}/"> 
+                    {{record.label}}</a>,
+                  {% endfor %}
+                </td>
+              </tr>
+              
+              <!--<h4> Ouput of:  </h4>
+              <h4> Used as input in: </h4> -->
+
+            </table>
+          </div>
+        </fieldset>
+    </form>
+  </div>
+
+
+
+
+<!--<h4> Associated records: </h4>
 
 <p>Output of:
   {% for record in output_records %}
@@ -32,7 +98,23 @@
     {{record.label}}</a>, 
   {% endfor %}</p>
 
-<p>Size: {{metadata.size|filesizeformat}}</p>
-<p>Time: {{time}}</p>
+<p>Size: {{metadata.size|filesizeformat}} <br />
+   Time: {{time|date:"d/m/Y H:i:s"}}</p> -->
+
+
+
+<script type = 'text/javascript' src='/media/js/jquery-1.7.2.min.js'></script>
+<script type = 'text/javascript'>
+$(document).ready(function(){
+        $('.accordion').find('h2').click(function(){
+		    $(this).next().slideToggle();
+		}).next()//.hide();
+		$('#accordion-js').find('#additional').next().hide();
+        $('#stdout').css('width', $('h2.topic').width());
+});
+</script>
 
 {% endblock %}
+
+
+
