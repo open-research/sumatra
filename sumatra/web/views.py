@@ -283,10 +283,29 @@ def show_file(request, project, label):
     # do not work since data_key object has no metadata
     # can I load it from the DataStore somehow?
 
-    dkey = output_records[0].output_data.all()[0]
-    # equivalent to eval(dkey.metadata)
+    # # Does not work at all
+    # print data_key.output_from_records.all()
+    # print data_key.input_to_records.all()
+
+    # dkey = output_records[0].output_data.all()[0]
+    # # equivalent to eval(dkey.metadata)
+    # metadata = dkey.get_metadata() 
+    # timestamp = output_records[0].timestamp
+    
+
+    # retrieve metadata through record store
+
+    if len(output_records) > 0:
+        dkey = output_records[0].output_data.all()[0] # doesn't give
+                                                      # correct match!
+    elif len(input_records) > 0:
+        dkey = input_records[0].input_data.all()[0]
+    else:
+        print "this shouldn't happen"
+
+
     metadata = dkey.get_metadata() 
-    timestamp = output_records[0].timestamp
+    timestamp = "" #output_records[0].timestamp
     
 
     try:
