@@ -10,6 +10,112 @@
     br {clear: both}
 </style><!-- hide the columns which was selected in settings to be hidden -->
 
+
+
+
+
+
+
+            <table class='record_table compact' id='ol-content'>
+
+              {% for record in object_list %}
+
+              <tr class='record_tr'>     
+
+
+                <!--<td id = 'version-hid' class='d-hid'> 
+                  {{record.version}}
+                </td>
+                <td id = 'repo-hid' class='d-hid'>
+                  {{record.repository.url}}
+                </td> 
+
+                to be hidden. what do they do?
+
+                -->
+   
+                <td class='record_td' id='repository-t'>
+                  <span class="span-box">
+                    {{record.repository.url|cut:"repo"}}
+                  </span>
+                </td>
+                <td class='record_td' id='label-t'>
+                  <a class='href_lab' href='#'>
+                    {{record.label}}
+                  </a>
+                </td> 
+                {% if tag %}
+                  <td class='record_td' id='tag-t'>
+                    {% for other_tag in record.tag_objects %}
+                    {% if tag == other_tag %}
+                      {{tag}} 
+                    {% else %}
+                      <a href="#">
+                        {{other_tag.name}}
+                      </a>
+                    {% endif %}
+                    {% endfor %}
+                  </td>
+                {% else %}
+                  <td class='record_td' id='tag-t'>
+                    {% for tag in record.tag_objects %}
+                      <a href="#">{{tag}}</a>, 
+                    {% endfor %}
+                  </td> 
+                {% endif %}
+
+                <td class='record_td' id='reason-t'>
+                  {{record.reason}}
+                </td>
+                <td class='record_td' id='outcome-t'>
+                  {{record.outcome}}
+                </td>
+                <td class='record_td' id='duration-t'>
+                  {{record.duration|human_readable_duration}}
+                </td>
+                <td class='record_td' id='processes-t'>
+                  {{record.launch_mode.get_parameters.n|default:"1"}}
+                </td>
+                <td class='record_td' id='date-t'>
+                  {{record.timestamp|date:"d/m/Y"}}
+                </td>
+                <td class='record_td' id='time-t'>
+                  {{record.timestamp|date:"H:i:s"}}
+                </td>
+                <td class='record_td' id='ename-t'>
+                  {{record.executable.name}}
+                </td>
+                <td class='record_td' id='eversion-t'>
+                  {{record.executable.version}}
+                </td>
+                <td class='record_td' id='main-t'>
+                  <a class='id-script'  data-toggle="modal" href="#">
+                    {{record.main_file}}
+                  </a>
+                </td>
+                <td class='record_td' id='version-t'>
+                  <span class="span-box">
+                    {{record.version|cut:"vers"}}
+                    {% if record.diff %}
+                      *
+                    {% endif %}
+                  </span>
+                </td>
+                <td class='record_td' id='arguments-t'>
+                  <a class='href_args'
+                     href='#'>
+                    {{record.script_arguments}}
+                  </a>
+                </td>     
+              </tr>
+              {% endfor %}
+            </table>
+
+
+
+
+
+
 <div id = 'main_content'>
     <div style = 'height:40px;'>
         <a id='btn_newrec' class='btn btn-danger btn-large' style='width:100px;float:left'>

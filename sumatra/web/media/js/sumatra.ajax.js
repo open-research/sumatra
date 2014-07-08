@@ -42,7 +42,7 @@ $(function() {
     // clicking on the arguments link
     $('.href_lab').on('click', function(e){
         e.stopPropagation();
-        $(this).attr('href', window.location.pathname + $(this).html() + '/');
+        $(this).attr('href', (window.location.pathname + $(this).html() + '/')..replace(/ /g, ''));
     });
 
     // clicking on the tag name

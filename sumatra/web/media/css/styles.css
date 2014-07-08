@@ -1380,3 +1380,50 @@ div.progress{
   padding:0px;
 }
 
+
+
+
+
+
+
+
+.record_table{
+    border:1px solid black;
+    border-collapse:collapse;
+    width: 93%;
+    margin-left: 2%;
+    margin-right: 5%;
+    font-size: 11px;
+}
+
+.record_tr{
+    border:1px solid black;
+    border-collapse:collapse;
+    padding: 15px;
+}
+
+.record_td{
+    border:1px solid black;
+    border-collapse:collapse;
+    text-algin: center;
+    padding: 15px;
+}
+
+
+
+
+.record_table.compact{
+  line-height:14px;
+}
+
+.record_table.comfortable{
+  line-height: 32px;
+  font-size: 12px;
+} 
+
+
+
+
+
+
+
