@@ -52,8 +52,8 @@ a.active{
 }
 
 #name_page{
-    width: 300px;
-    float: left;
+    width: 300px; 
+   float: left;
 }
 
 #div_listOfprojects {
@@ -1388,8 +1388,15 @@ div.progress{
 
 
 .record_table{
-    border:1px solid black;
-    border-collapse:collapse;
+
+    /*border-color: #EDF1F5;
+    border-style: solid;
+    border-width: 1px 0;*/
+
+    /* for debugging: */
+    border: 1px solid black;
+    border-collapse: collapse;    
+
     width: 93%;
     margin-left: 2%;
     margin-right: 5%;
@@ -1397,18 +1404,24 @@ div.progress{
 }
 
 .record_tr{
-    border:1px solid black;
-    border-collapse:collapse;
+    /* for debugging: */
+    border: 1px solid black;
+    border-collapse: collapse; 
+
     padding: 15px;
 }
 
 .record_td{
-    border:1px solid black;
-    border-collapse:collapse;
+    /*border-bottom: 1px solid #EDF1F5;
+    border-collapse: collapse;*/
+
+    /* for debugging: */
+    border: 1px solid black;
+    border-collapse: collapse; 
+
     text-algin: center;
     padding: 15px;
 }
-
 
 
 
@@ -1422,6 +1435,14 @@ div.progress{
 } 
 
 
+#record_table .ui-selecting{
+    background: #96C4EA;
+}
+
+#record_table .ui-selected{
+    background: #96C4EA;
+    color: white;
+}
 
 
 
