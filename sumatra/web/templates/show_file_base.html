@@ -16,15 +16,6 @@
 
 
 
-
-<!--<h3>{{path}}</h3>-->
-
-<!--{% if mimetype %}
-<p>Mimetype: {{mimetype}}
-{% endif %}-->
-
-
-
 <div class="accordion">
   <h2 class="nav-toggle">General info</h2>
   <form action='{{ request.path }}' method='POST' 
@@ -44,8 +35,6 @@
       </fieldset>
   </form>
 </div>
-
-
 
 
 
@@ -76,145 +65,149 @@
 
           <br/>
 
-          <!--<script>
-            $(function() {
-            $( "#record_table" ).selectable(
-                    filter:'tr',
-                    // not stop function yet...
-                    stop: function() {
-                    console.log('hle');
-                    }
-                    }););
-            });
-          </script> -->
 
 
-          <table class='record_table compact' id='record_table'>
-
-            {% for record in input_records %}
-
-            <tr class='record_tr'>     
 
 
-              <!--<td id = 'version-hid' class='d-hid'> 
-                  {{record.version}}
-                  </td>
-              <td id = 'repo-hid' class='d-hid'>
-                {{record.repository.url}}
-              </td> 
 
-              to be hidden. what do they do?
+          <!-- DataTables CSS -->
+          <link rel="stylesheet" type="text/css" href="/media/css/jquery.dataTables.css">
+          
+          <!-- jQuery -->
+          <script type="text/javascript" charset="utf8" src="/media/js/jquery.js"></script>
+          
+          <!-- DataTables -->
+          <script type="text/javascript" charset="utf8" src="/media/js/jquery.dataTables.js"></script>
 
-              -->
-              
-              <td class='record_td' id='repository-t'>
-                <span class="span-box">
-                  {{record.repository.url|cut:"repo"}}
-                </span>
-              </td>
-              <td class='record_td' id='label-t'>
-                <a href="/{{project_name}}/{{record.label}}/">
-                  {{record.label}}
-                </a> 
-                
-              </td> 
-              {% if tag %}
-              <td class='record_td' id='tag-t'>
-                {% for other_tag in record.tag_objects %}
-                {% if tag == other_tag %}
-                {{tag}} 
-                {% else %}
-                <a href="#">
-                  {{other_tag.name}}
-                </a> <!-- Fix Link!! -->
-                {% endif %}
-                {% endfor %}
-              </td>
-              {% else %}
-              <td class='record_td' id='tag-t'>
-                {% for tag in record.tag_objects %}
-                <a href="#">{{tag}}</a>, <!-- Fix Link!! -->
-                {% endfor %}
-              </td> 
-              {% endif %}
 
-              <td class='record_td' id='reason-t'>
-                {{record.reason}}
-              </td>
-              <td class='record_td' id='outcome-t'>
-                {{record.outcome}}
-              </td>
-              <td class='record_td' id='duration-t'>
-                {{record.duration|human_readable_duration}}
-              </td>
-              <td class='record_td' id='processes-t'>
-                {{record.launch_mode.get_parameters.n|default:"1"}}
-              </td>
-              <td class='record_td' id='date-t'>
-                {{record.timestamp|date:"d/m/Y"}}
-              </td>
-              <td class='record_td' id='time-t'>
-                {{record.timestamp|date:"H:i:s"}}
-              </td>
-              <td class='record_td' id='ename-t'>
-                {{record.executable.name}}
-              </td>
-              <td class='record_td' id='eversion-t'>
-                {{record.executable.version}}
-              </td>
-              <td class='record_td' id='main-t'>
-                <a class='id-script'  data-toggle="modal" href="#">
-                  {{record.main_file}}
-                </a> <!-- Fix Link!! -->
-              </td>
-              <td class='record_td' id='version-t'>
-                <span class="span-box">
-                  {{record.version|cut:"vers"}}
-                  {% if record.diff %}
-                  *
-                  {% endif %}
-                </span>
-              </td>
-              <td class='record_td' id='arguments-t'>
-                <a class='href_args'
-                   href='#'>
-                  {{record.script_arguments}}
-                </a> <!-- Fix Link!! -->
-              </td>     
-            </tr>
-            {% endfor %}
-          </table>
 
-          <br/>
+          <script>
+            $(document).ready( function () {
+               $('#record_dt').DataTable();
+            } );
+          </script>
 
-          <!--<table class='record_table comfortable'>
+
+       
+
+          <table class='display' id='record_dt'>
+
+            <thead>
+              <tr>
+                <th>repository</th>
+                <th>label</th>
+                <th>tag</th>
+                <th>reason</th>
+                <th>outcome</th>
+                <th>duration</th>
+                <th>processes</th>
+                <th>date</th>
+                <th>time</th>
+                <th>exec.</th>
+                <th>main</th>
+                <th>version</th>
+                <th>arguments</th>
+              </tr>
+            </thead>
+
+            <tbody>
+
               {% for record in input_records %}
-              <tr class='record_tr' id='label-t'>                
-                <td class='record_td'>
-                  <a class='href_lab' href='#'>
-                    {{record.label}}
-                  </a>
+
+              <tr>     
+                <!--<td class='dataTable_td'  id = 'version-hid' class='d-hid'>                     {{record.version}}
+                    </td>
+                <td class='dataTable_td'  id = 'repo-hid' class='d-hid'>
+                  {{record.repository.url}}
+                </td> 
+                to be hidden. what do they do?
+                -->
+                
+                <td class='dataTable_td' id='repository-t'>
+                  <span class="span-box">
+                    {{record.repository.url|cut:"repo"}}
+                  </span>
                 </td>
-                <td class='record_td' id='script-t'>
-                  <a class='id-script' data-toggle="modal" href="#">
+                <td class='dataTable_td' id='label-t'>
+                  <a href="/{{project_name}}/{{record.label}}/">
+                    {{record.label}}
+                  </a> 
+                  
+                </td> 
+                {% if tag %}
+                <td class='dataTable_td' id='tag-t'>
+                  {% for other_tag in record.tag_objects %}
+                  {% if tag == other_tag %}
+                  {{tag}} 
+                  {% else %}
+                  <a href="#">
+                    {{other_tag.name}}
+                  </a> <!-- Fix Link!! -->
+                  {% endif %}
+                  {% endfor %}
+                </td>
+                {% else %}
+                <td class='dataTable_td' id='tag-t'>
+                  {% for tag in record.tag_objects %}
+                  <a href="#">{{tag}}</a>, <!-- Fix Link!! -->
+                  {% endfor %}
+                </td> 
+                {% endif %}
+
+                <td class='dataTable_td' id='reason-t'>
+                  {{record.reason}}
+                </td>
+                <td class='dataTable_td' id='outcome-t'>
+                  {{record.outcome}}
+                </td>
+                <td class='dataTable_td' id='duration-t'>
+                  {{record.duration|human_readable_duration}}
+                </td>
+                <td class='dataTable_td' id='processes-t'>
+                  {{record.launch_mode.get_parameters.n|default:"1"}}
+                </td>
+                <td class='dataTable_td' id='date-t'>
+                  {{record.timestamp|date:"d/m/Y"}}
+                </td>
+                <td class='dataTable_td' id='time-t'>
+                  {{record.timestamp|date:"H:i:s"}}
+                </td>
+                <td class='dataTable_td' id='ename-t'>
+                  {{record.executable.name}} {{record.executable.version}}
+                </td>
+                <td class='dataTable_td' id='main-t'>
+                  <a class='id-script'  data-toggle="modal" href="#">
                     {{record.main_file}}
-                  </a>
-                </td>         
+                  </a> <!-- Fix Link!! -->
+                </td>
+                <td class='dataTable_td' id='version-t'>
+                  <span class="span-box">
+                    {{record.version|cut:"vers"}}
+                    {% if record.diff %}
+                    *
+                    {% endif %}
+                  </span>
+                </td>
+                <td class='dataTable_td' id='arguments-t'>
+                  <a class='href_args'
+                     href='#'>
+                    {{record.script_arguments}}
+                  </a> <!-- Fix Link!! -->
+                </td>     
               </tr>
               {% endfor %}
-          </table>-->
-
-
-          <!--{% for item in settings.hidden_cols %}
-              l-{{item}}
-              {{item}}-t
-              {% endfor%} -->
+            <tbody>
+          </table>
 
 
         </div>
       </fieldset>
   </form>
 </div>
+
+
+
+
 
 
 
@@ -286,7 +279,8 @@
 <p>Size: {{metadata.size|filesizeformat}} <br />
    Time: {{time|date:"d/m/Y H:i:s"}}</p> -->
 
-<script type="text/javascript" src="/media/js/sumatra.ajax.js"></script>
+<!--<script type="text/javascript"
+src="../media/js/sumatra.ajax.js"></script>-->
 
 {% endblock %}
 
