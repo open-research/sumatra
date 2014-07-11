@@ -78,7 +78,12 @@
 
           <script>
             $(document).ready( function () {
-               $('#record_dt').DataTable();
+               $('#record_dt').DataTable({
+                  "paging": false,
+                  "ordering": true,
+                  "info": false,
+                  "filter": false,                
+                } );
             } );
           </script>
 
