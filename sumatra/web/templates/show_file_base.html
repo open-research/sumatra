@@ -66,13 +66,16 @@
           <br/>
 
           <!-- DataTables CSS -->
-          <link rel="stylesheet" type="text/css" href="/media/css/jquery.dataTables.css">
+          <link rel="stylesheet" type="text/css"
+                href="/media/css/jquery.dataTables.css">
           
           <!-- jQuery -->
           <script type="text/javascript" charset="utf8" src="/media/js/jquery.js"></script>
           
           <!-- DataTables -->
-          <script type="text/javascript" charset="utf8" src="/media/js/jquery.dataTables.js"></script>
+          <script type="text/javascript" charset="utf8"
+                  src="/media/js/jquery.dataTables.js"></script>
+
 
 
 
@@ -90,7 +93,7 @@
 
           <table class='hover row-border' id='record_dt' style="word-wrap:
                break-word; overflow-wrap: break-word; table-layout:
-               fixed; width: 92%; margin-right:6.5%; margin-left:1.5%"  >
+               fixed; width: 92%; margin-right:6.5%; margin-left:1.5%" cellspacing="0" >
 
             <thead>
               <tr>
@@ -101,7 +104,6 @@
                 <th>outcome</th>
                 <th>duration</th>
                 <th>processes</th>
-                <th>date</th>
                 <th>time</th>
                 <th>exec.</th>
                 <th>main</th>
@@ -166,10 +168,8 @@
                 <td class='dataTable_td' id='processes-t'>
                   {{record.launch_mode.get_parameters.n|default:"1"}}
                 </td>
-                <td class='dataTable_td' id='date-t'>
-                  {{record.timestamp|date:"d/m/Y"}}
-                </td>
                 <td class='dataTable_td' id='time-t'>
+                  {{record.timestamp|date:"d/m/Y"}}
                   {{record.timestamp|date:"H:i:s"}}
                 </td>
                 <td class='dataTable_td' id='ename-t'>
