@@ -29,19 +29,19 @@ mimetypes.init()
 
 
 def list_records(request, project):
-    if request.is_ajax():  # only when paginating
-        ajaxTempOb = AjaxTemplate(project, request.POST)
-        if ajaxTempOb.form.is_valid():
-            ajaxTempOb.filter_search(request.POST)  # taking into consideration the search inquiry
-            ajaxTempOb.init_object_list(ajaxTempOb.page)  # taking into consideration pagination
-            # content.html is a part of record_list.html
-            return render_to_response('content.html', ajaxTempOb.getDict())
-        else:
-            return HttpResponse('search form is not valid')
-    else:
-        defTempOb = DefaultTemplate(project)
-        defTempOb.init_object_list()  # object_list is used in record_list.html
-        return render_to_response('record_list.html', defTempOb.getDict())
+    # if request.is_ajax():  # only when paginating
+    #     ajaxTempOb = AjaxTemplate(project, request.POST)
+    #     if ajaxTempOb.form.is_valid():
+    #         ajaxTempOb.filter_search(request.POST)  # taking into consideration the search inquiry
+    #         ajaxTempOb.init_object_list(ajaxTempOb.page)  # taking into consideration pagination
+    #         # content.html is a part of record_list.html
+    #         return render_to_response('content.html', ajaxTempOb.getDict())
+    #     else:
+    #         return HttpResponse('search form is not valid')
+    # else:
+    defTempOb = DefaultTemplate(project)
+    defTempOb.init_object_list()  # object_list is used in record_list.html
+    return render_to_response('record_list.html', defTempOb.getDict())
 
 
 class ProjectListView(ListView):
