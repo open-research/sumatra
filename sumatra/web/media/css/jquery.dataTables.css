@@ -398,3 +398,6 @@ table.dataTable td {
   }
 }
 
+div.container {
+        width: 80%;
+    }

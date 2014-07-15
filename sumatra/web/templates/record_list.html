@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% load filters %}
+
+{% block title %}{{project_name}}: List of records{% endblock %}
+
+
+
+{% block content %} 
+
+<br/>
+
+<!-- DataTables CSS -->
+<link rel="stylesheet" type="text/css"
+      href="/media/css/jquery.dataTables.css">
+<link rel="stylesheet" type="text/css"
+      href="/media/css/dataTables.colVis.css">
+
+<!-- jQuery -->
+<script type="text/javascript" charset="utf8" src="/media/js/jquery.js"></script>
+
+<!-- DataTables -->
+<script type="text/javascript" charset="utf8"
+        src="/media/js/jquery.dataTables.js"></script>
+<script type="text/javascript" charset="utf8"
+        src="/media/js/dataTables.colVis.js"></script>
+
+
+
+
+<script>
+  $(document).ready( function () {
+  $('#record_dt').DataTable({
+    "dom": 'lfrC<"clear">tip',     <!-- Order: 'l'ength, 'f'ilter,  p'r'ocessing, 'C'olumns, 't'able, 'i'nformation, 'p'agination -->
+    "paging": true,
+    "ordering": true,
+    "info": true, <!-- "Showing x of y entries" -->
+    "filter": true,                
+    } );
+    } );
+</script>
+
+<div style="margin-left:2%; margin-right:3%">
+<table class='hover row-border' id='record_dt' style="word-wrap:
+                                                      break-word;
+                                                      overflow-wrap:
+                                                      break-word;
+                                                      table-layout:
+                                                      fixed;"
+                                                      cellspacing="0"
+                                                      >
+
+  <thead>
+    <tr>
+      <th>repository</th>
+      <th>label</th>
+      <th>tag</th>
+      <th>reason</th>
+      <th>outcome</th>
+      <th>duration</th>
+      <th>processes</th>
+      <th>time</th>
+      <th>exec.</th>
+      <th>main</th>
+      <th>version</th>
+      <th>arguments</th>
+    </tr>
+  </thead>
+
+  <tbody>
+
+    {% for record in sim_list %}
+
+    <tr>     
+      <!--<td class='dataTable_td'  id = 'version-hid' class='d-hid'>                     {{record.version}}
+          </td>
+      <td class='dataTable_td'  id = 'repo-hid' class='d-hid'>
+        {{record.repository.url}}
+      </td> 
+      to be hidden. what do they do?
+      -->
+      
+      <td class='dataTable_td' id='repository-t'>
+        <span class="span-box">
+          {{record.repository.url|cut:"repo"}}
+        </span>
+      </td>
+      <td class='dataTable_td' id='label-t'>
+        <a href="/{{project_name}}/{{record.label}}/">
+          {{record.label}}
+        </a> 
+        
+      </td> 
+      {% if tag %}
+      <td class='dataTable_td' id='tag-t'>
+        {% for other_tag in record.tag_objects %}
+        {% if tag == other_tag %}
+        {{tag}} 
+        {% else %}
+        <a href="#">
+          {{other_tag.name}}
+        </a> <!-- Fix Link!! -->
+        {% endif %}
+        {% endfor %}
+      </td>
+      {% else %}
+      <td class='dataTable_td' id='tag-t'>
+        {% for tag in record.tag_objects %}
+        <a href="#">{{tag}}</a>, <!-- Fix Link!! -->
+        {% endfor %}
+      </td> 
+      {% endif %}
+
+      <td class='dataTable_td' id='reason-t'>
+        {{record.reason}}
+      </td>
+      <td class='dataTable_td' id='outcome-t'>
+        {{record.outcome}}
+      </td>
+      <td class='dataTable_td' id='duration-t'>
+        {{record.duration|human_readable_duration}}
+      </td>
+      <td class='dataTable_td' id='processes-t'>
+        {{record.launch_mode.get_parameters.n|default:"1"}}
+      </td>
+      <td class='dataTable_td' id='time-t'>
+        {{record.timestamp|date:"d/m/Y"}}
+        {{record.timestamp|date:"H:i:s"}}
+      </td>
+      <td class='dataTable_td' id='ename-t'>
+        {{record.executable.name}} {{record.executable.version}}
+      </td>
+      <td class='dataTable_td' id='main-t'>
+        <a class='id-script'  data-toggle="modal" href="#">
+          {{record.main_file}}
+        </a> <!-- Fix Link!! -->
+      </td>
+      <td class='dataTable_td' id='version-t'>
+        <span class="span-box">
+          {{record.version|cut:"vers"}}
+          {% if record.diff %}
+          *
+          {% endif %}
+        </span>
+      </td>
+      <td class='dataTable_td' id='arguments-t'>
+        <a class='href_args'
+           href='#'>
+          {{record.script_arguments}}
+        </a> <!-- Fix Link!! -->
+      </td>     
+    </tr>
+    {% endfor %}
+  <tbody>
+</table>
+</div>
+
+ 
+
+{% endblock %}
+
