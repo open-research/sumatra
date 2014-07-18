@@ -1450,6 +1450,5 @@ div.progress{
 
 .dataTable_td{
     text-align: center;
-    /*word-wrap: break-all;         /* All browsers since IE 5.5+ */
-   /* overflow-wrap: break-all;     /* Renamed property in CSS3 draft spec */
+    word-break: break-all; /* Table wrapping alternative if <wbr> at underscore turns out not feasible */
 }

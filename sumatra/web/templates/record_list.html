@@ -41,14 +41,7 @@
 </script>
 
 <div style="margin-left:2%; margin-right:3%">
-<table class='hover row-border' id='record_dt' style="word-wrap:
-                                                      break-word;
-                                                      overflow-wrap:
-                                                      break-word;
-                                                      table-layout:
-                                                      fixed;"
-                                                      cellspacing="0"
-                                                      >
+<table class='hover row-border' id='record_dt'>
 
   <thead>
     <tr>
@@ -63,7 +56,7 @@
       <th>exec.</th>
       <th>main</th>
       <th>version</th>
-      <th>arguments</th>
+      <!--<th>arguments</th>-->
     </tr>
   </thead>
 
@@ -143,12 +136,12 @@
           {% endif %}
         </span>
       </td>
-      <td class='dataTable_td' id='arguments-t'>
+      <!--<td class='dataTable_td' id='arguments-t'>
         <a class='href_args'
            href='#'>
           {{record.script_arguments}}
         </a> <!-- Fix Link!! -->
-      </td>     
+      <!--</td> -->    
     </tr>
     {% endfor %}
   <tbody>
