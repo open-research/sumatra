@@ -1450,5 +1450,5 @@ div.progress{
 
 .dataTable_td{
     text-align: center;
-    word-break: break-all; /* Table wrapping alternative if <wbr> at underscore turns out not feasible */
+    /*word-break: break-all; /* Table wrapping alternative if <wbr> at underscore turns out not feasible */
 }

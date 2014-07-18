@@ -80,7 +80,7 @@
       </td>
       <td class='dataTable_td' id='label-t'>
         <a href="/{{project_name}}/{{record.label}}/">
-          {{record.label}}
+          {{record.label|ubreak}}
         </a> 
         
       </td> 
@@ -125,7 +125,7 @@
       </td>
       <td class='dataTable_td' id='main-t'>
         <a class='id-script'  data-toggle="modal" href="#">
-          {{record.main_file}}
+          {{record.main_file|ubreak}}
         </a> <!-- Fix Link!! -->
       </td>
       <td class='dataTable_td' id='version-t'>

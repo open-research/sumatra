@@ -34,6 +34,12 @@ def cut(text, type):
 
 @register.filter
 @stringfilter
+def ubreak(text):
+    return mark_safe(text.replace("_", "_<wbr>"))
+
+
+@register.filter
+@stringfilter
 def link(text, url):
     tags = parse_tag_input(text)
     template = '<a href="%s">%%s</a>' % url
@@ -64,3 +70,4 @@ def restructuredtext(value):
         docutils_settings = getattr(settings, "RESTRUCTUREDTEXT_FILTER_SETTINGS", {})
         parts = publish_parts(source=force_bytes(value), writer_name="html4css1", settings_overrides=docutils_settings)
         return mark_safe(force_text(parts["fragment"]))
+
