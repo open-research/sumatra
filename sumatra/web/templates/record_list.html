@@ -57,7 +57,7 @@
     "ordering": true,
     "info": true, <!-- "Showing x of y entries" -->
     "filter": true,  
-    "order": [[7, "desc"]], <!-- does not currently accept class  name. See  http://datatables.net/forums/discussion/3285/ Probably need to write calculation to see where "time-c" currently is -->
+    "order": [[$('th.time-c').index(), "desc"]], <!-- default sort column -->
     } );
 
   document.onkeydown = checkKey;
