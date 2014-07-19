@@ -26,11 +26,32 @@
         src="/media/js/dataTables.colVis.js"></script>
 
 
+<div style="display:none">
 
+
+    "columns": [
+      {"sortable": false}, <!-- repository -->
+      {"sortable": false}, <!-- label -->
+      {"sortable": false}, <!-- tag -->
+      {"sortable": false}, <!-- reason -->
+      {"sortable": false}, <!-- outcome -->
+      {"sortable": false}, <!-- duration -->
+      null, <!-- processes -->
+      null, <!-- time -->
+      null, <!-- exec. -->
+      {"sortable:" false}, <!-- main -->
+      {"sortable": false} <!-- version -->
+      ],   
+
+</div>
 
 <script>
   $(document).ready( function () {
   $('#record_dt').dataTable({
+    "columnDefs": [
+      {"sortable":false,  "targets":["repository-c", "label-c",
+       "tag-c", "reason-c", "outcome-c", "main-c", "version-c"]},      
+    ],
     "dom": 'lfrC<"clear">tip',     <!-- Order: 'l'ength, 'f'ilter,  p'r'ocessing, 'C'olumns, 't'able, 'i'nformation, 'p'agination -->
     "paging": true,
     "ordering": true,
