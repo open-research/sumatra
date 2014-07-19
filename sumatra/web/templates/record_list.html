@@ -30,12 +30,12 @@
 
 <script>
   $(document).ready( function () {
-  $('#record_dt').DataTable({
+  $('#record_dt').dataTable({
     "dom": 'lfrC<"clear">tip',     <!-- Order: 'l'ength, 'f'ilter,  p'r'ocessing, 'C'olumns, 't'able, 'i'nformation, 'p'agination -->
     "paging": true,
     "ordering": true,
     "info": true, <!-- "Showing x of y entries" -->
-    "filter": true,                
+    "filter": true,              
     } );
     } );
 </script>
@@ -45,17 +45,17 @@
 
   <thead>
     <tr>
-      <th>repository</th>
-      <th>label</th>
-      <th>tag</th>
-      <th>reason</th>
-      <th>outcome</th>
-      <th>duration</th>
-      <th>processes</th>
-      <th>time</th>
-      <th>exec.</th>
-      <th>main</th>
-      <th>version</th>
+      <th class='repository-c'>repository</th>
+      <th class='label-c'>label</th>
+      <th class='tag-c'>tag</th>
+      <th class='reason-c'>reason</th>
+      <th class='outcome-c'>outcome</th>
+      <th class='duration-c'>duration</th>
+      <th class='processes-c'>processes</th>
+      <th class='time-c'>time</th>
+      <th class='exec-c'>exec.</th>
+      <th class='main-c'>main</th>
+      <th class='version-c'>version</th>
       <!--<th>arguments</th>-->
     </tr>
   </thead>
@@ -117,8 +117,11 @@
         {{record.launch_mode.get_parameters.n|default:"1"}}
       </td>
       <td class='dataTable_td' id='time-t'>
-        {{record.timestamp|date:"d/m/Y"}}
-        {{record.timestamp|date:"H:i:s"}}
+        <span style='display:none;'>
+          <!-- hack for correct sorting -->
+          {{record.timestamp|date:"YmdHis"}}
+        </span>
+        {{record.timestamp|date:"d/m/Y H:i:s"}}
       </td>
       <td class='dataTable_td' id='ename-t'>
         {{record.executable.name}} {{record.executable.version}}
