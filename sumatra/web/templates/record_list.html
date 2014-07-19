@@ -50,7 +50,8 @@
   var record_list = $('#record_dt').DataTable({
     "columnDefs": [
       {"sortable":false,  "targets":["repository-c", "label-c",
-       "tag-c", "reason-c", "outcome-c", "main-c", "version-c"]},      
+       "tag-c", "reason-c", "outcome-c", "main-c", "version-c"]},   
+      {"visible":false, "targets": ["arguments-c"]},
     ],
     "dom": 'lfrC<"clear">tip',     <!-- Order: 'l'ength, 'f'ilter,  p'r'ocessing, 'C'olumns, 't'able, 'i'nformation, 'p'agination -->
     "paging": true,
@@ -93,7 +94,7 @@
       <th class='exec-c'>exec.</th>
       <th class='main-c'>main</th>
       <th class='version-c'>version</th>
-      <!--<th>arguments</th>-->
+      <th class='arguments-c'>arguments</th>
     </tr>
   </thead>
 
@@ -181,12 +182,11 @@
           {% endif %}
         </span>
       </td>
-      <!--<td class='dataTable_td' id='arguments-t'>
-        <a class='href_args'
-           href='#'>
+      <td class='dataTable_td' id='arguments-t'>
+        <a class='href_args' href='#'>
           {{record.script_arguments}}
         </a> <!-- Fix Link!! -->
-      <!--</td> -->    
+      </td> 
     </tr>
     {% endfor %}
   <tbody>
