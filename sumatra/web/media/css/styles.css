@@ -1325,7 +1325,8 @@ span.label{
 }
 
 .span-box{
-  margin-left: 0px;
+  /* don't set margin for centering in td */
+  /* margin-left: 0px; */
   background-color: rgb(102, 157, 199);
   color: #ffffff;
   padding: 2px 4px 3px;
