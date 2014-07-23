@@ -15,6 +15,7 @@ except ImportError:
     from django.utils.encoding import smart_str as force_bytes, force_unicode as force_text  # Django 1.4
 from os import name
 from sumatra.formatting import human_readable_duration
+from django.utils import simplejson
 
 register = template.Library()
 
@@ -36,6 +37,10 @@ def cut(text, type):
 @stringfilter
 def ubreak(text):
     return mark_safe(text.replace("_", "_<wbr>"))
+
+@register.filter
+def as_json(data):
+    return mark_safe(simplejson.dumps(data))
 
 
 @register.filter

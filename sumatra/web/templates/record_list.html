@@ -47,13 +47,15 @@
 
 <script>
   $(document).ready( function () {
+
+  var hd_cl = {{settings.hidden_cols|as_json|safe}};
   var record_list = $('#record_dt').DataTable({
     "columnDefs": [
       {"sortable":false,  "targets":["repository-c", "label-c",
        "tag-c", "reason-c", "outcome-c", "main-c", "version-c"]},   
-      {"visible":false, "targets": ["arguments-c"]},
+      {"visible":false, "targets": hd_cl},
     ],
-    "dom": 'lfrC<"clear">tip',     <!-- Order: 'l'ength, 'f'ilter,  p'r'ocessing, 'C'olumns, 't'able, 'i'nformation, 'p'agination -->
+    <!--"dom": 'lfrC<"clear">tip',     <!-- Order: 'l'ength, 'f'ilter,  p'r'ocessing, 'C'olumns, 't'able, 'i'nformation, 'p'agination -->
     "paging": true,
     "ordering": true,
     "info": true, <!-- "Showing x of y entries" -->
@@ -77,6 +79,22 @@
 
     } );
 </script>
+
+
+<!--    "repository", "label",
+    "tag", 
+    "reason", 
+    "outcome", 
+    "duration", 
+    "processes", 
+    "ename", 
+    "eversion", 
+    "date", 
+    "time", 
+    "main", 
+    "version", 
+    "arguments" -->
+
 
 <div style="margin-left:2%; margin-right:3%">
 <table class='hover row-border' id='record_dt'>
