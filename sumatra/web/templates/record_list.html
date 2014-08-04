@@ -17,7 +17,7 @@
       href="/media/css/dataTables.colVis.css">
 
 <!-- jQuery -->
-<script type="text/javascript" charset="utf8" src="/media/js/jquery.js"></script>
+<script type="text/javascript" chadatrset="utf8" src="/media/js/jquery.js"></script>
 
 <!-- DataTables -->
 <script type="text/javascript" charset="utf8"
@@ -63,8 +63,22 @@
     "order": [[$('th.time-c').index(), "desc"]], <!-- default sort column -->
     } );
 
-  document.onkeydown = checkKey;
 
+
+    <!-- Column visibility toggle -->
+    $('a.toggle-vis').on( 'click', function (e) {
+        e.preventDefault();
+
+        // Get the column API object
+        var column = record_list.column( $(this).attr('data-column') );
+ 
+        // Toggle the visibility
+        column.visible( ! column.visible() );
+    } );
+
+
+  <!-- Arrow key page turning -->
+  document.onkeydown = checkKey;
   function checkKey(e) {
 
       e = e || window.event;
@@ -78,6 +92,7 @@
   }
 
     } );
+
 </script>
 
 
@@ -95,6 +110,23 @@
     "version", 
     "arguments" -->
 
+
+
+<div>
+  Toggle
+  column: <a class="toggle-vis"
+	     data-column="0">Name</a>
+  - <a class="toggle-vis"
+       data-column= "1">Position</a>
+  - <a class="toggle-vis"
+       data-column="2">Office</a>
+  - <a class="toggle-vis"
+       data-column="3">Age</a>
+  - <a class="toggle-vis"
+       data-column="4">Start date</a>
+  - <a class= "toggle-vis"
+       data-column="5">Salary</a>
+</div>
 
 <div style="margin-left:2%; margin-right:3%">
 <table class='hover row-border' id='record_dt'>
