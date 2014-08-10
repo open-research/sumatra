@@ -70,10 +70,18 @@
         e.preventDefault();
 
         // Get the column API object
-        var column = record_list.column( $(this).attr('data-column') );
+        var column = record_list.column( $(this).attr('data-column')
+        );
+
+    console.log($(this).attr('data-column'))
  
         // Toggle the visibility
         column.visible( ! column.visible() );
+
+        <!--console.log($.get("/{{project_name}}/settings"))-->
+
+        // save settings to .smtrc
+        $.post("/{{project_name}}/settings", {'hidden_cols':'murloc','saveSettings':true}); 
     } );
 
 

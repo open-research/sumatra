@@ -75,7 +75,7 @@ class DataKey(object):
         self.path = path
         self.digest = digest
         self.metadata = metadata
-    
+
     def __repr__(self):
         return "%s(%s)" % (self.path, self.digest)
 

@@ -19,6 +19,7 @@ P = {
 urlpatterns = patterns('sumatra.web.views',
                        (r'^$', ProjectListView.as_view()),
                        (r'^%(project)s/$' % P, 'list_records'),
+                       (r'^%(project)s/data/$' % P, 'list_data'),
                        (r'^%(project)s/about/$' % P, 'show_project'),
                        (r'^%(project)s/delete/$' % P, 'delete_records'),
                        (r'^%(project)s/tag/$' % P, 'list_tags'),

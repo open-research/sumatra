@@ -17,6 +17,7 @@ import datetime
 import os
 import json
 from functools import reduce
+import itertools
 
 
 def init_websettings():
@@ -107,6 +108,73 @@ class DefaultTemplate(object):
         return self.__dict__
 
 
+
+class DataTemplate(object):
+
+    '''
+    Default template is the record_list.html. This class will be invoked each time user opens
+    http://localhost/{{project_id}}/
+    '''
+
+    def __init__(self, project):
+        self.nbCol = 14
+        self.project_name = project
+        self.form = RecordForm()
+        self._init_settings()
+        self.sim_list = models.Record.objects.filter(project__id=project).order_by(
+            '-timestamp')  # here project is the string
+
+        self.data_list = []
+        for record in self.sim_list:
+            self.data_list.append(record.output_data.all())
+        self.data_list = list(itertools.chain(*self.data_list))
+
+        self.files = os.listdir(os.getcwd())
+        self.active = 'List of records'
+        self.tags = False  # tags is not defined
+
+    def init_object_list(self, page=1):
+        self.paginator = Paginator(self.sim_list, int(self.settings['nb_records_per_page']))
+        try:
+            self.page_list = self.paginator.page(page)
+        except PageNotAnInteger:
+            self.page_list = self.paginator.page(1)
+        except EmptyPage:
+            self.page_list = self.paginator.page(self.paginator.num_pages)  # deliver last page of results
+        self.object_list = self.page_list.object_list
+
+    def _init_settings(self):
+        '''
+        Checking existence of the specific settings in ~/.smtrc
+        In case it doesn't exist, it will be initialized with some default values
+        Inputs:
+            project: project object,
+            option: string.
+        Output:
+            web_settings: dictionary.
+        '''
+        global_conf_file = os.path.expanduser(os.path.join("~", ".smtrc"))
+        if os.path.exists(global_conf_file):
+            with open(global_conf_file) as fp:
+                self.settings = json.load(fp)  # should really merge in any missing settings
+        else:
+            self.settings = init_websettings()
+
+    def getDict(self):
+
+        dkey = self.__dict__['data_list'][0]
+        print type(dkey)
+        print type(dkey.metadata)
+        print type(dkey.get_metadata())
+        
+        # >>> <class 'sumatra.recordstore.django_store.models.DataKey'>
+        # >>> <type 'unicode'>
+        # >>> <type 'dict'>
+
+
+        return self.__dict__
+
+
 class AjaxTemplate(DefaultTemplate):
 
     '''
@@ -127,39 +195,6 @@ class AjaxTemplate(DefaultTemplate):
             self.dict_dates = {'1 day': 1, '3 days': 3, '1 week': 7, '2 weeks': 14,
                                '1 month': 31, '2 months': 31 * 2, '6 months': 31 * 6, '1 year': 365}
 
-    def filter_search(self, request_data):
-        for key, val in request_data.iteritems():
-            if key in ['label', 'tags', 'reason', 'main_file', 'script_arguments']:
-                field_list = [x.strip() for x in val.split(',')]
-                self.sim_list = self.sim_list.filter(reduce(lambda x, y: x | y,
-                                                            [Q(**{"%s__contains" % key: word}) for word in field_list]))  # __icontains (?)
-            elif key == 'fulltext_inquiry':  # search without using the search form
-                results = []
-                field_list = [x.strip() for x in request_data['fulltext_inquiry'].split(',')]
-                for item in models.Record.params_search:
-                    intermediate_res = self.sim_list.filter(reduce(lambda x, y: x | y,
-                                                                   [Q(**{"%s__contains" % item: word}) for word in field_list]))
-                    results = list(set(results).union(set(intermediate_res)))
-                self.sim_list = results
-                break  # if we have fulltext inquiry it is not possible to have others
-            elif isinstance(val, datetime.date):
-                self.sim_list = self.sim_list.filter(timestamp__year=val.year,
-                                                     timestamp__month=val.month,
-                                                     timestamp__day=val.day)
-            elif isinstance(val, models.Executable):
-                self.sim_list = self.sim_list.filter(executable__path=val.path)
-            elif isinstance(val, models.Repository):
-                self.sim_list = self.sim_list.filter(repository__url=val.url)
-        if hasattr(self, 'date_base') and self.date_base:  # in case user specifies "date within" in the search field
-            self.date_base = strptime(self.date_base, "%m/%d/%Y")  # from text input in the search form
-            base = datetime.date(self.date_base.tm_year, self.date_base.tm_mon, self.date_base.tm_mday)
-            nb_days = self.dict_dates[self.date_interval]  # date interval from the search form
-            dateIntvl = {'min': base - datetime.timedelta(days=nb_days),
-                         'max': base + datetime.timedelta(days=nb_days)}  # interval of the dates
-            self.sim_list = filter(lambda x: x.timestamp >= datetime.datetime.combine(dateIntvl['min'], datetime.time()) and
-                                   x.timestamp <= datetime.datetime.combine(dateIntvl['max'], datetime.time(23, 59)), self.sim_list)  # all the records inside the specified interval
-        elif self.tags:
-            self.sim_list = self.sim_list.filter(tags__icontains=self.tags.strip())
 
     def save_settings(self):
         global_conf_file = os.path.expanduser(os.path.join("~", ".smtrc"))

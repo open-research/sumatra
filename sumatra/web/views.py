@@ -16,7 +16,7 @@ try:
     from django.views.generic.dates import MonthArchiveView
 except ImportError:  # older versions of Django
     MonthArchiveView = object
-from services import DefaultTemplate, AjaxTemplate, ProjectUpdateForm, RecordUpdateForm, TagUpdateForm, unescape
+from services import DefaultTemplate, DataTemplate, AjaxTemplate, ProjectUpdateForm, RecordUpdateForm, TagUpdateForm, unescape
 from sumatra.recordstore.django_store.models import Project, Tag, Record
 from sumatra.datastore import get_data_store, DataKey
 from sumatra.versioncontrol import get_working_copy
@@ -42,6 +42,12 @@ def list_records(request, project):
     defTempOb = DefaultTemplate(project)
     defTempOb.init_object_list()  # object_list is used in record_list.html
     return render_to_response('record_list.html', defTempOb.getDict())
+
+
+
+def list_data(request, project):
+    defTempOb = DataTemplate(project)
+    return render_to_response('data_list.html', defTempOb.getDict())
 
 
 class ProjectListView(ListView):
@@ -181,27 +187,29 @@ def delete_records(request, project):
 
 
 def settings(request, project):
-    if request.POST.has_key('init_settings'):
-        executable = request.POST.get('executable')
-        try:
-            Executable(executable)._find_executable(executable)
-        except:
-            return HttpResponse('error')
-        configure(['--executable=%s' % executable])
-        return HttpResponse('OK')
-    web_settings = {'display_density': request.POST.get('display_density', False),
-                    'nb_records_per_page': request.POST.get('nb_records_per_page', False),
-                    'hidden_cols': request.POST.getlist('hidden_cols[]')}
-    ajaxTempOb = AjaxTemplate(project, None)
-    for key, item in web_settings.iteritems():
-        if item:
-            ajaxTempOb.settings[key] = item
-        else:
-            if key == 'hidden_cols':
-                ajaxTempOb.settings[key] = None
-    ajaxTempOb.save_settings()
-    ajaxTempOb.init_object_list(1)
-    return render_to_response('content.html', ajaxTempOb.getDict())
+    # if request.POST.has_key('init_settings'):
+    #     executable = request.POST.get('executable')
+    #     try:
+    #         Executable(executable)._find_executable(executable)
+    #     except:
+    #         return HttpResponse('error')
+    #     configure(['--executable=%s' % executable])
+    #     return HttpResponse('OK')
+    # web_settings = {'display_density': request.POST.get('display_density', False),
+    #                 'nb_records_per_page': request.POST.get('nb_records_per_page', False),
+    #                 'hidden_cols': request.POST.getlist('hidden_cols[]')}
+    # ajaxTempOb = AjaxTemplate(project, None)
+    # for key, item in web_settings.iteritems():
+    #     if item:
+    #         ajaxTempOb.settings[key] = item
+    #     else:
+    #         if key == 'hidden_cols':
+    #             ajaxTempOb.settings[key] = None
+    # ajaxTempOb.save_settings()
+    # ajaxTempOb.init_object_list(1)
+    #return render_to_response('content.html', ajaxTempOb.getDict())
+
+    return list_records(request, project)
 
 
 def run_sim(request, project):

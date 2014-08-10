@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% load filters %}
+
+{% block title %}{{project_name}}: List of data{% endblock %}
+
+
+
+{% block content %} 
+
+
+
+<!-- DataTables CSS -->
+<link rel="stylesheet" type="text/css"
+      href="/media/css/jquery.dataTables.css">
+
+<!-- jQuery -->
+<script type="text/javascript" chadatrset="utf8" src="/media/js/jquery.js"></script>
+
+<!-- DataTables -->
+<script type="text/javascript" charset="utf8"
+        src="/media/js/jquery.dataTables.js"></script>
+
+
+
+
+
+<script>
+  $(document).ready( function () {
+
+  var data_list = $('#data_dt').DataTable({
+    "paging": true,
+    "ordering": true,
+    "info": true, <!-- "Showing x of y entries" -->
+    "filter": true,  
+    } );
+
+
+
+  <!-- Arrow key page turning -->
+  document.onkeydown = checkKey;
+  function checkKey(e) {
+
+      e = e || window.event;
+
+      if (e.keyCode == '37') {
+          data_list.page('previous').draw(false);
+      }
+      else if (e.keyCode == '39') {
+          data_list.page('next').draw(false);
+      }
+  }
+
+    } );
+
+</script>
+
+
+<!--    "repository", "label",
+    "tag", 
+    "reason", 
+    "outcome", 
+    "duration", 
+    "processes", 
+    "ename", 
+    "eversion", 
+    "date", 
+    "time", 
+    "main", 
+    "version", 
+    "arguments" -->
+
+
+
+<div>
+  Toggle
+  column: <a class="toggle-vis"
+	     data-column="0">Name</a>
+  - <a class="toggle-vis"
+       data-column= "1">Position</a>
+  - <a class="toggle-vis"
+       data-column="2">Office</a>
+  - <a class="toggle-vis"
+       data-column="3">Age</a>
+  - <a class="toggle-vis"
+       data-column="4">Start date</a>
+  - <a class= "toggle-vis"
+       data-column="5">Salary</a>
+</div>
+
+<div style="margin-left:2%; margin-right:3%">
+<table class='hover row-border' id='data_dt'>
+
+  <thead>
+    <tr>
+      <th class='filename'>filename</th>
+      <th class='path-c'>path</th>
+      <th class='digest-c'>digest</th>
+      <th class='size-c'>size</th>
+      <th class='size-c'>time</th>
+    </tr>
+  </thead>
+
+  <tbody>
+
+    {% for data in data_list %}
+
+    <tr>     
+      <!--<td class='dataTable_td'  id = 'version-hid' class='d-hid'>                     {{record.version}}
+          </td>
+      <td class='dataTable_td'  id = 'repo-hid' class='d-hid'>
+        {{record.repository.url}}
+      </td> 
+      to be hidden. what do they do?
+      -->
+      
+      <td class='dataTable_td' id='filename-t'>
+          {{data.path|basename|ubreak}}
+      </td>
+      <td class='dataTable_td' id='path-t'>
+          {{data.path|ubreak}}    
+      </td>         
+      <td class='dataTable_td' id='digest-t'>
+        {{data.digest}}
+      </td>     
+      <td class='dataTable_td' id='digest-t'>
+        {{data|eval_metadata:'size'|filesizeformat}}
+      </td>
+      <td class='dataTable_td' id='digest-t'>        
+        <span style='display:none;'>
+          <!-- hack for correct sorting -->
+          {{data|eval_metadata:'create_time'|parse_datetime|date:"YmdHis"}}
+        </span>
+        {{data|eval_metadata:'create_time'|parse_datetime|date:"d/m/Y H:i:s"}}
+      </td>
+      </td>
+      
+    </tr>
+    {% endfor %}
+  <tbody>
+</table>
+</div>
+ 
+
+{% endblock %}
+

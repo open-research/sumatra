@@ -13,9 +13,10 @@ try:
     from django.utils.encoding import force_bytes, force_text  # Django 1.5
 except ImportError:
     from django.utils.encoding import smart_str as force_bytes, force_unicode as force_text  # Django 1.4
-from os import name
+from os import name, path
 from sumatra.formatting import human_readable_duration
-from django.utils import simplejson
+from django.utils import simplejson, dateparse
+import datetime
 
 register = template.Library()
 
@@ -36,7 +37,42 @@ def cut(text, type):
 @register.filter
 @stringfilter
 def ubreak(text):
-    return mark_safe(text.replace("_", "_<wbr>"))
+    text_out = text.replace("_", "_<wbr>").replace("/","/<wbr>")
+    return mark_safe(text_out)
+
+@register.filter
+@stringfilter
+def basename(text):
+    return mark_safe(path.basename(text))
+
+# # DOES NOT WORK BECAUSE OF datetime.date
+# import ast
+# # dictionary lookup as suggested by stackoverflow.com/a/8000091/692634
+# @register.filter
+# def get_item(dictionary, key):
+#     dictionary = ast.literal_eval(dictionary)
+#     print dictionary[key]
+#     return mark_safe(str(dictionary.get(key)))
+
+
+@register.filter
+def eval_metadata(data, key):
+    '''Convert DataKey metadata from unicode to dicitionary and return
+    item accessed by key.
+    '''
+    print key, type(data.get_metadata().get(key))
+    return data.get_metadata().get(key)
+
+@register.filter
+def parse_datetime(date):
+    '''Parse float as datetime objects.'''
+    if type(date) == float:
+        #print date, type(date), datetime.datetime.fromtimestamp(date)
+        return datetime.datetime.fromtimestamp(date)
+    else:
+        return date
+
+
 
 @register.filter
 def as_json(data):

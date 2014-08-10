@@ -12,7 +12,7 @@ from sumatra import programs, launch, datastore, records, versioncontrol, parame
 import os.path
 import tagging.fields
 from tagging.models import Tag
-from datetime import datetime
+import datetime
 import django
 from distutils.version import LooseVersion
 
