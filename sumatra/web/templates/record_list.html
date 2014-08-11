@@ -67,7 +67,8 @@
     "paging": true,
     "ordering": true,
     "info": true, <!-- "Showing x of y entries" -->
-    "filter": true,  
+    "filter": true, 
+    "lengthChange": false,
     "order": [[$('th.time-c').index(), "desc"]], <!-- default sort column -->
     } );
 
@@ -283,23 +284,9 @@ $(document).ready(function(){
 <br />
 
 
-<div>
-  Toggle
-  column: <a class="toggle-vis"
-	     data-column="0">Name</a>
-  - <a class="toggle-vis"
-       data-column= "1">Position</a>
-  - <a class="toggle-vis"
-       data-column="2">Office</a>
-  - <a class="toggle-vis"
-       data-column="3">Age</a>
-  - <a class="toggle-vis"
-       data-column="4">Start date</a>
-  - <a class= "toggle-vis"
-       data-column="5">Salary</a>
-</div>
 
-<br />
+
+
 
 <div style="margin-left:2%; margin-right:3%">
 <table class='hover row-border' id='record_dt'>
