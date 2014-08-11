@@ -24,7 +24,7 @@
 
 {% block content %} 
 
-<br/>
+
 
 <!-- DataTables CSS -->
 <link rel="stylesheet" type="text/css"
@@ -139,56 +139,62 @@
   <br/>
   <label class="checkbox">
     <input type="checkbox" id='repository' class='check-item' 
-           data-column='0'>
+           data-column='0' checked="checked">
     Repository
   </label>
   <label class="checkbox">
-    <input type="checkbox" id='label' class='check-item' data-column='1'>
+    <input type="checkbox" id='label' class='check-item'
+    data-column='1'  checked="checked">
     Label
   </label>
   <label class="checkbox">
-    <input type="checkbox" id='tag' class='check-item' data-column='2'>
+    <input type="checkbox" id='tag' class='check-item' data-column='2'
+     checked="checked">
     Tag
   </label>
   <label class="checkbox">
-    <input type="checkbox" id='reason' class='check-item' data-column='3'>
+    <input type="checkbox" id='reason' class='check-item'
+    data-column='3' checked="checked">
     Reason
   </label>
   <label class="checkbox">
-    <input type="checkbox" id='outcome' class='check-item' data-column='4'> Outcome
+    <input type="checkbox" id='outcome' class='check-item'
+    data-column='4'  checked="checked"> Outcome
   </label>
   <label class="checkbox">
-    <input type="checkbox" id='duration' class='check-item' data-column='5'> Duration
+    <input type="checkbox" id='duration' class='check-item'
+    data-column='5' checked="checked"> Duration
   </label>
   <label class="checkbox">
-    <input type="checkbox" id='processes' class='check-item' data-column='6'>
+    <input type="checkbox" id='processes' class='check-item'
+    data-column='6' checked="checked">
     Processes
   </label>
   <label class="checkbox">
-    <input type="checkbox" id='time' class='check-item' data-column='7'>
+    <input type="checkbox" id='time' class='check-item'
+    data-column='7' checked="checked">
     Time
   </label>
   <label class="checkbox">
-    <input type="checkbox" id='ename' class='check-item' data-column='8'>
+    <input type="checkbox" id='ename' class='check-item'
+    data-column='8' checked="checked">
     Executable
   </label>
 
   <label class="checkbox">
-    <input type="checkbox" id='main' class='check-item' data-column='9'>
+    <input type="checkbox" id='main' class='check-item'
+    data-column='9' checked="checked">
     Script main file
   </label>
   <label class="checkbox">
     <input type="checkbox" id='version' class='check-item'
-           data-column='10'> 
+           data-column='10' checked="checked"> 
     Script version
   </label>
   <label class="checkbox">
-    <input type="checkbox" id='arguments' class='check-item' data-column='11'> Script
+    <input type="checkbox" id='arguments' class='check-item'
+    data-column='11' checked="checked"> Script
     arguments
-  </label>
-  <label class="checkbox">
-    <input type="checkbox" id = 'selectAll'
-           checked="checked"><b style='font-size:14px'>Select all</b>
   </label>
   <div style='float:left; padding:8px; padding-left:0px'>Number of
     records per page:</div>
