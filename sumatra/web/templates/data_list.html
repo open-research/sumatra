@@ -35,7 +35,7 @@
 
   var data_list = $('#data_dt').DataTable({
     "columnDefs": [
-      {"sortable":false,  "targets":["digest-c"]}
+      {"sortable":false,  "targets":["filename-c", "path-c","digest-c"]}
     ], 
     "paging": true,
     "ordering": true,
@@ -101,7 +101,7 @@
 
   <thead>
     <tr>
-      <th class='filename'>filename</th>
+      <th class='filename-c'>filename</th>
       <th class='path-c'>path</th>
       <th class='digest-c'>digest</th>
       <th class='size-c'>size</th>

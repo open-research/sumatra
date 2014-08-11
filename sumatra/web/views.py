@@ -198,6 +198,10 @@ def settings(request, project):
     # web_settings = {'display_density': request.POST.get('display_density', False),
     #                 'nb_records_per_page': request.POST.get('nb_records_per_page', False),
     #                 'hidden_cols': request.POST.getlist('hidden_cols[]')}
+
+    print request
+    print request.POST.getlist('record_hidden_cols[]')
+
     # ajaxTempOb = AjaxTemplate(project, None)
     # for key, item in web_settings.iteritems():
     #     if item:
@@ -207,7 +211,7 @@ def settings(request, project):
     #             ajaxTempOb.settings[key] = None
     # ajaxTempOb.save_settings()
     # ajaxTempOb.init_object_list(1)
-    #return render_to_response('content.html', ajaxTempOb.getDict())
+    # return render_to_response('content.html', ajaxTempOb.getDict())
 
     return list_records(request, project)
 
