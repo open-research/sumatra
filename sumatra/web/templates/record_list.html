@@ -4,6 +4,12 @@
 
 {% block title %}{{project_name}}: List of records{% endblock %}
 
+{% block header %}
+            <li class="divider"></li>
+            <li><a href="/{{project_name}}/">{{project_name}}</a></li>
+            <li><a href="/{{project_name}}/data/">
+                Switch to Data view</a></li> 
+{% endblock %}
 
 
 {% block content %} 
@@ -24,6 +30,8 @@
         src="/media/js/jquery.dataTables.js"></script>
 <script type="text/javascript" charset="utf8"
         src="/media/js/dataTables.colVis.js"></script>
+
+
 
 
 <div style="display:none">
@@ -206,14 +214,10 @@
       <td class='dataTable_td' id='outcome-t'>
         {{record.outcome}}
       </td>
-      <td class='dataTable_td' id='duration-t'>
-        {{record.duration|floatformat:-4 }}
+      <td class='dataTable_td' id='duration-t'
+          data-sort='{{record.duration}}'>
+        {{record.duration|human_readable_duration}}
       </td>
-        <!--<span style='display:none'>
-          <!-- hack for correct sorting -->
-          <!--{{ record.duration|floatformat:-2 }} -->
-        <!--</span> -->
-        <!-- {{record.duration|human_readable_duration}} -->
       <td class='dataTable_td' id='processes-t'>
         {{record.launch_mode.get_parameters.n|default:"1"}}
       </td>

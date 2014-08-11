@@ -4,6 +4,12 @@
 
 {% block title %}{{project_name}}: List of data{% endblock %}
 
+{% block header %}
+            <li class="divider"></li>
+            <li><a href="/{{project_name}}/">{{project_name}}</a></li>
+            <li><a href="/{{project_name}}/">
+                Switch to Record view</a></li> 
+{% endblock %}
 
 
 {% block content %} 
@@ -24,11 +30,13 @@
 
 
 
-
 <script>
   $(document).ready( function () {
 
   var data_list = $('#data_dt').DataTable({
+    "columnDefs": [
+      {"sortable":false,  "targets":["digest-c"]}
+    ], 
     "paging": true,
     "ordering": true,
     "info": true, <!-- "Showing x of y entries" -->
@@ -98,6 +106,7 @@
       <th class='digest-c'>digest</th>
       <th class='size-c'>size</th>
       <th class='size-c'>time</th>
+      <th class='ouput_record-c'>output record</th>
     </tr>
   </thead>
 
@@ -115,15 +124,18 @@
       -->
       
       <td class='dataTable_td' id='filename-t'>
+        <a href="datafile?path={{file.path|urlencode}}&digest={{file.digest}}">
           {{data.path|basename|ubreak}}
+        </a>
       </td>
       <td class='dataTable_td' id='path-t'>
           {{data.path|ubreak}}    
       </td>         
       <td class='dataTable_td' id='digest-t'>
-        {{data.digest}}
+        {{data.digest|truncatechars:12 }}
       </td>     
-      <td class='dataTable_td' id='digest-t'>
+      <td class='dataTable_td' id='digest-t'
+          data-sort="{{data|eval_metadata:'size'}}">
         {{data|eval_metadata:'size'|filesizeformat}}
       </td>
       <td class='dataTable_td' id='digest-t'>        
@@ -133,6 +145,7 @@
         </span>
         {{data|eval_metadata:'create_time'|parse_datetime|date:"d/m/Y H:i:s"}}
       </td>
+      <td class='dataTable_td' id='digest-t'>
       </td>
       
     </tr>

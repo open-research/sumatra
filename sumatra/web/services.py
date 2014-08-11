@@ -162,15 +162,15 @@ class DataTemplate(object):
 
     def getDict(self):
 
-        dkey = self.__dict__['data_list'][0]
-        print type(dkey)
-        print type(dkey.metadata)
-        print type(dkey.get_metadata())
+        # dkey = self.__dict__['data_list'][0]
+
+        # print type(dkey)
+        # print type(dkey.metadata)
+        # print type(dkey.get_metadata())
         
         # >>> <class 'sumatra.recordstore.django_store.models.DataKey'>
         # >>> <type 'unicode'>
         # >>> <type 'dict'>
-
 
         return self.__dict__
 
