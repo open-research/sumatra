@@ -93,6 +93,13 @@
         // $.post("/{{project_name}}/settings", {'record_hidden_cols':['murloc'],'saveSettings':true}); 
     } );
 
+    // Save changes button   
+    $('#save_set').click(function(){  
+        record_list.page.len($('#s_nbt').val());
+        record_list.draw();
+        });
+
+
 
   <!-- Arrow key page turning -->
   document.onkeydown = checkKey;
@@ -194,7 +201,7 @@
   <a class="btn btn-primary" id='save_set'>Save changes</a>
 </div>
 
-<script type = 'text/javascript'>
+<!-- <script type = 'text/javascript'>
 $(document).ready(function(){ 
     // click on the compact/comfortable anchor tag in settings drop-down list
     $('.menu-rsettings').not('#button_settings').click(function(){
@@ -274,7 +281,7 @@ $(document).ready(function(){
         }  
     });
 });
-</script>
+</script>-->
 
 
 
