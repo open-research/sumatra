@@ -5,10 +5,20 @@
 {% block title %}{{project_name}}: List of records{% endblock %}
 
 {% block header %}
-            <li class="divider"></li>
-            <li><a href="/{{project_name}}/">{{project_name}}</a></li>
-            <li><a href="/{{project_name}}/data/">
-                Switch to Data view</a></li> 
+<li class="divider"></li>
+<li><a href="/{{project_name}}/">{{project_name}}</a></li>
+<li class='divider-vertical'></li>  
+<li>
+  <a href="/{{project_name}}/data/">
+    Switch to Data view
+  </a>
+</li> 
+<li class='divider-vertical'></li>   
+<li>
+  <a class="settings_togg">
+    <i class="icon-cog" style='margin-top:8px'></i> Settings
+  </a>
+<li class='divider-vertical'></li>  
 {% endblock %}
 
 
@@ -34,24 +44,7 @@
 
 
 
-<div style="display:none">
 
-
-    "columns": [
-      {"sortable": false}, <!-- repository -->
-      {"sortable": false}, <!-- label -->
-      {"sortable": false}, <!-- tag -->
-      {"sortable": false}, <!-- reason -->
-      {"sortable": false}, <!-- outcome -->
-      {"sortable": false}, <!-- duration -->
-      null, <!-- processes -->
-      null, <!-- time -->
-      null, <!-- exec. -->
-      {"sortable:" false}, <!-- main -->
-      {"sortable": false} <!-- version -->
-      ],   
-
-</div>
 
 <script>
   $(document).ready( function () {
@@ -73,6 +66,11 @@
     } );
 
 
+    $('a.settings_togg').on('click', function(e) {
+      e.preventDefault();
+      $('#settings_panel').toggle()
+      $('#settings_panel2').toggle()
+    })
 
     <!-- Column visibility toggle -->
     $('input.check-item').on( 'change', function (e) {
@@ -137,11 +135,12 @@
 
 
 
-<div id = 'tab_general_content'>
+<div id='settings_panel' style='display:none;'>
+  <br/>
   <label class="checkbox">
     <input type="checkbox" id='repository' class='check-item' 
            data-column='0'>
-           Repository
+    Repository
   </label>
   <label class="checkbox">
     <input type="checkbox" id='label' class='check-item' data-column='1'>
@@ -163,7 +162,7 @@
   </label>
   <label class="checkbox">
     <input type="checkbox" id='processes' class='check-item' data-column='6'>
-           Processes
+    Processes
   </label>
   <label class="checkbox">
     <input type="checkbox" id='time' class='check-item' data-column='7'>
@@ -185,21 +184,22 @@
   </label>
   <label class="checkbox">
     <input type="checkbox" id='arguments' class='check-item' data-column='11'> Script
-           arguments
+    arguments
   </label>
   <label class="checkbox">
     <input type="checkbox" id = 'selectAll'
            checked="checked"><b style='font-size:14px'>Select all</b>
   </label>
   <div style='float:left; padding:8px; padding-left:0px'>Number of
-       records per page:</div>
+    records per page:</div>
   <input id='s_nbt' class='span1' type='text' style='float:left;margin-bottom:0px' value='{{settings.nb_records_per_page}}'>
+  </div>
+  <div id="settings_panel2" class="modal-footer" style='display:none;'>
+    <a class="btn" data-dismiss="modal">Close</a>
+    <a class="btn btn-primary" id='save_set'>Save changes</a>
+  </div>
 </div>
-</div>
-<div class="modal-footer">
-  <a class="btn" data-dismiss="modal">Close</a>
-  <a class="btn btn-primary" id='save_set'>Save changes</a>
-</div>
+
 
 <!-- <script type = 'text/javascript'>
 $(document).ready(function(){ 

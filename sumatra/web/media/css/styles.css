@@ -74,6 +74,10 @@ a.active{
     float: left;
     margin-left: 0;
 }
+#settings_panel{
+    float: left;
+    margin-left: 0;
+}
 
 .subitems{
     margin-left: 20px;
