@@ -101,7 +101,7 @@ class DefaultTemplate(object):
         if os.path.exists(global_conf_file):
             with open(global_conf_file) as fp:
                 self.settings = json.load(fp)  # should really merge in any missing settings
-                print "record_hidden_cols: ", self.settings['record_hidden_cols']
+                #print "record_hidden_cols: ", self.settings['record_hidden_cols']
         else:
             self.settings = init_websettings()
 
