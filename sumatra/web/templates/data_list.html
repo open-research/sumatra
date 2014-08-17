@@ -161,8 +161,8 @@
       <th class='path-c'>path</th>
       <th class='digest-c'>digest</th>
       <th class='size-c'>size</th>
-      <th class='size-c'>time</th>
-      <th class='ouput_record-c'>output record</th>
+      <th class='ouput_record-c'>output of</th>
+      <th class='input_record-c'>input to</th>
     </tr>
   </thead>
 
@@ -180,7 +180,7 @@
       -->
       
       <td class='dataTable_td' id='filename-t'>
-        <a href="datafile?path={{file.path|urlencode}}&digest={{file.digest}}">
+        <a href="/{{project_name}}/{{data.output_from_record.label}}/datafile?path={{data.path|urlencode}}&digest={{data.digest}}">
           {{data.path|basename|ubreak}}
         </a>
       </td>
@@ -194,14 +194,17 @@
           data-sort="{{data|eval_metadata:'size'}}">
         {{data|eval_metadata:'size'|filesizeformat}}
       </td>
-      <td class='dataTable_td' id='digest-t'>        
-        <span style='display:none;'>
-          <!-- hack for correct sorting -->
-          {{data|eval_metadata:'create_time'|parse_datetime|date:"YmdHis"}}
-        </span>
-        {{data|eval_metadata:'create_time'|parse_datetime|date:"d/m/Y H:i:s"}}
+      <td class='dataTable_td' id='output_record-t'>
+          <a href="/{{project_name}}/{{data.output_from_record.label}}/">
+          {{data.output_from_record.label|ubreak}}
+          </a>
       </td>
-      <td class='dataTable_td' id='digest-t'>
+      <td class='dataTable_td' id='input_record-t'>
+        {% for record in data.input_to_records.all %}
+        <a href="/{{project_name}}/{{record.label}}/">
+          {{record.label|ubreak}}
+        </a>
+        {% endfor %}
       </td>
       
     </tr>
