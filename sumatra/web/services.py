@@ -125,10 +125,7 @@ class DataTemplate(object):
         self.sim_list = models.Record.objects.filter(project__id=project).order_by(
             '-timestamp')  # here project is the string
 
-        self.data_list = []
-        for record in self.sim_list:
-            self.data_list.append(record.output_data.all())
-        self.data_list = list(itertools.chain(*self.data_list))
+        self.data_list = models.DataKey.objects.all()
 
         self.files = os.listdir(os.getcwd())
         self.active = 'List of records'
@@ -173,8 +170,9 @@ class DataTemplate(object):
         # >>> <type 'unicode'>
         # >>> <type 'dict'>
 
-        return self.__dict__
-
+        return {'project_name': self.project_name, 
+                'data_list': self.data_list}
+ 
 
 class AjaxTemplate(DefaultTemplate):
 
