@@ -259,7 +259,7 @@ def run_sim(request, project):
             return render_to_response('content.html', ajaxTempOb.getDict())
 
 
-def show_file(request, project, label):
+def show_file(request, project):
     if request.POST.has_key('show_args'):  # retrieve the content of the input file
         name = request.POST.get('name', False)
         if os.name == 'posix':
