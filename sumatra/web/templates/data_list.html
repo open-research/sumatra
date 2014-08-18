@@ -42,7 +42,8 @@
 
   var data_list = $('#data_dt').DataTable({
     "columnDefs": [
-      {"sortable":false,  "targets":["filename-c", "path-c","digest-c"]}
+      {"sortable":false,  "targets":["filename-c", "path-c",
+       "digest-c", "output-c", "input-c"]}
     ], 
     "paging": true,
     "ordering": true,
@@ -135,7 +136,12 @@
   <label class="checkbox">
     <input type="checkbox" id='output' class='check-item'
     data-column='5' checked="checked"> 
-    Output record
+    Output of record
+  </label>
+  <label class="checkbox">
+    <input type="checkbox" id='input' class='check-item'
+    data-column='6' checked="checked"> 
+    Input to records
   </label>
   
 
@@ -161,8 +167,8 @@
       <th class='path-c'>path</th>
       <th class='digest-c'>digest</th>
       <th class='size-c'>size</th>
-      <th class='ouput_record-c'>output of</th>
-      <th class='input_record-c'>input to</th>
+      <th class='output-c'>output of</th>
+      <th class='input-c'>input to</th>
     </tr>
   </thead>
 
@@ -202,7 +208,8 @@
       <td class='dataTable_td' id='input_record-t'>
         {% for record in data.input_to_records.all %}
         <a href="/{{project_name}}/{{record.label}}/">
-          {{record.label|ubreak}}
+          {{record.label|ubreak}}<!--
+           -->{% if not forloop.last %}, {% endif %}
         </a>
         {% endfor %}
       </td>
