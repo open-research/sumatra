@@ -15,7 +15,6 @@
 
 
 
-
 <div class="accordion">
   <h2 class="nav-toggle">General info</h2>
   <form action='{{ request.path }}' method='POST' 
@@ -25,10 +24,10 @@
       <fieldset class = 'field-acc'>
         <div class="control-group">
           <table id = 'gen_info'>
-            <tr><th>Path:</th><td>{{path}}</td></tr>
-            <tr><th>Type:</th><td>{{mimetype}}</td></tr>
-            <tr><th>Size:</th><td>{{metadata.size|filesizeformat}}</td></tr>
-            <tr><th>Timestamp: </th><td>{{time|date:"d/m/Y H:i:s"}}</td></tr>
+            <tr><th>Path:</th><td>{{data_key.path}}</td></tr>
+            <tr><th>Type:</th><td>{{data_key.get_metadata.mimetype}}</td></tr>
+            <tr><th>Size:</th><td>{{data_key.get_metadata.size|filesizeformat}}</td></tr>
+            <tr><th>Timestamp: </th><td>{{data_key.output_from_record.timestamp|date:"d/m/Y H:i:s"}}</td></tr>
             <tr><th>Description:</th><td>{{form.description}}</td></tr>
           </table>
         </div>
@@ -61,11 +60,8 @@
     {{form.errors}}
     <fieldset class = 'field-acc'>
 
-      <div style="margin-right:6.5%; margin-left:1.5%">
 
-          <br/>
-
-          <!-- DataTables CSS -->
+<!-- DataTables CSS -->
           <link rel="stylesheet" type="text/css"
                 href="/media/css/jquery.dataTables.css">
           
@@ -77,129 +73,282 @@
                   src="/media/js/jquery.dataTables.js"></script>
 
 
-
           <script>
-            $(document).ready( function () {
-               $('#record_dt').DataTable({
-                  <!--"dom": 'C<"clear">lfrtip',-->
-                  "paging": false,
-                  "ordering": true,
-                  "info": false, <!-- "Showing x of y entries" -->
-                  "filter": false,                
-                } );
-            } );
-          </script>
+  $(document).ready( function () {
+
+  var hd_cl = {{settings.record_hidden_cols|as_json|safe}};
+  var record_list = $('#record_dt').DataTable({
+    "columnDefs": [
+      {"sortable":false,  "targets":["repository-c", "label-c",
+       "tag-c", "reason-c", "outcome-c", "main-c", "version-c",
+       "input-c", "output-c", "arguments-c"]},   
+      <!--{"visible":false, "targets": hd_cl},-->
+      {"visible":false, "targets": ["arguments-c", "processes-c",
+        "repository-c", "outcome-c"]}
+    ],
+    <!--"dom": 'lfrC<"clear">tip',     <!-- Order: 'l'ength, 'f'ilter,  p'r'ocessing, 'C'olumns, 't'able, 'i'nformation, 'p'agination -->
+    "paging": false,
+    "ordering": true,
+    "info": false, <!-- "Showing x of y entries" -->
+    "filter": false, 
+    "lengthChange": false,
+    "order": [[$('th.time-c').index(), "desc"]], <!-- default sort column -->
+    } );
 
 
-          <table class='hover row-border' id='record_dt' style="word-wrap:
-               break-word; overflow-wrap: break-word; table-layout:
-               fixed; width: 100%;" cellspacing="0" >
+    $('a.settings_togg').on('click', function(e) {
+      e.preventDefault();
+      $('#settings_panel').toggle()
+      $('#settings_panel2').toggle()
+    })
 
-            <thead>
-              <tr>
-                <th>repository</th>
-                <th>label</th>
-                <th>tag</th>
-                <th>reason</th>
-                <th>outcome</th>
-                <th>duration</th>
-                <th>processes</th>
-                <th>time</th>
-                <th>exec.</th>
-                <th>main</th>
-                <th>version</th>
-                <th>arguments</th>
-              </tr>
-            </thead>
+    <!-- Column visibility toggle -->
+    $('input.check-item').on( 'change', function (e) {
+        e.preventDefault();
 
-            <tbody>
+        // Get the column API object
+        var column = record_list.column($(this).attr('data-column')
+        );
 
-              {% for record in input_records %}
+        console.log($(this).attr('data-column'))
+ 
+        // Toggle the visibility
+        column.visible( ! column.visible() );
 
-              <tr>     
-                <!--<td class='dataTable_td'  id = 'version-hid' class='d-hid'>                     {{record.version}}
-                    </td>
-                <td class='dataTable_td'  id = 'repo-hid' class='d-hid'>
-                  {{record.repository.url}}
-                </td> 
-                to be hidden. what do they do?
-                -->
-                
-                <td class='dataTable_td' id='repository-t'>
-                  <span class="span-box">
-                    {{record.repository.url|cut:"repo"}}
-                  </span>
-                </td>
-                <td class='dataTable_td' id='label-t'>
-                  <a href="/{{project_name}}/{{record.label}}/">
-                    {{record.label}}
-                  </a> 
-                  
-                </td> 
-                {% if tag %}
-                <td class='dataTable_td' id='tag-t'>
-                  {% for other_tag in record.tag_objects %}
-                  {% if tag == other_tag %}
-                  {{tag}} 
-                  {% else %}
-                  <a href="#">
-                    {{other_tag.name}}
-                  </a> <!-- Fix Link!! -->
-                  {% endif %}
-                  {% endfor %}
-                </td>
-                {% else %}
-                <td class='dataTable_td' id='tag-t'>
-                  {% for tag in record.tag_objects %}
-                  <a href="#">{{tag}}</a>, <!-- Fix Link!! -->
-                  {% endfor %}
-                </td> 
-                {% endif %}
+        <!--console.log($.get("/{{project_name}}/settings"))-->
 
-                <td class='dataTable_td' id='reason-t'>
-                  {{record.reason}}
-                </td>
-                <td class='dataTable_td' id='outcome-t'>
-                  {{record.outcome}}
-                </td>
-                <td class='dataTable_td' id='duration-t'>
-                  {{record.duration|human_readable_duration}}
-                </td>
-                <td class='dataTable_td' id='processes-t'>
-                  {{record.launch_mode.get_parameters.n|default:"1"}}
-                </td>
-                <td class='dataTable_td' id='time-t'>
-                  {{record.timestamp|date:"d/m/Y"}}
-                  {{record.timestamp|date:"H:i:s"}}
-                </td>
-                <td class='dataTable_td' id='ename-t'>
-                  {{record.executable.name}} {{record.executable.version}}
-                </td>
-                <td class='dataTable_td' id='main-t'>
-                  <a class='id-script'  data-toggle="modal" href="#">
-                    {{record.main_file}}
-                  </a> <!-- Fix Link!! -->
-                </td>
-                <td class='dataTable_td' id='version-t'>
-                  <span class="span-box">
-                    {{record.version|cut:"vers"}}
-                    {% if record.diff %}
-                    *
-                    {% endif %}
-                  </span>
-                </td>
-                <td class='dataTable_td' id='arguments-t'>
-                  <a class='href_args'
-                     href='#'>
-                    {{record.script_arguments}}
-                  </a> <!-- Fix Link!! -->
-                </td>     
-              </tr>
-              {% endfor %}
-            <tbody>
-          </table>
+        // save settings to .smtrc
+        // $.post("/{{project_name}}/settings", {'record_hidden_cols':['murloc'],'saveSettings':true}); 
+    } );
 
-      </div>
+    // Save changes button   
+    $('#save_set').click(function(){  
+        record_list.page.len($('#s_nbt').val());
+        record_list.draw();
+        });
+
+
+
+    } );
+
+</script>
+
+
+
+
+<div id='settings_panel' style='display:none;'>
+  <br/>
+  <label class="checkbox">
+    <input type="checkbox" id='repository' class='check-item' 
+           data-column='0' checked="checked">
+    Repository
+  </label>
+  <label class="checkbox">
+    <input type="checkbox" id='label' class='check-item'
+    data-column='1'  checked="checked">
+    Label
+  </label>
+  <label class="checkbox">
+    <input type="checkbox" id='tag' class='check-item' data-column='2'
+     checked="checked">
+    Tag
+  </label>
+  <label class="checkbox">
+    <input type="checkbox" id='reason' class='check-item'
+    data-column='3' checked="checked">
+    Reason
+  </label>
+  <label class="checkbox">
+    <input type="checkbox" id='outcome' class='check-item'
+    data-column='4'  checked="checked"> 
+    Outcome
+  </label>
+  <label class="checkbox">
+    <input type="checkbox" id='input' class='check-item'
+    data-column='5'  checked="checked"> 
+    Input
+  </label>
+  <label class="checkbox">
+    <input type="checkbox" id='output' class='check-item'
+    data-column='6'  checked="checked"> 
+    Output
+  </label>
+  <label class="checkbox">
+    <input type="checkbox" id='duration' class='check-item'
+    data-column='7' checked="checked"> 
+    Duration
+  </label>
+  <label class="checkbox">
+    <input type="checkbox" id='processes' class='check-item'
+    data-column='8' checked="checked">
+    Processes
+  </label>
+  <label class="checkbox">
+    <input type="checkbox" id='time' class='check-item'
+    data-column='9' checked="checked">
+    Time
+  </label>
+  <label class="checkbox">
+    <input type="checkbox" id='ename' class='check-item'
+    data-column='10' checked="checked">
+    Executable
+  </label>
+
+  <label class="checkbox">
+    <input type="checkbox" id='main' class='check-item'
+    data-column='11' checked="checked">
+    Script main file
+  </label>
+  <label class="checkbox">
+    <input type="checkbox" id='version' class='check-item'
+           data-column='12' checked="checked"> 
+    Script version
+  </label>
+  <label class="checkbox">
+    <input type="checkbox" id='arguments' class='check-item'
+    data-column='13' checked="checked"> Script
+    arguments
+  </label>
+  <div style='float:left; padding:8px; padding-left:0px'>Number of
+    records per page:</div>
+  <input id='s_nbt' class='span1' type='text' style='float:left;margin-bottom:0px' value='{{settings.nb_records_per_page}}'>
+  </div>
+  <div id="settings_panel2" class="modal-footer" style='display:none;'>
+    <a class="btn" data-dismiss="modal">Close</a>
+    <a class="btn btn-primary" id='save_set'>Save changes</a>
+  </div>
+</div>
+
+
+
+<div style="margin-left:2%; margin-right:6%">
+  <table class='hover row-border' id='record_dt'>
+
+    <thead>
+      <tr>
+        <th class='repository-c'>repository</th>
+        <th class='label-c'>label</th>
+        <th class='tag-c'>tag</th>
+        <th class='reason-c'>reason</th>
+        <th class='outcome-c'>outcome</th>
+        <th class='input-c'>input&nbsp;data</th>
+        <th class='output-c'>output&nbsp;data</th>
+        <th class='duration-c'>duration</th>
+        <th class='processes-c'>processes</th>
+        <th class='time-c'>time</th>
+        <th class='exec-c'>exec.</th>
+        <th class='main-c'>main</th>
+        <th class='version-c'>version</th>
+        <th class='arguments-c'>arguments</th>
+      </tr>
+    </thead>
+
+    <tbody>
+
+      {% for record in data_key.input_to_records.all %}
+
+      <tr>     
+        <!--<td class='dataTable_td'  id = 'version-hid' class='d-hid'>                     {{record.version}}
+            </td>
+        <td class='dataTable_td'  id = 'repo-hid' class='d-hid'>
+          {{record.repository.url}}
+        </td> 
+        to be hidden. what do they do?
+        -->
+        
+        <td class='dataTable_td' id='repository-t'>
+          <span class="span-box">
+            {{record.repository.url|cut:"repo"}}
+          </span>
+        </td>
+        <td class='dataTable_td' id='label-t'>
+          <a href="/{{project_name}}/{{record.label}}/">
+            {{record.label|ubreak}}
+          </a> 
+          
+        </td> 
+        {% if tag %}
+        <td class='dataTable_td' id='tag-t'>
+          {% for other_tag in record.tag_objects %}
+          {% if tag == other_tag %}
+          {{tag}} 
+          {% else %}
+          <a href="#">
+            {{other_tag.name}}
+          </a> <!-- Fix Link!! -->
+          {% endif %}
+          {% endfor %}
+        </td>
+        {% else %}
+        <td class='dataTable_td' id='tag-t'>
+          {% for tag in record.tag_objects %}
+          <a href="#">{{tag}}</a>, <!-- Fix Link!! -->
+          {% endfor %}
+        </td> 
+        {% endif %}
+
+        <td class='dataTable_td' id='reason-t'>
+          {{record.reason}}
+        </td>
+        <td class='dataTable_td' id='outcome-t'>
+          {{record.outcome}}
+        </td>
+        <td class='dataTable_td' id='input-t'>
+          {% for data in record.input_data.all %}
+          {{data.path|basename|ubreak}}<!--
+                                         -->{% if not forloop.last %}, {% endif %}
+          {% endfor %}
+        </td>
+        <td class='dataTable_td' id='output-t'>
+          {% for data in record.output_data.all %}        
+          {{data.path|basename|ubreak}}<!--
+                                         -->{% if not forloop.last %}, {% endif %}
+          {% endfor %}
+        </td>
+        <td class='dataTable_td' id='duration-t'
+            data-sort='{{record.duration}}'>
+          {{record.duration|human_readable_duration}}
+        </td>
+        <td class='dataTable_td' id='processes-t'>
+          {{record.launch_mode.get_parameters.n|default:"1"}}
+        </td>
+        <td class='dataTable_td' id='time-t'>
+          <span style='display:none;'>
+            <!-- hack for correct sorting -->
+            {{record.timestamp|date:"YmdHis"}}
+          </span>
+          {{record.timestamp|date:"d/m/Y H:i:s"}}
+        </td>
+        <td class='dataTable_td' id='ename-t'>
+          {{record.executable.name}} {{record.executable.version}}
+        </td>
+        <td class='dataTable_td' id='main-t'>
+          <a class='id-script'  data-toggle="modal" href="#">
+            {{record.main_file|ubreak}}
+          </a> <!-- Fix Link!! -->
+        </td>
+        <td class='dataTable_td' id='version-t'>
+          <span class="span-box">
+            {{record.version|cut:"vers"}}
+            {% if record.diff %}
+            *
+            {% endif %}
+          </span>
+        </td>
+        <td class='dataTable_td' id='arguments-t'>
+          <a class='href_args' href='#'>
+            {{record.script_arguments}}
+          </a> <!-- Fix Link!! -->
+        </td> 
+      </tr>
+      {% endfor %}
+    <tbody>
+  </table>
+</div>
+
+<br/>
+
+          
   
       </fieldset>
   </form>
