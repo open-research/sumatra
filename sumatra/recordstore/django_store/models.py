@@ -25,7 +25,7 @@ class SumatraObjectsManager(models.Manager):
         # want to store in a single table in the database.
         # might be better to specify the list of field names explicitly
         # as an argument to the Manager __init__().
-        excluded_fields = ('id', 'record', 'input_to_records', 'output_from_records')
+        excluded_fields = ('id', 'record', 'input_to_records', 'output_from_record')
         field_names = set(self.model._meta.get_all_field_names()).difference(excluded_fields)
         attributes = {}
         for name in field_names:
@@ -185,6 +185,9 @@ class DataKey(BaseModel):
     digest = models.CharField(max_length=40)
     metadata = models.TextField(blank=True)
 
+    output_from_record = models.ForeignKey('Record', related_name =
+                                           'output_data', null = True)
+
     class Meta:
         ordering = ('path',)
 
@@ -231,7 +234,6 @@ class Record(BaseModel):
     outcome = models.TextField(blank=True)
     timestamp = models.DateTimeField()
     tags = tagging.fields.TagField()
-    output_data = models.ManyToManyField(DataKey, related_name="output_from_records")
     dependencies = models.ManyToManyField(Dependency)
     platforms = models.ManyToManyField(PlatformInformation)
     diff = models.TextField(blank=True)
