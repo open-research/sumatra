@@ -269,7 +269,7 @@ def show_file(request, project):
         f_content = arg_file.read()
         arg_file.close()
         return HttpResponse(f_content)
-    label = unescape(label)
+    #label = unescape(label)
     path = request.GET['path']
     digest = request.GET['digest']
 
@@ -296,7 +296,7 @@ def show_file(request, project):
         max_display_length = DEFAULT_MAX_DISPLAY_LENGTH
 
     return render_to_response("show_file.html",
-                              {'data_key': data_key})
+                              {'data_key': data_key, 'project_name': project})
     
     # output_record = data_key.output_from_record
     # input_records = data_key.input_to_records.all()  

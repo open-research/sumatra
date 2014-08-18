@@ -2,7 +2,7 @@
 
 {% load filters %}
 
-{% block title %}{{project_name}}: {{label}}: {{path}}{% endblock %}
+{% block title %}{{project_name}}:  {{data_key.path}}{% endblock %}
 
 {% block header %}
             <li class="divider"></li>
@@ -253,93 +253,96 @@
 
       {% for record in data_key.input_to_records.all %}
 
-      <tr>     
+          <tr>         
+      <td class='dataTable_td' id='repository-t'>
+        <span class="span-box">
+          {{record.repository.url|cut:"repo"}}
+        </span>
+      </td>
+      <td class='dataTable_td' id='label-t'>
+        <a href="/{{project_name}}/{{record.label}}/">
+          {{record.label|ubreak}}
+        </a> 
         
-        <td class='dataTable_td' id='repository-t'>
-          <span class="span-box">
-            {{record.repository.url|cut:"repo"}}
-          </span>
-        </td>
-        <td class='dataTable_td' id='label-t'>
-          <a href="/{{project_name}}/{{record.label}}/">
-            {{record.label|ubreak}}
-          </a> 
-          
-        </td> 
-        {% if tag %}
-        <td class='dataTable_td' id='tag-t'>
-          {% for other_tag in record.tag_objects %}
-          {% if tag == other_tag %}
-          {{tag}} 
-          {% else %}
-          <a href="#">
-            {{other_tag.name}}
-          </a> <!-- Fix Link!! -->
-          {% endif %}
-          {% endfor %}
-        </td>
+      </td> 
+      {% if tag %}
+      <td class='dataTable_td' id='tag-t'>
+        {% for other_tag in record.tag_objects %}
+        {% if tag == other_tag %}
+        {{tag}} 
         {% else %}
-        <td class='dataTable_td' id='tag-t'>
-          {% for tag in record.tag_objects %}
-          <a href="#">{{tag}}</a>, <!-- Fix Link!! -->
-          {% endfor %}
-        </td> 
+        <!--<a href="#">
+          {{other_tag.name}}
+        </a>--> <!-- Fix Link!! -->
         {% endif %}
+        {% endfor %}
+      </td>
+      {% else %}
+      <td class='dataTable_td' id='tag-t'>
+        {% for tag in record.tag_objects %}
+        <!--<a href="#">-->{{tag}}<!---</a>-->, <!-- Fix Link!! -->
+        {% endfor %}
+      </td> 
+      {% endif %}
 
-        <td class='dataTable_td' id='reason-t'>
-          {{record.reason}}
-        </td>
-        <td class='dataTable_td' id='outcome-t'>
-          {{record.outcome}}
-        </td>
-        <td class='dataTable_td' id='input-t'>
-          {% for data in record.input_data.all %}
-          {{data.path|basename|ubreak}}<!--
-                                         -->{% if not forloop.last %}, {% endif %}
-          {% endfor %}
-        </td>
-        <td class='dataTable_td' id='output-t'>
-          {% for data in record.output_data.all %}        
-          {{data.path|basename|ubreak}}<!--
-                                         -->{% if not forloop.last %}, {% endif %}
-          {% endfor %}
-        </td>
-        <td class='dataTable_td' id='duration-t'
-            data-sort='{{record.duration}}'>
-          {{record.duration|human_readable_duration}}
-        </td>
-        <td class='dataTable_td' id='processes-t'>
-          {{record.launch_mode.get_parameters.n|default:"1"}}
-        </td>
-        <td class='dataTable_td' id='time-t'>
-          <span style='display:none;'>
-            <!-- hack for correct sorting -->
-            {{record.timestamp|date:"YmdHis"}}
-          </span>
-          {{record.timestamp|date:"d/m/Y H:i:s"}}
-        </td>
-        <td class='dataTable_td' id='ename-t'>
-          {{record.executable.name}} {{record.executable.version}}
-        </td>
-        <td class='dataTable_td' id='main-t'>
-          <a class='id-script'  data-toggle="modal" href="#">
-            {{record.main_file|ubreak}}
-          </a> <!-- Fix Link!! -->
-        </td>
-        <td class='dataTable_td' id='version-t'>
-          <span class="span-box">
-            {{record.version|cut:"vers"}}
-            {% if record.diff %}
-            *
-            {% endif %}
-          </span>
-        </td>
-        <td class='dataTable_td' id='arguments-t'>
-          <a class='href_args' href='#'>
-            {{record.script_arguments}}
-          </a> <!-- Fix Link!! -->
-        </td> 
-      </tr>
+      <td class='dataTable_td' id='reason-t'>
+        {{record.reason}}
+      </td>
+      <td class='dataTable_td' id='outcome-t'>
+        {{record.outcome}}
+      </td>
+      <td class='dataTable_td' id='input-t'>
+        {% for data in record.input_data.all %}
+          <a href="/{{project_name}}/data/datafile?path={{data.path|urlencode}}&digest={{data.digest}}">
+            {{data.path|basename|ubreak}}<!--
+              -->{% if not forloop.last %}, {% endif %}
+          <a/>
+        {% endfor %}
+      </td>
+      <td class='dataTable_td' id='output-t'>
+        {% for data in record.output_data.all %}
+          <a href="/{{project_name}}/data/datafile?path={{data.path|urlencode}}&digest={{data.digest}}">
+            {{data.path|basename|ubreak}}<!--
+              -->{% if not forloop.last %}, {% endif %}
+            </a>
+        {% endfor %}
+      </td>
+      <td class='dataTable_td' id='duration-t'
+          data-sort='{{record.duration}}'>
+        {{record.duration|human_readable_duration}}
+      </td>
+      <td class='dataTable_td' id='processes-t'>
+        {{record.launch_mode.get_parameters.n|default:"1"}}
+      </td>
+      <td class='dataTable_td' id='time-t'>
+        <span style='display:none;'>
+          <!-- hack for correct sorting -->
+          {{record.timestamp|date:"YmdHis"}}
+        </span>
+        {{record.timestamp|date:"d/m/Y H:i:s"}}
+      </td>
+      <td class='dataTable_td' id='ename-t'>
+        {{record.executable.name}} {{record.executable.version}}
+      </td>
+      <td class='dataTable_td' id='main-t'>
+        <!--<a class='id-script'  data-toggle="modal" href="#">-->
+          {{record.main_file|ubreak}}
+        <!--</a>--> <!-- Fix Link!! -->
+      </td>
+      <td class='dataTable_td' id='version-t'>
+        <span class="span-box">
+          {{record.version|cut:"vers"}}
+          {% if record.diff %}
+          *
+          {% endif %}
+        </span>
+      </td>
+      <td class='dataTable_td' id='arguments-t'>
+        <a class='href_args' href='#'>
+          {{record.script_arguments}}
+        </a> <!-- Fix Link!! -->
+      </td> 
+    </tr>
       {% endfor %}
     <tbody>
   </table>
