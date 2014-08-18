@@ -52,7 +52,8 @@
       {"sortable":false,  "targets":["repository-c", "label-c",
        "tag-c", "reason-c", "outcome-c", "main-c", "version-c",
        "input-c", "output-c", "arguments-c"]},   
-      {"visible":false, "targets": hd_cl},
+      <!--{"visible":false, "targets": hd_cl},-->
+      {"visible":false, "targets": ["arguments-c", "repository-c", "processes-c"]},
     ],
     <!--"dom": 'lfrC<"clear">tip',     <!-- Order: 'l'ength, 'f'ilter,  p'r'ocessing, 'C'olumns, 't'able, 'i'nformation, 'p'agination -->
     "paging": true,
@@ -122,7 +123,7 @@
   <br/>
   <label class="checkbox">
     <input type="checkbox" id='repository' class='check-item' 
-           data-column='0' checked="checked">
+           data-column='0' >
     Repository
   </label>
   <label class="checkbox">
@@ -162,7 +163,7 @@
   </label>
   <label class="checkbox">
     <input type="checkbox" id='processes' class='check-item'
-    data-column='8' checked="checked">
+    data-column='8'>
     Processes
   </label>
   <label class="checkbox">
@@ -188,7 +189,7 @@
   </label>
   <label class="checkbox">
     <input type="checkbox" id='arguments' class='check-item'
-    data-column='13' checked="checked"> Script
+    data-column='13'> Script
     arguments
   </label>
   <div style='float:left; padding:8px; padding-left:0px'>Number of
