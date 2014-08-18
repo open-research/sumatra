@@ -13,6 +13,16 @@
 
 {% block content %}
 
+<!-- DataTables CSS -->
+          <link rel="stylesheet" type="text/css"
+                href="/media/css/jquery.dataTables.css">
+          
+          <!-- jQuery -->
+          <script type="text/javascript" charset="utf8" src="/media/js/jquery.js"></script>
+          
+          <!-- DataTables -->
+          <script type="text/javascript" charset="utf8"
+                  src="/media/js/jquery.dataTables.js"></script>
 
 
 <div class="accordion">
@@ -44,9 +54,102 @@
     {{form.errors}}
     <fieldset class = 'field-acc'>
       <fieldset class = 'field-acc'>
-        <div class="control-group">
 
-        </div>
+<script>
+  $(document).ready( function () {
+
+  var data_list = $('#data_dt').DataTable({
+    "columnDefs": [
+      {"sortable":false,  "targets":["filename-c", "path-c",
+       "digest-c", "output-c", "input-c"]}
+    ], 
+    "paging": false,
+    "ordering": true,
+    "info": false, <!-- "Showing x of y entries" -->
+    "filter": false, 
+    "lengthChange": false,  
+     "order": [[$('th.time-c').index(), "desc"]], <!--default sort  -->
+    } );
+
+
+    } );
+
+</script>
+
+
+<br/>
+
+<div style="margin-left:2%; margin-right:6%">
+<table class='hover row-border' id='data_dt'>
+
+  <thead>
+    <tr>
+      <th class='filename-c'>filename</th>
+      <th class='path-c'>path</th>
+      <th class='digest-c'>digest</th>
+      <th class='size-c'>size</th>
+      <th class='time-c'>time</th>
+      <th class='output-c'>output of</th>
+      <th class='input-c'>input to</th>
+    </tr>
+  </thead>
+
+  <tbody>
+
+    {% for data in data_key.output_from_record.output_data.all %}
+
+    <tr>     
+      <!--<td class='dataTable_td'  id = 'version-hid' class='d-hid'>                     {{record.version}}
+          </td>
+      <td class='dataTable_td'  id = 'repo-hid' class='d-hid'>
+        {{record.repository.url}}
+      </td> 
+      to be hidden. what do they do?
+      -->
+      
+      <td class='dataTable_td' id='filename-t'>
+        <a href="/{{project_name}}/{{data.output_from_record.label}}/datafile?path={{data.path|urlencode}}&digest={{data.digest}}">
+          {{data.path|basename|ubreak}}
+        </a>
+      </td>
+      <td class='dataTable_td' id='path-t'>
+          {{data.path|ubreak}}    
+      </td>         
+      <td class='dataTable_td' id='digest-t'>
+        {{data.digest|truncatechars:12 }}
+      </td>     
+      <td class='dataTable_td' id='size-t'
+          data-sort="{{data|eval_metadata:'size'}}">
+        {{data|eval_metadata:'size'|filesizeformat}}
+      </td>
+      <td class='dataTable_td' id='time-t'>
+        <span style='display:none;'>
+          <!-- hack for correct sorting -->
+          {{data.output_from_record.timestamp|date:"YmdHis"}}
+        </span>
+          {{data.output_from_record.timestamp|date:"d/m/Y H:i:s"}}
+      </td>
+      <td class='dataTable_td' id='output_record-t'>
+          <a href="/{{project_name}}/{{data.output_from_record.label}}/">
+          {{data.output_from_record.label|ubreak}}
+          </a>
+      </td>
+      <td class='dataTable_td' id='input_record-t'>
+        {% for record in data.input_to_records.all %}
+        <a href="/{{project_name}}/{{record.label}}/">
+          {{record.label|ubreak}}<!--
+           -->{% if not forloop.last %}, {% endif %}
+        </a>
+        {% endfor %}
+      </td>
+      
+    </tr>
+    {% endfor %}
+  <tbody>
+</table>
+</div>
+<br/>
+
       </fieldset>
   </form>
 </div>
@@ -61,16 +164,7 @@
     <fieldset class = 'field-acc'>
 
 
-<!-- DataTables CSS -->
-          <link rel="stylesheet" type="text/css"
-                href="/media/css/jquery.dataTables.css">
-          
-          <!-- jQuery -->
-          <script type="text/javascript" charset="utf8" src="/media/js/jquery.js"></script>
-          
-          <!-- DataTables -->
-          <script type="text/javascript" charset="utf8"
-                  src="/media/js/jquery.dataTables.js"></script>
+
 
 
           <script>
