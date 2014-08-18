@@ -68,8 +68,6 @@
           <!-- DataTables CSS -->
           <link rel="stylesheet" type="text/css"
                 href="/media/css/jquery.dataTables.css">
-          <link rel="stylesheet" type="text/css"
-                href="/media/css/dataTables.colVis.css">
           
           <!-- jQuery -->
           <script type="text/javascript" charset="utf8" src="/media/js/jquery.js"></script>
@@ -77,16 +75,13 @@
           <!-- DataTables -->
           <script type="text/javascript" charset="utf8"
                   src="/media/js/jquery.dataTables.js"></script>
-          <script type="text/javascript" charset="utf8"
-                  src="/media/js/dataTables.colVis.js"></script>
-
 
 
 
           <script>
             $(document).ready( function () {
                $('#record_dt').DataTable({
-                  "dom": 'C<"clear">lfrtip',
+                  <!--"dom": 'C<"clear">lfrtip',-->
                   "paging": false,
                   "ordering": true,
                   "info": false, <!-- "Showing x of y entries" -->
