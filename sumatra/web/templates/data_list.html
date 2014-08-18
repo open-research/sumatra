@@ -22,7 +22,6 @@
 {% block content %} 
 
 
-
 <!-- DataTables CSS -->
 <link rel="stylesheet" type="text/css"
       href="/media/css/jquery.dataTables.css">
@@ -33,7 +32,6 @@
 <!-- DataTables -->
 <script type="text/javascript" charset="utf8"
         src="/media/js/jquery.dataTables.js"></script>
-
 
 
 
@@ -62,23 +60,17 @@
     })
 
 
-      <!-- Column visibility toggle -->
+    // Column visibility toggle 
     $('input.check-item').on( 'change', function (e) {
         e.preventDefault();
 
         // Get the column API object
         var column = data_list.column($(this).attr('data-column')
         );
-
-        console.log($(this).attr('data-column'))
  
         // Toggle the visibility
         column.visible( ! column.visible() );
-
-        <!--console.log($.get("/{{project_name}}/settings"))-->
-
-        // save settings to .smtrc
-        // $.post("/{{project_name}}/settings", {'record_hidden_cols':['murloc'],'saveSettings':true}); 
+ 
     } );
 
     // Save changes button   
@@ -87,13 +79,13 @@
         data_list.draw();
         });
 
-    // close settings button
+    // Close settings button
     $('#close_settings').click(function(){  
         $('#settings_panel').toggle()
         $('#settings_panel2').toggle()
         });
 
-  <!-- Arrow key page turning -->
+  // Arrow key page turning 
   document.onkeydown = checkKey;
   function checkKey(e) {
 
@@ -155,11 +147,11 @@
   <div style='float:left; padding:8px; padding-left:0px'>Number of
     records per page:</div>
   <input id='s_nbt' class='span1' type='text' style='float:left;margin-bottom:0px' value='{{settings.nb_records_per_page}}'>
-  </div>
-  <div id="settings_panel2" class="modal-footer" style='display:none;'>
-    <a class="btn" data-dismiss="modal" id="close_settings">Close</a>
-    <a class="btn btn-primary" id='save_set'>Save changes</a>
-  </div>
+</div>
+<div id="settings_panel2" class="modal-footer" style='display:none;'>
+  <a class="btn" data-dismiss="modal" id="close_settings">Close</a>
+  <a class="btn btn-primary" id='save_set'>Save changes</a>
+</div>
 </div>
 
 
@@ -181,18 +173,8 @@
   </thead>
 
   <tbody>
-
     {% for data in data_list %}
-
-    <tr>     
-      <!--<td class='dataTable_td'  id = 'version-hid' class='d-hid'>                     {{record.version}}
-          </td>
-      <td class='dataTable_td'  id = 'repo-hid' class='d-hid'>
-        {{record.repository.url}}
-      </td> 
-      to be hidden. what do they do?
-      -->
-      
+    <tr>       
       <td class='dataTable_td' id='filename-t'>
         <a href="/{{project_name}}/data/datafile?path={{data.path|urlencode}}&digest={{data.digest}}">
           {{data.path|basename|ubreak}}
@@ -227,8 +209,7 @@
            -->{% if not forloop.last %}, {% endif %}
         </a>
         {% endfor %}
-      </td>
-      
+      </td>      
     </tr>
     {% endfor %}
   <tbody>

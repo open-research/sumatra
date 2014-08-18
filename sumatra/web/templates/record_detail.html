@@ -77,263 +77,250 @@
 </div>
 
 <div class="accordion">
-    <h2 class="nav-toggle">Input files</h2>
-    <form class="form-horizontal">
-        <fieldset class = 'field-acc'>
+  <h2 class="nav-toggle">Input files</h2>
+  <form class="form-horizontal">
+    <fieldset class = 'field-acc'>
 
-                {% if record.input_data.count %}
+      {% if record.input_data.count %}
 
-               <script>
-                 $(document).ready( function () {
+      <script>
+        $(document).ready( function () {
 
-                 var data_list = $('#data_dt').DataTable({
-                   "columnDefs": [
-                     {"sortable":false,  "targets":["filename-c", "path-c",
-                      "digest-c", "output-c", "input-c"]}
-                   ], 
-                   "paging": false,
-                   "ordering": true,
-                   "info": false, <!-- "Showing x of y entries" -->
-                   "filter": false, 
-                   "lengthChange": false,  
-                    "order": [[$('th.time-c').index(), "desc"]], <!--default sort  -->
-                   } );
-
-
-                   } );
-
-               </script>
+        var data_list = $('#data_dt').DataTable({
+          "columnDefs": [
+            {"sortable":false,  "targets":["filename-c", "path-c",
+             "digest-c", "output-c", "input-c"]}
+          ], 
+          "paging": false,
+          "ordering": true,
+          "info": false, <!-- "Showing x of y entries" -->
+          "filter": false, 
+          "lengthChange": false,  
+           "order": [[$('th.time-c').index(), "desc"]], <!--default sort  -->
+          } );
 
 
-                <br/>
+          } );
+      </script>
 
-                <div style="margin-left:2%; margin-right:6%">
-                  <table class='hover row-border' id='data_dt'>
+      <br/>
 
-                    <thead>
-                      <tr>
-                        <th class='filename-c'>filename</th>
-                        <th class='path-c'>path</th>
-                        <th class='digest-c'>digest</th>
-                        <th class='size-c'>size</th>
-                        <th class='time-c'>time</th>
-                        <th class='output-c'>output of</th>
-                        <th class='input-c'>input to</th>
-                      </tr>
-                    </thead>
+      <div style="margin-left:2%; margin-right:6%">
+        <table class='hover row-border' id='data_dt'>
 
-                    <tbody>
+          <thead>
+            <tr>
+              <th class='filename-c'>filename</th>
+              <th class='path-c'>path</th>
+              <th class='digest-c'>digest</th>
+              <th class='size-c'>size</th>
+              <th class='time-c'>time</th>
+              <th class='output-c'>output of</th>
+              <th class='input-c'>input to</th>
+            </tr>
+          </thead>
 
-                      {% for data in record.input_data.all %}
-
-                      <tr>     
-                        
-                        <td class='dataTable_td' id='filename-t'>
-                          <a href="/{{project_name}}/data/datafile?path={{data.path|urlencode}}&digest={{data.digest}}">
-                            {{data.path|basename|ubreak}}
-                          </a>
-                        </td>
-                        <td class='dataTable_td' id='path-t'>
-                          {{data.path|ubreak}}    
-                        </td>         
-                        <td class='dataTable_td' id='digest-t'>
-                          {{data.digest|truncatechars:12 }}
-                        </td>     
-                        <td class='dataTable_td' id='size-t'
-                            data-sort="{{data|eval_metadata:'size'}}">
-                          {{data|eval_metadata:'size'|filesizeformat}}
-                        </td>
-                        <td class='dataTable_td' id='time-t'>
-                          <span style='display:none;'>
-                            <!-- hack for correct sorting -->
-                            {{data.output_from_record.timestamp|date:"YmdHis"}}
-                          </span>
-                          {{data.output_from_record.timestamp|date:"d/m/Y H:i:s"}}
-                        </td>
-                        <td class='dataTable_td' id='output_record-t'>
-                          <a href="/{{project_name}}/{{data.output_from_record.label}}/">
-                            {{data.output_from_record.label|ubreak}}
-                          </a>
-                        </td>
-                        <td class='dataTable_td' id='input_record-t'>
-                          {% for record in data.input_to_records.all %}
-                          <a href="/{{project_name}}/{{record.label}}/">
-                            {{record.label|ubreak}}<!--
-                                                     -->{% if not forloop.last %}, {% endif %}
-                          </a>
-                          {% endfor %}
-                        </td>
-                        
-                      </tr>
-                      {% endfor %}
-                    <tbody>
-                  </table>
-                </div>
-                <br/>
-
-
-                {% else %}
-                    no input files
-                {% endif %}
-
-        </fieldset>
-    </form>
+          <tbody>
+            {% for data in record.input_data.all %}
+            <tr>                   
+              <td class='dataTable_td' id='filename-t'>
+                <a href="/{{project_name}}/data/datafile?path={{data.path|urlencode}}&digest={{data.digest}}">
+                  {{data.path|basename|ubreak}}
+                </a>
+              </td>
+              <td class='dataTable_td' id='path-t'>
+                {{data.path|ubreak}}    
+              </td>         
+              <td class='dataTable_td' id='digest-t'>
+                {{data.digest|truncatechars:12 }}
+              </td>     
+              <td class='dataTable_td' id='size-t'
+                  data-sort="{{data|eval_metadata:'size'}}">
+                {{data|eval_metadata:'size'|filesizeformat}}
+              </td>
+              <td class='dataTable_td' id='time-t'>
+                <span style='display:none;'>
+                  <!-- hack for correct sorting -->
+                  {{data.output_from_record.timestamp|date:"YmdHis"}}
+                </span>
+                {{data.output_from_record.timestamp|date:"d/m/Y H:i:s"}}
+              </td>
+              <td class='dataTable_td' id='output_record-t'>
+                <a href="/{{project_name}}/{{data.output_from_record.label}}/">
+                  {{data.output_from_record.label|ubreak}}
+                </a>
+              </td>
+              <td class='dataTable_td' id='input_record-t'>
+                {% for record in data.input_to_records.all %}
+                <a href="/{{project_name}}/{{record.label}}/">
+                  {{record.label|ubreak}}<!--
+                                           -->{% if not forloop.last %}, {% endif %}
+                </a>
+                {% endfor %}
+              </td>              
+            </tr>
+            {% endfor %}
+          <tbody>
+        </table>
+      </div>
+      <br/>
+      {% else %}
+      no input files
+      {% endif %}
+    </fieldset>
+  </form>
 </div>
 
 
 <div class="accordion">
-    <h2 class="nav-toggle">Output files</h2>
-    <form class="form-horizontal">
-        <fieldset class = 'field-acc'>
-               <script>
-                 $(document).ready( function () {
+  <h2 class="nav-toggle">Output files</h2>
+  <form class="form-horizontal">
+    <fieldset class = 'field-acc'>
 
-                 var data_list = $('#outdata_dt').DataTable({
-                   "columnDefs": [
-                     {"sortable":false,  "targets":["filename-c", "path-c",
-                      "digest-c", "output-c", "input-c"]}
-                   ], 
-                   "paging": false,
-                   "ordering": true,
-                   "info": false, <!-- "Showing x of y entries" -->
-                   "filter": false, 
-                   "lengthChange": false,  
-                    "order": [[$('th.time-c').index(), "desc"]], <!--default sort  -->
-                   } );
+      <script>
+        $(document).ready( function () {
 
-
-                   } );
-
-               </script>
+        var data_list = $('#outdata_dt').DataTable({
+          "columnDefs": [
+            {"sortable":false,  "targets":["filename-c", "path-c",
+             "digest-c", "output-c", "input-c"]}
+          ], 
+          "paging": false,
+          "ordering": true,
+          "info": false, <!-- "Showing x of y entries" -->
+          "filter": false, 
+          "lengthChange": false,  
+           "order": [[$('th.time-c').index(), "desc"]], <!--default sort  -->
+          } );
 
 
-                <br/>
+          } );
+      </script>
 
-                <div style="margin-left:2%; margin-right:6%">
-                  <table class='hover row-border' id='outdata_dt'>
+      <br/>
 
-                    <thead>
-                      <tr>
-                        <th class='filename-c'>filename</th>
-                        <th class='path-c'>path</th>
-                        <th class='digest-c'>digest</th>
-                        <th class='size-c'>size</th>
-                        <th class='time-c'>time</th>
-                        <th class='output-c'>output of</th>
-                        <th class='input-c'>input to</th>
-                      </tr>
-                    </thead>
+      <div style="margin-left:2%; margin-right:6%">
+        <table class='hover row-border' id='outdata_dt'>
 
-                    <tbody>
+          <thead>
+            <tr>
+              <th class='filename-c'>filename</th>
+              <th class='path-c'>path</th>
+              <th class='digest-c'>digest</th>
+              <th class='size-c'>size</th>
+              <th class='time-c'>time</th>
+              <th class='output-c'>output of</th>
+              <th class='input-c'>input to</th>
+            </tr>
+          </thead>
 
-                      {% for data in record.output_data.all %}
+          <tbody>
 
-                      <tr>     
-                        
-                        <td class='dataTable_td' id='filename-t'>
-                          <a href="/{{project_name}}/data/datafile?path={{data.path|urlencode}}&digest={{data.digest}}">
-                            {{data.path|basename|ubreak}}
-                          </a>
-                        </td>
-                        <td class='dataTable_td' id='path-t'>
-                          {{data.path|ubreak}}    
-                        </td>         
-                        <td class='dataTable_td' id='digest-t'>
-                          {{data.digest|truncatechars:12 }}
-                        </td>     
-                        <td class='dataTable_td' id='size-t'
-                            data-sort="{{data|eval_metadata:'size'}}">
-                          {{data|eval_metadata:'size'|filesizeformat}}
-                        </td>
-                        <td class='dataTable_td' id='time-t'>
-                          <span style='display:none;'>
-                            <!-- hack for correct sorting -->
-                            {{data.output_from_record.timestamp|date:"YmdHis"}}
-                          </span>
-                          {{data.output_from_record.timestamp|date:"d/m/Y H:i:s"}}
-                        </td>
-                        <td class='dataTable_td' id='output_record-t'>
-                          <a href="/{{project_name}}/{{data.output_from_record.label}}/">
-                            {{data.output_from_record.label|ubreak}}
-                          </a>
-                        </td>
-                        <td class='dataTable_td' id='input_record-t'>
-                          {% for record in data.input_to_records.all %}
-                          <a href="/{{project_name}}/{{record.label}}/">
-                            {{record.label|ubreak}}<!--
-                                                     -->{% if not forloop.last %}, {% endif %}
-                          </a>
-                          {% endfor %}
-                        </td>
-                        
-                      </tr>
-                      {% endfor %}
-                    <tbody>
-                  </table>
-                </div>
-                <br/>
+            {% for data in record.output_data.all %}
 
-        </fieldset>
-    </form>
+            <tr>             
+              <td class='dataTable_td' id='filename-t'>
+                <a href="/{{project_name}}/data/datafile?path={{data.path|urlencode}}&digest={{data.digest}}">
+                  {{data.path|basename|ubreak}}
+                </a>
+              </td>
+              <td class='dataTable_td' id='path-t'>
+                {{data.path|ubreak}}    
+              </td>         
+              <td class='dataTable_td' id='digest-t'>
+                {{data.digest|truncatechars:12 }}
+              </td>     
+              <td class='dataTable_td' id='size-t'
+                  data-sort="{{data|eval_metadata:'size'}}">
+                {{data|eval_metadata:'size'|filesizeformat}}
+              </td>
+              <td class='dataTable_td' id='time-t'>
+                <span style='display:none;'>
+                  <!-- hack for correct sorting -->
+                  {{data.output_from_record.timestamp|date:"YmdHis"}}
+                </span>
+                {{data.output_from_record.timestamp|date:"d/m/Y H:i:s"}}
+              </td>
+              <td class='dataTable_td' id='output_record-t'>
+                <a href="/{{project_name}}/{{data.output_from_record.label}}/">
+                  {{data.output_from_record.label|ubreak}}
+                </a>
+              </td>
+              <td class='dataTable_td' id='input_record-t'>
+                {% for record in data.input_to_records.all %}
+                <a href="/{{project_name}}/{{record.label}}/">
+                  {{record.label|ubreak}}<!--
+                                           -->{% if not forloop.last %}, {% endif %}
+                </a>
+                {% endfor %}
+              </td>              
+            </tr>
+            {% endfor %}
+          <tbody>
+        </table>
+      </div>
+      <br/>
+    </fieldset>
+  </form>
 </div>
 
 <div class="accordion">
-    <h2 class="nav-toggle">Dependencies</h2>
-    <form class="form-horizontal">
-        <fieldset class = 'field-acc'>
-            <div class="control-group">
-                <table class='table-recDetail'>
-                    <tr><th>Name</th><th>Path</th><th>Version</th></tr>
-                    {% for dep in record.dependencies.all %}
-                    <tr class="{% cycle 'odd' 'even' %}"><td>{{dep.name}}</td><td>{{dep.path}}</td><td>{{dep.version}}{% if dep.diff %}* (<a href="diff/{{dep.name}}">diff</a>){% endif %}</td></tr>{% endfor %}
-                </table>
-            </div>
-        </fieldset>
-    </form>
+  <h2 class="nav-toggle">Dependencies</h2>
+  <form class="form-horizontal">
+    <fieldset class = 'field-acc'>
+      <div class="control-group">
+        <table class='table-recDetail'>
+          <tr><th>Name</th><th>Path</th><th>Version</th></tr>
+          {% for dep in record.dependencies.all %}
+          <tr class="{% cycle 'odd' 'even' %}"><td>{{dep.name}}</td><td>{{dep.path}}</td><td>{{dep.version}}{% if dep.diff %}* (<a href="diff/{{dep.name}}">diff</a>){% endif %}</td></tr>{% endfor %}
+        </table>
+      </div>
+    </fieldset>
+  </form>
 </div>                   
 
 <div class="accordion">
-    <h2 class="nav-toggle">Platform information</h2>
-    <form class="form-horizontal">
-        <fieldset class = 'field-acc'>
-            <div class="control-group">
-                <table class='table-recDetail'>
-                    <tr><th>Name</th><th>IP address</th><th>Processor</th>
-                        <th colspan="2">Architecture</th><th>System type</th>
-                        <th>Release</th><th>Version</th>
-                    </tr>
-                    {% for platform in record.platforms.all %}
-                    <tr class="{% cycle 'odd' 'even' %}">
-                        <td>{{platform.network_name}}</td>
-                        <td>{{platform.ip_addr}}</td>
-                        <td>{{platform.processor}} {{platform.machine}}</td>
-                        <td style='padding-right:5px'>{{platform.architecture_bits}}</td>
-                        <td>{{platform.architecture_linkage}}</td>
-                        <td>{{platform.system_name}}</td>
-                        <td>{{platform.release}}</td>
-                        <td>{{platform.version}}</td>
-                    </tr>{% endfor %}
-                </table>
-            </div>
-        </fieldset>
-    </form>
+  <h2 class="nav-toggle">Platform information</h2>
+  <form class="form-horizontal">
+    <fieldset class = 'field-acc'>
+      <div class="control-group">
+        <table class='table-recDetail'>
+          <tr><th>Name</th><th>IP address</th><th>Processor</th>
+            <th colspan="2">Architecture</th><th>System type</th>
+            <th>Release</th><th>Version</th>
+          </tr>
+          {% for platform in record.platforms.all %}
+          <tr class="{% cycle 'odd' 'even' %}">
+            <td>{{platform.network_name}}</td>
+            <td>{{platform.ip_addr}}</td>
+            <td>{{platform.processor}} {{platform.machine}}</td>
+            <td style='padding-right:5px'>{{platform.architecture_bits}}</td>
+            <td>{{platform.architecture_linkage}}</td>
+            <td>{{platform.system_name}}</td>
+            <td>{{platform.release}}</td>
+            <td>{{platform.version}}</td>
+          </tr>{% endfor %}
+        </table>
+      </div>
+    </fieldset>
+  </form>
 </div>
 
 <div class="accordion">
-    <h2 class="nav-toggle">Stdout & Stderr</h2>
-    <form class="form-horizontal">
-        <fieldset class = 'field-acc'>
-            <div class="control-group">
-                {% if record.stdout_stderr %}
-                <div style='width:94%'>
-                    <pre>{{ record.stdout_stderr }}</pre>
-                </div>
-                {% else %}
-                no outputs
-                {% endif %}
-            </div>
-        </fieldset>
-    </form>
+  <h2 class="nav-toggle">Stdout & Stderr</h2>
+  <form class="form-horizontal">
+    <fieldset class = 'field-acc'>
+      <div class="control-group">
+        {% if record.stdout_stderr %}
+        <div style='width:94%'>
+          <pre>{{ record.stdout_stderr }}</pre>
+        </div>
+        {% else %}
+        no outputs
+        {% endif %}
+      </div>
+    </fieldset>
+  </form>
 </div>
 
 <script type = 'text/javascript'>
