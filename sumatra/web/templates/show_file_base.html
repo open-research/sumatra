@@ -48,27 +48,34 @@
 
 
 <div class="accordion">
-  <h2 class="nav-toggle">Associated Data (Siblings)</h2>
+  <h2 class="nav-toggle">Output of Record</h2>
   <form action='{{ request.path }}' method='POST' 
         id="actions" name="actions">
     {{form.errors}}
-    <fieldset class = 'field-acc'>
-      <fieldset class = 'field-acc'>
+    <fieldset class = 'field-acc'>     
 
-<script>
+{% if data_key.output_from_record %}
+
+        <script>
   $(document).ready( function () {
 
-  var data_list = $('#data_dt').DataTable({
+  var hd_cl = {{settings.record_hidden_cols|as_json|safe}};
+  var output_record_list = $('#output_record_dt').DataTable({
     "columnDefs": [
-      {"sortable":false,  "targets":["filename-c", "path-c",
-       "digest-c", "output-c", "input-c"]}
-    ], 
+      {"sortable":false,  "targets":["repository-c", "label-c",
+       "tag-c", "reason-c", "outcome-c", "main-c", "version-c",
+       "input-c", "output-c", "arguments-c"]},   
+      <!--{"visible":false, "targets": hd_cl},-->
+      {"visible":false, "targets": ["arguments-c", "processes-c",
+        "repository-c", "outcome-c"]}
+    ],
+    <!--"dom": 'lfrC<"clear">tip',     <!-- Order: 'l'ength, 'f'ilter,  p'r'ocessing, 'C'olumns, 't'able, 'i'nformation, 'p'agination -->
     "paging": false,
     "ordering": true,
     "info": false, <!-- "Showing x of y entries" -->
     "filter": false, 
-    "lengthChange": false,  
-     "order": [[$('th.time-c').index(), "desc"]], <!--default sort  -->
+    "lengthChange": false,
+    "order": [[$('th.time-c').index(), "desc"]], <!-- default sort column -->
     } );
 
 
@@ -79,81 +86,151 @@
 
 <br/>
 
+
 <div style="margin-left:2%; margin-right:6%">
-<table class='hover row-border' id='data_dt'>
+  <table class='hover row-border' id='output_record_dt'>
 
-  <thead>
-    <tr>
-      <th class='filename-c'>filename</th>
-      <th class='path-c'>path</th>
-      <th class='digest-c'>digest</th>
-      <th class='size-c'>size</th>
-      <th class='time-c'>time</th>
-      <th class='output-c'>output of</th>
-      <th class='input-c'>input to</th>
-    </tr>
-  </thead>
+    <thead>
+      <tr>
+        <th class='repository-c'>repository</th>
+        <th class='label-c'>label</th>
+        <th class='tag-c'>tag</th>
+        <th class='reason-c'>reason</th>
+        <th class='outcome-c'>outcome</th>
+        <th class='input-c'>input&nbsp;data</th>
+        <th class='output-c'>output&nbsp;data</th>
+        <th class='duration-c'>duration</th>
+        <th class='processes-c'>processes</th>
+        <th class='time-c'>time</th>
+        <th class='exec-c'>exec.</th>
+        <th class='main-c'>main</th>
+        <th class='version-c'>version</th>
+        <th class='arguments-c'>arguments</th>
+      </tr>
+    </thead>
 
-  <tbody>
+    <tbody>
 
-    {% for data in data_key.output_from_record.output_data.all %}
+      
 
-    {% ifnotequal data.path data_key.path %}
-
-    <tr>     
-     
-      <td class='dataTable_td' id='filename-t'>
-        <a href="/{{project_name}}/{{data.output_from_record.label}}/datafile?path={{data.path|urlencode}}&digest={{data.digest}}">
-          {{data.path|basename|ubreak}}
-        </a>
+      <tr>         
+      <td class='dataTable_td' id='repository-t'>
+        <span class="span-box">
+          {{data_key.output_from_record.repository.url|cut:"repo"}}
+        </span>
       </td>
-      <td class='dataTable_td' id='path-t'>
-          {{data.path|ubreak}}    
-      </td>         
-      <td class='dataTable_td' id='digest-t'>
-        {{data.digest|truncatechars:12 }}
-      </td>     
-      <td class='dataTable_td' id='size-t'
-          data-sort="{{data|eval_metadata:'size'}}">
-        {{data|eval_metadata:'size'|filesizeformat}}
+      <td class='dataTable_td' id='label-t'>
+        <a href="/{{project_name}}/{{data_key.output_from_record.label}}/">
+          {{data_key.output_from_record.label|ubreak}}
+        </a> 
+        
+      </td> 
+      {% if tag %}
+      <td class='dataTable_td' id='tag-t'>
+        {% for other_tag in data_key.output_from_record.tag_objects %}
+        {% if tag == other_tag %}
+        {{tag}} 
+        {% else %}
+        <!--<a href="#">
+          {{other_tag.name}}
+        </a>--> <!-- Fix Link!! -->
+        {% endif %}
+        {% endfor %}
+      </td>
+      {% else %}
+      <td class='dataTable_td' id='tag-t'>
+        {% for tag in data_key.output_from_record.tag_objects %}
+        <!--<a href="#">-->{{tag}}<!---</a>-->, <!-- Fix Link!! -->
+        {% endfor %}
+      </td> 
+      {% endif %}
+
+      <td class='dataTable_td' id='reason-t'>
+        {{data_key.output_from_record.reason}}
+      </td>
+      <td class='dataTable_td' id='outcome-t'>
+        {{data_key.output_from_record.outcome}}
+      </td>
+      <td class='dataTable_td' id='input-t'>
+        {% for data in data_key.output_from_record.input_data.all %}
+          <a href="/{{project_name}}/data/datafile?path={{data.path|urlencode}}&digest={{data.digest}}">
+            {{data.path|basename|ubreak}}<!--
+              -->{% if not forloop.last %}, {% endif %}
+          <a/>
+        {% endfor %}
+      </td>
+      <td class='dataTable_td' id='output-t'>
+        {% for data in data_key.output_from_record.output_data.all %}
+          <a href="/{{project_name}}/data/datafile?path={{data.path|urlencode}}&digest={{data.digest}}">
+            {{data.path|basename|ubreak}}<!--
+              -->{% if not forloop.last %}, {% endif %}
+            </a>
+        {% endfor %}
+      </td>
+      <td class='dataTable_td' id='duration-t'
+          data-sort='{{data_key.output_from_record.duration}}'>
+        {{data_key.output_from_record.duration|human_readable_duration}}
+      </td>
+      <td class='dataTable_td' id='processes-t'>
+        {{data_key.output_from_record.launch_mode.get_parameters.n|default:"1"}}
       </td>
       <td class='dataTable_td' id='time-t'>
         <span style='display:none;'>
           <!-- hack for correct sorting -->
-          {{data.output_from_record.timestamp|date:"YmdHis"}}
+          {{data_key.output_from_record.timestamp|date:"YmdHis"}}
         </span>
-          {{data.output_from_record.timestamp|date:"d/m/Y H:i:s"}}
+        {{data_key.output_from_record.timestamp|date:"d/m/Y H:i:s"}}
       </td>
-      <td class='dataTable_td' id='output_record-t'>
-          <a href="/{{project_name}}/{{data.output_from_record.label}}/">
-          {{data.output_from_record.label|ubreak}}
-          </a>
+      <td class='dataTable_td' id='ename-t'>
+        {{data_key.output_from_record.executable.name}} {{data_key.output_from_record.executable.version}}
       </td>
-      <td class='dataTable_td' id='input_record-t'>
-        {% for record in data.input_to_records.all %}
-        <a href="/{{project_name}}/{{record.label}}/">
-          {{record.label|ubreak}}<!--
-           -->{% if not forloop.last %}, {% endif %}
-        </a>
-        {% endfor %}
+      <td class='dataTable_td' id='main-t'>
+        <!--<a class='id-script'  data-toggle="modal" href="#">-->
+          {{data_key.output_from_record.main_file|ubreak}}
+        <!--</a>--> <!-- Fix Link!! -->
       </td>
-      
+      <td class='dataTable_td' id='version-t'>
+        <span class="span-box">
+          {{data_key.output_from_record.version|cut:"vers"}}
+        </span>
+      </td>
+      <td class='dataTable_td' id='arguments-t'>
+        <a class='href_args' href='#'>
+          {{data_key.output_from_record.script_arguments}}
+        </a> <!-- Fix Link!! -->
+      </td> 
     </tr>
-    {% endifnotequal %}
-    {% endfor %}
-  <tbody>
-</table>
-</div>
-<br/>
 
-      </fieldset>
+
+
+    <tbody>
+  </table>
+</div>
+
+<br/>
+  
+{% endif %}
+    </fieldset>
   </form>
 </div>
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 <div class="accordion">
-  <h2 class="nav-toggle">Associated Records (Provenance)</h2>
+  <h2 class="nav-toggle">Input to Records</h2>
   <form action='{{ request.path }}' method='POST' 
         id="actions" name="actions">
     {{form.errors}}
@@ -358,7 +435,108 @@
 
 
 
+<div class="accordion">
+  <h2 class="nav-toggle">Associated Data (Siblings)</h2>
+  <form action='{{ request.path }}' method='POST' 
+        id="actions" name="actions">
+    {{form.errors}}
+    <fieldset class = 'field-acc'>
+      <fieldset class = 'field-acc'>
 
+<script>
+  $(document).ready( function () {
+
+  var data_list = $('#data_dt').DataTable({
+    "columnDefs": [
+      {"sortable":false,  "targets":["filename-c", "path-c",
+       "digest-c", "output-c", "input-c"]}
+    ], 
+    "paging": false,
+    "ordering": true,
+    "info": false, <!-- "Showing x of y entries" -->
+    "filter": false, 
+    "lengthChange": false,  
+     "order": [[$('th.time-c').index(), "desc"]], <!--default sort  -->
+    } );
+
+
+    } );
+
+</script>
+
+
+<br/>
+
+<div style="margin-left:2%; margin-right:6%">
+<table class='hover row-border' id='data_dt'>
+
+  <thead>
+    <tr>
+      <th class='filename-c'>filename</th>
+      <th class='path-c'>path</th>
+      <th class='digest-c'>digest</th>
+      <th class='size-c'>size</th>
+      <th class='time-c'>time</th>
+      <th class='output-c'>output of</th>
+      <th class='input-c'>input to</th>
+    </tr>
+  </thead>
+
+  <tbody>
+
+    {% for data in data_key.output_from_record.output_data.all %}
+
+    {% ifnotequal data.path data_key.path %}
+
+    <tr>     
+     
+      <td class='dataTable_td' id='filename-t'>
+        <a href="/{{project_name}}/{{data.output_from_record.label}}/datafile?path={{data.path|urlencode}}&digest={{data.digest}}">
+          {{data.path|basename|ubreak}}
+        </a>
+      </td>
+      <td class='dataTable_td' id='path-t'>
+          {{data.path|ubreak}}    
+      </td>         
+      <td class='dataTable_td' id='digest-t'>
+        {{data.digest|truncatechars:12 }}
+      </td>     
+      <td class='dataTable_td' id='size-t'
+          data-sort="{{data|eval_metadata:'size'}}">
+        {{data|eval_metadata:'size'|filesizeformat}}
+      </td>
+      <td class='dataTable_td' id='time-t'>
+        <span style='display:none;'>
+          <!-- hack for correct sorting -->
+          {{data.output_from_record.timestamp|date:"YmdHis"}}
+        </span>
+          {{data.output_from_record.timestamp|date:"d/m/Y H:i:s"}}
+      </td>
+      <td class='dataTable_td' id='output_record-t'>
+          <a href="/{{project_name}}/{{data.output_from_record.label}}/">
+          {{data.output_from_record.label|ubreak}}
+          </a>
+      </td>
+      <td class='dataTable_td' id='input_record-t'>
+        {% for record in data.input_to_records.all %}
+        <a href="/{{project_name}}/{{record.label}}/">
+          {{record.label|ubreak}}<!--
+           -->{% if not forloop.last %}, {% endif %}
+        </a>
+        {% endfor %}
+      </td>
+      
+    </tr>
+    {% endifnotequal %}
+    {% endfor %}
+  <tbody>
+</table>
+</div>
+<br/>
+
+      </fieldset>
+  </form>
+</div>
 
 
 
