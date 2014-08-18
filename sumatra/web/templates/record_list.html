@@ -236,15 +236,7 @@
 
     {% for record in sim_list %}
 
-    <tr>     
-      <!--<td class='dataTable_td'  id = 'version-hid' class='d-hid'>                     {{record.version}}
-          </td>
-      <td class='dataTable_td'  id = 'repo-hid' class='d-hid'>
-        {{record.repository.url}}
-      </td> 
-      to be hidden. what do they do?
-      -->
-      
+    <tr>         
       <td class='dataTable_td' id='repository-t'>
         <span class="span-box">
           {{record.repository.url|cut:"repo"}}
