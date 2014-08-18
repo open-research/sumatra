@@ -262,16 +262,16 @@
         {% if tag == other_tag %}
         {{tag}} 
         {% else %}
-        <a href="#">
+        <!--<a href="#">
           {{other_tag.name}}
-        </a> <!-- Fix Link!! -->
+        </a>--> <!-- Fix Link!! -->
         {% endif %}
         {% endfor %}
       </td>
       {% else %}
       <td class='dataTable_td' id='tag-t'>
         {% for tag in record.tag_objects %}
-        <a href="#">{{tag}}</a>, <!-- Fix Link!! -->
+        <!--<a href="#">-->{{tag}}<!---</a>-->, <!-- Fix Link!! -->
         {% endfor %}
       </td> 
       {% endif %}
@@ -316,9 +316,9 @@
         {{record.executable.name}} {{record.executable.version}}
       </td>
       <td class='dataTable_td' id='main-t'>
-        <a class='id-script'  data-toggle="modal" href="#">
+        <!--<a class='id-script'  data-toggle="modal" href="#">-->
           {{record.main_file|ubreak}}
-        </a> <!-- Fix Link!! -->
+        <!--</a>--> <!-- Fix Link!! -->
       </td>
       <td class='dataTable_td' id='version-t'>
         <span class="span-box">
