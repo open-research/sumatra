@@ -87,6 +87,12 @@
         data_list.draw();
         });
 
+    // close settings button
+    $('#close_settings').click(function(){  
+        $('#settings_panel').toggle()
+        $('#settings_panel2').toggle()
+        });
+
   <!-- Arrow key page turning -->
   document.onkeydown = checkKey;
   function checkKey(e) {
@@ -151,7 +157,7 @@
   <input id='s_nbt' class='span1' type='text' style='float:left;margin-bottom:0px' value='{{settings.nb_records_per_page}}'>
   </div>
   <div id="settings_panel2" class="modal-footer" style='display:none;'>
-    <a class="btn" data-dismiss="modal">Close</a>
+    <a class="btn" data-dismiss="modal" id="close_settings">Close</a>
     <a class="btn btn-primary" id='save_set'>Save changes</a>
   </div>
 </div>
