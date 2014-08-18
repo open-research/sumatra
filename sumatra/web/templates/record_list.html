@@ -50,7 +50,8 @@
   var record_list = $('#record_dt').DataTable({
     "columnDefs": [
       {"sortable":false,  "targets":["repository-c", "label-c",
-       "tag-c", "reason-c", "outcome-c", "main-c", "version-c"]},   
+       "tag-c", "reason-c", "outcome-c", "main-c", "version-c",
+       "input-c", "output-c"]},   
       {"visible":false, "targets": hd_cl},
     ],
     <!--"dom": 'lfrC<"clear">tip',     <!-- Order: 'l'ength, 'f'ilter,  p'r'ocessing, 'C'olumns, 't'able, 'i'nformation, 'p'agination -->
@@ -145,39 +146,49 @@
     Outcome
   </label>
   <label class="checkbox">
+    <input type="checkbox" id='input' class='check-item'
+    data-column='5'  checked="checked"> 
+    Input
+  </label>
+  <label class="checkbox">
+    <input type="checkbox" id='output' class='check-item'
+    data-column='6'  checked="checked"> 
+    Output
+  </label>
+  <label class="checkbox">
     <input type="checkbox" id='duration' class='check-item'
-    data-column='5' checked="checked"> 
+    data-column='7' checked="checked"> 
     Duration
   </label>
   <label class="checkbox">
     <input type="checkbox" id='processes' class='check-item'
-    data-column='6' checked="checked">
+    data-column='8' checked="checked">
     Processes
   </label>
   <label class="checkbox">
     <input type="checkbox" id='time' class='check-item'
-    data-column='7' checked="checked">
+    data-column='9' checked="checked">
     Time
   </label>
   <label class="checkbox">
     <input type="checkbox" id='ename' class='check-item'
-    data-column='8' checked="checked">
+    data-column='10' checked="checked">
     Executable
   </label>
 
   <label class="checkbox">
     <input type="checkbox" id='main' class='check-item'
-    data-column='9' checked="checked">
+    data-column='11' checked="checked">
     Script main file
   </label>
   <label class="checkbox">
     <input type="checkbox" id='version' class='check-item'
-           data-column='10' checked="checked"> 
+           data-column='12' checked="checked"> 
     Script version
   </label>
   <label class="checkbox">
     <input type="checkbox" id='arguments' class='check-item'
-    data-column='11' checked="checked"> Script
+    data-column='13' checked="checked"> Script
     arguments
   </label>
   <div style='float:left; padding:8px; padding-left:0px'>Number of
@@ -209,6 +220,8 @@
       <th class='tag-c'>tag</th>
       <th class='reason-c'>reason</th>
       <th class='outcome-c'>outcome</th>
+      <th class='input-c'>input&nbsp;data</th>
+      <th class='output-c'>output&nbsp;data</th>
       <th class='duration-c'>duration</th>
       <th class='processes-c'>processes</th>
       <th class='time-c'>time</th>
@@ -268,6 +281,16 @@
       </td>
       <td class='dataTable_td' id='outcome-t'>
         {{record.outcome}}
+      </td>
+      <td class='dataTable_td' id='input-t'>
+        {% for data in record.input_data.all %}
+          {{data.path|basename|ubreak}},
+        {% endfor %}
+      </td>
+      <td class='dataTable_td' id='output-t'>
+        {% for data in record.output_data.all %}        
+          {{data.path|basename|ubreak}},
+        {% endfor %}
       </td>
       <td class='dataTable_td' id='duration-t'
           data-sort='{{record.duration}}'>
