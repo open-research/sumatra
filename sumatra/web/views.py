@@ -18,6 +18,10 @@ except ImportError:  # older versions of Django
     MonthArchiveView = object
 from services import DefaultTemplate, DataTemplate, AjaxTemplate, ProjectUpdateForm, RecordUpdateForm, TagUpdateForm, unescape
 from sumatra.recordstore.django_store.models import Project, Tag, Record
+
+from sumatra.projects import load_project
+import sumatra.recordstore.django_store.models as models
+
 from sumatra.datastore import get_data_store, DataKey
 from sumatra.versioncontrol import get_working_copy
 from sumatra.commands import run, configure
@@ -268,9 +272,21 @@ def show_file(request, project, label):
     label = unescape(label)
     path = request.GET['path']
     digest = request.GET['digest']
+
     type = request.GET.get('type', 'output')
     show_script = request.GET.get('show_script', False)
-    data_key = DataKey(path, digest)
+   
+    data_keys = models.DataKey.objects.filter(path = path, digest = digest)
+    if len(data_keys)==1:
+        data_key = data_keys[0]
+    elif len(data_keys)==0:
+        print 'no such data_key'
+    elif len(data_keys)>1:
+        print 'duplicate error'
+
+    print "Metadata", data_key.metadata
+    print "output_record", data_key.output_from_record
+
     if 'truncate' in request.GET:
         if request.GET['truncate'].lower() == 'false':
             max_display_length = None
@@ -279,45 +295,11 @@ def show_file(request, project, label):
     else:
         max_display_length = DEFAULT_MAX_DISPLAY_LENGTH
 
-    record = Record.objects.get(label=label, project__id=project)
-    if type == 'output':
-        data_store = get_data_store(record.datastore.type, eval(record.datastore.parameters))
-    else:
-        data_store = get_data_store(record.input_datastore.type, eval(record.input_datastore.parameters))
-    truncated = False
-    mimetype, encoding = mimetypes.guess_type(path)
-
-    input_records = Record.objects.filter(input_data__digest = data_key.digest)
-    # len(output_record) > 1 possible
-    output_records = Record.objects.filter(output_data__digest = data_key.digest)
-
-    # eval(data_key.metadata); data_key.get_metadata()
-    # do not work since data_key object has no metadata
-    # can I load it from the DataStore somehow?
-
-    # # Does not work at all
-    # print data_key.output_from_records.all()
-    # print data_key.input_to_records.all()
-
-    # dkey = output_records[0].output_data.all()[0]
-    # # equivalent to eval(dkey.metadata)
-    # metadata = dkey.get_metadata() 
-    # timestamp = output_records[0].timestamp
+    return render_to_response("show_file.html",
+                              {'data_key': data_key})
     
-
-    # retrieve metadata through record store
-
-    if len(output_records) > 0:
-        dkey = output_records[0].output_data.all()[0] # doesn't give
-                                                      # correct match!
-    elif len(input_records) > 0:
-        dkey = input_records[0].input_data.all()[0]
-    else:
-        print "this shouldn't happen"
-
-
-    metadata = dkey.get_metadata() 
-    timestamp = "" #output_records[0].timestamp
+    # output_record = data_key.output_from_record
+    # input_records = data_key.input_to_records.all()  
     
 
     try:
@@ -378,18 +360,7 @@ def show_file(request, project, label):
             if max_display_length is not None and len(content) >= max_display_length:
                 truncated = True
             return render_to_response("show_file.html",
-                                      {'path': path,
-                                       'label': label,
-                                       'digest': digest,
-                                       'project_name': project,
-                                       'content': content,
-                                       'truncated': truncated,
-                                       'mimetype': mimetype,
-                                       'input_records': input_records,
-                                       'output_records': output_records,
-                                       'metadata': metadata,
-                                       'time': timestamp
-                                       })
+                                      {'data_key': data_key})
         elif mimetype in ("image/png", "image/jpeg", "image/gif", "image/x-png"):  # need to check digests match
             return render_to_response("show_image.html",
                                       {'path': path,
