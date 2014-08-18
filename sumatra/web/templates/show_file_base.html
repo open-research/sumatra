@@ -98,6 +98,8 @@
 
     {% for data in data_key.output_from_record.output_data.all %}
 
+    {% ifnotequal data.path data_key.path %}
+
     <tr>     
       <!--<td class='dataTable_td'  id = 'version-hid' class='d-hid'>                     {{record.version}}
           </td>
@@ -144,6 +146,7 @@
       </td>
       
     </tr>
+    {% endifnotequal %}
     {% endfor %}
   <tbody>
 </table>
