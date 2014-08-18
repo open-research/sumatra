@@ -50,6 +50,7 @@
     "info": true, <!-- "Showing x of y entries" -->
     "filter": true, 
     "lengthChange": false,  
+     "order": [[$('th.time-c').index(), "desc"]], <!--default sort  -->
     } );
 
 
@@ -167,6 +168,7 @@
       <th class='path-c'>path</th>
       <th class='digest-c'>digest</th>
       <th class='size-c'>size</th>
+      <th class='time-c'>time</th>
       <th class='output-c'>output of</th>
       <th class='input-c'>input to</th>
     </tr>
@@ -196,9 +198,16 @@
       <td class='dataTable_td' id='digest-t'>
         {{data.digest|truncatechars:12 }}
       </td>     
-      <td class='dataTable_td' id='digest-t'
+      <td class='dataTable_td' id='size-t'
           data-sort="{{data|eval_metadata:'size'}}">
         {{data|eval_metadata:'size'|filesizeformat}}
+      </td>
+      <td class='dataTable_td' id='time-t'>
+        <span style='display:none;'>
+          <!-- hack for correct sorting -->
+          {{data.output_from_record.timestamp|date:"YmdHis"}}
+        </span>
+          {{data.output_from_record.timestamp|date:"d/m/Y H:i:s"}}
       </td>
       <td class='dataTable_td' id='output_record-t'>
           <a href="/{{project_name}}/{{data.output_from_record.label}}/">
