@@ -29,8 +29,6 @@
 <!-- DataTables CSS -->
 <link rel="stylesheet" type="text/css"
       href="/media/css/jquery.dataTables.css">
-<link rel="stylesheet" type="text/css"
-      href="/media/css/dataTables.colVis.css">
 
 <!-- jQuery -->
 <script type="text/javascript" chadatrset="utf8" src="/media/js/jquery.js"></script>
@@ -38,8 +36,7 @@
 <!-- DataTables -->
 <script type="text/javascript" charset="utf8"
         src="/media/js/jquery.dataTables.js"></script>
-<script type="text/javascript" charset="utf8"
-        src="/media/js/dataTables.colVis.js"></script>
+
 
 
 
@@ -118,21 +115,6 @@
 </script>
 
 
-<!--    "repository", "label",
-    "tag", 
-    "reason", 
-    "outcome", 
-    "duration", 
-    "processes", 
-    "ename", 
-    "eversion", 
-    "date", 
-    "time", 
-    "main", 
-    "version", 
-    "arguments" -->
-
-
 
 
 <div id='settings_panel' style='display:none;'>
@@ -209,96 +191,10 @@
 </div>
 
 
-<!-- <script type = 'text/javascript'>
-$(document).ready(function(){ 
-    // click on the compact/comfortable anchor tag in settings drop-down list
-    $('.menu-rsettings').not('#button_settings').click(function(){
-        var $density_set = $(this).attr('id');      //compact or comfortable
-        $('.menu-rsettings').removeClass('active');
-        $(this).addClass('active');
-        // save into ~/.smtrc file the changed 'table density' settings
-        $.post("/{{project_name}}/settings", {'display_density':$density_set,'saveSettings':true}); 
-        // change the style of the table 
-        if ($density_set == 'compact'){
-            $('.record').removeClass('comfortable').addClass('condensed');
-        }else{
-            $('.record').removeClass('condensed').addClass('comfortable');
-        }  
-    });
-
-    // user opens settings_window
-    $('#button_settings').on('click', function(){
-        $('#default_header').css('display', 'inline');
-        $('.check-item').attr('checked', false); // uncheck all of them
-        // in the settings form refresh the current state of chkboxes:
-        $('#default_header label').not(':hidden').each(function(){
-            var str_chbx = ['.check-item#', $(this).attr('id').split('-')[1]].join('');
-            $(str_chbx).attr('checked', true);
-        });
-    });
-
-    $('.check-item, #button_settings').on('click', function(){
-        var $btext = $('#selectAll').parent().find('b');
-        var nbChecked = $(".check-item:checked").length;
-        if ($(".check-item").length > nbChecked) { //if there are some unchecked 
-            $btext.html('Select all');  // change text
-            $("#selectAll").attr('checked', false);
-        }else{
-            $btext.html('Deselect all');
-            $("#selectAll").attr('checked', true);
-        }
-        if (nbChecked) {
-            $('#save_set').removeClass('disabled');
-        }else{
-            $('#save_set').addClass('disabled');
-        }
-    });
-    
-    // settings_window: user clicks 'select all' checkbox
-    $("#selectAll").click(function() { 
-        var checkedStatus = this.checked; // true or false
-        var $btext = $('#selectAll').parent().find('b');       
-        $(".check-item").each(function() {
-            this.checked = checkedStatus;
-        });          
-        if (checkedStatus){ $btext.html('Deselect all'); $('#save_set').removeClass('disabled');}
-        else {$btext.html('Select all'); $('#save_set').addClass('disabled');} 
-    });
-
-    // settings_window: user click 'save'
-    $('#save_set').click(function(){    
-        if (!$('#save_set').hasClass('disabled')){ 
-            //var str_rec, str_head,  
-            var uncheckedItems = new Array(); // all unchecked chkboxes
-            var nb_rec = $('#s_nbt').val(); // number of records per one page
-            if (parseInt(nb_rec) > 0){
-                // hide columns:
-                $("#setModal .check-item").not(':checked').each(function() { 
-                    var $unchecked = $(this).attr('id');
-                    //str_rec = ['.record #', $unchecked, '-t'].join(''); // records selector string
-                    //str_head = ['#l-', $unchecked].join(''); // header of the table selector string           
-                    uncheckedItems.push($unchecked);
-                }); 
-                // save settings to ~/.smtrc
-                $('#innerContent').load('settings',{'hidden_cols':uncheckedItems, 
-                                                    'nb_records_per_page':nb_rec}, showjGrowl());
-            }          
-            else{
-                alert('Please enter the vaid number of records')
-            }
-        }  
-    });
-});
-</script>-->
-
-
-
 
 
 
 <br />
-
-
 
 
 
