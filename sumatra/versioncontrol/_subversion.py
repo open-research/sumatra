@@ -7,14 +7,6 @@ Classes
 SubversionWorkingCopy
 SubversionRepository
 
-Functions
----------
-
-may_have_working_copy() - determine whether a .svn subdirectory exists at a
-                          given path
-get_working_copy()      - return a SubversionWorkingCopy object for a given path
-get_repository()        - return a SubversionRepository object for a given URL.
-
 
 :copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
 :license: CeCILL, see LICENSE for details.
@@ -26,38 +18,26 @@ import tempfile
 import shutil
 import logging
 from urlparse import urlparse
-from sumatra.core import have_internet_connection
-
+from sumatra.core import have_internet_connection, registry
 from base import Repository, WorkingCopy, VersionControlError
+
 
 logger = logging.getLogger("Sumatra")
 
 
-def may_have_working_copy(path=None):
-    path = path or os.getcwd()
-    # print "Testing for existence of ", os.path.join(path, ".svn")
-    return os.path.exists(os.path.join(path, ".svn"))
-
-
-def get_working_copy(path=None):
-    return SubversionWorkingCopy(path)
-
-
-def get_repository(url):
-    repo = SubversionRepository(url)
-    if not repo.exists:
-        raise VersionControlError("There is no Subversion repository at %s" % url)
-    return repo
-
-
 class SubversionWorkingCopy(WorkingCopy):
+    name = "subversion"
 
     def __init__(self, path=None):
         WorkingCopy.__init__(self, path)
-        self.path = os.path.realpath(path or os.getcwd())
+        self.path = os.path.realpath(path)
         client = pysvn.Client()
         url = client.info(self.path).url
         self.repository = SubversionRepository(url)
+
+    @property
+    def exists(self):
+        return self.path and os.path.exists(os.path.join(self.path, ".svn"))
 
     def current_version(self):
         return str(self.repository._client.info(self.path).revision.number)
@@ -105,6 +85,7 @@ class SubversionWorkingCopy(WorkingCopy):
 
 
 class SubversionRepository(Repository):
+    name = "subversion"
     use_version_cmd = "svn update -r"
     apply_patch_cmd = "svn patch"
 
@@ -119,7 +100,7 @@ class SubversionRepository(Repository):
             # without doing a checkout.
             try:
                 self._client.ls(self.url)
-            except pysvn._pysvn.ClientError as errmsg:
+            except pysvn._pysvn.ClientError:
                 return False
         return True
 
@@ -136,4 +117,8 @@ class SubversionRepository(Repository):
             self._client.checkout(self.url, path)
 
     def get_working_copy(self, path=None):
-        return get_working_copy(path)
+        return SubversionWorkingCopy(path)
+
+
+registry.register(SubversionRepository)
+registry.register(SubversionWorkingCopy)

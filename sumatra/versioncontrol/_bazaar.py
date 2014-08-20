@@ -7,14 +7,6 @@ Classes
 BazaarWorkingCopy
 BazaarRepository
 
-Functions
----------
-
-may_have_working_copy() - determine whether a .bzr subdirectory exists at a given
-                          path
-get_working_copy()      - return a BazaarWorkingCopy object for a given path
-get_repository()        - return a BazaarRepository object for a given URL.
-
 
 :copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
 :license: CeCILL, see LICENSE for details.
@@ -23,43 +15,33 @@ get_repository()        - return a BazaarRepository object for a given URL.
 from bzrlib.branch import Branch
 from bzrlib.workingtree import WorkingTree
 from bzrlib import diff
-
+from bzrlib.errors import NotBranchError
 
 import os
 
 from base import VersionControlError
 from base import Repository, WorkingCopy
 from ..compatibility import string_type, StringIO
-
-
-def may_have_working_copy(path=None):
-    path = path or os.getcwd()
-    return os.path.exists(os.path.join(path, ".bzr"))
-
-
-def get_working_copy(path=None):
-    try:
-        return BazaarWorkingCopy(path)
-    except:
-        raise VersionControlError("No Bazaar working copy found at %s" % path)
-
-
-def get_repository(url):
-    repos = BazaarRepository(url)
-    if repos.exists:
-        return repos
-    else:
-        raise VersionControlError("Cannot access Bazaar repository at %s" % self.url)
+from ..core import registry
 
 
 class BazaarWorkingCopy(WorkingCopy):
+    name = "bazaar"
 
     def __init__(self, path=None):
         WorkingCopy.__init__(self, path)
-        self.workingtree = WorkingTree.open(self.path)
-        self.repository = BazaarRepository(self.workingtree.branch.user_url)
-        #self.repository.working_copy = self
-        self._current_version = self.repository._repository.revno()
+        try:
+            self.workingtree = WorkingTree.open(self.path)
+        except NotBranchError:
+            pass
+        else:
+            self.repository = BazaarRepository(self.workingtree.branch.user_url)
+            #self.repository.working_copy = self
+            self._current_version = self.repository._repository.revno()
+
+    @property
+    def exists(self):
+        return self.path and os.path.exists(os.path.join(self.path, ".bzr"))
 
     def _get_revision_tree(self, version):
         if isinstance(version, string_type):
@@ -111,6 +93,7 @@ class BazaarWorkingCopy(WorkingCopy):
 
 
 class BazaarRepository(Repository):
+    name = "bazaar"
     use_version_cmd = "bzr update -r"
     apply_patch_cmd = "bzr patch"
 
@@ -144,4 +127,8 @@ class BazaarRepository(Repository):
         #self.working_copy = BazaarWorkingCopy(path)
 
     def get_working_copy(self, path=None):
-        return get_working_copy(path)
+        return BazaarWorkingCopy(path)
+
+
+registry.register(BazaarRepository)
+registry.register(BazaarWorkingCopy)

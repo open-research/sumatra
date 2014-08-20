@@ -34,10 +34,16 @@ get_repository()   - determine whether a revision control system repository
 """
 
 import sys
-import os
 
-from .base import VersionControlError, UncommittedModificationsError
+from .base import VersionControlError, UncommittedModificationsError, Repository, WorkingCopy
+from ..core import registry
 
+
+NOT_FOUND = "No version control systems found. Please see the documentation for information on installing the required packages."
+
+
+registry.add_component_type(Repository)
+registry.add_component_type(WorkingCopy)
 
 vcs_list = []
 vcs_unavailable = []
@@ -67,16 +73,14 @@ def get_working_copy(path=None):
     If *path* is not specified, the current working directory is used.
     If no working copy is found at *path*, raises a :class:`VersionControlError`.
     """
-    path = path or os.getcwd()
-    if vcs_list:
-        for vcs in vcs_list:
-            if vcs.may_have_working_copy(path):
-                return vcs.get_working_copy(path)
-        err_msg = "No working copy found at %s." % path + vcs_err_msg()
-        raise VersionControlError(err_msg)
-    else:
-        err_msg = "No version control systems found. Please see the documentation for information on installing the required packages."
-        raise VersionControlError(err_msg)
+    if len(registry.components[WorkingCopy]) == 0:
+        raise VersionControlError(NOT_FOUND)
+    for working_copy_type in registry.components[WorkingCopy].values():
+        wc = working_copy_type(path)
+        if wc.exists:
+            return wc
+    err_msg = "No working copy found at %s." % path + vcs_err_msg()
+    raise VersionControlError(err_msg)
 
 
 def get_repository(url):
@@ -86,18 +90,16 @@ def get_repository(url):
 
     If no repository is found at *url*, raises a :class:`VersionControlError`.
     """
+    if len(registry.components[Repository]) == 0:
+        raise VersionControlError(NOT_FOUND)
     if url:
-        repos = None
-        if vcs_list:
-            for vcs in vcs_list:
-                try:
-                    repos = vcs.get_repository(url)
-                    break
-                except Exception as e:
-                    pass
-        else:
-            raise VersionControlError("No version control systems found.")
-        if repos is None:
+        success = False
+        for repository_type in registry.components[Repository].values():
+            repos = repository_type(url)
+            if repos.exists:
+                success = True
+                break
+        if repos is None or success is False:
             raise VersionControlError("Can't find repository at URL '%s'" % url + vcs_err_msg())
         else:
             return repos

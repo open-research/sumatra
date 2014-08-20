@@ -7,19 +7,12 @@ Classes
 GitWorkingCopy
 GitRepository
 
-Functions
----------
-
-may_have_working_copy() - determine whether a .git subdirectory exists at a given
-                          path
-get_working_copy()      - return a GitWorkingCopy object for a given path
-get_repository()        - return a GitRepository object for a given URL.
-
 
 :copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
 :license: CeCILL, see LICENSE for details.
 """
 
+import logging
 import git
 import os
 import shutil
@@ -29,7 +22,8 @@ try:
 except:
     from git.exc import InvalidGitRepositoryError, NoSuchPathError
 from base import Repository, WorkingCopy, VersionControlError
-import logging
+from ..core import registry
+
 
 logger = logging.getLogger("Sumatra")
 
@@ -51,43 +45,21 @@ def findrepo(path):
         return os.path.dirname(repo.git_dir)
 
 
-def may_have_working_copy(path=None):
-    """Test whether there is a Git working copy at the given path."""
-    path = path or os.getcwd()
-    if findrepo(path):
-        return True
-    else:
-        return False
-
-
-def get_working_copy(path=None):
-    """Return a GitWorkingCopy instance for the given path, or the current
-    directory if the path is not given."""
-    repo_dir = findrepo(path or os.getcwd())
-    if repo_dir:
-        return GitWorkingCopy(repo_dir)
-    else:
-        raise VersionControlError("No Git working copy found at %s" % path)
-
-
-def get_repository(url):
-    """Return a GitRepository instance for the given url."""
-    repos = GitRepository(url)
-    if repos.exists:
-        return repos
-    else:
-        raise VersionControlError("Cannot access Git repository at %s" % url)
-
-
 class GitWorkingCopy(WorkingCopy):
     """
     An object which allows various operations on a Git working copy.
     """
+    name = "git"
 
     def __init__(self, path=None):
         check_version()
         WorkingCopy.__init__(self, path)
+        self.path = findrepo(self.path)
         self.repository = GitRepository(self.path)
+
+    @property
+    def exists(self):
+        return bool(self.path and findrepo(self.path))
 
     def current_version(self):
         head = self.repository._repository.head
@@ -148,6 +120,7 @@ def move_contents(src, dst):
 
 
 class GitRepository(Repository):
+    name = "git"
     use_version_cmd = "git checkout"
     apply_patch_cmd = "git apply"
 
@@ -188,10 +161,13 @@ class GitRepository(Repository):
         self.__repository = git.Repo(path)
 
     def get_working_copy(self, path=None):
-        return get_working_copy(path)
+        return GitWorkingCopy(path)
 
     def _get_upstream(self):
         if self.exists:
             config = self._repository.config_reader()
             if config.has_option('remote "origin"', 'url'):
                 return config.get('remote "origin"', 'url')
+
+registry.register(GitRepository)
+registry.register(GitWorkingCopy)

@@ -7,14 +7,6 @@ Classes
 MercurialWorkingCopy
 MercurialRepository
 
-Functions
----------
-
-may_have_working_copy() - determine whether a .hg subdirectory exists at a given
-                          path
-get_working_copy()      - return a MercurialWorkingCopy object for a given path
-get_repository()        - return a MercurialRepository object for a given URL.
-
 
 :copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
 :license: CeCILL, see LICENSE for details.
@@ -33,9 +25,8 @@ import os
 import binascii
 import functools
 from base import VersionControlError, UncommittedModificationsError
-
-
 from base import Repository, WorkingCopy
+from ..core import registry
 
 
 def vectorized(generator_func):
@@ -44,32 +35,17 @@ def vectorized(generator_func):
     return functools.update_wrapper(wrapper, generator_func)
 
 
-def may_have_working_copy(path=None):
-    path = path or os.getcwd()
-    return bool(findrepo(path))
-
-
-def get_working_copy(path=None):
-    repo_dir = findrepo(path or os.getcwd())
-    if repo_dir:
-        return MercurialWorkingCopy(repo_dir)
-    else:
-        raise VersionControlError("No Mercurial working copy found at %s" % path)
-
-
-def get_repository(url):
-    repos = MercurialRepository(url)
-    if repos.exists:
-        return repos
-    else:
-        raise VersionControlError("Cannot access Mercurial repository at %s" % self.url)
-
-
 class MercurialWorkingCopy(WorkingCopy):
+    name = "mercurial"
 
     def __init__(self, path=None):
         WorkingCopy.__init__(self, path)
+        self.path = findrepo(self.path)
         self.repository = MercurialRepository(self.path)
+
+    @property
+    def exists(self):
+        return bool(self.path and findrepo(self.path))
 
     def current_version(self):
         if hasattr(self.repository._repository, 'workingctx'):  # handle different versions of Mercurial
@@ -128,6 +104,7 @@ class MercurialWorkingCopy(WorkingCopy):
 
 
 class MercurialRepository(Repository):
+    name = "mercurial"
     use_version_cmd = "hg update -r"
     apply_patch_cmd = "hg import --no-commit"
 
@@ -169,8 +146,12 @@ class MercurialRepository(Repository):
                 hg.update(local_repos, None)
 
     def get_working_copy(self, path=None):
-        return get_working_copy(path)
+        return MercurialWorkingCopy(path)
 
     def _get_upstream(self):
         if self.exists:
             return self._repository.ui.config('paths', 'default')
+
+
+registry.register(MercurialRepository)
+registry.register(MercurialWorkingCopy)

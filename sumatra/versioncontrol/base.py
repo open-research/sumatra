@@ -12,6 +12,7 @@ import os.path
 class VersionControlError(Exception):
     pass
 
+
 class UncommittedModificationsError(Exception):
     pass
 
@@ -20,26 +21,27 @@ class Repository(object):
     """
     Represents, and enables limited interaction with, the version control system
     repository located at *url*.
-    
+
     If *upstream* is not provided, this information will be obtained, if
     possible, from the version control system.
     """
-    
+    required_attributes = ("exists", "checkout", "get_working_copy")
+
     def __init__(self, url, upstream=None):
         if url == ".":
             url = os.path.abspath(url)
         self.url = url
         self.upstream = upstream
-        
+
     def __str__(self):
         s = "%s at %s" % (self.__class__.__name__, self.url)
         if self.upstream:
             s += " (upstream: %s)" % self.upstream
         return s
-    
+
     def __eq__(self, other):
         return self.__class__ == other.__class__ and self.url == other.url
-    
+
     def __ne__(self, other):
         return not self.__eq__(other)
 
@@ -58,17 +60,17 @@ class Repository(object):
     @property
     def vcs_type(self):
         return self.__class__.__name__[:-10]  # strip off "Repository"
-    
+
     @property
     def exists(self):
         """Does the repository represented by this object actually exist?"""
         raise NotImplementedError
-    
+
     def checkout(self, path="."):
         """
         Clone a repository ("checkout" in Subversion) from *self.url* to
         the local filesystem at *path*.
-        
+
         """
         raise NotImplementedError
 
@@ -79,35 +81,42 @@ class Repository(object):
         raise NotImplementedError
 
 
-
 class WorkingCopy(object):
     """
     Represents, and enables limited interaction with, the version control system
     working copy located in the *path* directory.
-    
+
     If *path* is not specified, the current working directory is assumed.
-    
+
     For each version control system supported by Sumatra, there is a specific
     subclass of the abstract :class:`WorkingCopy` base class.
     """
-    
+    required_attributes = ("contains", "current_version", "use_version",
+                           "use_latest_version", "status", "has_changed",
+                           "diff", "get_username")
+
     def __init__(self, path=None):
         self.path = path or os.getcwd()
-    
+
     def __eq__(self, other):
         return (self.repository == other.repository) and (self.path == other.path) \
                and (self.current_version() == other.current_version()) #and (self.diff() == other.diff())
-            
+
     def __ne__(self, other):
         return not self.__eq__(other)
+
+    @property
+    def exists(self):
+        """Does the working copy represented by this object actually exist?"""
+        raise NotImplementedError
 
     def contains(self, path):
         """
         Does the repository contain the file with the given path?
-        
+
         where `path` is relative to the working copy root.
         """
-        status = self.status()    
+        status = self.status()
         return (path in status['modified']) or (path in status['clean'])
 
     def current_version(self):
@@ -117,7 +126,7 @@ class WorkingCopy(object):
     def use_version(self, version):
         """
         Switch the working copy to *version*.
-        
+
         If the working copy has uncommitted changes, raises an
         :class:`UncommittedModificationsError`.
         """
@@ -126,7 +135,7 @@ class WorkingCopy(object):
     def use_latest_version(self):
         """
         Switch the working copy to the most recent version.
-        
+
         Any uncommitted changes are retained/merged in.
         """
         raise NotImplementedError
