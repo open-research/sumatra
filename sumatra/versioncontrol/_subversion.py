@@ -32,8 +32,12 @@ class SubversionWorkingCopy(WorkingCopy):
         WorkingCopy.__init__(self, path)
         self.path = os.path.realpath(path)
         client = pysvn.Client()
-        url = client.info(self.path).url
-        self.repository = SubversionRepository(url)
+        try:
+            url = client.info(self.path).url
+        except pysvn.ClientError:
+            pass
+        else:
+            self.repository = SubversionRepository(url)
 
     @property
     def exists(self):
