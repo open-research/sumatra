@@ -36,6 +36,7 @@
         <div class="control-group">
           <table id = 'gen_info'>
             <tr><th>Path:</th><td>{{data_key.path}}</td></tr>
+            <tr><th>Digest:</th><td>{{data_key.digest}}</td></tr>
             <tr><th>Type:</th><td>{{data_key.get_metadata.mimetype}}</td></tr>
             <tr><th>Size:</th><td>{{data_key.get_metadata.size|filesizeformat}}</td></tr>
             <tr><th>Timestamp: </th><td>{{data_key.output_from_record.timestamp|date:"d/m/Y H:i:s"}}</td></tr>
