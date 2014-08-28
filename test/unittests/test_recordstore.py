@@ -13,13 +13,14 @@ from datetime import datetime
 from django.core import management
 
 from sumatra.records import Record
-from sumatra.programs import register_executable, Executable
+from sumatra.programs import Executable
 from sumatra.recordstore import (shelve_store, django_store, http_store,
                                  serialization, get_record_store)
 from sumatra.versioncontrol import vcs_list
 import sumatra.launch
 import sumatra.datastore
 import sumatra.parameters
+from sumatra.core import registry
 try:
     import json
 except ImportError:
@@ -35,12 +36,14 @@ django_store2 = None
 
 class MockExecutable(Executable):
     name = "a.out"
+    executable_names = ("/usr/local/bin/a.out",)
+    file_extensions = []
     path = "/usr/local/bin/a.out"
     version = "999"
     options = "-v"
     def __init__(self, *args, **kwargs):
         pass
-register_executable(MockExecutable, "a.out", "/usr/local/bin/a.out", [])
+registry.register(MockExecutable)
 
 
 class MockRepository(object):

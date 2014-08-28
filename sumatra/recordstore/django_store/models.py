@@ -9,12 +9,12 @@ Definition of database tables and object retrieval for the DjangoRecordStore.
 from django.db import models
 from django.contrib.auth.models import User
 from sumatra import programs, launch, datastore, records, versioncontrol, parameters, dependency_finder
-import os.path
 import tagging.fields
 from tagging.models import Tag
 from datetime import datetime
 import django
 from distutils.version import LooseVersion
+from sumatra.core import registry
 
 
 class SumatraObjectsManager(models.Manager):
@@ -85,7 +85,7 @@ class Executable(BaseModel):
         return self.path
 
     def to_sumatra(self):
-        cls = programs.registered_program_names.get(self.name, programs.Executable)
+        cls = registry.components[programs.Executable].get(self.name, programs.Executable)
         ex = cls(self.path, self.version, self.options)
         ex.name = self.name
         return ex

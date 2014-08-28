@@ -14,7 +14,9 @@ from datetime import datetime
 from sumatra import programs, launch, datastore, versioncontrol, parameters, dependency_finder
 from sumatra.records import Record
 from ..compatibility import string_type
+from ..core import registry
 from sumatra.formatting import record2json
+
 
 def encode_record(record, indent=None):
     return record2json(record, indent)
@@ -64,7 +66,7 @@ def datestring_to_datetime(s):
 def build_record(data):
     """Create a Sumatra record from a nested dictionary."""
     edata = data["executable"]
-    cls = programs.registered_program_names.get(edata["name"], programs.Executable)
+    cls = registry.components[programs.Executable].get(edata["name"], programs.Executable)
     executable = cls(edata["path"], edata["version"], edata.get("options", ""))
     executable.name = edata["name"]
     rdata = data["repository"]

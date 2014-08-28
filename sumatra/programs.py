@@ -25,8 +25,6 @@ Functions
 get_executable()
     Return an appropriate subclass of Executable, given either the path to an
     executable file or a script file that can be run with a given tool.
-register_executable()
-    Register new subclasses of Executable that can be returned by get_executable().
 
 
 :copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
@@ -39,7 +37,7 @@ import re
 import sys
 import warnings
 from .compatibility import string_type
-from .core import run
+from .core import run, registry
 
 
 version_pattern = re.compile(r'\b(?P<version>\d[\.\d]*([a-z]*\d)*)\b')
@@ -49,6 +47,7 @@ version_pattern_matlab = re.compile(r'(?<=SMT_DETECT_MATLAB_VERSION=)(?P<version
 class Executable(object):
     # store compilation/configuration options? yes, if we can determine them
     requires_script = False  # does this executable require a script file
+    required_attributes = ("executable_names", "file_extensions",)
     name = None
 
     def __init__(self, path, version=None, options="", name=None):
@@ -118,6 +117,8 @@ class Executable(object):
 
 class NEURONSimulator(Executable):
     name = "NEURON"
+    executable_names = ('nrniv', 'nrngui')
+    file_extensions = ('.hoc', '.oc')
     default_executable_name = "nrniv"
     mpi_options = "-mpi"
     pre_run = "nrnivmodl"
@@ -138,12 +139,18 @@ class NEURONSimulator(Executable):
 
 class PythonExecutable(Executable):
     name = "Python"
+    executable_names = ('python', 'python2', 'python3', 'python2.5',
+                        'python2.6', 'python2.7', 'python3.1', 'python3.2',
+                        'python3.3', 'python3.4')
+    file_extensions = ('.py',)
     default_executable_name = "python"
     requires_script = True
 
 
 class MatlabExecutable(Executable):
     name = "Matlab"
+    executable_names = ('matlab',)
+    file_extensions = ('.m',)
     default_executable_name = "matlab"
     requires_script = True
 
@@ -160,12 +167,16 @@ class MatlabExecutable(Executable):
 
 class NESTSimulator(Executable):
     name = "NEST"
+    executable_names = ('nest',)
+    file_extensions = ('.sli',)
     default_executable_name = 'nest'
     requires_script = True
 
 
 class GENESISSimulator(Executable):
     name = "GENESIS"
+    executable_names = ('genesis',)
+    file_extensions = ('.g',)
     default_executable_name = "genesis"
     requires_script = True
 
@@ -185,28 +196,12 @@ class GENESISSimulator(Executable):
         return version.strip()
 
 
-registered_program_names = {}
-registered_executables = {}
-registered_extensions = {}
-
-
-def register_executable(cls, name, executables, extensions):
-    """Register a new subclass of Executable that can be returned by get_executable()."""
-    assert issubclass(cls, Executable)
-    registered_program_names[name] = cls
-    for executable in executables:
-        registered_executables[executable] = cls
-    for ext in extensions:
-        registered_extensions[ext] = cls
-
-
-register_executable(NEURONSimulator, 'NEURON', ('nrniv', 'nrngui'), ('.hoc', '.oc'))
-register_executable(PythonExecutable, 'Python', ('python', 'python2', 'python3',
-                                                 'python2.5', 'python2.6', 'python2.7',
-                                                 'python3.1', 'python3.2', 'python3.3'), ('.py',))
-register_executable(MatlabExecutable, 'Matlab', ('matlab',), ('.m',))
-register_executable(NESTSimulator, 'NEST', ('nest',), ('.sli',))
-register_executable(GENESISSimulator, 'GENESIS', ('genesis',), ('.g',))
+registry.add_component_type(Executable)
+registry.register(NEURONSimulator)
+registry.register(PythonExecutable)
+registry.register(MatlabExecutable)
+registry.register(NESTSimulator)
+registry.register(GENESISSimulator)
 
 
 def get_executable(path=None, script_file=None):
@@ -218,15 +213,17 @@ def get_executable(path=None, script_file=None):
     """
     if path:
         prog_name = os.path.basename(path)
-        if prog_name in registered_executables:
-            program = registered_executables[prog_name](path)
-        else:
-            program = Executable(path)
+        program = Executable(path)
+        for executable_type in registry.components[Executable].values():
+            if prog_name in executable_type.executable_names:
+                program = executable_type(path)
     elif script_file:
         script_path, ext = os.path.splitext(script_file)
-        if ext in registered_extensions:
-            program = registered_extensions[ext](path)
-        else:
+        program = None
+        for executable_type in registry.components[Executable].values():
+            if ext in executable_type.file_extensions:
+                program = executable_type(path)
+        if program is None:
             raise Exception("Extension not recognized.")
     else:
         raise Exception('Either path or script_file must be specified')
