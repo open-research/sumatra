@@ -60,7 +60,6 @@ def eval_metadata(data, key):
     '''Convert DataKey metadata from unicode to dicitionary and return
     item accessed by key.
     '''
-    print key, type(data.get_metadata().get(key))
     return data.get_metadata().get(key)
 
 @register.filter

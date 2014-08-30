@@ -170,8 +170,7 @@ class DataTemplate(object):
         # >>> <type 'unicode'>
         # >>> <type 'dict'>
 
-        return {'project_name': self.project_name, 
-                'data_list': self.data_list}
+        return {'project_name': self.project_name, 'data_list': self.data_list}
  
 
 class AjaxTemplate(DefaultTemplate):

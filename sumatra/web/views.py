@@ -284,9 +284,6 @@ def show_file(request, project):
     elif len(data_keys)>1:
         print 'duplicate error'
 
-    print "Metadata", data_key.metadata
-    print "output_record", data_key.output_from_record
-
     if 'truncate' in request.GET:
         if request.GET['truncate'].lower() == 'false':
             max_display_length = None
@@ -297,9 +294,6 @@ def show_file(request, project):
 
     return render_to_response("show_file.html",
                               {'data_key': data_key, 'project_name': project})
-    
-    # output_record = data_key.output_from_record
-    # input_records = data_key.input_to_records.all()  
     
 
     try:
