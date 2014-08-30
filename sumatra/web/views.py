@@ -259,24 +259,14 @@ def run_sim(request, project):
             return render_to_response('content.html', ajaxTempOb.getDict())
 
 
-def show_file(request, project):
-    if request.POST.has_key('show_args'):  # retrieve the content of the input file
-        name = request.POST.get('name', False)
-        if os.name == 'posix':
-            arg_file = open(os.getcwd() + '/' + name, 'r')
-        else:
-            arg_file = open(os.getcwd() + '\\' + name, 'r')
-        f_content = arg_file.read()
-        arg_file.close()
-        return HttpResponse(f_content)
-    #label = unescape(label)
+
+def data_detail(request, project):
+
     path = request.GET['path']
     digest = request.GET['digest']
-
-    type = request.GET.get('type', 'output')
-    show_script = request.GET.get('show_script', False)
    
     data_keys = models.DataKey.objects.filter(path = path, digest = digest)
+
     if len(data_keys)==1:
         data_key = data_keys[0]
     elif len(data_keys)==0:
@@ -284,129 +274,11 @@ def show_file(request, project):
     elif len(data_keys)>1:
         print 'duplicate error'
 
-    if 'truncate' in request.GET:
-        if request.GET['truncate'].lower() == 'false':
-            max_display_length = None
-        else:
-            max_display_length = int(request.GET['truncate']) * 1024
-    else:
-        max_display_length = DEFAULT_MAX_DISPLAY_LENGTH
-
-    return render_to_response("show_file.html",
+    return render_to_response("data_detail.html",
                               {'data_key': data_key, 'project_name': project})
     
 
-    try:
-        if mimetype == "text/csv":
-            content = data_store.get_content(data_key, max_length=max_display_length)
-            if max_display_length is not None and len(content) >= max_display_length:
-                truncated = True
-
-                # dump the last truncated line (if any)
-                content = content.rpartition('\n')[0]
-
-            lines = content.splitlines()
-            reader = csv.reader(lines)
-
-            return render_to_response("show_csv.html",
-                                      {'path': path, 'label': label,
-                                       'digest': digest,
-                                       'project_name': project,
-                                       'reader': reader,
-                                       'truncated': truncated,
-                                       'mimetype': mimetype
-                                       })
-
-        elif encoding == 'gzip':
-            import gzip
-            with gzip.open(data_store.root + os.path.sep + path, 'r') as gf:
-                content = gf.read()
-            if 'csv' in path:
-                lines = content.splitlines()
-                if truncated:
-                    lines = [lines[0]] + lines[-min(100, len(lines)):]
-                reader = csv.reader(lines)
-                return render_to_response("show_csv.html",
-                                          {'path': path,
-                                           'label': label,
-                                           'digest': digest,
-                                           'project_name': project,
-                                           'reader': reader,
-                                           'truncated': truncated,
-                                           'mimetype': mimetype,
-                                           'input_records': input_records,
-                                           'output_records': output_records
-                                           })
-            else:
-                return render_to_response("show_file.html",
-                                          {'path': path,
-                                           'label': label,
-                                           'content': content,
-                                           'project_name': project,
-                                           'truncated': truncated,
-                                           'digest': digest,
-                                           'mimetype': mimetype,
-                                           'input_records': input_records,
-                                           'output_records': output_records
-                                           })
-        elif mimetype is None or mimetype.split("/")[0] == "text":
-            content = data_store.get_content(data_key, max_length=max_display_length)
-            if max_display_length is not None and len(content) >= max_display_length:
-                truncated = True
-            return render_to_response("show_file.html",
-                                      {'data_key': data_key})
-        elif mimetype in ("image/png", "image/jpeg", "image/gif", "image/x-png"):  # need to check digests match
-            return render_to_response("show_image.html",
-                                      {'path': path,
-                                       'label': label,
-                                       'digest': digest,
-                                       'mimetype': mimetype,
-                                       'project_name': project,
-                                       'type': type,
-                                       'input_records': input_records,
-                                       'output_records': output_records
-                                       })
-        elif mimetype == 'application/zip':
-            import zipfile
-            if zipfile.is_zipfile(path):
-                zf = zipfile.ZipFile(path, 'r')
-                contents = zf.namelist()
-                zf.close()
-                return render_to_response("show_file.html",
-                                          {'path': path,
-                                           'label': label,
-                                           'digest': digest,
-                                           'content': "\n".join(contents),
-                                           'project_name': project,
-                                           'mimetype': mimetype,
-                                           'input_records': input_records,
-                                           'output_records': output_records
-                                           })
-            else:
-                raise IOError("Not a valid zip file")
-        else:
-            return render_to_response("show_file.html",
-                                      {'path': path,
-                                       'label': label,
-                                       'project_name': project,
-                                       'digest': digest,
-                                       'mimetype': mimetype,
-                                       'input_records': input_records,
-                                       'output_records': output_records,
-                                       'content': "Can't display this file (mimetype assumed to be %s)" % mimetype
-                                       })
-    except (IOError, KeyError), e:
-        return render_to_response("show_file.html",
-                                  {'path': path,
-                                   'label': label,
-                                   'project_name': project,
-                                   'digest': digest,
-                                   'input_records': input_records,
-                                   'output_records': output_records,
-                                   'content': "File not found.",
-                                   'errmsg': e
-                                   })
-
+   
 
 def download_file(request, project, label):
     label = unescape(label)
