@@ -197,13 +197,16 @@ def find_imported_packages(filename, executable_path, debug=0, exclude_stdlib=Tr
         import sys, os
         import distutils.sysconfig
         stdlib_path = distutils.sysconfig.get_python_lib(standard_lib=True)
+        stdlib_paths = (stdlib_path,
+                        os.path.join(stdlib_path, "plat-mac"),
+                        os.path.join(stdlib_path, "plat-mac", "lib-scriptpackages"))
         exclude_stdlib = %s
         finder = ModuleFinder(path=sys.path, debug=%d)
         finder.run_script("%s")
         top_level_packages = {}
         for name, module in finder.modules.items():
             if module.__path__ and "." not in name:
-                if not(exclude_stdlib and os.path.dirname(module.__path__[0]) == stdlib_path): # doesn't work for platform-specific modules, e.g. 'Finder', 'Carbon'
+                if not(exclude_stdlib and os.path.dirname(module.__path__[0]) in stdlib_paths):
                     top_level_packages[name] = module
         sys.stdout.write("%s" + str(top_level_packages))""" % (exclude_stdlib, int(debug), filename, SENTINEL)
     return run_script(executable_path, script)
