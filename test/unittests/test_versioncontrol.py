@@ -283,7 +283,7 @@ class TestMercurialRepository(unittest.TestCase, BaseTestRepository):
         # get a working copy from the subdirectory
         wc = get_working_copy(os.path.join(tmpdir, 'subpackage')).repository.url
         # is the working copy path same as the repo path?
-        self.assertEqual(wc, tmpdir)
+        self.assertEqual(wc, os.path.realpath(tmpdir))
         shutil.rmtree(tmpdir)
 
 
@@ -316,7 +316,7 @@ class TestGitRepository(unittest.TestCase, BaseTestRepository):
         # get a working copy from the subdirectory
         wc = get_working_copy(os.path.join(tmpdir, 'subpackage')).repository.url
         # is the working copy path same as the repo path?
-        self.assertEqual(wc, tmpdir)
+        self.assertEqual(wc, os.path.realpath(tmpdir))
         shutil.rmtree(tmpdir)
 TestGitRepository = unittest.skipUnless(have_git, "Could not import git")(TestGitRepository)
 

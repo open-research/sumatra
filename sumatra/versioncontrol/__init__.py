@@ -34,9 +34,13 @@ get_repository()   - determine whether a revision control system repository
 """
 
 import sys
+import os.path
+import logging
 
 from .base import VersionControlError, UncommittedModificationsError, Repository, WorkingCopy
 from ..core import registry
+
+logger = logging.getLogger("Sumatra")
 
 
 NOT_FOUND = "No version control systems found. Please see the documentation for information on installing the required packages."
@@ -76,7 +80,7 @@ def get_working_copy(path=None):
     if len(registry.components[WorkingCopy]) == 0:
         raise VersionControlError(NOT_FOUND)
     for working_copy_type in registry.components[WorkingCopy].values():
-        wc = working_copy_type(path)
+        wc = working_copy_type(os.path.realpath(path))
         if wc.exists:
             return wc
     err_msg = "No working copy found at %s." % path + vcs_err_msg()
