@@ -31,7 +31,7 @@
 	   		<li class='rcomp mode'>{% ifequal record.launch_mode.type "SerialLaunchMode" %}serial{% else %}distributed, n={{record.launch_mode.get_parameters.n}}{% endifequal %}</li>
 	   		<li class='rcomp repo'>{{record.repository.url}}</li>
 	   		<li class='rcomp main'>{{record.main_file}}</li>
-	   		<li class='rcomp vers'>{{record.version}}{% if record.diff %}* (<a href="diff/">diff</a>){% endif %}</li>
+	   		<li class='rcomp vers'>{{record.version}}{% if record.diff %}* (<a href="diff">diff</a>){% endif %}</li>
 	   		<li class='rcomp args'><pre>{{record.script_arguments}}</pre></li>
 	   		<li class='rcomp tags'>{{record.tags}}</li>
 	   		<li class='rcomp ifile'>
