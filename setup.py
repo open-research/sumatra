@@ -59,7 +59,7 @@ setup(
                    'Topic :: Scientific/Engineering'],
     cmdclass = {'sdist': sdist_hg},
     install_requires = ['Django>=1.4', 'django-tagging', 'httplib2',
-                        'simplejson', 'docutils', 'jinja2', 'parameters'],
+                        'docutils', 'jinja2', 'parameters'],
     extras_require = {'svn': 'pysvn',
                       'hg': 'mercurial',
                       'git': 'GitPython',
