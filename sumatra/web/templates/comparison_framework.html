@@ -1,4 +1,4 @@
-{% if records %}
+{% if sim_list %}
 {% load filters %}
 	   <div style='float:left;width:200px'>
 	   	<ol class ='ol-compare'>
@@ -20,7 +20,7 @@
 			<li class='rcomp stdout'>Stdout & Stderr:</li>
 	   	</ol>
 	   </div>
-   {% for record in records %}
+   {% for record in sim_list|slice:":2" %}
 	   <div id = 'column-c' style='float:left;width:40%'>
 	   	<ol class ='ol-compare'>
 	   		<li class='rcomp reas'>{{record.reason}}</li>
