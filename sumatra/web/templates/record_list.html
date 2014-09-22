@@ -39,6 +39,8 @@
 
 <button type="button" class="btn btn-default" data-dismiss="modal"
         id='cc_show'>Show</button>
+<button type="button" class="btn btn-default" data-dismiss="modal"
+        id='cc_log'>Log Selected</button>
 
 <script>
   $(document).ready( function () {
@@ -49,6 +51,13 @@
   $(function () {
     $("#cc_show").on('click', function() {
         $('#compareSim').modal('show');
+    });
+  });
+
+  $(function () {
+    $("#cc_log").on('click', function() {
+        console.log('selected:');
+        console.log(record_list.cells('.selected', 1).data());
     });
   });
 
