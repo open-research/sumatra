@@ -65,6 +65,12 @@
     } );
 
 
+    <!-- Multiple Row Select -->
+    $('#record_dt tbody').on( 'click', 'tr', function () {
+      $(this).toggleClass('selected');
+    } );
+
+
     $('a.settings_togg').on('click', function(e) {
       e.preventDefault();
       $('#settings_panel').toggle()
