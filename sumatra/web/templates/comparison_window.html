@@ -1,4 +1,4 @@
-<!--<div class="modal" id="compareSim">
+<div class="modal" id="compareSim">
   <div class="modal-header">
         <a class="close" data-dismiss="modal">&times;</a>
         <h3>Comparison of records</h3>
@@ -6,11 +6,13 @@
             <span id='alist-labels'></span>
             <div id='head-comp'></div>
   </div>
+  <button type="button" class="btn btn-default" data-dismiss="modal"
+  id='cc_close'>Close</button>
   <div class="modal-body" id='body-comp'>
         {% include "comparison_framework.html" %}
   </div> 
 </div>
-<script type = 'text/javascript'>
+<!--<script type = 'text/javascript'>
 $(document).ready(function(){ 
   $('#compareSim .modal-body').css('max-height', 0.80*$('#compareSim').height() - $('#compareSim .modal-header').height());
     $('#alist-labels span').live('click', function(){

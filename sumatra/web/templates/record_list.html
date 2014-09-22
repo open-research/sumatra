@@ -30,21 +30,33 @@
 <link rel="stylesheet" type="text/css"
       href="/media/css/jquery.dataTables.css">
 
-<!-- jQuery -->
-<script type="text/javascript" chadatrset="utf8" src="/media/js/jquery.js"></script>
-
 <!-- DataTables -->
 <script type="text/javascript" charset="utf8"
         src="/media/js/jquery.dataTables.js"></script>
 
 
+{% include "comparison_window.html" %}
 
-
-
-
+<button type="button" class="btn btn-default" data-dismiss="modal"
+        id='cc_show'>Show</button>
 
 <script>
   $(document).ready( function () {
+  
+  // comparison window modal init and subsequent hide
+  $('#compareSim').modal().modal('hide');  
+
+  $(function () {
+    $("#cc_close").on('click', function() {
+        $('#compareSim').modal('hide');
+    });
+  });
+
+  $(function () {
+    $("#cc_show").on('click', function() {
+        $('#compareSim').modal('show');
+    });
+  });
 
   var hd_cl = {{settings.record_hidden_cols|as_json|safe}};
   var record_list = $('#record_dt').DataTable({
