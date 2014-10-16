@@ -38,10 +38,24 @@
 {% include "comparison_window.html" %}
 
 
+<style>
+table.dataTable tbody tr.selected  {
+    background-color: #96C4EA; !important; 
+ }
+table.dataTable.hover tbody tr:hover.selected,
+table.dataTable.hover tbody tr.odd:hover.selected,
+table.dataTable.hover tbody tr.even:hover.selected, table.dataTable.display tbody tr:hover.selected,
+table.dataTable.display tbody tr.odd:hover.selected,
+table.dataTable.display tbody tr.even:hover.selected {
+  background-color: #96C4EA; !important;
+}
+</style>
+
+
 <script>
   $(document).ready( function () {
   
-  // comparison window modal init and subsequent hide
+  /* comparison window modal init and subsequent hide */
   $('#compareSim').modal().modal('hide');  
 
   $(function () {
@@ -85,9 +99,27 @@
     } );
 
 
-    <!-- Multiple Row Select -->
-    $('#record_dt tbody').on( 'click', 'tr', function () {
-      $(this).toggleClass('selected');
+    /* Multiple Row Select:
+       click        selects a single row 
+       Ctrl+click   can select multiples   */
+    $('#record_dt tbody').on( 'click', 'tr', function (event) {
+      if (event.ctrlKey) {
+        $(this).toggleClass('selected');
+      }
+      else {
+        if (record_list.rows('.selected').data().length == 0) {
+          $(this).toggleClass('selected');
+        }
+        else {
+          if ($(this).hasClass('selected')) {
+            $('.selected').toggleClass('selected')
+          }
+          else {
+            $('.selected').toggleClass('selected')
+            $(this).toggleClass('selected');
+          }
+        }
+      }
     } );
 
 
@@ -97,7 +129,7 @@
       $('#settings_panel2').toggle()
     })
 
-    <!-- Column visibility toggle -->
+    /* Column visibility toggle */
     $('input.check-item').on( 'change', function (e) {
         e.preventDefault();
 
