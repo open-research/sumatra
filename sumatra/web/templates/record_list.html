@@ -122,6 +122,13 @@ table.dataTable.display tbody tr.even:hover.selected {
       }
     } );
 
+    /* Deselect rows for clicks outside of table */
+    $(document).click(function(event) { 
+      if(!$(event.target).closest('#record_dt').length) {
+          $('.selected').toggleClass('selected')
+      }        
+    })
+
 
     $('a.settings_togg').on('click', function(e) {
       e.preventDefault();
