@@ -72,12 +72,6 @@ table.dataTable.display tbody tr.even:hover.selected {
   });
 
 
-  $(function () {
-    $("#cc_deselect").on('click', function() {
-      $('.selected').toggleClass('selected')
-    })
-  });
-
 
   var hd_cl = {{settings.record_hidden_cols|as_json|safe}};
   var record_list = $('#record_dt').DataTable({
@@ -286,8 +280,6 @@ table.dataTable.display tbody tr.even:hover.selected {
         id='cc_show'>Show</button>
 <button type="button" class="btn btn-default" data-dismiss="modal"
         id='cc_log'>Log Selected</button>
-<button type="button" class="btn btn-default" data-dismiss="modal"
-        id='cc_deselect'>Deselect All</button>
 
 
 <table class='hover row-border' id='record_dt'>
