@@ -16,31 +16,31 @@ $(document).ready(function(){
 });
 </script>
 
-<!-- .live() deprecated in jQuery > 1.9 
-     what does segment do? -->
-<!-- <script type = 'text/javascript'>
- $('#alist-labels span').live('click', function(){
-        if ($(this).hasClass('label-success')){
-            $(this).removeClass('label-success');
-        }else{
-            var nb_selected = $('#alist-labels .label-success').length;
-            if (nb_selected == 2) $('#alist-labels .label-success:eq(0)').removeClass('label-success');
-            $(this).addClass('label-success');
-        };
+<!-- list of labels from selected records, 
+     pick two for side-to-side comparison -->
+<script type = 'text/javascript'>
+ $('#alist-labels span').on('click', function(){
+   if ($(this).hasClass('label-success')){
+     $(this).removeClass('label-success');
+   }else{
+     var nb_selected = $('#alist-labels .label-success').length;
+     if (nb_selected == 2) $('#alist-labels .label-success:eq(0)').removeClass('label-success');
+     $(this).addClass('label-success');
+   };
 
-        var getSelected = function(){
-          var selected_lab = [];
-          $('#alist-labels .label-success').each(function(){
-              selected_lab.push($(this).html());
-          });
-          return selected_lab;
-        }
+   var getSelected = function(){
+     var selected_lab = [];
+     $('#alist-labels .label-success').each(function(){
+       selected_lab.push($(this).html());
+     });
+     return selected_lab;
+   }
 
-        var selected = getSelected();
-        if (!selected.length){
-          $('#body-comp,#head-comp').empty();
-        }else{
-          $('#body-comp').load('nolabel/', {'compare_records':true, records: selected});
-        }
-    });
-</script> -->
+   var selected = getSelected();
+   if (!selected.length){
+     $('#body-comp,#head-comp').empty();
+   }else{
+     $('#body-comp').load('nolabel/', {'compare_records':true, records: selected});
+   }
+ });
+</script>

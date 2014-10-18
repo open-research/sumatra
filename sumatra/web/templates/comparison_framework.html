@@ -1,131 +1,131 @@
 {% if sim_list %}
 {% load filters %}
-	   <div style='float:left;width:200px'>
-	   	<ol class ='ol-compare'>
-	   		<li class='rcomp reas'>Reason:</li>
-	   		<li class='rcomp out'>Outcome:</li>
-	   		<li class='rcomp time'>Timestamp:</li>
-	   		<li class='rcomp dur'>Duration:</li>
-	   		<li class='rcomp exec'>Executable:</li>
-	   		<li class='rcomp mode'>Launch mode:</li>
-	   		<li class='rcomp repo'>Repository:</li>
-	   		<li class='rcomp main'>Main file:</li>
-	   		<li class='rcomp vers'>Version:</li>
-	   		<li class='rcomp args'>Arguments:</li>
-	   		<li class='rcomp tags'>Tags:</li>
-	   		<li class='rcomp ifile'>Input files:</li>
-	   		<li class='rcomp output'>Output files:</li>
-			<li class='rcomp depend'>Dependencies:</li>
-			<li class='rcomp platf'>Platform information:</li>	
-			<li class='rcomp stdout'>Stdout & Stderr:</li>
-	   	</ol>
-	   </div>
-   {% for record in sim_list|slice:":2" %}
-	   <div id = 'column-c' style='float:left;width:40%'>
-	   	<ol class ='ol-compare'>
-	   		<li class='rcomp reas'>{{record.reason}}</li>
-	   		<li class='rcomp out'>{{record.outcome}}</li>
-	   		<li class='rcomp time'>{{record.timestamp|date:"d/m/Y H:i:s"}}</li>
-	   		<li class='rcomp dur'>{{record.duration|human_readable_duration}}</li>
-	   		<li class='rcomp exec'>{{record.executable.name}} version {{record.executable.version}} ({{record.executable.path}})</li>
-	   		<li class='rcomp mode'>{% ifequal record.launch_mode.type "SerialLaunchMode" %}serial{% else %}distributed, n={{record.launch_mode.get_parameters.n}}{% endifequal %}</li>
-	   		<li class='rcomp repo'>{{record.repository.url}}</li>
-	   		<li class='rcomp main'>{{record.main_file}}</li>
-	   		<li class='rcomp vers'>{{record.version}}{% if record.diff %}* (<a href="diff/">diff</a>){% endif %}</li>
-	   		<li class='rcomp args'><pre>{{record.script_arguments}}</pre></li>
-	   		<li class='rcomp tags'>{{record.tags}}</li>
-	   		<li class='rcomp ifile'>
-	   			{% if record.input_data.count %}
-					<table>
-	                    <tr><td colspan="4">{{record.input_datastore.access_parameters.root}}</td></tr>
-	                    {% for file in record.input_data.all %}
-	                           <tr class="{% cycle odd even %}"><td><a href="datafile?path={{file.path}}&digest={{file.digest}}&type=input">{{file.path}}</a></td>
-	                           <td>{{file.digest}}</td>
-	                           <td>{{file.metadata.mimetype|default:""}}</td>
-	                           <td>{{file.metadata.size|filesizeformat}}</td></tr>
-	                    {% endfor %}
-	                </table>
-	   			{% else %}
-                    no input files
-                {% endif %}
-	   		</li>
-	   		<li class='rcomp output'>
-                    <div>Folder: {{record.datastore.access_parameters.root}}</div>
-                        {% for file in record.output_data.all %}
-	                        <div style='padding-top:5px'>
-	                        	{% if '.png' in file.path %}
-	                        		<div style='padding-top:5px'>File name: {{file.path}}</div>
-	                        		<a class="fancybox" rel="group" href="{{record.label}}/image?path={{file.path}}&digest={{file.digest}}"><img src="{{record.label}}/image?path={{file.path}}&digest={{file.digest}}" class="img-polaroid"></a>
-	                        	{% else %}
-	                        		<div style='padding-top:5px'>
-	                        			File name: <a class="fancybox" rel="group" href="{{record.label}}/download?path={{file.path}}&digest={{file.digest}}">{{file.path}}</a>
-	                        		</div>
-	                        	{% endif %}
-                                        <div style='padding-top:5px'>Digest: {{file.digest}}</div>
-	                        </div>
-                        {% endfor %} 
-	   		</li>
-	   		<li class='rcomp depend'>
-	   			{% if record.dependencies.all %}
-	   			<table class='table-recDetail'>
-                    <tr><th>Name</th><th>Path</th><th>Version</th></tr>
-                    {% for dep in record.dependencies.all %}
-                    <tr class="{% cycle 'odd' 'even' %}"><td>{{dep.name}}</td><td>{{dep.path}}</td><td>{{dep.version}}{% if dep.diff %}* (<a href="diff/{{dep.name}}">diff</a>){% endif %}</td></tr>{% endfor %}
-                </table>
-                {% else %}
-                	no dependencies
-                {% endif %}
-	   		</li>
-	   		<li class='rcomp platf'>
-	   		  {% for platform in record.platforms.all %}
-			   	<ol>
-			   		<li><span class='platf-t'>Name:</span> {{platform.network_name}}</li>
-			   		<li><span class='platf-t'>IP address:</span> {{platform.ip_addr}}</li>
-			   		<li><span class='platf-t'>Processor:</span> {{platform.processor}} {{platform.machine}}</li>
-			   		<li><span class='platf-t'>Architecture:</span> {{platform.architecture_bits}}</li>
-			   		<li><span class='platf-t'>System type:</span> {{platform.system_name}}</li>
-			   		<li><span class='platf-t'>Release:</span> {{platform.release}}</li>
-			   		<li><span class='platf-t'>Version:</span> {{platform.version}}</li>
-			   	</ol>
-			   {% endfor %}
-	   		</li>
-			<li class='rcomp stdout'>
-	   		    {% if record.stdout_stderr %}
-                <div>
-                    <pre>
-                    {{ record.stdout_stderr }}
-                    </pre>
-                </div>
-                {% else %}
-                no outputs
-                {% endif %}
-			</li>
-	   	</ol>
-	   </div>	
-   {% endfor %}
-<script type = 'text/javascript'>
-$(document).ready(function(){
-	$(".fancybox").click(function(e){ // clicking on the image: it will be opened in a new window
-		e.stopPropagation();
-	});
-	$('#head-comp').empty().append("<div id='head_c' class='nonselect head-table'>\
+  <div style='float:left;width:200px'>
+    <ol class ='ol-compare'>
+      <li class='rcomp reas'>Reason:</li>
+      <li class='rcomp out'>Outcome:</li>
+      <li class='rcomp time'>Timestamp:</li>
+      <li class='rcomp dur'>Duration:</li>
+      <li class='rcomp exec'>Executable:</li>
+      <li class='rcomp mode'>Launch mode:</li>
+      <li class='rcomp repo'>Repository:</li>
+      <li class='rcomp main'>Main file:</li>
+      <li class='rcomp vers'>Version:</li>
+      <li class='rcomp args'>Arguments:</li>
+      <li class='rcomp tags'>Tags:</li>
+      <li class='rcomp ifile'>Input files:</li>
+      <li class='rcomp output'>Output files:</li>
+      <li class='rcomp depend'>Dependencies:</li>
+      <li class='rcomp platf'>Platform information:</li>	
+      <li class='rcomp stdout'>Stdout & Stderr:</li>
+    </ol>
+  </div>
+  {% for record in sim_list|slice:":2" %}
+    <div id = 'column-c' style='float:left;width:40%'>
+      <ol class ='ol-compare'>
+	<li class='rcomp reas'>{{record.reason}}</li>
+	<li class='rcomp out'>{{record.outcome}}</li>
+	<li class='rcomp time'>{{record.timestamp|date:"d/m/Y H:i:s"}}</li>
+	<li class='rcomp dur'>{{record.duration|human_readable_duration}}</li>
+	<li class='rcomp exec'>{{record.executable.name}} version {{record.executable.version}} ({{record.executable.path}})</li>
+	<li class='rcomp mode'>{% ifequal record.launch_mode.type "SerialLaunchMode" %}serial{% else %}distributed, n={{record.launch_mode.get_parameters.n}}{% endifequal %}</li>
+	<li class='rcomp repo'>{{record.repository.url}}</li>
+	<li class='rcomp main'>{{record.main_file}}</li>
+	<li class='rcomp vers'>{{record.version}}{% if record.diff %}* (<a href="diff/">diff</a>){% endif %}</li>
+	<li class='rcomp args'><pre>{{record.script_arguments}}</pre></li>
+	<li class='rcomp tags'>{{record.tags}}</li>
+	<li class='rcomp ifile'>
+	  {% if record.input_data.count %}
+	    <table>
+	      <tr><td colspan="4">{{record.input_datastore.access_parameters.root}}</td></tr>
+	      {% for file in record.input_data.all %}
+	        <tr class="{% cycle odd even %}"><td><a href="datafile?path={{file.path}}&digest={{file.digest}}&type=input">{{file.path}}</a></td>
+	          <td>{{file.digest}}</td>
+	          <td>{{file.metadata.mimetype|default:""}}</td>
+	          <td>{{file.metadata.size|filesizeformat}}</td></tr>
+	      {% endfor %}
+	    </table>
+	  {% else %}
+            no input files
+          {% endif %}
+	</li>
+	<li class='rcomp output'>
+          <div>Folder: {{record.datastore.access_parameters.root}}</div>
+          {% for file in record.output_data.all %}
+	    <div style='padding-top:5px'>
+	      {% if '.png' in file.path %}
+	        <div style='padding-top:5px'>File name: {{file.path}}</div>
+	        <a class="fancybox" rel="group" href="{{record.label}}/image?path={{file.path}}&digest={{file.digest}}"><img src="{{record.label}}/image?path={{file.path}}&digest={{file.digest}}" class="img-polaroid"></a>
+	      {% else %}
+	        <div style='padding-top:5px'>
+	          File name: <a class="fancybox" rel="group" href="{{record.label}}/download?path={{file.path}}&digest={{file.digest}}">{{file.path}}</a>
+	        </div>
+	      {% endif %}
+              <div style='padding-top:5px'>Digest: {{file.digest}}</div>
+	    </div>
+          {% endfor %} 
+	</li>
+	<li class='rcomp depend'>
+	  {% if record.dependencies.all %}
+	    <table class='table-recDetail'>
+              <tr><th>Name</th><th>Path</th><th>Version</th></tr>
+              {% for dep in record.dependencies.all %}
+                <tr class="{% cycle 'odd' 'even' %}"><td>{{dep.name}}</td><td>{{dep.path}}</td><td>{{dep.version}}{% if dep.diff %}* (<a href="diff/{{dep.name}}">diff</a>){% endif %}</td></tr>{% endfor %}
+            </table>
+          {% else %}
+            no dependencies
+          {% endif %}
+	</li>
+	<li class='rcomp platf'>
+	  {% for platform in record.platforms.all %}
+	    <ol>
+	      <li><span class='platf-t'>Name:</span> {{platform.network_name}}</li>
+	      <li><span class='platf-t'>IP address:</span> {{platform.ip_addr}}</li>
+	      <li><span class='platf-t'>Processor:</span> {{platform.processor}} {{platform.machine}}</li>
+	      <li><span class='platf-t'>Architecture:</span> {{platform.architecture_bits}}</li>
+	      <li><span class='platf-t'>System type:</span> {{platform.system_name}}</li>
+	      <li><span class='platf-t'>Release:</span> {{platform.release}}</li>
+	      <li><span class='platf-t'>Version:</span> {{platform.version}}</li>
+	    </ol>
+	  {% endfor %}
+	</li>
+	<li class='rcomp stdout'>
+	  {% if record.stdout_stderr %}
+            <div>
+              <pre>
+                {{ record.stdout_stderr }}
+              </pre>
+            </div>
+          {% else %}
+            no outputs
+          {% endif %}
+	</li>
+      </ol>
+    </div>	
+  {% endfor %}
+  <script type = 'text/javascript'>
+   $(document).ready(function(){
+     $(".fancybox").click(function(e){ // clicking on the image: it will be opened in a new window
+       e.stopPropagation();
+     });
+     $('#head-comp').empty().append("<div id='head_c' class='nonselect head-table'>\
 				              <div id = 'left-r' style='position:absolute;'></div>\
 				              <div id = 'right-r' style='position:absolute;'></div>\
 				            </div>");
-	$('.rcomp').each(function(){
-		var min_h = 14;
-		var iclass = $(this).attr('class').split(' ')[1]; // not the best way
-		$('.rcomp.' + iclass).each(function(){
-			var h = $(this).height()
-			if (h > min_h) min_h = h; 
-		});
-		$('.rcomp.' + iclass).css('min-height',min_h);
-	});
-	$('#left-r').html('{{records.0}}').css('padding-left','200px');
-	$('#right-r').html('{{records.1}}').css('padding-left', 200 + $('#column-c').width());
-});
-</script>
+     $('.rcomp').each(function(){
+       var min_h = 14;
+       var iclass = $(this).attr('class').split(' ')[1]; // not the best way
+       $('.rcomp.' + iclass).each(function(){
+	 var h = $(this).height()
+	 if (h > min_h) min_h = h; 
+       });
+       $('.rcomp.' + iclass).css('min-height',min_h);
+     });
+     $('#left-r').html('{{records.0}}').css('padding-left','200px');
+     $('#right-r').html('{{records.1}}').css('padding-left', 200 + $('#column-c').width());
+   });
+  </script>
 {% endif %}
 
 
-   
+
