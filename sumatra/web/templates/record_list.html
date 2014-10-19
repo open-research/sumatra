@@ -55,14 +55,35 @@
 
 
 <script>
+
   $(document).ready( function () {
   
   /* comparison window modal init and subsequent hide */
   $('#compareSim').modal().modal('hide');  
 
+
+  /* compare selected records */
   $(function () {
-    $("#cc_show").on('click', function() {
-        $('#compareSim').modal('show');
+    $("#cc_compare").on('click', function() {
+
+      /* collect IDs (=record label) of selected rows */
+      var selected_labels = [];
+      $('.selected').each(function(){
+        selected_labels.push($(this).attr('id'))
+      })
+
+      $.ajax({
+        url:"ajax/compare_selected_records",
+        type: "GET",
+        data: {selection: selected_labels},
+        success:function(response){
+          $('#compareSim').html(response);},
+        complete:function(){},
+        error:function (xhr, textStatus, thrownError){}
+      }); 
+
+      $('#compareSim').modal('show'); 
+
     });
   });
 
@@ -279,9 +300,7 @@
 
 
 <button type="button" class="btn btn-default" data-dismiss="modal"
-        id='cc_show'>Show</button>
-<button type="button" class="btn btn-default" data-dismiss="modal"
-        id='cc_log'>Log Selected</button>
+        id='cc_compare'>Compare Records</button>
 
 
 <table class='hover row-border' id='record_dt'>
@@ -309,7 +328,7 @@
 
     {% for record in sim_list %}
 
-    <tr>         
+    <tr id='{{record.label}}'>         
       <td class='dataTable_td' id='repository-t'>
         <span class="span-box">
           {{record.repository.url|cut:"repo"}}

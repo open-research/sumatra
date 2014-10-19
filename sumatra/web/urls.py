@@ -33,6 +33,7 @@ urlpatterns = patterns('sumatra.web.views',
                        (r'^%(project)s/settings$' % P, 'settings'),
                        (r'^%(project)s/search$' % P, 'search'),
                        (r'^%(project)s/settags$' % P, 'set_tags'),
+                       (r'^%(project)s/ajax/compare_selected_records$' % P, 'compare_selected_records'),
                        )
 
 urlpatterns += patterns('',

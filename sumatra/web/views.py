@@ -32,6 +32,8 @@ DEFAULT_MAX_DISPLAY_LENGTH = 10 * 1024
 mimetypes.init()
 
 
+
+
 def list_records(request, project):
     # if request.is_ajax():  # only when paginating
     #     ajaxTempOb = AjaxTemplate(project, request.POST)
@@ -47,6 +49,17 @@ def list_records(request, project):
     defTempOb.init_object_list()  # object_list is used in record_list.html
     return render_to_response('record_list.html', defTempOb.getDict())
 
+
+
+def compare_selected_records(request, project):
+    '''
+    render record comparison modal for the selected records
+    '''
+    selected_labels = request.GET.getlist('selection[]')
+    records = Record.objects.filter(project__id=project,
+                                    label__in=selected_labels)
+
+    return render_to_response('comparison_window.html', {'records': records})
 
 
 def list_data(request, project):
