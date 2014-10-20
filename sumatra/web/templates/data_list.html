@@ -206,8 +206,7 @@
         {% for record in data.input_to_records.all %}
         <a href="/{{project_name}}/{{record.label}}/">
           {{record.label|ubreak}}<!--
-           -->{% if not forloop.last %}, {% endif %}
-        </a>
+        --></a>{% if not forloop.last %}, {% endif %}
         {% endfor %}
       </td>      
     </tr>

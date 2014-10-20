@@ -362,16 +362,14 @@
         {% for data in record.input_data.all %}
           <a href="/{{project_name}}/data/datafile?path={{data.path|urlencode}}&digest={{data.digest}}">
             {{data.path|basename|ubreak}}<!--
-              -->{% if not forloop.last %}, {% endif %}
-          <a/>
+           --></a>{% if not forloop.last %}, {% endif %}
         {% endfor %}
       </td>
       <td class='dataTable_td' id='output-t'>
         {% for data in record.output_data.all %}
           <a href="/{{project_name}}/data/datafile?path={{data.path|urlencode}}&digest={{data.digest}}">
             {{data.path|basename|ubreak}}<!--
-              -->{% if not forloop.last %}, {% endif %}
-            </a>
+          --></a>{% if not forloop.last %}, {% endif %}
         {% endfor %}
       </td>
       <td class='dataTable_td' id='duration-t'
