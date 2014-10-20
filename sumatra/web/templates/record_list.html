@@ -87,14 +87,6 @@
     });
   });
 
-  $(function () {
-    $("#cc_log").on('click', function() {
-        console.log('selected:');
-        console.log(record_list.cells('.selected', 1).data());
-    });
-  });
-
-
 
   var hd_cl = {{settings.record_hidden_cols|as_json|safe}};
   var record_list = $('#record_dt').DataTable({
@@ -173,34 +165,34 @@
     } );
 
 
-        // Save changes button   
-        $('#save_set').click(function(){  
-            record_list.page.len($('#s_nbt').val());
-            record_list.draw();
-        });
+    /* Save changes button */   
+    $('#save_set').click(function(){  
+      record_list.page.len($('#s_nbt').val());
+      record_list.draw();
+    });
 
-        // close settings button
-        $('#close_settings').click(function(){  
-            $('#settings_panel').toggle()
-            $('#settings_panel2').toggle()
-        });
+    /* close settings button */
+    $('#close_settings').click(function(){  
+      $('#settings_panel').toggle()
+      $('#settings_panel2').toggle()
+    });
 
 
-        <!-- Arrow key page turning -->
-        document.onkeydown = checkKey;
-        function checkKey(e) {
+    /* Arrow key page turning */
+    document.onkeydown = checkKey;
+    function checkKey(e) {
 
-            e = e || window.event;
+      e = e || window.event;
 
-            if (e.keyCode == '37') {
-                record_list.page('previous').draw(false);
-            }
-            else if (e.keyCode == '39') {
-                record_list.page('next').draw(false);
-            }
-        }
+      if (e.keyCode == '37') {
+        record_list.page('previous').draw(false);
+      }
+      else if (e.keyCode == '39') {
+        record_list.page('next').draw(false);
+      }
+    }
 
-    } );
+  } );
 
 </script>
 
