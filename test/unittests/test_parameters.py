@@ -8,6 +8,7 @@ try:
 except ImportError:
     import unittest
 import os
+import textwrap
 from copy import deepcopy
 try:
     import json
@@ -103,10 +104,18 @@ class TestSimpleParameterSet(unittest.TestCase):
         self.assertEqual(P["y"], 3)
 
     def test__init__should_ignore_comment_lines(self):
-        init = "#some parameters\nx = 2\n# this is a comment at column 0\n  # this is an indented comment\n  y = 3"
+        init = textwrap.dedent("""\
+            #some parameters
+            x = 2
+            # this is a comment at column 0
+              # this is an indented comment
+              y = 3
+            # this is a comment line containing an 'equals' sign: n=42
+            """)
         P = SimpleParameterSet(init)
         self.assertEqual(P["x"], 2)
         self.assertEqual(P["y"], 3)
+        self.assertEqual(set(P.as_dict().keys()), set(["x", "y"]))
 
     def test__init__should_raise_syntaxerror_if_line_doesnt_contain_param_or_comment(self):
         init = "# some data\n1.0 2.0 3.0\n4.0 5.0 6.0"

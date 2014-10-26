@@ -167,7 +167,10 @@ class SimpleParameterSet(ParameterSet):
                 content = initialiser.split("\n")
             for line in content:
                 line = line.strip()
-                if "=" in line:
+                if line == "" or line[0] == "#":
+                    # Ignore empty and comment lines
+                    continue
+                elif "=" in line:
                     parts = line.split("=")
                     name = parts[0].strip()
                     value = "=".join(parts[1:])
@@ -181,11 +184,8 @@ class SimpleParameterSet(ParameterSet):
                         comment = "#".join(value.split("#")[1:])  # this fails if the value is a string containing '#'
                         self.comments[name] = comment
                     self.types[name] = type(self.values[name])
-                elif line:
-                    if line.strip()[0] == "#":
-                        pass
-                    else:
-                        raise SyntaxError("File is not a valid simple parameter file. This line caused the error: %s" % line)
+                else:
+                    raise SyntaxError("File is not a valid simple parameter file. This line caused the error: %s" % line)
         else:
             raise TypeError("Parameter set initialiser must be a filename, string or dict.")
 
