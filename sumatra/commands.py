@@ -18,8 +18,7 @@ import logging
 import sumatra
 
 from sumatra.programs import get_executable
-from sumatra.datastore import (FileSystemDataStore, ArchivingFileSystemDataStore, MirroredFileSystemDataStore,
-                               DavFsDataStore)
+from sumatra.datastore import get_data_store
 from sumatra.projects import Project, load_project
 from sumatra.launch import get_launch_mode
 from sumatra.parameters import build_parameters
@@ -180,18 +179,18 @@ def init(argv):
 
     if args.webdav:
         # should we care about archive migration??
-        output_datastore = DavFsDataStore(args.datapath, args.webdav)
+        output_datastore = get_data_store("DavFsDataStore", {"root": args.datapath, "dav_url": args.webdav})
         args.archive = '.smt/archive'
     elif args.archive and args.archive.lower() != 'false':
         if args.archive.lower() == "true":
             args.archive = ".smt/archive"
         args.archive = os.path.abspath(args.archive)
-        output_datastore = ArchivingFileSystemDataStore(args.datapath, args.archive)
+        output_datastore = get_data_store("ArchivingFileSystemDataStore", {"root": args.datapath, "archive": args.archive})
     elif args.mirror:
-        output_datastore = MirroredFileSystemDataStore(args.datapath, args.mirror)
+        output_datastore = get_data_store("MirroredFileSystemDataStore", {"root": args.datapath, "mirror_base_url": args.mirror})
     else:
-        output_datastore = FileSystemDataStore(args.datapath)
-    input_datastore = FileSystemDataStore(args.input)
+        output_datastore = get_data_store("FileSystemDataStore", {"root": args.datapath})
+    input_datastore = get_data_store("FileSystemDataStore", {"root": args.input})
 
     if args.launch_mode_options:
         args.launch_mode_options = args.launch_mode_options.strip()
@@ -250,15 +249,15 @@ def configure(argv):
             args.archive = ".smt/archive"
         if hasattr(project.data_store, 'archive_store'):  # current data store is archiving
             if args.archive.lower() == 'false':
-                project.data_store = FileSystemDataStore(project.data_store.root)
+                project.data_store = get_data_store("FileSystemDataStore", {"root": project.data_store.root})
             else:
                 project.data_store.archive_store = args.archive
         else:  # current data store is not archiving
             if args.archive.lower() != 'false':
-                project.data_store = ArchivingFileSystemDataStore(args.datapath, args.archive)
+                project.data_store = get_data_store("ArchivingFileSystemDataStore", {"root": args.datapath, "archive": args.archive})
     if args.webdav:
         # should we care about archive migration??
-        project.data_store = DavFsDataStore(args.datapath, args.webdav)
+        project.data_store = get_data_store("DavFsDataStore", {"root": args.datapath, "dav_url": args.webdav})
         project.data_store.archive_store = '.smt/archive'
     if args.datapath:
         project.data_store.root = args.datapath

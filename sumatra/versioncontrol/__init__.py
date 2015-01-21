@@ -79,6 +79,8 @@ def get_working_copy(path=None):
     """
     if len(registry.components[WorkingCopy]) == 0:
         raise VersionControlError(NOT_FOUND)
+    if path is None:
+        path = os.getcwd()
     for working_copy_type in registry.components[WorkingCopy].values():
         wc = working_copy_type(os.path.realpath(path))
         if wc.exists:

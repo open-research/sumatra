@@ -170,14 +170,13 @@ def store_original(module, name):
 def setup():
     store_original(os, "mkdir")
     os.mkdir = mock_mkdir
-    for name in ("build_parameters", "get_executable", "get_repository", "get_working_copy", "FileSystemDataStore", "get_record_store"):
+    for name in ("build_parameters", "get_executable", "get_repository", "get_working_copy", "get_record_store"):
         store_original(commands, name)
     commands.build_parameters = mock_build_parameters
     commands.get_executable = mock_get_executable
     commands.get_repository = MockRepository
     commands.get_working_copy = MockWorkingCopy
     commands.get_record_store = MockRecordStore
-    commands.FileSystemDataStore = MockDataStore
 
 
 def teardown():

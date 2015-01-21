@@ -19,9 +19,9 @@ from utils import (setup, teardown, run_test, build_command, assert_file_exists,
                    assert_config, assert_label_equal, assert_records, edit_parameters,
                    expected_short_list, substitute_labels)
 
-#repository = "https://bitbucket.org/apdavison/ircr2013"
+repository = "https://bitbucket.org/apdavison/ircr2013"
 #repository = "/Volumes/USERS/andrew/dev/ircr2013"  # during development
-repository = "/Users/andrew/dev/ircr2013"
+#repository = "/Users/andrew/dev/ircr2013"
 
 
 def modify_script(filename):

@@ -43,7 +43,8 @@ Repository       : (?P<vcs>\w+)Repository at .*
 Main_File        : (?P<main>\w+.\w.)
 Version          : (?P<version>\w+)
 Script_Arguments : *(?P<script_args>.*)
-Executable       : (?P<executable_name>\w+) \(version: (?P<executable_version>[\w\.]+)\) at (?P<executable_path>.*)
+Executable       : (?P<executable_name>\w+) \(version: (?P<executable_version>[\w\.]+)\) at
+                 : (?P<executable_path>.*)
 Parameters       : *(?P<parameters>.*)
 """)  # TO COMPLETE
 
