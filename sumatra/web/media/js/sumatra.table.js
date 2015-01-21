@@ -38,6 +38,7 @@ function showjGrowl(){
     }
 };
 
+
 $(function() {
     //this for preventing the deselection of records in the table (see record_list.html: (window).click())
     // #d-delete, #d-tags, #d-comp: the buttons  

@@ -1,9 +1,9 @@
-{% extends "show_file_base.html" %}
+{% extends "data_detail_base.html" %}
+
 
 {% block content %}
 
 {{ block.super }}
-
 
   <div class="accordion">
     <h2 class="nav-toggle">Content</h2>
@@ -12,27 +12,21 @@
       {{form.errors}}
       <fieldset class = 'field-acc'>
         <fieldset class = 'field-acc'>
-          <!--<div class="control-group">
-            <table class="csvfile">
-              {% for row in reader %}
-              <tr>
-                {% if forloop.first %}
-                {% for col in row %}<th>{{col}}</th>{% endfor %}
-                {% else %}
-                {% for col in row %}<td>{{col}}</td>{% endfor %}
-                {% endif %}
-              </tr>
-              {% endfor %}
-            </table>
-
+         <!-- <div class="control-group">
+            <div class="plaintext">
+              <pre>
+                {{content|escape}}
+              </pre>
+            </div>
 
             {% if truncated %}
             <p>File contents truncated. <a href="datafile?path={{path|urlencode}}&digest={{digest}}&truncate=false" class="btn">Show entire contents</a></p>
             {% endif %}
 
-            <p><a href="download?path={{path|urlencode}}&digest={{digest}}" class="btn">Download content</a></p>
-
             {{errmsg}}
+            {% if not errmsg %}
+            <p><a href="download?path={{path|urlencode}}&digest={{digest}}" class="btn">Download content</a></p>
+            {% endif %}
 
           </div>-->
         </fieldset>

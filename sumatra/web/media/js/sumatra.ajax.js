@@ -42,7 +42,7 @@ $(function() {
     // clicking on the arguments link
     $('.href_lab').on('click', function(e){
         e.stopPropagation();
-        $(this).attr('href', window.location.pathname + $(this).html() + '/');
+        $(this).attr('href', (window.location.pathname + $(this).html() + '/').replace(/ /g, ''));
     });
 
     // clicking on the tag name
@@ -80,6 +80,8 @@ $(function() {
         $(this).children().css('opacity','0.5');
     });  
 
+
+
     // using jquery-ui for the rows of the table
     $('#ol-content').selectable({
             filter: 'li:not("div")',  //select only li and not the children divs
@@ -92,6 +94,19 @@ $(function() {
                 $('#d-nbrec').html(nbSelected + ' records');
             }
     });
+
+
+    // using jquery-ui for the rows of the record_table
+    $('#record_table').selectable({
+        filter:'tr',
+        // not stop function yet...
+        stop: function() {
+            console.log('message from selectable');
+        }
+    });
+
+
+
 
     // add little arrows which are used for indicating the order of sorting
     $('label.head-item').append("<span class='s-arrow'><span id='up' class='arr-s'>&#x25B2;</span><span id='down' class='arr-s'>&#x25BC;</span></span>");

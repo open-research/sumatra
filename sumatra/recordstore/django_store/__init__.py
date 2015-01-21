@@ -208,7 +208,9 @@ class DjangoRecordStore(RecordStore):
             db_record.input_data.add(*db_keys)
         for i in xrange(0, len(record.output_data), chunk_size):
             db_keys = (self._get_db_obj('DataKey', key) for key in record.output_data[i:i + chunk_size])
-            db_record.output_data.add(*db_keys)
+            for key in db_keys:
+                key.output_from_record = db_record
+                key.save()
         if record.dependencies:
             for dep in record.dependencies:
                 # print "Adding dependency %s to db_record" % dep
