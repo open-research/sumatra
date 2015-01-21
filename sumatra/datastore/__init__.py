@@ -30,6 +30,7 @@ from .base import DataStore, DataKey, IGNORE_DIGEST
 from .filesystem import FileSystemDataStore
 from .archivingfs import ArchivingFileSystemDataStore
 from .mirroredfs import MirroredFileSystemDataStore
+from .davfs import DavFsDataStore
 from ..core import registry
 
 
