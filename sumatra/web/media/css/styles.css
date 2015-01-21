@@ -52,8 +52,8 @@ a.active{
 }
 
 #name_page{
-    width: 300px;
-    float: left;
+    width: 300px; 
+   float: left;
 }
 
 #div_listOfprojects {
@@ -71,6 +71,10 @@ a.active{
     height: 400px;
 }
 #tab_general_content{
+    float: left;
+    margin-left: 0;
+}
+#settings_panel{
     float: left;
     margin-left: 0;
 }
@@ -1325,7 +1329,8 @@ span.label{
 }
 
 .span-box{
-  margin-left: 0px;
+  /* don't set margin for centering in td */
+  /* margin-left: 0px; */
   background-color: rgb(102, 157, 199);
   color: #ffffff;
   padding: 2px 4px 3px;
@@ -1380,3 +1385,75 @@ div.progress{
   padding:0px;
 }
 
+
+
+
+
+
+
+
+.record_table{
+
+    /*border-color: #EDF1F5;
+    border-style: solid;
+    border-width: 1px 0;*/
+
+    /* for debugging: */
+    border: 1px solid black;
+    border-collapse: collapse;    
+
+    width: 93%;
+    margin-left: 2%;
+    margin-right: 5%;
+    font-size: 11px;
+}
+
+.record_tr{
+    /* for debugging: */
+    border: 1px solid black;
+    border-collapse: collapse; 
+
+    padding: 15px;
+}
+
+.record_td{
+    /*border-bottom: 1px solid #EDF1F5;
+    border-collapse: collapse;*/
+
+    /* for debugging: */
+    border: 1px solid black;
+    border-collapse: collapse; 
+
+    text-algin: center;
+    padding: 15px;
+}
+
+
+
+.record_table.compact{
+  line-height:14px;
+}
+
+.record_table.comfortable{
+  line-height: 32px;
+  font-size: 12px;
+} 
+
+
+#record_table .ui-selecting{
+    background: #96C4EA;
+}
+
+#record_table .ui-selected{
+    background: #96C4EA;
+    color: white;
+}
+
+
+
+
+
+.dataTable_td{
+    text-align: center;
+    /*word-break: break-all; /* Table wrapping alternative if <wbr> at underscore turns out not feasible */
+}

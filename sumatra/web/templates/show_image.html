@@ -5,8 +5,25 @@
 
 {{ block.super }}
 
-<img src="image?path={{path|urlencode}}&digest={{digest}}&type={{type}}" alt="/{{label}}:{{path}}"/>
 
-<p><a href="download?path={{path|urlencode}}&digest={{digest}}" class="btn">Download image</a></p>
+
+  <div class="accordion">
+    <h2 class="nav-toggle">Content</h2>
+    <form action='{{ request.path }}' method='POST' 
+          id="actions" name="actions">
+      {{form.errors}}
+      <fieldset class = 'field-acc'>
+        <fieldset class = 'field-acc'>
+          <!--<div class="control-group">
+            <img src="image?path={{path|urlencode}}&digest={{digest}}&type={{type}}" alt="/{{label}}:{{path}}"/>
+
+            <p><a href="download?path={{path|urlencode}}&digest={{digest}}" class="btn">Download image</a></p>
+
+          </div>-->
+        </fieldset>
+    </form>
+  </div>
+
+
 
 {% endblock %}

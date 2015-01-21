@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+
+{% load filters %}
+
+{% block title %}{{project_name}}: List of records{% endblock %}
+
+{% block header %}
+            <li class="divider"></li>
+            <li><a href="/{{project_name}}/">{{project_name}}</a></li>
+            <li class='dropdown'><a href='' class='dropdown-toggle' data-toggle='dropdown' id = 'tags-b'><i class="icon-tags"></i><b class='caret'></b></a>
+                    <ul class='dropdown-menu' id = 'dropdown_tags'>
+                            {% include "tag_list.html" %}
+                    </ul>
+            </li>  
+                <div id = 'div_menu_search'>
+                    <input class='span5' type='text' id="search_subnav" placeholder='Search' value='{{search_info.label}}'/>
+                    <span id='icon_cdown'><i class="icon-chevron-down" style='font-size:10pt; padding-top:3px;'></i></span>     
+                    <a class='btn btn-info btn-large' id='btn-search_header'><i class="icon-search">
+                    </i>&nbsp; Search
+                    </a>         
+                       <ul class="dropdown-menu" id = 'menu_search'>      
+                            <a class="close" id='close_menu'>&times;</a> 
+                            <form id='search_form' action='/{{project_name}}/search' method='GET'>
+                                {{form.as_p}}
+                                <p><label>Date within:</label><p>
+                                <div id='idatewith'><span id='sdate'>1 day</span>
+                                    <span id='span_icon'>
+                                        <i class="icon-chevron-up" style='margin-top:0px'></i>  
+                                        <i class="icon-chevron-down" style='margin-top:15px'></i>
+                                    </span>  
+                                </div>
+                                <div>
+                                    <ul class="dropdown-menu" id = 'menu_datewith'>
+                                        <li><a href='' >1 day</a></li>
+                                        <li><a href='' >3 days</a></li>
+                                        <li><a href='' >1 week</a></li>
+                                        <li><a href='' >2 weeks</a></li>
+                                        <li><a href='' >1 month</a></li>
+                                        <li><a href='' >2 months</a></li>
+                                        <li><a href='' >6 months</a></li>
+                                        <li><a href='' >1 year</a></li>
+                                    </ul>
+                                </div>
+                                <label id='t_id'>of</label>
+                                <input id="id_datewithin" type="text">
+                            </form>
+                            <div>
+                                <a id='btn-search_form' class='btn btn-info btn-large'><i class="icon-search">
+                                    </i>&nbsp; Search
+                                </a> 
+                            </div>
+                        </ul>
+                </div>         
+            </ul>  
+            <ul class='nav pull-right' style='margin-right:5px'>
+                <li class='divider-vertical'></li>   
+                <li class='dropdown'><a id='li_settings' class='dropdown-toggle' data-toggle='dropdown' href=''>
+                <i class="icon-cog" style='margin-top:8px'></i> Settings<b class='caret'></b></a>
+                    <ul class='dropdown-menu' id = 'dropdown_menu'>
+                        <li><a href="#" id='settings_density'>Display density:</a></li> 
+                        <li><a href="#" class='menu-rsettings {% if "comfortable" in settings.display_density %}active{% endif %}' id='comfortable'>Comfortable</a></li>
+                        <li><a href="#" class='menu-rsettings {% if "compact" in settings.display_density %}active{% endif %}' id='compact'>Compact</a></li>
+                        <li class="divider"></li>
+                        <li><a id='button_settings' class='menu-rsettings' data-toggle="modal" href="#setModal">Settings</a></li>
+                    </ul>
+                </li>                    
+                <li class='divider-vertical'></li>   
+{% endblock %}
+
+{% block content %}  
+{% if sim_list %}   
+<div id ='innerContent'>
+    {% include "content.html" %} <!-- html + js files. The content of the table which is reloaded after each post/get request-->
+</div> 
+    {% include "set_tag.html" %}           <!-- 'set tags for selected records' window -->
+    {% include "settings_window.html" %}   <!-- 'settings' popup window -->
+    {% include "new_record.html" %}        <!-- 'new record' popup window -->
+    {% include "delete_record.html" %}     <!-- 'delete selected records' popup window -->
+    {% include "comparison_window.html" %} <!-- 'compare selected records' popup window -->
+<script type = 'text/javascript'>
+$(document).ready(function(){ 
+    // initialization of all modal popup-windows (settings, new record, set tags, compare records) and hide them
+    $('.modal').modal().modal('hide');
+
+    $('#tags-b').tooltip({
+        title: 'Tags',
+        placement: 'bottom',
+        trigger: 'hover'
+    });
+
+    // search input textarea
+    $('#search_subnav').val('');
+
+    // click on the button 'tags' on the header
+    $('#tags-b').click(function(){
+        $.ajax({
+            type: 'GET',
+            url: '/{{project_name}}/tag/',
+            success:function(data){
+                $('#dropdown_tags').html(data); // refresh the drop-down with the list of tags
+            }
+        });
+    });
+
+    $('.menu-tags').live('click', function(){ // using live() because it was inserted dynamycally using django
+        var $tags = $(this).html();
+        $('#search_subnav').val('tags: ' + $tags);
+        obj = {};
+        obj['tags'] = $tags;
+        $.ajax({
+            type: 'POST',
+            url: '/{{project_name}}/tag/',
+            data: {search_input: obj},
+            success:function(data){
+                $('#main_content').html(data); // refresh the drop-down with the list of tags
+            }
+        });
+    });
+
+    //deselection of the records when clicking some place on the page
+    //all the records will be deselected except when the modal pop up window is clicked
+    $(window).click(function(e){               // each time user clicks the window
+        if (e.target.type !== 'checkbox'){ // delete_record.html: has a checkbox and we don't want to deselect all records when clicking this checkbox
+                $('.record').removeClass('ui-selected'); // removing all selected records
+                $('#selection_header').css('display', 'none'); // remove the header of the table when there are some selected records
+                $('#default_header').css('display', 'inline'); // append the default header of the table
+        };       
+    });
+
+    // hide the scroll when modal popup is open
+    $('.modal').on('hide', function(){
+        $('body').css('overflow', 'auto');
+    }).on('show', function(){
+        $('body').css('overflow', 'hidden');
+    });
+});
+</script>
+{% else %}
+<div style='text-align: center;'>
+    <div style='font-size:40px; padding:50px 15px;'>You don't have any records yet</div>
+    {% include "new_record.html" %}
+    <a id='btn_newrec' class='btn btn-danger btn-large' style='font-size:30px; width:30%; margin-top:70px'>
+        <i class="icon-file"></i> New record
+    </a>
+</div> 
+<script type = 'text/javascript'>
+
+$(document).ready(function(){ 
+    $('#btn_run').click(function(){
+        $('div.progress').animateBar('start');
+        var $mainFile = $('#select-main').next().find('span').html();
+        var $argsFile = $('#select-arg').next().find('span').html();
+        $.ajax({
+            type: 'POST',
+            url: '/{{project_name}}/simulation',
+            async: true,
+            data:  {'label':$('#mLabel').val(),
+                     'reason':$('#mReason').val(),
+                     'tag':$('#mTag').val(),
+                     'execut':$('#mExec').val(),
+                     'main_file':$mainFile,
+                     'args':$argsFile},
+            success: function(){
+                success = true;
+                $.jGrowl('Success',{
+                  theme:  'success',
+                  position:  'bottom-left'});
+                  window.open(document.URL, '_self');
+            }
+        });
+    });
+});
+</script>
+{% endif %}
+{% endblock %}

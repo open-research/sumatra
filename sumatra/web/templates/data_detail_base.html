@@ -1,0 +1,515 @@
+{% extends "base.html" %}
+
+{% load filters %}
+
+{% block title %}{{project_name}}:  {{data_key.path}}{% endblock %}
+
+{% block header %}
+            <li class="divider"></li>
+            <li><a href="/{{project_name}}/">{{project_name}}</a></li>
+            <li><a href="/{{project_name}}/{{path}}/">
+                {{path}}</a></li> <!--?? What are the urls? -->
+{% endblock %}
+
+{% block content %}
+
+<!-- DataTables CSS -->
+<link rel="stylesheet" type="text/css"
+      href="/media/css/jquery.dataTables.css">
+            
+<!-- jQuery -->
+<script type="text/javascript" charset="utf8"
+        src="/media/js/jquery.js"></script>
+            
+<!-- DataTables -->
+<script type="text/javascript" charset="utf8"
+        src="/media/js/jquery.dataTables.js"></script>
+
+
+<div class="accordion">
+  <h2 class="nav-toggle">General info</h2>
+  <form action='{{ request.path }}' method='POST' 
+        id="actions" name="actions">
+    {{form.errors}}
+    <fieldset class = 'field-acc'>
+      <fieldset class = 'field-acc'>
+        <div class="control-group">
+          <table id = 'gen_info'>
+            <tr><th>Path:</th><td>{{data_key.path}}</td></tr>
+            <tr><th>Digest:</th><td>{{data_key.digest}}</td></tr>
+            <tr><th>Type:</th><td>{{data_key.get_metadata.mimetype}}</td></tr>
+            <tr><th>Size:</th><td>{{data_key.get_metadata.size|filesizeformat}}</td></tr>
+            <tr><th>Timestamp: </th><td>{{data_key.output_from_record.timestamp|date:"d/m/Y H:i:s"}}</td></tr>
+            <tr><th>Description:</th><td>{{form.description}}</td></tr>
+          </table>
+        </div>
+      </fieldset>
+  </form>
+</div>
+
+{% if data_key.output_from_record %}
+<div class="accordion">
+  <h2 class="nav-toggle">Output of Record</h2>
+  <form action='{{ request.path }}' method='POST' 
+        id="actions" name="actions">
+    {{form.errors}}
+    <fieldset class = 'field-acc'>     
+
+      <script>
+        $(document).ready( function () {
+
+        var hd_cl = {{settings.record_hidden_cols|as_json|safe}};
+        var output_record_list = $('#output_record_dt').DataTable({
+          "columnDefs": [
+            {"sortable":false,  "targets":["repository-c", "label-c",
+             "tag-c", "reason-c", "outcome-c", "main-c", "version-c",
+             "input-c", "output-c", "arguments-c"]},   
+            <!--{"visible":false, "targets": hd_cl},-->
+            {"visible":false, "targets": ["arguments-c", "processes-c",
+              "repository-c", "outcome-c"]}
+          ],
+          <!--"dom": 'lfrC<"clear">tip',     <!-- Order: 'l'ength, 'f'ilter,  p'r'ocessing, 'C'olumns, 't'able, 'i'nformation, 'p'agination -->
+          "paging": false,
+          "ordering": true,
+          "info": false, <!-- "Showing x of y entries" -->
+          "filter": false, 
+          "lengthChange": false,
+          "order": [[$('th.time-c').index(), "desc"]], <!-- default sort column -->
+          } );
+          } );
+      </script>
+
+
+      <br/>
+
+
+      <div style="margin-left:2%; margin-right:6%">
+        <table class='hover row-border' id='output_record_dt'>
+
+          <thead>
+            <tr>
+              <th class='repository-c'>Repository</th>
+              <th class='label-c'>Label</th>
+              <th class='tag-c'>Tag</th>
+              <th class='reason-c'>Reason</th>
+              <th class='outcome-c'>Outcome</th>
+              <th class='input-c'>Input&nbsp;data</th>
+              <th class='output-c'>Output&nbsp;data</th>
+              <th class='duration-c'>Duration</th>
+              <th class='processes-c'>Processes</th>
+              <th class='time-c'>Date/Time</th>
+              <th class='exec-c'>Exec.</th>
+              <th class='main-c'>Main</th>
+              <th class='version-c'>Version</th>
+              <th class='arguments-c'>Arguments</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr>         
+              <td class='dataTable_td' id='repository-t'>
+                <span class="span-box">
+                  {{data_key.output_from_record.repository.url|cut:"repo"}}
+                </span>
+              </td>
+              <td class='dataTable_td' id='label-t'>
+                <a href="/{{project_name}}/{{data_key.output_from_record.label}}/">
+                  {{data_key.output_from_record.label|ubreak}}
+                </a> 
+                
+              </td> 
+              {% if tag %}
+              <td class='dataTable_td' id='tag-t'>
+                {% for other_tag in data_key.output_from_record.tag_objects %}
+                {% if tag == other_tag %}
+                {{tag}} 
+                {% else %}
+                <!--<a href="#">
+                    {{other_tag.name}}
+                    </a>--> <!-- Fix Link!! -->
+                {% endif %}
+                {% endfor %}
+              </td>
+              {% else %}
+              <td class='dataTable_td' id='tag-t'>
+                {% for tag in data_key.output_from_record.tag_objects %}
+                <!--<a href="#">-->{{tag}}<!---</a>-->, <!-- Fix Link!! -->
+                {% endfor %}
+              </td> 
+              {% endif %}
+
+              <td class='dataTable_td' id='reason-t'>
+                {{data_key.output_from_record.reason}}
+              </td>
+              <td class='dataTable_td' id='outcome-t'>
+                {{data_key.output_from_record.outcome}}
+              </td>
+              <td class='dataTable_td' id='input-t'>
+                {% for data in data_key.output_from_record.input_data.all %}
+                <a href="/{{project_name}}/data/datafile?path={{data.path|urlencode}}&digest={{data.digest}}">
+                  {{data.path|basename|ubreak}}<!--
+                                                 -->{% if not forloop.last %}, {% endif %}
+                  <a/>
+                  {% endfor %}
+              </td>
+              <td class='dataTable_td' id='output-t'>
+                {% for data in data_key.output_from_record.output_data.all %}
+                <a href="/{{project_name}}/data/datafile?path={{data.path|urlencode}}&digest={{data.digest}}">
+                  {{data.path|basename|ubreak}}<!--
+                                                 -->{% if not forloop.last %}, {% endif %}
+                </a>
+                {% endfor %}
+              </td>
+              <td class='dataTable_td' id='duration-t'
+                  data-sort='{{data_key.output_from_record.duration}}'>
+                {{data_key.output_from_record.duration|human_readable_duration}}
+              </td>
+              <td class='dataTable_td' id='processes-t'>
+                {{data_key.output_from_record.launch_mode.get_parameters.n|default:"1"}}
+              </td>
+              <td class='dataTable_td' id='time-t'>
+                <span style='display:none;'>
+                  <!-- hack for correct sorting -->
+                  {{data_key.output_from_record.timestamp|date:"YmdHis"}}
+                </span>
+                {{data_key.output_from_record.timestamp|date:"d/m/Y H:i:s"}}
+              </td>
+              <td class='dataTable_td' id='ename-t'>
+                {{data_key.output_from_record.executable.name}} {{data_key.output_from_record.executable.version}}
+              </td>
+              <td class='dataTable_td' id='main-t'>
+                <!--<a class='id-script'  data-toggle="modal" href="#">-->
+                {{data_key.output_from_record.main_file|ubreak}}
+                <!--</a>--> <!-- Fix Link!! -->
+              </td>
+              <td class='dataTable_td' id='version-t'>
+                <span class="span-box">
+                  {{data_key.output_from_record.version|cut:"vers"}}
+                </span>
+              </td>
+              <td class='dataTable_td' id='arguments-t'>
+                <a class='href_args' href='#'>
+                  {{data_key.output_from_record.script_arguments}}
+                </a> <!-- Fix Link!! -->
+              </td> 
+            </tr>
+          <tbody>
+        </table>
+      </div>
+      <br/>
+    </fieldset>
+  </form>
+</div>
+{% endif %}
+
+{% if data_key.input_to_records.all %}
+<div class="accordion">
+  <h2 class="nav-toggle">Input to Records</h2>
+  <form action='{{ request.path }}' method='POST' 
+        id="actions" name="actions">
+    {{form.errors}}
+    <fieldset class = 'field-acc'>
+
+      <script>
+        $(document).ready( function () {
+        var hd_cl = {{settings.record_hidden_cols|as_json|safe}};
+        var record_list = $('#record_dt').DataTable({
+          "columnDefs": [
+            {"sortable":false,  "targets":["repository-c", "label-c",
+             "tag-c", "reason-c", "outcome-c", "main-c", "version-c",
+             "input-c", "output-c", "arguments-c"]},   
+            <!--{"visible":false, "targets": hd_cl},-->
+            {"visible":false, "targets": ["arguments-c", "processes-c",
+              "repository-c", "outcome-c"]}
+          ],
+          <!--"dom": 'lfrC<"clear">tip',     <!-- Order: 'l'ength, 'f'ilter,  p'r'ocessing, 'C'olumns, 't'able, 'i'nformation, 'p'agination -->
+          "paging": false,
+          "ordering": true,
+          "info": false, <!-- "Showing x of y entries" -->
+          "filter": false, 
+          "lengthChange": false,
+          "order": [[$('th.time-c').index(), "desc"]], <!-- default sort column -->
+          } );
+
+
+          $('a.settings_togg').on('click', function(e) {
+            e.preventDefault();
+            $('#settings_panel').toggle()
+            $('#settings_panel2').toggle()
+          })
+
+          <!-- Column visibility toggle -->
+          $('input.check-item').on( 'change', function (e) {
+              e.preventDefault();
+
+              // Get the column API object
+              var column = record_list.column($(this).attr('data-column')
+              );
+
+              console.log($(this).attr('data-column'))
+       
+              // Toggle the visibility
+              column.visible( ! column.visible() );
+
+              <!--console.log($.get("/{{project_name}}/settings"))-->
+
+              // save settings to .smtrc
+              // $.post("/{{project_name}}/settings", {'record_hidden_cols':['murloc'],'saveSettings':true}); 
+          } );
+
+          // Save changes button   
+          $('#save_set').click(function(){  
+              record_list.page.len($('#s_nbt').val());
+              record_list.draw();
+              });
+          } );
+      </script>
+
+      <br/>
+
+
+      <div style="margin-left:2%; margin-right:6%">
+        <table class='hover row-border' id='record_dt'>
+
+          <thead>
+            <tr>
+              <th class='repository-c'>Repository</th>
+              <th class='label-c'>Label</th>
+              <th class='tag-c'>Tag</th>
+              <th class='reason-c'>Reason</th>
+              <th class='outcome-c'>Outcome</th>
+              <th class='input-c'>Input&nbsp;data</th>
+              <th class='output-c'>Output&nbsp;data</th>
+              <th class='duration-c'>Duration</th>
+              <th class='processes-c'>Processes</th>
+              <th class='time-c'>Date/Time</th>
+              <th class='exec-c'>Exec.</th>
+              <th class='main-c'>Main</th>
+              <th class='version-c'>Version</th>
+              <th class='arguments-c'>Arguments</th>
+            </tr>
+          </thead>
+
+          <tbody>
+
+            {% for record in data_key.input_to_records.all %}
+
+            <tr>         
+              <td class='dataTable_td' id='repository-t'>
+                <span class="span-box">
+                  {{record.repository.url|cut:"repo"}}
+                </span>
+              </td>
+              <td class='dataTable_td' id='label-t'>
+                <a href="/{{project_name}}/{{record.label}}/">
+                  {{record.label|ubreak}}
+                </a> 
+                
+              </td> 
+              {% if tag %}
+              <td class='dataTable_td' id='tag-t'>
+                {% for other_tag in record.tag_objects %}
+                {% if tag == other_tag %}
+                {{tag}} 
+                {% else %}
+                <!--<a href="#">
+                    {{other_tag.name}}
+                    </a>--> <!-- Fix Link!! -->
+                {% endif %}
+                {% endfor %}
+              </td>
+              {% else %}
+              <td class='dataTable_td' id='tag-t'>
+                {% for tag in record.tag_objects %}
+                <!--<a href="#">-->{{tag}}<!---</a>-->, <!-- Fix Link!! -->
+                {% endfor %}
+              </td> 
+              {% endif %}
+
+              <td class='dataTable_td' id='reason-t'>
+                {{record.reason}}
+              </td>
+              <td class='dataTable_td' id='outcome-t'>
+                {{record.outcome}}
+              </td>
+              <td class='dataTable_td' id='input-t'>
+                {% for data in record.input_data.all %}
+                <a href="/{{project_name}}/data/datafile?path={{data.path|urlencode}}&digest={{data.digest}}">
+                  {{data.path|basename|ubreak}}<!--
+                                                 -->{% if not forloop.last %}, {% endif %}
+                  <a/>
+                  {% endfor %}
+              </td>
+              <td class='dataTable_td' id='output-t'>
+                {% for data in record.output_data.all %}
+                <a href="/{{project_name}}/data/datafile?path={{data.path|urlencode}}&digest={{data.digest}}">
+                  {{data.path|basename|ubreak}}<!--
+                                                 -->{% if not forloop.last %}, {% endif %}
+                </a>
+                {% endfor %}
+              </td>
+              <td class='dataTable_td' id='duration-t'
+                  data-sort='{{record.duration}}'>
+                {{record.duration|human_readable_duration}}
+              </td>
+              <td class='dataTable_td' id='processes-t'>
+                {{record.launch_mode.get_parameters.n|default:"1"}}
+              </td>
+              <td class='dataTable_td' id='time-t'>
+                <span style='display:none;'>
+                  <!-- hack for correct sorting -->
+                  {{record.timestamp|date:"YmdHis"}}
+                </span>
+                {{record.timestamp|date:"d/m/Y H:i:s"}}
+              </td>
+              <td class='dataTable_td' id='ename-t'>
+                {{record.executable.name}} {{record.executable.version}}
+              </td>
+              <td class='dataTable_td' id='main-t'>
+                <!--<a class='id-script'  data-toggle="modal" href="#">-->
+                {{record.main_file|ubreak}}
+                <!--</a>--> <!-- Fix Link!! -->
+              </td>
+              <td class='dataTable_td' id='version-t'>
+                <span class="span-box">
+                  {{record.version|cut:"vers"}}
+                  {% if record.diff %}
+                  *
+                  {% endif %}
+                </span>
+              </td>
+              <td class='dataTable_td' id='arguments-t'>
+                <a class='href_args' href='#'>
+                  {{record.script_arguments}}
+                </a> <!-- Fix Link!! -->
+              </td> 
+            </tr>
+            {% endfor %}
+          <tbody>
+        </table>
+      </div>
+      <br/>      
+    </fieldset>
+  </form>
+</div>
+{% endif %}
+
+{% if data_key.output_from_record %}
+{% if data_key.output_from_record.output_data.all|length > 1 %}
+<div class="accordion">
+  <h2 class="nav-toggle">Associated Data (Siblings)</h2>
+  <form action='{{ request.path }}' method='POST' 
+        id="actions" name="actions">
+    {{form.errors}}
+    <fieldset class = 'field-acc'>
+      <fieldset class = 'field-acc'>
+
+        <script>
+          $(document).ready( function () {
+
+          var data_list = $('#data_dt').DataTable({
+          "columnDefs": [
+          {"sortable":false,  "targets":["filename-c", "path-c",
+          "digest-c", "output-c", "input-c"]}
+          ], 
+          "paging": false,
+          "ordering": true,
+          "info": false, <!-- "Showing x of y entries" -->
+          "filter": false, 
+          "lengthChange": false,  
+          "order": [[$('th.time-c').index(), "desc"]], <!--default sort  -->
+          } );
+
+
+          } );
+        </script>
+
+
+        <br/>
+
+        <div style="margin-left:2%; margin-right:6%">
+          <table class='hover row-border' id='data_dt'>
+
+            <thead>
+              <tr>
+                <th class='filename-c'>Filename</th>
+                <th class='path-c'>Path</th>
+                <th class='digest-c'>Digest</th>
+                <th class='size-c'>Size</th>
+                <th class='time-c'>Date/Time</th>
+                <th class='output-c'>Output of</th>
+                <th class='input-c'>Input to</th>
+              </tr>
+            </thead>
+
+            <tbody>
+
+              {% for data in data_key.output_from_record.output_data.all %}
+
+              {% ifnotequal data.path data_key.path %}
+
+              <tr>                     
+                <td class='dataTable_td' id='filename-t'>
+                  <a href="/{{project_name}}/data/datafile?path={{data.path|urlencode}}&digest={{data.digest}}">
+                    {{data.path|basename|ubreak}}
+                  </a>
+                </td>
+                <td class='dataTable_td' id='path-t'>
+                  {{data.path|ubreak}}    
+                </td>         
+                <td class='dataTable_td' id='digest-t'>
+                  {{data.digest|truncatechars:12 }}
+                </td>     
+                <td class='dataTable_td' id='size-t'
+                    data-sort="{{data|eval_metadata:'size'}}">
+                  {{data|eval_metadata:'size'|filesizeformat}}
+                </td>
+                <td class='dataTable_td' id='time-t'>
+                  <span style='display:none;'>
+                    <!-- hack for correct sorting -->
+                    {{data.output_from_record.timestamp|date:"YmdHis"}}
+                  </span>
+                  {{data.output_from_record.timestamp|date:"d/m/Y H:i:s"}}
+                </td>
+                <td class='dataTable_td' id='output_record-t'>
+                  <a href="/{{project_name}}/{{data.output_from_record.label}}/">
+                    {{data.output_from_record.label|ubreak}}
+                  </a>
+                </td>
+                <td class='dataTable_td' id='input_record-t'>
+                  {% for record in data.input_to_records.all %}
+                  <a href="/{{project_name}}/{{record.label}}/">
+                    {{record.label|ubreak}}<!--
+                                             -->{% if not forloop.last %}, {% endif %}
+                  </a>
+                  {% endfor %}
+                </td>                
+              </tr>
+              {% endifnotequal %}
+              {% endfor %}
+            <tbody>
+          </table>
+        </div>
+        <br/>
+
+      </fieldset>
+  </form>
+</div>
+{% endif %}
+{% endif %}
+
+<script type = 'text/javascript'>
+  $(document).ready(function(){
+          $('.accordion').find('h2').click(function(){
+		      $(this).next().slideToggle();
+		  }).next()//.hide();
+		  $('#accordion-js').find('#additional').next().hide();
+          $('#stdout').css('width', $('h2.topic').width());
+  });
+</script>
+
+
+{% endblock %}
+
+
+

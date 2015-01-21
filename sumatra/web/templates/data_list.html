@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+
+{% load filters %}
+
+{% block title %}{{project_name}}: List of data{% endblock %}
+
+{% block header %}
+<li class="divider"></li>
+<li><a href="/{{project_name}}/">{{project_name}}</a></li>
+<li><a href="/{{project_name}}/">
+    Switch to Record view</a></li> 
+</li> 
+<li class='divider-vertical'></li>   
+<li>
+  <a class="settings_togg">
+    <i class="icon-cog" style='margin-top:8px'></i> Settings
+  </a>
+<li class='divider-vertical'></li>  
+{% endblock %}
+
+
+{% block content %} 
+
+
+<!-- DataTables CSS -->
+<link rel="stylesheet" type="text/css"
+      href="/media/css/jquery.dataTables.css">
+
+<!-- jQuery -->
+<script type="text/javascript" chadatrset="utf8" src="/media/js/jquery.js"></script>
+
+<!-- DataTables -->
+<script type="text/javascript" charset="utf8"
+        src="/media/js/jquery.dataTables.js"></script>
+
+
+
+<script>
+  $(document).ready( function () {
+
+  var data_list = $('#data_dt').DataTable({
+    "columnDefs": [
+      {"sortable":false,  "targets":["filename-c", "path-c",
+       "digest-c", "output-c", "input-c"]}
+    ], 
+    "paging": true,
+    "ordering": true,
+    "info": true, <!-- "Showing x of y entries" -->
+    "filter": true, 
+    "lengthChange": false,  
+     "order": [[$('th.time-c').index(), "desc"]], <!--default sort  -->
+    } );
+
+
+  // Settings Panel toggle
+    $('a.settings_togg').on('click', function(e) {
+      e.preventDefault();
+      $('#settings_panel').toggle()
+      $('#settings_panel2').toggle()
+    })
+
+
+    // Column visibility toggle 
+    $('input.check-item').on( 'change', function (e) {
+        e.preventDefault();
+
+        // Get the column API object
+        var column = data_list.column($(this).attr('data-column')
+        );
+ 
+        // Toggle the visibility
+        column.visible( ! column.visible() );
+ 
+    } );
+
+    // Save changes button   
+    $('#save_set').click(function(){  
+        data_list.page.len($('#s_nbt').val());
+        data_list.draw();
+        });
+
+    // Close settings button
+    $('#close_settings').click(function(){  
+        $('#settings_panel').toggle()
+        $('#settings_panel2').toggle()
+        });
+
+  // Arrow key page turning 
+  document.onkeydown = checkKey;
+  function checkKey(e) {
+
+      e = e || window.event;
+
+      if (e.keyCode == '37') {
+          data_list.page('previous').draw(false);
+      }
+      else if (e.keyCode == '39') {
+          data_list.page('next').draw(false);
+      }
+  }
+
+    } );
+
+</script>
+
+
+
+<div id='settings_panel' style='display:none;'>
+  <br/>
+  <label class="checkbox">
+    <input type="checkbox" id='filename' class='check-item' 
+           data-column='0' checked="checked">
+    Filename
+  </label>
+  <label class="checkbox">
+    <input type="checkbox" id='path' class='check-item'
+    data-column='1'  checked="checked">
+    Path
+  </label>
+  <label class="checkbox">
+    <input type="checkbox" id='digest' class='check-item' data-column='2'
+     checked="checked">
+    Digest
+  </label>
+  <label class="checkbox">
+    <input type="checkbox" id='size' class='check-item'
+    data-column='3' checked="checked">
+    Size
+  </label>
+  <label class="checkbox">
+    <input type="checkbox" id='time' class='check-item'
+    data-column='4'  checked="checked"> 
+    Date/Time
+  </label>
+  <label class="checkbox">
+    <input type="checkbox" id='output' class='check-item'
+    data-column='5' checked="checked"> 
+    Output of record
+  </label>
+  <label class="checkbox">
+    <input type="checkbox" id='input' class='check-item'
+    data-column='6' checked="checked"> 
+    Input to records
+  </label>
+  
+
+  <div style='float:left; padding:8px; padding-left:0px'>Number of
+    records per page:</div>
+  <input id='s_nbt' class='span1' type='text' style='float:left;margin-bottom:0px' value='{{settings.nb_records_per_page}}'>
+</div>
+<div id="settings_panel2" class="modal-footer" style='display:none;'>
+  <a class="btn" data-dismiss="modal" id="close_settings">Close</a>
+  <a class="btn btn-primary" id='save_set'>Apply changes</a>
+</div>
+</div>
+
+
+
+
+<div style="margin-left:2%; margin-right:3%">
+<table class='hover row-border' id='data_dt'>
+
+  <thead>
+    <tr>
+      <th class='filename-c'>Filename</th>
+      <th class='path-c'>Path</th>
+      <th class='digest-c'>Digest</th>
+      <th class='size-c'>Size</th>
+      <th class='time-c'>Date/Time</th>
+      <th class='output-c'>Output of</th>
+      <th class='input-c'>Input to</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    {% for data in data_list %}
+    <tr>       
+      <td class='dataTable_td' id='filename-t'>
+        <a href="/{{project_name}}/data/datafile?path={{data.path|urlencode}}&digest={{data.digest}}">
+          {{data.path|basename|ubreak}}
+        </a>
+      </td>
+      <td class='dataTable_td' id='path-t'>
+          {{data.path|ubreak}}    
+      </td>         
+      <td class='dataTable_td' id='digest-t'>
+        {{data.digest|truncatechars:12 }}
+      </td>     
+      <td class='dataTable_td' id='size-t'
+          data-sort="{{data|eval_metadata:'size'}}">
+        {{data|eval_metadata:'size'|filesizeformat}}
+      </td>
+      <td class='dataTable_td' id='time-t'>
+        <span style='display:none;'>
+          <!-- hack for correct sorting -->
+          {{data.output_from_record.timestamp|date:"YmdHis"}}
+        </span>
+          {{data.output_from_record.timestamp|date:"d/m/Y H:i:s"}}
+      </td>
+      <td class='dataTable_td' id='output_record-t'>
+          <a href="/{{project_name}}/{{data.output_from_record.label}}/">
+          {{data.output_from_record.label|ubreak}}
+          </a>
+      </td>
+      <td class='dataTable_td' id='input_record-t'>
+        {% for record in data.input_to_records.all %}
+        <a href="/{{project_name}}/{{record.label}}/">
+          {{record.label|ubreak}}<!--
+        --></a>{% if not forloop.last %}, {% endif %}
+        {% endfor %}
+      </td>      
+    </tr>
+    {% endfor %}
+  <tbody>
+</table>
+</div>
+ 
+
+{% endblock %}
+

@@ -16,8 +16,12 @@ try:
     from django.views.generic.dates import MonthArchiveView
 except ImportError:  # older versions of Django
     MonthArchiveView = object
-from services import DefaultTemplate, AjaxTemplate, ProjectUpdateForm, RecordUpdateForm, TagUpdateForm, unescape
+from services import DefaultTemplate, DataTemplate, AjaxTemplate, ProjectUpdateForm, RecordUpdateForm, TagUpdateForm, unescape
 from sumatra.recordstore.django_store.models import Project, Tag, Record
+
+from sumatra.projects import load_project
+import sumatra.recordstore.django_store.models as models
+
 from sumatra.datastore import get_data_store, DataKey
 from sumatra.versioncontrol import get_working_copy
 from sumatra.commands import run, configure
@@ -28,20 +32,39 @@ DEFAULT_MAX_DISPLAY_LENGTH = 10 * 1024
 mimetypes.init()
 
 
+
+
 def list_records(request, project):
-    if request.is_ajax():  # only when paginating
-        ajaxTempOb = AjaxTemplate(project, request.POST)
-        if ajaxTempOb.form.is_valid():
-            ajaxTempOb.filter_search(request.POST)  # taking into consideration the search inquiry
-            ajaxTempOb.init_object_list(ajaxTempOb.page)  # taking into consideration pagination
-            # content.html is a part of record_list.html
-            return render_to_response('content.html', ajaxTempOb.getDict())
-        else:
-            return HttpResponse('search form is not valid')
-    else:
-        defTempOb = DefaultTemplate(project)
-        defTempOb.init_object_list()  # object_list is used in record_list.html
-        return render_to_response('record_list.html', defTempOb.getDict())
+    # if request.is_ajax():  # only when paginating
+    #     ajaxTempOb = AjaxTemplate(project, request.POST)
+    #     if ajaxTempOb.form.is_valid():
+    #         ajaxTempOb.filter_search(request.POST)  # taking into consideration the search inquiry
+    #         ajaxTempOb.init_object_list(ajaxTempOb.page)  # taking into consideration pagination
+    #         # content.html is a part of record_list.html
+    #         return render_to_response('content.html', ajaxTempOb.getDict())
+    #     else:
+    #         return HttpResponse('search form is not valid')
+    # else:
+    defTempOb = DefaultTemplate(project)
+    defTempOb.init_object_list()  # object_list is used in record_list.html
+    return render_to_response('record_list.html', defTempOb.getDict())
+
+
+
+def compare_selected_records(request, project):
+    '''
+    render record comparison modal for the selected records
+    '''
+    selected_labels = request.GET.getlist('selection[]')
+    records = Record.objects.filter(project__id=project,
+                                    label__in=selected_labels)
+
+    return render_to_response('comparison_window.html', {'records': records})
+
+
+def list_data(request, project):
+    defTempOb = DataTemplate(project)
+    return render_to_response('data_list.html', defTempOb.getDict())
 
 
 class ProjectListView(ListView):
@@ -124,7 +147,7 @@ def record_detail(request, project, label):
                 form.save()
     else:
         form = RecordUpdateForm(instance=record)
-    data_store = get_data_store(record.datastore.type, eval(record.datastore.parameters))
+    # data_store = get_data_store(record.datastore.type, eval(record.datastore.parameters)) doesn't get used?
     parameter_set = record.parameters.to_sumatra()
     if hasattr(parameter_set, "as_dict"):
         parameter_set = parameter_set.as_dict()
@@ -181,27 +204,33 @@ def delete_records(request, project):
 
 
 def settings(request, project):
-    if request.POST.has_key('init_settings'):
-        executable = request.POST.get('executable')
-        try:
-            Executable(executable)._find_executable(executable)
-        except:
-            return HttpResponse('error')
-        configure(['--executable=%s' % executable])
-        return HttpResponse('OK')
-    web_settings = {'display_density': request.POST.get('display_density', False),
-                    'nb_records_per_page': request.POST.get('nb_records_per_page', False),
-                    'hidden_cols': request.POST.getlist('hidden_cols[]')}
-    ajaxTempOb = AjaxTemplate(project, None)
-    for key, item in web_settings.iteritems():
-        if item:
-            ajaxTempOb.settings[key] = item
-        else:
-            if key == 'hidden_cols':
-                ajaxTempOb.settings[key] = None
-    ajaxTempOb.save_settings()
-    ajaxTempOb.init_object_list(1)
-    return render_to_response('content.html', ajaxTempOb.getDict())
+    # if request.POST.has_key('init_settings'):
+    #     executable = request.POST.get('executable')
+    #     try:
+    #         Executable(executable)._find_executable(executable)
+    #     except:
+    #         return HttpResponse('error')
+    #     configure(['--executable=%s' % executable])
+    #     return HttpResponse('OK')
+    # web_settings = {'display_density': request.POST.get('display_density', False),
+    #                 'nb_records_per_page': request.POST.get('nb_records_per_page', False),
+    #                 'hidden_cols': request.POST.getlist('hidden_cols[]')}
+
+    print request
+    print request.POST.getlist('record_hidden_cols[]')
+
+    # ajaxTempOb = AjaxTemplate(project, None)
+    # for key, item in web_settings.iteritems():
+    #     if item:
+    #         ajaxTempOb.settings[key] = item
+    #     else:
+    #         if key == 'hidden_cols':
+    #             ajaxTempOb.settings[key] = None
+    # ajaxTempOb.save_settings()
+    # ajaxTempOb.init_object_list(1)
+    # return render_to_response('content.html', ajaxTempOb.getDict())
+
+    return list_records(request, project)
 
 
 def run_sim(request, project):
@@ -243,163 +272,26 @@ def run_sim(request, project):
             return render_to_response('content.html', ajaxTempOb.getDict())
 
 
-def show_file(request, project, label):
-    if request.POST.has_key('show_args'):  # retrieve the content of the input file
-        name = request.POST.get('name', False)
-        if os.name == 'posix':
-            arg_file = open(os.getcwd() + '/' + name, 'r')
-        else:
-            arg_file = open(os.getcwd() + '\\' + name, 'r')
-        f_content = arg_file.read()
-        arg_file.close()
-        return HttpResponse(f_content)
-    label = unescape(label)
+
+def data_detail(request, project):
+
     path = request.GET['path']
     digest = request.GET['digest']
-    type = request.GET.get('type', 'output')
-    show_script = request.GET.get('show_script', False)
-    data_key = DataKey(path, digest)
-    if 'truncate' in request.GET:
-        if request.GET['truncate'].lower() == 'false':
-            max_display_length = None
-        else:
-            max_display_length = int(request.GET['truncate']) * 1024
-    else:
-        max_display_length = DEFAULT_MAX_DISPLAY_LENGTH
+   
+    data_keys = models.DataKey.objects.filter(path = path, digest = digest)
 
-    record = Record.objects.get(label=label, project__id=project)
-    if type == 'output':
-        data_store = get_data_store(record.datastore.type, eval(record.datastore.parameters))
-    else:
-        data_store = get_data_store(record.input_datastore.type, eval(record.input_datastore.parameters))
-    truncated = False
-    mimetype, encoding = mimetypes.guess_type(path)
+    if len(data_keys)==1:
+        data_key = data_keys[0]
+    elif len(data_keys)==0:
+        print 'no such data_key'
+    elif len(data_keys)>1:
+        print 'duplicate error'
 
-    input_records = Record.objects.filter(input_data__digest = data_key.digest)
-    # len(output_record) > 1 possible
-    output_records = Record.objects.filter(output_data__digest = data_key.digest)
+    return render_to_response("data_detail.html",
+                              {'data_key': data_key, 'project_name': project})
+    
 
-
-    try:
-        if mimetype == "text/csv":
-            content = data_store.get_content(data_key, max_length=max_display_length)
-            if max_display_length is not None and len(content) >= max_display_length:
-                truncated = True
-
-                # dump the last truncated line (if any)
-                content = content.rpartition('\n')[0]
-
-            lines = content.splitlines()
-            reader = csv.reader(lines)
-
-            return render_to_response("show_csv.html",
-                                      {'path': path, 'label': label,
-                                       'digest': digest,
-                                       'project_name': project,
-                                       'reader': reader,
-                                       'truncated': truncated,
-                                       'mimetype': mimetype
-                                       })
-
-        elif encoding == 'gzip':
-            import gzip
-            with gzip.open(data_store.root + os.path.sep + path, 'r') as gf:
-                content = gf.read()
-            if 'csv' in path:
-                lines = content.splitlines()
-                if truncated:
-                    lines = [lines[0]] + lines[-min(100, len(lines)):]
-                reader = csv.reader(lines)
-                return render_to_response("show_csv.html",
-                                          {'path': path,
-                                           'label': label,
-                                           'digest': digest,
-                                           'project_name': project,
-                                           'reader': reader,
-                                           'truncated': truncated,
-                                           'mimetype': mimetype,
-                                           'input_records': input_records,
-                                           'output_records': output_records
-                                           })
-            else:
-                return render_to_response("show_file.html",
-                                          {'path': path,
-                                           'label': label,
-                                           'content': content,
-                                           'project_name': project,
-                                           'truncated': truncated,
-                                           'digest': digest,
-                                           'mimetype': mimetype,
-                                           'input_records': input_records,
-                                           'output_records': output_records
-                                           })
-        elif mimetype is None or mimetype.split("/")[0] == "text":
-            content = data_store.get_content(data_key, max_length=max_display_length)
-            if max_display_length is not None and len(content) >= max_display_length:
-                truncated = True
-            return render_to_response("show_file.html",
-                                      {'path': path,
-                                       'label': label,
-                                       'digest': digest,
-                                       'project_name': project,
-                                       'content': content,
-                                       'truncated': truncated,
-                                       'mimetype': mimetype,
-                                       'input_records': input_records,
-                                       'output_records': output_records
-                                       })
-        elif mimetype in ("image/png", "image/jpeg", "image/gif", "image/x-png"):  # need to check digests match
-            return render_to_response("show_image.html",
-                                      {'path': path,
-                                       'label': label,
-                                       'digest': digest,
-                                       'mimetype': mimetype,
-                                       'project_name': project,
-                                       'type': type,
-                                       'input_records': input_records,
-                                       'output_records': output_records
-                                       })
-        elif mimetype == 'application/zip':
-            import zipfile
-            if zipfile.is_zipfile(path):
-                zf = zipfile.ZipFile(path, 'r')
-                contents = zf.namelist()
-                zf.close()
-                return render_to_response("show_file.html",
-                                          {'path': path,
-                                           'label': label,
-                                           'digest': digest,
-                                           'content': "\n".join(contents),
-                                           'project_name': project,
-                                           'mimetype': mimetype,
-                                           'input_records': input_records,
-                                           'output_records': output_records
-                                           })
-            else:
-                raise IOError("Not a valid zip file")
-        else:
-            return render_to_response("show_file.html",
-                                      {'path': path,
-                                       'label': label,
-                                       'project_name': project,
-                                       'digest': digest,
-                                       'mimetype': mimetype,
-                                       'input_records': input_records,
-                                       'output_records': output_records,
-                                       'content': "Can't display this file (mimetype assumed to be %s)" % mimetype
-                                       })
-    except (IOError, KeyError), e:
-        return render_to_response("show_file.html",
-                                  {'path': path,
-                                   'label': label,
-                                   'project_name': project,
-                                   'digest': digest,
-                                   'input_records': input_records,
-                                   'output_records': output_records,
-                                   'content': "File not found.",
-                                   'errmsg': e
-                                   })
-
+   
 
 def download_file(request, project, label):
     label = unescape(label)
