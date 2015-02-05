@@ -12,7 +12,7 @@ LaTeX
 -----
 
 To include figures from a Sumatra project in a LaTeX document, copy the
-file :file:`sumatra.sty` from the :file:`src/publishing/latex` directory in the
+file :file:`sumatra.sty` from the :file:`sumatra/publishing/latex` directory in the
 Sumatra source distribution into your working directory, then add
 
 .. code-block:: latex
