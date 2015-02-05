@@ -12,4 +12,3 @@ Providing information about programs
    
 .. autofunction:: get_executable
 
-.. autofunction:: register_executable

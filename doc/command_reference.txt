@@ -65,10 +65,6 @@ configure
                             may be 'store-diff' or 'error': the action to take if
                             the code in the repository or any of the dependencies
                             has changed.
-      -A PATH, --archive PATH
-                            specify a directory in which to archive output
-                            datafiles. If not specified, or if 'false', datafiles
-                            are not archived.
       -g OPTION, --labelgenerator OPTION
                             specify which method Sumatra should use to generate
                             labels (options: timestamp, uuid)
@@ -92,6 +88,14 @@ configure
                             `postgres://username:password@hostname/databasename` -
                             DjangoRecordStore is used with specified Postgres
                             database.
+      -W URL, --webdav URL  specify a webdav URL (with username@password: if
+                            needed) as the archiving location for data
+      -A PATH, --archive PATH
+                            specify a directory in which to archive output
+                            datafiles. If not specified, or if 'false', datafiles
+                            are not archived.
+      -M URL, --mirror URL  specify a URL at which your datafiles will be
+                            mirrored.
 
 delete
 ------
@@ -233,22 +237,24 @@ init
                             DjangoRecordStore is used with specified Postgres
                             database. Not using the `--store` argument defaults to
                             a DjangoRecordStore with Sqlite in `.smt/records`
-      -A PATH, --archive PATH
-                            specify a directory in which to archive output
-                            datafiles. If not specified, datafiles are not
-                            archived.
       -g OPTION, --labelgenerator OPTION
                             specify which method Sumatra should use to generate
                             labels (options: timestamp, uuid)
       -t TIMESTAMP_FORMAT, --timestamp_format TIMESTAMP_FORMAT
                             the timestamp format given to strftime
-      -M URL, --mirror URL  specify a URL at which your datafiles will be
-                            mirrored.
       -L {serial,distributed,slurm-mpi}, --launch_mode {serial,distributed,slurm-mpi}
                             how computations should be launched. Defaults to
                             serial
       -o LAUNCH_MODE_OPTIONS, --launch_mode_options LAUNCH_MODE_OPTIONS
                             extra options for the given launch mode
+      -W URL, --webdav URL  specify a webdav URL (with username@password: if
+                            needed) as the archiving location for data
+      -A PATH, --archive PATH
+                            specify a directory in which to archive output
+                            datafiles. If not specified, or if 'false', datafiles
+                            are not archived.
+      -M URL, --mirror URL  specify a URL at which your datafiles will be
+                            mirrored.
 
 list
 ----

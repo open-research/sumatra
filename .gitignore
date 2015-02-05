@@ -6,4 +6,4 @@ dist/*
 *.py,cover
 .project
 .pydevproject
-
+.idea
