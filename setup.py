@@ -42,7 +42,7 @@ setup(
     author = "Sumatra authors and contributors",
     author_email = "andrew.davison@unic.cnrs-gif.fr",
     description = "A tool for automated tracking of computation-based scientific projects",
-    long_description = open('README').read(),
+    long_description = open('README.rst').read(),
     license = "CeCILL http://www.cecill.info",
     keywords = "computational science simulation analysis project-management",
     url = "http://neuralensemble.org/sumatra/",
