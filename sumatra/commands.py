@@ -37,7 +37,7 @@ logger.addHandler(h)
 logger.debug("STARTING")
 
 modes = ("init", "configure", "info", "run", "list", "delete", "comment", "tag",
-         "repeat", "diff", "help", "export", "upgrade", "sync", "migrate")
+         "repeat", "diff", "help", "export", "upgrade", "sync", "migrate", "version")
 
 store_arg_help = "The argument can take the following forms: (1) `/path/to/sqlitedb` - DjangoRecordStore is used with the specified Sqlite database, (2) `http[s]://location` - remote HTTPRecordStore is used with a remote Sumatra server, (3) `postgres://username:password@hostname/databasename` - DjangoRecordStore is used with specified Postgres database."
 
@@ -682,3 +682,12 @@ def migrate(argv):
             value = getattr(args, option_name)
             if value:
                 project.record_store.update(project.name, field, value)
+
+
+def version(argv):
+    usage = "%(prog)s version"
+    description = "Print the Sumatra version."
+    parser = ArgumentParser(usage=usage,
+                            description=description)
+    args = parser.parse_args(argv)
+    print(sumatra.__version__)
