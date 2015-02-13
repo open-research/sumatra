@@ -5,10 +5,7 @@ Export a Sumatra project for version 0.1 or 0.2 to JSON.
 :license: CeCILL, see LICENSE for details.
 """
 
-try:
-    import json
-except ImportError:
-    import simplejson as json
+import json
 from sumatra import __version__, projects
 from sumatra.recordstore.shelve_store import ShelveRecordStore
 from sumatra.recordstore.django_store import DjangoRecordStore

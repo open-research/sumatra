@@ -6,10 +6,7 @@ Handles serialization/deserialization of record store contents to/from JSON.
 :license: CeCILL, see LICENSE for details.
 """
 
-try:
-    import json
-except ImportError:
-    import simplejson as json
+import json
 from datetime import datetime
 from sumatra import programs, launch, datastore, versioncontrol, parameters, dependency_finder
 from sumatra.records import Record

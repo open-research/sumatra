@@ -21,10 +21,7 @@ import sumatra.launch
 import sumatra.datastore
 import sumatra.parameters
 from sumatra.core import registry
-try:
-    import json
-except ImportError:
-    import simplejson as json
+import json
 import urlparse
 from sumatra.compatibility import string_type
 
