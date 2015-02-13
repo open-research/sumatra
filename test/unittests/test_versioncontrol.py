@@ -309,7 +309,7 @@ class TestGitRepository(unittest.TestCase, BaseTestRepository):
         self.assertFalse(repos.exists)
 
     def test__can_create_project_in_subdir(self):
-        #Test if a Sumatra project can be created in one of the subdirectories of a repository
+        # Test if a Sumatra project can be created in one of the subdirectories of a repository
         tmpdir = tempfile.mkdtemp()
         r = self._create_repository()
         r.checkout(path=tmpdir)

@@ -31,14 +31,15 @@ logger = logging.getLogger("Sumatra")
 def check_version():
     if not hasattr(git, "Repo"):
         raise VersionControlError("GitPython not installed. There is a 'git' package, but it is not GitPython (https://pypi.python.org/pypi/GitPython/)")
-    if int(git.__version__.split(".")[1]) < 2:
-        raise VersionControlError("Your Git Python binding is too old. You require at least version 0.2.0-beta1.")
+    gitpython_version = tuple(int(x) for x in git.__version__.split("."))
+    if gitpython_version[1] < 2 or gitpython_version[2] < 6:
+        raise VersionControlError("Your Git Python binding is too old. You require at least version 0.2.6.")
 
 
 def findrepo(path):
     check_version()
     try:
-        repo = git.Repo(path)
+        repo = git.Repo(path, search_parent_directories=True)
     except InvalidGitRepositoryError:
         return
     else:
@@ -59,6 +60,7 @@ class GitWorkingCopy(WorkingCopy):
 
     @property
     def exists(self):
+        print "EXISTS?", self.path, findrepo(self.path)
         return bool(self.path and findrepo(self.path))
 
     def current_version(self):
