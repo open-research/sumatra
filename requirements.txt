@@ -1,0 +1,10 @@
+Django==1.6
+django-tagging
+httplib2
+jinja2
+docutils
+parameters
+# optional requirements, depending on which version control systems you use
+mercurial
+GitPython
+bzr
