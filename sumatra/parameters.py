@@ -36,10 +36,7 @@ try:
     from ConfigParser import SafeConfigParser, MissingSectionHeaderError, NoOptionError  # Python 2
 except ImportError:
     from configparser import SafeConfigParser, MissingSectionHeaderError, NoOptionError  # Python 3
-try:
-    import json
-except ImportError:
-    import simplejson as json
+import json
 try:
     import yaml
     yaml_loaded = True
