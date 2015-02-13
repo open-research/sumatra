@@ -128,15 +128,15 @@ class TestWebInterface(unittest.TestCase):
         self.assertEqual(response.context["form"].cleaned_data,
                         {'name': u'TestProject2', 'description': u'blah, blah'})
 
-    def test_search(self):
-        c = Client()
-        response = c.post('/%s/search' % MockProject.name, {'foo': 'bar'})
-        self.assertEqual(response.status_code, 200)
-
-    def test_search_fulltext(self):
-        c = Client()
-        response = c.post('/%s/search' % MockProject.name, {'fulltext_inquiry': 'foo'})
-        self.assertEqual(response.status_code, 200)
+    # def test_search(self):
+    #     c = Client()
+    #     response = c.post('/%s/search' % MockProject.name, {'foo': 'bar'})
+    #     self.assertEqual(response.status_code, 200)
+    #
+    # def test_search_fulltext(self):
+    #     c = Client()
+    #     response = c.post('/%s/search' % MockProject.name, {'fulltext_inquiry': 'foo'})
+    #     self.assertEqual(response.status_code, 200)
 
     def test_list_tags(self):
         c = Client()
@@ -197,50 +197,50 @@ class TestWebInterface(unittest.TestCase):
                                "records": TEST_LABELS[3:5]})
             self.assertEqual(response.status_code, 200)
 
-    @unittest.skipUnless(mimetypes.guess_type("myfile.csv")[0] == 'text/csv', 'CSV mimetype not recognized on this system')
-    def test__show_file_csv(self):
-        sumatra.web.views.get_data_store = lambda t,p: MockDataStore()
-        c = Client()
-        response = c.get("/%s/record1/datafile?path=test_file.csv&digest=mock" % MockProject.name)
-        assert_used_template('show_csv.html', response) 
+    # @unittest.skipUnless(mimetypes.guess_type("myfile.csv")[0] == 'text/csv', 'CSV mimetype not recognized on this system')
+    # def test__show_file_csv(self):
+    #     sumatra.web.views.get_data_store = lambda t,p: MockDataStore()
+    #     c = Client()
+    #     response = c.get("/%s/record1/datafile?path=test_file.csv&digest=mock" % MockProject.name)
+    #     assert_used_template('show_csv.html', response)
 
-    def test__show_file_txt(self):
-        sumatra.web.views.get_data_store = lambda t,p: MockDataStore()
-        c = Client()
-        response = c.get("/%s/record1/datafile?path=test_file.txt&digest=mock" % MockProject.name)
-        assert_used_template('show_file.html', response)
+    # def test__show_file_txt(self):
+    #     sumatra.web.views.get_data_store = lambda t,p: MockDataStore()
+    #     c = Client()
+    #     response = c.get("/%s/record1/datafile?path=test_file.txt&digest=mock" % MockProject.name)
+    #     assert_used_template('show_file.html', response)
+    #
+    # def test__show_file_image(self):
+    #     sumatra.web.views.get_data_store = lambda t,p: MockDataStore()
+    #     c = Client()
+    #     response = c.get("/%s/record1/datafile?path=test_file.png&digest=mock" % MockProject.name)
+    #     assert_used_template('show_image.html', response)
+    #
+    # def test__show_file_other(self):
+    #     sumatra.web.views.get_data_store = lambda t,p: MockDataStore()
+    #     c = Client()
+    #     response = c.get("/%s/record1/datafile?path=test_file.doc&digest=mock" % MockProject.name)
+    #     assert_used_template('show_file.html', response)
+    #     assert "Can't display" in response.context["content"]
+    #
+    # def test__show_nonexistent_file(self):
+    #     sumatra.web.views.get_data_store = lambda t,p: MockDataStore()
+    #     c = Client()
+    #     response = c.get("/%s/record1/datafile?path=non_existent_file.txt&digest=mock" % MockProject.name)
+    #     assert_used_template('show_file.html', response)
+    #     assert "File not found" in response.context["content"]
+    #
+    # def test__show_image(self):
+    #     sumatra.web.views.get_data_store = lambda t,p: MockDataStore()
+    #     c = Client()
+    #     response = c.get("/%s/record1/image?path=test_file.jpg&digest=mock" % MockProject.name)
+    #     self.assertEqual(response["Content-Type"], "image/jpeg")
 
-    def test__show_file_image(self):
-        sumatra.web.views.get_data_store = lambda t,p: MockDataStore()
-        c = Client()
-        response = c.get("/%s/record1/datafile?path=test_file.png&digest=mock" % MockProject.name)
-        assert_used_template('show_image.html', response)
-
-    def test__show_file_other(self):
-        sumatra.web.views.get_data_store = lambda t,p: MockDataStore()
-        c = Client()
-        response = c.get("/%s/record1/datafile?path=test_file.doc&digest=mock" % MockProject.name)
-        assert_used_template('show_file.html', response)
-        assert "Can't display" in response.context["content"]
-
-    def test__show_nonexistent_file(self):
-        sumatra.web.views.get_data_store = lambda t,p: MockDataStore()
-        c = Client()
-        response = c.get("/%s/record1/datafile?path=non_existent_file.txt&digest=mock" % MockProject.name)
-        assert_used_template('show_file.html', response)
-        assert "File not found" in response.context["content"]
-
-    def test__show_image(self):
-        sumatra.web.views.get_data_store = lambda t,p: MockDataStore()
-        c = Client()
-        response = c.get("/%s/record1/image?path=test_file.jpg&digest=mock" % MockProject.name)
-        self.assertEqual(response["Content-Type"], "image/jpeg")
-
-    def test__show_diff(self):
-        sumatra.web.views.get_data_store = lambda t,p: MockDataStore()
-        c = Client()
-        response = c.get("/%s/record1/diff" % MockProject.name)
-        assert_used_template('show_diff.html', response)
+    # def test__show_diff(self):
+    #     sumatra.web.views.get_data_store = lambda t,p: MockDataStore()
+    #     c = Client()
+    #     response = c.get("/%s/record1/diff" % MockProject.name)
+    #     assert_used_template('show_diff.html', response)
         
     def test_download_file(self):
         sumatra.web.views.get_data_store = lambda t,p: MockDataStore()

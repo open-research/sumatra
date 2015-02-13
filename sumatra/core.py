@@ -11,7 +11,10 @@ import locale
 import os
 import signal
 import subprocess
-from collections import OrderedDict
+try:
+    from collections import OrderedDict
+except ImportError:  # Python 2.6
+    from ordereddict import OrderedDict
 from .compatibility import urlopen, URLError
 
 

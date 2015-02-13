@@ -43,10 +43,9 @@ Repository       : (?P<vcs>\w+)Repository at .*
 Main_File        : (?P<main>\w+.\w.)
 Version          : (?P<version>\w+)
 Script_Arguments : *(?P<script_args>.*)
-Executable       : (?P<executable_name>\w+) \(version: (?P<executable_version>[\w\.]+)\) at
-                 : (?P<executable_path>.*)
+Executable       : (?P<executable_name>\w+) \(version: (?P<executable_version>[\w\.]+)\) at\s+(: )?(?P<executable_path>.*)
 Parameters       : *(?P<parameters>.*)
-""")  # TO COMPLETE
+""")  # TO COMPLETE.
 
 
 def setup():
@@ -110,8 +109,12 @@ def assert_config(p, expected_config):
 def assert_records(p, expected_records):
     """ """
     matches = [match.groupdict() for match in record_pattern.finditer(p.stdout.text)]
+    if not matches:
+        raise Exception("No matches for record_pattern.\nStdout:\n%s" % p.stdout.text)
     match_dict = dict((match["label"], match) for match in matches)
     for record in expected_records:
+        if record["label"] not in match_dict:
+            raise KeyError("Expected record %s not found in %s" % (record["label"], str(list(match_dict.keys()))))
         matching_record = match_dict[record["label"]]
         for key in record:
             assert record[key] == matching_record[key]

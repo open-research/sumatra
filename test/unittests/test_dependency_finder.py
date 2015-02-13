@@ -57,11 +57,6 @@ class TestPythonModuleFunctions(unittest.TestCase):
         # the example project has numpy as its only import
         example_project_imports = df.python.find_imported_packages(os.path.join(tmpdir, "python", "main.py"), sys.executable)
         assert "numpy" in example_project_imports.keys()
-        numpy_imports = df.python.find_imported_packages(numpy.__file__.replace(".pyc", ".py"), sys.executable)
-        assert len(example_project_imports) == len(numpy_imports)
-        for key in numpy_imports:
-            self.assertEqual(str(numpy_imports[key]),
-                             str(example_project_imports[key]))    
     
 
 class TestCoreModuleFunctions(unittest.TestCase):

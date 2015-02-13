@@ -6,6 +6,6 @@ python:
 install:
   - pip install -r requirements.txt --use-mirrors
   - pip install . --use-mirrors
-# command to run tests, e.g. python setup.py test
+# command to run tests
 script:
   nosetests -w test/unittests --with-coverage --cover-package=sumatra

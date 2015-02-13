@@ -2,7 +2,10 @@
 Unit tests for the sumatra.formatting module
 """
 
-import unittest
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
 import tempfile
 from datetime import datetime
 import os
