@@ -18,7 +18,7 @@ It consists of:
   scripts in place of using smt, or could be integrated into a GUI-based
   application.
 
-Sumatra is currently alpha code, and should be used with caution and frequent
+Sumatra is currently beta code, and should be used with caution and frequent
 backups of your records.
 
 For documentation, see http://packages.python.org/Sumatra/ and http://neuralensemble.org/sumatra/
@@ -82,3 +82,11 @@ or::
 
     $ easy_install sumatra
 
+
+===========
+Code status
+===========
+
+.. image:: https://travis-ci.org/open-research/sumatra.png?branch=master
+   :target: https://travis-ci.org/open-research/sumatra
+   :alt: Unit Test Status
