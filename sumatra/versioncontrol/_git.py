@@ -31,9 +31,14 @@ logger = logging.getLogger("Sumatra")
 
 def check_version():
     if not hasattr(git, "Repo"):
-        raise VersionControlError("GitPython not installed. There is a 'git' package, but it is not GitPython (https://pypi.python.org/pypi/GitPython/)")
-    if LooseVersion(git.__version__) < LooseVersion('0.2.6'):
-        raise VersionControlError("Your Git Python binding is too old. You require at least version 0.2.6.")
+        raise VersionControlError(
+            "GitPython not installed. There is a 'git' package, but it is not "
+            "GitPython (https://pypi.python.org/pypi/GitPython/)")
+    minimum_version = '0.3.5'
+    if LooseVersion(git.__version__) < LooseVersion(minimum_version):
+        raise VersionControlError(
+            "Your Git Python binding is too old. You require at least "
+            "version {}.".format(minimum_version))
 
 
 def findrepo(path):
