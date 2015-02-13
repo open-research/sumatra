@@ -42,10 +42,7 @@ from sumatra.recordstore import DefaultRecordStore
 from sumatra.versioncontrol import UncommittedModificationsError, get_working_copy, VersionControlError
 from sumatra.core import TIMESTAMP_FORMAT
 import mimetypes
-try:
-    import json
-except ImportError:
-    import simplejson as json
+import json
 import logging
 
 logger = logging.getLogger("Sumatra")

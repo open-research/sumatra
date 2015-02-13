@@ -15,7 +15,8 @@ except ImportError:
     from django.utils.encoding import smart_str as force_bytes, force_unicode as force_text  # Django 1.4
 from os import name, path
 from sumatra.formatting import human_readable_duration
-from django.utils import simplejson, dateparse
+import json
+from django.utils import dateparse
 import datetime
 
 register = template.Library()
@@ -75,7 +76,7 @@ def parse_datetime(date):
 
 @register.filter
 def as_json(data):
-    return mark_safe(simplejson.dumps(data))
+    return mark_safe(json.dumps(data))
 
 
 @register.filter

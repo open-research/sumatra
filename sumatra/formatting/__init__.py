@@ -8,10 +8,7 @@ formats: currently text or HTML.
 :license: CeCILL, see LICENSE for details.
 """
 
-try:
-    import json
-except ImportError:
-    import simplejson as json
+import json
 import textwrap
 import cgi
 import re

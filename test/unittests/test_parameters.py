@@ -10,10 +10,7 @@ except ImportError:
 import os
 import textwrap
 from copy import deepcopy
-try:
-    import json
-except ImportError:
-    import simplejson as json
+import json
 from textwrap import dedent
 from sumatra.parameters import SimpleParameterSet, JSONParameterSet, \
         NTParameterSet, ConfigParserParameterSet, build_parameters, \

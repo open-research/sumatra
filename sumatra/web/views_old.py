@@ -9,7 +9,7 @@ from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response
 from django.views.generic import list_detail
 from django import forms
-from django.utils import simplejson
+import json
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger 
 from tagging.views import tagged_object_list
@@ -502,7 +502,7 @@ def run_sim(request, project):
                   'Arguments-t':record.script_arguments,
                   'Date-t':date,
                   'Time-t':time}
-    return HttpResponse(simplejson.dumps(to_sumatra))
+    return HttpResponse(json.dumps(to_sumatra))
     '''
     paginator = Paginator(records, int(load_project().web_settings['nb_records_per_page']))
     page_list = paginator.page(1)
@@ -560,8 +560,8 @@ def settings(request, project):
                'width':{'head': head_width, 'label':label_width}}
         return render_to_response('content.html', dic)
     elif web_settings['web']: 
-        return HttpResponse(simplejson.dumps(project.web_settings))
+        return HttpResponse(json.dumps(project.web_settings))
     elif web_settings['sumatra']:
         settings = {'execut':project.default_executable.path,
                     'mfile':project.default_main_file}
-        return HttpResponse(simplejson.dumps(settings))
+        return HttpResponse(json.dumps(settings))
