@@ -38,7 +38,13 @@ class ShelveRecordStore(RecordStore):
 
     def __init__(self, shelf_name=".smt/records"):
         self._shelf_name = shelf_name
+        # Some shelve backends add an extension to the filename, and more than one
+        # file may be created. So that the file(s) can be deleted, we need to try
+        # to discover the full filename(s).
+        dir = os.path.dirname(os.path.abspath(shelf_name))
+        initial_dir_contents = set(os.listdir(dir))
         self.shelf = shelve.open(shelf_name)
+        self._shelf_files = set(os.listdir(dir)).difference(initial_dir_contents)
 
     def __del__(self):
         if hasattr(self, "shelf"):
@@ -116,7 +122,8 @@ class ShelveRecordStore(RecordStore):
         return most_recent
 
     def clear(self):
-        os.remove(self._shelf_name)
+        for path in self._shelf_files:
+            os.remove(path)
 
     @classmethod
     def accepts_uri(cls, uri):

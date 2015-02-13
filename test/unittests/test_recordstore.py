@@ -272,6 +272,10 @@ class BaseTestRecordStore(object):
         updated_value, = set(rec.datastore.root for rec in self.store.list(self.project.name))
         self.assertEqual(updated_value, "/new/path/to/store")
 
+    def test_clear(self):
+        self.add_some_records()
+        self.store.clear()
+
 
 class TestShelveRecordStore(unittest.TestCase, BaseTestRecordStore):
 
@@ -456,6 +460,10 @@ class TestHttpRecordStore(unittest.TestCase, BaseTestRecordStore):
 
     def test_project_info(self):
         self.assertEqual(self.store.project_info("TestProject")["name"], "TestProject")
+
+    def test_clear(self):
+        self.add_some_records()
+        self.assertRaises(UserWarning, self.store.clear)
 
 
 class TestSerialization(unittest.TestCase):
