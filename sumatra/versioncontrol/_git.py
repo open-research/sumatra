@@ -16,6 +16,7 @@ import logging
 import git
 import os
 import shutil
+from distutils.version import LooseVersion
 from ConfigParser import NoSectionError, NoOptionError
 try:
     from git.errors import InvalidGitRepositoryError, NoSuchPathError
@@ -31,8 +32,7 @@ logger = logging.getLogger("Sumatra")
 def check_version():
     if not hasattr(git, "Repo"):
         raise VersionControlError("GitPython not installed. There is a 'git' package, but it is not GitPython (https://pypi.python.org/pypi/GitPython/)")
-    gitpython_version = tuple(int(x) for x in git.__version__.split("."))
-    if gitpython_version[1] < 2 or gitpython_version[2] < 6:
+    if LooseVersion(git.__version__) < LooseVersion('0.2.6'):
         raise VersionControlError("Your Git Python binding is too old. You require at least version 0.2.6.")
 
 
