@@ -229,7 +229,8 @@ def configure(argv):
     parser.add_argument('-t', '--timestamp_format', help="the timestamp format given to strftime")
     parser.add_argument('-L', '--launch_mode', choices=['serial', 'distributed', 'slurm-mpi'], help="how computations should be launched.")
     parser.add_argument('-o', '--launch_mode_options', help="extra options for the given launch mode, to be given in quotes with a leading space, e.g. ' --foo=3'")
-    parser.add_argument('-p', '--plain', action='store_true', help="pass arguments to the 'run' command straight through to the program. Otherwise arguments of the form name=value can be used to overwrite default parameter values.")
+    parser.add_argument('-p', '--plain', dest='plain', action='store_true', help="pass arguments to the 'run' command straight through to the program. Otherwise arguments of the form name=value can be used to overwrite default parameter values.")
+    parser.add_argument('--no-plain', dest='plain', action='store_false', help="arguments to the 'run' command of the form name=value will overwrite default parameter values. This is the opposite of the --plain option.")
     parser.add_argument('-s', '--store', help="Change the record store to the specified path, URL or URI (must be specified). {0}".format(store_arg_help))
 
     datastore = parser.add_mutually_exclusive_group()
@@ -287,8 +288,8 @@ def configure(argv):
         project.default_launch_mode = get_launch_mode(args.launch_mode)()
     if args.launch_mode_options:
         project.default_launch_mode.options = args.launch_mode_options.strip()
-    if args.plain:
-        project.allow_command_line_parameters = False
+    if args.plain is not None:
+        project.allow_command_line_parameters = not args.plain
     project.save()
 
 
