@@ -34,6 +34,7 @@ import django
 import sqlite3
 import time
 import shutil
+import textwrap
 from datetime import datetime
 from sumatra.records import Record
 from sumatra import programs, datastore
@@ -122,7 +123,23 @@ class Project(object):
                      'data_label', '_most_recent', 'input_datastore',
                      'label_generator', 'timestamp_format', 'sumatra_version',
                      'allow_command_line_parameters'):
-            attr = getattr(self, name, None)
+            try:
+                attr = getattr(self, name)
+            except:
+                # Some parameters which need special treatment to avoid
+                # unexpected behaviour.
+                if name == 'allow_command_line_parameters':
+                    print(textwrap.dedent("""\
+                        Upgrading from a Sumatra version which did not have the --plain configuration
+                        option. After this upgrade, arguments to 'smt run' of the form 'name=value'
+                        will continue to overwrite default parameter values, but this is now
+                        configurable. If it is desired that they should be passed straight through
+                        to the program, run the command 'smt configure --plain' after this upgrade.
+                        """))
+                    attr = True
+                else:
+                    # Default value for unrecognised parameters
+                    attr = None
             if hasattr(attr, "__getstate__"):
                 state[name] = {'type': attr.__class__.__module__ + "." + attr.__class__.__name__}
                 for key, value in attr.__getstate__().items():
