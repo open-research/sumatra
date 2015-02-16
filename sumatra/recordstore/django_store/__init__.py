@@ -279,8 +279,8 @@ class DjangoRecordStore(RecordStore):
         if not db_config.configured:
             db_config.configure()
         #management.call_command('sqlclear', 'django_store', database=self._db_label)  # this produces coloured output, need no_color option from Django 1.7
-        cmds = ["BEGIN;"] + ['DROP TABLE "django_store_{}";'.format(x)
-                             for x in ("record", "record_output_data", "record_input_data", "record_dependencies",
+        cmds = ["BEGIN;"] + ['DROP TABLE "django_store_{0}";'.format(x)
+                             for x in ("record", "record_input_data", "record_dependencies",
                                        "record_platforms", "platforminformation", "datakey", "datastore", "launchmode",
                                        "parameterset", "repository", "dependency", "executable", "project")] + ["COMMIT;"]
         from django.db import connection
