@@ -4,8 +4,8 @@ python:
   - "2.6"
 # command to install dependencies
 install:
-  - pip install -r requirements.txt --use-mirrors
-  - pip install . --use-mirrors
+  - pip install -r requirements.txt
+  - pip install .
 # command to run tests
 script:
   nosetests -w test/unittests --with-coverage --cover-package=sumatra
