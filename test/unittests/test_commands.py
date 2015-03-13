@@ -81,6 +81,7 @@ class MockWorkingCopy(object):
 
 class MockProject(object):
     name = None
+    path = "/path/to/project"
     instances = []
     default_repository = "some repository"
     default_main_file = "walk_silly.py"
@@ -197,7 +198,7 @@ class InitCommandTests(unittest.TestCase):
         self.assertEqual(MockProject.instances[-1].name, "NewProject")
 
     def test_with_existing_project_should_return_error(self):
-        commands.load_project = lambda: True
+        commands.load_project = lambda: MockProject()
         self.assertRaises(SystemExit, commands.init, ["NotSoNewProject"])
 
     def test_with_repository_option_should_perform_checkout(self):
