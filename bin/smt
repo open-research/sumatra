@@ -9,10 +9,10 @@ from sumatra.versioncontrol.base import VersionControlError
 from sumatra.recordstore.base import RecordStoreAccessError
 
 usage = """Usage: smt <subcommand> [options] [args]
-        
-Simulation/analysis management tool version %s 
 
-Available subcommands:  
+Simulation/analysis management tool version %s
+
+Available subcommands:
   """ % __version__ 
 usage += "\n  ".join(commands.modes)
 
