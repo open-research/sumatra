@@ -18,6 +18,8 @@ NEURONSimulator
     represents the NEURON neuroscience simulator.
 GENESISSimulator
     represents the GENESIS neuroscience simulator.
+RExecutable
+    represents the R interpreter executable.
 
 Functions
 ---------
@@ -164,6 +166,12 @@ class MatlabExecutable(Executable):
             version = "unknown"
         return version
 
+class RExecutable(Executable):
+    name = "R"
+    executable_names = ('Rscript')
+    file_extensions = ('.R', '.r')
+    default_executable_name = "Rscript"
+    requires_script = True
 
 class NESTSimulator(Executable):
     name = "NEST"
@@ -202,6 +210,7 @@ registry.register(PythonExecutable)
 registry.register(MatlabExecutable)
 registry.register(NESTSimulator)
 registry.register(GENESISSimulator)
+registry.register(RExecutable)
 
 
 def get_executable(path=None, script_file=None):

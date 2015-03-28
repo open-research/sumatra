@@ -24,6 +24,33 @@ class MockExecutable(object):
         self.name = name
         self.path = name
         
+class MockRExecutable(MockExecutable):
+    def __init__(self, name):
+        self.name = 'R'
+        rpath = '/usr/bin/Rscript'
+        if os.path.exists(rpath):
+            self.path = rpath
+
+class TestRModuleFunctions(unittest.TestCase):
+    def setUp(self):
+        self.saved_path = sys.path[:]
+        self.cwd = os.getcwd()
+        self.example_project = os.path.join(tmpdir, "R")
+        assert os.path.exists(self.example_project)
+        sys.path.append(os.path.abspath(self.example_project))
+        os.chdir(self.example_project)
+
+    def tearDown(self):
+        sys.path = self.saved_path
+        os.chdir(self.cwd)
+        
+    def test__r_extern_script(self):
+        self.assertEqual(os.path.exists(df.r.r_script_to_find_deps), True)
+
+    def test__r_get_r_dependencies(self):
+        # todo -- use myscript.R as the dependency finder script instead of 
+        #         builtin.
+        pass
 
 class TestPythonModuleFunctions(unittest.TestCase):
     
@@ -91,6 +118,8 @@ class TestCoreModuleFunctions(unittest.TestCase):
                           os.path.join(self.example_project, "subpackage"),
                           [])
     
+    def test__find_versions_from_versioncontrol(self):
+        pass
         
 class TestMainModuleFunctions(unittest.TestCase):
     
@@ -99,6 +128,7 @@ class TestMainModuleFunctions(unittest.TestCase):
         example_projects = {
             'python': os.path.join(tmpdir, "python"),
             'neuron': os.path.join(tmpdir, "neuron"),
+            'r': os.path.join(tmpdir, 'R'),
         }
         for example_project in example_projects.values():
             assert os.path.exists(example_project)
@@ -110,8 +140,13 @@ class TestMainModuleFunctions(unittest.TestCase):
     def test__find_dependencies_for_a_NEURON_project(self):
         deps = df.find_dependencies(os.path.join(tmpdir, "neuron", "main.hoc"),
                                     MockExecutable("NEURON"))
-        self.assertEqual(os.path.basename(deps[0].path), "dependency.hoc")  
-        
+        self.assertEqual(os.path.basename(deps[0].path), "dependency.hoc")
+
+    def test__find_dependencies_for_R_project(self):
+        deps = df.find_dependencies(os.path.join(tmpdir, "R", "myscript.R"),
+                                    MockRExecutable("R"))
+        self.assertEqual(len(deps), 2)
+
     def test__find_dependencies_with_unsupported_executable__should_raise_warning(self):
         warnings.filters.append(('error', None, UserWarning, None, 0)) # ought to remove this again afterwards
         self.assertRaises(UserWarning,
@@ -184,6 +219,35 @@ class TestNEURONDependency(unittest.TestCase):
     def test_ne(self):
         dep1 = df.neuron.Dependency(os.path.join(self.example_project, "main.hoc"))
         dep2 = df.neuron.Dependency(os.path.join(self.example_project, "dependency.hoc"))
+        self.assertNotEqual(dep1, dep2)
+
+class TestRDependency(unittest.TestCase):
+    
+    def setUp(self):
+        self.saved_path = sys.path[:]
+        self.example_project = os.path.join(tmpdir, "R")
+        assert os.path.exists(self.example_project)
+        sys.path.append(os.path.abspath(self.example_project))
+    
+    def tearDown(self):
+        sys.path = self.saved_path
+    
+    def test__init(self):
+        dep = df.r.Dependency(os.path.join(self.example_project, "myscript.R"))
+        self.assertEqual(dep.version, "unknown")
+
+    def test__str(self):
+        dep = df.r.Dependency(os.path.join(self.example_project, "myscript.R"))
+        str(dep)
+        
+    def test_eq(self):
+        dep1 = df.r.Dependency(os.path.join(self.example_project, "myscript.R"))
+        dep2 = df.r.Dependency(os.path.join(self.example_project, "myscript.R"))
+        self.assertEqual(dep1, dep2)
+
+    def test_ne(self):
+        dep1 = df.r.Dependency(os.path.join(self.example_project, "myscript.R"))
+        dep2 = df.r.Dependency(os.path.join(self.example_project, "myscript2.R"))
         self.assertNotEqual(dep1, dep2)
 
 
