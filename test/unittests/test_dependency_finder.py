@@ -48,9 +48,23 @@ class TestRModuleFunctions(unittest.TestCase):
         self.assertEqual(os.path.exists(df.r.r_script_to_find_deps), True)
 
     def test__r_get_r_dependencies(self):
-        # todo -- use myscript.R as the dependency finder script instead of 
-        #         builtin.
-        pass
+        rex = MockRExecutable('R')
+        myscript_deps = 'pkg::\nname : dplyr \npath : /Library/Frameworks/R.framework/Versions/3.1/Resources/library/dplyr \nversion : 0.4.1 \nsource : CRAN \npkg::\nname : MASS \npath : /Library/Frameworks/R.framework/Versions/3.1/Resources/library/MASS \nversion : 7.3-35 \nsource : CRAN \n'
+        status, deps = df.r._get_r_dependencies(rex.path, 'myscript.R', depfinder='myscript.R')
+        self.assertEqual(deps, myscript_deps)
+        self.assertEqual(status, 0)
+
+    def test__r_parse_deps(self):
+        rex = MockRExecutable('R')
+        status, deps = df.r._get_r_dependencies(rex.path, 'myscript.R', depfinder='myscript.R')
+        list_deps = df.r._parse_deps(deps)
+        d1, d2 = list_deps
+        self.assertEqual(d1.name, 'dplyr')
+        self.assertEqual(d1.source, 'CRAN')
+        self.assertEqual(d1.version, '0.4.1')
+        self.assertEqual(d2.name, 'MASS')
+        self.assertEqual(d2.source, 'CRAN')
+        self.assertEqual(d2.version, '7.3-35')
 
 class TestPythonModuleFunctions(unittest.TestCase):
     

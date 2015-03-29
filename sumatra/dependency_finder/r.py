@@ -29,7 +29,7 @@ class Dependency(core.BaseDependency):
         super(Dependency, self).__init__(module_name, path, version, diff, source)
 
 
-def get_r_dependencies(executable_path, rscriptfile,
+def _get_r_dependencies(executable_path, rscriptfile, depfinder=r_script_to_find_deps,
                        pkg_split=package_split_str, el_split=element_split_str,
                        nv_split=name_value_split_str):
     """Return a string describing dependencies of an rscriptfile.
@@ -67,6 +67,34 @@ def get_r_dependencies(executable_path, rscriptfile,
     # import pdb; pdb.set_trace()
     return result, output
 
+def _parse_deps(deps, pkg_split=package_split_str,
+                el_split=element_split_str,
+                nv_split=name_value_split_str):
+    """Return list of dependencies.
+
+    Parameters
+    ----------
+    deps : str
+        String as produced by _get_r_dependencies
+
+    Returns
+    -------
+    list
+         lits contains Dependency for all packages imported by the R file
+    """
+    deps = deps.rstrip()
+    pkgs = deps.split(pkg_split)[1:] ## first split may be a warning
+    list_deps = []
+    for pk in pkgs:
+        parts = filter(lambda x: len(x) > 0, pk.split(el_split))
+        argdict = {}
+        for p in parts:
+            k, v = p.split(nv_split)
+            argdict[k.strip()] = v.strip()
+
+        list_deps.append(Dependency(argdict.pop('name'), **argdict))
+    return list_deps
+
 
 def find_dependencies(filename, executable):
     """Return list of dependencies.
@@ -83,16 +111,6 @@ def find_dependencies(filename, executable):
     list
          lits contains Dependency for all packages imported by the R file
     """
-    res, deps = get_r_dependencies(executable.path, filename) #executable.path
-    deps = deps.rstrip()
-    pkgs = deps.split(package_split_str)[1:] ## first split may be a warning
-    list_deps = []
-    for pk in pkgs:
-        parts = filter(lambda x: len(x) > 0, pk.split(element_split_str))
-        argdict = {}
-        for p in parts:
-            k, v = p.split(name_value_split_str)
-            argdict[k.strip()] = v.strip()
-
-        list_deps.append(Dependency(argdict.pop('name'), **argdict))
-    return list_deps
+    res, deps = _get_r_dependencies(executable.path, filename) #executable.path
+    # if res != 0 handle errors
+    return _parse_deps(deps)
