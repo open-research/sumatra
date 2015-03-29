@@ -8,10 +8,11 @@ before_install:
   - chmod 755 ./travis-tool.sh
   - ./travis-tool.sh bootstrap
 # command to install dependencies
+# to install r dependencies use eg
+#  - ./travis-tool.sh install_deps ggplot2 dplyr
 install:
   - pip install -r requirements.txt --use-mirrors
   - pip install . --use-mirrors
-  - ./travis-tool.sh ggplot2
 # command to run tests
 script:
   nosetests -w test/unittests --with-coverage --cover-package=sumatra

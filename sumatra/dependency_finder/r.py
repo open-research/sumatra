@@ -59,7 +59,7 @@ def _get_r_dependencies(executable_path, rscriptfile, depfinder=r_script_to_find
     Raises
     ------
     """
-    parglist = [executable_path, r_script_to_find_deps,
+    parglist = [executable_path, depfinder,
                 rscriptfile, pkg_split, el_split, nv_split]
     p = subprocess.Popen(parglist, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     result = p.wait()
