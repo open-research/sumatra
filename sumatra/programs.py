@@ -19,7 +19,7 @@ NEURONSimulator
 GENESISSimulator
     represents the GENESIS neuroscience simulator.
 RExecutable
-    represents the R interpreter executable.
+    represents the Rscript CLI to R interpreter executable.
 
 Functions
 ---------

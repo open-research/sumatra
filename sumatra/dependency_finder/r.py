@@ -40,6 +40,8 @@ def _get_r_dependencies(executable_path, rscriptfile, depfinder=r_script_to_find
         Rscript executable
     rscriptfile : path
         script file to be evaluated
+    rscriptfile : depfinder
+        R script that finds dependencies
     pkg_split : str
         delimit packages in output
     el_split : str
@@ -99,18 +101,25 @@ def _parse_deps(deps, pkg_split=package_split_str,
 def find_dependencies(filename, executable):
     """Return list of dependencies.
 
-    Parameters
-    ----------
-    filename : path
-        R file to be evaluated for dependency
-    executable : ?
-        Executable object with executable.path location of exectuable Rscript
+    First determines dependency info for filename. This is done through an external call
+    (using the Rscript from exectuable.path) to a custom R script that uses parse
+    and simple pattern-matching to find all calls in filename that load external
+    packages (i.e., the R calls "library" and "require"). The result is returned
+    in a string with package info delimited by pre-set tokens. Info includes:
+    name, version, local path, and repo source (repo name but no URLs).
 
-    Returns
-    -------
-    list
-         lits contains Dependency for all packages imported by the R file
+    Second, parses the dependency info into Dependency objects, returned in a list.
     """
+    # filename : path
+    #     R file to be evaluated for dependency
+    # executable : ?
+    #     Executable object with executable.path location of exectuable Rscript
+
+    # Returns
+    # -------
+    # list
+    #      lits contains Dependency object for all packages imported by the R file
+
     res, deps = _get_r_dependencies(executable.path, filename) #executable.path
     # if res != 0 handle errors
     return _parse_deps(deps)
