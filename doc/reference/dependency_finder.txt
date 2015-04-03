@@ -100,3 +100,10 @@ GENESIS
    :undoc-members:
    :inherited-members:
    :show-inheritance:
+
+R
+--
+
+.. currentmodule:: sumatra.dependency_finder.r
+
+.. autofunction:: find_dependencies

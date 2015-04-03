@@ -37,7 +37,7 @@ setup(
                                 'web/media/extras/fontawesome/sass/*', 'web/media/extras/fontawesome/css/*.css',
                                 'web/templates/*.html',
                                 'publishing/latex/sumatra.sty',
-                                'formatting/latex_template.tex']},
+                                'formatting/latex_template.tex', 'external_scripts/script_introspect.R']},
     scripts = ['bin/smt', 'bin/smtweb'],
     author = "Sumatra authors and contributors",
     author_email = "andrew.davison@unic.cnrs-gif.fr",
