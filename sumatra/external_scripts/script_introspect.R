@@ -5,13 +5,14 @@ if(args[2] == args[3] || args[2] == args[4] || args[3] == args[4])
     stop("Usage: Rscript script_filename package_split_string element_split_string name_value_split_string \n
                  all split_string must differ!")
 packages_used <- function(script_filename) {
-    parsed_script <- parse(script_filename)
-    script_calls <- Filter(function(x) class(x) == "call", parsed_script)
-    script_chars <- lapply(script_calls, deparse)
-    script_pkgs <- Filter(function(x) grepl("library", x) || grepl("require", x), script_chars)
-    for(cname in c("library", "require", "\\(", "\\)", "\""))
-        script_pkgs <- lapply(script_pkgs, function(x) gsub(cname, "", x))
-    unlist(unique(script_pkgs))
+    parsed_script <- parse(script_filename, keep.source=TRUE)
+    parse_data <- getParseData(parsed_script)
+    script_calls <- parse_data[["text"]]
+    script_pkgs <- script_calls[which(script_calls == "library" | script_calls == "require" ) + 3]
+    script_pkgs <- Filter(function(x) !(x %in% unique(c(names(formals(require)),
+                                         names(formals(library))))), script_pkgs)
+    script_pkgs_named <- script_calls[which(script_calls == "package" ) + 2]
+    unlist(unique(c(script_pkgs, script_pkgs_named)))
 }
 packages_info <- function(script_filename) {
     pkg_names <- packages_used(script_filename)

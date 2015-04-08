@@ -1,4 +1,4 @@
-library(foreign)
+library(quietly=TRUE, package=foreign)
 library(MASS)
 
 args <- commandArgs(TRUE)
