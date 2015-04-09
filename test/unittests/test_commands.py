@@ -9,6 +9,7 @@ except ImportError:
 import os
 import hashlib
 from sumatra import commands, launch, datastore
+from sumatra.parameters import SimpleParameterSet
 
 originals = []  # use for storing originals of mocked objects
 
@@ -760,32 +761,33 @@ class MigrateCommandTests(unittest.TestCase):
 
 
 class ArgumentParsingTests(unittest.TestCase):
+    P = SimpleParameterSet("")
 
     def test_parse_command_line_parameter_arg_must_contain_equals(self):
-        self.assertRaises(Exception, commands.parse_command_line_parameter, "foobar")
+        self.assertRaises(Exception, P.parse_command_line_parameter, "foobar")
 
     def test_parse_command_line_parameter_with_int(self):
-        result = commands.parse_command_line_parameter("a=2")
+        result = P.parse_command_line_parameter("a=2")
         self.assertEqual(result, {'a': 2})
         assert isinstance(result['a'], int)
 
     def test_parse_command_line_parameter_with_float(self):
-        result = commands.parse_command_line_parameter("b=2.0")
+        result = P.parse_command_line_parameter("b=2.0")
         self.assertEqual(result, {'b': 2.0})
         assert isinstance(result['b'], float)
 
     def test_parse_command_line_parameter_with_list(self):
-        result = commands.parse_command_line_parameter("c=[1,2,3,4,5]")
+        result = P.parse_command_line_parameter("c=[1,2,3,4,5]")
         self.assertEqual(result, {'c': [1, 2, 3, 4, 5]})
 
     def test_parse_command_line_parameter_with_tuple(self):
-        result = commands.parse_command_line_parameter("d=('a','b','c')")
+        result = P.parse_command_line_parameter("d=('a','b','c')")
         self.assertEqual(result, {'d': ('a', 'b', 'c')})
 
     def test_parse_command_line_parameter_should_accept_equals_in_parameter(self):
         # because the parameter value could be a string containing "="
         value = "save=Data/result.uwsize=48.setsize=1"
-        result = commands.parse_command_line_parameter(value)
+        result = P.parse_command_line_parameter(value)
         self.assertEqual(result, {'save': 'Data/result.uwsize=48.setsize=1'})
 
 
