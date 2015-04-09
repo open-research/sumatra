@@ -155,8 +155,10 @@ def mock_mkdir(path, mode=511):  # octal 777 "-rwxrwxrwx"
 
 def mock_build_parameters(filename):
     if filename != "this.is.not.a.parameter.file":
+        P = SimpleParameterSet("")
         ps = type("MockParameterSet", (dict,),
                   {"parameter_file": filename,
+                   "parse_command_line_parameter": lambda self, cl: P.parse_command_line_parameter(cl),
                    "pretty": lambda self, expand_urls: str(self)})
         return ps(this="mock")
     else:
@@ -764,30 +766,30 @@ class ArgumentParsingTests(unittest.TestCase):
     P = SimpleParameterSet("")
 
     def test_parse_command_line_parameter_arg_must_contain_equals(self):
-        self.assertRaises(Exception, P.parse_command_line_parameter, "foobar")
+        self.assertRaises(Exception, self.P.parse_command_line_parameter, "foobar")
 
     def test_parse_command_line_parameter_with_int(self):
-        result = P.parse_command_line_parameter("a=2")
+        result = self.P.parse_command_line_parameter("a=2")
         self.assertEqual(result, {'a': 2})
         assert isinstance(result['a'], int)
 
     def test_parse_command_line_parameter_with_float(self):
-        result = P.parse_command_line_parameter("b=2.0")
+        result = self.P.parse_command_line_parameter("b=2.0")
         self.assertEqual(result, {'b': 2.0})
         assert isinstance(result['b'], float)
 
     def test_parse_command_line_parameter_with_list(self):
-        result = P.parse_command_line_parameter("c=[1,2,3,4,5]")
+        result = self.P.parse_command_line_parameter("c=[1,2,3,4,5]")
         self.assertEqual(result, {'c': [1, 2, 3, 4, 5]})
 
     def test_parse_command_line_parameter_with_tuple(self):
-        result = P.parse_command_line_parameter("d=('a','b','c')")
+        result = self.P.parse_command_line_parameter("d=('a','b','c')")
         self.assertEqual(result, {'d': ('a', 'b', 'c')})
 
     def test_parse_command_line_parameter_should_accept_equals_in_parameter(self):
         # because the parameter value could be a string containing "="
         value = "save=Data/result.uwsize=48.setsize=1"
-        result = P.parse_command_line_parameter(value)
+        result = self.P.parse_command_line_parameter(value)
         self.assertEqual(result, {'save': 'Data/result.uwsize=48.setsize=1'})
 
 
