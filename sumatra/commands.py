@@ -52,32 +52,9 @@ def parse_executable_str(exec_str):
         first_space = len(exec_str)
     return exec_str[:first_space], exec_str[first_space:]
 
-
-list_pattern = re.compile(r'^\s*\[.*\]\s*$')
-tuple_pattern = re.compile(r'^\s*\(.*\)\s*$')
-
-
-def parse_command_line_parameter(p):
-    pos = p.find('=')
-    if pos == -1:
-        raise Exception("Not a valid command line parameter. String must be of form 'name=value'")
-    name = p[:pos]
-    value = p[pos + 1:]
-    if list_pattern.match(value) or tuple_pattern.match(value):
-        value = eval(value)
-    else:
-        for cast in int, float:
-            try:
-                value = cast(value)
-                break
-            except ValueError:
-                pass
-    return {name: value}
-
-
 def parse_arguments(args, input_datastore, stdin=None, stdout=None,
                     allow_command_line_parameters=True):
-    cmdline_parameters = {}
+    cmdline_parameters = []
     script_args = []
     parameter_sets = []
     input_data = []
@@ -95,7 +72,7 @@ def parse_arguments(args, input_datastore, stdin=None, stdout=None,
                 input_data.extend(data_key)
                 script_args.append(arg)
             elif allow_command_line_parameters and "=" in arg:  # cmdline parameter
-                cmdline_parameters.update(parse_command_line_parameter(arg))
+                cmdline_parameters.append(arg)
             else:  # a flag or something, passed on unchanged
                 script_args.append(arg)
     if stdin:
@@ -110,7 +87,9 @@ def parse_arguments(args, input_datastore, stdin=None, stdout=None,
     assert len(parameter_sets) < 2, "No more than one parameter file may be supplied."  # temporary restriction
     if cmdline_parameters:
         if parameter_sets:
-            parameter_sets[0].update(cmdline_parameters)
+            ps = parameter_sets[0]
+            for cl in cmdline_parameters:
+                ps.update(ps.parse_command_line_parameter(cl))
         else:
             raise Exception("Command-line parameters supplied but without a parameter file to put them into.")
             # ought really to have a more specific Exception and to catch it so as to give a helpful error message to user
