@@ -183,6 +183,7 @@ class Datastore(BaseModel):
 class DataKey(BaseModel):
     path = models.CharField(max_length=200)
     digest = models.CharField(max_length=40)
+    creation = models.DateTimeField(null=True, blank=True)
     metadata = models.TextField(blank=True)
 
     output_from_record = models.ForeignKey('Record', related_name =
@@ -196,7 +197,7 @@ class DataKey(BaseModel):
 
     def to_sumatra(self):
         metadata = eval(self.metadata)
-        return datastore.DataKey(self.path, self.digest, **metadata)
+        return datastore.DataKey(self.path, self.digest, self.creation, **metadata)
 
 
 class PlatformInformation(BaseModel):
