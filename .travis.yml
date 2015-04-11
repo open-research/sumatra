@@ -3,6 +3,7 @@ python:
   - "2.7"
   - "2.6"
 # setup to use R -- see github.com/craigcitro/r-travis
+sudo: required
 before_install:
   - curl -OL http://raw.github.com/craigcitro/r-travis/master/scripts/travis-tool.sh
   - chmod 755 ./travis-tool.sh
