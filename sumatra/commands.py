@@ -147,7 +147,7 @@ def init(argv):
 
     try:
         project = load_project()
-        parser.error("A project already exists in this directory.")
+        parser.error("A project already exists in directory '{0}'.".format(project.path))
     except Exception:
         pass
 
