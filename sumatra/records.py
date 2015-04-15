@@ -288,6 +288,10 @@ class RecordDifference(object):
                             self.dependencies_differ))
 
     @property
+    def parameter_differences(self):
+        return self.recordA.parameters.diff(self.recordB.parameters)
+
+    @property
     def dependencies_differ(self):
         return set(self.recordA.dependencies) != set(self.recordB.dependencies)
 
@@ -372,3 +376,5 @@ class RecordDifference(object):
             return self.recordA.launch_mode, self.recordB.launch_mode
         else:
             return None
+
+    # todo: add stdout/stderr differs?

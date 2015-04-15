@@ -94,6 +94,33 @@ class ParameterSet(object):
 
         return {name: value}
 
+    def diff(self, other):
+        return _dict_diff(self, other)
+
+
+def _dict_diff(a, b):
+        a_keys = set(a.keys())
+        b_keys = set(b.keys())
+        intersection = a_keys.intersection(b_keys)
+        difference1 = a_keys.difference(b_keys)
+        difference2 = b_keys.difference(a_keys)
+        result1 = dict([(key, a[key]) for key in difference1])
+        result2 = dict([(key, b[key]) for key in difference2])
+        # Now need to check values for intersection....
+        for item in intersection:
+            if isinstance(a[item], dict):
+                d1, d2 = _dict_diff(a[item], b[item])
+                if d1:
+                    result1[item] = d1
+                if d2:
+                    result2[item] = d2
+            elif a[item] != b[item]:
+                result1[item] = a[item]
+                result2[item] = b[item]
+        if len(result1) + len(result2) == 0:
+            assert a == b, "Error in _dict_diff()"
+        return result1, result2
+
 
 class YAMLParameterSet(ParameterSet):
     """
@@ -135,6 +162,9 @@ class YAMLParameterSet(ParameterSet):
 
     def __ne__(self, other):
         return not self.__eq__(other)
+
+    def keys(self):
+        return self.values.keys()
 
     def pretty(self, expand_urls=False):
         """
@@ -238,6 +268,9 @@ class SimpleParameterSet(ParameterSet):
 
     def __ne__(self, other):
         return not self.__eq__(other)
+
+    def keys(self):
+        return self.values.keys()
 
     def pop(self, k, d=POP_NONE):
         if k in self.values:
@@ -346,6 +379,9 @@ class ConfigParserParameterSet(SafeConfigParser, ParameterSet):
         # implement this simple version which avoids copying SRE_Pattern objects
         return ConfigParserParameterSet(self.pretty())
 
+    def keys(self):
+        return (section for section in self.sections())
+
     def pretty(self, expand_urls=False):
         """
         Return a string representation of the parameter set, suitable for
@@ -450,6 +486,9 @@ class JSONParameterSet(ParameterSet):
 
     def __ne__(self, other):
         return not self.__eq__(other)
+
+    def keys(self):
+        return self.values.keys()
 
     def pretty(self, expand_urls=False):
         """
