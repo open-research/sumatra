@@ -41,6 +41,16 @@ modes = ("init", "configure", "info", "run", "list", "delete", "comment", "tag",
 
 store_arg_help = "The argument can take the following forms: (1) `/path/to/sqlitedb` - DjangoRecordStore is used with the specified Sqlite database, (2) `http[s]://location` - remote HTTPRecordStore is used with a remote Sumatra server, (3) `postgres://username:password@hostname/databasename` - DjangoRecordStore is used with specified Postgres database."
 
+## recommended method for modifying warning formatting
+## see https://docs.python.org/2/library/warnings.html#warnings.showwarning
+def _warning(
+        message,
+        category = UserWarning,
+        filename = '',
+        lineno = -1):
+    print("Warning: ")
+    print(message)
+warnings.showwarning = _warning
 
 def parse_executable_str(exec_str):
     """
@@ -89,7 +99,12 @@ def parse_arguments(args, input_datastore, stdin=None, stdout=None,
         if parameter_sets:
             ps = parameter_sets[0]
             for cl in cmdline_parameters:
-                ps.update(ps.parse_command_line_parameter(cl))
+                try:
+                    ps.update(ps.parse_command_line_parameter(cl))
+                except ValueError as v:
+                    name, value = v.args
+                    warnings.warn("'{0}={1}' not defined in the parameter file".format(name, value))
+                    ps.update({name: value}) ## for now, add the command line param anyway
         else:
             raise Exception("Command-line parameters supplied but without a parameter file to put them into.")
             # ought really to have a more specific Exception and to catch it so as to give a helpful error message to user

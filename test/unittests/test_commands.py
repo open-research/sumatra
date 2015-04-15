@@ -9,7 +9,7 @@ except ImportError:
 import os
 import hashlib
 from sumatra import commands, launch, datastore
-from sumatra.parameters import SimpleParameterSet
+from sumatra.parameters import SimpleParameterSet, JSONParameterSet
 
 originals = []  # use for storing originals of mocked objects
 
@@ -763,34 +763,65 @@ class MigrateCommandTests(unittest.TestCase):
 
 
 class ArgumentParsingTests(unittest.TestCase):
-    P = SimpleParameterSet("")
+
+    def setUp(self):
+        ## setup parsets with legal params
+        self.PSETS = (SimpleParameterSet(""), JSONParameterSet(""))
+        for P in self.PSETS:
+            for k in ('a', 'b', 'c', 'd', 'l', 'save'):
+                P.update({k: 1})
 
     def test_parse_command_line_parameter_arg_must_contain_equals(self):
-        self.assertRaises(Exception, self.P.parse_command_line_parameter, "foobar")
+        for P in self.PSETS:
+            self.assertRaises(Exception, P.parse_command_line_parameter, "foobar")
 
     def test_parse_command_line_parameter_with_int(self):
-        result = self.P.parse_command_line_parameter("a=2")
-        self.assertEqual(result, {'a': 2})
-        assert isinstance(result['a'], int)
+        for P in self.PSETS:
+            result = P.parse_command_line_parameter("a=2")
+            self.assertEqual(result, {'a': 2})
+            assert isinstance(result['a'], int)
 
     def test_parse_command_line_parameter_with_float(self):
-        result = self.P.parse_command_line_parameter("b=2.0")
-        self.assertEqual(result, {'b': 2.0})
-        assert isinstance(result['b'], float)
+        for P in self.PSETS:
+            result = P.parse_command_line_parameter("b=2.0")
+            self.assertEqual(result, {'b': 2.0})
+            assert isinstance(result['b'], float)
+
+    def test_parse_commend_line_parameter_warns(self):
+        ## but still returns name and value with ValueError
+        for P in self.PSETS:
+            self.assertRaises(ValueError, P.parse_command_line_parameter, "bt=2")
+            try:
+                P.parse_command_line_parameter("bt=2")
+            except ValueError as v:
+                name, value = v.args
+                self.assertEqual(name, 'bt')
+                self.assertEqual(value, 2)
+                assert isinstance(value, int)
 
     def test_parse_command_line_parameter_with_list(self):
-        result = self.P.parse_command_line_parameter("c=[1,2,3,4,5]")
-        self.assertEqual(result, {'c': [1, 2, 3, 4, 5]})
+        for P in self.PSETS:
+            result = P.parse_command_line_parameter("c=[1,2,3,4,5]")
+            self.assertEqual(result, {'c': [1, 2, 3, 4, 5]})
+
+    def test_parse_command_line_parameter_with_bool(self):
+        P, PJSON = self.PSETS
+        result = P.parse_command_line_parameter("l=False")
+        self.assertEqual(result, {'l': 'False'}) #current behavior coerce logical to string
+        result = PJSON.parse_command_line_parameter("l=false")
+        self.assertEqual(result, {'l': False})
 
     def test_parse_command_line_parameter_with_tuple(self):
-        result = self.P.parse_command_line_parameter("d=('a','b','c')")
-        self.assertEqual(result, {'d': ('a', 'b', 'c')})
+        for P in self.PSETS:
+            result = P.parse_command_line_parameter("d=('a','b','c')")
+            self.assertEqual(result, {'d': ('a', 'b', 'c')})
 
     def test_parse_command_line_parameter_should_accept_equals_in_parameter(self):
         # because the parameter value could be a string containing "="
-        value = "save=Data/result.uwsize=48.setsize=1"
-        result = self.P.parse_command_line_parameter(value)
-        self.assertEqual(result, {'save': 'Data/result.uwsize=48.setsize=1'})
+        for P in self.PSETS:
+            value = "save=Data/result.uwsize=48.setsize=1"
+            result = P.parse_command_line_parameter(value)
+            self.assertEqual(result, {'save': 'Data/result.uwsize=48.setsize=1'})
 
 
 if __name__ == '__main__':

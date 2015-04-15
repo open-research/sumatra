@@ -56,16 +56,27 @@ class ParameterSet(object):
     tuple_pattern = re.compile(r'^\s*\(.*\)\s*$')
     casts = (int, float)
 
-    def _name_warn(self, name, value):
-        pass
+    def _new_param_check(self, name, value):
+        try:
+            self.values[name]
+        except:
+            raise ValueError
+
 
     def parse_command_line_parameter(self, p):
+        """Parse command line parameter
+
+        Uses ParameterSet format-specific type parsers stored in self.casts
+
+        Raises ValueError with args tuple containing name, value if parameter name
+        isn't in self.values.
+        """
         pos = p.find('=')
         if pos == -1:
             raise Exception("Not a valid command line parameter. String must be of form 'name=value'")
         name = p[:pos]
         value = p[pos + 1:]
-        self._name_warn(name, value)
+
         if self.list_pattern.match(value) or self.tuple_pattern.match(value):
             value = eval(value)
         else:
@@ -75,6 +86,12 @@ class ParameterSet(object):
                     break
                 except ValueError:
                     pass
+        try:
+            self._new_param_check(name, value)
+        except ValueError:
+            raise ValueError(name,  value)
+            ## attempt to pass undefined param -- let commands.py deal with
+
         return {name: value}
 
 
@@ -433,10 +450,6 @@ class JSONParameterSet(ParameterSet):
 
     def __ne__(self, other):
         return not self.__eq__(other)
-
-    def _name_warn(self, name, value):
-        if name not in self.values.keys():
-            raise Warning("Adding parameter {0}={1}".format(name, value))
 
     def pretty(self, expand_urls=False):
         """
