@@ -54,13 +54,13 @@ class ParameterSet(object):
     required_attributes = ("update", "save")
     list_pattern = re.compile(r'^\s*\[.*\]\s*$')
     tuple_pattern = re.compile(r'^\s*\(.*\)\s*$')
-    casts = (int, float)
+    casts = (yaml.load, ) ## good behavior for all bool, at cost of dependency
 
     def _new_param_check(self, name, value):
         try:
             self.values[name]
-        except:
-            raise ValueError
+        except KeyError:
+            raise ValueError("")
 
 
     def parse_command_line_parameter(self, p):
@@ -88,8 +88,8 @@ class ParameterSet(object):
                     pass
         try:
             self._new_param_check(name, value)
-        except ValueError:
-            raise ValueError(name,  value)
+        except ValueError as v:
+            raise ValueError(v.message, name,  value)
             ## attempt to pass undefined param -- let commands.py deal with
 
         return {name: value}
@@ -101,6 +101,7 @@ class YAMLParameterSet(ParameterSet):
     PyYAML module
     """
     name = ".yaml"
+    casts = (yaml.load, )
 
     def __init__(self, initialiser):
         """
@@ -306,6 +307,7 @@ class ConfigParserParameterSet(SafeConfigParser, ParameterSet):
     parameter values are treated as strings.
     """
     name = ".cfg"
+    casts = (str, )
 
     def __init__(self, initialiser):
         """
@@ -413,6 +415,8 @@ class ConfigParserParameterSet(SafeConfigParser, ParameterSet):
             value = d
         return value
 
+    def _new_param_check(self, name, value):
+        raise ValueError("Config file: parameter name checking not implemented!")
 
 class JSONParameterSet(ParameterSet):
     """

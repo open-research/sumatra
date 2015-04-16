@@ -102,7 +102,8 @@ def parse_arguments(args, input_datastore, stdin=None, stdout=None,
                 try:
                     ps.update(ps.parse_command_line_parameter(cl))
                 except ValueError as v:
-                    name, value = v.args
+                    message, name, value = v.args
+                    warnings.warn(message)
                     warnings.warn("'{0}={1}' not defined in the parameter file".format(name, value))
                     ps.update({name: value}) ## for now, add the command line param anyway
         else:

@@ -9,7 +9,8 @@ except ImportError:
 import os
 import hashlib
 from sumatra import commands, launch, datastore
-from sumatra.parameters import SimpleParameterSet, JSONParameterSet
+from sumatra.parameters import (SimpleParameterSet, JSONParameterSet,
+                                YAMLParameterSet, ConfigParserParameterSet)
 
 originals = []  # use for storing originals of mocked objects
 
@@ -767,9 +768,12 @@ class ArgumentParsingTests(unittest.TestCase):
 
     def setUp(self):
         ## setup parsets with legal params
-        self.PSETS = (SimpleParameterSet(""), JSONParameterSet(""))
-        for P in self.PSETS:
-            for k in ('a', 'b', 'c', 'd', 'l', 'save'):
+        self.PSETS = (SimpleParameterSet(""), JSONParameterSet(""),
+                      YAMLParameterSet(""))
+        self.PConfigParser = ConfigParserParameterSet("")
+        for k in ('a', 'b', 'c', 'd', 'l', 'save'):
+            self.PConfigParser.update({k: 1})
+            for P in self.PSETS:
                 P.update({k: 1})
 
     def test_parse_command_line_parameter_arg_must_contain_equals(self):
@@ -795,10 +799,21 @@ class ArgumentParsingTests(unittest.TestCase):
             try:
                 P.parse_command_line_parameter("bt=2")
             except ValueError as v:
-                name, value = v.args
+                message, name, value = v.args
+                self.assertEqual(message, '')
                 self.assertEqual(name, 'bt')
                 self.assertEqual(value, 2)
                 assert isinstance(value, int)
+        self.assertRaises(ValueError, self.PConfigParser.parse_command_line_parameter, "l=False")
+        try:
+            self.PConfigParser.parse_command_line_parameter("l=False")
+        except ValueError as v:
+            #config parser coerce all to string
+            message, name, value = v.args
+            self.assertEqual(name, 'l')
+            self.assertEqual(value, 'False')
+            assert isinstance(value, str)
+
 
     def test_parse_command_line_parameter_with_list(self):
         for P in self.PSETS:
@@ -806,11 +821,21 @@ class ArgumentParsingTests(unittest.TestCase):
             self.assertEqual(result, {'c': [1, 2, 3, 4, 5]})
 
     def test_parse_command_line_parameter_with_bool(self):
-        P, PJSON = self.PSETS
-        result = P.parse_command_line_parameter("l=False")
-        self.assertEqual(result, {'l': 'False'}) #current behavior coerce logical to string
+        PS, PJSON, PYAML = self.PSETS
         result = PJSON.parse_command_line_parameter("l=false")
         self.assertEqual(result, {'l': False})
+        for P in (PS, PYAML):
+            # yaml has language agnostic bool
+            result = P.parse_command_line_parameter("l=False") #python-like
+            self.assertEqual(result, {'l': False})
+            result = P.parse_command_line_parameter("l=false") #json-like
+            self.assertEqual(result, {'l': False})
+            result = P.parse_command_line_parameter("l=FALSE") #r-like
+            self.assertEqual(result, {'l': False})
+            result = P.parse_command_line_parameter("l=off") # possibly undesired
+            self.assertEqual(result, {'l': False})
+            result = P.parse_command_line_parameter("l=On") # possibly undesired
+            self.assertEqual(result, {'l': True})
 
     def test_parse_command_line_parameter_with_tuple(self):
         for P in self.PSETS:
