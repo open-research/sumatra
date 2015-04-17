@@ -772,9 +772,10 @@ class ArgumentParsingTests(unittest.TestCase):
                       YAMLParameterSet(""))
         self.PConfigParser = ConfigParserParameterSet("")
         for k in ('a', 'b', 'c', 'd', 'l', 'save'):
-            self.PConfigParser.update({k: 1})
+            up_dict = {k: 1}
+            self.PConfigParser.update(up_dict)
             for P in self.PSETS:
-                P.update({k: 1})
+                P.update(up_dict)
 
     def test_parse_command_line_parameter_arg_must_contain_equals(self):
         for P in self.PSETS:
@@ -824,18 +825,19 @@ class ArgumentParsingTests(unittest.TestCase):
         PS, PJSON, PYAML = self.PSETS
         result = PJSON.parse_command_line_parameter("l=false")
         self.assertEqual(result, {'l': False})
-        for P in (PS, PYAML):
-            # yaml has language agnostic bool
-            result = P.parse_command_line_parameter("l=False") #python-like
-            self.assertEqual(result, {'l': False})
-            result = P.parse_command_line_parameter("l=false") #json-like
-            self.assertEqual(result, {'l': False})
-            result = P.parse_command_line_parameter("l=FALSE") #r-like
-            self.assertEqual(result, {'l': False})
-            result = P.parse_command_line_parameter("l=off") # possibly undesired
-            self.assertEqual(result, {'l': False})
-            result = P.parse_command_line_parameter("l=On") # possibly undesired
-            self.assertEqual(result, {'l': True})
+        result = PS.parse_command_line_parameter("l=false")
+        self.assertEqual(result, {'l': 'false'})
+        # yaml has language agnostic bool
+        result = PYAML.parse_command_line_parameter("l=False") #python-like
+        self.assertEqual(result, {'l': False})
+        result = PYAML.parse_command_line_parameter("l=false") #json-like
+        self.assertEqual(result, {'l': False})
+        result = PYAML.parse_command_line_parameter("l=FALSE") #r-like
+        self.assertEqual(result, {'l': False})
+        result = PYAML.parse_command_line_parameter("l=off") # possibly undesired
+        self.assertEqual(result, {'l': False})
+        result = PYAML.parse_command_line_parameter("l=On") # possibly undesired
+        self.assertEqual(result, {'l': True})
 
     def test_parse_command_line_parameter_with_tuple(self):
         for P in self.PSETS:

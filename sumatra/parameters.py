@@ -101,7 +101,6 @@ class YAMLParameterSet(ParameterSet):
     PyYAML module
     """
     name = ".yaml"
-    casts = (yaml.load, )
 
     def __init__(self, initialiser):
         """
@@ -180,6 +179,7 @@ class SimpleParameterSet(ParameterSet):
     Handles parameter files in a simple "name = value" format, with no nesting or grouping.
     """
     name = ".simpleparameterset"
+    casts = (int, float)
 
     def __init__(self, initialiser):
         """
