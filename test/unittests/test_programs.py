@@ -13,7 +13,8 @@ try:
 except ImportError:
     check_output = False
 from sumatra.programs import Executable, version_pattern, get_executable, \
-                             PythonExecutable, NESTSimulator, NEURONSimulator
+                             PythonExecutable, NESTSimulator, NEURONSimulator, \
+                             RExecutable
 
 class TestVersionRegExp(unittest.TestCase):
     
@@ -25,6 +26,7 @@ class TestVersionRegExp(unittest.TestCase):
             "abcdefg": None,
             "usage: ls [-ABCFGHLPRSTWabcdefghiklmnopqrstuwx1] [file ...]": None,
             "4.2rc3": "4.2rc3",
+            "R scripting front-end version 3.1.2 (2014-10-31)" : "3.1.2",
         }
         for input, output in examples.items():
             match = version_pattern.search(input)
@@ -65,14 +67,14 @@ class TestExecutable(unittest.TestCase):
         self.assertEqual(prog1, prog2)
         assert prog1 != prog3
 
+class TestRExecutable(unittest.TestCase):
+    pass
 
 class TestNEURONSimulator(unittest.TestCase):
     pass
 
-
 class TestNESTSimulator(unittest.TestCase):
     pass
-
 
 class MockParameterSet(object):
     saved = False
@@ -97,6 +99,9 @@ class TestModuleFunctions(unittest.TestCase):
         if os.path.exists("/usr/local/bin/nest"):
             prog = get_executable("/usr/local/bin/nest")
             assert isinstance(prog, NESTSimulator)
+        if os.path.exists("/usr/bin/Rscript"):
+            prog = get_executable("/usr/bin/Rscript")
+            assert isinstance(prog, RExecutable)
             
     def test__get_executable__with_path_of_unregistered_executable(self):
         prog = get_executable("/bin/cat")
@@ -106,6 +111,10 @@ class TestModuleFunctions(unittest.TestCase):
     def test__get_executable__with_script_file(self):
         prog = get_executable(script_file="test.py")
         assert isinstance(prog, PythonExecutable)
+        prog_r = get_executable(script_file="test.r")
+        assert isinstance(prog_r, RExecutable)
+        prog_R = get_executable(script_file="test.R")
+        assert isinstance(prog_R, RExecutable)
 
     def test__get_executable__with_nonregistered_extension__should_raise_Exception(self):
         self.assertRaises(Exception, get_executable, script_file="test.foo")

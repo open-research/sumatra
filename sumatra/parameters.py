@@ -32,6 +32,7 @@ from __future__ import with_statement, absolute_import
 import os.path
 import shutil
 import abc
+import re
 try:
     from ConfigParser import SafeConfigParser, MissingSectionHeaderError, NoOptionError  # Python 2
 except ImportError:
@@ -48,10 +49,50 @@ from .core import registry
 
 POP_NONE = "eiutbocqnluiegnclqiuetyvbietcbdgsfzpq"
 
-
 class ParameterSet(object):
     __metaclass__ = abc.ABCMeta
     required_attributes = ("update", "save")
+    list_pattern = re.compile(r'^\s*\[.*\]\s*$')
+    tuple_pattern = re.compile(r'^\s*\(.*\)\s*$')
+    casts = (int, float)
+
+    def _new_param_check(self, name, value):
+        try:
+            self.values[name]
+        except:
+            raise ValueError
+
+
+    def parse_command_line_parameter(self, p):
+        """Parse command line parameter
+
+        Uses ParameterSet format-specific type parsers stored in self.casts
+
+        Raises ValueError with args tuple containing name, value if parameter name
+        isn't in self.values.
+        """
+        pos = p.find('=')
+        if pos == -1:
+            raise Exception("Not a valid command line parameter. String must be of form 'name=value'")
+        name = p[:pos]
+        value = p[pos + 1:]
+
+        if self.list_pattern.match(value) or self.tuple_pattern.match(value):
+            value = eval(value)
+        else:
+            for cast in self.casts:
+                try:
+                    value = cast(value)
+                    break
+                except ValueError:
+                    pass
+        try:
+            self._new_param_check(name, value)
+        except ValueError:
+            raise ValueError(name,  value)
+            ## attempt to pass undefined param -- let commands.py deal with
+
+        return {name: value}
 
 
 class YAMLParameterSet(ParameterSet):
@@ -379,6 +420,7 @@ class JSONParameterSet(ParameterSet):
     standard Python json module.
     """
     name = ".json"
+    casts = (json.loads, )
 
     def __init__(self, initialiser):
         """

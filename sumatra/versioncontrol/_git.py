@@ -38,7 +38,8 @@ def check_version():
     if LooseVersion(git.__version__) < LooseVersion(minimum_version):
         raise VersionControlError(
             "Your Git Python binding is too old. You require at least "
-            "version {}.".format(minimum_version))
+            "version {}. You can install the latest version e.g. via "
+            "'pip install -U gitpython'".format(minimum_version))
 
 
 def findrepo(path):

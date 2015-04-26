@@ -41,6 +41,16 @@ modes = ("init", "configure", "info", "run", "list", "delete", "comment", "tag",
 
 store_arg_help = "The argument can take the following forms: (1) `/path/to/sqlitedb` - DjangoRecordStore is used with the specified Sqlite database, (2) `http[s]://location` - remote HTTPRecordStore is used with a remote Sumatra server, (3) `postgres://username:password@hostname/databasename` - DjangoRecordStore is used with specified Postgres database."
 
+## recommended method for modifying warning formatting
+## see https://docs.python.org/2/library/warnings.html#warnings.showwarning
+def _warning(
+        message,
+        category = UserWarning,
+        filename = '',
+        lineno = -1):
+    print("Warning: ")
+    print(message)
+warnings.showwarning = _warning
 
 def parse_executable_str(exec_str):
     """
@@ -52,32 +62,9 @@ def parse_executable_str(exec_str):
         first_space = len(exec_str)
     return exec_str[:first_space], exec_str[first_space:]
 
-
-list_pattern = re.compile(r'^\s*\[.*\]\s*$')
-tuple_pattern = re.compile(r'^\s*\(.*\)\s*$')
-
-
-def parse_command_line_parameter(p):
-    pos = p.find('=')
-    if pos == -1:
-        raise Exception("Not a valid command line parameter. String must be of form 'name=value'")
-    name = p[:pos]
-    value = p[pos + 1:]
-    if list_pattern.match(value) or tuple_pattern.match(value):
-        value = eval(value)
-    else:
-        for cast in int, float:
-            try:
-                value = cast(value)
-                break
-            except ValueError:
-                pass
-    return {name: value}
-
-
 def parse_arguments(args, input_datastore, stdin=None, stdout=None,
                     allow_command_line_parameters=True):
-    cmdline_parameters = {}
+    cmdline_parameters = []
     script_args = []
     parameter_sets = []
     input_data = []
@@ -95,7 +82,7 @@ def parse_arguments(args, input_datastore, stdin=None, stdout=None,
                 input_data.extend(data_key)
                 script_args.append(arg)
             elif allow_command_line_parameters and "=" in arg:  # cmdline parameter
-                cmdline_parameters.update(parse_command_line_parameter(arg))
+                cmdline_parameters.append(arg)
             else:  # a flag or something, passed on unchanged
                 script_args.append(arg)
     if stdin:
@@ -110,7 +97,14 @@ def parse_arguments(args, input_datastore, stdin=None, stdout=None,
     assert len(parameter_sets) < 2, "No more than one parameter file may be supplied."  # temporary restriction
     if cmdline_parameters:
         if parameter_sets:
-            parameter_sets[0].update(cmdline_parameters)
+            ps = parameter_sets[0]
+            for cl in cmdline_parameters:
+                try:
+                    ps.update(ps.parse_command_line_parameter(cl))
+                except ValueError as v:
+                    name, value = v.args
+                    warnings.warn("'{0}={1}' not defined in the parameter file".format(name, value))
+                    ps.update({name: value}) ## for now, add the command line param anyway
         else:
             raise Exception("Command-line parameters supplied but without a parameter file to put them into.")
             # ought really to have a more specific Exception and to catch it so as to give a helpful error message to user
@@ -147,7 +141,7 @@ def init(argv):
 
     try:
         project = load_project()
-        parser.error("A project already exists in this directory.")
+        parser.error("A project already exists in directory '{0}'.".format(project.path))
     except Exception:
         pass
 

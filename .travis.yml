@@ -1,11 +1,23 @@
 language: python
+sudo: required
 python:
   - "2.7"
   - "2.6"
+# setup to use R -- see github.com/craigcitro/r-travis
+sudo: required
+before_install:
+  - curl -OL http://raw.github.com/craigcitro/r-travis/master/scripts/travis-tool.sh
+  - chmod 755 ./travis-tool.sh
+  - ./travis-tool.sh bootstrap
 # command to install dependencies
+# to install r dependencies use eg
+#  - ./travis-tool.sh install_deps ggplot2 dplyr
 install:
   - pip install -r requirements.txt
   - pip install .
 # command to run tests
 script:
   nosetests -w test/unittests --with-coverage --cover-package=sumatra
+
+after_failure:
+  - ./travis-tool.sh dump_logs

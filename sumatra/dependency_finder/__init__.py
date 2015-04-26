@@ -18,7 +18,7 @@ import os
 import sys
 import warnings
 
-from sumatra.dependency_finder import core, neuron, python, genesis, matlab
+from sumatra.dependency_finder import core, neuron, python, genesis, matlab, r
 
 
 def find_dependencies(filename, executable):
@@ -40,6 +40,8 @@ def find_dependencies(filename, executable):
         return neuron.find_dependencies(filename, executable)
     elif executable.name == "GENESIS":
         return genesis.find_dependencies(filename, executable)
+    elif executable.name == "R":
+        return r.find_dependencies(filename, executable)
     else:
         warnings.warn("find_dependencies() not yet implemented for %s" % executable.name)
         return []
