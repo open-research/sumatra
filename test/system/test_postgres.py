@@ -9,6 +9,7 @@ or:
 """
 
 import os
+from urlparse import urlparse
 try:
     import docker
     if "DOCKER_HOST" in os.environ:
@@ -42,21 +43,22 @@ def create_script():
 def get_url():
     info = dkr.containers()[0]
     assert info["Image"] == "{}:latest".format(image)
-    return "localhost:{}".format(info["Ports"][0]["PublicPort"])
+    host = urlparse(dkr.base_url).hostname
+    return "{}:{}".format(host, info["Ports"][0]["PublicPort"])
 
 
 def start_pg_container():
     """
     Launch a Docker container running PostgreSQL, return the URL.
 
-    Requires the "example_postgresql" image. If this does not yet exist, run
+    Requires the "postgresql_test" image. If this does not yet exist, run
 
-        docker build -t example_postgresql - < fixtures/Dockerfile.postgres
+        docker build -t postgresql_test - < fixtures/Dockerfile.postgres
     """
     global ctr, dkr
-    docker_host = os.environ["DOCKER_HOST"]
-    dkr = docker.Client(base_url=docker_host, version='1.6', timeout=60)
-    # docker run -rm -P -name pg_test example_postgresql
+    env = docker.utils.kwargs_from_env(assert_hostname=False)
+    dkr = docker.Client(timeout=60, **env)
+    # docker run -rm -P -name pg_test postgresql_test
     ctr = dkr.create_container(image, command=None, hostname=None, user=None,
                                detach=False, stdin_open=False, tty=False, mem_limit=0,
                                ports=None, environment=None, dns=None, volumes=None,

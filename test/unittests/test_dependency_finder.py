@@ -18,6 +18,10 @@ import tempfile
 import shutil
 import warnings
 
+skip_ci = False
+if "JENKINS_SKIP_TESTS" in os.environ:
+    skip_ci = os.environ["JENKINS_SKIP_TESTS"] == "1"
+
 
 class MockExecutable(object):
     def __init__(self, name):
@@ -31,6 +35,8 @@ class MockRExecutable(MockExecutable):
         if os.path.exists(rpath):
             self.path = rpath
 
+
+@unittest.skipIf(skip_ci, "Skipping test on CI server")
 class TestRModuleFunctions(unittest.TestCase):
     def setUp(self):
         self.saved_path = sys.path[:]
@@ -156,6 +162,7 @@ class TestMainModuleFunctions(unittest.TestCase):
                                     MockExecutable("NEURON"))
         self.assertEqual(os.path.basename(deps[0].path), "dependency.hoc")
 
+    @unittest.skipIf(skip_ci, "Skipping test on CI server")
     def test__find_dependencies_for_R_project(self):
         deps = df.find_dependencies(os.path.join(tmpdir, "R", "myscript.R"),
                                     MockRExecutable("R"))
