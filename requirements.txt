@@ -13,3 +13,8 @@ pyyaml
 # for Python 2.6 only
 ordereddict
 unittest2
+# optional, for WebDAV support
+#dexml
+#fs
+# optional, for PostgreSQL support
+#psycopg2

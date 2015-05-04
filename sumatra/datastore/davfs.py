@@ -9,6 +9,7 @@ from fs.contrib.davfs import DAVFS
 from urlparse import urlparse
 from contextlib import closing  # needed for Python 2.6
 
+from sumatra.core import registry
 from .archivingfs import ArchivingFileSystemDataStore, ArchivedDataFile, TIMESTAMP_FORMAT
 
 
@@ -91,3 +92,5 @@ class DavFsDataStore(ArchivingFileSystemDataStore):
         self._last_label = label # useful for testing
         return archive_paths
 
+
+registry.register(DavFsDataStore)

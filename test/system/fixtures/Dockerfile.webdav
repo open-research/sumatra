@@ -14,7 +14,7 @@ RUN a2enmod dav_fs
 
 RUN mkdir /var/www/webdav
 RUN chown www-data:www-data /var/www/webdav
-ADD ./apache_webdav.conf /etc/apache2/sites-available/
+ADD apache_webdav.conf /etc/apache2/sites-available/
 RUN htpasswd -c -b /var/www/webdav.password sumatra sumatra
 RUN a2ensite apache_webdav.conf
 

@@ -9,6 +9,7 @@ or:
 """
 
 import os
+from urlparse import urlparse
 try:
     import docker
     have_docker = True
@@ -31,6 +32,13 @@ def create_script():
         fp.write("print('Hello world!')\n")
 
 
+def get_url():
+    info = dkr.containers()[0]
+    assert info["Image"] == "{}:latest".format(IMAGE)
+    host = urlparse(dkr.base_url).hostname
+    return "{}:{}".format(host, info["Ports"][0]["PublicPort"])
+
+
 def start_webdav_container():
     """
     Launch a Docker container running apache/webdav, return the URL.
@@ -44,16 +52,16 @@ def start_webdav_container():
     http://blog.mx17.net/2014/02/12/dockerfile-file-directory-error-using-add/
     """
     global ctr, dkr
-    docker_host = os.environ["DOCKER_HOST"]
-    dkr = docker.Client(base_url=docker_host, version='1.6', timeout=60)
-    # docker run -rm -P -name pg_test example_postgresql
+    env = docker.utils.kwargs_from_env(assert_hostname=False)
+    dkr = docker.Client(timeout=60, **env)
     ctr = dkr.create_container(IMAGE, command=None, hostname=None, user=None,
                                detach=False, stdin_open=False, tty=False, mem_limit=0,
-                               ports=[8080], environment=None, dns=None, volumes=None,
+                               ports=[80], environment=None, dns=None, volumes=None,
                                volumes_from=None, network_disabled=False, name=None,
                                entrypoint=None, cpu_shares=None, working_dir=None)
-    dkr.start(ctr, port_bindings={8080: 80})
-    utils.env["url"] = 'localhost:8080'
+    dkr.start(ctr, port_bindings={80: 8080})
+    print get_url()
+    utils.env["url"] = get_url()
 
 
 def teardown():
