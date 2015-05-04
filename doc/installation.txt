@@ -68,3 +68,14 @@ GitPython_ package.
 .. _`Python(x,y)`: http://code.google.com/p/pythonxy/
 .. _Anaconda: http://docs.continuum.io/anaconda/
 .. _docutils: http://docutils.sourceforge.net
+
+Command completion for bash
+--------------------------
+
+Sumatra comes with a limited bash completion facility.
+You can install it to you system by sourcing the file
+`smt-completion.sh` in your `.bashrc` or `.profile.
+By default, Sumatra installs this script to your
+`/usr/bin` directory by default but moving it
+elsewhere (e.g. to `~/.bash_completion.d/`)
+is recommended.

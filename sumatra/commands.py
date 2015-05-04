@@ -203,6 +203,10 @@ def init(argv):
                       input_datastore=input_datastore,
                       label_generator=args.labelgenerator,
                       timestamp_format=args.timestamp_format)
+    if os.path.exists('.smt'):
+        f = open('.smt/labels', 'w')
+        f.writelines(project.format_records(tags=None, mode='short', format='text', reverse=False))
+        f.close()
     project.save()
 
 
@@ -404,8 +408,11 @@ def list(argv):  # add 'report' and 'log' as aliases
     args = parser.parse_args(argv)
 
     project = load_project()
+    if os.path.exists('.smt'):
+	f = open('.smt/labels', 'w')
+	f.writelines(project.format_records(tags=None, mode='short', format='text', reverse=False))
+	f.close()
     print(project.format_records(tags=args.tags, mode=args.mode, format=args.format, reverse=args.reverse))
-
 
 def delete(argv):
     """Delete records or records with a particular tag from a project."""
