@@ -12,6 +12,7 @@ MercurialRepository
 :license: CeCILL, see LICENSE for details.
 """
 
+import hgapi
 from mercurial import hg, ui, patch
 try:
     from mercurial.error import RepoError
@@ -110,47 +111,33 @@ class MercurialRepository(Repository):
 
     def __init__(self, url, upstream=None):
         Repository.__init__(self, url, upstream)
-        self.__repository = None
+        self._repository = hgapi.Repo(url)
         self.upstream = self.upstream or self._get_upstream()
 
     @property
     def exists(self):
         try:
-            self._repository
-        except VersionControlError:
-            pass
-        return bool(self.__repository)
-
-    @property
-    def _repository(self):
-        if self.__repository is None:
-            try:
-                self.__repository = hg.repository(ui.ui(), self.url)
-                # need to add a check that this actually is a Mercurial repository
-            except (RepoError, Exception) as err:
-                raise VersionControlError("Cannot access Mercurial repository at %s: %s" % (self.url, err))
-        return self.__repository
+            self._repository.hg_status()
+        except hgapi.HgException:
+            return False
+        else:
+            return True
 
     def checkout(self, path="."):
         """Clone a repository."""
         path = os.path.abspath(path)
         if self.url == path:
             # update
-            hg.update(self._repository, None)
+            self._repository.update(reference="") # hgapi expects reference
         else:
-            try:
-                hg.clone(self._repository.ui, {}, self.url, path, update=True)
-            except:  # hg.clone fails for older versions of mercurial, e.g. 1.5
-                local_repos = hg.repository(self._repository.ui, path, create=True)
-                local_repos.pull(self._repository)
-                hg.update(local_repos, None)
+            self._repository.hg_clone(url=self.url, path=path)
 
     def get_working_copy(self, path=None):
         return MercurialWorkingCopy(path)
 
     def _get_upstream(self):
         if self.exists:
-            return self._repository.ui.config('paths', 'default')
+            return self._repository.hg_paths()['default']
 
 
 registry.register(MercurialRepository)
