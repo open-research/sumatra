@@ -115,6 +115,9 @@ class TestMercurialWorkingCopy(unittest.TestCase, BaseTestWorkingCopy):
                                         'subpackage/__init__.py',
                                         'subpackage/somemodule.py'])})
 
+    def test__returns_user(self):
+        self.assertEqual(self.wc.get_username(), "")
+
 
 #@unittest.skipUnless(have_git, "Could not import git") #
 class TestGitWorkingCopy(unittest.TestCase, BaseTestWorkingCopy):
@@ -265,14 +268,14 @@ class TestMercurialRepository(unittest.TestCase, BaseTestRepository):
         os.unlink("%s/.hg" % self.repository_path)
 
     def _create_repository(self):
-        return MercurialRepository(self.repository_path)
+        return MercurialRepository("file://%s" % self.repository_path)
 
-    #def test__init(self):
-    #    r = self._create_repository()
-    #    self.assertEqual(r._repository.url(), "file:%s" % self.repository_path)
+    def test__init(self):
+        r = self._create_repository()
+        self.assertEqual(r.url, "file://%s" % self.repository_path)
 
     def test__exists__with_nonexistent_repos__should_return_False(self):
-        repos = MercurialRepository("/tmp/")
+        repos = MercurialRepository("file:///tmp/")
         self.assertFalse(repos.exists)
 
     def test__can_create_project_in_subdir(self):
