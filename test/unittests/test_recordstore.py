@@ -30,6 +30,8 @@ originals = []
 django_store1 = None
 django_store2 = None
 
+this_directory = os.path.dirname(__file__)
+
 
 class MockExecutable(Executable):
     name = "a.out"
@@ -469,22 +471,22 @@ class TestSerialization(unittest.TestCase):
     maxDiff = None
 
     def test_build_record_v0p4(self):
-        with open("example_0.4.json") as fp:
+        with open(os.path.join(this_directory, "example_0.4.json")) as fp:
             record = serialization.build_record(json.load(fp))
         self.assertEqual(record.label, "haggling")
 
     def test_build_record_v0p3(self):
-        with open("example_0.3.json") as fp:
+        with open(os.path.join(this_directory, "example_0.3.json")) as fp:
             record = serialization.build_record(json.load(fp))
         self.assertEqual(record.label, "haggling")
 
     def test_build_record_v0p5(self):
-        with open("example_0.5.json") as fp:
+        with open(os.path.join(this_directory,"example_0.5.json")) as fp:
             record = serialization.build_record(json.load(fp))
         self.assertEqual(record.label, "haggling")    
 
     def test_round_trip(self):
-        with open("example_0.6.json") as fp:
+        with open(os.path.join(this_directory,"example_0.6.json")) as fp:
             data_in = json.load(fp)
         record = serialization.build_record(data_in)
         data_out = json.loads(serialization.encode_record(record, indent=2))

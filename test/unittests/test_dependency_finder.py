@@ -34,6 +34,8 @@ class MockRExecutable(MockExecutable):
         rpath = '/usr/bin/Rscript'
         if os.path.exists(rpath):
             self.path = rpath
+        else:
+            raise unittest.SkipTest("Can't find Rscript")
 
 
 @unittest.skipIf(skip_ci, "Skipping test on CI server")
@@ -71,6 +73,7 @@ class TestRModuleFunctions(unittest.TestCase):
         self.assertEqual(d2.name, 'MASS')
         self.assertEqual(d2.source, 'CRAN')
         self.assertEqual(d2.version, '7.3-35')
+
 
 class TestPythonModuleFunctions(unittest.TestCase):
     
@@ -276,7 +279,8 @@ def setup():
     global tmpdir
     tmpdir = tempfile.mkdtemp()
     shutil.rmtree(tmpdir)
-    shutil.copytree(os.path.join(os.path.pardir, "example_projects"), tmpdir)
+    this_directory = os.path.dirname(__file__)
+    shutil.copytree(os.path.join(this_directory, os.path.pardir, "example_projects"), tmpdir)
     print(os.listdir(tmpdir))
 
 def teardown():
