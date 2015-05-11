@@ -19,8 +19,7 @@ install:
 # command to run tests
 script:
   nosetests --with-coverage --cover-package=sumatra test/unittests
-
 after_failure:
   - ./travis-tool.sh dump_logs
-after-success:
+after_success:
   coveralls
