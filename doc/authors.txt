@@ -21,6 +21,7 @@ current affiliation of a contributor.
 * Tim Joseph Dumol
 * Julia Evans
 * Jaime Ashander[12]
+* Tim Tröndle [13]
 
 1. Unité de Neuroscience, Information et Complexité, CNRS UPR 3293, Gif-sur-Yvette, France 
 2. Ecole Centrale de Lille, Lille, France
@@ -34,6 +35,7 @@ current affiliation of a contributor.
 10. University of Southampton, UK
 11. National Institute of Standards and Technology, USA
 12. University of California--Davis, USA
+13. Younicos AG, Berlin, Germany
 
 
 If we've somehow missed you off the list I'm very sorry - please let us know.
