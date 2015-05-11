@@ -12,19 +12,10 @@ MercurialRepository
 :license: CeCILL, see LICENSE for details.
 """
 
-from mercurial import hg, ui, patch
-try:
-    from mercurial.error import RepoError
-except ImportError:
-    from mercurial.repo import RepoError
-try:
-    from mercurial.cmdutil import findrepo
-except ImportError:
-    from mercurial.dispatch import _findrepo as findrepo
+import hgapi
 import os
-import binascii
 import functools
-from base import VersionControlError, UncommittedModificationsError
+from base import UncommittedModificationsError
 from base import Repository, WorkingCopy
 from ..core import registry
 
@@ -34,6 +25,12 @@ def vectorized(generator_func):
         return list(generator_func(*args, **kwargs))
     return functools.update_wrapper(wrapper, generator_func)
 
+def findrepo(p):
+    while not os.path.isdir(os.path.join(p, ".hg")):
+        oldp, p = p, os.path.dirname(p)
+        if p == oldp:
+            return None
+    return p
 
 class MercurialWorkingCopy(WorkingCopy):
     name = "mercurial"
@@ -41,33 +38,32 @@ class MercurialWorkingCopy(WorkingCopy):
     def __init__(self, path=None):
         WorkingCopy.__init__(self, path)
         self.path = findrepo(self.path)
-        self.repository = MercurialRepository(self.path)
+        self.repository = MercurialRepository(url=self.path)
 
     @property
     def exists(self):
         return bool(self.path and findrepo(self.path))
 
     def current_version(self):
-        if hasattr(self.repository._repository, 'workingctx'):  # handle different versions of Mercurial
-            ctx = self.repository._repository.workingctx().parents()[0]
-        else:
-            ctx = self.repository._repository.parents()[0]
-        return binascii.hexlify(ctx.node()[:6])
+        return self.repository._repository.hg_id()
 
     def use_version(self, version):
         if self.has_changed():
             raise UncommittedModificationsError(self.status())
-        hg.clean(self.repository._repository, version)
+        self.repository._repository.hg_update(reference=version, clean=True)
 
     def use_latest_version(self):
         # any changes to the working copy are retained/merged in
-        hg.update(self.repository._repository, 'tip')
+        self.repository._repository.hg_update(reference='tip', clean=True)
 
     def status(self):
-        modified, added, removed, missing, unknown, ignored, clean = self.repository._repository.status(ignored=True, clean=True, unknown=True)
-        return {'modified': set(modified), 'removed': set(removed),
-                'missing': set(missing), 'unknown': set(unknown),
-                'clean': set(clean), 'added': set(added)}
+        status = self.repository._repository.hg_status(empty=True, clean=True)
+        return {'modified': set(status['M'] if 'M' in status else []),
+                'removed': set(status['R'] if 'R' in status else []),
+                'missing': set(status['!'] if '!' in status else []),
+                'unknown': set(status['?'] if '?' in status else []),
+                'clean': set(status['C'] if 'C' in status else []),
+                'added': set(status['A'] if 'A' in status else [])}
 
     def has_changed(self):
         status = self.status()
@@ -82,25 +78,24 @@ class MercurialWorkingCopy(WorkingCopy):
 
     def diff(self):
         """Difference between working copy and repository."""
-        opts = patch.mdiff.diffopts(nodates=True)
-        diff = patch.diff(self.repository._repository, opts=opts)
-        return "".join(diff)
+        diffs = self.repository._repository.hg_diff()
+        return "".join([entry['diff'] for entry in diffs])
 
-    def content(self, hex):
-        repo = self.repository._repository
-        i = 1
-        if hex in repo.parents()[0].hex():
-            ctx = repo.parents()[0]
-            return ctx.filectx(ctx.files()[0]).data()
-        while True:
-            el = repo.parents(i)[0].hex()
-            if hex in el:
-                ctx = repo.parents(i)[0]
-                return ctx.filectx(ctx.files()[0]).data()  # presume that we have only one file [0]
-            i += 1
+    #def content(self, hex):
+    #    repo = self.repository._repository
+    #    i = 1
+    #    if hex in repo.parents()[0].hex():
+    #        ctx = repo.parents()[0]
+    #        return ctx.filectx(ctx.files()[0]).data()
+    #    while True:
+    #        el = repo.parents(i)[0].hex()
+    #        if hex in el:
+    #            ctx = repo.parents(i)[0]
+    #            return ctx.filectx(ctx.files()[0]).data()  # presume that we have only one file [0]
+    #        i += 1
 
     def get_username(self):
-        return self.repository._repository.ui.username()
+        return self.repository._repository.user if self.repository._repository.user else ""
 
 
 class MercurialRepository(Repository):
@@ -110,47 +105,37 @@ class MercurialRepository(Repository):
 
     def __init__(self, url, upstream=None):
         Repository.__init__(self, url, upstream)
-        self.__repository = None
+        if url is not None and url.startswith('file://'):
+            url = url[7:]
+        self._repository = hgapi.Repo(url)
         self.upstream = self.upstream or self._get_upstream()
 
     @property
     def exists(self):
+        if self.url == None:
+            return False
         try:
-            self._repository
-        except VersionControlError:
-            pass
-        return bool(self.__repository)
-
-    @property
-    def _repository(self):
-        if self.__repository is None:
-            try:
-                self.__repository = hg.repository(ui.ui(), self.url)
-                # need to add a check that this actually is a Mercurial repository
-            except (RepoError, Exception) as err:
-                raise VersionControlError("Cannot access Mercurial repository at %s: %s" % (self.url, err))
-        return self.__repository
+            self._repository.hg_status()
+        except hgapi.HgException:
+            return False
+        else:
+            return True
 
     def checkout(self, path="."):
         """Clone a repository."""
         path = os.path.abspath(path)
         if self.url == path:
             # update
-            hg.update(self._repository, None)
+            self._repository.update(reference="") # hgapi expects reference
         else:
-            try:
-                hg.clone(self._repository.ui, {}, self.url, path, update=True)
-            except:  # hg.clone fails for older versions of mercurial, e.g. 1.5
-                local_repos = hg.repository(self._repository.ui, path, create=True)
-                local_repos.pull(self._repository)
-                hg.update(local_repos, None)
+            self._repository.hg_clone(url=self.url, path=path)
 
     def get_working_copy(self, path=None):
         return MercurialWorkingCopy(path)
 
     def _get_upstream(self):
         if self.exists:
-            return self._repository.ui.config('paths', 'default')
+            return self._repository.hg_paths()['default']
 
 
 registry.register(MercurialRepository)

@@ -61,7 +61,7 @@ setup(
     install_requires = ['Django>=1.4, <=1.6.11', 'django-tagging', 'httplib2',
                         'docutils', 'jinja2', 'parameters'],
     extras_require = {'svn': 'pysvn',
-                      'hg': 'mercurial',
+                      'hg': 'hgapi',
                       'git': 'GitPython',
                       'bzr': 'bzr',
                       'mpi': 'mpi4py'}
