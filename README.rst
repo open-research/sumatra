@@ -90,3 +90,7 @@ Code status
 .. image:: https://travis-ci.org/open-research/sumatra.png?branch=master
    :target: https://travis-ci.org/open-research/sumatra
    :alt: Unit Test Status
+
+.. image:: https://coveralls.io/repos/open-research/sumatra/badge.svg
+   :target: https://coveralls.io/repos/open-research/r/sumatra
+   :alt: Code coverage

@@ -12,7 +12,11 @@ import pickle
 import tempfile
 import shutil
 
-from sumatra.versioncontrol._mercurial import MercurialRepository, MercurialWorkingCopy
+try:
+    from sumatra.versioncontrol._mercurial import MercurialRepository, MercurialWorkingCopy
+    have_hg = True
+except ImportError:
+    have_hg = False
 try:
     from sumatra.versioncontrol._subversion import SubversionRepository, SubversionWorkingCopy
     have_pysvn = True
@@ -33,6 +37,9 @@ from sumatra.versioncontrol import get_repository, get_working_copy, VersionCont
 skip_ci = False
 if "JENKINS_SKIP_TESTS" in os.environ:
     skip_ci = os.environ["JENKINS_SKIP_TESTS"] == "1"
+
+this_directory = os.path.dirname(__file__)
+example_repositories = os.path.join(this_directory, os.pardir, "example_repositories")
 
 
 class BaseTestWorkingCopy(object):
@@ -80,10 +87,11 @@ class BaseTestWorkingCopy(object):
         self.assert_(self.wc.contains("romans.param"))
 
 
+@unittest.skipUnless(have_hg, "Could not import hgapi")
 class TestMercurialWorkingCopy(unittest.TestCase, BaseTestWorkingCopy):
 
     def setUp(self):
-        self.repository_path = os.path.abspath("../example_repositories/mercurial")
+        self.repository_path = os.path.join(example_repositories, "mercurial")
         os.symlink("%s/hg" % self.repository_path, "%s/.hg" % self.repository_path)
         self.repos = MercurialRepository("file://%s" % self.repository_path)
         self.tmpdir = tempfile.mkdtemp()
@@ -119,11 +127,11 @@ class TestMercurialWorkingCopy(unittest.TestCase, BaseTestWorkingCopy):
         self.assertEqual(self.wc.get_username(), "")
 
 
-#@unittest.skipUnless(have_git, "Could not import git") #
+@unittest.skipUnless(have_git, "Could not import git") #
 class TestGitWorkingCopy(unittest.TestCase, BaseTestWorkingCopy):
 
     def setUp(self):
-        self.repository_path = os.path.abspath("../example_repositories/git")
+        self.repository_path = os.path.join(example_repositories, "git")
         os.symlink("%s/git" % self.repository_path, "%s/.git" % self.repository_path)
         self.repos = GitRepository(self.repository_path)
         self.tmpdir = tempfile.mkdtemp()
@@ -135,14 +143,13 @@ class TestGitWorkingCopy(unittest.TestCase, BaseTestWorkingCopy):
     def tearDown(self):
         os.unlink("%s/.git" % self.repository_path)
         shutil.rmtree(self.tmpdir)
-TestGitWorkingCopy = unittest.skipUnless(have_git, "Could not import git")(TestGitWorkingCopy) # not using as class decorator for the sake of Python 2.5
 
 
-#@unittest.skipUnless(have_pysvn, "Could not import pysvn")
+@unittest.skipUnless(have_pysvn, "Could not import pysvn")
 class TestSubversionWorkingCopy(unittest.TestCase, BaseTestWorkingCopy):
 
     def setUp(self):
-        self.repository_path = os.path.abspath("../example_repositories/subversion")
+        self.repository_path = os.path.join(example_repositories, "subversion")
         self.repos = SubversionRepository("file://%s" % self.repository_path)
         self.tmpdir = tempfile.mkdtemp()
         self.repos.checkout(self.tmpdir)
@@ -179,14 +186,12 @@ class TestSubversionWorkingCopy(unittest.TestCase, BaseTestWorkingCopy):
                                         'subpackage/__init__.py',
                                         'subpackage/somemodule.py'])})
 
-TestSubversionWorkingCopy = unittest.skipUnless(have_pysvn, "Could not import pysvn")(TestSubversionWorkingCopy)
 
-
-#@unittest.skipUnless(have_bzr, "Could not import bzrlib")
+@unittest.skipUnless(have_bzr, "Could not import bzrlib")
 class TestBazaarWorkingCopy(unittest.TestCase, BaseTestWorkingCopy):
 
     def setUp(self):
-        self.repository_path = os.path.abspath("../example_repositories/bazaar")
+        self.repository_path = os.path.join(example_repositories, "bazaar")
         os.symlink("%s/bzr" % self.repository_path, "%s/.bzr" % self.repository_path)
         self.repos = BazaarRepository(self.repository_path)
         self.tmpdir = tempfile.mkdtemp()
@@ -220,8 +225,6 @@ class TestBazaarWorkingCopy(unittest.TestCase, BaseTestWorkingCopy):
                                         'subpackage/__init__.py',
                                         'subpackage/somemodule.py'])})
 
-TestBazaarWorkingCopy = unittest.skipUnless(have_bzr, "Could not import bzrlib")(TestBazaarWorkingCopy)
-
 
 class BaseTestRepository(object):
 
@@ -241,7 +244,8 @@ class BaseTestRepository(object):
         r.checkout(path=tmpdir)
         repos_files = os.listdir(tmpdir)
         repos_files.remove(self.special_dir)
-        project_files = os.listdir("../example_projects/python")
+        project_files = os.listdir(
+            os.path.join(this_directory, os.pardir, "example_projects", "python"))
         if "main.pyc" in project_files:
             project_files.remove("main.pyc")
         self.assertEqual(set(repos_files), set(project_files))
@@ -257,10 +261,11 @@ class BaseTestRepository(object):
         self.assertEqual(r1, r2)
 
 
+@unittest.skipUnless(have_hg, "Could not import hgapi")
 class TestMercurialRepository(unittest.TestCase, BaseTestRepository):
 
     def setUp(self):
-        self.repository_path = os.path.abspath("../example_repositories/mercurial")
+        self.repository_path = os.path.join(example_repositories, "mercurial")
         os.symlink("%s/hg" % self.repository_path, "%s/.hg" % self.repository_path)
         self.special_dir = ".hg"
 
@@ -290,11 +295,11 @@ class TestMercurialRepository(unittest.TestCase, BaseTestRepository):
         shutil.rmtree(tmpdir)
 
 
-#@unittest.skipUnless(have_git, "Could not import git")
+@unittest.skipUnless(have_git, "Could not import git")
 class TestGitRepository(unittest.TestCase, BaseTestRepository):
 
     def setUp(self):
-        self.repository_path = os.path.abspath("../example_repositories/git")
+        self.repository_path = os.path.join(example_repositories, "git")
         try:
             os.symlink("%s/git" % self.repository_path, "%s/.git" % self.repository_path)
         except OSError:
@@ -321,14 +326,13 @@ class TestGitRepository(unittest.TestCase, BaseTestRepository):
         # is the working copy path same as the repo path?
         self.assertEqual(wc, os.path.realpath(tmpdir))
         shutil.rmtree(tmpdir)
-TestGitRepository = unittest.skipUnless(have_git, "Could not import git")(TestGitRepository)
 
 
-#@unittest.skipUnless(have_pysvn, "Could not import pysvn")
+@unittest.skipUnless(have_pysvn, "Could not import pysvn")
 class TestSubversionRepository(unittest.TestCase, BaseTestRepository):
 
     def setUp(self):
-        self.repository_path = os.path.abspath("../example_repositories/subversion")
+        self.repository_path = os.path.join(example_repositories, "subversion")
         self.special_dir = ".svn"
 
     def _create_repository(self):
@@ -347,14 +351,13 @@ class TestSubversionRepository(unittest.TestCase, BaseTestRepository):
         r = self._create_repository()
         self.assertRaises(Exception, r.checkout, path="file:///tmp/")
         shutil.rmtree("file:") # this is not quite what's supposed to happen
-TestSubversionRepository = unittest.skipUnless(have_pysvn, "Could not import pysvn")(TestSubversionRepository)
 
 
-#@unittest.skipUnless(have_bzr, "Could not import bzrlib")
+@unittest.skipUnless(have_bzr, "Could not import bzrlib")
 class TestBazaarRepository(unittest.TestCase, BaseTestRepository):
 
     def setUp(self):
-        self.repository_path = os.path.abspath("../example_repositories/bazaar")
+        self.repository_path = os.path.join(example_repositories, "bazaar")
         try:
             os.symlink("%s/bzr" % self.repository_path, "%s/.bzr" % self.repository_path)
         except OSError:
@@ -377,19 +380,20 @@ class TestBazaarRepository(unittest.TestCase, BaseTestRepository):
         r.checkout(path=tmpdir)
         repos_files = os.listdir(tmpdir)
         repos_files.remove(self.special_dir)
-        project_files = os.listdir("../example_projects/python")
+        project_files = os.listdir(
+            os.path.join(this_directory, os.pardir, "example_projects", "python"))
         project_files.remove('EGG-INFO')
         if "main.pyc" in project_files:
             project_files.remove("main.pyc")
         self.assertEqual(set(repos_files), set(project_files))
         shutil.rmtree(tmpdir)
-TestBazaarRepository = unittest.skipUnless(have_bzr, "Could not import bzrlib")(TestBazaarRepository)
 
 
+@unittest.skipUnless(have_hg, "Could not import hgapi")
 class TestMercurialModuleFunctions(unittest.TestCase):
 
     def setUp(self):
-        self.repository_path = os.path.abspath("../example_repositories/mercurial")
+        self.repository_path = os.path.join(example_repositories, "mercurial")
         try:
             os.symlink("%s/hg" % self.repository_path, "%s/.hg" % self.repository_path)
         except OSError:
@@ -403,7 +407,7 @@ class TestMercurialModuleFunctions(unittest.TestCase):
         shutil.rmtree(self.tmpdir)
 
 
-#@unittest.skipUnless(have_pysvn, "Could not import pysvn")
+@unittest.skipUnless(have_pysvn, "Could not import pysvn")
 class TestSubversionModuleFunctions(unittest.TestCase):
     pass
 
@@ -411,12 +415,12 @@ class TestSubversionModuleFunctions(unittest.TestCase):
 class TestPackageFunctions(unittest.TestCase):
 
     def setUp(self):
-        self.hg_repos_path = os.path.abspath("../example_repositories/mercurial")
+        self.hg_repos_path = os.path.join(example_repositories, "mercurial")
         try:
             os.symlink("%s/hg" % self.hg_repos_path, "%s/.hg" % self.hg_repos_path)
         except OSError:
             pass
-        self.basepath = os.path.abspath("%s/../example_repositories/" % os.getcwd())
+        self.basepath = example_repositories
 
     def tearDown(self):
         os.unlink("%s/.hg" % self.hg_repos_path)

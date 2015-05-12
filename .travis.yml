@@ -14,10 +14,12 @@ before_install:
 #  - ./travis-tool.sh install_deps ggplot2 dplyr
 install:
   - pip install -r requirements.txt
+  - pip install coverage coveralls
   - pip install .
 # command to run tests
 script:
-  nosetests -w test/unittests --with-coverage --cover-package=sumatra
-
+  nosetests --with-coverage --cover-package=sumatra test/unittests
 after_failure:
   - ./travis-tool.sh dump_logs
+after_success:
+  coveralls
