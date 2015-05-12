@@ -6,7 +6,7 @@ from distutils.command.sdist import sdist
 import os
 
 
-class sdist_hg(sdist):
+class sdist_git(sdist):
     """Add revision number to version for development releases."""
 
     def run(self):
@@ -15,11 +15,15 @@ class sdist_hg(sdist):
         sdist.run(self)
 
     def get_tip_revision(self, path=os.getcwd()):
-        from mercurial.hg import repository
-        from mercurial.ui import ui
-        repo = repository(ui(), path)
-        tip = repo.changelog.tip()
-        return str(repo.changelog.rev(tip))
+        try:
+            import git
+        except ImportError:
+            return ''
+        try:
+            repo = git.Repo('.')
+        except git.InvalidGitRepositoryError:
+            return ''
+        return repo.head.commit.hexsha[:7]
 
 
 setup(
@@ -57,7 +61,7 @@ setup(
                    'Programming Language :: Python :: 2.6',
                    'Programming Language :: Python :: 2.7',
                    'Topic :: Scientific/Engineering'],
-    cmdclass = {'sdist': sdist_hg},
+    cmdclass = {'sdist': sdist_git},
     install_requires = ['Django>=1.4, <=1.6.11', 'django-tagging', 'httplib2',
                         'docutils', 'jinja2', 'parameters'],
     extras_require = {'svn': 'pysvn',
