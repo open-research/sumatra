@@ -20,7 +20,7 @@ Alternatively, you can download the Sumatra package from either PyPI or the
     $ tar xzf Sumatra-0.6.0.tar.gz
     $ cd Sumatra-0.6.0
     # python setup.py install
-    
+
 The last step may need to be run as root, or using sudo, although in general
 we recommend installing in an isolated environment created using virtualenv or conda.
 
@@ -49,9 +49,9 @@ Installing Python bindings for your version control system
 
 Sumatra currently supports Mercurial_, Subversion_, Git_ and Bazaar_.
 If you are using Subversion, you will need to install the `pysvn bindings`_.
-Since Mercurial and Bazaar are mostly written in Python, just installing the
-main Mercurial/Bazaar packages is sufficient. For Git, you need to install the
-GitPython_ package.
+Since Bazaar is mostly written in Python, just installing the main Bazaar
+package is sufficient. For Git, you need to install the GitPython_ package.
+For Mercurial, you need to install the hgapi_ package.
 
 .. _python.org: http://www.python.org
 .. _Django: https://www.djangoproject.com
@@ -64,6 +64,7 @@ GitPython_ package.
 .. _`django-tagging`: https://pypi.python.org/pypi/django-tagging/
 .. _`pysvn bindings`: http://pysvn.tigris.org/project_downloads.html
 .. _`GitPython`: https://pypi.python.org/pypi/GitPython/
+.. _`hgapi`: https://pypi.python.org/pypi/hgapi/
 .. _`Enthought`: http://www.enthought.com/products/epd/
 .. _`Python(x,y)`: http://code.google.com/p/pythonxy/
 .. _Anaconda: http://docs.continuum.io/anaconda/
