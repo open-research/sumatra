@@ -11,7 +11,6 @@ from builtins import str
 import os
 import os.path
 import mimetypes
-import csv
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response
 from django.views.generic.list import ListView
@@ -27,9 +26,7 @@ import sumatra.recordstore.django_store.models as models
 
 from sumatra.datastore import get_data_store, DataKey
 from sumatra.versioncontrol import get_working_copy
-from sumatra.commands import run, configure
-from sumatra.projects import load_project
-from sumatra.programs import Executable
+from sumatra.commands import run
 
 DEFAULT_MAX_DISPLAY_LENGTH = 10 * 1024
 mimetypes.init()
@@ -131,7 +128,7 @@ def record_detail(request, project, label):
         elif 'show_script' in request.POST:  # retrieve script code from the repo
             digest = request.POST.get('digest', False)
             path = request.POST.get('path', False)
-            path = str(path).encode("string_escape")
+            path = str(path)
             wc = get_working_copy(path)
             file_content = wc.content(digest)
             return HttpResponse(file_content)
@@ -280,7 +277,7 @@ def data_detail(request, project):
 
     path = request.GET['path']
     digest = request.GET['digest']
-   
+
     data_keys = models.DataKey.objects.filter(path = path, digest = digest)
 
     if len(data_keys)==1:
@@ -292,9 +289,9 @@ def data_detail(request, project):
 
     return render_to_response("data_detail.html",
                               {'data_key': data_key, 'project_name': project})
-    
 
-   
+
+
 
 def download_file(request, project, label):
     label = unescape(label)

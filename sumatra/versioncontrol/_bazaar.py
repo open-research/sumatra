@@ -20,10 +20,14 @@ from bzrlib import diff
 from bzrlib.errors import NotBranchError
 
 import os
+try:
+    from StringIO import StringIO # bazaar does not handle unicode
+except ImportError: # Python3
+    from io import StringIO
 
 from .base import VersionControlError
 from .base import Repository, WorkingCopy
-from ..compatibility import string_type, StringIO
+from ..compatibility import string_type
 from ..core import registry
 
 

@@ -410,9 +410,9 @@ def list(argv):  # add 'report' and 'log' as aliases
 
     project = load_project()
     if os.path.exists('.smt'):
-	f = open('.smt/labels', 'w')
-	f.writelines(project.format_records(tags=None, mode='short', format='text', reverse=False))
-	f.close()
+        f = open('.smt/labels', 'w')
+        f.writelines(project.format_records(tags=None, mode='short', format='text', reverse=False))
+        f.close()
     print(project.format_records(tags=args.tags, mode=args.mode, format=args.format, reverse=args.reverse))
 
 def delete(argv):
@@ -682,7 +682,7 @@ def migrate(argv):
             "Command 'smt migrate' had no effect. Please provide at least one "
             "argument. (Run 'smt help migrate' for help.)")
     else:
-        for option_name, field in list(field_map.items()):
+        for option_name, field in field_map.items():
             value = getattr(args, option_name)
             if value:
                 project.record_store.update(project.name, field, value)

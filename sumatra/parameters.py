@@ -37,11 +37,13 @@ import os.path
 import shutil
 import abc
 import re
-from future.utils import with_metaclass
+from pathlib import Path
 try:
-    from configparser import SafeConfigParser, MissingSectionHeaderError, NoOptionError  # Python 2
-except ImportError:
-    from configparser import SafeConfigParser, MissingSectionHeaderError, NoOptionError  # Python 3
+    from StringIO import StringIO # this is necessary because Python2-ConfigParser can't handle unicode
+except ImportError: # Python 3
+    from io import StringIO
+from future.utils import with_metaclass
+from configparser import SafeConfigParser, MissingSectionHeaderError, NoOptionError
 import json
 try:
     import yaml
@@ -49,7 +51,7 @@ try:
 except ImportError:
     yaml_loaded = False
 import parameters
-from .compatibility import string_type, StringIO
+from .compatibility import string_type
 from .core import registry
 
 POP_NONE = "eiutbocqnluiegnclqiuetyvbietcbdgsfzpq"
@@ -197,40 +199,55 @@ class SimpleParameterSet(ParameterSet):
             for name, value in list(initialiser.items()):
                 self.values[name] = value
                 self.types[name] = type(value)
-        elif isinstance(initialiser, str):
+        elif SimpleParameterSet._is_valid_file(initialiser):
+            with open(initialiser) as f:
+                content = f.readlines()
+            self.source_file = initialiser
             try:
-                path_exists = os.path.exists(initialiser)
-            except Exception:  # e.g. null bytes in initialiser
-                path_exists = False
-            if path_exists:
-                with open(initialiser) as f:
-                    content = f.readlines()
-                self.source_file = initialiser
-            else:
-                content = initialiser.split("\n")
-            for line in content:
-                line = line.strip()
-                if line == "" or line[0] == "#":
-                    # Ignore empty and comment lines
-                    continue
-                elif "=" in line:
-                    parts = line.split("=")
-                    name = parts[0].strip()
-                    value = "=".join(parts[1:])
-                    try:
-                        self.values[name] = eval(value)
-                    except NameError:
-                        self.values[name] = str(value)
-                    except TypeError as err:  # e.g. null bytes
-                        raise SyntaxError("File is not a valid simple parameter file. %s" % err)
-                    if "#" in value:
-                        comment = "#".join(value.split("#")[1:])  # this fails if the value is a string containing '#'
-                        self.comments[name] = comment
-                    self.types[name] = type(self.values[name])
-                else:
-                    raise SyntaxError("File is not a valid simple parameter file. This line caused the error: %s" % line)
+                self.values, self.types, self.comments = SimpleParameterSet._parse_content(content)
+            except TypeError:
+                raise TypeError("Parameter set initialiser must be a filename, string or dict.")
         else:
-            raise TypeError("Parameter set initialiser must be a filename, string or dict.")
+            try:
+                self.values, self.types, self.comments = SimpleParameterSet._parse_content(initialiser.split("\n"))
+            except (AttributeError, TypeError):
+                raise TypeError("Parameter set initialiser must be a filename, string or dict.")
+
+    @staticmethod
+    def _is_valid_file(path):
+        try:
+            path = Path(path)
+            return path.exists() and path.is_file()
+        except TypeError:
+            return False
+
+    @staticmethod
+    def _parse_content(content):
+        values = {}
+        types = {}
+        comments = {}
+        for line in content:
+            line = line.strip()
+            if line == "" or line[0] == "#":
+                # Ignore empty and comment lines
+                continue
+            elif "=" in line:
+                parts = line.split("=")
+                name = parts[0].strip()
+                value = "=".join(parts[1:])
+                try:
+                    values[name] = eval(value)
+                except NameError:
+                    values[name] = str(value)
+                except TypeError as err:  # e.g. null bytes
+                    raise SyntaxError("File is not a valid simple parameter file. %s" % err)
+                if "#" in value:
+                    comment = "#".join(value.split("#")[1:])  # this fails if the value is a string containing '#'
+                    comments[name] = comment
+                types[name] = type(values[name])
+            else:
+                raise SyntaxError("File is not a valid simple parameter file. This line caused the error: %s" % line)
+        return values, types, comments
 
     def __str__(self):
         return self.pretty()

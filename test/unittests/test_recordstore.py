@@ -249,7 +249,7 @@ class BaseTestRecordStore(object):
 
     def test_str(self):
         #this test is pointless, just to increase coverage
-        assert isinstance(str(self.store), string_type)
+        assert isinstance(str(self.store), str)
 
     def test_most_recent(self):
         self.add_some_records()
@@ -488,7 +488,7 @@ class TestSerialization(unittest.TestCase):
     def test_build_record_v0p5(self):
         with open(os.path.join(this_directory,"example_0.5.json")) as fp:
             record = serialization.build_record(json.load(fp))
-        self.assertEqual(record.label, "haggling")    
+        self.assertEqual(record.label, "haggling")
 
     def test_round_trip(self):
         with open(os.path.join(this_directory,"example_0.6.json")) as fp:
@@ -525,7 +525,7 @@ class TestModuleFunctions(unittest.TestCase):
         assert not os.path.exists("test_record_store.shelf")
         self.assertIsInstance(get_record_store("test_record_store.shelf"),
                               shelve_store.ShelveRecordStore)
-    
+
 
 if __name__ == '__main__':
     setup()

@@ -9,8 +9,6 @@ try:
 except ImportError:
     import unittest
 import os
-from pprint import pprint
-import mimetypes
 try:
     import docutils
     have_docutils = True
@@ -18,9 +16,6 @@ except ImportError:
     have_docutils = False
 import sumatra.web
 from django.core.exceptions import ObjectDoesNotExist
-from django.core import management
-from django.core.urlresolvers import reverse
-from sumatra.recordstore.django_store import DjangoRecordStore, db_config
 
 from . import test_recordstore
 import sumatra.projects
@@ -87,7 +82,7 @@ def assert_used_template(template_name, response):
         templates_used = response.template
     else:
         templates_used = response.templates
-    assert template_name in [t.name for t in templates_used], "Response: %s\nContext: %s" % (response.content, response.context) 
+    assert template_name in [t.name for t in templates_used], "Response: %s\nContext: %s" % (response.content, response.context)
 
 
 class TestWebInterface(unittest.TestCase):
@@ -155,15 +150,15 @@ class TestWebInterface(unittest.TestCase):
     def test_settings(self):
         c = Client()
         response = c.post('/%s/settings' % MockProject.name,
-                          {'display_density': "comfortable", 
-                           'nb_records_per_page': 50, 
+                          {'display_density': "comfortable",
+                           'nb_records_per_page': 50,
                            'hidden_cols': ["label", "arguments", "version"]})
         self.assertEqual(response.status_code, 200)
 
     def test_init_settings(self):
         c = Client()
         response = c.post('/%s/settings' % MockProject.name,
-                          {'init_settings': True, 
+                          {'init_settings': True,
                            'executable': "Python"})
         self.assertEqual(response.status_code, 200)
 
@@ -243,7 +238,7 @@ class TestWebInterface(unittest.TestCase):
     #     c = Client()
     #     response = c.get("/%s/record1/diff" % MockProject.name)
     #     assert_used_template('show_diff.html', response)
-        
+
     def test_download_file(self):
         sumatra.web.views.get_data_store = lambda t,p: MockDataStore()
         c = Client()
@@ -254,11 +249,11 @@ class TestWebInterface(unittest.TestCase):
         sumatra.web.views.run = lambda options_list: None
         c = Client()
         response = c.post('/%s/simulation' % MockProject.name,
-                          {'label': "record7", 
-                           'reason': "to see if...", 
-                           'tag': "foo", 
-                           'execut': "python.exe", 
-                           'main_file': "main.py", 
+                          {'label': "record7",
+                           'reason': "to see if...",
+                           'tag': "foo",
+                           'execut': "python.exe",
+                           'main_file': "main.py",
                            'args': "1 2"})
         self.assertEqual(response.status_code, 200)
 

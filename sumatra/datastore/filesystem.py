@@ -12,6 +12,7 @@ import logging
 import mimetypes
 from subprocess import Popen
 import warnings
+from pathlib import Path
 from ..compatibility import string_type
 from ..core import registry
 from .base import DataStore, DataKey, DataItem, IGNORE_DIGEST
@@ -85,12 +86,11 @@ class FileSystemDataStore(DataStore):
     def __get_root(self):
         return self._root
     def __set_root(self, value):
-        if not isinstance(value, string_type):
-            raise TypeError("root must be a string")
+        path = Path(value)
         self._root = value
-        if not os.path.exists(self._root):
+        if not path.exists():
             try:
-                os.makedirs(self._root)
+                path.mkdir(parents=True)
             except OSError:
                 pass  # should perhaps emit warning
     root = property(fget=__get_root, fset=__set_root)
