@@ -1,8 +1,9 @@
 """
 Unit tests for the sumatra.parameters module
 """
-
 from __future__ import with_statement
+from builtins import str
+
 try:
     import unittest2 as unittest
 except ImportError:

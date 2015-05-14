@@ -4,6 +4,7 @@ httplib2
 jinja2
 docutils
 parameters
+future
 # optional requirements, depending on which version control systems you use
 hgapi
 GitPython>=0.3.6

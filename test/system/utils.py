@@ -2,10 +2,12 @@
 Utility functions for writing system tests.
 """
 from __future__ import print_function
+from builtins import zip
+from builtins import str
 
 import os.path
 import re
-from itertools import islice, izip
+from itertools import islice
 import tempfile
 import shutil
 import sarge
@@ -79,7 +81,7 @@ def pairs(iterable):
     """
     ABCDEF -> (A, B), (C, D), (E, F)
     """
-    return izip(islice(iterable, 0, None, 2), islice(iterable, 1, None, 2))
+    return zip(islice(iterable, 0, None, 2), islice(iterable, 1, None, 2))
 
 
 def get_label(p):
@@ -93,7 +95,7 @@ def get_label(p):
 
 def assert_in_output(p, texts):
     """Assert that the stdout from process 'p' contains all of the provided text."""
-    if isinstance(texts, basestring):
+    if isinstance(texts, str):
         texts = [texts]
     for text in texts:
         assert text in p.stdout.text, "'{}' is not in '{}'".format(text, p.stdout.text)
@@ -103,7 +105,7 @@ def assert_config(p, expected_config):
     """Assert that the Sumatra configuration (output from 'smt info') is as expected."""
     match = re.match(info_pattern, p.stdout.text)
     assert match, "Pattern: %s\nActual: %s" % (info_pattern, p.stdout.text)
-    for key, value in expected_config.items():
+    for key, value in list(expected_config.items()):
         assert match.groupdict()[key] == value, "expected {} = {}, actually {}".format(key, value, match.groupdict()[key])
 
 
@@ -146,7 +148,7 @@ def build_command(template, env_var):
 
     def wrapped(env):
         args = env[env_var]
-        if hasattr(args, "__len__") and not isinstance(args, basestring):
+        if hasattr(args, "__len__") and not isinstance(args, str):
             s = template.format(*args)
         else:
             s = template.format(args)

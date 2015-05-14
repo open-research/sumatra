@@ -1,6 +1,7 @@
 """
 Unit tests for the sumatra.formatting module
 """
+from builtins import object
 
 try:
     import unittest2 as unittest

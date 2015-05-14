@@ -1,3 +1,4 @@
+from builtins import range
 from sumatra.projects import Project
 from sumatra.records import Record
 from sumatra.recordstore import django_store

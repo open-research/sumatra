@@ -1,6 +1,8 @@
 """
 Unit tests for the sumatra.programs module
 """
+from builtins import str
+from builtins import object
 
 try:
     import unittest2 as unittest
@@ -28,7 +30,7 @@ class TestVersionRegExp(unittest.TestCase):
             "4.2rc3": "4.2rc3",
             "R scripting front-end version 3.1.2 (2014-10-31)" : "3.1.2",
         }
-        for input, output in examples.items():
+        for input, output in list(examples.items()):
             match = version_pattern.search(input)
             if match:
                 version = match.groupdict()['version']

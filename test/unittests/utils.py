@@ -1,6 +1,7 @@
 """
 Helper tools for unit tests
 """
+from builtins import object
 
 class patch(object):
     """

@@ -1,6 +1,7 @@
 """
 Unit tests for the sumatra.records module
 """
+from builtins import object
 
 import unittest
 import time

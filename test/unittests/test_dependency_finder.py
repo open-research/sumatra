@@ -2,6 +2,8 @@
 Unit tests for the sumatra.dependency_finder module
 """
 from __future__ import print_function
+from builtins import str
+from builtins import object
 
 try:
     import unittest2 as unittest
@@ -107,7 +109,7 @@ class TestPythonModuleFunctions(unittest.TestCase):
     def test__find_imported_packages(self):
         # the example project has numpy as its only import
         example_project_imports = df.python.find_imported_packages(os.path.join(tmpdir, "python", "main.py"), sys.executable)
-        assert "numpy" in example_project_imports.keys()
+        assert "numpy" in list(example_project_imports.keys())
     
 
 class TestCoreModuleFunctions(unittest.TestCase):
@@ -154,7 +156,7 @@ class TestMainModuleFunctions(unittest.TestCase):
             'neuron': os.path.join(tmpdir, "neuron"),
             'r': os.path.join(tmpdir, 'R'),
         }
-        for example_project in example_projects.values():
+        for example_project in list(example_projects.values()):
             assert os.path.exists(example_project)
             sys.path.append(os.path.abspath(example_project))
     

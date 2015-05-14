@@ -4,6 +4,10 @@ Unit tests for the sumatra.recordstore package
 
 from __future__ import unicode_literals
 from __future__ import print_function
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import object
 try:
     import unittest2 as unittest
 except ImportError:
@@ -23,7 +27,7 @@ import sumatra.datastore
 import sumatra.parameters
 from sumatra.core import registry
 import json
-import urlparse
+import urllib.parse
 from sumatra.compatibility import string_type
 
 
@@ -354,7 +358,7 @@ class MockHttp(object):
     def add_credentials(self, *args, **kwargs):
         pass
     def request(self, uri, method="GET", body=None, headers=None, **kwargs):
-        u = urlparse.urlparse(uri)
+        u = urllib.parse.urlparse(uri)
         parts = u.path.split("/")[1:-1]
         if self.debug:
             print("\n<<<<< %s %s %d %s %s %s %s %s" % (uri, u.path, len(parts),
@@ -379,7 +383,7 @@ class MockHttp(object):
             elif method == "DELETE":
                 self.records.pop(parts[1])
                 most_recent = ""
-                for record in self.records.itervalues():
+                for record in self.records.values():
                     if record["timestamp"] > most_recent:
                         most_recent = record["timestamp"]
                         self.last_record = record
@@ -393,11 +397,11 @@ class MockHttp(object):
                     for tag in tags:
                         records = records.union(["%s://%s/%s/%s/" % (
                             u.scheme, u.netloc, parts[0], path)
-                            for path in self.records.keys() if tag in self.records[path]['tags']])
+                            for path in list(self.records.keys()) if tag in self.records[path]['tags']])
                     records = list(records)
                 else:
                     records = ["%s://%s/%s/%s/" % (u.scheme, u.netloc, parts[0], path)
-                               for path in self.records.keys()]
+                               for path in list(self.records.keys())]
                 content = json.dumps({"records": records, "name": "TestProject", "description": ""})
                 status = 200
             elif method == "PUT":
@@ -407,7 +411,7 @@ class MockHttp(object):
             if method == "DELETE":
                 tag = parts[2]
                 n = 0
-                for key, record in self.records.items():
+                for key, record in list(self.records.items()):
                     if tag in record["tags"]:
                         self.records.pop(key)
                         n += 1

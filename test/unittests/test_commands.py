@@ -2,6 +2,10 @@
 Unit tests for the sumatra.commands module
 """
 from __future__ import print_function
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import object
 
 try:
     import unittest2 as unittest
@@ -104,7 +108,7 @@ class MockProject(object):
         self.data_store = MockDataStore("/path/to/root")
         self.input_datastore = MockDataStore("/path/to/root")
         self.__class__.instances.append(self)
-        for k,v in kwargs.items():
+        for k,v in list(kwargs.items()):
             self.__dict__[k] = v
         self._records_deleted = []
     def save(self): self.saved = True
@@ -794,7 +798,7 @@ class ArgumentParsingTests(unittest.TestCase):
             self.assertEqual(result, {'b': 2.0})
             assert isinstance(result['b'], float)
 
-    def test_parse_commend_line_parameter_warns(self):
+    def test_parse_command_line_parameter_warns(self):
         ## but still returns name and value with ValueError
         for P in self.PSETS:
             self.assertRaises(ValueError, P.parse_command_line_parameter, "bt=2")
