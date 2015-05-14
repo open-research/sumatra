@@ -15,6 +15,7 @@ Record - gathers and stores information about an individual simulation or
 :license: CeCILL, see LICENSE for details.
 """
 from __future__ import print_function
+from builtins import object
 
 from datetime import datetime
 import time
@@ -253,7 +254,7 @@ class RecordDifference(object):
         self.launch_mode_differs = recordA.launch_mode != recordB.launch_mode
         self.diff_differs = recordA.diff != recordB.diff
 
-    def __nonzero__(self):
+    def __bool__(self):
         """
         Return True if there are differences in executable, code, parameters or
         output data between the records, otherwise return False.

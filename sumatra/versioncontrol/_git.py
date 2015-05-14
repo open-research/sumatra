@@ -13,13 +13,15 @@ GitRepository
 """
 from __future__ import print_function
 from __future__ import absolute_import
+from future import standard_library
+standard_library.install_aliases()
 
 import logging
 import git
 import os
 import shutil
 from distutils.version import LooseVersion
-from ConfigParser import NoSectionError, NoOptionError
+from configparser import NoSectionError, NoOptionError
 try:
     from git.errors import InvalidGitRepositoryError, NoSuchPathError
 except:

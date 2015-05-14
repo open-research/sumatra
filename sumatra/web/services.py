@@ -5,6 +5,7 @@ docstring goes here
 :copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
 :license: CeCILL, see LICENSE for details.
 """
+from builtins import object
 
 
 from django import forms
@@ -32,7 +33,7 @@ def unescape(label):
 
 class ProjectUpdateForm(forms.ModelForm):
 
-    class Meta:
+    class Meta(object):
         model = models.Project
         fields = ('name', 'description')
 
@@ -44,7 +45,7 @@ class SearchForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(SearchForm, self).__init__(*args, **kwargs)
-        for key, field in self.fields.iteritems():
+        for key, field in self.fields.items():
             self.fields[key].required = False
 
 
@@ -53,7 +54,7 @@ class RecordForm(SearchForm):
     repository = forms.ModelChoiceField(queryset=models.Repository.objects.all(), empty_label='')
     timestamp = forms.DateTimeField(label="Date")
 
-    class Meta:
+    class Meta(object):
         model = models.Record
         fields = ('label', 'tags', 'reason', 'executable', 'repository',
                   'main_file', 'timestamp')
@@ -205,12 +206,12 @@ class RecordUpdateForm(forms.ModelForm):
     reason = forms.CharField(required=False, widget=wide_textarea)
     outcome = forms.CharField(required=False, widget=wide_textarea)
 
-    class Meta:
+    class Meta(object):
         model = models.Record
         fields = ('reason', 'outcome', 'tags')
 
 
 class TagUpdateForm(forms.ModelForm):
-    class Meta:
+    class Meta(object):
         model = models.Record
         fields = ('tags',)

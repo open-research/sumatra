@@ -29,6 +29,7 @@ heuristics - a list of functions that will be called in sequence by
 
 from __future__ import with_statement
 from __future__ import print_function
+from builtins import range
 import re
 import os
 from sumatra.dependency_finder import core

@@ -682,7 +682,7 @@ def migrate(argv):
             "Command 'smt migrate' had no effect. Please provide at least one "
             "argument. (Run 'smt help migrate' for help.)")
     else:
-        for option_name, field in field_map.items():
+        for option_name, field in list(field_map.items()):
             value = getattr(args, option_name)
             if value:
                 project.record_store.update(project.name, field, value)

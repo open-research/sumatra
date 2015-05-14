@@ -29,12 +29,17 @@ YAMLParameterSet
 """
 
 from __future__ import with_statement, absolute_import
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import object
 import os.path
 import shutil
 import abc
 import re
+from future.utils import with_metaclass
 try:
-    from ConfigParser import SafeConfigParser, MissingSectionHeaderError, NoOptionError  # Python 2
+    from configparser import SafeConfigParser, MissingSectionHeaderError, NoOptionError  # Python 2
 except ImportError:
     from configparser import SafeConfigParser, MissingSectionHeaderError, NoOptionError  # Python 3
 import json
@@ -49,8 +54,7 @@ from .core import registry
 
 POP_NONE = "eiutbocqnluiegnclqiuetyvbietcbdgsfzpq"
 
-class ParameterSet(object):
-    __metaclass__ = abc.ABCMeta
+class ParameterSet(with_metaclass(abc.ABCMeta, object)):
     required_attributes = ("update", "save")
     list_pattern = re.compile(r'^\s*\[.*\]\s*$')
     tuple_pattern = re.compile(r'^\s*\(.*\)\s*$')
@@ -190,10 +194,10 @@ class SimpleParameterSet(ParameterSet):
         self.types = {}
         self.comments = {}
         if isinstance(initialiser, dict):
-            for name, value in initialiser.items():
+            for name, value in list(initialiser.items()):
                 self.values[name] = value
                 self.types[name] = type(value)
-        elif isinstance(initialiser, basestring):
+        elif isinstance(initialiser, str):
             try:
                 path_exists = os.path.exists(initialiser)
             except Exception:  # e.g. null bytes in initialiser
@@ -216,7 +220,7 @@ class SimpleParameterSet(ParameterSet):
                     try:
                         self.values[name] = eval(value)
                     except NameError:
-                        self.values[name] = unicode(value)
+                        self.values[name] = str(value)
                     except TypeError as err:  # e.g. null bytes
                         raise SyntaxError("File is not a valid simple parameter file. %s" % err)
                     if "#" in value:
@@ -260,7 +264,7 @@ class SimpleParameterSet(ParameterSet):
                     not used.
         """
         output = []
-        for name, value in self.values.items():
+        for name, value in list(self.values.items()):
             type = self.types[name]
             if issubclass(type, string_type):
                 output.append('%s = "%s"' % (name, value))
@@ -289,12 +293,12 @@ class SimpleParameterSet(ParameterSet):
             self.values[name] = value
             self.types[name] = type(value)
         if hasattr(E, "items"):
-            for name, value in E.items():
+            for name, value in list(E.items()):
                 _update(name, value)
         else:
             for name, value in E:
                 _update(name, value)
-        for name, value in F.items():
+        for name, value in list(F.items()):
             _update(name, value)
     update.__doc__ = dict.update.__doc__
 
@@ -386,12 +390,12 @@ class ConfigParserParameterSet(SafeConfigParser, ParameterSet):
                 value = str(value)
             self.set(section, option, value)
         if hasattr(E, "items"):
-            for name, value in E.items():
+            for name, value in list(E.items()):
                 _update(name, value)
         else:
             for name, value in E:
                 _update(name, value)
-        for name, value in F.items():
+        for name, value in list(F.items()):
             _update(name, value)
     update.__doc__ = dict.update.__doc__
 
@@ -506,7 +510,7 @@ def build_parameters(filename):
         parameter_set_class = extension_map[ext]
         parameters = parameter_set_class(filename)
     else:
-        for parameter_set_class in extension_map.values():
+        for parameter_set_class in list(extension_map.values()):
             try:
                 parameters = parameter_set_class(filename)
             except (SyntaxError, NameError, UnicodeDecodeError):

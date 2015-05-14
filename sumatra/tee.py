@@ -9,7 +9,7 @@ import logging, sys, subprocess, types, time, os, codecs, platform
 if sys.version_info[0] == 3:
     string_types = str,
 else:
-    string_types = basestring,
+    string_types = str,
 
 global logger
 global stdout

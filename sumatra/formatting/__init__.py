@@ -7,6 +7,9 @@ formats: currently text or HTML.
 :copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
 :license: CeCILL, see LICENSE for details.
 """
+from builtins import zip
+from builtins import str
+from builtins import object
 
 import json
 import textwrap
@@ -155,7 +158,7 @@ class TextFormatter(Formatter):
                     if callable(entry):
                         entryStr = str(entry())
                     elif hasattr(entry, "items"):
-                        entryStr = ", ".join(["%s=%s" % item for item in entry.items()])
+                        entryStr = ", ".join(["%s=%s" % item for item in list(entry.items())])
                     elif isinstance(entry, set):
                         entryStr = ", ".join(entry)
                     else:
@@ -451,7 +454,7 @@ class TextDiffFormatter(Formatter):
         if self.diff.dependencies_differ:
             diffs = self.diff.dependency_differences
             output += "Dependency differences:\n"
-            for name, (depA, depB) in diffs.items():
+            for name, (depA, depB) in list(diffs.items()):
                 if depA and depB:
                     output += "  %s\n" % name
                     output += "    A: version=%s\n" % depA.version

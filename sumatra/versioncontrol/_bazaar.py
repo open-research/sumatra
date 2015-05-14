@@ -12,6 +12,7 @@ BazaarRepository
 :license: CeCILL, see LICENSE for details.
 """
 from __future__ import absolute_import
+from builtins import str
 
 from bzrlib.branch import Branch
 from bzrlib.workingtree import WorkingTree

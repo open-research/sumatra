@@ -21,11 +21,15 @@ load_project() - read project information from the working directory and return
 :license: CeCILL, see LICENSE for details.
 """
 from __future__ import print_function
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import object
 
 import os
 import re
 try:
-    import cPickle as pickle
+    import pickle as pickle
 except ImportError:
     import pickle
 from copy import deepcopy
@@ -143,7 +147,7 @@ class Project(object):
                     attr = None
             if hasattr(attr, "__getstate__"):
                 state[name] = {'type': attr.__class__.__module__ + "." + attr.__class__.__name__}
-                for key, value in attr.__getstate__().items():
+                for key, value in list(attr.__getstate__().items()):
                     state[name][key] = value
             else:
                 state[name] = attr
@@ -406,7 +410,7 @@ def _load_project_from_json(path):
     f.close()
     prj = Project.__new__(Project)
     prj.path = path
-    for key, value in data.items():
+    for key, value in list(data.items()):
         if isinstance(value, dict) and "type" in value:
             parts = str(value["type"]).split(".")  # make sure not unicode, see http://stackoverflow.com/questions/1971356/haystack-whoosh-index-generation-error/2683624#2683624
             module_name = ".".join(parts[:-1])
@@ -414,7 +418,7 @@ def _load_project_from_json(path):
             _temp = __import__(module_name, globals(), locals(), [class_name], -1)  # from <module_name> import <class_name>
             cls = getattr(_temp, class_name)
             args = {}
-            for k, v in value.items():
+            for k, v in list(value.items()):
                 if k != 'type':
                     args[str(k)] = v  # need to use str() as json module uses all unicode
             setattr(prj, key, cls(**args))

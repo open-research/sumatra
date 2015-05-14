@@ -5,6 +5,7 @@ Utility functions for use in publishing modules
 :copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
 :license: CeCILL, see LICENSE for details.
 """
+from builtins import object
 
 import os
 import errno

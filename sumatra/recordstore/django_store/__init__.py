@@ -9,6 +9,8 @@ SQLite or PostgreSQL.
 :license: CeCILL, see LICENSE for details.
 """
 from __future__ import absolute_import
+from builtins import range
+from builtins import object
 
 
 import os
@@ -67,7 +69,7 @@ class DjangoConfiguration(object):
         db = self.uri_to_db(uri)
 
         if self.contains_database(db):
-            for key, db_tmp in self._settings['DATABASES'].items():
+            for key, db_tmp in list(self._settings['DATABASES'].items()):
                 if db == db_tmp:
                     label = key
                     break
@@ -83,10 +85,10 @@ class DjangoConfiguration(object):
         return label
 
     def contains_database(self, db):
-        return db in [db_tmp for label, db_tmp in self._settings['DATABASES'].items()]
+        return db in [db_tmp for label, db_tmp in list(self._settings['DATABASES'].items())]
 
     def _create_databases(self):
-        for label, db in self._settings['DATABASES'].items():
+        for label, db in list(self._settings['DATABASES'].items()):
             if 'sqlite' in db['ENGINE']:
                 db_file = db['NAME']
                 if not os.path.exists(os.path.dirname(db_file)):
@@ -204,10 +206,10 @@ class DjangoRecordStore(RecordStore):
         # should perhaps check here for any orphan Tags, i.e., those that are no longer associated with any records, and delete them
         db_record.save(using=self._db_label)  # need to save before using many-to-many relationship
         chunk_size = 900  # SQLite has problems with inserts >= ca. 1000, so for safety we split it into chunks
-        for i in xrange(0, len(record.input_data), chunk_size):
+        for i in range(0, len(record.input_data), chunk_size):
             db_keys = (self._get_db_obj('DataKey', key) for key in record.input_data[i:i + chunk_size])
             db_record.input_data.add(*db_keys)
-        for i in xrange(0, len(record.output_data), chunk_size):
+        for i in range(0, len(record.output_data), chunk_size):
             db_keys = (self._get_db_obj('DataKey', key) for key in record.output_data[i:i + chunk_size])
             for key in db_keys:
                 key.output_from_record = db_record

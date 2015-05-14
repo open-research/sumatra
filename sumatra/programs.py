@@ -35,6 +35,7 @@ get_executable()
 
 from __future__ import with_statement
 from __future__ import print_function
+from builtins import object
 import os.path
 import re
 import sys
@@ -131,7 +132,7 @@ class NEURONSimulator(Executable):
     def write_parameters(parameters, filebasename):
         filename = filebasename + ".hoc"
         with open(filename, 'w') as fp:
-            for name, value in parameters.as_dict().items():
+            for name, value in list(parameters.as_dict().items()):
                 if isinstance(value, string_type):
                     fp.write('strdef %s\n' % name)
                     fp.write('%s = "%s"\n' % (name, value))
@@ -224,13 +225,13 @@ def get_executable(path=None, script_file=None):
     if path:
         prog_name = os.path.basename(path)
         program = Executable(path)
-        for executable_type in registry.components[Executable].values():
+        for executable_type in list(registry.components[Executable].values()):
             if prog_name in executable_type.executable_names:
                 program = executable_type(path)
     elif script_file:
         script_path, ext = os.path.splitext(script_file)
         program = None
-        for executable_type in registry.components[Executable].values():
+        for executable_type in list(registry.components[Executable].values()):
             if ext in executable_type.file_extensions:
                 program = executable_type(path)
         if program is None:

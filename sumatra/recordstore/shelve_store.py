@@ -5,6 +5,7 @@ shelve module.
 :copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
 :license: CeCILL, see LICENSE for details.
 """
+from builtins import str
 
 import os
 import shelve
@@ -60,7 +61,7 @@ class ShelveRecordStore(RecordStore):
         self.__init__(**state)
 
     def list_projects(self):
-        return self.shelf.keys()
+        return list(self.shelf.keys())
 
     @check_name
     def save(self, project_name, record):
@@ -83,10 +84,10 @@ class ShelveRecordStore(RecordStore):
                     tags = [tags]
                 records = set()
                 for tag in tags:
-                    records = records.union([record for record in self.shelf[project_name].values() if tag in record.tags])
+                    records = records.union([record for record in list(self.shelf[project_name].values()) if tag in record.tags])
                 records = list(records)
             else:
-                records = self.shelf[project_name].values()
+                records = list(self.shelf[project_name].values())
         else:
             records = []
         return records
@@ -94,7 +95,7 @@ class ShelveRecordStore(RecordStore):
     @check_name
     def labels(self, project_name):
         if project_name in self.shelf:
-            return self.shelf[project_name].keys()
+            return list(self.shelf[project_name].keys())
         else:
             return []
 
@@ -106,7 +107,7 @@ class ShelveRecordStore(RecordStore):
 
     @check_name
     def delete_by_tag(self, project_name, tag):
-        for_deletion = [record for record in self.shelf[project_name].values() if tag in record.tags]
+        for_deletion = [record for record in list(self.shelf[project_name].values()) if tag in record.tags]
         for record in for_deletion:
             self.delete(project_name, record.label)
         return len(for_deletion)
@@ -115,7 +116,7 @@ class ShelveRecordStore(RecordStore):
     def most_recent(self, project_name):
         most_recent = None
         most_recent_timestamp = datetime.min
-        for record in self.shelf[project_name].itervalues():
+        for record in self.shelf[project_name].values():
             if record.timestamp > most_recent_timestamp:
                 most_recent_timestamp = record.timestamp
                 most_recent = record.label

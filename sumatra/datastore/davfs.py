@@ -1,12 +1,14 @@
 '''
 Datastore via remote webdav connection
 '''
+from future import standard_library
+standard_library.install_aliases()
 
 import os
 import tarfile
 import logging
 from fs.contrib.davfs import DAVFS
-from urlparse import urlparse
+from urllib.parse import urlparse
 from contextlib import closing  # needed for Python 2.6
 
 from sumatra.core import registry

@@ -6,6 +6,7 @@ Defines view functions and forms for the Sumatra web interface.
 """
 from __future__ import print_function
 from __future__ import absolute_import
+from builtins import str
 
 import os
 import os.path
@@ -191,7 +192,7 @@ def set_tags(request, project):
 def delete_records(request, project):
     records_to_delete = request.POST.getlist('delete[]')
     delete_data = request.POST.get('delete_data', False)
-    if isinstance(delete_data, basestring):
+    if isinstance(delete_data, str):
         # Convert strings returned from Javascript function into Python bools
         delete_data = {'false': False, 'true': True}[delete_data]
     records = Record.objects.filter(label__in=records_to_delete, project__id=project)
@@ -254,7 +255,7 @@ def run_sim(request, project):
                    '--main': request.POST.get('main_file', False),
                    'args': request.POST.get('args', False)}
         options_list = []
-        for key, item in run_opt.iteritems():
+        for key, item in run_opt.items():
             if item:
                 if key == 'args':
                     options_list.append(item)

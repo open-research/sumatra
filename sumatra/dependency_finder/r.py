@@ -88,7 +88,7 @@ def _parse_deps(deps, pkg_split=package_split_str,
     pkgs = deps.split(pkg_split)[1:] ## first split may be a warning
     list_deps = []
     for pk in pkgs:
-        parts = filter(lambda x: len(x) > 0, pk.split(el_split))
+        parts = [x for x in pk.split(el_split) if len(x) > 0]
         argdict = {}
         for p in parts:
             k, v = p.split(nv_split)

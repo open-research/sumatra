@@ -7,6 +7,8 @@ obtaining information about the platform(s) on which the simulations are run.
 :license: CeCILL, see LICENSE for details.
 """
 from __future__ import print_function
+from builtins import range
+from builtins import object
 
 import platform
 import socket
@@ -29,7 +31,7 @@ class PlatformInformation(object):
     """
 
     def __init__(self, **kwargs):
-        for k, v in kwargs.items():
+        for k, v in list(kwargs.items()):
             setattr(self, k, v)
     #platform.mac_ver()
     #platform.win32_ver()
@@ -275,7 +277,7 @@ class DistributedLaunchMode(LaunchMode):
                                        maxprocs=self.n)
             platform_information = []
             for rank in range(self.n):
-                platform_information.append(PlatformInformation(**comm.recv(source=rank, tag=rank).values()[0]))
+                platform_information.append(PlatformInformation(**list(comm.recv(source=rank, tag=rank).values())[0]))
             comm.Disconnect()
         return platform_information
     get_platform_information.__doc__ = LaunchMode.get_platform_information.__doc__ + """
