@@ -10,6 +10,7 @@ Usage:
 or:
     python test_ircr.py
 """
+from __future__ import print_function
 
 # Requirements: numpy, scipy, matplotlib, mercurial, sarge
 import os
@@ -136,10 +137,10 @@ if __name__ == '__main__':
         if callable(step):
             step()
         else:
-            print step[0]  # description
+            print(step[0])  # description
             run_test(*step[1:])
     response = raw_input("Do you want to delete the temporary directory (default: yes)? ")
     if response not in ["n", "N", "no", "No"]:
         teardown()
     else:
-        print "Temporary directory %s not removed" % utils.temporary_dir
+        print("Temporary directory %s not removed" % utils.temporary_dir)

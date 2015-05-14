@@ -114,7 +114,7 @@ class MockRecord(object):
         self.version = "42"
         self.launch_mode = MockLaunchMode()
         self.outcome = ""
-        self.timestamp = datetime.datetime(2042, 01, 23)
+        self.timestamp = datetime.datetime(2042, 0o1, 23)
         self.user = 'user'
         self.duration = 2.3
         self.datastore = MockDatastore()

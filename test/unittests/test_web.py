@@ -1,6 +1,7 @@
 """
 Unit tests for the sumatra.web module
 """
+from __future__ import absolute_import
 
 try:
     import unittest2 as unittest
@@ -20,7 +21,7 @@ from django.core import management
 from django.core.urlresolvers import reverse
 from sumatra.recordstore.django_store import DjangoRecordStore, db_config
 
-import test_recordstore
+from . import test_recordstore
 import sumatra.projects
 
 

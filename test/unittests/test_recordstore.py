@@ -3,6 +3,7 @@ Unit tests for the sumatra.recordstore package
 """
 
 from __future__ import unicode_literals
+from __future__ import print_function
 try:
     import unittest2 as unittest
 except ImportError:

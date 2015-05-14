@@ -1,6 +1,7 @@
 """
 Utility functions for writing system tests.
 """
+from __future__ import print_function
 
 import os.path
 import re
@@ -54,7 +55,7 @@ def setup():
     temporary_dir = os.path.realpath(tempfile.mkdtemp())
     working_dir = os.path.join(temporary_dir, "sumatra_exercise")
     os.mkdir(working_dir)
-    print working_dir
+    print(working_dir)
     env["labels"] = []
 
 
@@ -176,7 +177,7 @@ def run_test(command, *checks):
         command = command(env)
     p = run(command)
     if DEBUG:
-        print p.stdout.text
+        print(p.stdout.text)
     for check, checkarg in pairs(checks):
         if callable(checkarg):
             checkarg = checkarg(env)
@@ -184,5 +185,5 @@ def run_test(command, *checks):
     label = get_label(p)
     if label is not None:
         env["labels"].append(label)
-        print "label is", label
+        print("label is", label)
 run_test.__test__ = False  # nose should not treat this as a test

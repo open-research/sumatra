@@ -1,6 +1,7 @@
 """
 Unit tests for the sumatra.commands module
 """
+from __future__ import print_function
 
 try:
     import unittest2 as unittest
