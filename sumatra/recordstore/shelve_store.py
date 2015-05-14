@@ -64,7 +64,7 @@ class ShelveRecordStore(RecordStore):
 
     @check_name
     def save(self, project_name, record):
-        if self.shelf.has_key(project_name):
+        if project_name in self.shelf:
             records = self.shelf[project_name]
         else:
             records = {}

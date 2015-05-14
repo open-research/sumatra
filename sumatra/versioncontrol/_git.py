@@ -11,6 +11,8 @@ GitRepository
 :copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
 :license: CeCILL, see LICENSE for details.
 """
+from __future__ import print_function
+from __future__ import absolute_import
 
 import logging
 import git
@@ -22,7 +24,7 @@ try:
     from git.errors import InvalidGitRepositoryError, NoSuchPathError
 except:
     from git.exc import InvalidGitRepositoryError, NoSuchPathError
-from base import Repository, WorkingCopy, VersionControlError
+from .base import Repository, WorkingCopy, VersionControlError
 from ..core import registry
 
 
@@ -66,7 +68,7 @@ class GitWorkingCopy(WorkingCopy):
 
     @property
     def exists(self):
-        print "EXISTS?", self.path, findrepo(self.path)
+        print("EXISTS?", self.path, findrepo(self.path))
         return bool(self.path and findrepo(self.path))
 
     def current_version(self):

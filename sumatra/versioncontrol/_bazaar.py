@@ -11,6 +11,7 @@ BazaarRepository
 :copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
 :license: CeCILL, see LICENSE for details.
 """
+from __future__ import absolute_import
 
 from bzrlib.branch import Branch
 from bzrlib.workingtree import WorkingTree
@@ -19,8 +20,8 @@ from bzrlib.errors import NotBranchError
 
 import os
 
-from base import VersionControlError
-from base import Repository, WorkingCopy
+from .base import VersionControlError
+from .base import Repository, WorkingCopy
 from ..compatibility import string_type, StringIO
 from ..core import registry
 

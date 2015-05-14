@@ -1,6 +1,7 @@
 """
 Defines view functions and forms for the Sumatra web interface.
 """
+from __future__ import print_function
 
 from time import strptime
 import datetime
@@ -325,7 +326,7 @@ def show_file(request, project, label):
     show_script = request.GET.get('show_script', False)
     data_key = DataKey(path, digest)
     if show_script: # record_list.html: user click the main file cell
-        print 'digest: %s' %digest
+        print('digest: %s' %digest)
     if 'truncate' in request.GET:
         if request.GET['truncate'].lower() == 'false':
             max_display_length = None
@@ -393,7 +394,7 @@ def show_file(request, project, label):
             return render_to_response("show_file.html", {'path': path, 'label': label,
                                                          'project_name': project,
                                                          'content': "Can't display this file (mimetype assumed to be %s)" % mimetype})
-    except (IOError, KeyError), e:
+    except (IOError, KeyError) as e:
         return render_to_response("show_file.html", {'path': path, 'label': label,
                                                      'project_name': project,
                                                      'content': "File not found.",

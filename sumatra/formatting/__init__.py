@@ -13,6 +13,7 @@ import textwrap
 import cgi
 import re
 from ..core import registry
+from functools import reduce
 
 
 fields = ['label', 'timestamp', 'reason', 'outcome', 'duration', 'repository',

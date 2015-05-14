@@ -4,6 +4,8 @@ Defines view functions and forms for the Sumatra web interface.
 :copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
 :license: CeCILL, see LICENSE for details.
 """
+from __future__ import print_function
+from __future__ import absolute_import
 
 import os
 import os.path
@@ -16,7 +18,7 @@ try:
     from django.views.generic.dates import MonthArchiveView
 except ImportError:  # older versions of Django
     MonthArchiveView = object
-from services import DefaultTemplate, DataTemplate, AjaxTemplate, ProjectUpdateForm, RecordUpdateForm, TagUpdateForm, unescape
+from .services import DefaultTemplate, DataTemplate, AjaxTemplate, ProjectUpdateForm, RecordUpdateForm, TagUpdateForm, unescape
 from sumatra.recordstore.django_store.models import Project, Tag, Record
 
 from sumatra.projects import load_project
@@ -119,20 +121,20 @@ def record_detail(request, project, label):
         label = unescape(label)
         record = Record.objects.get(label=label, project__id=project)
     if request.method == 'POST':
-        if request.POST.has_key('delete'):  # in this version the page record_detail doesn't have delete option
+        if 'delete' in request.POST:  # in this version the page record_detail doesn't have delete option
             record.delete()
             return HttpResponseRedirect('..')
-        elif request.POST.has_key('show_args'):  # user clicks the link <parameters> in record_list.html
+        elif 'show_args' in request.POST:  # user clicks the link <parameters> in record_list.html
             parameter_set = record.parameters.to_sumatra()
             return HttpResponse(parameter_set)
-        elif request.POST.has_key('show_script'):  # retrieve script code from the repo
+        elif 'show_script' in request.POST:  # retrieve script code from the repo
             digest = request.POST.get('digest', False)
             path = request.POST.get('path', False)
             path = str(path).encode("string_escape")
             wc = get_working_copy(path)
             file_content = wc.content(digest)
             return HttpResponse(file_content)
-        elif request.POST.has_key('compare_records'):
+        elif 'compare_records' in request.POST:
             labels = request.POST.getlist('records[]')
             records = Record.objects.filter(project__id=project)
             records = records.filter(label__in=labels[:2])  # by now we take only two records
@@ -160,7 +162,7 @@ def record_detail(request, project, label):
 
 def search(request, project):
     ajaxTempOb = AjaxTemplate(project, request.POST)
-    if request.POST.has_key('fulltext_inquiry'):  # using the input #search_subnav
+    if 'fulltext_inquiry' in request.POST:  # using the input #search_subnav
         ajaxTempOb.filter_search(request.POST)
         ajaxTempOb.init_object_list(ajaxTempOb.page)
         return render_to_response('content.html', ajaxTempOb.getDict())
@@ -216,8 +218,8 @@ def settings(request, project):
     #                 'nb_records_per_page': request.POST.get('nb_records_per_page', False),
     #                 'hidden_cols': request.POST.getlist('hidden_cols[]')}
 
-    print request
-    print request.POST.getlist('record_hidden_cols[]')
+    print(request)
+    print(request.POST.getlist('record_hidden_cols[]'))
 
     # ajaxTempOb = AjaxTemplate(project, None)
     # for key, item in web_settings.iteritems():
@@ -234,7 +236,7 @@ def settings(request, project):
 
 
 def run_sim(request, project):
-    if request.POST.has_key('content'):  # save the edited argument file
+    if 'content' in request.POST:  # save the edited argument file
         content = request.POST.get('content', False)  # in case user changed the argument file
         arg_file = request.POST.get('arg_file', False)
         if os.name == 'posix':
@@ -283,9 +285,9 @@ def data_detail(request, project):
     if len(data_keys)==1:
         data_key = data_keys[0]
     elif len(data_keys)==0:
-        print 'no such data_key'
+        print('no such data_key')
     elif len(data_keys)>1:
-        print 'duplicate error'
+        print('duplicate error')
 
     return render_to_response("data_detail.html",
                               {'data_key': data_key, 'project_name': project})

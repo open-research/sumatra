@@ -35,6 +35,7 @@ heuristics - a list of functions that will be called in sequence by
 """
 
 from __future__ import with_statement
+from __future__ import print_function
 import os
 import sys
 from modulefinder import Module

@@ -14,6 +14,7 @@ Record - gathers and stores information about an individual simulation or
 :copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
 :license: CeCILL, see LICENSE for details.
 """
+from __future__ import print_function
 
 from datetime import datetime
 import time

@@ -8,6 +8,7 @@ SQLite or PostgreSQL.
 :copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
 :license: CeCILL, see LICENSE for details.
 """
+from __future__ import absolute_import
 
 
 import os
@@ -135,7 +136,7 @@ class DjangoRecordStore(RecordStore):
     def _get_models(self):
         if not db_config.configured:
             db_config.configure()
-        import models
+        from . import models
         return models
 
     def _switch_db(self, db_file):

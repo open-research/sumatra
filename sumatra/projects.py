@@ -20,6 +20,7 @@ load_project() - read project information from the working directory and return
 :copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
 :license: CeCILL, see LICENSE for details.
 """
+from __future__ import print_function
 
 import os
 import re
@@ -254,11 +255,11 @@ class Project(object):
                 success = True
                 self._most_recent = record.label
             except (django.db.utils.DatabaseError, sqlite3.OperationalError):
-                print "Failed to save record due to database error. Trying again in {} seconds. (Attempt {}/{})".format(sleep_seconds, cnt, max_tries)
+                print("Failed to save record due to database error. Trying again in {} seconds. (Attempt {}/{})".format(sleep_seconds, cnt, max_tries))
                 time.sleep(sleep_seconds)
                 cnt += 1
         if cnt == max_tries:
-            print "Reached maximum number of attempts to save record. Aborting."
+            print("Reached maximum number of attempts to save record. Aborting.")
 
     def get_record(self, label):
         """Search for a record with the supplied label and return it if found.
