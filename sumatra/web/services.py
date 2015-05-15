@@ -40,7 +40,7 @@ class SearchForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(SearchForm, self).__init__(*args, **kwargs)
-        for key, field in list(self.fields.items()):
+        for key, field in self.fields.items():
             self.fields[key].required = False
 
 

@@ -24,7 +24,7 @@ from bzrlib.errors import NotBranchError
 
 import os
 try:
-    from io import StringIO # bazaar does not handle unicode
+    from StringIO import StringIO # bazaar does not handle unicode
 except ImportError: # Python3
     from io import StringIO
 

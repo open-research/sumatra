@@ -146,7 +146,7 @@ class Project(object):
                     attr = None
             if hasattr(attr, "__getstate__"):
                 state[name] = {'type': attr.__class__.__module__ + "." + attr.__class__.__name__}
-                for key, value in list(attr.__getstate__().items()):
+                for key, value in attr.__getstate__().items():
                     state[name][key] = value
             else:
                 state[name] = attr
@@ -409,7 +409,7 @@ def _load_project_from_json(path):
     f.close()
     prj = Project.__new__(Project)
     prj.path = path
-    for key, value in list(data.items()):
+    for key, value in data.items():
         if isinstance(value, dict) and "type" in value:
             parts = str(value["type"]).split(".")  # make sure not unicode, see http://stackoverflow.com/questions/1971356/haystack-whoosh-index-generation-error/2683624#2683624
             module_name = ".".join(parts[:-1])
@@ -417,7 +417,7 @@ def _load_project_from_json(path):
             module = importlib.import_module(module_name)
             cls = getattr(module, class_name)
             args = {}
-            for k, v in list(value.items()):
+            for k, v in value.items():
                 if k != 'type':
                     args[str(k)] = v  # need to use str() as json module uses all unicode
             setattr(prj, key, cls(**args))

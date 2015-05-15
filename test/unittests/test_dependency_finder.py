@@ -157,7 +157,7 @@ class TestMainModuleFunctions(unittest.TestCase):
             'neuron': os.path.join(tmpdir, "neuron"),
             'r': os.path.join(tmpdir, 'R'),
         }
-        for example_project in list(example_projects.values()):
+        for example_project in example_projects.values():
             assert os.path.exists(example_project)
             sys.path.append(os.path.abspath(example_project))
 

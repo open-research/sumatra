@@ -463,7 +463,7 @@ def run_sim(request, project):
         fow.close()
         return HttpResponse('ok')
     options_list = []
-    for key, item in list(run_opt.items()):
+    for key, item in run_opt.items():
         if item:
             if key == 'args':
                 options_list.append(item)
@@ -534,7 +534,7 @@ def settings(request, project):
         except(AttributeError, KeyError): # project doesn't have web_settings yet
             # upgrading of .smt/project: new supplementary settings entries
             project_loaded.web_settings = init_websettings()
-        for key, item in list(web_settings.items()):
+        for key, item in web_settings.items():
             if item:
                 project_loaded.web_settings[key] = item
         project_loaded.save()

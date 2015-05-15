@@ -253,7 +253,7 @@ def run_sim(request, project):
                    '--main': request.POST.get('main_file', False),
                    'args': request.POST.get('args', False)}
         options_list = []
-        for key, item in list(run_opt.items()):
+        for key, item in run_opt.items():
             if item:
                 if key == 'args':
                     options_list.append(item)

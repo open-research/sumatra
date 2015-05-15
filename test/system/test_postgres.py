@@ -120,7 +120,7 @@ if __name__ == '__main__':
         else:
             print(step[0])  # description
             run_test(*step[1:])
-    response = eval(input("Do you want to delete the temporary directory (default: yes)? "))
+    response = input("Do you want to delete the temporary directory (default: yes)? ")
     if response not in ["n", "N", "no", "No"]:
         teardown()
     else:

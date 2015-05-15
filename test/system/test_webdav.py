@@ -52,7 +52,7 @@ def start_webdav_container():
 
         docker build -t webdav_test .
 
-    in the fixtures subdir. Inputting the Dockerfile from stdin is not 
+    in the fixtures subdir. Inputting the Dockerfile from stdin is not
     possible since we need to ADD an apache config file. See also:
     http://blog.mx17.net/2014/02/12/dockerfile-file-directory-error-using-add/
     """
@@ -111,7 +111,7 @@ if __name__ == '__main__':
         else:
             print(step[0])  # description
             run_test(*step[1:])
-    response = eval(input("Do you want to delete the temporary directory (default: yes)? "))
+    response = input("Do you want to delete the temporary directory (default: yes)? ")
     if response not in ["n", "N", "no", "No"]:
         teardown()
     else:

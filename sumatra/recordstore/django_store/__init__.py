@@ -73,7 +73,7 @@ class DjangoConfiguration(object):
         db = self.uri_to_db(uri)
 
         if self.contains_database(db):
-            for key, db_tmp in list(self._settings['DATABASES'].items()):
+            for key, db_tmp in self._settings['DATABASES'].items():
                 if db == db_tmp:
                     label = key
                     break
@@ -89,10 +89,10 @@ class DjangoConfiguration(object):
         return label
 
     def contains_database(self, db):
-        return db in [db_tmp for label, db_tmp in list(self._settings['DATABASES'].items())]
+        return db in [db_tmp for label, db_tmp in self._settings['DATABASES'].items()]
 
     def _create_databases(self):
-        for label, db in list(self._settings['DATABASES'].items()):
+        for label, db in self._settings['DATABASES'].items():
             if 'sqlite' in db['ENGINE']:
                 db_file = db['NAME']
                 if not os.path.exists(os.path.dirname(db_file)):

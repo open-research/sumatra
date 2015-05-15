@@ -222,7 +222,7 @@ def find_dependencies(filename, executable):
                   find_versions_from_egg]
     logger.debug("Finding imported packages")
     packages = find_imported_packages(filename, executable.path, exclude_stdlib=True)
-    dependencies = [Dependency.from_module(module, executable.path) for module in list(packages.values())]
+    dependencies = [Dependency.from_module(module, executable.path) for module in packages.values()]
     logger.debug("Finding versions of dependencies")
     return core.find_versions(dependencies, heuristics)
 
