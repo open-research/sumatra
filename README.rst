@@ -23,12 +23,12 @@ backups of your records.
 
 For documentation, see http://packages.python.org/Sumatra/ and http://neuralensemble.org/sumatra/
 
-    
+
 Intended functionality (not all implemented yet):
 
     * launch simulations and analyses, and record various pieces of information,
       including:
-      
+
         - the executable (identity, version)
         - the script (identity, version)
         - the parameters
@@ -38,18 +38,18 @@ Intended functionality (not all implemented yet):
           the simulation/analysis
         - the reason for doing the simulation/analysis
         - the outcome of the simulation/analysis
-        
+
     * allow browsing/searching/visualising the results of previous experiments
     * allow the re-running of previous simulations/analyses with automatic
       verification that the results are unchanged
     * launch single or batch experiments, serial or parallel
-    
+
 
 ============
 Requirements
 ============
 
-Sumatra requires Python versions 2.6 or 2.7. The web interface requires
+Sumatra requires Python versions 2.6, 2.7 or ≥ 3.3. The web interface requires
 Django (>= 1.4) and the django-tagging package.
 Sumatra requires that you keep your own code in a version control
 system (currently Subversion, Mercurial, Git and Bazaar are supported). If you
