@@ -30,7 +30,7 @@ class MockExecutable(object):
     def __init__(self, name):
         self.name = name
         self.path = name
-        
+
 class MockRExecutable(MockExecutable):
     def __init__(self, name):
         self.name = 'R'
@@ -54,7 +54,7 @@ class TestRModuleFunctions(unittest.TestCase):
     def tearDown(self):
         sys.path = self.saved_path
         os.chdir(self.cwd)
-        
+
     def test__r_extern_script(self):
         self.assertEqual(os.path.exists(df.r.r_script_to_find_deps), True)
 
@@ -79,7 +79,7 @@ class TestRModuleFunctions(unittest.TestCase):
 
 
 class TestPythonModuleFunctions(unittest.TestCase):
-    
+
     def setUp(self):
         self.saved_path = sys.path[:]
         self.cwd = os.getcwd()
@@ -87,33 +87,33 @@ class TestPythonModuleFunctions(unittest.TestCase):
         assert os.path.exists(self.example_project)
         sys.path.append(os.path.abspath(self.example_project))
         os.chdir(self.example_project)
-    
+
     def tearDown(self):
         sys.path = self.saved_path
         os.chdir(self.cwd)
-    
+
     @unittest.skipUnless(have_numpy, "test requires NumPy")
     def test__find_versions_by_attribute(self):
         import main
         self.assertEqual(df.python.find_version_by_attribute(main), "1.2.3a")
         del main.__version__
         self.assertEqual(df.python.find_version_by_attribute(main), "1.2.3b")
-        
+
     def test__find_versions_from_egg(self):
         dep = df.python.Dependency("main", os.path.join(self.example_project, "main.py"))
         self.assertEqual(dep.version, 'unknown')
         df.python.find_versions_from_egg([dep])
         self.assertEqual(dep.version, "1.2.3egg")
-    
+
     @unittest.skipUnless(have_numpy, "test requires NumPy")
     def test__find_imported_packages(self):
         # the example project has numpy as its only import
         example_project_imports = df.python.find_imported_packages(os.path.join(tmpdir, "python", "main.py"), sys.executable)
         assert "numpy" in list(example_project_imports.keys())
-    
+
 
 class TestCoreModuleFunctions(unittest.TestCase):
-    
+
     def setUp(self):
         self.example_project = os.path.join(tmpdir, "python")
         assert os.path.exists(self.example_project)
@@ -130,25 +130,25 @@ class TestCoreModuleFunctions(unittest.TestCase):
                                            None,
                                            None),
                          self.somemodule_path)
-    
+
     def test__find_file_current_directory(self):
         self.assertEqual(df.core.find_file("somemodule.py",
                                            os.path.join(self.example_project, "subpackage"),
                                            []),
                          self.somemodule_path)
-    
+
     def test__find_file_nonexistentfile(self):
         self.assertRaises(IOError,
                           df.core.find_file,
                           "adifferentmodule.py",
                           os.path.join(self.example_project, "subpackage"),
                           [])
-    
+
     def test__find_versions_from_versioncontrol(self):
         pass
-        
+
 class TestMainModuleFunctions(unittest.TestCase):
-    
+
     def setUp(self):
         self.saved_path = sys.path[:]
         example_projects = {
@@ -156,13 +156,13 @@ class TestMainModuleFunctions(unittest.TestCase):
             'neuron': os.path.join(tmpdir, "neuron"),
             'r': os.path.join(tmpdir, 'R'),
         }
-        for example_project in list(example_projects.values()):
+        for example_project in example_projects.values():
             assert os.path.exists(example_project)
             sys.path.append(os.path.abspath(example_project))
-    
+
     def tearDown(self):
         sys.path = self.saved_path
-        
+
     def test__find_dependencies_for_a_NEURON_project(self):
         deps = df.find_dependencies(os.path.join(tmpdir, "neuron", "main.hoc"),
                                     MockExecutable("NEURON"))
@@ -180,19 +180,19 @@ class TestMainModuleFunctions(unittest.TestCase):
                           df.find_dependencies,
                           os.path.join(tmpdir, "python", "main.py"),
                           MockExecutable("Perl")) # I'm not saying Perl shouldn't be supported, it just isn't at present
-        
+
 
 class TestPythonDependency(unittest.TestCase):
-    
+
     def setUp(self):
         self.saved_path = sys.path[:]
         self.example_project = os.path.join(tmpdir, "python")
         assert os.path.exists(self.example_project)
         sys.path.append(os.path.abspath(self.example_project))
-    
+
     def tearDown(self):
         sys.path = self.saved_path
-    
+
     def test__init(self):
         dep = df.python.Dependency("main", os.path.join(self.example_project, "main.py"), version="1.2.3b")
         self.assertEqual(dep.version, "1.2.3b")
@@ -205,7 +205,7 @@ class TestPythonDependency(unittest.TestCase):
     def test__str(self):
         dep = df.python.Dependency("main", "/some/path")
         str(dep)
-        
+
     def test_eq(self):
         path = os.path.join(self.example_project, "main.py")
         dep1 = df.python.Dependency("main", path)
@@ -220,16 +220,16 @@ class TestPythonDependency(unittest.TestCase):
 
 
 class TestNEURONDependency(unittest.TestCase):
-    
+
     def setUp(self):
         self.saved_path = sys.path[:]
         self.example_project = os.path.join(tmpdir, "neuron")
         assert os.path.exists(self.example_project)
         sys.path.append(os.path.abspath(self.example_project))
-    
+
     def tearDown(self):
         sys.path = self.saved_path
-    
+
     def test__init(self):
         dep = df.neuron.Dependency(os.path.join(self.example_project, "main.hoc"))
         self.assertEqual(dep.version, "unknown")
@@ -237,7 +237,7 @@ class TestNEURONDependency(unittest.TestCase):
     def test__str(self):
         dep = df.neuron.Dependency(os.path.join(self.example_project, "main.hoc"))
         str(dep)
-        
+
     def test_eq(self):
         dep1 = df.neuron.Dependency(os.path.join(self.example_project, "main.hoc"))
         dep2 = df.neuron.Dependency(os.path.join(self.example_project, "main.hoc"))
@@ -249,16 +249,16 @@ class TestNEURONDependency(unittest.TestCase):
         self.assertNotEqual(dep1, dep2)
 
 class TestRDependency(unittest.TestCase):
-    
+
     def setUp(self):
         self.saved_path = sys.path[:]
         self.example_project = os.path.join(tmpdir, "R")
         assert os.path.exists(self.example_project)
         sys.path.append(os.path.abspath(self.example_project))
-    
+
     def tearDown(self):
         sys.path = self.saved_path
-    
+
     def test__init(self):
         dep = df.r.Dependency(os.path.join(self.example_project, "myscript.R"))
         self.assertEqual(dep.version, "unknown")
@@ -266,7 +266,7 @@ class TestRDependency(unittest.TestCase):
     def test__str(self):
         dep = df.r.Dependency(os.path.join(self.example_project, "myscript.R"))
         str(dep)
-        
+
     def test_eq(self):
         dep1 = df.r.Dependency(os.path.join(self.example_project, "myscript.R"))
         dep2 = df.r.Dependency(os.path.join(self.example_project, "myscript.R"))
@@ -296,4 +296,4 @@ if __name__ == '__main__':
     setup()
     unittest.main()
     teardown()
-    
+

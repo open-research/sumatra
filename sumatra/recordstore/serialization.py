@@ -35,7 +35,7 @@ def keys2str(D):
     to strings.
     """
     E = {}
-    for k, v in list(D.items()):
+    for k, v in D.items():
         E[str(k)] = v
     return E
 

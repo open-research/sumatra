@@ -108,7 +108,7 @@ class MockProject(object):
         self.data_store = MockDataStore("/path/to/root")
         self.input_datastore = MockDataStore("/path/to/root")
         self.__class__.instances.append(self)
-        for k,v in list(kwargs.items()):
+        for k,v in kwargs.items():
             self.__dict__[k] = v
         self._records_deleted = []
     def save(self): self.saved = True

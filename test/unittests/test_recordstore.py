@@ -405,11 +405,11 @@ class MockHttp(object):
                     for tag in tags:
                         records = records.union(["%s://%s/%s/%s/" % (
                             u.scheme, u.netloc, parts[0], path)
-                            for path in list(self.records.keys()) if tag in self.records[path]['tags']])
+                            for path in self.records.keys() if tag in self.records[path]['tags']])
                     records = list(records)
                 else:
                     records = ["%s://%s/%s/%s/" % (u.scheme, u.netloc, parts[0], path)
-                               for path in list(self.records.keys())]
+                               for path in self.records.keys()]
                 content = json.dumps({"records": records, "name": "TestProject", "description": ""})
                 status = 200
             elif method == "PUT":

@@ -158,7 +158,7 @@ class TextFormatter(Formatter):
                     if callable(entry):
                         entryStr = str(entry())
                     elif hasattr(entry, "items"):
-                        entryStr = ", ".join(["%s=%s" % item for item in list(entry.items())])
+                        entryStr = ", ".join(["%s=%s" % item for item in entry.items()])
                     elif isinstance(entry, set):
                         entryStr = ", ".join(entry)
                     else:
@@ -455,7 +455,7 @@ class TextDiffFormatter(Formatter):
         if self.diff.dependencies_differ:
             diffs = self.diff.dependency_differences
             output += "Dependency differences:\n"
-            for name, (depA, depB) in list(diffs.items()):
+            for name, (depA, depB) in diffs.items():
                 if depA and depB:
                     output += "  %s\n" % name
                     output += "    A: version=%s\n" % depA.version

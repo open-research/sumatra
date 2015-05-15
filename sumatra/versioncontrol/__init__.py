@@ -81,7 +81,7 @@ def get_working_copy(path=None):
         raise VersionControlError(NOT_FOUND)
     if path is None:
         path = os.getcwd()
-    for working_copy_type in list(registry.components[WorkingCopy].values()):
+    for working_copy_type in registry.components[WorkingCopy].values():
         wc = working_copy_type(os.path.realpath(path))
         if wc.exists:
             return wc
@@ -100,7 +100,7 @@ def get_repository(url):
         raise VersionControlError(NOT_FOUND)
     if url:
         success = False
-        for repository_type in list(registry.components[Repository].values()):
+        for repository_type in registry.components[Repository].values():
             repos = repository_type(url)
             if repos.exists:
                 success = True
