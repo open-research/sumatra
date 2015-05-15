@@ -17,7 +17,7 @@ from contextlib import closing  # needed for Python 2.6
 from sumatra.core import TIMESTAMP_FORMAT, registry
 
 
-from .base import DataItem, DataKey
+from .base import DataItem
 from .filesystem import FileSystemDataStore
 
 

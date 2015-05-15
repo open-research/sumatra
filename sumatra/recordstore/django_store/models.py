@@ -9,7 +9,6 @@ from builtins import str
 from builtins import object
 
 from django.db import models
-from django.contrib.auth.models import User
 from sumatra import programs, launch, datastore, records, versioncontrol, parameters, dependency_finder
 import tagging.fields
 from tagging.models import Tag

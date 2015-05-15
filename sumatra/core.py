@@ -14,10 +14,7 @@ import locale
 import os
 import signal
 import subprocess
-try:
-    from collections import OrderedDict
-except ImportError:  # Python 2.6
-    from ordereddict import OrderedDict
+from collections import OrderedDict
 from urllib.request import urlopen
 from urllib.error import URLError
 

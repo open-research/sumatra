@@ -39,13 +39,11 @@ from __future__ import print_function
 from builtins import str
 import os
 import sys
-from modulefinder import Module
 import warnings
 import inspect
 import logging
 
 from sumatra.dependency_finder import core
-from sumatra import versioncontrol
 from ..core import get_encoding
 
 logger = logging.getLogger("Sumatra")

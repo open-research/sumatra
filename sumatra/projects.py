@@ -29,10 +29,7 @@ from builtins import object
 import os
 import re
 import importlib
-try:
-    import pickle as pickle
-except ImportError:
-    import pickle
+import pickle
 from copy import deepcopy
 import uuid
 import sumatra

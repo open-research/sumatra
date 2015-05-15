@@ -12,7 +12,6 @@ from sumatra import __version__, projects
 from sumatra.recordstore.shelve_store import ShelveRecordStore
 from sumatra.recordstore.django_store import DjangoRecordStore
 import sys
-import os
 import shutil
 
 version = __version__.split(".")
@@ -61,7 +60,7 @@ def encode_record(record, indent=None):
             "type": record.parameters.__class__.__name__,
         },
         "launch_mode": {
-            "type": record.launch_mode.__class__.__name__, 
+            "type": record.launch_mode.__class__.__name__,
             "parameters": record.launch_mode.get_state(),
         },
         "datastore": {
@@ -80,14 +79,14 @@ def encode_record(record, indent=None):
             "diff": d.diff,
             } for d in record.dependencies],
         "platforms": [{
-            "system_name": p.system_name, 
-            "ip_addr": p.ip_addr, 
-            "architecture_bits": p.architecture_bits, 
-            "machine": p.machine, 
-            "architecture_linkage": p.architecture_linkage, 
-            "version": p.version, 
-            "release": p.release, 
-            "network_name": p.network_name, 
+            "system_name": p.system_name,
+            "ip_addr": p.ip_addr,
+            "architecture_bits": p.architecture_bits,
+            "machine": p.machine,
+            "architecture_linkage": p.architecture_linkage,
+            "version": p.version,
+            "release": p.release,
+            "network_name": p.network_name,
             "processor": p.processor
             } for p in record.platforms],
         }

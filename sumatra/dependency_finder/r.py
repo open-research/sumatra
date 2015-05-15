@@ -6,8 +6,6 @@
 """
 
 
-import os
-import re
 import subprocess
 import pkg_resources
 from sumatra.dependency_finder import core

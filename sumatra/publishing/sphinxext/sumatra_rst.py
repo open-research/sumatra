@@ -3,14 +3,14 @@ idea for an "smtimage" directive (and "smtfigure" similarly) which would be used
 like
 
 .. smtimage:: 20120907-153528 demo_cx05_N=500b_LTS_d274f9660531.png
-   :project: Destexhe_JCNS_2009 
+   :project: Destexhe_JCNS_2009
    :record_store: /path/to/recordstore/file or http://smt.andrewdavison.info/records
    :digest: DIGEST_GOES_HERE_FOR_CHECKING (optional)
-   
+
 This would query the recordstore, make a copy of the image file in a temporary
 directory, and preferably clean up the temporary directory later (use "pending" node?).
 If using a MirroredFileSystemDataStore could just use URL
-   
+
 The project name and recordstore directive are optional if rst2xxxx is used in a Sumatra project directory
 
 
@@ -24,8 +24,6 @@ from docutils.parsers.rst.roles import set_classes
 from docutils.parsers.rst import roles
 from docutils import nodes, utils
 
-from sumatra.projects import load_project
-from sumatra.recordstore import get_record_store
 from sumatra.publishing.utils import determine_project, determine_record_store, \
     determine_project_name, record_link_url, \
     get_image, get_record_label_and_image_path

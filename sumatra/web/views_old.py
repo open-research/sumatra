@@ -6,25 +6,16 @@ from __future__ import division
 from builtins import str
 from past.utils import old_div
 
-from time import strptime
-import datetime
-
-from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.http import HttpResponse, Http404
 from django.shortcuts import render_to_response
-from django.views.generic import list_detail
 from django import forms
 import json
-from django.db.models import Q
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger 
-from tagging.views import tagged_object_list
+from django.core.paginator import Paginator
 from sumatra.recordstore.django_store import models
 from sumatra.datastore import get_data_store, DataKey
 from sumatra.commands import run
-from sumatra.web.templatetags import filters
 from sumatra.versioncontrol import get_repository
-# from sumatra.web.template import render_block_to_string, render_template_block, render_to
 from sumatra.projects import load_project, init_websettings
-# from sumatra.versioncontrol._git import GitRepository, content_git
 from sumatra.versioncontrol._mercurial import content_mercurial
 from sumatra.versioncontrol._mercurial import MercurialRepository
 import mimetypes
@@ -39,7 +30,7 @@ class SearchForm(forms.ModelForm):
         super(SearchForm, self).__init__(*args, **kwargs)
         for key, field in self.fields.iteritems():
             self.fields[key].required = False
-            
+
 class RecordForm(SearchForm):
     executable = forms.ModelChoiceField(queryset=models.Executable.objects.all(), empty_label='')
     repository = forms.ModelChoiceField(queryset=models.Repository.objects.all(), empty_label='')
@@ -54,12 +45,12 @@ def filter_search(request_data, date_from=False, date_interval=False):
     results =  models.Record.objects.all()
     for key, val in request_data.iteritems():
         if key in ['label','tags','reason', 'main_file', 'script_arguments']:
-            field_list = [x.strip() for x in val.split(',')] 
+            field_list = [x.strip() for x in val.split(',')]
             results =  results.filter(reduce(lambda x, y: x | y,
                                       [Q(**{"%s__contains" % key: word}) for word in field_list])) # __icontains (?)
         elif isinstance(val, datetime.date):
             results =  results.filter(timestamp__year = val.year,
-                                      timestamp__month = val.month, 
+                                      timestamp__month = val.month,
                                       timestamp__day = val.day)
         elif isinstance(val, models.Executable):
             results =  results.filter(executable__path = val.path)
@@ -81,23 +72,23 @@ def search(request, project):
     if request.method == 'POST':
         web_settings = load_project().web_settings
         nb_per_page = int(load_project().web_settings['nb_records_per_page'])
-        # form = RecordForm(request.POST) 
+        # form = RecordForm(request.POST)
         date_from = request.POST.get('date_interval_from',False)
         date_interval = request.POST.get('date_interval',False)
-        form = RecordForm(request.POST) 
+        form = RecordForm(request.POST)
         if form.is_valid():
             labels_list = {}
             request_data = form.cleaned_data
             #print request_data
             results = filter_search(request_data, date_from, date_interval)
-            nbCols = 14 
-            paginator = Paginator(results, nb_per_page)  
+            nbCols = 14
+            paginator = Paginator(results, nb_per_page)
             nbCols_actual = nbCols - len(web_settings['table_HideColumns'])
             head_width = '%s%s' %(90.0/nbCols_actual, '%')
             if (nbCols_actual > 10):
                 label_width = '150px'
             else:
-                label_width = head_width  
+                label_width = head_width
             page_list = paginator.page(1)
             dic = {'project_name': project,
                    #'form': form,
@@ -105,27 +96,27 @@ def search(request, project):
                    'paginator':paginator,
                    'object_list':page_list.object_list,
                    'page_list':page_list,
-                   'width':{'head': head_width, 'label':label_width}}  
+                   'width':{'head': head_width, 'label':label_width}}
             return render_to_response('content.html', dic)
-    
+
 def unescape(label):
     return label.replace("||", "/")
 '''
 class TagSearch(forms.Form):
-    search = forms.CharField() 
-'''    
+    search = forms.CharField()
+'''
 class RecordUpdateForm(forms.ModelForm):
     wide_textarea = forms.Textarea(attrs={'rows': 2, 'cols':80})
     reason = forms.CharField(required=False, widget=wide_textarea)
     outcome = forms.CharField(required=False, widget=wide_textarea)
-    
+
     class Meta:
         model = models.Record
         fields=('reason', 'outcome', 'tags')
 '''
 '''
 class ProjectUpdateForm(forms.ModelForm):
-    
+
     class Meta:
         model = models.Project
         fields = ('name', 'description')
@@ -150,14 +141,14 @@ def show_project(request, project):
                               {'project_name': project, 'form': form, 'active':'About'})
 
 def list_records(request, project):
-    nbCols = 14 
-    form = RecordForm()  
+    nbCols = 14
+    form = RecordForm()
     project_loaded = load_project()
     sim_list = models.Record.objects.filter(project__id=project).order_by('-timestamp')
     try:
         web_settings = load_project().web_settings
     except AttributeError:
-        project_loaded.web_settings = init_websettings()   
+        project_loaded.web_settings = init_websettings()
     for key, item in project_loaded.web_settings.iteritems():
         if item:
             project_loaded.web_settings[key] = item
@@ -174,7 +165,7 @@ def list_records(request, project):
         if (nbCols_actual > 10):
             label_width = '150px'
         else:
-            label_width = head_width 
+            label_width = head_width
         form = RecordForm(request.POST)
         if form.is_valid():
             request_data = form.cleaned_data
@@ -196,7 +187,7 @@ def list_records(request, project):
                'page_list':page_list,
                'width':{'head': head_width, 'label':label_width}}
         return render_to_response('content.html', dic)
-    
+
     else:
         # get names of all files in the current directory:
         files = os.listdir(os.getcwd())
@@ -281,7 +272,7 @@ def delete_records(request, project):
                                for data_key in record.output_data.all()])
 
         record.delete()
-    return HttpResponse('')  
+    return HttpResponse('')
 '''
 '''
 def list_tags(request, project):
@@ -301,7 +292,7 @@ def show_file(request, project, label):
     name = request.GET.get('name', False) # file name (in case of argument file)
     path = request.GET.get('path', False)
     path = str(path).encode("string_escape")
-    if show_script: # record_list.html: user click the main file cell  
+    if show_script: # record_list.html: user click the main file cell
         if isinstance(get_repository(path), GitRepository):
             file_content = content_git(path, digest)
             return HttpResponse(file_content)
@@ -319,7 +310,7 @@ def show_file(request, project, label):
         except:
             return HttpResponse('There is no file with this name in %s' %(os.getcwd()))
         return HttpResponse(f_content)
-  
+
 
 def show_file(request, project, label):
     label = unescape(label)
@@ -337,7 +328,7 @@ def show_file(request, project, label):
             max_display_length = int(request.GET['truncate'])*1024
     else:
         max_display_length = DEFAULT_MAX_DISPLAY_LENGTH
-    
+
     record = models.Record.objects.get(label=label, project__id=project)
     if type == 'output':
         data_store = get_data_store(record.datastore.type, eval(record.datastore.parameters))
@@ -350,13 +341,13 @@ def show_file(request, project, label):
             content = data_store.get_content(data_key, max_length=max_display_length)
             if max_display_length is not None and len(content) >= max_display_length:
                 truncated = True
-                
+
                 # dump the last truncated line (if any)
                 content = content.rpartition('\n')[0]
 
             lines = content.splitlines()
             reader = csv.reader(lines)
-            
+
             return render_to_response("show_csv.html",
                                       {'path': path, 'label': label,
                                        'digest': digest,
@@ -416,11 +407,11 @@ def download_file(request, project, label):
         content = data_store.get_content(data_key)
     except (IOError, KeyError):
         raise Http404
-    dir, fname = os.path.split(path) 
+    dir, fname = os.path.split(path)
     response = HttpResponse(mimetype=mimetype)
     response['Content-Disposition'] =  'attachment; filename=%s' % fname
     response.write(content)
-    return response 
+    return response
 
 def show_image(request, project, label):
     label = unescape(label)
@@ -440,7 +431,7 @@ def show_image(request, project, label):
         return response
     else:
         return HttpResponse(mimetype="image/png") # should return a placeholder image?
-    
+
 def show_diff(request, project, label, package):
     label = unescape(label)
     record = models.Record.objects.get(label=label, project__id=project)
@@ -454,8 +445,8 @@ def show_diff(request, project, label, package):
                                                  'package': package,
                                                  'parent_version': dependency.version,
                                                  'diff': dependency.diff})
-                                                 
-def run_sim(request, project):   
+
+def run_sim(request, project):
     run_opt = {'--label': request.POST.get('label', False),
                '--reason': request.POST.get('reason', False),
                '--tag': request.POST.get('tag', False),
@@ -481,7 +472,7 @@ def run_sim(request, project):
                     executable = executable.split('.')[0]
                 options_list.append('='.join(['--executable', executable]))
             else:
-                options_list.append('='.join([key, item])) 
+                options_list.append('='.join([key, item]))
     run(options_list)
     records = models.Record.objects.order_by('-db_id')
     '''
@@ -516,7 +507,7 @@ def run_sim(request, project):
            'object_list':page_list.object_list,
            'page_list':page_list}
     return render_to_response('content.html', dic)
-                                    
+
 def settings(request, project):
     ''' Only one of the following parameter can be True
     web_settings['saveSettings'] == True: save the settings in .smt/project
@@ -527,13 +518,13 @@ def settings(request, project):
     web_settings = {'display_density':request.POST.get('display_density', False),
                     'nb_records_per_page':request.POST.get('nb_records_per_page', False),
                     'table_HideColumns': request.POST.getlist('table_HideColumns[]'),
-                    'saveSettings':request.POST.get('saveSettings', False), 
-                    'web':request.POST.get('web', False), 
-                    'sumatra':request.POST.get('sumatra', False) 
+                    'saveSettings':request.POST.get('saveSettings', False),
+                    'web':request.POST.get('web', False),
+                    'sumatra':request.POST.get('sumatra', False)
                     }
     nbCols = 14  # total number of columns
     sim_list = models.Record.objects.filter(project__id=project).order_by('-timestamp')
-    project_loaded = load_project() 
+    project_loaded = load_project()
     if web_settings['saveSettings']:
         if len(web_settings['table_HideColumns']) == 0:  # empty set (all checkboxes are checked)
             project_loaded.web_settings['table_HideColumns'] = []
@@ -541,7 +532,7 @@ def settings(request, project):
             project_loaded.web_settings
         except(AttributeError, KeyError): # project doesn't have web_settings yet
             # upgrading of .smt/project: new supplementary settings entries
-            project_loaded.web_settings = init_websettings()   
+            project_loaded.web_settings = init_websettings()
         for key, item in web_settings.items():
             if item:
                 project_loaded.web_settings[key] = item
@@ -563,7 +554,7 @@ def settings(request, project):
                'page_list':page_list,
                'width':{'head': head_width, 'label':label_width}}
         return render_to_response('content.html', dic)
-    elif web_settings['web']: 
+    elif web_settings['web']:
         return HttpResponse(json.dumps(project.web_settings))
     elif web_settings['sumatra']:
         settings = {'execut':project.default_executable.path,

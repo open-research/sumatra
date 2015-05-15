@@ -23,7 +23,7 @@ import shutil
 import logging
 from urllib.parse import urlparse
 from sumatra.core import have_internet_connection, registry
-from .base import Repository, WorkingCopy, VersionControlError
+from .base import Repository, WorkingCopy
 
 
 logger = logging.getLogger("Sumatra")

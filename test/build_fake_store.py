@@ -8,7 +8,6 @@ from sumatra.datastore import FileSystemDataStore
 from sumatra.parameters import SimpleParameterSet
 from sumatra.versioncontrol._git import GitRepository
 import random
-from datetime import datetime
 
 serial = SerialLaunchMode()
 executable = PythonExecutable("/usr/bin/python", version="2.7")

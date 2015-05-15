@@ -15,11 +15,10 @@ try:
 except ImportError:
     check_output = False
 from sumatra.programs import Executable, version_pattern, get_executable, \
-                             PythonExecutable, NESTSimulator, NEURONSimulator, \
-                             RExecutable
+                             PythonExecutable, NESTSimulator, RExecutable
 
 class TestVersionRegExp(unittest.TestCase):
-    
+
     def test_common_cases(self):
         examples = {
             "NEURON -- Release 7.1 (359:7f113b76a94b) 2009-10-26": "7.1",
@@ -37,20 +36,20 @@ class TestVersionRegExp(unittest.TestCase):
             else:
                 version = None
             self.assertEqual(version, output)
-            
+
 
 class TestExecutable(unittest.TestCase):
-    
+
     def test__init__with_a_full_path_should_just_set_it(self):
         prog = Executable("/bin/ls")
         self.assertEqual(prog.path, "/bin/ls")
-    
+
     @unittest.skipUnless(check_output, "test requires Python 2.7")
     def test__init__with_only_prog_name__should_try_to_find_full_path(self):
         prog = Executable("ls")
         actual_path = check_output("which ls", shell=True).decode('utf-8').strip()
         self.assertEqual(prog.path, actual_path)
-        
+
     def test__init__should_find_version_if_possible(self):
         #prog = Executable("/bin/ls")
         #self.assertEqual(prog.version, None) # this is true on Darwin, but not on Ubuntu
@@ -82,10 +81,10 @@ class MockParameterSet(object):
     saved = False
     def save(self, filename, add_extension=False):
         self.saved = True
-        
+
 
 class TestPythonExecutable(unittest.TestCase):
-    
+
     def test__write_parameters__should_call_save_on_the_parameter_set(self):
         prog = PythonExecutable(None)
         params = MockParameterSet()
@@ -94,7 +93,7 @@ class TestPythonExecutable(unittest.TestCase):
 
 
 class TestModuleFunctions(unittest.TestCase):
-    
+
     def test__get_executable__with_path_of_registered_executable(self):
         prog = get_executable("/usr/bin/python")
         assert isinstance(prog, PythonExecutable)
@@ -104,12 +103,12 @@ class TestModuleFunctions(unittest.TestCase):
         if os.path.exists("/usr/bin/Rscript"):
             prog = get_executable("/usr/bin/Rscript")
             assert isinstance(prog, RExecutable)
-            
+
     def test__get_executable__with_path_of_unregistered_executable(self):
         prog = get_executable("/bin/cat")
         assert isinstance(prog, Executable)
         self.assertEqual(prog.name, "cat")
-        
+
     def test__get_executable__with_script_file(self):
         prog = get_executable(script_file="test.py")
         assert isinstance(prog, PythonExecutable)
@@ -120,7 +119,7 @@ class TestModuleFunctions(unittest.TestCase):
 
     def test__get_executable__with_nonregistered_extension__should_raise_Exception(self):
         self.assertRaises(Exception, get_executable, script_file="test.foo")
-        
+
     def test__get_executable__requires_at_least_one_arg(self):
         self.assertRaises(Exception, get_executable)
 

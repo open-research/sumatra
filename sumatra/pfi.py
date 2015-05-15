@@ -11,7 +11,6 @@ This script should be placed somewhere on the user's path.
 from mpi4py import MPI
 import platform
 import socket
-import time
 from datetime import datetime
 
 TIMESTAMP_FORMAT = "%Y%m%d-%H%M%S"

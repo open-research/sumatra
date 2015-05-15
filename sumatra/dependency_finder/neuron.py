@@ -32,7 +32,6 @@ from __future__ import with_statement
 import re
 import os
 from sumatra.dependency_finder import core
-from sumatra import versioncontrol
 
 
 class Dependency(core.BaseDependency):

@@ -9,16 +9,10 @@ from builtins import object
 
 
 from django import forms
-from django.db.models import Q
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from sumatra.projects import load_project
 from sumatra.recordstore.django_store import models
-from time import strptime
-import datetime
 import os
 import json
-from functools import reduce
-import itertools
 
 
 def init_websettings():
@@ -40,7 +34,7 @@ class ProjectUpdateForm(forms.ModelForm):
 
 class SearchForm(forms.ModelForm):
 
-    ''' this class will be inherited after. It is for changing the 
+    ''' this class will be inherited after. It is for changing the
     requirement properties for any field in the search form'''
 
     def __init__(self, *args, **kwargs):
@@ -166,13 +160,13 @@ class DataTemplate(object):
         # print type(dkey)
         # print type(dkey.metadata)
         # print type(dkey.get_metadata())
-        
+
         # >>> <class 'sumatra.recordstore.django_store.models.DataKey'>
         # >>> <type 'unicode'>
         # >>> <type 'dict'>
 
         return {'project_name': self.project_name, 'data_list': self.data_list}
- 
+
 
 class AjaxTemplate(DefaultTemplate):
 

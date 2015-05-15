@@ -9,7 +9,7 @@ from django.conf.urls import patterns
 from django.conf import settings
 from sumatra.projects import Project
 from sumatra.records import Record
-from sumatra.web.views import Timeline, ProjectListView
+from sumatra.web.views import ProjectListView
 
 P = {
     'project': Project.valid_name_pattern,

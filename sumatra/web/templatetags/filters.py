@@ -7,7 +7,7 @@
 from django import template
 from django.conf import settings
 from django.template.defaultfilters import stringfilter
-from tagging.utils import parse_tag_input, edit_string_for_tags
+from tagging.utils import parse_tag_input
 from django.utils.safestring import mark_safe
 try:
     from django.utils.encoding import force_bytes, force_text  # Django 1.5
@@ -16,7 +16,6 @@ except ImportError:
 from os import name, path
 from sumatra.formatting import human_readable_duration
 import json
-from django.utils import dateparse
 import datetime
 
 register = template.Library()

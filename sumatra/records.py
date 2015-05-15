@@ -22,7 +22,6 @@ import time
 import os
 from os.path import relpath, normpath, join, basename, exists
 import re
-import getpass
 from operator import or_
 from functools import reduce
 from .formatting import get_formatter
