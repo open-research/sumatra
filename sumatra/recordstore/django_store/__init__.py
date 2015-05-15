@@ -9,6 +9,8 @@ SQLite or PostgreSQL.
 :license: CeCILL, see LICENSE for details.
 """
 from __future__ import absolute_import
+from future.standard_library import install_aliases
+install_aliases()
 from builtins import range
 from builtins import object
 
@@ -20,7 +22,8 @@ import django.conf as django_conf
 from django.core import management
 from sumatra.recordstore.base import RecordStore
 from ...core import registry
-from ...compatibility import StringIO, urlparse
+from urllib.request import urlparse
+from io import StringIO
 
 # Check that django-tagging is available. It would be better to try importing
 # it, but that seems to mess with Django's internals.

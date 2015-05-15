@@ -27,7 +27,6 @@ except ImportError: # Python3
 
 from .base import VersionControlError
 from .base import Repository, WorkingCopy
-from ..compatibility import string_type
 from ..core import registry
 
 
@@ -50,8 +49,7 @@ class BazaarWorkingCopy(WorkingCopy):
         return self.path and os.path.exists(os.path.join(self.path, ".bzr"))
 
     def _get_revision_tree(self, version):
-        if isinstance(version, string_type):
-            version = int(version)
+        version = int(version)
         revision_id = self.workingtree.branch.get_rev_id(version)
         return self.workingtree.branch.repository.revision_tree(revision_id)
 

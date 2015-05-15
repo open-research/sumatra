@@ -4,6 +4,8 @@
 :copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
 :license: CeCILL, see LICENSE for details.
 """
+from future.standard_library import install_aliases
+install_aliases()
 from builtins import object
 
 import socket
@@ -16,7 +18,8 @@ try:
     from collections import OrderedDict
 except ImportError:  # Python 2.6
     from ordereddict import OrderedDict
-from .compatibility import urlopen, URLError
+from urllib.request import urlopen
+from urllib.error import URLError
 
 
 TIMESTAMP_FORMAT = "%Y%m%d-%H%M%S"

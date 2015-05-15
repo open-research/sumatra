@@ -2,7 +2,7 @@ from future import standard_library
 standard_library.install_aliases()
 import sys
 from sumatra import commands
-from sumatra.compatibility import StringIO
+from io import StringIO
 
 modes = list(commands.modes)
 modes.sort()
@@ -19,7 +19,7 @@ for mode in modes:
         main(['--help'])
     except:
         pass
-    
+
 
 sys.stdout = sys.__stdout__
 

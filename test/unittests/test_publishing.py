@@ -11,6 +11,7 @@ except ImportError:
 import sys
 import os
 import shutil
+from io import StringIO
 from textwrap import dedent
 try:
     from docutils.core import publish_string
@@ -22,9 +23,7 @@ from sumatra.publishing.latex import includefigure
 if have_docutils:
     from sumatra.publishing.sphinxext import sumatra_rst
 from sumatra.datastore import DataKey
-from sumatra.compatibility import StringIO
 from .utils import patch
-
 
 class MockRecordStore(object):
 

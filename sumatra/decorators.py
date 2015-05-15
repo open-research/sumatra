@@ -17,7 +17,7 @@ from sumatra.programs import PythonExecutable
 import sys
 import os
 import contextlib
-from .compatibility import StringIO
+from io import StringIO
 
 
 @contextlib.contextmanager

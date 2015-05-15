@@ -9,7 +9,6 @@ from builtins import object
 
 import os
 import errno
-from ..compatibility import urlretrieve, urlparse
 from sumatra.projects import load_project
 from sumatra.recordstore import get_record_store
 from sumatra.datastore import DataKey

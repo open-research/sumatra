@@ -37,6 +37,7 @@ import os.path
 import shutil
 import abc
 import re
+from itertools import filterfalse
 from pathlib import Path
 try:
     from StringIO import StringIO # this is necessary because Python2-ConfigParser can't handle unicode
@@ -51,7 +52,6 @@ try:
 except ImportError:
     yaml_loaded = False
 import parameters
-from .compatibility import string_type
 from .core import registry
 
 POP_NONE = "eiutbocqnluiegnclqiuetyvbietcbdgsfzpq"
@@ -187,6 +187,8 @@ class SimpleParameterSet(ParameterSet):
     name = ".simpleparameterset"
     casts = (int, float)
 
+    COMMENT_CHAR = u"#"
+
     def __init__(self, initialiser):
         """
         Create a new parameter set from a file or string. In both cases,
@@ -197,19 +199,18 @@ class SimpleParameterSet(ParameterSet):
         self.comments = {}
         if isinstance(initialiser, dict):
             for name, value in list(initialiser.items()):
-                self.values[name] = value
-                self.types[name] = type(value)
+                self._add_or_update_parameter(name=name, value=value)
         elif SimpleParameterSet._is_valid_file(initialiser):
             with open(initialiser) as f:
-                content = f.readlines()
+                for line in filterfalse(SimpleParameterSet._empty_or_comment, f.readlines()):
+                    name, value, comment = self._parse_parameter_from_line(line)
+                    self._add_or_update_parameter(name=name, value=value, comment=comment)
             self.source_file = initialiser
-            try:
-                self.values, self.types, self.comments = SimpleParameterSet._parse_content(content)
-            except TypeError:
-                raise TypeError("Parameter set initialiser must be a filename, string or dict.")
         else:
             try:
-                self.values, self.types, self.comments = SimpleParameterSet._parse_content(initialiser.split("\n"))
+                for line in filterfalse(SimpleParameterSet._empty_or_comment, initialiser.split(u"\n")):
+                    name, value, comment = self._parse_parameter_from_line(line)
+                    self._add_or_update_parameter(name=name, value=value, comment=comment)
             except (AttributeError, TypeError):
                 raise TypeError("Parameter set initialiser must be a filename, string or dict.")
 
@@ -221,33 +222,49 @@ class SimpleParameterSet(ParameterSet):
         except TypeError:
             return False
 
-    @staticmethod
-    def _parse_content(content):
-        values = {}
-        types = {}
-        comments = {}
-        for line in content:
-            line = line.strip()
-            if line == "" or line[0] == "#":
-                # Ignore empty and comment lines
-                continue
-            elif "=" in line:
-                parts = line.split("=")
-                name = parts[0].strip()
-                value = "=".join(parts[1:])
-                try:
-                    values[name] = eval(value)
-                except NameError:
-                    values[name] = str(value)
-                except TypeError as err:  # e.g. null bytes
-                    raise SyntaxError("File is not a valid simple parameter file. %s" % err)
-                if "#" in value:
-                    comment = "#".join(value.split("#")[1:])  # this fails if the value is a string containing '#'
-                    comments[name] = comment
-                types[name] = type(values[name])
+    @classmethod
+    def _empty_or_comment(cls, line):
+        line = str(line.strip())
+        return len(line) == 0 or line.startswith(cls.COMMENT_CHAR)
+
+    def _parse_parameter_from_line(self, line):
+        line = str(line.strip())
+        if u"=" in line:
+            parts = line.split(u"=")
+            name = parts[0].strip()
+            value = "=".join(parts[1:])
+            try:
+                if SimpleParameterSet._value_represents_string(value):
+                    value = str(eval(value))
+                else:
+                    value = eval(value)
+            except NameError:
+                value = str(value)
+            except TypeError as err:  # e.g. null bytes
+                raise SyntaxError("File is not a valid simple parameter file. %s" % err)
+            if self.COMMENT_CHAR in line:
+                comment = self.COMMENT_CHAR.join(line.split(self.COMMENT_CHAR)[1:])  # this fails if the value is a string containing COMMENT_CHAR
             else:
-                raise SyntaxError("File is not a valid simple parameter file. This line caused the error: %s" % line)
-        return values, types, comments
+                comment = None
+        else:
+            raise SyntaxError("File is not a valid simple parameter file. This line caused the error: %s" % line)
+        return name, value, comment
+
+    @staticmethod
+    def _value_represents_string(value):
+        single_quote = u"'"
+        double_quote = u'"'
+        stripped = value.strip()
+        return (stripped.startswith(single_quote) and stripped.endswith(single_quote)) \
+            or (stripped.startswith(double_quote) and stripped.endswith(double_quote))
+
+    def _add_or_update_parameter(self, name, value, comment=None):
+        if not isinstance(value, (int, float, str, list)):
+            raise TypeError("value must be a numeric value or a string")
+        self.values[name] = value
+        self.types[name] = type(value)
+        if comment is not None:
+            self.comments[name] = comment
 
     def __str__(self):
         return self.pretty()
@@ -282,8 +299,8 @@ class SimpleParameterSet(ParameterSet):
         """
         output = []
         for name, value in list(self.values.items()):
-            type = self.types[name]
-            if issubclass(type, string_type):
+            value_type = self.types[name]
+            if issubclass(value_type, str):
                 output.append('%s = "%s"' % (name, value))
             else:
                 output.append('%s = %s' % (name, value))
@@ -304,19 +321,14 @@ class SimpleParameterSet(ParameterSet):
         return filename
 
     def update(self, E, **F):
-        def _update(name, value):
-            if not isinstance(value, (int, float, string_type, list)):
-                raise TypeError("value must be a numeric value or a string")
-            self.values[name] = value
-            self.types[name] = type(value)
         if hasattr(E, "items"):
             for name, value in list(E.items()):
-                _update(name, value)
+                self._add_or_update_parameter(name, value)
         else:
             for name, value in E:
-                _update(name, value)
+                self._add_or_update_parameter(name, value)
         for name, value in list(F.items()):
-            _update(name, value)
+            self._add_or_update_parameter(name, value)
     update.__doc__ = dict.update.__doc__
 
 
@@ -403,7 +415,7 @@ class ConfigParserParameterSet(SafeConfigParser, ParameterSet):
                 option = name
             if not self.has_section(section):
                 self.add_section(section)
-            if not isinstance(value, string_type):
+            if not isinstance(value, str):
                 value = str(value)
             self.set(section, option, value)
         if hasattr(E, "items"):

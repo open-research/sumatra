@@ -8,14 +8,12 @@ Datastore based on files written to and retrieved from a local filesystem.
 
 import os
 import datetime
-import logging
 import mimetypes
 from subprocess import Popen
 import warnings
 from pathlib import Path
-from ..compatibility import string_type
 from ..core import registry
-from .base import DataStore, DataKey, DataItem, IGNORE_DIGEST
+from .base import DataStore, DataItem, IGNORE_DIGEST
 
 
 class DataFile(DataItem):

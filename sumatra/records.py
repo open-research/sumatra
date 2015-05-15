@@ -30,7 +30,6 @@ from . import dependency_finder
 from sumatra.core import TIMESTAMP_FORMAT
 from sumatra.users import get_user
 from .versioncontrol import VersionControlError
-from .compatibility import string_type
 import logging
 
 logger = logging.getLogger("Sumatra")
@@ -69,7 +68,7 @@ class Record(object):
         # distributed/batch simulations on machines with out-of-sync clocks,
         # but only do this if you really know what you're doing, otherwise the
         # association of output data with this record may be incorrect
-        self.timestamp = timestamp or datetime.now() 
+        self.timestamp = timestamp or datetime.now()
         self.label = label or self.timestamp.strftime(timestamp_format)
         if not re.match(Record.valid_name_pattern, self.label):
             raise ValueError("Invalid record label.")
@@ -108,7 +107,7 @@ class Record(object):
         logger.debug("Recording dependencies")
         self.dependencies = []
         if self.main_file is None:
-            if self.executable.requires_script:            
+            if self.executable.requires_script:
                 raise MissingInformationError("main script file not specified")
         else:
             if len(self.main_file.split()) == 1: # this assumes filenames cannot contain spaces
@@ -187,7 +186,7 @@ class Record(object):
     def describe(self, format='text', mode='long'):
         """
         Return a description of the record.
-        
+
         *mode*:
             either 'long' or 'short'
         *format*
@@ -238,8 +237,8 @@ class RecordDifference(object):
                  ignore_filenames=[]):
         self.recordA = recordA
         self.recordB = recordB
-        assert not isinstance(ignore_mimetypes, string_type) # catch a
-        assert not isinstance(ignore_filenames, string_type) # common error
+        assert not isinstance(ignore_mimetypes, str) # catch a
+        assert not isinstance(ignore_filenames, str) # common error
         self.ignore_mimetypes += ignore_mimetypes
         self.ignore_filenames += ignore_filenames
         self.executable_differs = recordA.executable != recordB.executable
