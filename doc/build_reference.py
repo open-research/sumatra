@@ -1,3 +1,5 @@
+from future import standard_library
+standard_library.install_aliases()
 import sys
 from sumatra import commands
 from sumatra.compatibility import StringIO
