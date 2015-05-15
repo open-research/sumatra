@@ -179,7 +179,7 @@ class HttpRecordStore(RecordStore):
     def list(self, project_name, tags=None):
         project_url = "%s%s/" % (self.server_url, project_name)
         if tags:
-            if not hasattr(tags, "__iter__"):
+            if not isinstance(tags, list):
                 tags = [tags]
             project_url += "?tags=%s" % ",".join(tags)
         response, content = self._get(project_url, 'project')

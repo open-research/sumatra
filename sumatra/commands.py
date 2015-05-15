@@ -14,7 +14,6 @@ import sys
 from argparse import ArgumentParser
 from textwrap import dedent
 import warnings
-import re
 import logging
 import sumatra
 

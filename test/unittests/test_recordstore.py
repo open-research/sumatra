@@ -14,8 +14,7 @@ except ImportError:
     import unittest
 import os
 import sys
-from datetime import datetime
-from django.core import management
+from datetime import datetime, timedelta
 
 from sumatra.records import Record
 from sumatra.programs import Executable
@@ -28,7 +27,6 @@ import sumatra.parameters
 from sumatra.core import registry
 import json
 import urllib.parse
-from sumatra.compatibility import string_type
 
 
 originals = []
@@ -106,9 +104,9 @@ class MockParameterSet(object):
 
 class MockRecord(object):
 
-    def __init__(self, label):
+    def __init__(self, label, timestamp=datetime.now()):
         self.label = label
-        self.timestamp = datetime.now()  # datetime(1901, 6, 1, 12, 0, 0)
+        self.timestamp = timestamp
         self.reason = "because"
         self.duration = 7543.2
         self.outcome = None
@@ -179,16 +177,26 @@ class BaseTestRecordStore(object):
                 os.remove(filename)
 
     def add_some_records(self):
-        r1 = MockRecord("record1")
-        r2 = MockRecord("record2")
-        r3 = MockRecord("record3")
+        # records must have a delta timestamp of one second as RecordStores
+        # might serialize the record using serialization.encode_record
+        # (like HttpRecordStore). There, the timestamp will be cut off
+        # milliseconds.
+        now = datetime.now()
+        r1 = MockRecord("record1", timestamp=now - timedelta(seconds=2))
+        r2 = MockRecord("record2", timestamp=now - timedelta(seconds=1))
+        r3 = MockRecord("record3", timestamp=now)
         for r in r1, r2, r3:
             #print "saving record %s" % r.label
             self.store.save(self.project.name, r)
 
     def add_some_tags(self):
-        r1 = MockRecord("record1")
-        r3 = MockRecord("record3")
+        # records must have a delta timestamp of one second as RecordStores
+        # might serialize the record using serialization.encode_record
+        # (like HttpRecordStore). There, the timestamp will be cut off
+        # milliseconds.
+        now = datetime.now()
+        r1 = MockRecord("record1", timestamp=now - timedelta(seconds=1))
+        r3 = MockRecord("record3", timestamp=now)
         r1.tags.add("tag1")
         r1.tags.add("tag2")
         r3.tags.add("tag1")
@@ -495,6 +503,10 @@ class TestSerialization(unittest.TestCase):
             data_in = json.load(fp)
         record = serialization.build_record(data_in)
         data_out = json.loads(serialization.encode_record(record, indent=2))
+        # tags in records are a set, hence have arbitrary order.
+        self.assertTrue('tags' in data_out)
+        data_in['tags'] = sorted(data_in['tags'])
+        data_out['tags'] = sorted(data_out['tags'])
         self.assertEqual(data_in, data_out)
 
     def test_encode_project_info(self):

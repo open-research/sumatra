@@ -95,7 +95,7 @@ class ParameterSet(with_metaclass(abc.ABCMeta, object)):
         try:
             self._new_param_check(name, value)
         except ValueError as v:
-            raise ValueError(v.message, name,  value)
+            raise ValueError(str(v), name,  value)
             ## attempt to pass undefined param -- let commands.py deal with
 
         return {name: value}

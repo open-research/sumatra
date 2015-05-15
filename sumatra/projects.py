@@ -28,6 +28,7 @@ from builtins import object
 
 import os
 import re
+import importlib
 try:
     import pickle as pickle
 except ImportError:
@@ -415,8 +416,8 @@ def _load_project_from_json(path):
             parts = str(value["type"]).split(".")  # make sure not unicode, see http://stackoverflow.com/questions/1971356/haystack-whoosh-index-generation-error/2683624#2683624
             module_name = ".".join(parts[:-1])
             class_name = parts[-1]
-            _temp = __import__(module_name, globals(), locals(), [class_name], -1)  # from <module_name> import <class_name>
-            cls = getattr(_temp, class_name)
+            module = importlib.import_module(module_name)
+            cls = getattr(module, class_name)
             args = {}
             for k, v in list(value.items()):
                 if k != 'type':

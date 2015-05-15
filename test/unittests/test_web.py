@@ -70,7 +70,7 @@ class MockDataStore(object):
         if key.path == "non_existent_file.txt":
             raise IOError()
         else:
-            return "foo"
+            return u"foo"
 
 class MockWorkingCopy(object):
     def content(self, digest):
@@ -243,7 +243,7 @@ class TestWebInterface(unittest.TestCase):
         sumatra.web.views.get_data_store = lambda t,p: MockDataStore()
         c = Client()
         response = c.get("/%s/record1/download?path=test_file.txt&digest=mock" % MockProject.name)
-        self.assertEqual(response.content, "foo")
+        self.assertEqual(response.content.decode('UTF-8'), u"foo")
 
     def test_run_sim(self):
         sumatra.web.views.run = lambda options_list: None

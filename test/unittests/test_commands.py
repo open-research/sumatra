@@ -472,13 +472,11 @@ class TestParseArguments(unittest.TestCase):
         self.assertRaises(Exception, commands.parse_arguments, ["a=17", "yagri=43"])
 
     def test_with_everything(self):
-        f = open("test.param", 'w')
-        f.write("a = 2\nb = 3\n")
-        f.close()
+        with open("test.param", 'w') as f:
+            f.write("a = 2\nb = 3\n")
         data_content = "23496857243968b24cbc4275dc82470a\n"
-        f = open("this.is.not.a.parameter.file", 'w')
-        f.write(data_content)
-        f.close()
+        with open("this.is.not.a.parameter.file", 'w') as f:
+            f.write(data_content)
         parameter_sets, input_data, script_args = commands.parse_arguments(["spam", "test.param", "eggs", "this.is.not.a.parameter.file", "a=17", "umlue=43", "beans"],
                                                                            self.input_datastore)
         self.assertEqual(parameter_sets, [{'this': 'mock', 'a': 17, 'umlue': 43}])

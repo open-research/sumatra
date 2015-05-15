@@ -86,7 +86,7 @@ class BaseTestWorkingCopy(object):
         self.assertEqual(self.wc.current_version(), self.latest_version)
 
     def test__contains(self):
-        self.assert_(self.wc.contains("romans.param"))
+        self.assertTrue(self.wc.contains("romans.param"))
 
 
 @unittest.skipUnless(have_hg, "Could not import hgapi")

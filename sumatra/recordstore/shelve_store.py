@@ -80,12 +80,10 @@ class ShelveRecordStore(RecordStore):
     def list(self, project_name, tags=None):
         if project_name in self.shelf:
             if tags:
-                if not hasattr(tags, "__iter__"):
+                if not isinstance(tags, list):
                     tags = [tags]
-                records = set()
-                for tag in tags:
-                    records = records.union([record for record in list(self.shelf[project_name].values()) if tag in record.tags])
-                records = list(records)
+                records = [record for record in self.shelf[project_name].values()
+                           if any([tag in record.tags for tag in tags])]
             else:
                 records = list(self.shelf[project_name].values())
         else:

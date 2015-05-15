@@ -78,7 +78,7 @@ def run(args, cwd=None, shell=False, kill_tree=True, timeout=-1, env=None):
             except OSError:
                 pass
         return -9, '', ''
-    return p.returncode, stdout, stderr
+    return p.returncode, str(stdout), str(stderr)
 
 
 def _get_process_children(pid):

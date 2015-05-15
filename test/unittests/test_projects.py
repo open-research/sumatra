@@ -50,6 +50,9 @@ class MockRepository(with_metaclass(SingletonType, object)):
     def get_working_copy(self):
         return MockWorkingCopy()
 
+    def __hash__(self):
+        return 0
+
 
 class MockWorkingCopy(object):
     path = "/path/to/working/copy"
