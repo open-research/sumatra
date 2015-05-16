@@ -277,7 +277,7 @@ class DistributedLaunchMode(LaunchMode):
                                        maxprocs=self.n)
             platform_information = []
             for rank in range(self.n):
-                platform_information.append(PlatformInformation(**comm.recv(source=rank, tag=rank).values())[0])
+                platform_information.append(PlatformInformation(**comm.recv(source=rank, tag=rank).values()[0]))
             comm.Disconnect()
         return platform_information
     get_platform_information.__doc__ = LaunchMode.get_platform_information.__doc__ + """
