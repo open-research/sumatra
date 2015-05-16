@@ -39,6 +39,7 @@ from __future__ import print_function
 from builtins import str
 import os
 import sys
+from modulefinder import Module
 import warnings
 import inspect
 import logging
