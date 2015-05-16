@@ -22,7 +22,7 @@ def check_name(f):
     """
 
     def wrapped(self, project_name, *args):
-        project_name = str(project_name)
+        project_name = project_name.__str__()
         return f(self, project_name, *args)
     return wrapped
 
@@ -61,7 +61,7 @@ class ShelveRecordStore(RecordStore):
         self.__init__(**state)
 
     def list_projects(self):
-        return list(self.shelf.keys())
+        return [str(key) for key in self.shelf.keys()]
 
     @check_name
     def save(self, project_name, record):
