@@ -11,6 +11,7 @@ or:
     python test_ircr.py
 """
 from __future__ import print_function
+from __future__ import unicode_literals
 from builtins import input
 
 # Requirements: numpy, scipy, matplotlib, mercurial, sarge
@@ -140,7 +141,7 @@ if __name__ == '__main__':
         else:
             print(step[0])  # description
             run_test(*step[1:])
-    response = input("Do you want to delete the temporary directory (default: yes)? ")
+    response = eval(input("Do you want to delete the temporary directory (default: yes)? "))
     if response not in ["n", "N", "no", "No"]:
         teardown()
     else:

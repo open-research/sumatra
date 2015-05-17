@@ -20,6 +20,7 @@ find_version()                   - tries to find version information by calling 
 :copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
 :license: CeCILL, see LICENSE for details.
 """
+from __future__ import unicode_literals
 from builtins import object
 
 import os

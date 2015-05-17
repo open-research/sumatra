@@ -8,6 +8,7 @@ tar files, then retrieved from the tar files.
 """
 
 from __future__ import with_statement
+from __future__ import unicode_literals
 import os
 import tarfile
 import shutil

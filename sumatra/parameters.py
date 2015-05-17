@@ -29,6 +29,7 @@ YAMLParameterSet
 """
 
 from __future__ import with_statement, absolute_import
+from __future__ import unicode_literals
 from future import standard_library
 standard_library.install_aliases()
 from builtins import str
@@ -40,7 +41,7 @@ import re
 from itertools import filterfalse
 from pathlib import Path
 try:
-    from StringIO import StringIO # this is necessary because Python2-ConfigParser can't handle unicode
+    from io import StringIO # this is necessary because Python2-ConfigParser can't handle unicode
 except ImportError: # Python 3
     from io import StringIO
 from future.utils import with_metaclass
@@ -198,7 +199,7 @@ class SimpleParameterSet(ParameterSet):
         self.types = {}
         self.comments = {}
         if isinstance(initialiser, dict):
-            for name, value in initialiser.items():
+            for name, value in list(initialiser.items()):
                 self._add_or_update_parameter(name=name, value=value)
         elif SimpleParameterSet._is_valid_file(initialiser):
             with open(initialiser) as f:
@@ -298,7 +299,7 @@ class SimpleParameterSet(ParameterSet):
                     not used.
         """
         output = []
-        for name, value in self.values.items():
+        for name, value in list(self.values.items()):
             value_type = self.types[name]
             if issubclass(value_type, str):
                 output.append('%s = "%s"' % (name, value))
@@ -322,12 +323,12 @@ class SimpleParameterSet(ParameterSet):
 
     def update(self, E, **F):
         if hasattr(E, "items"):
-            for name, value in E.items():
+            for name, value in list(E.items()):
                 self._add_or_update_parameter(name, value)
         else:
             for name, value in E:
                 self._add_or_update_parameter(name, value)
-        for name, value in F.items():
+        for name, value in list(F.items()):
             self._add_or_update_parameter(name, value)
     update.__doc__ = dict.update.__doc__
 
@@ -419,12 +420,12 @@ class ConfigParserParameterSet(SafeConfigParser, ParameterSet):
                 value = str(value)
             self.set(section, option, value)
         if hasattr(E, "items"):
-            for name, value in E.items():
+            for name, value in list(E.items()):
                 _update(name, value)
         else:
             for name, value in E:
                 _update(name, value)
-        for name, value in F.items():
+        for name, value in list(F.items()):
             _update(name, value)
     update.__doc__ = dict.update.__doc__
 
@@ -539,7 +540,7 @@ def build_parameters(filename):
         parameter_set_class = extension_map[ext]
         parameters = parameter_set_class(filename)
     else:
-        for parameter_set_class in extension_map.values():
+        for parameter_set_class in list(extension_map.values()):
             try:
                 parameters = parameter_set_class(filename)
             except (SyntaxError, NameError, UnicodeDecodeError):

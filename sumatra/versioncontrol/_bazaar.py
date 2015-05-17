@@ -12,6 +12,9 @@ BazaarRepository
 :license: CeCILL, see LICENSE for details.
 """
 from __future__ import absolute_import
+from __future__ import unicode_literals
+from future import standard_library
+standard_library.install_aliases()
 from builtins import str
 
 from bzrlib.branch import Branch
@@ -21,7 +24,7 @@ from bzrlib.errors import NotBranchError
 
 import os
 try:
-    from StringIO import StringIO # bazaar does not handle unicode
+    from io import StringIO # bazaar does not handle unicode
 except ImportError: # Python3
     from io import StringIO
 

@@ -5,6 +5,7 @@ Handles serialization/deserialization of record store contents to/from JSON.
 :copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
 :license: CeCILL, see LICENSE for details.
 """
+from __future__ import unicode_literals
 from builtins import str
 
 import json
@@ -35,7 +36,7 @@ def keys2str(D):
     to strings.
     """
     E = {}
-    for k, v in D.items():
+    for k, v in list(D.items()):
         E[str(k)] = v
     return E
 

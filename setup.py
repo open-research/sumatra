@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 
+from __future__ import unicode_literals
 from setuptools import setup
 from distutils.command.sdist import sdist
 import os

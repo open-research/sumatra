@@ -5,6 +5,7 @@ shelve module.
 :copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
 :license: CeCILL, see LICENSE for details.
 """
+from __future__ import unicode_literals
 from builtins import str
 
 import os
@@ -61,7 +62,7 @@ class ShelveRecordStore(RecordStore):
         self.__init__(**state)
 
     def list_projects(self):
-        return [str(key) for key in self.shelf.keys()]
+        return [str(key) for key in list(self.shelf.keys())]
 
     @check_name
     def save(self, project_name, record):
@@ -82,7 +83,7 @@ class ShelveRecordStore(RecordStore):
             if tags:
                 if not isinstance(tags, list):
                     tags = [tags]
-                records = [record for record in self.shelf[project_name].values()
+                records = [record for record in list(self.shelf[project_name].values())
                            if any([tag in record.tags for tag in tags])]
             else:
                 records = list(self.shelf[project_name].values())
@@ -105,7 +106,7 @@ class ShelveRecordStore(RecordStore):
 
     @check_name
     def delete_by_tag(self, project_name, tag):
-        for_deletion = [record for record in self.shelf[project_name].values() if tag in record.tags]
+        for_deletion = [record for record in list(self.shelf[project_name].values()) if tag in record.tags]
         for record in for_deletion:
             self.delete(project_name, record.label)
         return len(for_deletion)
@@ -114,7 +115,7 @@ class ShelveRecordStore(RecordStore):
     def most_recent(self, project_name):
         most_recent = None
         most_recent_timestamp = datetime.min
-        for record in self.shelf[project_name].values():
+        for record in list(self.shelf[project_name].values()):
             if record.timestamp > most_recent_timestamp:
                 most_recent_timestamp = record.timestamp
                 most_recent = record.label

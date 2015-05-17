@@ -15,6 +15,7 @@ Record - gathers and stores information about an individual simulation or
 :license: CeCILL, see LICENSE for details.
 """
 from __future__ import print_function
+from __future__ import unicode_literals
 from builtins import object
 
 from datetime import datetime

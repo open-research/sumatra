@@ -391,7 +391,7 @@ class MockHttp(object):
             elif method == "DELETE":
                 self.records.pop(parts[1])
                 most_recent = ""
-                for record in self.records.values():
+                for record in list(self.records.values()):
                     if record["timestamp"] > most_recent:
                         most_recent = record["timestamp"]
                         self.last_record = record
@@ -405,11 +405,11 @@ class MockHttp(object):
                     for tag in tags:
                         records = records.union(["%s://%s/%s/%s/" % (
                             u.scheme, u.netloc, parts[0], path)
-                            for path in self.records.keys() if tag in self.records[path]['tags']])
+                            for path in list(self.records.keys()) if tag in self.records[path]['tags']])
                     records = list(records)
                 else:
                     records = ["%s://%s/%s/%s/" % (u.scheme, u.netloc, parts[0], path)
-                               for path in self.records.keys()]
+                               for path in list(self.records.keys())]
                 content = json.dumps({"records": records, "name": "TestProject", "description": ""})
                 status = 200
             elif method == "PUT":

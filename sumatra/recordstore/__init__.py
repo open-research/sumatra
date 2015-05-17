@@ -14,6 +14,7 @@ http_store   - provides the HttpRecordStore class
 :copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
 :license: CeCILL, see LICENSE for details.
 """
+from __future__ import unicode_literals
 
 from . import serialization
 from .base import RecordStore
@@ -40,7 +41,7 @@ def get_record_store(uri):
     Return the :class:`RecordStore` object found at the given URI (which may be
     a URL or filesystem path).
     """
-    for record_store_class in registry.components[RecordStore].values():
+    for record_store_class in list(registry.components[RecordStore].values()):
         if record_store_class.accepts_uri(uri):
             store = record_store_class(uri)
             return store

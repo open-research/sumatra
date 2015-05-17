@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 import numpy
 import sys
 from sumatra.parameters import build_parameters

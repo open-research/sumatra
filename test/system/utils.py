@@ -2,6 +2,7 @@
 Utility functions for writing system tests.
 """
 from __future__ import print_function
+from __future__ import unicode_literals
 from builtins import zip
 from builtins import str
 
@@ -81,7 +82,7 @@ def pairs(iterable):
     """
     ABCDEF -> (A, B), (C, D), (E, F)
     """
-    return zip(islice(iterable, 0, None, 2), islice(iterable, 1, None, 2))
+    return list(zip(islice(iterable, 0, None, 2), islice(iterable, 1, None, 2)))
 
 
 def get_label(p):
@@ -105,7 +106,7 @@ def assert_config(p, expected_config):
     """Assert that the Sumatra configuration (output from 'smt info') is as expected."""
     match = re.match(info_pattern, p.stdout.text)
     assert match, "Pattern: %s\nActual: %s" % (info_pattern, p.stdout.text)
-    for key, value in expected_config.items():
+    for key, value in list(expected_config.items()):
         assert match.groupdict()[key] == value, "expected {} = {}, actually {}".format(key, value, match.groupdict()[key])
 
 

@@ -12,6 +12,7 @@ SubversionRepository
 :license: CeCILL, see LICENSE for details.
 """
 from __future__ import absolute_import
+from __future__ import unicode_literals
 from future import standard_library
 standard_library.install_aliases()
 from builtins import str

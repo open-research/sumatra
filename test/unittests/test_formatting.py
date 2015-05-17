@@ -1,6 +1,7 @@
 """
 Unit tests for the sumatra.formatting module
 """
+from __future__ import unicode_literals
 from builtins import object
 
 try:

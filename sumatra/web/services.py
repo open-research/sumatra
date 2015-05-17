@@ -5,6 +5,7 @@ docstring goes here
 :copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
 :license: CeCILL, see LICENSE for details.
 """
+from __future__ import unicode_literals
 from builtins import object
 
 
@@ -39,7 +40,7 @@ class SearchForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(SearchForm, self).__init__(*args, **kwargs)
-        for key, field in self.fields.items():
+        for key, field in list(self.fields.items()):
             self.fields[key].required = False
 
 

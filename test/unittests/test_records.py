@@ -1,6 +1,7 @@
 """
 Unit tests for the sumatra.records module
 """
+from __future__ import unicode_literals
 from builtins import object
 
 import unittest

@@ -14,6 +14,7 @@ under version control.
 """
 
 from __future__ import with_statement
+from __future__ import unicode_literals
 import warnings
 
 from sumatra.dependency_finder import neuron, python, genesis, matlab, r

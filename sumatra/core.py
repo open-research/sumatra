@@ -4,6 +4,8 @@
 :copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
 :license: CeCILL, see LICENSE for details.
 """
+from __future__ import unicode_literals
+from builtins import str
 from future.standard_library import install_aliases
 install_aliases()
 from builtins import object

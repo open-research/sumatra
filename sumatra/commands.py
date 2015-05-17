@@ -8,6 +8,7 @@ Each command corresponds to a function in this module.
 :license: CeCILL, see LICENSE for details.
 """
 from __future__ import print_function
+from __future__ import unicode_literals
 
 import os.path
 import sys

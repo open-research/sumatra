@@ -2,6 +2,7 @@
 Unit tests for the sumatra.commands module
 """
 from __future__ import print_function
+from __future__ import unicode_literals
 from future import standard_library
 standard_library.install_aliases()
 from builtins import str
@@ -108,7 +109,7 @@ class MockProject(object):
         self.data_store = MockDataStore("/path/to/root")
         self.input_datastore = MockDataStore("/path/to/root")
         self.__class__.instances.append(self)
-        for k,v in kwargs.items():
+        for k,v in list(kwargs.items()):
             self.__dict__[k] = v
         self._records_deleted = []
     def save(self): self.saved = True

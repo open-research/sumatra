@@ -5,6 +5,7 @@
 :license: CeCILL, see LICENSE for details.
 """
 from __future__ import print_function
+from __future__ import unicode_literals
 from future import standard_library
 standard_library.install_aliases()
 
@@ -44,7 +45,7 @@ def generate_latex_command(sumatra_options, graphics_options):
 
     include_graphics_cmd = u"\includegraphics"
     if graphics_options:
-        include_graphics_cmd += "[%s]" % ",".join("%s=%s" % item for item in graphics_options.items())
+        include_graphics_cmd += "[%s]" % ",".join("%s=%s" % item for item in list(graphics_options.items()))
     include_graphics_cmd += "{%s}" % local_filename
 
     # if record_store is web-accessible, wrap the image in a hyperlink

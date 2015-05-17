@@ -5,6 +5,7 @@ Export a Sumatra project for version 0.1 or 0.2 to JSON.
 :license: CeCILL, see LICENSE for details.
 """
 from __future__ import print_function
+from __future__ import unicode_literals
 from builtins import str
 
 import json

@@ -4,6 +4,7 @@ Define URL dispatching for the Sumatra web interface.
 :copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
 :license: CeCILL, see LICENSE for details.
 """
+from __future__ import unicode_literals
 
 from django.conf.urls import patterns
 from django.conf import settings
