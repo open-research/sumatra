@@ -13,7 +13,7 @@ usage = """Usage: smt <subcommand> [options] [args]
 Simulation/analysis management tool version %s
 
 Available subcommands:
-  """ % __version__ 
+  """ % __version__
 usage += "\n  ".join(commands.modes)
 
 if len(sys.argv) < 2:
@@ -30,5 +30,5 @@ except AttributeError:
 try:
     main(sys.argv[2:])
 except (VersionControlError, RecordStoreAccessError) as err:
-    print("Error: %s" % err.message)
+    print("Error: {}".format(err))
     sys.exit(1)
