@@ -150,7 +150,7 @@ def system2(cmd, cwd=None, logger=_sentinel, stdout=_sentinel, log_command=_sent
                 mylogger(line.rstrip('\n\r')) # they are added by logging anyway
                 #import pdb; pdb.set_trace()
                 if(stdout):
-                        print(line.encode(encoding), end="")
+                        print(line, end="")
                         sys.stdout.flush()
         returncode = p.wait()
         if(log_command):
