@@ -43,7 +43,7 @@ def generate_latex_command(sumatra_options, graphics_options):
         os.makedirs(LOCAL_IMAGE_CACHE)
     local_filename = image.save_copy(LOCAL_IMAGE_CACHE)
 
-    include_graphics_cmd = u"\includegraphics"
+    include_graphics_cmd = "\includegraphics"
     if graphics_options:
         include_graphics_cmd += "[%s]" % ",".join("%s=%s" % item for item in graphics_options.items())
     include_graphics_cmd += "{%s}" % local_filename

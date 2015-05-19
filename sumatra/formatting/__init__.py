@@ -285,7 +285,7 @@ class ShellFormatter(Formatter):
             if record.diff:
                 diff_file = "%s.patch" % record.label
                 with open(diff_file, 'w') as fp:
-                    fp.write(record.diff + u'\n')
+                    fp.write(record.diff + '\n')
                 output += "%s %s\n" % (record.repository.apply_patch_cmd, diff_file)
                 cleanup += "rm -f %s\n" % diff_file
             # handle pre_run

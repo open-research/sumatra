@@ -188,7 +188,7 @@ class SimpleParameterSet(ParameterSet):
     name = ".simpleparameterset"
     casts = (int, float)
 
-    COMMENT_CHAR = u"#"
+    COMMENT_CHAR = "#"
 
     def __init__(self, initialiser):
         """
@@ -209,7 +209,7 @@ class SimpleParameterSet(ParameterSet):
             self.source_file = initialiser
         else:
             try:
-                for line in filterfalse(SimpleParameterSet._empty_or_comment, initialiser.split(u"\n")):
+                for line in filterfalse(SimpleParameterSet._empty_or_comment, initialiser.split("\n")):
                     name, value, comment = self._parse_parameter_from_line(line)
                     self._add_or_update_parameter(name=name, value=value, comment=comment)
             except (AttributeError, TypeError):
@@ -230,8 +230,8 @@ class SimpleParameterSet(ParameterSet):
 
     def _parse_parameter_from_line(self, line):
         line = str(line.strip())
-        if u"=" in line:
-            parts = line.split(u"=")
+        if "=" in line:
+            parts = line.split("=")
             name = parts[0].strip()
             value = "=".join(parts[1:])
             try:
@@ -253,8 +253,8 @@ class SimpleParameterSet(ParameterSet):
 
     @staticmethod
     def _value_represents_string(value):
-        single_quote = u"'"
-        double_quote = u'"'
+        single_quote = "'"
+        double_quote = '"'
         stripped = value.strip()
         return (stripped.startswith(single_quote) and stripped.endswith(single_quote)) \
             or (stripped.startswith(double_quote) and stripped.endswith(double_quote))

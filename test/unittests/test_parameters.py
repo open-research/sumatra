@@ -149,7 +149,7 @@ class TestSimpleParameterSet(unittest.TestCase):
         self.assertEqual(P.pretty(), init)
 
     def test__pretty__should_recreate_comments_in_the_initializer(self):
-        init = u'x = 2 # this is a comment'
+        init = 'x = 2 # this is a comment'
         P = SimpleParameterSet(init)
         self.assertEqual(P.pretty(), init)
 
@@ -174,7 +174,7 @@ class TestSimpleParameterSet(unittest.TestCase):
     def test__update__should_only_accept_numbers_or_strings(self):
         # could maybe allow lists of numbers or strings
         P = SimpleParameterSet("x = 2\ny = 3")
-        P.update({"z": u"hello"})
+        P.update({"z": "hello"})
         self.assertEqual(P["z"], "hello")
         P.update({"tumoltuae": 42})
         self.assertEqual(P["tumoltuae"], 42)
@@ -182,7 +182,7 @@ class TestSimpleParameterSet(unittest.TestCase):
 
     def test__update_kwargs(self):
         P = SimpleParameterSet("x = 2\ny = 3")
-        P.update({}, z=u"hello")
+        P.update({}, z="hello")
         self.assertEqual(P["z"], "hello")
 
     def test__str(self):
