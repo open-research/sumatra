@@ -3,7 +3,7 @@ Datastore based on files written to the local filesystem, archived in gzipped
 tar files, then retrieved from the tar files.
 
 
-:copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
+:copyright: Copyright 2006-2015 by the Sumatra team, see doc/authors.txt
 :license: CeCILL, see LICENSE for details.
 """
 
@@ -13,6 +13,7 @@ import tarfile
 import shutil
 import logging
 import mimetypes
+import datetime
 from contextlib import closing  # needed for Python 2.6
 from sumatra.core import TIMESTAMP_FORMAT, registry
 
@@ -25,11 +26,13 @@ class ArchivedDataFile(DataItem):
     """A file-like object, that represents a file inside a tar archive"""
     # current implementation just for real files
 
-    def __init__(self, path, store):
+    def __init__(self, path, store, creation=None):
         self.path = path
         archive_label = self.path.split(os.path.sep)[0]
         self.tarfile_path = os.path.join(store.archive_store, archive_label + ".tar.gz")
-        self.size = self._get_info().size
+        info = self._get_info()
+        self.size = info.size
+        self.creation = creation or datetime.datetime.fromtimestamp(info.mtime).replace(microsecond=0)
         self.name = os.path.basename(self.path)
         self.extension = os.path.splitext(self.name)
         self.mimetype, self.encoding = mimetypes.guess_type(self.path)

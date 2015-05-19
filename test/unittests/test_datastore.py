@@ -54,20 +54,20 @@ class TestFileSystemDataStore(unittest.TestCase):
 
     def test__get_content__should_return_short_file_content(self):
         digest = hashlib.sha1(self.test_data).hexdigest()
-        key = DataKey('test_file1', digest)
+        key = DataKey('test_file1', digest, creation=None)
         content = self.ds.get_content(key)
         self.assertEqual(content, self.test_data)
 
     def test__get_content__should_truncate_long_files(self):
         digest = hashlib.sha1(self.test_data).hexdigest()
-        key = DataKey('test_file1', digest)
+        key = DataKey('test_file1', digest, creation=self.now)
         content = self.ds.get_content(key, max_length=10)
         self.assertEqual(content, self.test_data[:10])
 
     def test__delete__should_remove_files(self):
         assert os.path.exists(os.path.join(self.root_dir, 'test_file1'))
         digest = hashlib.sha1(self.test_data).hexdigest()
-        keys = [DataKey(path, digest) for path in self.test_files]
+        keys = [DataKey(path, digest, creation=None) for path in self.test_files]
         self.ds.delete(*keys)
         self.assert_(not os.path.exists(os.path.join(self.root_dir, 'test_file1')))
 
@@ -130,14 +130,17 @@ class TestArchivingFileSystemDataStore(unittest.TestCase):
     def test__get_content__should_return_short_file_content(self):
         self.ds.find_new_data(self.now)
         digest = hashlib.sha1(self.test_data).hexdigest()
-        key = DataKey('%s/test_file1' % self.now.strftime(TIMESTAMP_FORMAT), digest)
+        key = DataKey('%s/test_file1' % self.now.strftime(TIMESTAMP_FORMAT),
+                      digest, creation=self.now)
         content = self.ds.get_content(key)
         self.assertEqual(content, self.test_data)
 
     def test__get_content__should_truncate_long_files(self):
         self.ds.find_new_data(self.now)
         digest = hashlib.sha1(self.test_data).hexdigest()
-        key = DataKey('%s/test_file1' % self.now.strftime(TIMESTAMP_FORMAT), digest)
+        now = self.now.strftime(TIMESTAMP_FORMAT)
+        key = DataKey('%s/test_file1' % self.now.strftime(TIMESTAMP_FORMAT),
+                      digest, creation=self.now)
         content = self.ds.get_content(key, max_length=10)
         self.assertEqual(content, self.test_data[:10])
 

@@ -8,6 +8,7 @@ except ImportError:
     import unittest
 import os
 import hashlib
+from datetime import datetime
 from sumatra import commands, launch, datastore
 from sumatra.parameters import (SimpleParameterSet, JSONParameterSet,
                                 YAMLParameterSet, ConfigParserParameterSet)
@@ -15,11 +16,13 @@ from sumatra.parameters import (SimpleParameterSet, JSONParameterSet,
 originals = []  # use for storing originals of mocked objects
 
 
+back_to_the_future = datetime(2015, 10, 21, 16, 29, 0)
+
 class MockDataStore(object):
     def __init__(self, root):
         self.root = root
     def generate_keys(self, *paths):
-        return [datastore.DataKey(path, datastore.IGNORE_DIGEST) for path in paths]
+        return [datastore.DataKey(path, datastore.IGNORE_DIGEST, back_to_the_future) for path in paths]
     def contains_path(self, path):
         return os.path.isfile(path)
 
@@ -523,7 +526,7 @@ class RunCommandTests(unittest.TestCase):
                          'parameters': {},
                          'main_file': 'default',
                          'label': None,
-                         'input_data': [datastore.DataKey('this.is.not.a.parameter.file', hashlib.sha1(data_content).hexdigest())],
+                         'input_data': [datastore.DataKey('this.is.not.a.parameter.file', hashlib.sha1(data_content).hexdigest(), back_to_the_future)],
                          'reason': '',
                          'version': 'current',
                          'script_args': 'this.is.not.a.parameter.file'})
@@ -547,7 +550,8 @@ class RunCommandTests(unittest.TestCase):
                          'main_file': 'main.py',
                          'label': 'vikings',
                          'input_data': [datastore.DataKey('this.is.not.a.parameter.file',
-                                                          hashlib.sha1(data_content).hexdigest())],
+                                                          hashlib.sha1(data_content).hexdigest(),
+                                                          back_to_the_future)],
                          'reason': 'test',
                          'version': '234',
                          'script_args': "spam <parameters> eggs this.is.not.a.parameter.file beans"})

@@ -11,6 +11,7 @@ import sys
 import os
 import shutil
 from textwrap import dedent
+from datetime import datetime
 try:
     from docutils.core import publish_string
     have_docutils = True
@@ -55,8 +56,8 @@ class MockRecord(object):
     
     def __init__(self, label):
         self.label = label
-        key = DataKey("bar.jpg", "0123456789abcdef")
-        other_key = DataKey("subdirectory/baz.png", "fedcba9876543210")
+        key = DataKey("bar.jpg", "0123456789abcdef", datetime(2015, 10, 21, 16, 29, 0))
+        other_key = DataKey("subdirectory/baz.png", "fedcba9876543210", datetime(2015, 10, 21, 16, 31, 23))
         #key.url = "http://example.com/my_data/bar.jpg"
         self.output_data = [key, other_key]
         self.datastore = MockDataStore()
