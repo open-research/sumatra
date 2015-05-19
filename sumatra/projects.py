@@ -178,15 +178,15 @@ class Project(object):
                    main_file='default', version='current', launch_mode='default',
                    label=None, reason=None, timestamp_format='default'):
         logger.debug("Creating new record")
-        if executable is 'default':
+        if executable == 'default':
             executable = deepcopy(self.default_executable)
-        if repository is 'default':
+        if repository == 'default':
             repository = deepcopy(self.default_repository)
-        if main_file is 'default':
+        if main_file == 'default':
             main_file = self.default_main_file
-        if launch_mode is 'default':
+        if launch_mode == 'default':
             launch_mode = deepcopy(self.default_launch_mode)
-        if timestamp_format is 'default':
+        if timestamp_format == 'default':
             timestamp_format = self.timestamp_format
         working_copy = repository.get_working_copy()
         version, diff = self.update_code(working_copy, version)
