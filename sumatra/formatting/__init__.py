@@ -470,8 +470,9 @@ class TextDiffFormatter(Formatter):
             output += "  %s: %s\n" % (self.diff.recordB.label, modeB)
         if self.diff.parameters_differ:
             output += "Parameter differences:\n"
-            for record in (self.diff.recordA, self.diff.recordB):
-                output += "  %s:\n%s\n" % (record.label, record.parameters)
+            for record, param_diff in zip((self.diff.recordA, self.diff.recordB),
+                                           self.diff.parameter_differences):
+                output += "  %s:\n    %s\n" % (record.label, param_diff)
         if self.diff.input_data_differ:
             output += "Input data differences:\n"
             for record in (self.diff.recordA, self.diff.recordB):

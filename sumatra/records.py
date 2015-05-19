@@ -378,3 +378,7 @@ class RecordDifference(object):
             return None
 
     # todo: add stdout/stderr differs?
+
+    @property
+    def parameter_differences(self):
+        return self.recordA.parameters.diff(self.recordB.parameters)
