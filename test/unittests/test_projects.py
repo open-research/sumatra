@@ -7,7 +7,9 @@ from builtins import object
 
 import datetime
 import shutil
-import os, sys
+import os
+import sys
+import tempfile
 import unittest
 import sumatra.projects
 from sumatra.projects import Project, load_project
@@ -15,8 +17,10 @@ from future.utils import with_metaclass
 
 
 class MockDiffFormatter(object):
+
     def __init__(self, diff):
         pass
+
     def format(self, mode):
         return ""
 sumatra.projects.get_diff_formatter = lambda: MockDiffFormatter
@@ -25,6 +29,7 @@ sumatra.projects.get_diff_formatter = lambda: MockDiffFormatter
 # Support the singleton pattern (some cases below require
 # the same repository for multiple records).
 class SingletonType(type):
+
     def __call__(cls, *args, **kwargs):
         try:
             return cls.__instance
@@ -38,6 +43,10 @@ class MockRepository(with_metaclass(SingletonType, object)):
     vcs_type = 'git'
     use_version_cmd = ''
     upstream = ''
+    path_of_working_copy = None
+
+    def __deepcopy__(self, memo):
+        return self
 
     def __eq__(self, other):
         return self.url == other.url
@@ -49,28 +58,35 @@ class MockRepository(with_metaclass(SingletonType, object)):
         return {}
 
     def get_working_copy(self):
-        return MockWorkingCopy()
+        return MockWorkingCopy(self.path_of_working_copy)
 
     def __hash__(self):
         return 0
 
 
 class MockWorkingCopy(object):
-    path = "/path/to/working/copy"
     repository = MockRepository()
+
+    def __init__(self, path):
+        self.path = path
+
     def has_changed(self):
         return False
+
     def use_latest_version(self):
         pass
+
     def current_version(self):
         return 999
+
     def use_version(self, v):
         pass
+
     def contains(self, path):
         return True
+
     def get_username(self):
         return "The Knights Who Say Ni"
-
 
 
 class MockExecutable(object):
@@ -79,34 +95,44 @@ class MockExecutable(object):
     version = sys.version
     requires_script = True
     options = ''
+
     def write_parameters(self, params, filename):
         pass
+
     def __getstate__(self):
         return {}
 
 
 class MockLaunchMode(object):
     working_directory = '/foo/bar'
+
     def get_platform_information(self):
         return []
+
     def pre_run(self, prog):
         pass
+
     def run(self, prog, script, params, append_label):
         return True
+
     def __getstate__(self):
         return {}
 
 
 class MockSet(object):
+
     def __iter__(self):
         return iter(['foo'])
+
     def add(self, x):
         self.added = x
+
     def remove(self, x):
         self.removed = x
 
 
 class MockRecord(object):
+
     def __init__(self, label):
         self.label = label
         self.tags = MockSet()
@@ -132,47 +158,59 @@ class MockRecord(object):
         self.command_line = '/path/to/program main.script'
         self.stdout_stderr = ''
         self.output_data = []
+
     def difference(r1, r2, igm, igf):
         return ""
 
 
 class MockDatastore(object):
+
     def __init__(self):
         self.root = '/tmp/foo/bar'
+
     def __getstate__(self):
         return {}
 
 
 class MockRecordStore(object):
+
     def save(self, project_name, record):
         pass
+
     def get(self, project_name, label):
         if label != "none_existent":
             return MockRecord(label=label*2)
         else:
             raise Exception()
+
     def list(self, project_name, tags=None):
         return [self.get(project_name, 'foo_label'),
                 self.get(project_name, 'bar_label')]
+
     def delete(self, project_name, label):
         self.deleted = label
+
     def delete_by_tag(self, project_name, tag):
         return "".join(reversed(tag))
+
     def most_recent(self, project):
         return "last"
+
     def __getstate__(self):
         return {}
 
 
 class TestProject(unittest.TestCase):
 
+    def setUp(self):
+        self.dir = tempfile.mkdtemp(prefix='sumatra-test-')
+        self.cwd_before_test = os.getcwd()
+        os.chdir(self.dir)
+        MockRepository().path_of_working_copy = self.dir  # set path of Singleton
+
     def tearDown(self):
-        if os.path.exists(".smt"):
-            shutil.rmtree(".smt")
-        if os.path.exists("Data"):
-            os.rmdir("Data")
-        if os.path.exists("test.py"):
-            os.remove("test.py")
+        os.chdir(self.cwd_before_test)
+        shutil.rmtree(self.dir)
 
     def write_test_script(self, filename):
         with open(filename, "w") as f:
@@ -180,11 +218,11 @@ class TestProject(unittest.TestCase):
     write_test_script.__test__ = False  # stop nose treating this as a test
 
     def test__init__with_minimal_arguments(self):
-        proj = Project("test_project", record_store=MockRecordStore())
+        Project("test_project", record_store=MockRecordStore())
 
     def test__creating_a_second_project_in_the_same_dir_should_raise_an_exception(self):
-        proj1 = Project("test_project1", record_store=MockRecordStore())
-        self.assertRaises(Exception,Project, "test_project2")
+        Project("test_project1", record_store=MockRecordStore())
+        self.assertRaises(Exception, Project, "test_project2")
 
     def test__info(self):
         proj = Project("test_project", record_store=MockRecordStore())
@@ -310,7 +348,7 @@ class TestProject(unittest.TestCase):
 
     def test__repeat(self):
         orig_gwc = sumatra.projects.get_working_copy
-        sumatra.projects.get_working_copy = MockWorkingCopy
+        sumatra.projects.get_working_copy = lambda: MockWorkingCopy(self.dir)
         orig_launch = Project.launch
         Project.launch = lambda self, **kwargs: "new_record"
         proj = Project("test_project",

@@ -21,7 +21,7 @@ from builtins import object
 from datetime import datetime
 import time
 import os
-from os.path import relpath, normpath, join, basename, exists
+from os.path import join, basename, exists
 import re
 from operator import or_
 from functools import reduce
@@ -31,6 +31,7 @@ from sumatra.core import TIMESTAMP_FORMAT
 from sumatra.users import get_user
 from .versioncontrol import VersionControlError
 import logging
+from pathlib import Path
 
 logger = logging.getLogger("Sumatra")
 
@@ -44,11 +45,9 @@ class MissingInformationError(Exception):
 
 
 def check_file_under_version_control(file_path, working_copy):
-    cwd_relative_to_wc = relpath(os.getcwd(), working_copy.path)
-    file_relative_to_cwd = relpath(file_path, os.getcwd())
-    if not working_copy.contains(
-        normpath(join(cwd_relative_to_wc, file_relative_to_cwd))):
-            raise VersionControlError("File %s is not under version control" % file_path)
+    file_relative_to_wc = Path(file_path).resolve().relative_to(Path(working_copy.path).resolve())
+    if not working_copy.contains(file_relative_to_wc.as_posix()):
+        raise VersionControlError("File %s is not under version control" % file_path)
 
 
 class Record(object):
