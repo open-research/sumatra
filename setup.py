@@ -42,7 +42,11 @@ setup(
                                 'web/templates/*.html',
                                 'publishing/latex/sumatra.sty',
                                 'formatting/latex_template.tex', 'external_scripts/script_introspect.R']},
-    scripts = ['bin/smt', 'bin/smtweb', 'bin/smt-complete.sh'],
+    scripts = ['bin/smtweb', 'bin/smt-complete.sh'],
+    entry_points="""
+	[console_scripts]
+	smt = sumatra.commands:cli
+	""",
     author = "Sumatra authors and contributors",
     author_email = "andrew.davison@unic.cnrs-gif.fr",
     description = "A tool for automated tracking of computation-based scientific projects",
@@ -63,7 +67,7 @@ setup(
                    'Topic :: Scientific/Engineering'],
     cmdclass = {'sdist': sdist_git},
     install_requires = ['Django>=1.4, <=1.6.11', 'django-tagging', 'httplib2',
-                        'docutils', 'jinja2', 'parameters'],
+                        'docutils', 'jinja2', 'parameters', 'Click'],
     extras_require = {'svn': 'pysvn',
                       'hg': 'hgapi',
                       'git': 'GitPython',
