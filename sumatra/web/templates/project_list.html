@@ -5,72 +5,13 @@
 {% block title %}List of projects{% endblock %}
 
 {% block content %}
-    {% if object_list %}
-    <div id = 'div_listOfprojects'>
-        {% for project in object_list %}
-        <div class="well">
-            <a href="/{{project.id}}/"><h2>{{project.get_name}}</h2></a>
-            <span class="label label-important clearfix">{{project.record_set.count}} records</span>
-            {{project.description|restructuredtext}}&nbsp;
-        </div>
-        {% endfor %}
-    </div>
-    {% else %}
-        <div id = 'div_listOfprojects'>
-            <table class="table table-bordered" >
-                <tr>
-                    <th>ID</th><th>Name</th><th>Description</th><th>Records</th>
-                </tr>
-                <tr class="{% cycle odd,even %}">
-                    <td><a href="/{{project_name}}/">{{project_name}}</a></td>
-                    <td>{{project_name}}</td>
-                    <td></td>
-                    <td>0</td>
-                </tr>
-            </table>
-        </div>
-
-        <!-- Modal settings window -->
-        <div class="modal" id="initSettings" style='display:none'>
-          <a class="close" data-dismiss="modal">&times;</a>
-          <div class="modal-header">
-                <h3>Please specify the settings for the new Sumatra project</h3>
-          </div>
-          <div class="modal-body" id='body-w-tags'>
-                <form class="well" id='formSettings'>
-                  <label for="s-exec" style='float:left;width:100px;line-height:26px'>Executable:</label>
-                  <input type="text" class="span3" id='s-exec' placeholder="name of the executable"><br>
-                  <!--label for="s-name" style='float:left;width:100px;line-height:26px'>Main file:</label>
-                  <input type="text" class="span3" id='s-name' placeholder="name of the main file"-->
-                </form>
-          </div>
-          <div class="modal-footer">
-                <a class="cancel btn" data-dismiss="modal">Cancel</a>
-                <a id="saveInitSet" class="btn btn-primary">Save</a>
-          </div>
-        </div><!-- end of modal settings window -->
-        {% if show_modal %}
-            <script type = 'text/javascript'>
-            $(document).ready(function(){ 
-                // loading of the settings modal window for the empty project:
-                $('#initSettings').modal({'show':true});
-                $('#saveInitSet').click(function(){
-                    $.post('/{{project_name}}/settings', {init_settings:true, executable:$('#s-exec').val()},
-                    function(response){
-                        if (response === 'error'){
-                            $.jGrowl('Such executable doesn\'t exists',{
-                              theme:  'danger',
-                              position:  'bottom-left'});
-                        }else{
-                            $.jGrowl('Success',{
-                              theme:  'success',
-                              position:  'bottom-left'});
-                            $('#initSettings').modal('hide');
-                        }
-                    });   
-                });
-            });
-            </script>
+    {% for project in projects %}
+    <div class="well">
+        <a href="/{{project.id}}/"><h3>{{project.get_name}}</h3></a>
+        <span class="label label-info">{{project.record_set.count}} records</span>
+        {% if project.description %}
+        <hr>
+        {{project.description|restructuredtext}}&nbsp;
         {% endif %}
-    {% endif %}
+    {% endfor %}
 {% endblock %}
