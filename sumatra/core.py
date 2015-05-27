@@ -66,6 +66,8 @@ def run(args, cwd=None, shell=False, kill_tree=True, timeout=-1, env=None):
         signal.alarm(timeout)
     try:
         stdout, stderr = p.communicate()
+        stdout = stdout.decode(get_encoding())
+        stderr = stderr.decode(get_encoding())
         if timeout != -1:
             signal.alarm(0)
     except Alarm:
