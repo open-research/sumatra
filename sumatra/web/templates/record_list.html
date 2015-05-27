@@ -202,7 +202,7 @@ $(document).ready(function() {
         dataType: "json",
         complete: function(data){
             var hidden = data.responseJSON["hidden_cols"];
-            if (typeof hidden === "undefined") {
+            if (typeof hidden === "undefined" || hidden ===  null) {
                 hidden = [];
             }
             console.log("hidden: " + hidden);

@@ -287,7 +287,9 @@ class SettingsView(View):
             with open(global_conf_file, 'r') as fp:
                 settings = json.load(fp)
         else:
-            settings = {}
+            settings = {
+                "hidden_cols": []
+            }
         return settings
 
     def save_settings(self, settings):
