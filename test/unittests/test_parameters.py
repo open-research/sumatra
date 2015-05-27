@@ -58,6 +58,22 @@ class TestNTParameterSet(unittest.TestCase):
         self.assertEqual(P.pop('foo', 42), 42)
         self.assertEqual(P.pop('foo', None), None)
 
+    def test_diff(self):
+        P1 = NTParameterSet(self.example)
+        P2 = NTParameterSet({
+                "y": {
+                    "a": -2,
+                    "b": [4, 5, 6],
+                    "c": 55,
+                },
+                "x": 2.9,
+                "z": 100,
+                "mylabel": "Dodge City",
+                "have_horse": True})
+        self.assertEqual(P1.diff(P2),
+                         ({'y': {'c': 5}, 'mylabel': 'camelot', 'have_horse': False},
+                          {'y': {'c': 55}, 'mylabel': 'Dodge City', 'have_horse': True}))
+
 
 class TestSimpleParameterSet(unittest.TestCase):
 
@@ -198,6 +214,20 @@ class TestSimpleParameterSet(unittest.TestCase):
         self.assertEqual(P.pop('foo', 42), 42)
         self.assertEqual(P.pop('foo', None), None)
 
+    def test_diff(self):
+        P1 = SimpleParameterSet("x = 2\ny = 3")
+        P2 = SimpleParameterSet("x = 3\ny = 3\nz = 4")
+        self.assertEqual(P1.diff(P2),
+                         ({'x': 2}, {'x': 3, 'z': 4}))
+        P3 = JSONParameterSet(dedent("""
+                {
+                    "x" : 2,
+                    "y" : 4,
+                    "z": 4
+                }"""))
+        self.assertEqual(P1.diff(P3),
+                         ({'y': 3}, {'y': 4, 'z': 4}))
+
 
 class TestConfigParserParameterSet(unittest.TestCase):
     test_parameters = dedent("""
@@ -264,6 +294,26 @@ class TestConfigParserParameterSet(unittest.TestCase):
         self.assertEqual(P['sectionA'], {'a': '2', 'b': '3'})
         self.assertEqual(P['sectionB.c'], 'hello')
 
+    def test_diff(self):
+        P1 = ConfigParserParameterSet(self.__class__.test_parameters)
+        P2 = ConfigParserParameterSet(dedent("""
+            # this is a comment
+
+            [sectionA]
+            a: 3
+            b: 3
+
+            [sectionB]
+            c: hello
+            d: universe
+
+            [sectionC]
+            e: zebra
+            """))
+        self.assertEqual(P1.diff(P2),
+                         ({'sectionA': {'a': '2'}, 'sectionB': {'d': 'world'}},
+                          {'sectionA': {'a': '3'}, 'sectionB': {'d': 'universe'}, 'sectionC': {'e': 'zebra'}}))
+
 
 class TestJSONParameterSet(unittest.TestCase):
     test_parameters = dedent("""
@@ -322,6 +372,22 @@ class TestJSONParameterSet(unittest.TestCase):
         P.update([("x", 1), ("y", 2)], z=3)
         self.assertEqual(P["x"], 1)
         self.assertEqual(P["z"], 3)
+
+    def test_diff(self):
+        P1 = JSONParameterSet(self.__class__.test_parameters)
+        P2 = JSONParameterSet(dedent("""
+        {
+            "a" : 3,
+            "b" : "hello",
+            "c" : {"a": 1, "b": 22},
+            "d" : [1, 2, 77, 4]
+        }
+        """))
+        self.assertEqual(P1.diff(P2),
+                         ({'a': 2, 'c': {'b': 2}, 'd': [1, 2, 3, 4]},
+                          {'a': 3, 'c': {'b': 22}, 'd': [1, 2, 77, 4]}))
+        P3 = YAMLParameterSet(TestYAMLParameterSet.test_parameters)
+        self.assertEqual(P2.diff(P3), P2.diff(P1))
 
 
 class TestYAMLParameterSet(unittest.TestCase):
@@ -402,6 +468,20 @@ class TestYAMLParameterSet(unittest.TestCase):
         P = YAMLParameterSet(self.__class__.test_parameters)
         P.update([("x", 1), ("y", 2)], z=3)
         self.assertEqual(P["z"], 3)
+
+    def test_diff(self):
+        P1 = YAMLParameterSet(self.__class__.test_parameters)
+        P2 = YAMLParameterSet(dedent("""
+            a:   3
+            b:   "hello"
+            c:
+              a: 1
+              b: 22
+            d:   [1, 2, 77, 4]
+        """))
+        self.assertEqual(P1.diff(P2),
+                         ({'a': 2, 'c': {'b': 2}, 'd': [1, 2, 3, 4]},
+                          {'a': 3, 'c': {'b': 22}, 'd': [1, 2, 77, 4]}))
 
 
 class TestModuleFunctions(unittest.TestCase):

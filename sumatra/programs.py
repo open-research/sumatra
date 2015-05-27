@@ -44,7 +44,7 @@ import warnings
 from .core import run, registry
 
 
-version_pattern = re.compile(r'\b(?P<version>\d[\.\d]*([a-z]*\d)*)\b')
+version_pattern = re.compile(r'\b(?P<version>\d+(\.\d+){1,2}(\.?[a-z]+\d?)?)\b')
 version_pattern_matlab = re.compile(r'(?<=SMT_DETECT_MATLAB_VERSION=)(?P<version>\d.+)\b')
 
 

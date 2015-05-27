@@ -107,6 +107,7 @@ class MockRecordDifference(object):
     parameters_differ = True
     input_data_differ = True
     script_arguments_differ = True
+    parameter_differences = ({'a': 'b'}, {'a': 'c', 'd': 'e'})
 
 
 class MockProject(object):

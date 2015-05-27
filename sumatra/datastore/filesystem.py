@@ -2,7 +2,7 @@
 Datastore based on files written to and retrieved from a local filesystem.
 
 
-:copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
+:copyright: Copyright 2006-2015 by the Sumatra team, see doc/authors.txt
 :license: CeCILL, see LICENSE for details.
 """
 from __future__ import unicode_literals
@@ -21,7 +21,7 @@ class DataFile(DataItem):
     """A file-like object, that represents a file in a local filesystem."""
     # current implementation just for real files
 
-    def __init__(self, path, store):
+    def __init__(self, path, store, creation=None):
         self.path = path
         self.full_path = os.path.join(store.root, path)
         if os.path.exists(self.full_path):
@@ -30,6 +30,7 @@ class DataFile(DataItem):
         else:
             raise IOError("File %s does not exist" % self.full_path)
             #self.size = None
+        self.creation = creation or datetime.datetime.fromtimestamp(stats.st_ctime).replace(microsecond=0)
         self.name = os.path.basename(self.full_path)
         self.extension = os.path.splitext(self.full_path)
         self.mimetype, self.encoding = mimetypes.guess_type(self.full_path)
@@ -127,7 +128,7 @@ class FileSystemDataStore(DataStore):
         Return the file that matches the given key.
         """
         try:
-            df = self.data_item_class(key.path, self)
+            df = self.data_item_class(key.path, self, key.creation)
         except IOError:
             raise KeyError("File %s does not exist." % key.path)
         if key.digest != IGNORE_DIGEST and df.digest != key.digest:

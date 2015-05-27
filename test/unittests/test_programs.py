@@ -28,7 +28,11 @@ class TestVersionRegExp(unittest.TestCase):
             "abcdefg": None,
             "usage: ls [-ABCFGHLPRSTWabcdefghiklmnopqrstuwx1] [file ...]": None,
             "4.2rc3": "4.2rc3",
-            "R scripting front-end version 3.1.2 (2014-10-31)" : "3.1.2",
+            "R scripting front-end version 3.1.2 (2014-10-31)": "3.1.2",
+            "First version that reads numbers from 0..1": None,
+            "Mature Tool 12.10": "12.10",
+            "Beta Tool 0.9.0.dev": "0.9.0.dev",
+            "Another Tool 0.8.4.Clumsy message.": "0.8.4"
         }
         for input, output in examples.items():
             match = version_pattern.search(input)

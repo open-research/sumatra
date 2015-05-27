@@ -6,7 +6,7 @@ The datastore itself does not take care of the mirroring, it is up to the
 user to take care of this.
 
 
-:copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
+:copyright: Copyright 2006-2015 by the Sumatra team, see doc/authors.txt
 :license: CeCILL, see LICENSE for details.
 """
 from __future__ import unicode_literals
@@ -27,14 +27,16 @@ class MirroredDataFile(DataItem):
     file system and on a webserver.
     """
 
-    def __init__(self, path, store):
+    def __init__(self, path, store, creation=None):
         self.path = path
         self.full_path = os.path.join(store.root, path)
         if os.path.exists(self.full_path):
             stats = os.stat(self.full_path)
             self.size = stats.st_size
+            self.creation = creation or datetime.datetime.fromtimestamp(stats.st_ctime).replace(microsecond=0)
         else:
             self.size = -1
+            self.creation = creation
         self.name = os.path.basename(self.full_path)
         self.extension = os.path.splitext(self.full_path)
         self.mimetype, self.encoding = mimetypes.guess_type(self.full_path)

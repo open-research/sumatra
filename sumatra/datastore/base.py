@@ -1,7 +1,7 @@
 """
 
 
-:copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
+:copyright: Copyright 2006-2015 by the Sumatra team, see doc/authors.txt
 :license: CeCILL, see LICENSE for details.
 """
 from __future__ import unicode_literals
@@ -77,16 +77,19 @@ class DataKey(object):
     available.
     """
 
-    def __init__(self, path, digest, **metadata):
+    def __init__(self, path, digest, creation, **metadata):
         self.path = path
         self.digest = digest
+        self.creation = creation
         self.metadata = metadata
 
     def __repr__(self):
-        return "%s(%s)" % (self.path, self.digest)
+        return "%s(%s [%s])" % (self.path, self.digest, self.creation)
 
     def __eq__(self, other):
-        return self.path == other.path and (self.digest == other.digest or IGNORE_DIGEST in (self.digest, other.digest))
+        return (self.path == other.path and
+                (self.digest == other.digest or IGNORE_DIGEST in (self.digest, other.digest)) and
+                self.creation == other.creation)
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -116,7 +119,7 @@ class DataItem(object):
 
     def generate_key(self):
         """Generate a :class:`DataKey` uniquely identifying this data item."""
-        return DataKey(self.path, self.digest, mimetype=self.mimetype,
+        return DataKey(self.path, self.digest, self.creation, mimetype=self.mimetype,
                        encoding=self.encoding, size=self.size)
 
     def get_content(self, max_length=None):

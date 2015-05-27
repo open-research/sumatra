@@ -583,7 +583,10 @@ def upgrade(argv):
     args = parser.parse_args(argv)
 
     project = load_project()
-    if hasattr(project, 'sumatra_version') and project.sumatra_version == sumatra.__version__:
+    if (hasattr(project, 'sumatra_version')
+        and project.sumatra_version == sumatra.__version__
+        and "dev" not in sumatra.__version__):
+        
         print("No upgrade needed (project was created with an up-to-date version of Sumatra).")
         sys.exit(1)
 

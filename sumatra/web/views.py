@@ -298,7 +298,7 @@ def download_file(request, project, label):
     label = unescape(label)
     path = request.GET['path']
     digest = request.GET['digest']
-    data_key = DataKey(path, digest)
+    data_key = DataKey(path, digest, request.GET.get('creation', None))
     record = Record.objects.get(label=label, project__id=project)
     data_store = get_data_store(record.datastore.type, eval(record.datastore.parameters))
 

@@ -498,8 +498,13 @@ class TestSerialization(unittest.TestCase):
             record = serialization.build_record(json.load(fp))
         self.assertEqual(record.label, "haggling")
 
+    def test_build_record_v0p6(self):
+        with open(os.path.join(this_directory, "example_0.6.json")) as fp:
+            record = serialization.build_record(json.load(fp))
+        self.assertEqual(record.label, "haggling")
+
     def test_round_trip(self):
-        with open(os.path.join(this_directory,"example_0.6.json")) as fp:
+        with open(os.path.join(this_directory, "example_0.7.json")) as fp:
             data_in = json.load(fp)
         record = serialization.build_record(data_in)
         data_out = json.loads(serialization.encode_record(record, indent=2))

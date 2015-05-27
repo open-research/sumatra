@@ -70,6 +70,7 @@ def record2json(record, indent=None):
             "path": key.path,
             "digest": key.digest,
             "metadata": key.metadata,
+            "creation": None if key.creation is None else key.creation.strftime("%Y-%m-%d %H:%M:%S")  # added in 0.7
         } for key in record.input_data],
         "script_arguments": record.script_arguments,  # added in 0.3
         "launch_mode": {
@@ -90,6 +91,7 @@ def record2json(record, indent=None):
             "path": key.path,
             "digest": key.digest,
             "metadata": key.metadata,
+            "creation": None if key.creation is None else key.creation.strftime("%Y-%m-%d %H:%M:%S")  # added in 0.7
         } for key in record.output_data],
         "tags": list(record.tags),  # not sure if tags should be PUT, perhaps have separate URL for this?
         "diff": record.diff,
@@ -476,8 +478,9 @@ class TextDiffFormatter(Formatter):
             output += "  %s: %s\n" % (self.diff.recordB.label, modeB)
         if self.diff.parameters_differ:
             output += "Parameter differences:\n"
-            for record in (self.diff.recordA, self.diff.recordB):
-                output += "  %s:\n%s\n" % (record.label, record.parameters)
+            for record, param_diff in zip((self.diff.recordA, self.diff.recordB),
+                                           self.diff.parameter_differences):
+                output += "  %s:\n    %s\n" % (record.label, param_diff)
         if self.diff.input_data_differ:
             output += "Input data differences:\n"
             for record in (self.diff.recordA, self.diff.recordB):

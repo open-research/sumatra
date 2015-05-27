@@ -54,6 +54,8 @@ def decode_project_data(content):
 
 def datestring_to_datetime(s):
     """docstring"""
+    if s is None:
+        return s
     try:
         timestamp = datetime.strptime(s, "%Y-%m-%d %H:%M:%S")
     except ValueError:
@@ -104,10 +106,12 @@ def build_record(data):
         input_data = eval(input_data)
     if input_data:
         if isinstance(input_data[0], str):  # versions prior to 0.4
-            input_data = [datastore.DataKey(path, digest=datastore.IGNORE_DIGEST)
+            input_data = [datastore.DataKey(path, digest=datastore.IGNORE_DIGEST, creation=None)
                           for path in input_data]
         else:
-            input_data = [datastore.DataKey(keydata["path"], keydata["digest"], **keys2str(keydata["metadata"]))
+            input_data = [datastore.DataKey(keydata["path"], keydata["digest"],
+                                            creation=datestring_to_datetime(keydata.get("creation", None)),
+                                            **keys2str(keydata["metadata"]))
                           for keydata in input_data]
     record = Record(executable, repository, data["main_file"],
                     data["version"], launch_mode, data_store, parameter_set,
@@ -122,11 +126,14 @@ def build_record(data):
     record.output_data = []
     if "output_data" in data:
         for keydata in data["output_data"]:
-            data_key = datastore.DataKey(keydata["path"], keydata["digest"], **keys2str(keydata["metadata"]))
+            data_key = datastore.DataKey(keydata["path"], keydata["digest"],
+                                         creation=datestring_to_datetime(keydata.get("creation", None)),
+                                         **keys2str(keydata["metadata"]))
             record.output_data.append(data_key)
     elif "data_key" in data:  # (versions prior to 0.4)
         for path in eval(data["data_key"]):
-            data_key = datastore.DataKey(path, digest=datastore.IGNORE_DIGEST)
+            data_key = datastore.DataKey(path, digest=datastore.IGNORE_DIGEST,
+                                         creation=None)
             record.output_data.append(data_key)
     record.duration = data["duration"]
     record.outcome = data["outcome"]
