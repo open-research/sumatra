@@ -240,7 +240,6 @@ def compare_records(request, project):
 
 def pair_datafiles(data_keys_a, data_keys_b, threshold=0.7):
     import difflib
-    import numpy as np
     from os.path import basename
     from copy import copy
 
@@ -256,12 +255,12 @@ def pair_datafiles(data_keys_a, data_keys_b, threshold=0.7):
                 similarity.append(
                     difflib.SequenceMatcher(a=basename(x.path),
                                             b=basename(y.path)).ratio())
-        similarity = np.array(similarity)
-        if similarity.max() > threshold:
-            i_max = similarity.argmax()
+        s_max = max(similarity)
+        if s_max > threshold:
+            i_max = similarity.index(s_max)
             matches.append((
                 unmatched_files_a.pop(i_max%n2),
-                unmatched_files_b.pop(i_max//2)))
+                unmatched_files_b.pop(i_max//n2)))
         else:
             break
     return {"matches": matches,

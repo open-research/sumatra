@@ -90,6 +90,9 @@ class MockDataKey(object):
         self.digest = "mock"
         self.creation = datetime(2001, 1, 1, 0, 0 ,1)
 
+    def __repr__(self):
+        return "MockDataKey(%s)" % self.path
+
 
 def assert_used_template(template_name, response):
     if hasattr(response, "template"):  # Django < 1.5
@@ -100,7 +103,24 @@ def assert_used_template(template_name, response):
 
 
 class TestWebInterface(unittest.TestCase):
-    pass
+
+
+    def test__pair_datafiles(self):
+        from sumatra.web.views import pair_datafiles
+        a = [MockDataKey("file_A_20010101.txt"),
+             MockDataKey("file_B.jpg"),
+             MockDataKey("file_C.json"),
+             MockDataKey("file_D.dat")]
+        b = [MockDataKey("file_A_20010202.txt"),
+             MockDataKey("datafile_Z.png"),
+             MockDataKey("file_C.json")]
+        result = pair_datafiles(a, b)
+        self.assertEqual(result["matches"],
+                         [(a[2], b[2]), (a[0], b[0])])
+        self.assertEqual(result["unmatched_a"],
+                         [a[1], a[3]])
+        self.assertEqual(result["unmatched_b"],
+                         [b[1]])
 
 
 class TestFilters(unittest.TestCase):
