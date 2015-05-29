@@ -30,7 +30,7 @@ try:
 except ImportError:
     pass
 
-from ..core import _Registry
+from ..core import get_registered_components
 
 
 DefaultRecordStore = have_django and DjangoRecordStore or ShelveRecordStore
@@ -41,7 +41,7 @@ def get_record_store(uri):
     Return the :class:`RecordStore` object found at the given URI (which may be
     a URL or filesystem path).
     """
-    for record_store_class in _Registry().components[RecordStore].values():
+    for record_store_class in get_registered_components(RecordStore).values():
         if record_store_class.accepts_uri(uri):
             store = record_store_class(uri)
             return store

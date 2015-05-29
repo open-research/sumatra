@@ -13,7 +13,7 @@ import mimetypes
 from subprocess import Popen
 import warnings
 from pathlib import Path
-from ..core import _Registry
+from ..core import component
 from .base import DataStore, DataItem, IGNORE_DIGEST
 
 
@@ -64,6 +64,7 @@ class DataFile(DataItem):
     # as a filesystem copy will be much faster
 
 
+@component
 class FileSystemDataStore(DataStore):
     """
     Represents a locally-mounted filesystem. The root of the data store will
@@ -150,6 +151,3 @@ class FileSystemDataStore(DataStore):
 
     def contains_path(self, path):
         return os.path.isfile(os.path.join(self.root, path))
-
-
-_Registry().register(FileSystemDataStore)

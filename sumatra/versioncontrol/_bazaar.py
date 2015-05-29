@@ -30,9 +30,10 @@ except ImportError:  # Python3
 
 from .base import VersionControlError
 from .base import Repository, WorkingCopy
-from ..core import _Registry
+from ..core import component
 
 
+@component
 class BazaarWorkingCopy(WorkingCopy):
     name = "bazaar"
 
@@ -99,6 +100,7 @@ class BazaarWorkingCopy(WorkingCopy):
         return config.username()
 
 
+@component
 class BazaarRepository(Repository):
     name = "bazaar"
     use_version_cmd = "bzr update -r"
@@ -135,7 +137,3 @@ class BazaarRepository(Repository):
 
     def get_working_copy(self, path=None):
         return BazaarWorkingCopy(path)
-
-
-_Registry().register(BazaarRepository)
-_Registry().register(BazaarWorkingCopy)

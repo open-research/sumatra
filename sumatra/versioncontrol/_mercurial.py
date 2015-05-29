@@ -20,13 +20,14 @@ import os
 import functools
 from .base import UncommittedModificationsError
 from .base import Repository, WorkingCopy
-from ..core import _Registry
+from ..core import component
 
 
 def vectorized(generator_func):
     def wrapper(*args, **kwargs):
         return list(generator_func(*args, **kwargs))
     return functools.update_wrapper(wrapper, generator_func)
+
 
 def findrepo(p):
     while not os.path.isdir(os.path.join(p, ".hg")):
@@ -35,6 +36,8 @@ def findrepo(p):
             return None
     return p
 
+
+@component
 class MercurialWorkingCopy(WorkingCopy):
     name = "mercurial"
 
@@ -101,6 +104,7 @@ class MercurialWorkingCopy(WorkingCopy):
         return self.repository._repository.user if self.repository._repository.user else ""
 
 
+@component
 class MercurialRepository(Repository):
     name = "mercurial"
     use_version_cmd = "hg update -r"
@@ -115,7 +119,7 @@ class MercurialRepository(Repository):
 
     @property
     def exists(self):
-        if self.url == None:
+        if self.url is None:
             return False
         try:
             self._repository.hg_status()
@@ -129,7 +133,7 @@ class MercurialRepository(Repository):
         path = os.path.abspath(path)
         if self.url == path:
             # update
-            self._repository.update(reference="") # hgapi expects reference
+            self._repository.update(reference="")  # hgapi expects reference
         else:
             self._repository.hg_clone(url=self.url, path=path)
 
@@ -139,7 +143,3 @@ class MercurialRepository(Repository):
     def _get_upstream(self):
         if self.exists:
             return self._repository.hg_paths()['default']
-
-
-_Registry().register(MercurialRepository)
-_Registry().register(MercurialWorkingCopy)

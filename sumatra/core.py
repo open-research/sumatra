@@ -96,7 +96,7 @@ def _get_process_children(pid):
 
 
 class SingletonType(type):
-    """A meta class that creates classes using the singleton pattern."""
+    """A meta class that creates classes applying the singleton pattern."""
 
     def __call__(cls, *args, **kwargs):
         try:
@@ -112,6 +112,9 @@ class _Registry(with_metaclass(SingletonType, object)):
         self._components = {}
 
     def add_component_type(self, base_class):
+        if not hasattr(base_class, 'required_attributes'):
+            raise TypeError("%s is missing attribute 'required_attributes'."
+                            .format(base_class))
         self._components[base_class] = OrderedDict()
 
     @property
@@ -131,3 +134,28 @@ class _Registry(with_metaclass(SingletonType, object)):
                 self._components[base_class][name] = component
                 return
         raise TypeError("%s is not a Sumatra component." % component)
+
+
+def component_type(cls):
+    # FIXME missing doc
+    _Registry().add_component_type(cls)
+    return cls
+
+
+def component(cls):
+    # FIXME missing doc
+    _Registry().register(cls)
+    return cls
+
+
+def conditional_component(condition):
+    # FIXME missing doc
+    if condition is True:
+        return component
+    else:
+        return lambda cls: cls  # identity function, do nothing
+
+
+def get_registered_components(base_type):
+    # FIXME missing doc
+    return _Registry().components[base_type]

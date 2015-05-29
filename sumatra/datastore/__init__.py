@@ -35,9 +35,9 @@ try:
     from .davfs import DavFsDataStore
 except ImportError:
     pass
-from ..core import _Registry
+from ..core import get_registered_components
 
 
 def get_data_store(type, parameters):
-    cls = _Registry().components[DataStore][type]
+    cls = get_registered_components(DataStore)[type]
     return cls(**parameters)

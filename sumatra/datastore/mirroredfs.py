@@ -16,7 +16,7 @@ install_aliases()
 import os
 import mimetypes
 from urllib.request import urlopen
-from ..core import _Registry
+from ..core import component
 from .base import DataItem
 from .filesystem import FileSystemDataStore
 
@@ -60,6 +60,7 @@ class MirroredDataFile(DataItem):
         raise NotImplementedError
 
 
+@component
 class MirroredFileSystemDataStore(FileSystemDataStore):
     """
     Represents a locally-mounted filesystem whose contents are mirrored on
@@ -91,6 +92,3 @@ class MirroredFileSystemDataStore(FileSystemDataStore):
 
     def contains_path(self, path):
         raise NotImplementedError
-
-
-_Registry().register(MirroredFileSystemDataStore)

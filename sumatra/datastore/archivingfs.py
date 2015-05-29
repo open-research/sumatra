@@ -16,7 +16,7 @@ import logging
 import mimetypes
 import datetime
 from contextlib import closing  # needed for Python 2.6
-from sumatra.core import TIMESTAMP_FORMAT, _Registry
+from sumatra.core import TIMESTAMP_FORMAT, component
 
 
 from .base import DataItem
@@ -59,6 +59,7 @@ class ArchivedDataFile(DataItem):
         raise NotImplementedError
 
 
+@component
 class ArchivingFileSystemDataStore(FileSystemDataStore):
     """
     Represents a locally-mounted filesystem that archives any new files created
@@ -114,6 +115,3 @@ class ArchivingFileSystemDataStore(FileSystemDataStore):
 
     def contains_path(self, path):
         raise NotImplementedError
-
-
-_Registry().register(ArchivingFileSystemDataStore)

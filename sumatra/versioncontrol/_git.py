@@ -28,7 +28,7 @@ try:
 except:
     from git.exc import InvalidGitRepositoryError, NoSuchPathError
 from .base import Repository, WorkingCopy, VersionControlError
-from ..core import _Registry
+from ..core import component
 
 
 logger = logging.getLogger("Sumatra")
@@ -57,6 +57,7 @@ def findrepo(path):
         return os.path.dirname(repo.git_dir)
 
 
+@component
 class GitWorkingCopy(WorkingCopy):
     """
     An object which allows various operations on a Git working copy.
@@ -131,6 +132,7 @@ def move_contents(src, dst):
     shutil.rmtree(src)
 
 
+@component
 class GitRepository(Repository):
     name = "git"
     use_version_cmd = "git checkout"
@@ -180,6 +182,3 @@ class GitRepository(Repository):
             config = self._repository.config_reader()
             if config.has_option('remote "origin"', 'url'):
                 return config.get('remote "origin"', 'url')
-
-_Registry().register(GitRepository)
-_Registry().register(GitWorkingCopy)

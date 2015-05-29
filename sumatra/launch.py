@@ -20,7 +20,7 @@ from sumatra.dependency_finder.matlab import save_dependencies
 import warnings
 from . import tee
 import logging
-from sumatra.core import have_internet_connection, _Registry
+from sumatra.core import have_internet_connection, component, component_type, get_registered_components
 
 logger = logging.getLogger("Sumatra")
 
@@ -56,6 +56,7 @@ def check_files_exist(*paths):
             raise IOError("%s does not exist." % path)
 
 
+@component_type
 class LaunchMode(object):
     """
     Base class for launch modes (serial, distributed, batch, ...)
@@ -158,6 +159,7 @@ class LaunchMode(object):
         # maybe add system time?
 
 
+@component
 class SerialLaunchMode(LaunchMode):
     """
     Enable running serial computations.
@@ -190,6 +192,7 @@ class SerialLaunchMode(LaunchMode):
     generate_command.__doc__ = LaunchMode.generate_command.__doc__
 
 
+@component
 class DistributedLaunchMode(LaunchMode):
     """
     Enable running distributed computations using MPI.
@@ -297,6 +300,7 @@ class DistributedLaunchMode(LaunchMode):
                 'working_directory': self.working_directory}
 
 
+@component
 class SlurmMPILaunchMode(LaunchMode):
     """
     Enable launching MPI computations with SLURM
@@ -364,14 +368,8 @@ class SlurmMPILaunchMode(LaunchMode):
                 'working_directory': self.working_directory}
 
 
-_Registry().add_component_type(LaunchMode)
-_Registry().register(SerialLaunchMode)
-_Registry().register(DistributedLaunchMode)
-_Registry().register(SlurmMPILaunchMode)
-
-
 def get_launch_mode(mode_name):
     """
     Return a :class:`LaunchMode` object of the appropriate type.
     """
-    return _Registry().components[LaunchMode][mode_name]
+    return get_registered_components(LaunchMode)[mode_name]

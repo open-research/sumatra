@@ -12,7 +12,7 @@ from fs.contrib.davfs import DAVFS
 from urllib.parse import urlparse
 from contextlib import closing  # needed for Python 2.6
 
-from sumatra.core import _Registry
+from sumatra.core import component
 from .archivingfs import ArchivingFileSystemDataStore, ArchivedDataFile, TIMESTAMP_FORMAT
 
 
@@ -45,6 +45,7 @@ class DavFsDataItem(ArchivedDataFile):
         return tarfile.TarInfo()
 
 
+@component
 class DavFsDataStore(ArchivingFileSystemDataStore):
     """ArchivingFileSystemDataStore that archives to webdav storage"""
 
@@ -94,6 +95,3 @@ class DavFsDataStore(ArchivingFileSystemDataStore):
                 os.remove(os.path.join(self.root, file_path))
         self._last_label = label # useful for testing
         return archive_paths
-
-
-_Registry().register(DavFsDataStore)

@@ -39,16 +39,13 @@ import os.path
 import logging
 
 from .base import VersionControlError, UncommittedModificationsError, Repository, WorkingCopy
-from ..core import _Registry
+from ..core import get_registered_components
 
 logger = logging.getLogger("Sumatra")
 
 
 NOT_FOUND = "No version control systems found. Please see the documentation for information on installing the required packages."
 
-
-_Registry().add_component_type(Repository)
-_Registry().add_component_type(WorkingCopy)
 
 vcs_list = []
 vcs_unavailable = []
@@ -78,11 +75,11 @@ def get_working_copy(path=None):
     If *path* is not specified, the current working directory is used.
     If no working copy is found at *path*, raises a :class:`VersionControlError`.
     """
-    if len(_Registry().components[WorkingCopy]) == 0:
+    if len(get_registered_components(WorkingCopy)) == 0:
         raise VersionControlError(NOT_FOUND)
     if path is None:
         path = os.getcwd()
-    for working_copy_type in _Registry().components[WorkingCopy].values():
+    for working_copy_type in get_registered_components(WorkingCopy).values():
         wc = working_copy_type(os.path.realpath(path))
         if wc.exists:
             return wc
@@ -97,11 +94,11 @@ def get_repository(url):
 
     If no repository is found at *url*, raises a :class:`VersionControlError`.
     """
-    if len(_Registry().components[Repository]) == 0:
+    if len(get_registered_components(Repository)) == 0:
         raise VersionControlError(NOT_FOUND)
     if url:
         success = False
-        for repository_type in _Registry().components[Repository].values():
+        for repository_type in get_registered_components(Repository).values():
             repos = repository_type(url)
             if repos.exists:
                 success = True

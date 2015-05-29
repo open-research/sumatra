@@ -23,13 +23,14 @@ import tempfile
 import shutil
 import logging
 from urllib.parse import urlparse
-from sumatra.core import have_internet_connection, _Registry
+from sumatra.core import have_internet_connection, component
 from .base import Repository, WorkingCopy
 
 
 logger = logging.getLogger("Sumatra")
 
 
+@component
 class SubversionWorkingCopy(WorkingCopy):
     name = "subversion"
 
@@ -93,6 +94,7 @@ class SubversionWorkingCopy(WorkingCopy):
         return self.repository._client.get_default_username() or ''
 
 
+@component
 class SubversionRepository(Repository):
     name = "subversion"
     use_version_cmd = "svn update -r"
@@ -127,7 +129,3 @@ class SubversionRepository(Repository):
 
     def get_working_copy(self, path=None):
         return SubversionWorkingCopy(path)
-
-
-_Registry().register(SubversionRepository)
-_Registry().register(SubversionWorkingCopy)

@@ -35,8 +35,10 @@ class TestRegistry(unittest.TestCase):
         self.assertEquals(len(self.registry.components), 0)
 
     def test_registry_can_add_classes_as_component_types(self):
-        self.registry.add_component_type(str)
-        self.registry.add_component_type(int)
+        self.registry.add_component_type(self.ComponentBaseType)
+
+    def test_cannot_add_classes_without_required_attributes_attribute(self):
+        self.assertRaises(TypeError, self.registry.add_component_type, str)
 
     def test_registry_can_register_classes_for_base_types(self):
         self.registry.add_component_type(self.ComponentBaseType)

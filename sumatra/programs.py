@@ -41,13 +41,14 @@ import os.path
 import re
 import sys
 import warnings
-from .core import run, _Registry
+from .core import run, component, component_type, get_registered_components
 
 
 version_pattern = re.compile(r'\b(?P<version>\d+(\.\d+){1,2}(\.?[a-z]+\d?)?)\b')
 version_pattern_matlab = re.compile(r'(?<=SMT_DETECT_MATLAB_VERSION=)(?P<version>\d.+)\b')
 
 
+@component_type
 class Executable(object):
     # store compilation/configuration options? yes, if we can determine them
     requires_script = False  # does this executable require a script file
@@ -119,6 +120,7 @@ class Executable(object):
         return filename
 
 
+@component
 class NEURONSimulator(Executable):
     name = "NEURON"
     executable_names = ('nrniv', 'nrngui')
@@ -141,6 +143,7 @@ class NEURONSimulator(Executable):
         return filename
 
 
+@component
 class PythonExecutable(Executable):
     name = "Python"
     executable_names = ('python', 'python2', 'python3', 'python2.5',
@@ -151,6 +154,7 @@ class PythonExecutable(Executable):
     requires_script = True
 
 
+@component
 class MatlabExecutable(Executable):
     name = "Matlab"
     executable_names = ('matlab',)
@@ -168,6 +172,8 @@ class MatlabExecutable(Executable):
             version = "unknown"
         return version
 
+
+@component
 class RExecutable(Executable):
     name = "R"
     executable_names = ('Rscript')
@@ -175,6 +181,8 @@ class RExecutable(Executable):
     default_executable_name = "Rscript"
     requires_script = True
 
+
+@component
 class NESTSimulator(Executable):
     name = "NEST"
     executable_names = ('nest',)
@@ -183,6 +191,7 @@ class NESTSimulator(Executable):
     requires_script = True
 
 
+@component
 class GENESISSimulator(Executable):
     name = "GENESIS"
     executable_names = ('genesis',)
@@ -206,15 +215,6 @@ class GENESISSimulator(Executable):
         return version.strip()
 
 
-_Registry().add_component_type(Executable)
-_Registry().register(NEURONSimulator)
-_Registry().register(PythonExecutable)
-_Registry().register(MatlabExecutable)
-_Registry().register(NESTSimulator)
-_Registry().register(GENESISSimulator)
-_Registry().register(RExecutable)
-
-
 def get_executable(path=None, script_file=None):
     """
     Given the path to an executable, determine what program it is, if possible.
@@ -225,13 +225,13 @@ def get_executable(path=None, script_file=None):
     if path:
         prog_name = os.path.basename(path)
         program = Executable(path)
-        for executable_type in _Registry().components[Executable].values():
+        for executable_type in get_registered_components(Executable).values():
             if prog_name in executable_type.executable_names:
                 program = executable_type(path)
     elif script_file:
         script_path, ext = os.path.splitext(script_file)
         program = None
-        for executable_type in _Registry().components[Executable].values():
+        for executable_type in get_registered_components(Executable).values():
             if ext in executable_type.file_extensions:
                 program = executable_type(path)
         if program is None:

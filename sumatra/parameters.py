@@ -53,22 +53,23 @@ try:
 except ImportError:
     yaml_loaded = False
 import parameters
-from .core import _Registry
+from .core import component, component_type, get_registered_components, conditional_component
 
 POP_NONE = "eiutbocqnluiegnclqiuetyvbietcbdgsfzpq"
 
+
+@component_type
 class ParameterSet(with_metaclass(abc.ABCMeta, object)):
     required_attributes = ("update", "save")
     list_pattern = re.compile(r'^\s*\[.*\]\s*$')
     tuple_pattern = re.compile(r'^\s*\(.*\)\s*$')
-    casts = (yaml.load, ) ## good behavior for all bool, at cost of dependency
+    casts = (yaml.load, )  # good behavior for all bool, at cost of dependency
 
     def _new_param_check(self, name, value):
         try:
             self.values[name]
         except KeyError:
             raise ValueError("")
-
 
     def parse_command_line_parameter(self, p):
         """Parse command line parameter
@@ -129,6 +130,7 @@ def _dict_diff(a, b):
         return result1, result2
 
 
+@conditional_component(condition=yaml_loaded)
 class YAMLParameterSet(ParameterSet):
     """
     Handles parameter files in YAML format, as parsed by the
@@ -206,11 +208,13 @@ class YAMLParameterSet(ParameterSet):
             return d
 
 
+@component
 class NTParameterSet(parameters.ParameterSet, ParameterSet):
     # just a re-name, to clarify things
     name = ".ntparameterset"
 
 
+@component
 class SimpleParameterSet(ParameterSet):
     """
     Handles parameter files in a simple "name = value" format, with no nesting or grouping.
@@ -365,6 +369,7 @@ class SimpleParameterSet(ParameterSet):
     update.__doc__ = dict.update.__doc__
 
 
+@component
 class ConfigParserParameterSet(SafeConfigParser, ParameterSet):
     """
     Handles parameter files in traditional config file format, as parsed by the
@@ -488,6 +493,7 @@ class ConfigParserParameterSet(SafeConfigParser, ParameterSet):
         raise ValueError("Config file: parameter name checking not implemented!")
 
 
+@component
 class JSONParameterSet(ParameterSet):
     """
     Handles parameter files in JSON format, as parsed by the
@@ -561,20 +567,10 @@ class JSONParameterSet(ParameterSet):
             return d
 
 
-_Registry().add_component_type(ParameterSet)
-
-_Registry().register(JSONParameterSet)
-if yaml_loaded:
-    _Registry().register(YAMLParameterSet)
-_Registry().register(NTParameterSet)
-_Registry().register(ConfigParserParameterSet)
-_Registry().register(SimpleParameterSet)
-
-
 def build_parameters(filename):
     body, ext = os.path.splitext(filename)
     parameters = None
-    extension_map = _Registry().components[ParameterSet]
+    extension_map = get_registered_components(ParameterSet)
     if ext in extension_map:
         parameter_set_class = extension_map[ext]
         parameters = parameter_set_class(filename)

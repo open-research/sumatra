@@ -12,7 +12,7 @@ import json
 from datetime import datetime
 from sumatra import programs, launch, datastore, versioncontrol, parameters, dependency_finder
 from sumatra.records import Record
-from ..core import _Registry
+from ..core import get_registered_components
 from sumatra.formatting import record2json
 
 
@@ -66,7 +66,7 @@ def datestring_to_datetime(s):
 def build_record(data):
     """Create a Sumatra record from a nested dictionary."""
     edata = data["executable"]
-    cls = _Registry().components[programs.Executable].get(edata["name"], programs.Executable)
+    cls = get_registered_components(programs.Executable).get(edata["name"], programs.Executable)
     executable = cls(edata["path"], edata["version"], edata.get("options", ""))
     executable.name = edata["name"]
     rdata = data["repository"]

@@ -9,11 +9,12 @@ from builtins import object
 
 import hashlib
 import os.path
-from ..core import _Registry
+from ..core import component_type
 
 IGNORE_DIGEST = "0"*40
 
 
+@component_type
 class DataStore(object):
     """Base class for data storage abstractions."""
     required_attributes = ("find_new_data", "get_data_item", "delete")
@@ -63,8 +64,6 @@ class DataStore(object):
     def contains_path(self, path):
         """Does the store contain a data item with the given path?"""
         raise NotImplementedError
-
-_Registry().add_component_type(DataStore)
 
 
 class DataKey(object):
