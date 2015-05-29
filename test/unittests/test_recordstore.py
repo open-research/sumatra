@@ -27,7 +27,7 @@ from sumatra.versioncontrol import vcs_list
 import sumatra.launch
 import sumatra.datastore
 import sumatra.parameters
-from sumatra.core import registry
+from sumatra.core import _Registry
 import json
 import urllib.parse
 
@@ -49,7 +49,7 @@ class MockExecutable(Executable):
     options = "-v"
     def __init__(self, *args, **kwargs):
         pass
-registry.register(MockExecutable)
+_Registry().register(MockExecutable)
 
 
 class MockRepository(object):

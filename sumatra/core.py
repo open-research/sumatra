@@ -9,6 +9,7 @@ from builtins import str
 from future.standard_library import install_aliases
 install_aliases()
 from builtins import object
+from future.utils import with_metaclass
 
 import socket
 import sys
@@ -94,16 +95,31 @@ def _get_process_children(pid):
     return [int(child_pid) for child_pid in stdout.split()]
 
 
-class Registry(object):
+class SingletonType(type):
+    """A meta class that creates classes using the singleton pattern."""
+
+    def __call__(cls, *args, **kwargs):
+        try:
+            return cls.__instance
+        except AttributeError:
+            cls.__instance = super(SingletonType, cls).__call__(*args, **kwargs)
+            return cls.__instance
+
+
+class _Registry(with_metaclass(SingletonType, object)):
 
     def __init__(self):
-        self.components = {}
+        self._components = {}
 
     def add_component_type(self, base_class):
-        self.components[base_class] = OrderedDict()
+        self._components[base_class] = OrderedDict()
+
+    @property
+    def components(self):
+        return self._components
 
     def register(self, component):
-        for base_class in self.components:
+        for base_class in self._components:
             if issubclass(component, base_class):
                 for attr in base_class.required_attributes:
                     if not hasattr(component, attr):
@@ -112,8 +128,6 @@ class Registry(object):
                     name = component.name
                 else:
                     name = component.__name__
-                self.components[base_class][name] = component
+                self._components[base_class][name] = component
                 return
         raise TypeError("%s is not a Sumatra component." % component)
-
-registry = Registry()

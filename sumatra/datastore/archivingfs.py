@@ -16,7 +16,7 @@ import logging
 import mimetypes
 import datetime
 from contextlib import closing  # needed for Python 2.6
-from sumatra.core import TIMESTAMP_FORMAT, registry
+from sumatra.core import TIMESTAMP_FORMAT, _Registry
 
 
 from .base import DataItem
@@ -116,4 +116,4 @@ class ArchivingFileSystemDataStore(FileSystemDataStore):
         raise NotImplementedError
 
 
-registry.register(ArchivingFileSystemDataStore)
+_Registry().register(ArchivingFileSystemDataStore)

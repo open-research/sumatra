@@ -24,7 +24,7 @@ nicely simple example of writing a plug-in!)
 
 .. code-block:: python
 
-    from sumatra.core import registry
+    from sumatra.core import _Registry
     from sumatra.programs import Executable
 
     class PHPcli(Executable):
@@ -34,7 +34,7 @@ nicely simple example of writing a plug-in!)
         default_executable_name = 'php'
         requires_script = True
 
-    registry.register(PHPcli)
+    _Registry.register(PHPcli)
 
 To use this plug-in in a Sumatra project, it should be saved in a file (e.g. :file:`php.py`)
 that is on the Python module search path (for example, installed in :file:`site-packages` or

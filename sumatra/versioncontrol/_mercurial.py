@@ -20,7 +20,7 @@ import os
 import functools
 from .base import UncommittedModificationsError
 from .base import Repository, WorkingCopy
-from ..core import registry
+from ..core import _Registry
 
 
 def vectorized(generator_func):
@@ -141,5 +141,5 @@ class MercurialRepository(Repository):
             return self._repository.hg_paths()['default']
 
 
-registry.register(MercurialRepository)
-registry.register(MercurialWorkingCopy)
+_Registry().register(MercurialRepository)
+_Registry().register(MercurialWorkingCopy)

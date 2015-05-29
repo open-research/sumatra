@@ -23,7 +23,7 @@ import tempfile
 import shutil
 import logging
 from urllib.parse import urlparse
-from sumatra.core import have_internet_connection, registry
+from sumatra.core import have_internet_connection, _Registry
 from .base import Repository, WorkingCopy
 
 
@@ -129,5 +129,5 @@ class SubversionRepository(Repository):
         return SubversionWorkingCopy(path)
 
 
-registry.register(SubversionRepository)
-registry.register(SubversionWorkingCopy)
+_Registry().register(SubversionRepository)
+_Registry().register(SubversionWorkingCopy)

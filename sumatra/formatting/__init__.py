@@ -16,7 +16,7 @@ import json
 import textwrap
 import cgi
 import re
-from ..core import registry
+from ..core import _Registry
 from functools import reduce
 
 
@@ -100,7 +100,7 @@ def record2json(record, indent=None):
             "path": d.path,
             "version": d.version,
             "name": d.name,
-            #"language": d.language,
+            # "language": d.language,
             "module": d.module,
             "diff": d.diff,
             "source": d.source,  # added in 0.5
@@ -179,7 +179,7 @@ class TextFormatter(Formatter):
                 right_column.extend(new_lines)
                 if len(new_lines) > 1:
                     left_column.extend([' ' * left_column_width] * (len(new_lines) - 1))
-                #import pdb; pdb.set_trace()
+                # import pdb; pdb.set_trace()
             for left, right in zip(left_column, right_column):
                 output += left + ": " + right + "\n"
         return output
@@ -503,14 +503,14 @@ class TextDiffFormatter(Formatter):
         return output
 
 
-registry.add_component_type(Formatter)
+_Registry().add_component_type(Formatter)
 
-registry.register(TextFormatter)
-registry.register(HTMLFormatter)
-registry.register(LaTeXFormatter)
-registry.register(ShellFormatter)
-registry.register(JSONFormatter)
-registry.register(TextDiffFormatter)
+_Registry().register(TextFormatter)
+_Registry().register(HTMLFormatter)
+_Registry().register(LaTeXFormatter)
+_Registry().register(ShellFormatter)
+_Registry().register(JSONFormatter)
+_Registry().register(TextDiffFormatter)
 
 
 def get_formatter(format):
@@ -518,7 +518,7 @@ def get_formatter(format):
     Return a :class:`Formatter` object of the appropriate type. ``format``
     may be 'text, 'html' or 'textdiff'
     """
-    return registry.components[Formatter][format]
+    return _Registry().components[Formatter][format]
 
 
 def get_diff_formatter():

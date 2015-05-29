@@ -28,7 +28,7 @@ try:
 except:
     from git.exc import InvalidGitRepositoryError, NoSuchPathError
 from .base import Repository, WorkingCopy, VersionControlError
-from ..core import registry
+from ..core import _Registry
 
 
 logger = logging.getLogger("Sumatra")
@@ -181,5 +181,5 @@ class GitRepository(Repository):
             if config.has_option('remote "origin"', 'url'):
                 return config.get('remote "origin"', 'url')
 
-registry.register(GitRepository)
-registry.register(GitWorkingCopy)
+_Registry().register(GitRepository)
+_Registry().register(GitWorkingCopy)

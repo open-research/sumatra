@@ -53,7 +53,7 @@ try:
 except ImportError:
     yaml_loaded = False
 import parameters
-from .core import registry
+from .core import _Registry
 
 POP_NONE = "eiutbocqnluiegnclqiuetyvbietcbdgsfzpq"
 
@@ -97,7 +97,7 @@ class ParameterSet(with_metaclass(abc.ABCMeta, object)):
             self._new_param_check(name, value)
         except ValueError as v:
             raise ValueError(str(v), name,  value)
-            ## attempt to pass undefined param -- let commands.py deal with
+            # attempt to pass undefined param -- let commands.py deal with
 
         return {name: value}
 
@@ -487,6 +487,7 @@ class ConfigParserParameterSet(SafeConfigParser, ParameterSet):
     def _new_param_check(self, name, value):
         raise ValueError("Config file: parameter name checking not implemented!")
 
+
 class JSONParameterSet(ParameterSet):
     """
     Handles parameter files in JSON format, as parsed by the
@@ -560,20 +561,20 @@ class JSONParameterSet(ParameterSet):
             return d
 
 
-registry.add_component_type(ParameterSet)
+_Registry().add_component_type(ParameterSet)
 
-registry.register(JSONParameterSet)
+_Registry().register(JSONParameterSet)
 if yaml_loaded:
-    registry.register(YAMLParameterSet)
-registry.register(NTParameterSet)
-registry.register(ConfigParserParameterSet)
-registry.register(SimpleParameterSet)
+    _Registry().register(YAMLParameterSet)
+_Registry().register(NTParameterSet)
+_Registry().register(ConfigParserParameterSet)
+_Registry().register(SimpleParameterSet)
 
 
 def build_parameters(filename):
     body, ext = os.path.splitext(filename)
     parameters = None
-    extension_map = registry.components[ParameterSet]
+    extension_map = _Registry().components[ParameterSet]
     if ext in extension_map:
         parameter_set_class = extension_map[ext]
         parameters = parameter_set_class(filename)

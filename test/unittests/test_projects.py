@@ -11,9 +11,10 @@ import os
 import sys
 import tempfile
 import unittest
+from future.utils import with_metaclass
 import sumatra.projects
 from sumatra.projects import Project, load_project
-from future.utils import with_metaclass
+from sumatra.core import SingletonType
 
 
 class MockDiffFormatter(object):
@@ -24,18 +25,6 @@ class MockDiffFormatter(object):
     def format(self, mode):
         return ""
 sumatra.projects.get_diff_formatter = lambda: MockDiffFormatter
-
-
-# Support the singleton pattern (some cases below require
-# the same repository for multiple records).
-class SingletonType(type):
-
-    def __call__(cls, *args, **kwargs):
-        try:
-            return cls.__instance
-        except AttributeError:
-            cls.__instance = super(SingletonType, cls).__call__(*args, **kwargs)
-            return cls.__instance
 
 
 class MockRepository(with_metaclass(SingletonType, object)):

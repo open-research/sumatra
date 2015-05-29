@@ -16,7 +16,7 @@ install_aliases()
 import os
 import mimetypes
 from urllib.request import urlopen
-from ..core import registry
+from ..core import _Registry
 from .base import DataItem
 from .filesystem import FileSystemDataStore
 
@@ -93,4 +93,4 @@ class MirroredFileSystemDataStore(FileSystemDataStore):
         raise NotImplementedError
 
 
-registry.register(MirroredFileSystemDataStore)
+_Registry().register(MirroredFileSystemDataStore)

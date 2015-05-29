@@ -24,13 +24,13 @@ from bzrlib.errors import NotBranchError
 
 import os
 try:
-    from StringIO import StringIO # bazaar does not handle unicode
-except ImportError: # Python3
+    from StringIO import StringIO  # bazaar does not handle unicode
+except ImportError:  # Python3
     from io import StringIO
 
 from .base import VersionControlError
 from .base import Repository, WorkingCopy
-from ..core import registry
+from ..core import _Registry
 
 
 class BazaarWorkingCopy(WorkingCopy):
@@ -44,7 +44,7 @@ class BazaarWorkingCopy(WorkingCopy):
             pass
         else:
             self.repository = BazaarRepository(self.workingtree.branch.user_url)
-            #self.repository.working_copy = self
+            # self.repository.working_copy = self
             self._current_version = self.repository._repository.revno()
 
     @property
@@ -131,11 +131,11 @@ class BazaarRepository(Repository):
         """Clone a repository."""
         path = os.path.abspath(path)
         self._repository.create_checkout(path, lightweight=True)
-        #self.working_copy = BazaarWorkingCopy(path)
+        # self.working_copy = BazaarWorkingCopy(path)
 
     def get_working_copy(self, path=None):
         return BazaarWorkingCopy(path)
 
 
-registry.register(BazaarRepository)
-registry.register(BazaarWorkingCopy)
+_Registry().register(BazaarRepository)
+_Registry().register(BazaarWorkingCopy)

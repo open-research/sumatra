@@ -12,7 +12,7 @@ import os
 import shelve
 from datetime import datetime
 from sumatra.recordstore.base import RecordStore
-from ..core import registry
+from ..core import _Registry
 
 
 def check_name(f):
@@ -130,4 +130,4 @@ class ShelveRecordStore(RecordStore):
         return os.path.exists(uri) or os.path.exists(uri + ".db") or os.path.splitext(uri)[1] == ".shelf"
 
 
-registry.register(ShelveRecordStore)
+_Registry().register(ShelveRecordStore)

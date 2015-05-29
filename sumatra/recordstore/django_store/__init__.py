@@ -22,7 +22,7 @@ import imp
 import django.conf as django_conf
 from django.core import management
 from sumatra.recordstore.base import RecordStore
-from ...core import registry
+from ...core import _Registry
 from urllib.request import urlparse
 from io import StringIO
 
@@ -313,4 +313,4 @@ class DjangoRecordStore(RecordStore):
         return uri[:8] == "postgres" or os.path.exists(uri) or os.path.exists(uri + ".db")
 
 
-registry.register(DjangoRecordStore)
+_Registry().register(DjangoRecordStore)

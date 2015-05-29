@@ -41,7 +41,7 @@ import os.path
 import re
 import sys
 import warnings
-from .core import run, registry
+from .core import run, _Registry
 
 
 version_pattern = re.compile(r'\b(?P<version>\d+(\.\d+){1,2}(\.?[a-z]+\d?)?)\b')
@@ -206,13 +206,13 @@ class GENESISSimulator(Executable):
         return version.strip()
 
 
-registry.add_component_type(Executable)
-registry.register(NEURONSimulator)
-registry.register(PythonExecutable)
-registry.register(MatlabExecutable)
-registry.register(NESTSimulator)
-registry.register(GENESISSimulator)
-registry.register(RExecutable)
+_Registry().add_component_type(Executable)
+_Registry().register(NEURONSimulator)
+_Registry().register(PythonExecutable)
+_Registry().register(MatlabExecutable)
+_Registry().register(NESTSimulator)
+_Registry().register(GENESISSimulator)
+_Registry().register(RExecutable)
 
 
 def get_executable(path=None, script_file=None):
@@ -225,13 +225,13 @@ def get_executable(path=None, script_file=None):
     if path:
         prog_name = os.path.basename(path)
         program = Executable(path)
-        for executable_type in registry.components[Executable].values():
+        for executable_type in _Registry().components[Executable].values():
             if prog_name in executable_type.executable_names:
                 program = executable_type(path)
     elif script_file:
         script_path, ext = os.path.splitext(script_file)
         program = None
-        for executable_type in registry.components[Executable].values():
+        for executable_type in _Registry().components[Executable].values():
             if ext in executable_type.file_extensions:
                 program = executable_type(path)
         if program is None:

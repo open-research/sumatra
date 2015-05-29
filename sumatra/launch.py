@@ -20,7 +20,7 @@ from sumatra.dependency_finder.matlab import save_dependencies
 import warnings
 from . import tee
 import logging
-from sumatra.core import have_internet_connection, registry
+from sumatra.core import have_internet_connection, _Registry
 
 logger = logging.getLogger("Sumatra")
 
@@ -364,14 +364,14 @@ class SlurmMPILaunchMode(LaunchMode):
                 'working_directory': self.working_directory}
 
 
-registry.add_component_type(LaunchMode)
-registry.register(SerialLaunchMode)
-registry.register(DistributedLaunchMode)
-registry.register(SlurmMPILaunchMode)
+_Registry().add_component_type(LaunchMode)
+_Registry().register(SerialLaunchMode)
+_Registry().register(DistributedLaunchMode)
+_Registry().register(SlurmMPILaunchMode)
 
 
 def get_launch_mode(mode_name):
     """
     Return a :class:`LaunchMode` object of the appropriate type.
     """
-    return registry.components[LaunchMode][mode_name]
+    return _Registry().components[LaunchMode][mode_name]

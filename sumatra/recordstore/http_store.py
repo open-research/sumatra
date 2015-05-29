@@ -30,7 +30,7 @@ except ImportError:
     have_http = False
 from sumatra.recordstore.base import RecordStore, RecordStoreAccessError
 from sumatra.recordstore import serialization
-from ..core import registry
+from ..core import _Registry
 
 
 API_VERSION = 3
@@ -226,4 +226,4 @@ class HttpRecordStore(RecordStore):
 
 
 if have_http:
-    registry.register(HttpRecordStore)
+    _Registry().register(HttpRecordStore)

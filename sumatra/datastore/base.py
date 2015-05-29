@@ -9,7 +9,7 @@ from builtins import object
 
 import hashlib
 import os.path
-from ..core import registry
+from ..core import _Registry
 
 IGNORE_DIGEST = "0"*40
 
@@ -64,7 +64,7 @@ class DataStore(object):
         """Does the store contain a data item with the given path?"""
         raise NotImplementedError
 
-registry.add_component_type(DataStore)
+_Registry().add_component_type(DataStore)
 
 
 class DataKey(object):

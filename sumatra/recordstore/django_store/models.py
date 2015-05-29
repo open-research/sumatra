@@ -16,7 +16,7 @@ from tagging.models import Tag
 import datetime
 import django
 from distutils.version import LooseVersion
-from sumatra.core import registry
+from sumatra.core import _Registry
 
 
 class SumatraObjectsManager(models.Manager):
@@ -87,7 +87,7 @@ class Executable(BaseModel):
         return self.path
 
     def to_sumatra(self):
-        cls = registry.components[programs.Executable].get(self.name, programs.Executable)
+        cls = _Registry().components[programs.Executable].get(self.name, programs.Executable)
         ex = cls(self.path, self.version, self.options)
         ex.name = self.name
         return ex

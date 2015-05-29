@@ -10,7 +10,7 @@ from builtins import object
 
 from sumatra.recordstore import serialization
 from sumatra.formatting import get_formatter
-from ..core import registry
+from ..core import _Registry
 
 
 class RecordStore(object):
@@ -121,7 +121,7 @@ class RecordStore(object):
 
         Arguments:
           *field*: the name of a record attribute, e.g. "datastore.root"
-          *value*: 
+          *value*:
         """
         # there is only a limited number of attributes that should be
         # modifiable, otherwise the whole point of using Sumatra for
@@ -138,7 +138,7 @@ class RecordStore(object):
             self.save(project_name, record)
 
 
-registry.add_component_type(RecordStore)
+_Registry().add_component_type(RecordStore)
 
 
 class RecordStoreAccessError(OSError):
