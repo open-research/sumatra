@@ -4,6 +4,8 @@ httplib2
 jinja2
 docutils
 parameters
+# for running system tests
+sarge
 # optional requirements, depending on which version control systems you use
 hgapi
 GitPython>=0.3.6

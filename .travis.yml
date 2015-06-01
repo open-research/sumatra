@@ -3,9 +3,14 @@ sudo: required
 python:
   - "2.7"
   - "2.6"
-# setup to use R -- see github.com/craigcitro/r-travis
 sudo: required
 before_install:
+  - deactivate
+  - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
+  - chmod +x miniconda.sh
+  - ./miniconda.sh -b
+  - export PATH=/home/travis/miniconda/bin:$PATH
+  - conda update --yes conda
   - curl -OL http://raw.github.com/craigcitro/r-travis/master/scripts/travis-tool.sh
   - chmod 755 ./travis-tool.sh
   - ./travis-tool.sh bootstrap
@@ -13,12 +18,14 @@ before_install:
 # to install r dependencies use eg
 #  - ./travis-tool.sh install_deps ggplot2 dplyr
 install:
+  - conda create -n testenv --yes python=$TRAVIS_PYTHON_VERSION numpy scipy matplotlib nose dateutil pillow
+  - source activate testenv
   - pip install -r requirements.txt
   - pip install coverage coveralls
   - pip install .
 # command to run tests
 script:
-  nosetests --with-coverage --cover-package=sumatra test/unittests
+  nosetests -v --nologcapture --with-coverage --cover-package=sumatra test/unittests test/system/test_ircr.py
 after_failure:
   - ./travis-tool.sh dump_logs
 after_success:
