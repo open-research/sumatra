@@ -4,338 +4,494 @@
 
 {% block title %}{{project_name}}: {{record.label}}{% endblock %}
 
-{% block header %}
-            <li class="divider"></li>
-            <li><a href="/{{project_name}}/">{{project_name}}</a></li>
+{% block css %}
+    <link href="/static/css/dataTables.bootstrap.css" rel="stylesheet">
+{% endblock %}
+
+{% block navbar %}
+            <li><a href="..">{{project_name}}</a></li>
             <li><a href="/{{project_name}}/{{record.label}}/"> {{record.label}}</a></li>
 {% endblock %}
-    
+
 {% block content %}
 
-<!-- DataTables CSS -->
-<link rel="stylesheet" type="text/css"
-      href="/media/css/jquery.dataTables.css">
-            
-<!-- jQuery -->
-<script type="text/javascript" charset="utf8" src="/media/js/jquery.js"></script>
-            
-<!-- DataTables -->
-<script type="text/javascript" charset="utf8"
-        src="/media/js/jquery.dataTables.js"></script>
+<!-- General information -->
 
-
-<div class="accordion">
-    <h2 class="nav-toggle">General info</h2>
-    <form action='{{ request.path }}' method='POST' id="actions" name="actions">
-        {{form.errors}}
-        <fieldset class = 'field-acc'>
-            <div class="control-group">
-                <table id = 'gen_info'>
-                    <tr><th>Label:</th><td>{{record.label}}</td></tr>
-                    {% if record.repeats %}<tr><th>Repeat of:</th><td><a href="../{{record.repeats}}">{{record.repeats}}</a></td></tr>{% endif %}
-                    <tr><th>Reason:</th><td>{{form.reason}}</td></tr>
-                    <tr><th>Outcome:</th><td>{{form.outcome}}</td></tr>
-                    <tr><th>Timestamp:</th><td>{{record.timestamp|date:"d/m/Y H:i:s"}}</td></tr>
-                    <tr><th>Duration:</th><td>{{record.duration|human_readable_duration}}</td></tr>
-                    <tr><th>Executable:</th><td>{{record.executable.name}} version {{record.executable.version}} ({{record.executable.path}})</td></tr>
-                    <tr><th>Launch mode:</th><td>{% ifequal record.launch_mode.type "SerialLaunchMode" %}serial{% else %}distributed, n={{record.launch_mode.get_parameters.n}}{% endifequal %}</td></tr>
-                    <tr><th>Working directory:</th><td>{{record.working_directory}}</td></tr>
-                    <tr><th>Repository (local):</th><td>{{record.repository.url}}</td></tr>
-                    {% if record.repository.upstream %}
-                    <tr><th>Repository (remote):</th><td>{{record.repository.upstream|urlize}}</td></tr>
-                    {% endif %}
-                    <tr><th>Main file:</th><td>{{record.main_file}}</td></tr>
-                    <tr><th>Version:</th><td>{{record.version}}{% if record.diff %}* (<a href="diff">diff</a>){% endif %}</td></tr>
-                    {% if record.script_arguments %}<tr><th>Arguments:</th><td>{{record.script_arguments}}</td></tr>{% endif %}
-                    <tr><th>User:</th><td>{{record.user}}</td></tr>
-                    <tr><th>Tags:</th><td>{{form.tags}}</td></tr>
-                </table>
-            </div>
-            <div class='form-actions' style='width: 400px'>
-                    <button type="submit" class="btn btn-primary headeritem">Save changes</button>
-                    <button type="submit" class="btn headeritem" name="delete">Delete record</button>
-            </div>
-        </fieldset>
-    </form>
-</div>
-
-<div id="accordion-js" class="accordion">
-    <h2 class="nav-toggle">Parameters</h2>
-    <form class="form-horizontal">
-        <fieldset class = 'field-acc'>
-            <div class="control-group">
-                {% if parameters %}
-		        <table>
-                        {% for name, value in parameters.items %}<tr><td><div class='label label-success' style='display:inline-block'>{{name}}</div></td><td><pre style='margin-top:5px'>{{value}}</pre></td></tr>{% endfor %}
-			</table>
-                {% else %}
-                    no parameters
-                {% endif %}
-            </div>
-        </fieldset>
-    </form>
-</div>
-
-<div class="accordion">
-  <h2 class="nav-toggle">Input files</h2>
-  <form class="form-horizontal">
-    <fieldset class = 'field-acc'>
-
-      {% if record.input_data.count %}
-
-      <script>
-        $(document).ready( function () {
-
-        var data_list = $('#data_dt').DataTable({
-          "columnDefs": [
-            {"sortable":false,  "targets":["filename-c", "path-c",
-             "digest-c", "output-c", "input-c"]}
-          ], 
-          "paging": false,
-          "ordering": true,
-          "info": false, <!-- "Showing x of y entries" -->
-          "filter": false, 
-          "lengthChange": false,  
-           "order": [[$('th.time-c').index(), "desc"]], <!--default sort  -->
-          } );
-
-
-          } );
-      </script>
-
-      <br/>
-
-      <div style="margin-left:2%; margin-right:6%">
-        <table class='hover row-border' id='data_dt'>
-
-          <thead>
-            <tr>
-              <th class='filename-c'>Filename</th>
-              <th class='path-c'>Path</th>
-              <th class='digest-c'>Digest</th>
-              <th class='size-c'>Size</th>
-              <th class='time-c'>Date/Time</th>
-              <th class='output-c'>Output of</th>
-              <th class='input-c'>Input to</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {% for data in record.input_data.all %}
-            <tr>                   
-              <td class='dataTable_td' id='filename-t'>
-                <a href="/{{project_name}}/data/datafile?path={{data.path|urlencode}}&digest={{data.digest}}">
-                  {{data.path|basename|ubreak}}
-                </a>
-              </td>
-              <td class='dataTable_td' id='path-t'>
-                {{data.path|ubreak}}    
-              </td>         
-              <td class='dataTable_td' id='digest-t'>
-                {{data.digest|truncatechars:12 }}
-              </td>     
-              <td class='dataTable_td' id='size-t'
-                  data-sort="{{data|eval_metadata:'size'}}">
-                {{data|eval_metadata:'size'|filesizeformat}}
-              </td>
-              <td class='dataTable_td' id='time-t'>
-                <span style='display:none;'>
-                  <!-- hack for correct sorting -->
-                  {{data.output_from_record.timestamp|date:"YmdHis"}}
-                </span>
-                {{data.output_from_record.timestamp|date:"d/m/Y H:i:s"}}
-              </td>
-              <td class='dataTable_td' id='output_record-t'>
-                <a href="/{{project_name}}/{{data.output_from_record.label}}/">
-                  {{data.output_from_record.label|ubreak}}
-                </a>
-              </td>
-              <td class='dataTable_td' id='input_record-t'>
-                {% for record in data.input_to_records.all %}
-                <a href="/{{project_name}}/{{record.label}}/">
-                  {{record.label|ubreak}}<!--
-                                           -->{% if not forloop.last %}, {% endif %}
-                </a>
-                {% endfor %}
-              </td>              
-            </tr>
-            {% endfor %}
-          <tbody>
-        </table>
-      </div>
-      <br/>
-      {% else %}
-      no input files
-      {% endif %}
-    </fieldset>
-  </form>
-</div>
-
-
-<div class="accordion">
-  <h2 class="nav-toggle">Output files</h2>
-  <form class="form-horizontal">
-    <fieldset class = 'field-acc'>
-
-      {% if record.output_data.all %}
-
-      <script>
-        $(document).ready( function () {
-
-        var data_list = $('#outdata_dt').DataTable({
-          "columnDefs": [
-            {"sortable":false,  "targets":["filename-c", "path-c",
-             "digest-c", "output-c", "input-c"]}
-          ], 
-          "paging": false,
-          "ordering": true,
-          "info": false, <!-- "Showing x of y entries" -->
-          "filter": false, 
-          "lengthChange": false,  
-           "order": [[$('th.time-c').index(), "desc"]], <!--default sort  -->
-          } );
-
-
-          } );
-      </script>
-
-      <br/>
-
-      <div style="margin-left:2%; margin-right:6%">
-        <table class='hover row-border' id='outdata_dt'>
-
-          <thead>
-            <tr>
-              <th class='filename-c'>Filename</th>
-              <th class='path-c'>Path</th>
-              <th class='digest-c'>Digest</th>
-              <th class='size-c'>Size</th>
-              <th class='time-c'>Date/Time</th>
-              <th class='output-c'>Output of</th>
-              <th class='input-c'>Input to</th>
-            </tr>
-          </thead>
-
-          <tbody>
-
-            {% for data in record.output_data.all %}
-
-            <tr>             
-              <td class='dataTable_td' id='filename-t'>
-                <a href="/{{project_name}}/data/datafile?path={{data.path|urlencode}}&digest={{data.digest}}">
-                  {{data.path|basename|ubreak}}
-                </a>
-              </td>
-              <td class='dataTable_td' id='path-t'>
-                {{data.path|ubreak}}    
-              </td>         
-              <td class='dataTable_td' id='digest-t'>
-                {{data.digest|truncatechars:12 }}
-              </td>     
-              <td class='dataTable_td' id='size-t'
-                  data-sort="{{data|eval_metadata:'size'}}">
-                {{data|eval_metadata:'size'|filesizeformat}}
-              </td>
-              <td class='dataTable_td' id='time-t'>
-                <span style='display:none;'>
-                  <!-- hack for correct sorting -->
-                  {{data.output_from_record.timestamp|date:"YmdHis"}}
-                </span>
-                {{data.output_from_record.timestamp|date:"d/m/Y H:i:s"}}
-              </td>
-              <td class='dataTable_td' id='output_record-t'>
-                <a href="/{{project_name}}/{{data.output_from_record.label}}/">
-                  {{data.output_from_record.label|ubreak}}
-                </a>
-              </td>
-              <td class='dataTable_td' id='input_record-t'>
-                {% for record in data.input_to_records.all %}
-                <a href="/{{project_name}}/{{record.label}}/">
-                  {{record.label|ubreak}}<!--
-                                           -->{% if not forloop.last %}, {% endif %}
-                </a>
-                {% endfor %}
-              </td>              
-            </tr>
-            {% endfor %}
-          <tbody>
-        </table>
-      </div>
-      <br/>
-      {% else %}
-      no output files
-      {% endif %}
-    </fieldset>
-  </form>
-</div>
-
-<div class="accordion">
-  <h2 class="nav-toggle">Dependencies</h2>
-  <form class="form-horizontal">
-    <fieldset class = 'field-acc'>
-      <div class="control-group">
-        <table class='table-recDetail'>
-          <tr><th>Name</th><th>Path</th><th>Version</th></tr>
-          {% for dep in record.dependencies.all %}
-          <tr class="{% cycle 'odd' 'even' %}"><td>{{dep.name}}</td><td>{{dep.path}}</td><td>{{dep.version}}{% if dep.diff %}* (<a href="diff/{{dep.name}}">diff</a>){% endif %}</td></tr>{% endfor %}
-        </table>
-      </div>
-    </fieldset>
-  </form>
-</div>                   
-
-<div class="accordion">
-  <h2 class="nav-toggle">Platform information</h2>
-  <form class="form-horizontal">
-    <fieldset class = 'field-acc'>
-      <div class="control-group">
-        <table class='table-recDetail'>
-          <tr><th>Name</th><th>IP address</th><th>Processor</th>
-            <th colspan="2">Architecture</th><th>System type</th>
-            <th>Release</th><th>Version</th>
-          </tr>
-          {% for platform in record.platforms.all %}
-          <tr class="{% cycle 'odd' 'even' %}">
-            <td>{{platform.network_name}}</td>
-            <td>{{platform.ip_addr}}</td>
-            <td>{{platform.processor}} {{platform.machine}}</td>
-            <td style='padding-right:5px'>{{platform.architecture_bits}}</td>
-            <td>{{platform.architecture_linkage}}</td>
-            <td>{{platform.system_name}}</td>
-            <td>{{platform.release}}</td>
-            <td>{{platform.version}}</td>
-          </tr>{% endfor %}
-        </table>
-      </div>
-    </fieldset>
-  </form>
-</div>
-
-<div class="accordion">
-  <h2 class="nav-toggle">Stdout & Stderr</h2>
-  <form class="form-horizontal">
-    <fieldset class = 'field-acc'>
-      <div class="control-group">
-        {% if record.stdout_stderr %}
-        <div style='width:94%'>
-          <pre>{{ record.stdout_stderr }}</pre>
+<div class="panel panel-info">
+    <div class="panel-heading clearfix">
+        <div class="pull-right" role="group">
+            <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteModal"><span class="glyphicon glyphicon-trash"></span> Delete record</button>
         </div>
-        {% else %}
-        no outputs
+        <h2 class="panel-title" style="padding-top: 6px;">{{record.label}}</h2>
+    </div>
+    <div class="panel-body">
+        <div class="well well-sm"><code>$ {{record.command_line}}</code></div>
+        <p>Run on {{record.timestamp|date:"d/m/Y H:i:s"}} by {{record.user}}</p>
+
+        <dl class="dl-horizontal">
+            <dt>Working directory:</dt><dd>{{record.working_directory}}</dd>
+            <dt>Code version:</dt><dd>{{record.version}}{% if record.diff %}* (<a href="diff">diff</a>){% endif %}</dd>
+            <dt>Repository:</dt><dd>{{record.repository.url}}
+            {% if record.repository.upstream %} - cloned from {{record.repository.upstream|urlize}}{% endif %}</dd>
+            <dt>{{record.executable.name}} version:</dt><dd>{{record.executable.version}}</dd>
+            <dt>Reason:</dt><dd> <button type="button" class="btn btn-xs pull-right" data-toggle="modal" data-target="#editReasonModal"><span class="glyphicon glyphicon-pencil"></span> Edit</button> {{record.reason|restructuredtext}}</dd>
+            <dt>Tags:</dt><dd><button type="button" class="btn btn-xs pull-right" data-toggle="modal" data-target="#editTagsModal"><span class="glyphicon glyphicon-pencil"></span> Edit</button> {% for tag in record.tag_objects %}<span class="label label-default">{{tag.name}}</span> {% endfor %}</dd>
+        </dl>
+        {% if not record.outcome %}
+        <p><button type="button" class="btn btn-xs btn-success pull-right" data-toggle="modal" data-target="#editOutcomeModal"><span class="glyphicon glyphicon-plus"></span> Add outcome</button></p>
         {% endif %}
-      </div>
-    </fieldset>
-  </form>
+    </div>
 </div>
 
-<script type = 'text/javascript'>
-$(document).ready(function(){
-        $('.accordion').find('h2').click(function(){
-		    $(this).next().slideToggle();
-		}).next()//.hide();
-		$('#accordion-js').find('#additional').next().hide();
-        $('#stdout').css('width', $('h2.topic').width());
-});
-</script>
+<! -- Outcome -->
+
+{% if record.outcome %}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <button type="button" class="btn btn-xs pull-right" data-toggle="modal" data-target="#editOutcomeModal"><span class="glyphicon glyphicon-pencil"></span> Edit</button>
+        <h4 class="panel-title">
+            <a data-toggle="collapse" href="#outcome-panel">Outcome</a>
+        </h4>
+    </div>
+    <div class="panel-body collapse in" id="#outcome-panel">
+        {{record.outcome|restructuredtext}}
+    </div>
+</div>
+{% endif %}
+
+<!-- Parameters -->
+
+{% if parameters %}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h4 class="panel-title">
+            <a data-toggle="collapse" href="#parameters-panel">Parameters</a>
+        </h4>
+    </div>
+    <div class="panel-body collapse in" id="parameters-panel">
+    {% with dict=parameters template="nested_dict.html" %}
+        {% include template %}
+    {% endwith %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Input data -->
+
+{% if record.input_data.count %}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h4 class="panel-title">
+            <a data-toggle="collapse" href="#input-data-panel">Input data</a></h4>
+    </div>
+    <div class="panel-body collapse in" id="input-data-panel">
+        <table id="input-data" class="table table-striped table-condensed">
+            <thead>
+            <tr>
+                <th>Filename</th>
+                <th>Path</th>
+                <th>Digest</th>
+                <th>Size</th>
+                <th>Date/Time</th>
+                <th>Output of</th>
+                <th>Input to</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            {% for data in record.input_data.all %}
+            <tr>
+                <td>
+                    <a href="/{{project_name}}/data/datafile?path={{data.path|urlencode}}&digest={{data.digest}}&creation={{data.creation|date:"c"}}">
+                        {{data.path|basename|ubreak}}
+                    </a>
+                </td>
+                <td>
+                    {{data.path|ubreak}}
+                </td>
+                <td>
+                    {{data.digest|truncatechars:12 }}
+                </td>
+                <td>
+                    {{data|eval_metadata:'size'|filesizeformat}}
+                </td>
+                <td>
+                <span style='display:none;'>
+                  <!-- hack for correct sorting -->
+                  {{data.output_from_record.timestamp|date:"YmdHis"}}
+                </span>
+                    {{data.output_from_record.timestamp|date:"d/m/Y H:i:s"}}
+                </td>
+                <td>
+                    <a href="/{{project_name}}/{{data.output_from_record.label}}/">
+                        {{data.output_from_record.label|ubreak}}
+                    </a>
+                </td>
+                <td>
+                    {% for record in data.input_to_records.all %}
+                    <a href="/{{project_name}}/{{record.label}}/">
+                        {{record.label|ubreak}}<!--
+                                           -->{% if not forloop.last %}, {% endif %}
+                    </a>
+                    {% endfor %}
+                </td>
+            </tr>
+            {% endfor %}
+            <tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+
+<!-- Output data -->
+
+{% if record.output_data.count %}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h4 class="panel-title">
+            <a data-toggle="collapse" href="#output-data-panel">Output data</a>
+        </h4>
+    </div>
+    <div class="panel-body collapse in" id="output-data-panel">
+        <table id="output-data" class="table table-striped table-condensed">
+            <thead>
+            <tr>
+                <th>Filename</th>
+                <th>Path</th>
+                <th>Digest</th>
+                <th>Size</th>
+                <th>Date/Time</th>
+                <th>Output of</th>
+                <th>Input to</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            {% for data in record.output_data.all %}
+            <tr>
+                <td>
+                    <a href="/{{project_name}}/data/datafile?path={{data.path|urlencode}}&digest={{data.digest}}&creation={{data.creation|date:"c"}}">
+                        {{data.path|basename|ubreak}}
+                    </a>
+                </td>
+                <td>
+                    {{data.path|ubreak}}
+                </td>
+                <td>
+                    {{data.digest|truncatechars:12 }}
+                </td>
+                <td>
+                    {{data|eval_metadata:'size'|filesizeformat}}
+                </td>
+                <td>
+                <span style='display:none;'>
+                  <!-- hack for correct sorting -->
+                  {{data.output_from_record.timestamp|date:"YmdHis"}}
+                </span>
+                    {{data.output_from_record.timestamp|date:"d/m/Y H:i:s"}}
+                </td>
+                <td>
+                    <a href="/{{project_name}}/{{data.output_from_record.label}}/">
+                        {{data.output_from_record.label|ubreak}}
+                    </a>
+                </td>
+                <td>
+                    {% for record in data.input_to_records.all %}
+                    <a href="/{{project_name}}/{{record.label}}/">
+                        {{record.label|ubreak}}<!--
+                                           -->{% if not forloop.last %}, {% endif %}
+                    </a>
+                    {% endfor %}
+                </td>
+            </tr>
+            {% endfor %}
+            <tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+
+<!-- Dependencies -->
+
+{% if record.dependencies.count %}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h4 class="panel-title">
+            <a data-toggle="collapse" href="#dependencies-panel">Dependencies</a>
+        </h4>
+    </div>
+    <div id="dependencies-panel" class="panel-body collapse in">
+        <table id="dependencies" class="table table-striped table-condensed">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Path</th>
+                <th>Version</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            {% for dep in record.dependencies.all %}
+            <tr>
+                <td>{{dep.name}}</td>
+                <td>{{dep.path}}</td>
+                <td>{{dep.version}}{% if dep.diff %}* (<a href="diff/{{dep.name}}">diff</a>){% endif %}</td>
+            </tr>
+            {% endfor %}
+            <tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+
+<!-- Platform information -->
+
+{% if record.platforms.count %}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h4 class="panel-title">
+            <a data-toggle="collapse" href="#platform-info-panel">Platform information</a>
+        </h4>
+    </div>
+    <div id="platform-info-panel" class="panel-body collapse in">
+        <table id="platform-info" class="table table-striped table-condensed">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>IP address</th>
+                <th>Processor</th>
+                <th colspan="2">Architecture</th>
+                <th>System type</th>
+                <th>Release</th>
+                <th>Version</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            {% for platform in record.platforms.all %}
+            <tr class="{% cycle 'odd' 'even' %}">
+                <td>{{platform.network_name}}</td>
+                <td>{{platform.ip_addr}}</td>
+                <td>{{platform.processor}} {{platform.machine}}</td>
+                <td style='padding-right:5px'>{{platform.architecture_bits}}</td>
+                <td>{{platform.architecture_linkage}}</td>
+                <td>{{platform.system_name}}</td>
+                <td>{{platform.release}}</td>
+                <td>{{platform.version}}</td>
+            </tr>{% endfor %}
+            <tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- stdout and stderr -->
+
+{% if record.stdout_stderr %}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h4 class="panel-title">
+            <a data-toggle="collapse" href="#stdout-stderr-panel">Stdout & Stderr</a>
+        </h4>
+    </div>
+    <div id="stdout-stderr-panel" class="panel-body collapse in">
+      <code>{{ record.stdout_stderr }}</code>
+    </div>
+</div>
+{% endif %}
+
+
+{% endblock content %}
+
+
+<! -- Dialog boxes for editing -->
+
+{% block dialogs %}
+<div class="modal fade" id="editReasonModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Reason/Motivation</h4>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+            <p>Use <a href="http://sphinx-doc.org/rest.html" target="_blank">reStructuredText</a> for formatting.</p>
+            <textarea class="form-control" rows="10" id="reason">{{record.reason}}</textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="saveReason">Save</button>
+      </div>
+    </div> <!-- modal-content -->
+  </div> <!-- modal-dialog -->
+</div> <!-- modal -->
+
+<div class="modal fade" id="editOutcomeModal">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Outcome</h4>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+            <p>Use <a href="http://sphinx-doc.org/rest.html" target="_blank">reStructuredText</a> for formatting.</p>
+            <textarea class="form-control" rows="10" id="outcome">{{record.outcome}}</textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="saveOutcome">Save</button>
+      </div>
+    </div> <!-- modal-content -->
+  </div> <!-- modal-dialog -->
+</div> <!-- modal -->
+
+<div class="modal fade" id="editTagsModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Tags</h4>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+            <p>Separate tags with commas. Tags may contain spaces.</p>
+            <input type="text" class="form-control" id="tag_list" value="{{record.tags}}">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="saveTags">Save</button>
+      </div>
+    </div> <!-- modal-content -->
+  </div> <!-- modal-dialog -->
+</div> <!-- modal -->
+
+<div class="modal fade" id="deleteModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Delete record</h4>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete this record?</p>
+        <div class="form-group">
+          <label>
+              <input type="checkbox" id='is_data'> Delete associated data
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+        <button type="button" class="btn btn-primary" id="confirm-delete">Yes</button>
+      </div>
+    </div> <!-- modal-content -->
+  </div> <!-- modal-dialog -->
+</div> <!-- modal -->
 
 {% endblock %}
+
+<! -- Javascript -->
+
+{% block scripts %}
+    <script type="text/javascript" language="javascript" src="/static/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" language="javascript" src="/static/dataTables.bootstrap.js"></script>
+    <script type="text/javascript">
+$(document).ready(function() {
+    /* Configure DataTable */
+    var table = $('#output-data').dataTable( {
+        "info": false,
+        "paging": false,
+        "ordering": false,
+        "filter": false
+    } );
+
+    /* Save the reason/motivation */
+    $('#saveReason').click(function() {
+        $.ajax({
+            type: 'POST',
+            url: '.',
+            data: {'reason': $('#reason').val()},
+            success: function() {
+                success = true;
+            },
+            async: false
+        });
+        if (success) {
+            window.open('.','_self');
+        };
+    });
+
+    /* Save the outcome */
+    $('#saveOutcome').click(function() {
+        $.ajax({
+            type: 'POST',
+            url: '.',
+            data: {'outcome': $('#outcome').val()},
+            success: function() {
+                success = true;
+            },
+            async: false
+        });
+        if (success) {
+            window.open('.','_self');
+        };
+    });
+
+    /* Save tags */
+    $('#saveTags').click(function() {
+        $.ajax({
+            type: 'POST',
+            url: '.',
+            data: {'tags': $('#tag_list').val()},
+            success: function() {
+                success = true;
+            },
+            async: false
+        });
+        if (success) {
+            window.open('.','_self');
+        };
+    });
+
+    /* Delete this record */
+    $('#confirm-delete').click(function() {
+        var success = false;
+        var includeData = function(){
+            if ($('#is_data').attr('checked')) {
+                return true;
+            } else {
+                return false;
+            };
+        };
+        var deleteArr = new Array(); // records to delete
+
+        deleteArr.push('{{record.label}}');
+        console.log(deleteArr);
+
+        $.ajax({
+            type: 'POST',
+            url: '../delete/',
+            data: {'delete': deleteArr,
+                   'delete_data': includeData()},
+            success: function() {
+                success = true;
+            },
+            async: false
+        });
+        if (success) {
+            window.open('..', '_self');
+        };
+    });
+} );
+    </script>
+{% endblock %}
+
+<!-- TODO: initialize input-data DataTable -->

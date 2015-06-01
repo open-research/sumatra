@@ -1,0 +1,18 @@
+{% extends "data_detail_base.html" %}
+
+{% block data %}
+<table class="table table-striped">
+    {% for row in reader %}
+    <tr>
+        {% if forloop.first %}
+            {% for col in row %}<th>{{col}}</th>{% endfor %}
+        {% else %}
+            {% for col in row %}<td>{{col}}</td>{% endfor %}
+        {% endif %}
+    </tr>
+    {% endfor %}
+</table>
+
+
+
+{% endblock %}

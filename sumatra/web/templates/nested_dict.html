@@ -1,0 +1,13 @@
+<ul class="hierarchical">
+{% for key, val in dict.items %}
+    {% if val.items %}
+    <li>{{key}}:
+        {% with dict=val template="nested_dict.html" %}
+            {% include template %}
+        {% endwith %}
+    </li>
+    {% else %}
+    <li>{{key}}: {{val}}</a></li>
+    {% endif %}
+{% endfor %}
+</ul>

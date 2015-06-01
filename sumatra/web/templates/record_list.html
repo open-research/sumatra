@@ -2,418 +2,335 @@
 
 {% load filters %}
 
-{% block title %}{{project_name}}: List of records{% endblock %}
+{% block title %}{{project.id}}: List of records{% endblock %}
 
-{% block header %}
-<li class="divider"></li>
-<li><a href="/{{project_name}}/">{{project_name}}</a></li>
-<li class='divider-vertical'></li>  
-<li>
-  <a href="/{{project_name}}/data/">
-    Switch to Data view
-  </a>
-</li> 
-<li class='divider-vertical'></li>   
-<li>
-  <a class="settings_togg">
-    <i class="icon-cog" style='margin-top:8px'></i> Settings
-  </a>
-<li class='divider-vertical'></li>  
+{% block css %}
+    <link href="/static/css/dataTables.bootstrap.css" rel="stylesheet">
 {% endblock %}
 
+{% block navbar %}
+            <li><a href="#">{{project.id}}</a></li>
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"><span class="glyphicon glyphicon-tag"></span> <span class="caret"></span></a>
+                <ul class="dropdown-menu" role="menu" id="tagList">
+                    {% if tags %}
+                        {% for tag in tags %}
+                        <li><a data-target="#">{{tag.name}}</a></li>
+                        {% endfor %}
+                        <li role="presentation" class="divider"></li>
+                        <li><a data-target="#"><i>clear selection</i></a></li>
+                    {% else %}
+                    <li role="presentation" class="dropdown-header">No tags defined.</li>
+                    {% endif %}
+                </ul>
+            </li>
+{% endblock %}
 
-{% block content %} 
+{% block navbar-right %}
+            <li><a href="#" data-toggle="modal" data-target="#settingsModal"><span class="glyphicon glyphicon-cog"></span></a></li>
+{% endblock %}
 
+{% block content %}
 
+{% if project.name %}
+<h3>{{project.name}}</h3>
+{% endif %}
 
-<!-- DataTables CSS -->
-<link rel="stylesheet" type="text/css"
-      href="/media/css/jquery.dataTables.css">
-
-<!-- DataTables -->
-<script type="text/javascript" charset="utf8"
-        src="/media/js/jquery.dataTables.js"></script>
-
-
-{% include "comparison_window.html" %}
-
-
-<style>
- /* Color definition for selected row(s) */
- table.dataTable tbody tr.selected  {
-   background-color: #96C4EA; !important; 
- }
- table.dataTable.hover tbody tr:hover.selected,
- table.dataTable.hover tbody tr.odd:hover.selected,
- table.dataTable.hover tbody tr.even:hover.selected, 
- table.dataTable.display tbody tr:hover.selected,
- table.dataTable.display tbody tr.odd:hover.selected,
- table.dataTable.display tbody tr.even:hover.selected {
-   background-color: #96C4EA; !important;
- }
-</style>
-
-
-<script>
-
-  $(document).ready( function () {
-  
-  /* comparison window modal init and subsequent hide */
-  $('#compareSim').modal().modal('hide');  
-
-
-  /* compare selected records */
-  $(function () {
-    $("#cc_compare").on('click', function() {
-
-      /* collect IDs (=record label) of selected rows */
-      var selected_labels = [];
-      $('.selected').each(function(){
-        selected_labels.push($(this).attr('id'))
-      })
-
-      $.ajax({
-        url:"ajax/compare_selected_records",
-        type: "GET",
-        data: {selection: selected_labels},
-        success:function(response){
-          $('#compareSim').html(response);},
-        complete:function(){},
-        error:function (xhr, textStatus, thrownError){}
-      }); 
-
-      $('#compareSim').modal('show'); 
-
-    });
-  });
-
-
-  var hd_cl = {{settings.record_hidden_cols|as_json|safe}};
-  var record_list = $('#record_dt').DataTable({
-    "columnDefs": [
-      {"sortable":false,  "targets":["repository-c", "label-c",
-       "tag-c", "reason-c", "outcome-c", "main-c", "version-c",
-       "input-c", "output-c", "arguments-c"]},   
-      <!--{"visible":false, "targets": hd_cl},-->
-      {"visible":false, "targets": ["arguments-c", "repository-c", "processes-c"]},
-    ],
-    <!--"dom": 'lfrC<"clear">tip',     <!-- Order: 'l'ength, 'f'ilter,  p'r'ocessing, 'C'olumns, 't'able, 'i'nformation, 'p'agination -->
-    "paging": true,
-    "ordering": true,
-    "info": true, <!-- "Showing x of y entries" -->
-    "filter": true, 
-    "lengthChange": false,
-    "autoWidth": false,
-    "order": [[$('th.time-c').index(), "desc"]], <!-- default sort column -->
-    } );
-
-
-    /* Multiple Row Select:
-       click        selects a single row 
-       Ctrl+click   can select multiples   */
-    $('#record_dt tbody').on( 'click', 'tr', function (event) {
-      if (event.ctrlKey) {
-        $(this).toggleClass('selected');
-      }
-      else {
-        if (record_list.rows('.selected').data().length == 0) {
-          $(this).toggleClass('selected');
-        }
-        else {
-          if ($(this).hasClass('selected')) {
-            $('.selected').toggleClass('selected')
-          }
-          else {
-            $('.selected').toggleClass('selected')
-            $(this).toggleClass('selected');
-          }
-        }
-      }
-    } );
-
-    /* Deselect rows for clicks outside of table */
-    $(document).click(function(event) { 
-      if(!$(event.target).closest('#record_dt').length) {
-          $('.selected').toggleClass('selected')
-      }        
-    })
-
-
-    $('a.settings_togg').on('click', function(e) {
-      e.preventDefault();
-      $('#settings_panel').toggle()
-      $('#settings_panel2').toggle()
-    })
-
-    /* Column visibility toggle */
-    $('input.check-item').on( 'change', function (e) {
-        e.preventDefault();
-
-        // Get the column API object
-        var column = record_list.column($(this).attr('data-column')
-        );
-
-        console.log($(this).attr('data-column'))
- 
-        // Toggle the visibility
-        column.visible( ! column.visible() );
-
-        <!--console.log($.get("/{{project_name}}/settings"))-->
-
-        // save settings to .smtrc
-        // $.post("/{{project_name}}/settings", {'record_hidden_cols':['murloc'],'saveSettings':true}); 
-    } );
-
-
-    /* Save changes button */   
-    $('#save_set').click(function(){  
-      record_list.page.len($('#s_nbt').val());
-      record_list.draw();
-    });
-
-    /* close settings button */
-    $('#close_settings').click(function(){  
-      $('#settings_panel').toggle()
-      $('#settings_panel2').toggle()
-    });
-
-
-    /* Arrow key page turning */
-    document.onkeydown = checkKey;
-    function checkKey(e) {
-
-      e = e || window.event;
-
-      if (e.keyCode == '37') {
-        record_list.page('previous').draw(false);
-      }
-      else if (e.keyCode == '39') {
-        record_list.page('next').draw(false);
-      }
-    }
-
-  } );
-
-</script>
-
-
-
-
-<div id='settings_panel' style='display:none;'>
-  <br/>
-  <label class="checkbox">
-    <input type="checkbox" id='repository' class='check-item' 
-           data-column='0' >
-    Repository
-  </label>
-  <label class="checkbox">
-    <input type="checkbox" id='label' class='check-item'
-    data-column='1'  checked="checked">
-    Label
-  </label>
-  <label class="checkbox">
-    <input type="checkbox" id='tag' class='check-item' data-column='2'
-     checked="checked">
-    Tag
-  </label>
-  <label class="checkbox">
-    <input type="checkbox" id='reason' class='check-item'
-    data-column='3' checked="checked">
-    Reason
-  </label>
-  <label class="checkbox">
-    <input type="checkbox" id='outcome' class='check-item'
-    data-column='4'  checked="checked"> 
-    Outcome
-  </label>
-  <label class="checkbox">
-    <input type="checkbox" id='input' class='check-item'
-    data-column='5'  checked="checked"> 
-    Input
-  </label>
-  <label class="checkbox">
-    <input type="checkbox" id='output' class='check-item'
-    data-column='6'  checked="checked"> 
-    Output
-  </label>
-  <label class="checkbox">
-    <input type="checkbox" id='duration' class='check-item'
-    data-column='7' checked="checked"> 
-    Duration
-  </label>
-  <label class="checkbox">
-    <input type="checkbox" id='processes' class='check-item'
-    data-column='8'>
-    Processes
-  </label>
-  <label class="checkbox">
-    <input type="checkbox" id='time' class='check-item'
-    data-column='9' checked="checked">
-    Date/Time
-  </label>
-  <label class="checkbox">
-    <input type="checkbox" id='ename' class='check-item'
-    data-column='10' checked="checked">
-    Executable
-  </label>
-
-  <label class="checkbox">
-    <input type="checkbox" id='main' class='check-item'
-    data-column='11' checked="checked">
-    Script main file
-  </label>
-  <label class="checkbox">
-    <input type="checkbox" id='version' class='check-item'
-           data-column='12' checked="checked"> 
-    Script version
-  </label>
-  <label class="checkbox">
-    <input type="checkbox" id='arguments' class='check-item'
-    data-column='13'> Script
-    arguments
-  </label>
-  <div style='float:left; padding:8px; padding-left:0px'>Number of
-    records per page:</div>
-  <input id='s_nbt' class='span1' type='text' style='float:left;margin-bottom:0px' value='{{settings.nb_records_per_page}}'>
-  </div>
-  <div id="settings_panel2" class="modal-footer" style='display:none;'>
-    <a class="btn" data-dismiss="modal" id='close_settings'>Close</a>
-    <a class="btn btn-primary" id='save_set'>Apply changes</a>
-  </div>
+<div class="btn-group" role="group">
+    <button type="button" class="btn btn-primary">Record View</button>
+    <a type="button" class="btn btn-default" href="/{{project.id}}/data/">Data View</a>
+    <a type="button" class="btn btn-default" href="/{{project.id}}/about/">About</a>
 </div>
 
+<div class="pull-right" role="group" style="padding-left: 2px;">
+    <button type="button" class="btn btn-danger btn-sm" id="delete" data-toggle="modal" data-target="#deleteModal"><span class="glyphicon glyphicon-trash"></span> Delete selected</button>
+    <button type="button" class="btn btn-warning btn-sm" id="compare"><span class="glyphicon glyphicon-transfer"></span> Compare selected</button>
+</div>
 
-
-
-
-
-
-<div style="margin-left:2%; margin-right:3%">
-
-
-<button type="button" class="btn btn-default" data-dismiss="modal"
-        id='cc_compare'>Compare Records</button>
-
-
-<table class='hover row-border' id='record_dt'>
-
-  <thead>
+<table id="records" class="table table-striped table-condensed" cellspacing="0" width="100%">
+<!-- <table id="records" class="display" cellspacing="0" width="100%"> -->
+    <thead>
     <tr>
-      <th class='repository-c'>Repository</th>
-      <th class='label-c'>Label</th>
-      <th class='tag-c'>Tag</th>
-      <th class='reason-c'>Reason</th>
-      <th class='outcome-c'>Outcome</th>
-      <th class='input-c'>Input&nbsp;data</th>
-      <th class='output-c'>Output&nbsp;data</th>
-      <th class='duration-c'>Duration</th>
-      <th class='processes-c'>Processes</th>
-      <th class='time-c'>Date/Time</th>
-      <th class='exec-c'>Exec.</th>
-      <th class='main-c'>Main</th>
-      <th class='version-c'>Version</th>
-      <th class='arguments-c'>Arguments</th>
+        <th>Label</th>
+        <th>Date/Time</th>
+        <th>Reason</th>
+        <th>Outcome</th>
+        <th>Input&nbsp;data</th>
+        <th>Output&nbsp;data</th>
+        <th>Duration</th>
+        <th>Processes</th>
+        <th>Executable</th>
+        <th>Main</th>
+        <th>Version</th>
+        <th>Arguments</th>
+        <th>Tags</th>
     </tr>
-  </thead>
+    </thead>
 
-  <tbody>
-
-    {% for record in sim_list %}
-
-    <tr id='{{record.label}}'>         
-      <td class='dataTable_td' id='repository-t'>
-        <span class="span-box">
-          {{record.repository.url|cut:"repo"}}
-        </span>
-      </td>
-      <td class='dataTable_td' id='label-t'>
-        <a href="/{{project_name}}/{{record.label}}/">
-          {{record.label|ubreak}}
-        </a> 
-        
-      </td> 
-      {% if tag %}
-      <td class='dataTable_td' id='tag-t'>
-        {% for other_tag in record.tag_objects %}
-        {% if tag == other_tag %}
-        {{tag}} 
-        {% else %}
-        <!--<a href="#">
-          {{other_tag.name}}
-        </a>--> <!-- Fix Link!! -->
-        {% endif %}
-        {% endfor %}
-      </td>
-      {% else %}
-      <td class='dataTable_td' id='tag-t'>
-        {% for tag in record.tag_objects %}
-        <!--<a href="#">-->{{tag}}<!---</a>-->, <!-- Fix Link!! -->
-        {% endfor %}
-      </td> 
-      {% endif %}
-
-      <td class='dataTable_td' id='reason-t'>
-        {{record.reason}}
-      </td>
-      <td class='dataTable_td' id='outcome-t'>
-        {{record.outcome}}
-      </td>
-      <td class='dataTable_td' id='input-t'>
-        {% for data in record.input_data.all %}
-          <a href="/{{project_name}}/data/datafile?path={{data.path|urlencode}}&digest={{data.digest}}">
-            {{data.path|basename|ubreak}}<!--
-           --></a>{% if not forloop.last %}, {% endif %}
-        {% endfor %}
-      </td>
-      <td class='dataTable_td' id='output-t'>
-        {% for data in record.output_data.all %}
-          <a href="/{{project_name}}/data/datafile?path={{data.path|urlencode}}&digest={{data.digest}}">
-            {{data.path|basename|ubreak}}<!--
-          --></a>{% if not forloop.last %}, {% endif %}
-        {% endfor %}
-      </td>
-      <td class='dataTable_td' id='duration-t'
-          data-sort='{{record.duration}}'>
-        {{record.duration|human_readable_duration}}
-      </td>
-      <td class='dataTable_td' id='processes-t'>
-        {{record.launch_mode.get_parameters.n|default:"1"}}
-      </td>
-      <td class='dataTable_td' id='time-t'>
+    <tbody>
+    {% for record in records %}
+    <tr id='{{record.label}}'>
+        <td><a href="/{{project.id}}/{{record.label}}/">{{record.label|ubreak}}</a></td>
+        <td>
         <span style='display:none;'>
           <!-- hack for correct sorting -->
           {{record.timestamp|date:"YmdHis"}}
         </span>
-        {{record.timestamp|date:"d/m/Y H:i:s"}}
-      </td>
-      <td class='dataTable_td' id='ename-t'>
-        {{record.executable.name}} {{record.executable.version}}
-      </td>
-      <td class='dataTable_td' id='main-t'>
-        <!--<a class='id-script'  data-toggle="modal" href="#">-->
-          {{record.main_file|ubreak}}
-        <!--</a>--> <!-- Fix Link!! -->
-      </td>
-      <td class='dataTable_td' id='version-t'>
-        <span class="span-box">
-          {{record.version|cut:"vers"}}
-          {% if record.diff %}
-          *
-          {% endif %}
-        </span>
-      </td>
-      <td class='dataTable_td' id='arguments-t'>
-        <a class='href_args' href='#'>
-          {{record.script_arguments}}
-        </a> <!-- Fix Link!! -->
-      </td> 
+            {{record.timestamp|date:"d/m/Y H:i:s"}}
+        </td>
+        <td>{{record.reason}}</td>
+        <td>{{record.outcome}}</td>
+        <td>
+            {% for data in record.input_data.all %}
+            <a href="/{{project.id}}/data/datafile?path={{data.path|urlencode}}&digest={{data.digest}}&creation={{data.creation|date:"c"}}">
+                {{data.path|basename|ubreak}}</a>{% if not forloop.last %}, {% endif %}
+            {% endfor %}
+        </td>
+        <td>
+            {% for data in record.output_data.all %}
+            <a href="/{{project.id}}/data/datafile?path={{data.path|urlencode}}&digest={{data.digest}}&creation={{data.creation|date:"c"}}">
+                {{data.path|basename|ubreak}}</a>{% if not forloop.last %}, {% endif %}
+            {% endfor %}
+        </td>
+        <td>{{record.duration|human_readable_duration}}</td>
+        <td>{{record.launch_mode.get_parameters.n|default:"1"}}</td>
+        <td>{{record.executable.name}} {{record.executable.version}}</td>
+        <td>{{record.main_file|ubreak}}</td>
+        <td>{{record.version|cut:"vers"}}{% if record.diff %}*{% endif %}</td>
+        <td>{{record.script_arguments}}</td>
+        <td>{{record.tags}}</td>
     </tr>
     {% endfor %}
-  <tbody>
+    <tbody>
 </table>
-</div>
-
- 
 
 {% endblock %}
 
+{% block dialogs %}
+<div class="modal fade" id="deleteModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Delete records</h4>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to remove the selected records?</p>
+        <div class="form-group">
+          <label>
+              <input type="checkbox" id='is_data'> Delete associated data
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+        <button type="button" class="btn btn-primary" id="confirm-delete">Yes</button>
+      </div>
+    </div> <!-- modal-content -->
+  </div> <!-- modal-dialog -->
+</div> <!-- modal -->
+
+<div class="modal fade" role="dialog" id="alert">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content alert alert-danger">
+        <button type="button" class="close pull-right" data-dismiss="modal">&times;</button>
+        <strong><span id="alertMessage"></span></strong>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="settingsModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Settings</h4>
+      </div>
+      <div class="modal-body" id="columnsToDisplay">
+        <h5>Columns to display</h5>
+        <div class="checkbox"><label><input type="checkbox" data-column='1' checked="checked"> Date/Time</label></div>
+        <div class="checkbox"><label><input type="checkbox" data-column='2' checked="checked"> Reason</label></div>
+        <div class="checkbox"><label><input type="checkbox" data-column='3' checked="checked"> Outcome</label></div>
+        <div class="checkbox"><label><input type="checkbox" data-column='4' checked="checked"> Input data</label></div>
+        <div class="checkbox"><label><input type="checkbox" data-column='5' checked="checked"> Output data</label></div>
+        <div class="checkbox"><label><input type="checkbox" data-column='6' checked="checked"> Duration</label></div>
+        <div class="checkbox"><label><input type="checkbox" data-column='7' checked="checked"> Processes</label></div>
+        <div class="checkbox"><label><input type="checkbox" data-column='8' checked="checked"> Executable</label></div>
+        <div class="checkbox"><label><input type="checkbox" data-column='9' checked="checked"> Main</label></div>
+        <div class="checkbox"><label><input type="checkbox" data-column='10' checked="checked"> Version</label></div>
+        <div class="checkbox"><label><input type="checkbox" data-column='11' checked="checked"> Arguments</label></div>
+        <div class="checkbox"><label><input type="checkbox" data-column='12' checked="checked"> Tags</label></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="apply-settings">Apply</button>
+      </div>
+    </div> <!-- modal-content -->
+  </div> <!-- modal-dialog -->
+</div> <!-- modal -->
+{% endblock %}
+
+
+{% block scripts %}
+<script type="text/javascript" language="javascript" src="/static/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" language="javascript" src="/static/js/dataTables.bootstrap.js"></script>
+<script type="text/javascript">
+
+/* filter by tag */
+var selected_tag = null;
+
+$.fn.dataTable.ext.search.push(
+    function( settings, data, dataIndex ) {
+        if (selected_tag) {
+            var tags = data[12].split(', ');
+            if ( tags.indexOf(selected_tag) > -1 ) {
+                return true;
+            }
+            return false;
+        }
+        return true;
+    }
+);
+
+
+$(document).ready(function() {
+    /* retrieve settings */
+    var columnDefs = null;
+    $.ajax({
+        url:"/settings/",
+        type: "GET",
+        dataType: "json",
+        complete: function(data){
+            var hidden = data.responseJSON["hidden_cols"];
+            if (typeof hidden === "undefined" || hidden ===  null) {
+                hidden = [];
+            }
+            console.log("hidden: " + hidden);
+            columnDefs = [{
+                "targets": hidden,
+                "visible": false
+            }];
+            console.log(columnDefs);
+            hidden.forEach(function(col) {
+                $('#columnsToDisplay input[data-column="'+col+'"]')[0].checked=false;
+            });
+        },
+        async: false
+    });
+
+    /* initialize DataTable */
+    var table = $('#records').DataTable({
+        "info": false,
+        "dom": 'ftlp',
+        "order": [[ 1, "desc" ]],
+        "columnDefs": columnDefs
+    });
+
+    /* select rows when clicked */
+    $('#records tbody').on('click', 'tr', function() {
+        $(this).toggleClass('info');
+    } );
+
+    /* delete selected records */
+    $('#confirm-delete').click(function() {
+        //alert( table.rows('.info').data()[0] +' row(s) selected');
+        var success = false;
+        var includeData = function(){
+            if ($('#is_data').attr('checked')) {
+                return true;
+            } else {
+                return false;
+            };
+        };
+        var deleteArr = new Array(); // records to delete
+
+        table.rows('.info').every( function() {
+            deleteArr.push(this.node().getAttribute('id'));
+            //console.log(this.node().getAttribute('id'));
+        });
+        console.log(deleteArr);
+
+        $.ajax({
+            type: 'POST',
+            url: 'delete/',
+            data: {'delete': deleteArr,
+                   'delete_data': includeData()},
+            success: function() {
+                success = true;
+            },
+            async: false
+        });
+        if (success) {
+            window.open('.','_self');
+        };
+    });
+
+    /* compare selected records */
+    $('#compare').click(function() {
+        var compareArr = new Array();
+
+        table.rows('.info').every( function() {
+            compareArr.push(this.node().getAttribute('id'));
+        });
+        if (compareArr.length < 2) {
+            //alert('Need at least two records to compare');
+            $('#alertMessage').text('Need at least two records to compare.')
+            $('#alert').modal();
+        } else if (compareArr.length > 2) {
+            $('#alertMessage').text('Can only compare two records at a time.')
+            $('#alert').modal();
+        } else {
+            window.location.href = 'compare/?a=' + compareArr[0] + '&b=' + compareArr[1];
+        }
+    });
+
+    /* select tag from dropdown menu */
+    $('#tagList a').click(function (event) {
+        var target = $(event.target);
+        var li = target.parent();
+        selected_tag = target[0].textContent;
+        if (selected_tag == 'clear selection') {
+            $('#tagList').children().removeClass('selected');
+            selected_tag = null;
+        } else {
+            li.addClass('selected').siblings().removeClass('selected');
+            selected_tag = target[0].textContent;
+        };
+        table.draw();
+    });
+
+    /* apply settings */
+    $('#apply-settings').click(function() {
+        var success = false;
+        var visible = [];
+        var hidden = [];
+        $('#columnsToDisplay input:checked').each(function() {
+            visible.push(parseInt($(this).attr('data-column')));
+            var column = table.column($(this).attr('data-column'));
+            column.visible(true);
+        });
+        $('#columnsToDisplay input:checkbox:not(:checked)').each(function() {
+            hidden.push(parseInt($(this).attr('data-column')));
+            var column = table.column($(this).attr('data-column'));
+            column.visible(false);
+        });
+
+        // save settings to file
+        console.log(hidden);
+        $.ajax({
+            type: 'POST',
+            url: '/settings/',
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify({'settings': {'hidden_cols': hidden}}),
+            success: function() {
+                success = true;
+            },
+            async: false
+        });
+        if (success) {
+            $('#settingsModal').modal('hide');
+        };
+    });
+});
+</script>
+{% endblock %}
