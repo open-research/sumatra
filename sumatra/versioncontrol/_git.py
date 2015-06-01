@@ -66,7 +66,6 @@ class GitWorkingCopy(WorkingCopy):
 
     @property
     def exists(self):
-        print "EXISTS?", self.path, findrepo(self.path)
         return bool(self.path and findrepo(self.path))
 
     def current_version(self):
