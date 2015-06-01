@@ -1,0 +1,282 @@
+{% extends "base.html" %}
+
+{% load filters %}
+
+{% block title %}{{project.id}}: comparison{% endblock %}
+
+{% block css %}
+    <link href="/static/css/dataTables.bootstrap.css" rel="stylesheet">
+{% endblock %}
+
+{% block navbar %}
+            <li><a href="..">{{project.id}}</a></li>
+            <li><a href="#">Comparison</a></li>
+{% endblock %}
+
+{% block content %}
+
+
+<div class="panel panel-info">
+    <div class="panel-heading clearfix">
+        <h2 class="panel-title">Comparison of <i>{{diff.recordA.label}}</i> and <i>{{diff.recordB.label}}</i></h2>
+    </div>
+    {% if not diff %}
+    <div class="panel-body">
+        <div class="well well-sm">There are no differences in executable, code, parameters data between the records</div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Code -->
+
+{% if diff.script_arguments_differ or diff.code_differs %}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h4 class="panel-title">
+            <a data-toggle="collapse" href="#code-panel">Code</a>
+        </h4>
+    </div>
+    <div class="panel-body collapse in" id="code-panel">
+
+        {% if diff.script_arguments_differ or diff.executable_differs or diff.main_file_differs %}
+        <div class="well well-sm">
+        <span class="label label-A">A</span> <code>$ {{diff.recordA.command_line}}</code>
+        </div>
+        <div class="well well-sm">
+        <span class="label label-B">B</span> <code>$ {{diff.recordB.command_line}}</code>
+        </div>
+        {% endif %}
+
+        {% if diff.code_differs %}
+        <div class="row">
+            <div class="col-md-6">
+                <span class="label label-A">A</span>
+            </div>
+            <div class="col-md-6">
+                <span class="label label-B">B</span>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if diff.executable_differs %}
+        <div class="row">
+            <div class="col-md-6">
+                {{diff.recordA.executable.name}} version {{diff.recordA.executable.version}}
+            </div>
+            <div class="col-md-6">
+                {{diff.recordB.executable.name}} version {{diff.recordB.executable.version}}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if diff.repository_differs %}
+        <div class="row">
+            <div class="col-md-6">
+                {{diff.recordA.repository}} {% if diff.recordA.repository.upstream %}(upstream: {{diff.recordA.repository.upstream|urlize}}){% endif %}
+            </div>
+            <div class="col-md-6">
+                {{diff.recordB.repository}} version diff.recordB.executable.version}} {% if diff.recordB.repository.upstream %}(upstream: {{diff.recordB.repository.upstream|urlize}}){% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if diff.version_differs %}
+        <div class="row">
+            <div class="col-md-6">
+                Version <strong>{{diff.recordA.version}}</strong>
+            </div>
+            <div class="col-md-6">
+                Version <strong>{{diff.recordB.version}}</strong>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if diff.diff_differs %}
+        <div class="row">
+            <div class="col-md-6">
+                <pre>{{diff.recordA.diff}}</pre>
+            </div>
+            <div class="col-md-6">
+                <pre>{{diff.recordB.diff}}</pre>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if diff.dependencies_differ %}
+        <h5>Dependencies</h5>
+        <table class="table">
+            <tr><th>Name</th><th>Version in <span class="label label-A">A</span></th><th>Version in <span class="label label-B">B</span></th></tr>
+            {% for name, dep in diff.dependency_differences.items %}
+            <tr>
+                <td>{{name}}</td>
+                <td>{{dep.0.version|default:"-"}} {% if dep.0.diff %}<pre>dep.0.diff</pre> {% endif %}</td>
+                <td>{{dep.1.version|default:"-"}} {% if dep.1.diff %}<pre>dep.1.diff</pre> {% endif %}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% endif %}
+
+    </div>
+</div>
+{% endif %}
+
+
+<!-- Parameters -->
+
+{% if diff.parameters_differ %}
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h4 class="panel-title">
+            <a data-toggle="collapse" href="#parameters-panel">Parameters</a>
+        </h4>
+    </div>
+    <div class="panel-body collapse in" id="parameters-panel">
+        <div class="row">
+            <div class="col-md-6">
+            <span class="label label-A">A</span>
+            {% with dict=diff.parameter_differences.0 template="nested_dict.html" %}
+                {% include template %}
+            {% endwith %}
+            </div>
+            <div class="col-md-6">
+            <span class="label label-B">B</span>
+            {% with dict=diff.parameter_differences.1 template="nested_dict.html" %}
+                {% include template %}
+            {% endwith %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+
+<!-- Input data -->
+
+{% if diff.input_data_differ %}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h4 class="panel-title">
+            <a data-toggle="collapse" href="#input-data-panel">Input data</a>
+        </h4>
+    </div>
+    <div class="panel-body collapse in" id="input-data-panel">
+        {% for keyA, keyB in input_data_pairs.matches %}
+        <div class="row">
+            <div class="col-md-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                     <span class="label label-A">A</span>
+                    {{keyA.path}} <small>{{keyA.digest}}</small> {{keyA.metadata.mimetype}} {{keyA.metadata.size|filesizeformat}}
+                    </div>
+                    {% if keyA.metadata.mimetype == 'image/png' or keyA.metadata.mimetype == 'image/jpeg' %}
+                    <div class="panel-body">
+                    <img src="/data/{{db_records.0.input_datastore.id}}?path={{keyA.path}}&digest={{keyA.digest}}&creation={{keyA.creation|date:"c"}}" alt="Image {{keyA.path}}" width="100%">
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                    <span class="label label-B">B</span>
+                    {{keyB.path}} <small>{{keyB.digest}}</small> {{keyB.metadata.mimetype}} {{keyB.metadata.size|filesizeformat}}
+                    </div>
+                    {% if keyB.metadata.mimetype == 'image/png' or keyB.metadata.mimetype == 'image/jpeg' %}
+                    <div class="panel-body">
+                    <img src="/data/{{db_records.1.input_datastore.id}}?path={{keyB.path}}&digest={{keyB.digest}}&creation={{keyB.creation|date:"c"}}" alt="Image {{keyB.path}}" width="100%">
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        {% if output_data_pairs.unmatched_a or output_data_pairs.unmatched_b %}
+        <div class="row">
+            <div class="col-md-6">
+                <span class="label label-B">A</span>
+                <ul>
+                {% for data_key in output_data_pairs.unmatched_a %}
+                    <li>{{data_key.path}} <small>{{data_key.digest}}</small> {{data_key.metadata.mimetype}} {{data_key.metadata.size|filesizeformat}}</li>
+                {% endfor %}
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <span class="label label-B">B</span>
+                <ul>
+                {% for data_key in output_data_pairs.unmatched_b %}
+                    <li>{{data_key.path}} <small>{{data_key.digest}}</small> {{data_key.metadata.mimetype}} {{data_key.metadata.size|filesizeformat}}</li>
+                {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Output data -->
+
+{% if diff.output_data_differ %}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h4 class="panel-title">
+            <a data-toggle="collapse" href="#output-data-panel">Output data</a>
+        </h4>
+    </div>
+    <div class="panel-body collapse in" id="output-data-panel">
+        {% for keyA, keyB in output_data_pairs.matches %}
+        <div class="row">
+            <div class="col-md-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                     <span class="label label-A">A</span>
+                    {{keyA.path}} <small>{{keyA.digest}}</small> {{keyA.metadata.mimetype}} {{keyA.metadata.size|filesizeformat}}
+                    </div>
+                    {% if keyA.metadata.mimetype == 'image/png' or keyA.metadata.mimetype == 'image/jpeg' %}
+                    <div class="panel-body">
+                    <img src="/data/{{db_records.0.datastore.id}}?path={{keyA.path}}&digest={{keyA.digest}}&creation={{keyA.creation|date:"c"}}" alt="Image {{keyA.path}}" width="100%">
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                    <span class="label label-B">B</span>
+                    {{keyB.path}} <small>{{keyB.digest}}</small> {{keyB.metadata.mimetype}} {{keyB.metadata.size|filesizeformat}}
+                    </div>
+                    {% if keyB.metadata.mimetype == 'image/png' or keyB.metadata.mimetype == 'image/jpeg' %}
+                    <div class="panel-body">
+                    <img src="/data/{{db_records.1.datastore.id}}?path={{keyB.path}}&digest={{keyB.digest}}&creation={{keyB.creation|date:"c"}}" alt="Image {{keyB.path}}" width="100%">
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        {% if output_data_pairs.unmatched_a or output_data_pairs.unmatched_b %}
+        <div class="row">
+            <div class="col-md-6">
+                <span class="label label-B">A</span>
+                <ul>
+                {% for data_key in output_data_pairs.unmatched_a %}
+                    <li>{{data_key.path}} <small>{{data_key.digest}}</small> {{data_key.metadata.mimetype}} {{data_key.metadata.size|filesizeformat}}</li>
+                {% endfor %}
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <span class="label label-B">B</span>
+                <ul>
+                {% for data_key in output_data_pairs.unmatched_b %}
+                    <li>{{data_key.path}} <small>{{data_key.digest}}</small> {{data_key.metadata.mimetype}} {{data_key.metadata.size|filesizeformat}}</li>
+                {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+{% endblock content %}
