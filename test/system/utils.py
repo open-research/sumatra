@@ -30,6 +30,7 @@ Code change policy  : (?P<code_change>\w+)
 Append label to     : None
 Label generator     : timestamp
 Timestamp format    : %Y%m%d-%H%M%S
+Plug-ins            : \[\]
 Sumatra version     : 0.7dev
 """
 
@@ -162,7 +163,7 @@ def edit_parameters(input, output, name, new_value):
             with open(os.path.join(working_dir, output), 'wb') as fpout:
                 for line in fpin:
                     if name in line:
-                        fpout.write("{} = {}\n".format(name, new_value))
+                        fpout.write("{0} = {1}\n".format(name, new_value))
                     else:
                         fpout.write(line)
     return wrapped
