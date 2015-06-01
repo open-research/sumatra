@@ -75,8 +75,13 @@ configure
       -o LAUNCH_MODE_OPTIONS, --launch_mode_options LAUNCH_MODE_OPTIONS
                             extra options for the given launch mode, to be given
                             in quotes with a leading space, e.g. ' --foo=3'
-      -p, --plain           pass arguments to the run command straight through to
-                            the program.
+      -p, --plain           pass arguments to the 'run' command straight through
+                            to the program. Otherwise arguments of the form
+                            name=value can be used to overwrite default parameter
+                            values.
+      --no-plain            arguments to the 'run' command of the form name=value
+                            will overwrite default parameter values. This is the
+                            opposite of the --plain option.
       -s STORE, --store STORE
                             Change the record store to the specified path, URL or
                             URI (must be specified). The argument can take the
@@ -96,6 +101,11 @@ configure
                             are not archived.
       -M URL, --mirror URL  specify a URL at which your datafiles will be
                             mirrored.
+      --add-plugin ADD_PLUGIN
+                            name of a Python module containing one or more plug-
+                            ins.
+      --remove-plugin REMOVE_PLUGIN
+                            name of a plug-in module to remove from the project.
 
 delete
 ------
@@ -413,6 +423,17 @@ upgrade
     
     Upgrade an existing Sumatra project. You must have previously run "smt export"
     or the standalone 'export.py' script.
+    
+    optional arguments:
+      -h, --help  show this help message and exit
+
+version
+-------
+::
+
+    usage: smt version
+    
+    Print the Sumatra version.
     
     optional arguments:
       -h, --help  show this help message and exit

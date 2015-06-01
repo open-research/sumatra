@@ -237,6 +237,9 @@ def configure(argv):
     datastore.add_argument('-A', '--archive', metavar='PATH', help="specify a directory in which to archive output datafiles. If not specified, or if 'false', datafiles are not archived.")
     datastore.add_argument('-M', '--mirror', metavar='URL', help="specify a URL at which your datafiles will be mirrored.")
 
+    parser.add_argument('--add-plugin', help="name of a Python module containing one or more plug-ins.")
+    parser.add_argument('--remove-plugin', help="name of a plug-in module to remove from the project.")
+
     args = parser.parse_args(argv)
 
     project = load_project()
@@ -289,6 +292,10 @@ def configure(argv):
         project.default_launch_mode.options = args.launch_mode_options.strip()
     if args.plain is not None:
         project.allow_command_line_parameters = not args.plain
+    if args.add_plugin:
+        project.load_plugins(args.add_plugin)
+    if args.remove_plugin:
+        project.remove_plugins(args.remove_plugin)
     project.save()
 
 

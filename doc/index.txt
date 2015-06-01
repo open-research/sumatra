@@ -41,6 +41,7 @@ Table of Contents
    handling_data
    record_stores
    upgrading
+   plugins
    developers_guide
    api_reference
    faq
