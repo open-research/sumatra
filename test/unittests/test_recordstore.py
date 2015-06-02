@@ -532,7 +532,7 @@ class TestModuleFunctions(unittest.TestCase):
 
     def test_get_record_store_shelve(self):
         store = shelve_store.ShelveRecordStore(shelf_name="test_record_store.shelf")
-        store.shelf[str("foo")] = "bar"
+        store.shelf["foo"] = "bar"
         store.shelf.sync()
         del store
         assert len(glob("test_record_store.shelf*")) > 0
