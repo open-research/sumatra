@@ -9,6 +9,7 @@ Each command corresponds to a function in this module.
 """
 from __future__ import print_function
 from __future__ import unicode_literals
+from builtins import str
 
 import os.path
 import sys
@@ -340,6 +341,7 @@ def run(argv):
     parser.add_argument('-o', '--stdout', help="specify the name of a file that should be connected to standard output.")
 
     args, user_args = parser.parse_known_args(argv)
+    user_args = [str(arg) for arg in user_args]  # unifying types for Py2/Py3
 
     if args.debug:
         logger.setLevel(logging.DEBUG)
@@ -586,7 +588,7 @@ def upgrade(argv):
     if (hasattr(project, 'sumatra_version')
         and project.sumatra_version == sumatra.__version__
         and "dev" not in sumatra.__version__):
-        
+
         print("No upgrade needed (project was created with an up-to-date version of Sumatra).")
         sys.exit(1)
 

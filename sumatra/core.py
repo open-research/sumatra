@@ -44,6 +44,8 @@ def get_encoding():
         encoding = sys.stdout.encoding
     else:
         encoding = locale.getpreferredencoding()
+        if encoding == '':  # getpreferredencoding does not guarantee to return an encoding
+            encoding = sys.getdefaultencoding()
     return encoding
 
 

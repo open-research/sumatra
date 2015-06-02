@@ -248,7 +248,7 @@ class SimpleParameterSet(ParameterSet):
     @staticmethod
     def _is_valid_file(path):
         try:
-            path = Path(path)
+            path = Path(path.__str__())
             return path.exists() and path.is_file()
         except TypeError:
             return False
@@ -333,8 +333,7 @@ class SimpleParameterSet(ParameterSet):
         """
         output = []
         for name, value in self.values.items():
-            value_type = self.types[name]
-            if issubclass(value_type, str):
+            if isinstance(value, str):
                 output.append('%s = "%s"' % (name, value))
             else:
                 output.append('%s = %s' % (name, value))
