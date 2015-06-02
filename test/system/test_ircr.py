@@ -21,6 +21,7 @@ import utils
 from utils import (setup, teardown, run_test, build_command, assert_file_exists, assert_in_output,
                    assert_config, assert_label_equal, assert_records, edit_parameters,
                    expected_short_list, substitute_labels)
+from functools import partial
 
 repository = "https://bitbucket.org/apdavison/ircr2013"
 #repository = "/Volumes/USERS/andrew/dev/ircr2013"  # during development
@@ -117,8 +118,9 @@ def test_all():
         if callable(step):
             step()
         else:
-            run_test.description = step[0]
-            yield tuple([run_test] + list(step[1:]))
+            test = partial(*tuple([run_test] + list(step[1:])))
+            test.description = step[0]
+            yield test
 
 # Still to test:
 #
