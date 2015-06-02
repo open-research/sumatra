@@ -137,19 +137,55 @@ class _Registry(with_metaclass(SingletonType, object)):
 
 
 def component_type(cls):
-    # FIXME missing doc
+    """Class decorator to define base types for components.
+
+    Use this decorator to register a base type of a Sumatra component. Concrete components
+    should subclass from this component type to then be registered as a Sumatra component.
+
+    Not to be used when writing Sumatra plug-ins! For that, please use the `component`
+    decorator.
+
+    Example:
+    @component_type
+    class MyComponentBase(object):
+        pass
+
+    @component
+    class MyConcreteComponent(MyComponentBase):
+        pass
+    """
     _Registry().add_component_type(cls)
     return cls
 
 
 def component(cls):
-    # FIXME missing doc
+    """Class decorator to define Sumatra components.
+
+    Use this decorator to declare a class as a Sumatra component. It can then be used
+    by Sumatra.
+    """
     _Registry().register(cls)
     return cls
 
 
 def conditional_component(condition):
-    # FIXME missing doc
+    """Class decorator to define Sumatra components based on a condition.
+
+    Similar to `component`, this decorator can be used to declare a class as a Sumatra
+    component. In addition to the former, a condition defines whether that component
+    will be used by Sumatra or not.
+
+    Example:
+    try:
+        import NumPy
+        have_numpy = True
+    except ImportError:
+        have_numpy = False
+
+    @conditional_component(condition=have_numpy)
+    class MyNumPyComponent(MyNumPyComponentBase):
+        pass
+    """
     if condition is True:
         return component
     else:
@@ -157,5 +193,5 @@ def conditional_component(condition):
 
 
 def get_registered_components(base_type):
-    # FIXME missing doc
+    """Returns all registered components for the given component base type."""
     return _Registry().components[base_type]
