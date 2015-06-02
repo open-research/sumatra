@@ -40,6 +40,7 @@ import time
 import shutil
 import textwrap
 from datetime import datetime
+from importlib import import_module
 from sumatra.records import Record
 from sumatra import programs, datastore
 from sumatra.formatting import get_formatter, get_diff_formatter
@@ -78,7 +79,7 @@ class Project(object):
                  on_changed='error', description='', data_label=None,
                  input_datastore=None, label_generator='timestamp',
                  timestamp_format=TIMESTAMP_FORMAT,
-                 allow_command_line_parameters=True):
+                 allow_command_line_parameters=True, plugins=[]):
         self.path = os.getcwd()
         if not os.path.exists(".smt"):
             os.mkdir(".smt")
@@ -107,6 +108,8 @@ class Project(object):
         self.sumatra_version = sumatra.__version__
         self.allow_command_line_parameters = allow_command_line_parameters
         self._most_recent = None
+        self.plugins = []
+        self.load_plugins(*plugins)
         self.save()
         print("Sumatra project successfully set up")
 
@@ -126,7 +129,7 @@ class Project(object):
                      'default_main_file', 'on_changed', 'description',
                      'data_label', '_most_recent', 'input_datastore',
                      'label_generator', 'timestamp_format', 'sumatra_version',
-                     'allow_command_line_parameters'):
+                     'allow_command_line_parameters', 'plugins'):
             try:
                 attr = getattr(self, name)
             except:
@@ -169,6 +172,7 @@ class Project(object):
         Append label to     : %(_data_label)s
         Label generator     : %(label_generator)s
         Timestamp format    : %(timestamp_format)s
+        Plug-ins            : %(plugins)s
         Sumatra version     : %(sumatra_version)s
         """
         return _remove_left_margin(template % self.__dict__)
@@ -292,7 +296,6 @@ class Project(object):
             records.reverse()
         return records
 
-
     # def find_data() here?
 
     def format_records(self, format='text', mode='short', tags=None, reverse=False):
@@ -402,6 +405,18 @@ class Project(object):
         new_store.sync(old_store, self.name)
         self.record_store = new_store
 
+    def load_plugins(self, *plugins):
+        for plugin in plugins:
+            import_module(plugin)
+            if plugin not in self.plugins:
+                self.plugins.append(plugin)
+
+    def remove_plugins(self, *plugins):
+        # note that we do not unimport plugins, we just remove them from the list
+        # in future, we should unregister the component from the registry
+        for plugin in plugins:
+            self.plugins.remove(plugin)
+
 
 def _load_project_from_json(path):
     f = open(_get_project_file(path), 'r')
@@ -423,6 +438,10 @@ def _load_project_from_json(path):
             setattr(prj, key, cls(**args))
         else:
             setattr(prj, key, value)
+    if hasattr(prj, "plugins"):
+        prj.load_plugins(*prj.plugins)
+    else:
+        prj.plugins = []
     return prj
 
 

@@ -50,27 +50,28 @@ that project.
 List of records
 ===============
 
-The list of records page contains a table with the following columns:
+By default, your project is viewed from a process-centric point of view, i.e. one record for each computation performed.
+The list of records page contains a table with one row per computation, with the following columns:
 
-	- version control repository
-	- label
-	- tags
-	- reason
-	- outcome
-	- duration
-	- number of processes
-	- date
-	- time
-	- executable name
-	- executable version
-	- main file
-	- version
-	- command line arguments
+- label
+- date/time
+- reason
+- outcome
+- input data
+- output data
+- duration
+- number of processes
+- executable name and version
+- main file
+- code version
+- command line arguments
+- tags
 
-You can change which columns to display by clicking on **Settings**.
+
+You can change which columns to display by clicking on the settings icon.
 
 .. figure:: /images/settings_dialog.png  
- :width: 80%
+ :width: 50%
  :align: center
 
 
@@ -78,13 +79,10 @@ Selecting records
 -----------------
 
 Each record is represented as one row in the table. The rows can be selected
-by dragging the mouse over them. As soon as you start doing that, the header
-of the table will be changed to contain actions you can perform with selected
-records. Actions you can perform are:
+and unselected by clicking on them. Actions that can be performed on selected rows are:
 
-	- set tags for the selected records
-	- delete records
-	- compare records
+- delete records
+- compare records
 
 .. figure:: /images/selecting_rows.png  
  :width: 100%
@@ -101,59 +99,22 @@ that simulation or analysis.
  :width: 100%
  :align: center
 
-Editing tags
-------------
-
-For the selected records you can specify additional tags, edit or remove them.
-
-
-.. figure:: /images/set_tags.png  
- :width: 100%
- :align: center
-
 Comparing records
 -----------------
 
-From the set of selected records you can choose any two to compare them.
+Any pair of records can be compared.
 
 .. figure:: /images/compare_records.png  
  :width: 100%
  :align: center
 
-Reviewing your code
--------------------
-
-You can see the contents of your main script file by clicking the corresponding
-link in the table. It will be shown in the modal window which can be dragged
-around.
-
-**Important**: for now this works only for Git and Mercurial repositories.
-
-.. figure:: /images/view_main_file.png  
- :width: 100%
- :align: center
 
 
 Filtering the records
 ---------------------
 
-You can filter the records by clicking on the 'tag' button or by using
-the search form. This form contains the following items:
-
-	- label
-	- tags
-	- reason
-	- executable
-	- repository
-	- main file
-	- date
-	- interval of dates
-
-.. figure:: /images/search_form.png  
- :width: 100%
- :align: center
-
-Search by **variable name** allows filtering the records using the name of parameter. If for each new simulation you have different parameter set, this feature can be useful for narrowing the set of possible records.   
+You can filter the records by clicking on the 'tag' icon or by using
+the search field.
 
 
 Accessing record details
@@ -163,17 +124,39 @@ You can access the record detail by clicking the corresponding label name in the
 main table. The record detail page contains the following sections:
 
 	- general info
-	- input files
-	- output files
 	- parameters
+	- input data
+	- output data
 	- dependencies
 	- platform information
 	- stdout & stderr
 	
-.. figure:: /images/detail_view.png  
+.. figure:: /images/detail_view1.png
  :width: 100%
  :align: center
- 
+
+.. figure:: /images/detail_view2.png
+ :width: 100%
+ :align: center
+
+
+Data view
+=========
+
+To view the history of your project from a data-centric point of view, click on the "Data View" tab.
+
+
+.. figure:: /images/data_view.png
+ :width: 100%
+ :align: center
+
+You can also see details about individual data items, including a preview of the file contents for file formats which
+Sumatra understands (e.g. images, CSV data).
+
+.. figure:: /images/data_detail.png
+ :width: 100%
+ :align: center
+
 
 Finishing up
 ============
@@ -182,41 +165,14 @@ Don't forget to kill the webserver process (e.g. with ``fg``, ``Ctrl-C``) when y
 finished with it.
 
 
-Launching computations from the web interface
-=============================================
-
-It is possible to run simulations/analyses from within the web interface.
-Clicking on the "New record" button will bring up the following dialog:
-
-.. figure:: /images/launch_computation1.png  
- :width: 20%
- :align: center
-
-You can specify **label**, **reason**, **tag**, **main file**, **arguments**,
-and **executable** there. **Main file** and **arguments**
-are drop-down lists with the names of the files from the folder of the Sumatra
-project. As soon as the file is picked from the list, you can see its
-content. Moreover, the **argument** file is editable and any changes you
-made can be saved from this web page. You can hide and open the content of the
-files by clicking the corresponding links below the drop-down list.
-
-.. figure:: /images/launch_computation2.png  
- :width: 100%
- :align: center
-
-On clicking run, the computation is launched and a progress bar appears. On
-succesful completion, a new record is added to the **list of records** page.
-
 Customizing the web interface
 -----------------------------
 
 You can customize the web interface on a per-project basis by placing your own
 `Django templates`_ in a "templates" subdirectory of the Sumatra ".smt" directory.
-The templates you can customize are called "base.html", "record_list.html",
-"show_file.html", "project_detail.html", "show_csv.html", "show_image.html",
-"record_detail.html", "show_diff.html", "tag_list.html". The best way to proceed
-is to copy the default template from "/path/to/sumatra/web/templates"
-to "/path/to/myproject/.smt/templates" and then modify it.
+The best way to proceed
+is to copy the default templates from "/path/to/sumatra/web/templates"
+to "/path/to/myproject/.smt/templates" and then modify them.
 
 .. _Django: https://www.djangoproject.com/
-.. _`Django templates`: https://docs.djangoproject.com/en/1.4/topics/templates/
+.. _`Django templates`: https://docs.djangoproject.com/en/1.8/topics/templates/

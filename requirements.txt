@@ -5,6 +5,8 @@ jinja2
 docutils
 parameters
 future
+# for running system tests
+sarge
 # optional requirements, depending on which version control systems you use
 hgapi
 GitPython>=0.3.6
@@ -16,6 +18,7 @@ pathlib
 # for Python 2.6 only
 ordereddict
 unittest2
+importlib
 # optional, for WebDAV support
 #dexml
 #fs

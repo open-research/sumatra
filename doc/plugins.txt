@@ -1,0 +1,83 @@
+===============================
+Extending Sumatra with plug-ins
+===============================
+
+To support the wide diversity of scientific workflows, Sumatra aims to make it
+easy (or at least possible) to customize the way it works. The following
+components can be customized:
+
+- launching computations (local execution, distributed using MPI, batch jobs using SLURM, ...)
+- parameter file formats (JSON, YAML, ...)
+- executable programs/programming languages (Python, MATLAB, R, ...)
+- data stores (local disk, network storage, WebDAV, Dropbox, ...)
+- record stores (SQLite, PostgreSQL, web-based, ...)
+- output formats (plain text, HTML, LaTeX, JSON, ...)
+- version control systems (Git, Mercurial, Subversion, ...)
+
+
+Here is an example of wrapping the PHP command-line interface. (In itself, this gives little or
+no benefit, as Sumatra can automatically obtain version information from most command-line
+tools, but (a) it is a prerequisite if we wish to add dependency tracking, (b) it makes a
+nicely simple example of writing a plug-in!)
+
+.. todo:: explore Zenodo and Figshare as extension examples
+
+.. code-block:: python
+
+    from sumatra.core import registry
+    from sumatra.programs import Executable
+
+    class PHPcli(Executable):
+        name = "PHP"
+        executable_names = ('php',)
+        file_extensions = ('.php',)
+        default_executable_name = 'php'
+        requires_script = True
+
+    registry.register(PHPcli)
+
+To use this plug-in in a Sumatra project, it should be saved in a file (e.g. :file:`php.py`)
+that is on the Python module search path (for example, installed in :file:`site-packages` or
+added to the :envvar:`PYTHONPATH` environment variable), and then added to the project using:
+
+.. code-block:: bash
+
+    $ smt configure --add-plugin=php
+
+You can also manually edit :file:`.smt/project` and add the module path to the "plugins" list.
+
+To list the installed plug-ins, use ``smt info``.
+
+To remove a plug-in from a project:
+
+.. code-block:: bash
+
+    $ smt configure --remove-plugin=php
+
+
+Component interfaces
+====================
+
+As shown in the PHP example above, writing a custom component involves writing
+a new class which inherits from a Sumatra base class, and then registering the
+class with the component registry.
+
+The available base classes are:
+
+- :class:`sumatra.datastore.base.DataStore`
+- :class:`sumatra.datastore.base.DataItem`
+- :class:`sumatra.formatting.Formatter`
+- :class:`sumatra.recordstore.base.RecordStore`
+- :class:`sumatra.versioncontrol.base.Repository`
+- :class:`sumatra.versioncontrol.base.WorkingCopy`
+- :class:`sumatra.launch.LaunchMode`
+- :class:`sumatra.parameters.ParameterSet`
+- :class:`sumatra.programs.Executable`
+
+For full details of which methods need to be implemented in your sub-class,
+see the :doc:`api_reference`.
+
+.. todo:: dependency finders not yet adapted to the registry system
+
+.. note:: At present, there is no mechanism for plug-ins to change the list of options
+          for command-line tools such as ``smt``. This is planned for the future.

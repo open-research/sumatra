@@ -1,43 +1,35 @@
 """
 Define URL dispatching for the Sumatra web interface.
 
-:copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
+:copyright: Copyright 2006-2015 by the Sumatra team, see doc/authors.txt
 :license: CeCILL, see LICENSE for details.
 """
 from __future__ import unicode_literals
 
 from django.conf.urls import patterns
-from django.conf import settings
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from sumatra.projects import Project
 from sumatra.records import Record
-from sumatra.web.views import ProjectListView
+from sumatra.web.views import (ProjectListView, ProjectDetailView, RecordListView,
+                               RecordDetailView, DataListView, DataDetailView,
+                               SettingsView)
 
 P = {
     'project': Project.valid_name_pattern,
     'label': Record.valid_name_pattern,
 }
 
-urlpatterns = patterns('sumatra.web.views',
+urlpatterns = patterns('',
                        (r'^$', ProjectListView.as_view()),
-                       (r'^%(project)s/$' % P, 'list_records'),
-                       (r'^%(project)s/data/$' % P, 'list_data'),
-                       (r'^%(project)s/about/$' % P, 'show_project'),
-                       (r'^%(project)s/delete/$' % P, 'delete_records'),
-                       (r'^%(project)s/tag/$' % P, 'list_tags'),
-                       (r'^%(project)s/%(label)s/$' % P, 'record_detail'),
-                       (r'^%(project)s/data/datafile$' % P, 'data_detail'),
-                       (r'^%(project)s/%(label)s/download$' % P, 'download_file'),
-                       (r'^%(project)s/%(label)s/image$' % P, 'show_image'),
-                       (r'^%(project)s/%(label)s/diff$' % P, 'show_diff'),
-                       (r'^%(project)s/%(label)s/diff/(?P<package>[\w_]+)*$' % P, 'show_diff'),
-                       (r'^%(project)s/simulation$' % P, 'run_sim'),
-                       (r'^%(project)s/settings$' % P, 'settings'),
-                       (r'^%(project)s/search$' % P, 'search'),
-                       (r'^%(project)s/settags$' % P, 'set_tags'),
-                       (r'^%(project)s/ajax/compare_selected_records$' % P, 'compare_selected_records'),
+                       (r'^settings/$', SettingsView.as_view()),
+                       (r'^%(project)s/$' % P, RecordListView.as_view()),
+                       (r'^%(project)s/about/$' % P, ProjectDetailView.as_view()),
+                       (r'^%(project)s/data/$' % P, DataListView.as_view()),
+                       (r'^%(project)s/delete/$' % P, 'sumatra.web.views.delete_records'),
+                       (r'^%(project)s/compare/$' % P, 'sumatra.web.views.compare_records'),
+                       (r'^%(project)s/%(label)s/$' % P, RecordDetailView.as_view()),
+                       (r'^%(project)s/data/datafile$' % P, DataDetailView.as_view()),
+                       (r'^data/(?P<datastore_id>\d+)$', 'sumatra.web.views.show_content'),
                        )
 
-urlpatterns += patterns('',
-                        #(r'^timeline/(?P<user>\w+[\w ]*)/', Timeline.as_view()),
-                        (r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT, 'show_indexes': True}),
-                        )
+urlpatterns += staticfiles_urlpatterns()

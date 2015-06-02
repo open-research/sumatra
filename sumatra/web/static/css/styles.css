@@ -1,0 +1,41 @@
+body {
+    padding-top: 75px;
+}
+
+div.container {
+    width: 100%;
+}
+
+code {
+    color: black;
+}
+
+#projectDescriptionPanel {
+    margin-top: 20px;
+}
+
+.dl-horizontal dt{
+    text-align: left;
+    width: auto;
+}
+
+.navbar-inverse {
+    background-color: #003300;
+}
+
+.selected {
+    background-color: #60c0dc;
+    text-color: white;
+}
+
+.label-A {
+    background-color: orange;
+}
+
+.label-B {
+    background-color: green;
+}
+
+ul.hierarchical {
+    list-style-type: none;
+}

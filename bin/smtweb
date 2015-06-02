@@ -16,6 +16,7 @@ from sumatra.recordstore.django_store import DjangoRecordStore, db_config
 from sumatra.web import __file__ as sumatra_web
 from optparse import OptionParser
 from textwrap import dedent
+import time
 
 
 def delayed_new_tab(url, delay):
@@ -24,11 +25,9 @@ def delayed_new_tab(url, delay):
     time to start up.
     """
 
-    #time.sleep(delay)
+    time.sleep(delay)
     # maybe optional with python setup develop ?
-    # webbrowser.open_new_tab(url)
-
-    pass
+    webbrowser.open_new_tab(url)
 
 
 def main(argv):
@@ -61,8 +60,7 @@ def main(argv):
     db_config.configure()
     root_dir = os.path.dirname(sumatra_web)
     settings.ROOT_URLCONF = 'sumatra.web.urls'
-    settings.ADMIN_MEDIA_PREFIX = '/media/admin/' # seems we need to define this even though we're not using the admin application
-    settings.MEDIA_ROOT = os.path.join(root_dir, "media")
+    settings.STATIC_URL = '/static/'
     settings.TEMPLATE_DIRS = (os.path.join(os.getcwd(), ".smt", "templates"),
                               os.path.join(root_dir, "templates"),)
     settings.INSTALLED_APPS = list(settings.INSTALLED_APPS) + ['sumatra.web']

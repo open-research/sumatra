@@ -1,7 +1,7 @@
 """
-Defines view functions and forms for the Sumatra web interface.
+Defines views for the Sumatra web interface.
 
-:copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
+:copyright: Copyright 2006-2015 by the Sumatra team, see doc/authors.txt
 :license: CeCILL, see LICENSE for details.
 """
 from __future__ import print_function
@@ -9,182 +9,194 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 from builtins import str
 
-import os
-import os.path
+
 import mimetypes
-from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.http import HttpResponse, Http404
 from django.shortcuts import render_to_response
 from django.views.generic.list import ListView
 try:
     from django.views.generic.dates import MonthArchiveView
 except ImportError:  # older versions of Django
     MonthArchiveView = object
-from .services import DefaultTemplate, DataTemplate, AjaxTemplate, ProjectUpdateForm, RecordUpdateForm, TagUpdateForm, unescape
-from sumatra.recordstore.django_store.models import Project, Tag, Record
 
-from sumatra.projects import load_project
-import sumatra.recordstore.django_store.models as models
-
-from sumatra.datastore import get_data_store, DataKey
-from sumatra.versioncontrol import get_working_copy
-from sumatra.commands import run
+import json
+import os.path
+from django.views.generic import View, DetailView
+from tagging.models import Tag
+from sumatra.recordstore.serialization import datestring_to_datetime
+from sumatra.recordstore.django_store.models import Project, Record, DataKey, Datastore
+from sumatra.records import RecordDifference
 
 DEFAULT_MAX_DISPLAY_LENGTH = 10 * 1024
+global_conf_file = os.path.expanduser(os.path.join("~", ".smtrc"))
 mimetypes.init()
 
 
-
-
-def list_records(request, project):
-    # if request.is_ajax():  # only when paginating
-    #     ajaxTempOb = AjaxTemplate(project, request.POST)
-    #     if ajaxTempOb.form.is_valid():
-    #         ajaxTempOb.filter_search(request.POST)  # taking into consideration the search inquiry
-    #         ajaxTempOb.init_object_list(ajaxTempOb.page)  # taking into consideration pagination
-    #         # content.html is a part of record_list.html
-    #         return render_to_response('content.html', ajaxTempOb.getDict())
-    #     else:
-    #         return HttpResponse('search form is not valid')
-    # else:
-    defTempOb = DefaultTemplate(project)
-    defTempOb.init_object_list()  # object_list is used in record_list.html
-    return render_to_response('record_list.html', defTempOb.getDict())
-
-
-
-def compare_selected_records(request, project):
-    '''
-    render record comparison modal for the selected records
-    '''
-    selected_labels = request.GET.getlist('selection[]')
-    records = Record.objects.filter(project__id=project,
-                                    label__in=selected_labels)
-
-    return render_to_response('comparison_window.html', {'records': records})
-
-
-def list_data(request, project):
-    defTempOb = DataTemplate(project)
-    return render_to_response('data_list.html', defTempOb.getDict())
-
-
 class ProjectListView(ListView):
+    model = Project
+    context_object_name = 'projects'
     template_name = 'project_list.html'
 
+
+class ProjectDetailView(DetailView):
+    context_object_name = 'project'
+    template_name = 'project_detail.html'
+
+    def get_object(self):
+        return Project.objects.get(pk=self.kwargs["project"])
+
+    def post(self, request, *args, **kwargs):
+        name = request.POST.get('name', None)
+        description = request.POST.get('description', None)
+        project = self.get_object()
+        if description is not None:
+            project.description = description
+            project.save()
+        if name is not None:
+            project.name = name
+            project.save()
+        return HttpResponse('OK')
+
+
+class RecordListView(ListView):
+    context_object_name = 'records'
+    template_name = 'record_list.html'
+
     def get_queryset(self):
-        return Project.objects.all()
+        return Record.objects.filter(project__id=self.kwargs["project"]).order_by('-timestamp')
 
     def get_context_data(self, **kwargs):
-        context = super(ProjectListView, self).get_context_data(**kwargs)
-        projects = self.get_queryset()
-
-        context['active'] = 'List of projects'
-        if not len(projects):
-            context['project_name'] = load_project().name
-            if not load_project().default_executable:  # empty project: without any records inside
-                context['show_modal'] = True
-        else:
-            context['project_name'] = projects[0]
+        context = super(RecordListView, self).get_context_data(**kwargs)
+        context['project'] = Project.objects.get(pk=self.kwargs["project"])
+        context['tags'] = Tag.objects.all()  # would be better to filter, to return only tags used in this project.
         return context
 
 
-def show_project(request, project):
-    project = Project.objects.get(id=project)
-    # notification is used after the form is successfully stored. In project_detail.html we use jGrowl for that
-    dic = {'project_name': project, 'form': None, 'active': 'About', 'notification': False}
-    if request.method == 'POST':
-        form = ProjectUpdateForm(request.POST, instance=project)
-        if form.is_valid():
-            form.save()
-            dic['notification'] = True
-            dic['form'] = form
-            return render_to_response('project_detail.html', dic)
-    else:
-        dic['form'] = ProjectUpdateForm(instance=project)
-    return render_to_response('project_detail.html', dic)
+def unescape(label):
+    return label.replace("||", "/")
 
 
-def list_tags(request, project):
-    if request.method == 'POST':  # user define a tag name (by clicking it)
-        ajaxTempOb = AjaxTemplate(project, request.POST)
-        ajaxTempOb.filter_search(request.POST)
-        ajaxTempOb.init_object_list()
-        dic = ajaxTempOb.getDict()
-        return render_to_response('content.html', dic)
-    else:
-        return render_to_response('tag_list.html', {'tags_list': Tag.objects.all(), 'project_name': project})
+class RecordDetailView(DetailView):
+    context_object_name = 'record'
+    template_name = 'record_detail.html'
+
+    def get_object(self):
+        label = unescape(self.kwargs["label"])
+        return Record.objects.get(label=label, project__id=self.kwargs["project"])
+
+    def get_context_data(self, **kwargs):
+        context = super(RecordDetailView, self).get_context_data(**kwargs)
+        context['project_name'] = self.kwargs["project"]  # use project full name?
+        parameter_set = self.object.parameters.to_sumatra()
+        if hasattr(parameter_set, "as_dict"):
+            parameter_set = parameter_set.as_dict()
+        context['parameters'] = parameter_set
+        return context
+
+    def post(self, request, *args, **kwargs):
+        record = self.get_object()
+        for attr in ("reason", "outcome", "tags"):
+            value = request.POST.get(attr, None)
+            if value is not None:
+                setattr(record, attr, value)
+        record.save()
+        return HttpResponse('OK')
 
 
-def record_detail(request, project, label):
-    if label != 'nolabel':
-        label = unescape(label)
-        record = Record.objects.get(label=label, project__id=project)
-    if request.method == 'POST':
-        if 'delete' in request.POST:  # in this version the page record_detail doesn't have delete option
-            record.delete()
-            return HttpResponseRedirect('..')
-        elif 'show_args' in request.POST:  # user clicks the link <parameters> in record_list.html
-            parameter_set = record.parameters.to_sumatra()
-            return HttpResponse(parameter_set)
-        elif 'show_script' in request.POST:  # retrieve script code from the repo
-            digest = request.POST.get('digest', False)
-            path = request.POST.get('path', False)
-            path = str(path)
-            wc = get_working_copy(path)
-            file_content = wc.content(digest)
-            return HttpResponse(file_content)
-        elif 'compare_records' in request.POST:
-            labels = request.POST.getlist('records[]')
-            records = Record.objects.filter(project__id=project)
-            records = records.filter(label__in=labels[:2])  # by now we take only two records
-            for record in records:
-                if record.script_arguments == '<parameters>':
-                    record.script_arguments = record.parameters.to_sumatra()
-            dic = {'records': records}
-            return render_to_response('comparison_framework.html', dic)
+class DataListView(ListView):
+    context_object_name = 'data_keys'
+    template_name = 'data_list.html'
+
+    def get_queryset(self):
+        return DataKey.objects.filter(output_from_record__project_id=self.kwargs["project"])
+
+    def get_context_data(self, **kwargs):
+        context = super(DataListView, self).get_context_data(**kwargs)
+        context['project'] = Project.objects.get(pk=self.kwargs["project"])
+        return context
+
+
+class DataDetailView(DetailView):
+    context_object_name = 'data_key'
+
+    def get_object(self):
+        attrs = dict(path=self.request.GET['path'],
+                     digest=self.request.GET['digest'],
+                     creation=datestring_to_datetime(self.request.GET['creation']))
+        return DataKey.objects.get(**attrs)
+
+    def get_context_data(self, **kwargs):
+        context = super(DataDetailView, self).get_context_data(**kwargs)
+        context['project_name'] = self.kwargs["project"]  # use project full name?
+
+        if 'truncate' in self.request.GET:
+            if self.request.GET['truncate'].lower() == 'false':
+                max_display_length = None
+            else:
+                max_display_length = int(self.request.GET['truncate']) * 1024
         else:
-            form = RecordUpdateForm(request.POST, instance=record)
-            if form.is_valid():
-                form.save()
-    else:
-        form = RecordUpdateForm(instance=record)
-    # data_store = get_data_store(record.datastore.type, eval(record.datastore.parameters)) doesn't get used?
-    parameter_set = record.parameters.to_sumatra()
-    if hasattr(parameter_set, "as_dict"):
-        parameter_set = parameter_set.as_dict()
-    return render_to_response('record_detail.html', {'record': record,
-                                                     'project_name': project,
-                                                     'parameters': parameter_set,
-                                                     'form': form
-                                                     })
+            max_display_length = DEFAULT_MAX_DISPLAY_LENGTH
 
+        datakey = self.object
+        mimetype = datakey.to_sumatra().metadata["mimetype"]
+        try:
+            datastore = datakey.output_from_record.datastore
+        except AttributeError:
+            datastore = datakey.input_to_records.first().input_datastore
+        context['datastore_id'] = datastore.pk
 
-def search(request, project):
-    ajaxTempOb = AjaxTemplate(project, request.POST)
-    if 'fulltext_inquiry' in request.POST:  # using the input #search_subnav
-        ajaxTempOb.filter_search(request.POST)
-        ajaxTempOb.init_object_list(ajaxTempOb.page)
-        return render_to_response('content.html', ajaxTempOb.getDict())
-    else:  # using the form
-        if ajaxTempOb.form.is_valid():
-            ajaxTempOb.filter_search(ajaxTempOb.form.cleaned_data)  # taking into consideration the search form
-            ajaxTempOb.init_object_list(ajaxTempOb.page)  # taking into consideration pagination
-            # content.html is a part of record_list.html
-            return render_to_response('content.html', ajaxTempOb.getDict())
-        else:
-            return HttpResponse('search form is not valid')
+        content_dispatch = {
+            "text/csv": self.handle_csv,
+            "text/plain": self.handle_plain_text,
+            "application/zip": self.handle_zipfile
+        }
+        if mimetype in content_dispatch:
+            content = datastore.to_sumatra().get_content(datakey.to_sumatra(),
+                                                         max_length=max_display_length)
+            context['truncated'] = (max_display_length is not None
+                                    and len(content) >= max_display_length)
 
+            context = content_dispatch[mimetype](context, content)
+        return context
 
-def set_tags(request, project):
-    records_to_settags = request.POST.get('selected_labels', False)
-    if records_to_settags:  # case of submit request
-        records_to_settags = records_to_settags.split(',')
-        records = Record.objects.filter(label__in=records_to_settags, project__id=project)
-        for record in records:
-            form = TagUpdateForm(request.POST, instance=record)
-            if form.is_valid():
-                form.save()
-        return HttpResponseRedirect('.')
+    def handle_csv(self, context, content):
+        import csv
+        content = content.rpartition('\n')[0]
+        lines = content.splitlines()
+        context['reader'] = csv.reader(lines)
+        return context
+
+    def handle_plain_text(self, context, content):
+        context["content"] = content
+        return context
+
+    def handle_zipfile(self, context, content):
+        import zipfile
+        if zipfile.is_zipfile(path):
+            zf = zipfile.ZipFile(path, 'r')
+            contents = zf.namelist()
+            zf.close()
+        context["content"] = "\n".join(contents)
+
+    def get_template_names(self):
+        datakey = self.object.to_sumatra()
+        mimetype = datakey.metadata["mimetype"]
+        mimetype_guess, encoding = mimetypes.guess_type(datakey.path)
+
+        if encoding == 'gzip':
+            raise NotImplementedError("to be reimplemented")
+
+        template_dispatch = {
+            "image/png": 'data_detail_image.html',
+            "image/jpeg": 'data_detail_image.html',
+            "image/gif": 'data_detail_image.html',
+            "image/x-png": 'data_detail_image.html',
+            "text/csv": 'data_detail_csv.html',
+            "text/plain": 'data_detail_text.html',
+            "application/zip": 'data_detail_zip.html'
+        }
+        template_name = template_dispatch.get(mimetype, 'data_detail_base.html')
+        return template_name
 
 
 def delete_records(request, project):
@@ -196,7 +208,7 @@ def delete_records(request, project):
     records = Record.objects.filter(label__in=records_to_delete, project__id=project)
     if records:
         for record in records:
-            if delete_data == True:
+            if delete_data:
                 datastore = record.datastore.to_sumatra()
                 datastore.delete(*[data_key.to_sumatra()
                                    for data_key in record.output_data.all()])
@@ -204,169 +216,88 @@ def delete_records(request, project):
     return HttpResponse('OK')
 
 
-def settings(request, project):
-    # if request.POST.has_key('init_settings'):
-    #     executable = request.POST.get('executable')
-    #     try:
-    #         Executable(executable)._find_executable(executable)
-    #     except:
-    #         return HttpResponse('error')
-    #     configure(['--executable=%s' % executable])
-    #     return HttpResponse('OK')
-    # web_settings = {'display_density': request.POST.get('display_density', False),
-    #                 'nb_records_per_page': request.POST.get('nb_records_per_page', False),
-    #                 'hidden_cols': request.POST.getlist('hidden_cols[]')}
-
-    print(request)
-    print(request.POST.getlist('record_hidden_cols[]'))
-
-    # ajaxTempOb = AjaxTemplate(project, None)
-    # for key, item in web_settings.iteritems():
-    #     if item:
-    #         ajaxTempOb.settings[key] = item
-    #     else:
-    #         if key == 'hidden_cols':
-    #             ajaxTempOb.settings[key] = None
-    # ajaxTempOb.save_settings()
-    # ajaxTempOb.init_object_list(1)
-    # return render_to_response('content.html', ajaxTempOb.getDict())
-
-    return list_records(request, project)
-
-
-def run_sim(request, project):
-    if 'content' in request.POST:  # save the edited argument file
-        content = request.POST.get('content', False)  # in case user changed the argument file
-        arg_file = request.POST.get('arg_file', False)
-        if os.name == 'posix':
-            fow = open(os.getcwd() + '/' + arg_file, 'w')
-        else:
-            fow = open(os.getcwd() + '\\' + arg_file, 'w')
-        fow.write(content)
-        fow.close()
-        return HttpResponse('ok')
-    else:  # run computation
-        run_opt = {'--label': request.POST.get('label', False),
-                   '--reason': request.POST.get('reason', False),
-                   '--tag': request.POST.get('tag', False),
-                   'exec': request.POST.get('execut', False),
-                   '--main': request.POST.get('main_file', False),
-                   'args': request.POST.get('args', False)}
-        options_list = []
-        for key, item in run_opt.items():
-            if item:
-                if key == 'args':
-                    options_list.append(item)
-                elif key == 'exec':
-                    executable = str(os.path.basename(item))
-                    if '.exe' in executable:
-                        executable = executable.split('.')[0]
-                    options_list.append('='.join(['--executable', executable]))
-                else:
-                    options_list.append('='.join([key, item]))
-        run(options_list)
-        ajaxTempOb = AjaxTemplate(project)
-        ajaxTempOb.init_object_list(1)  # taking into consideration pagination
-        if len(Record.objects.filter(project__id=project)) == 1:
-            return HttpResponse('OK')
-        else:
-            return render_to_response('content.html', ajaxTempOb.getDict())
-
-
-
-def data_detail(request, project):
-
-    path = request.GET['path']
-    digest = request.GET['digest']
-
-    data_keys = models.DataKey.objects.filter(path = path, digest = digest)
-
-    if len(data_keys)==1:
-        data_key = data_keys[0]
-    elif len(data_keys)==0:
-        print('no such data_key')
-    elif len(data_keys)>1:
-        print('duplicate error')
-
-    return render_to_response("data_detail.html",
-                              {'data_key': data_key, 'project_name': project})
-
-
-
-
-def download_file(request, project, label):
-    label = unescape(label)
-    path = request.GET['path']
-    digest = request.GET['digest']
-    data_key = DataKey(path, digest, request.GET.get('creation', None))
-    record = Record.objects.get(label=label, project__id=project)
-    data_store = get_data_store(record.datastore.type, eval(record.datastore.parameters))
-
-    mimetype, encoding = mimetypes.guess_type(path)
+def show_content(request, datastore_id):
+    datastore = Datastore.objects.get(pk=datastore_id).to_sumatra()
+    attrs = dict(path=request.GET['path'],
+                 digest=request.GET['digest'],
+                 creation=datestring_to_datetime(request.GET['creation']))
+    data_key = DataKey.objects.get(**attrs).to_sumatra()
+    mimetype = data_key.metadata["mimetype"]
     try:
-        content = data_store.get_content(data_key)
+        content = datastore.get_content(data_key)
     except (IOError, KeyError):
         raise Http404
-    dir, fname = os.path.split(path)
-    response = HttpResponse(content_type=mimetype)
-    response['Content-Disposition'] = 'attachment; filename=%s' % fname
-    response.write(content)
-    return response
+    return HttpResponse(content, content_type=mimetype)
 
 
-def show_image(request, project, label):
-    label = unescape(label)
-    path = request.GET['path']
-    digest = request.GET['digest']
-    type = request.GET.get('type', 'output')
-    data_key = DataKey(path, digest)
-    mimetype, encoding = mimetypes.guess_type(path)
-    if mimetype in ("image/png", "image/jpeg", "image/gif", "image/x-png"):
-        record = Record.objects.get(label=label, project__id=project)
-        if type == 'output':
-            data_store = get_data_store(record.datastore.type, eval(record.datastore.parameters))
+def compare_records(request, project):
+    record_labels = [request.GET['a'], request.GET['b']]
+    db_records = Record.objects.filter(label__in=record_labels, project__id=project)
+    records = [r.to_sumatra() for r in db_records]
+    diff = RecordDifference(*records)
+    context = {'db_records': db_records,
+               'diff': diff,
+               'project': Project.objects.get(pk=project)}
+    if diff.input_data_differ:
+        context['input_data_pairs'] = pair_datafiles(diff.recordA.input_data, diff.recordB.input_data)
+    if diff.output_data_differ:
+        context['output_data_pairs'] = pair_datafiles(diff.recordA.output_data, diff.recordB.output_data)
+    return render_to_response("record_comparison.html", context)
+
+
+
+def pair_datafiles(data_keys_a, data_keys_b, threshold=0.7):
+    import difflib
+    from os.path import basename
+    from copy import copy
+
+    unmatched_files_a = copy(data_keys_a)
+    unmatched_files_b = copy(data_keys_b)
+    matches = []
+    while unmatched_files_a and unmatched_files_b:
+        similarity = []
+        n2 = len(unmatched_files_b)
+        for x in unmatched_files_a:
+            for y in unmatched_files_b:
+                # should check mimetypes. Different mime-type --> similarity set to 0
+                similarity.append(
+                    difflib.SequenceMatcher(a=basename(x.path),
+                                            b=basename(y.path)).ratio())
+        s_max = max(similarity)
+        if s_max > threshold:
+            i_max = similarity.index(s_max)
+            matches.append((
+                unmatched_files_a.pop(i_max%n2),
+                unmatched_files_b.pop(i_max//n2)))
         else:
-            data_store = get_data_store(record.input_datastore.type, eval(record.input_datastore.parameters))
-        try:
-            content = data_store.get_content(data_key)
-        except (IOError, KeyError):
-            raise Http404
-        return HttpResponse(content, content_type=mimetype)
-    else:
-        return HttpResponse(content_type="image/png")  # should return a placeholder image?
+            break
+    return {"matches": matches,
+            "unmatched_a": unmatched_files_a,
+            "unmatched_b": unmatched_files_b}
 
 
-def show_diff(request, project, label, package=''):
-    label = unescape(label)
-    record = Record.objects.get(label=label, project__id=project)
-    if package:
-        dependency = record.dependencies.get(name=package)
-    else:
-        package = "Main script"
-        dependency = record
-    return render_to_response("show_diff.html", {'label': label,
-                                                 'project_name': project,
-                                                 'package': package,
-                                                 'parent_version': dependency.version,
-                                                 'diff': dependency.diff})
+class SettingsView(View):
 
+    def get(self, request):
+        return HttpResponse(json.dumps(self.load_settings()), content_type='application/json')
 
-class Timeline(MonthArchiveView):
-    date_field = 'timestamp'
-    template_name = 'timeline.html'
-    #paginate_by = 20
+    def post(self, request):
+        settings = self.load_settings()
+        data = json.loads(request.body)
+        settings.update(data["settings"])
+        self.save_settings(settings)
+        return HttpResponse('OK')
 
-    def get_queryset(self):
-        return Record.objects.filter(user__startswith=self.kwargs['user'])
+    def load_settings(self):
+        if os.path.exists(global_conf_file):
+            with open(global_conf_file, 'r') as fp:
+                settings = json.load(fp)
+        else:
+            settings = {
+                "hidden_cols": []
+            }
+        return settings
 
-    def get_context_data(self, **kwargs):
-        context = super(Timeline, self).get_context_data(**kwargs)
-        context['user_name'] = self.kwargs['user']
-        return context
-
-    # note there seems to be a bug with next_month and previous_month,
-    # when the timestamp is the last day of the month
-    # because django.views.generic.dates._get_next_prev_month is
-    # comparing a datetime (the timestamp) to a date-cast-to-a-time, which
-    # has an implicit time of 00:00
-    # also see https://code.djangoproject.com/ticket/391
+    def save_settings(self, settings):
+        with open(global_conf_file, 'w') as fp:
+            json.dump(settings, fp)

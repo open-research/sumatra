@@ -1,55 +1,69 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-<head>
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
 
-  <!-- css -->
-  <link rel="stylesheet" href='/media/css/bootstrap.css'>
-  <link rel="stylesheet" href='/media/css/styles.css'>
-  <link rel="stylesheet" href='/media/css/jquery-ui-1.8.20.custom.css'>
-  <link rel="stylesheet" href='/media/css/codemirror.css'>
-  <link rel="stylesheet" href='/media/css/ambiance.css'>
+    <title>{% block title %}{% endblock %}</title>
 
-  <script type="text/javascript" chadatrset="utf8" 
-          src="/media/js/jquery.js"></script>
-  <script type="text/javascript" 
-          src="/media/js/bootstrap-dropdown.js"></script>
-  <script type="text/javascript" 
-          src="/media/js/bootstrap-modal.min.js"></script>
-  <script type="text/javascript" 
-          src="/media/js/bootstrap-tab.min.js"></script>
-  <script type="text/javascript" 
-          src="/media/js/bootstrap-tooltip.min.js"></script>
+    <!-- Bootstrap core CSS -->
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
 
-  
-</head>
-<body>
-    <div id="container">
-        <div id="pageHeader">
-            <div class="navbar navbar-fixed-top">
-            <div class="navbar-inner">
-            <div class="container-fluid">                 
-                <ul class='nav'>
-                    <li><a href="/" class='a-subnav'><i class="icon-home icon-large"> </i></a></li>
-            {% block header %}
+    <!-- Custom Sumatra styles -->
+    <link href="/static/css/styles.css" rel="stylesheet">
+
+    {% block css %}
+    {% endblock %}
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/"><span class="glyphicon glyphicon-home"></span></a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            {% block navbar %}
             {% endblock %}
-                </ul>
-                <div id='wrapper_code'></div>  
-            </div>
-            </div>
-            </div>
-            <div class="progress progress-danger progress-striped active">
-                <div class="bar" style="width: 0%;"></div>
-            </div> 
-        </div>
-        <div id="navigationBar">
-            {% block navbar %}{% endblock %}
-        </div>
-        <div id = 'pageBody'>                        
-            {% block content %}{% endblock %}
-        </div> 
-        <div id="sidebar">
-            {% block sidebar %}{% endblock %}    
-        </div>
-    </div><!--/container-->                
-</body>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            {% block navbar-right %}
+            {% endblock %}
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+
+      {% block content %}
+
+      {% endblock %}
+
+    </div><!-- /.container -->
+
+    {% block dialogs %}
+
+    {% endblock %}
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+    {% block scripts %}
+
+    {% endblock %}
+  </body>
 </html>

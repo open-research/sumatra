@@ -81,7 +81,7 @@ test_steps = [
      "smt run -r 'Added labels to output' default_parameters MV_HFV_012.jpg",
      assert_in_output, "Code has changed, please commit your changes"),
     ("Commit changes...",
-     "hg commit -m 'Added labels to output'"),
+     "hg commit -m 'Added labels to output' -u testuser"),
     ("...then run again",
      "smt run -r 'Added labels to output' default_parameters MV_HFV_012.jpg"),  # assert(output has changed as expected)
     #TODO: make another change to the Python script
@@ -96,7 +96,7 @@ test_steps = [
      "smt list -l",
      assert_records, substitute_labels([
          {'label': 0, 'executable_name': 'Python', 'outcome': 'works fine', 'reason': 'initial run',
-          'version': 'a98585eddfc7', 'vcs': 'Mercurial', 'script_args': '<parameters> MV_HFV_012.jpg',
+          'version': '6038f9c500d1', 'vcs': 'Mercurial', 'script_args': '<parameters> MV_HFV_012.jpg',
           'main': 'glass_sem_analysis.py'},   # TODO: add checking of parameters
          {'label': 1, 'outcome': '', 'reason': 'No filtering'},
          {'label': 2, 'outcome': 'The default colourmap is nicer', 'reason': 'Trying a different colourmap'},

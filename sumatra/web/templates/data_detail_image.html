@@ -1,0 +1,5 @@
+{% extends "data_detail_base.html" %}
+
+{% block data %}
+<img src="/data/{{datastore_id}}?path={{data_key.path}}&digest={{data_key.digest}}&creation={{data_key.creation|date:"c"}}" alt="Image {{data_key.path}}">
+{% endblock %}

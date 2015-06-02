@@ -15,6 +15,7 @@ except ImportError:
 import os
 import sys
 from datetime import datetime, timedelta
+from glob import glob
 
 from sumatra.records import Record
 from sumatra.programs import Executable
@@ -172,7 +173,7 @@ class BaseTestRecordStore(object):
     def tearDown(self):
         django_store1.delete_all()
         django_store2.delete_all()
-        for filename in ("test_record_store2", "test_record_store2.db"):
+        for filename in glob("test_record_store2*"):
             if os.path.exists(filename):
                 os.remove(filename)
 
@@ -300,7 +301,7 @@ class TestShelveRecordStore(unittest.TestCase, BaseTestRecordStore):
 
     def tearDown(self):
         BaseTestRecordStore.tearDown(self)
-        for filename in ("test_record_store", "test_record_store.db"):
+        for filename in glob("test_record_store*"):
             if os.path.exists(filename):
                 os.remove(filename)
 
@@ -521,7 +522,7 @@ class TestSerialization(unittest.TestCase):
 class TestModuleFunctions(unittest.TestCase):
 
     def tearDown(self):
-        for filename in ("test_record_store.shelf", "test_record_store.shelf.db"):
+        for filename in glob("test_record_store.shelf*"):
             if os.path.exists(filename):
                 os.remove(filename)
 
@@ -534,12 +535,12 @@ class TestModuleFunctions(unittest.TestCase):
         store.shelf[str("foo")] = "bar"
         store.shelf.sync()
         del store
-        assert os.path.exists("test_record_store.shelf") or os.path.exists("test_record_store.shelf.db")
+        assert len(glob("test_record_store.shelf*")) > 0
         self.assertIsInstance(get_record_store("test_record_store.shelf"),
                               shelve_store.ShelveRecordStore)
 
     def test_get_record_store_create_shelve(self):
-        assert not os.path.exists("test_record_store.shelf")
+        assert len(glob("test_record_store.shelf*")) == 0
         self.assertIsInstance(get_record_store("test_record_store.shelf"),
                               shelve_store.ShelveRecordStore)
 

@@ -23,7 +23,7 @@ label_pattern = re.compile("Record label for this run: '(?P<label>\d{8}-\d{6})'"
 label_pattern = re.compile("Record label for this run: '(?P<label>[\w\-_]+)'")
 
 info_pattern = r"""Project name        : (?P<project_name>\w+)
-Default executable  : (?P<executable>\w+) \(version: \d.\d.\d\) at /[\w\/]+/bin/python
+Default executable  : (?P<executable>\w+) \(version: \d+.\d+.\d+\) at /[\w\/]+/bin/python
 Default repository  : MercurialRepository at \S+/sumatra_exercise \(upstream: \S+/ircr2013\)
 Default main file   : (?P<main>\w+.\w+)
 Default launch mode : serial
@@ -34,6 +34,7 @@ Code change policy  : (?P<code_change>\w+)
 Append label to     : None
 Label generator     : timestamp
 Timestamp format    : %Y%m%d-%H%M%S
+Plug-ins            : \[\]
 Sumatra version     : 0.7dev
 """
 
@@ -166,7 +167,7 @@ def edit_parameters(input, output, name, new_value):
             with open(os.path.join(working_dir, output), 'w') as fpout:
                 for line in fpin:
                     if name in line:
-                        fpout.write("{} = {}\n".format(name, new_value))
+                        fpout.write("{0} = {1}\n".format(name, new_value))
                     else:
                         fpout.write(line)
     return wrapped
