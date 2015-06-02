@@ -114,7 +114,7 @@ def assert_records(p, expected_records):
     """ """
     matches = [match.groupdict() for match in record_pattern.finditer(p.stdout.text)]
     if not matches:
-        raise Exception("No matches for record_pattern.\nStdout:\n%s" % p.stdout.text)
+        raise AssertionError("No matches for record_pattern.\nStdout:\n%s" % p.stdout.text)
     match_dict = dict((match["label"], match) for match in matches)
     for record in expected_records:
         if record["label"] not in match_dict:
@@ -162,8 +162,8 @@ def edit_parameters(input, output, name, new_value):
     global working_dir
 
     def wrapped():
-        with open(os.path.join(working_dir, input), 'rb') as fpin:
-            with open(os.path.join(working_dir, output), 'wb') as fpout:
+        with open(os.path.join(working_dir, input), 'r') as fpin:
+            with open(os.path.join(working_dir, output), 'w') as fpout:
                 for line in fpin:
                     if name in line:
                         fpout.write("{} = {}\n".format(name, new_value))

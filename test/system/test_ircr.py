@@ -30,12 +30,13 @@ repository = "https://bitbucket.org/apdavison/ircr2013"
 
 def modify_script(filename):
     def wrapped():
-        with open(os.path.join(utils.working_dir, filename), 'rb') as fp:
+        with open(os.path.join(utils.working_dir, filename), 'r') as fp:
             script = fp.readlines()
-        with open(os.path.join(utils.working_dir, filename), 'wb') as fp:
+        with open(os.path.join(utils.working_dir, filename), 'w') as fp:
             for line in script:
-                if "print mean_bubble_size, median_bubble_size" in line:
-                    fp.write('print "Mean:", mean_bubble_size\nprint "Median:", median_bubble_size\n')
+                if "print(mean_bubble_size, median_bubble_size)" in line:
+                    fp.write('print("Mean:", mean_bubble_size)\n')
+                    fp.write('print("Median:", median_bubble_size)\n')
                 else:
                     fp.write(line)
     return wrapped
