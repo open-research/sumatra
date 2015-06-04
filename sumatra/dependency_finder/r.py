@@ -6,7 +6,6 @@
 """
 from __future__ import unicode_literals
 
-
 import subprocess
 import pkg_resources
 from sumatra.dependency_finder import core
@@ -64,9 +63,10 @@ def _get_r_dependencies(executable_path, rscriptfile, depfinder=r_script_to_find
                 rscriptfile, pkg_split, el_split, nv_split]
     p = subprocess.Popen(parglist, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     result = p.wait()
-    output = p.stdout.read()
+    output = p.stdout.read().decode("utf-8")
     # import pdb; pdb.set_trace()
     return result, output
+
 
 def _parse_deps(deps, pkg_split=package_split_str,
                 el_split=element_split_str,
