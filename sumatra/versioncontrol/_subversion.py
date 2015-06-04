@@ -30,7 +30,7 @@ class SubversionWorkingCopy(WorkingCopy):
 
     def __init__(self, path=None):
         WorkingCopy.__init__(self, path)
-        self.path = os.path.realpath(path)
+        self.path = os.path.realpath(self.path)
         client = pysvn.Client()
         try:
             url = client.info(self.path).url
