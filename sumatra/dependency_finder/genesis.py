@@ -28,11 +28,12 @@ heuristics - a list of functions that will be called in sequence by
 """
 
 from __future__ import with_statement
+from __future__ import print_function
+from __future__ import unicode_literals
+from builtins import range
 import re
 import os
 from sumatra.dependency_finder import core
-from sumatra import versioncontrol
-import subprocess
 
 
 class Dependency(core.BaseDependency):
@@ -65,7 +66,7 @@ def get_sim_path():
 def find_included_files(file_path):
     """
     Find all files that are included, whether directly or indirectly, by a given
-    .g file. 
+    .g file.
     """
     comment_pattern = re.compile('/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+/')  # see http://ostermiller.org/findcomment.html
     include_pattern = re.compile(r'include (?P<path>[\w\./]+)')
@@ -102,7 +103,7 @@ def find_included_files(file_path):
 def find_dependencies(filename, executable):
     """
     Return a list of Dependency objects representing all files included,
-    whether directly or indirectly, by a given .g file. 
+    whether directly or indirectly, by a given .g file.
     """
     heuristics = [core.find_versions_from_versioncontrol, ]
     paths = find_included_files(filename)

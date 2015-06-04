@@ -11,13 +11,14 @@ def main(parameters, [other_args...]):
 :copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
 :license: CeCILL, see LICENSE for details.
 """
+from __future__ import unicode_literals
 
 import time
 from sumatra.programs import PythonExecutable
 import sys
 import os
 import contextlib
-from .compatibility import StringIO
+from io import StringIO
 
 
 @contextlib.contextmanager

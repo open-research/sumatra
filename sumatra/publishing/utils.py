@@ -5,10 +5,11 @@ Utility functions for use in publishing modules
 :copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
 :license: CeCILL, see LICENSE for details.
 """
+from __future__ import unicode_literals
+from builtins import object
 
 import os
 import errno
-from ..compatibility import urlretrieve, urlparse
 from sumatra.projects import load_project
 from sumatra.recordstore import get_record_store
 from sumatra.datastore import DataKey

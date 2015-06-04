@@ -9,15 +9,16 @@ user to take care of this.
 :copyright: Copyright 2006-2015 by the Sumatra team, see doc/authors.txt
 :license: CeCILL, see LICENSE for details.
 """
+from __future__ import unicode_literals
+from future.standard_library import install_aliases
+install_aliases()
 
-import logging
 import os
 import mimetypes
-import datetime
-from ..compatibility import urlopen
+from urllib.request import urlopen
 from ..core import registry
-from .base import DataItem, DataKey
-from .filesystem import FileSystemDataStore, DataFile
+from .base import DataItem
+from .filesystem import FileSystemDataStore
 
 
 class MirroredDataFile(DataItem):

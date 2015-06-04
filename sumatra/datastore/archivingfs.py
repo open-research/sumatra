@@ -8,6 +8,7 @@ tar files, then retrieved from the tar files.
 """
 
 from __future__ import with_statement
+from __future__ import unicode_literals
 import os
 import tarfile
 import shutil
@@ -18,7 +19,7 @@ from contextlib import closing  # needed for Python 2.6
 from sumatra.core import TIMESTAMP_FORMAT, registry
 
 
-from .base import DataItem, DataKey
+from .base import DataItem
 from .filesystem import FileSystemDataStore
 
 

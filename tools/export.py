@@ -4,13 +4,15 @@ Export a Sumatra project for version 0.1 or 0.2 to JSON.
 :copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
 :license: CeCILL, see LICENSE for details.
 """
+from __future__ import print_function
+from __future__ import unicode_literals
+from builtins import str
 
 import json
 from sumatra import __version__, projects
 from sumatra.recordstore.shelve_store import ShelveRecordStore
 from sumatra.recordstore.django_store import DjangoRecordStore
 import sys
-import os
 import shutil
 
 version = __version__.split(".")
@@ -59,7 +61,7 @@ def encode_record(record, indent=None):
             "type": record.parameters.__class__.__name__,
         },
         "launch_mode": {
-            "type": record.launch_mode.__class__.__name__, 
+            "type": record.launch_mode.__class__.__name__,
             "parameters": record.launch_mode.get_state(),
         },
         "datastore": {
@@ -78,14 +80,14 @@ def encode_record(record, indent=None):
             "diff": d.diff,
             } for d in record.dependencies],
         "platforms": [{
-            "system_name": p.system_name, 
-            "ip_addr": p.ip_addr, 
-            "architecture_bits": p.architecture_bits, 
-            "machine": p.machine, 
-            "architecture_linkage": p.architecture_linkage, 
-            "version": p.version, 
-            "release": p.release, 
-            "network_name": p.network_name, 
+            "system_name": p.system_name,
+            "ip_addr": p.ip_addr,
+            "architecture_bits": p.architecture_bits,
+            "machine": p.machine,
+            "architecture_linkage": p.architecture_linkage,
+            "version": p.version,
+            "release": p.release,
+            "network_name": p.network_name,
             "processor": p.processor
             } for p in record.platforms],
         }

@@ -4,6 +4,7 @@
 from setuptools import setup
 from distutils.command.sdist import sdist
 import os
+import sys
 
 
 class sdist_git(sdist):
@@ -25,6 +26,12 @@ class sdist_git(sdist):
             return ''
         return repo.head.commit.hexsha[:7]
 
+
+install_requires = ['Django>=1.4, <=1.6.11', 'django-tagging', 'httplib2',
+                    'docutils', 'jinja2', 'parameters', 'future']
+major_python_version, minor_python_version, _, _, _ = sys.version_info
+if major_python_version < 3 or (major_python_version == 3 and minor_python_version < 4):
+    install_requires.append('pathlib')
 
 setup(
     name = "Sumatra",
@@ -58,10 +65,11 @@ setup(
                    'Programming Language :: Python',
                    'Programming Language :: Python :: 2.6',
                    'Programming Language :: Python :: 2.7',
+                   'Programming Language :: Python :: 3.3',
+                   'Programming Language :: Python :: 3.4',
                    'Topic :: Scientific/Engineering'],
     cmdclass = {'sdist': sdist_git},
-    install_requires = ['Django>=1.4, <=1.6.11', 'django-tagging', 'httplib2',
-                        'docutils', 'jinja2', 'parameters'],
+    install_requires = install_requires,
     extras_require = {'svn': 'pysvn',
                       'hg': 'hgapi',
                       'git': 'GitPython',

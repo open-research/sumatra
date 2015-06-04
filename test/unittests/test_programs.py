@@ -1,6 +1,9 @@
 """
 Unit tests for the sumatra.programs module
 """
+from __future__ import unicode_literals
+from builtins import str
+from builtins import object
 
 try:
     import unittest2 as unittest
@@ -13,8 +16,7 @@ try:
 except ImportError:
     check_output = False
 from sumatra.programs import Executable, version_pattern, get_executable, \
-                             PythonExecutable, NESTSimulator, NEURONSimulator, \
-                             RExecutable
+                             PythonExecutable, NESTSimulator, RExecutable
 
 class TestVersionRegExp(unittest.TestCase):
 

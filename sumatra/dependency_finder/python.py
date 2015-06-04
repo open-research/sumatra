@@ -35,6 +35,9 @@ heuristics - a list of functions that will be called in sequence by
 """
 
 from __future__ import with_statement
+from __future__ import print_function
+from __future__ import unicode_literals
+from builtins import str
 import os
 import sys
 from modulefinder import Module
@@ -43,7 +46,6 @@ import inspect
 import logging
 
 from sumatra.dependency_finder import core
-from sumatra import versioncontrol
 from ..core import get_encoding
 
 logger = logging.getLogger("Sumatra")

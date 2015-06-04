@@ -8,6 +8,12 @@ SQLite or PostgreSQL.
 :copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
 :license: CeCILL, see LICENSE for details.
 """
+from __future__ import absolute_import
+from __future__ import unicode_literals
+from future.standard_library import install_aliases
+install_aliases()
+from builtins import range
+from builtins import object
 
 
 import os
@@ -17,7 +23,8 @@ import django.conf as django_conf
 from django.core import management
 from sumatra.recordstore.base import RecordStore
 from ...core import registry
-from ...compatibility import StringIO, urlparse
+from urllib.request import urlparse
+from io import StringIO
 
 # Check that django-tagging is available. It would be better to try importing
 # it, but that seems to mess with Django's internals.
@@ -135,7 +142,7 @@ class DjangoRecordStore(RecordStore):
     def _get_models(self):
         if not db_config.configured:
             db_config.configure()
-        import models
+        from . import models
         return models
 
     def _switch_db(self, db_file):
@@ -203,10 +210,10 @@ class DjangoRecordStore(RecordStore):
         # should perhaps check here for any orphan Tags, i.e., those that are no longer associated with any records, and delete them
         db_record.save(using=self._db_label)  # need to save before using many-to-many relationship
         chunk_size = 900  # SQLite has problems with inserts >= ca. 1000, so for safety we split it into chunks
-        for i in xrange(0, len(record.input_data), chunk_size):
+        for i in range(0, len(record.input_data), chunk_size):
             db_keys = (self._get_db_obj('DataKey', key) for key in record.input_data[i:i + chunk_size])
             db_record.input_data.add(*db_keys)
-        for i in xrange(0, len(record.output_data), chunk_size):
+        for i in range(0, len(record.output_data), chunk_size):
             db_keys = (self._get_db_obj('DataKey', key) for key in record.output_data[i:i + chunk_size])
             for key in db_keys:
                 key.output_from_record = db_record

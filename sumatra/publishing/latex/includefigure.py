@@ -4,14 +4,15 @@
 :copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
 :license: CeCILL, see LICENSE for details.
 """
+from __future__ import print_function
+from __future__ import unicode_literals
+from future import standard_library
+standard_library.install_aliases()
 
 import sys
 import os
 import logging
-try:
-    from ConfigParser import SafeConfigParser
-except ImportError:
-    from configparser import SafeConfigParser
+from configparser import SafeConfigParser
 from sumatra.publishing.utils import determine_project, determine_record_store, \
     determine_project_name, get_image, \
     record_link_url, get_record_label_and_image_path

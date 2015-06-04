@@ -17,9 +17,12 @@ The required JSON structure can be seen in recordstore.serialization.
 :copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
 :license: CeCILL, see LICENSE for details.
 """
+from __future__ import unicode_literals
+from future import standard_library
+standard_library.install_aliases()
 
 from warnings import warn
-from urlparse import urlparse, urlunparse
+from urllib.parse import urlparse, urlunparse
 try:
     import httplib2
     have_http = True
@@ -177,7 +180,7 @@ class HttpRecordStore(RecordStore):
     def list(self, project_name, tags=None):
         project_url = "%s%s/" % (self.server_url, project_name)
         if tags:
-            if not hasattr(tags, "__iter__"):
+            if not isinstance(tags, list):
                 tags = [tags]
             project_url += "?tags=%s" % ",".join(tags)
         response, content = self._get(project_url, 'project')

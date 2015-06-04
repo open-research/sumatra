@@ -11,15 +11,20 @@ SubversionRepository
 :copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
 :license: CeCILL, see LICENSE for details.
 """
+from __future__ import absolute_import
+from __future__ import unicode_literals
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
 
 import pysvn
 import os
 import tempfile
 import shutil
 import logging
-from urlparse import urlparse
+from urllib.parse import urlparse
 from sumatra.core import have_internet_connection, registry
-from base import Repository, WorkingCopy, VersionControlError
+from .base import Repository, WorkingCopy
 
 
 logger = logging.getLogger("Sumatra")

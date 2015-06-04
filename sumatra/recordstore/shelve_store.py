@@ -5,6 +5,8 @@ shelve module.
 :copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
 :license: CeCILL, see LICENSE for details.
 """
+from __future__ import unicode_literals
+from builtins import str
 
 import os
 import shelve
@@ -21,7 +23,7 @@ def check_name(f):
     """
 
     def wrapped(self, project_name, *args):
-        project_name = str(project_name)
+        project_name = project_name.__str__()
         return f(self, project_name, *args)
     return wrapped
 
@@ -60,11 +62,11 @@ class ShelveRecordStore(RecordStore):
         self.__init__(**state)
 
     def list_projects(self):
-        return self.shelf.keys()
+        return [str(key) for key in self.shelf.keys()]
 
     @check_name
     def save(self, project_name, record):
-        if self.shelf.has_key(project_name):
+        if project_name in self.shelf:
             records = self.shelf[project_name]
         else:
             records = {}
@@ -79,14 +81,12 @@ class ShelveRecordStore(RecordStore):
     def list(self, project_name, tags=None):
         if project_name in self.shelf:
             if tags:
-                if not hasattr(tags, "__iter__"):
+                if not isinstance(tags, list):
                     tags = [tags]
-                records = set()
-                for tag in tags:
-                    records = records.union([record for record in self.shelf[project_name].values() if tag in record.tags])
-                records = list(records)
+                records = [record for record in self.shelf[project_name].values()
+                           if any([tag in record.tags for tag in tags])]
             else:
-                records = self.shelf[project_name].values()
+                records = list(self.shelf[project_name].values())
         else:
             records = []
         return records
@@ -94,7 +94,7 @@ class ShelveRecordStore(RecordStore):
     @check_name
     def labels(self, project_name):
         if project_name in self.shelf:
-            return self.shelf[project_name].keys()
+            return list(self.shelf[project_name].keys())
         else:
             return []
 
@@ -115,7 +115,7 @@ class ShelveRecordStore(RecordStore):
     def most_recent(self, project_name):
         most_recent = None
         most_recent_timestamp = datetime.min
-        for record in self.shelf[project_name].itervalues():
+        for record in self.shelf[project_name].values():
             if record.timestamp > most_recent_timestamp:
                 most_recent_timestamp = record.timestamp
                 most_recent = record.label

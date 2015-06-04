@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+from builtins import range
 from sumatra.projects import Project
 from sumatra.records import Record
 from sumatra.recordstore import django_store
@@ -7,7 +9,6 @@ from sumatra.datastore import FileSystemDataStore
 from sumatra.parameters import SimpleParameterSet
 from sumatra.versioncontrol._git import GitRepository
 import random
-from datetime import datetime
 
 serial = SerialLaunchMode()
 executable = PythonExecutable("/usr/bin/python", version="2.7")

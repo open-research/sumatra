@@ -4,6 +4,7 @@
 :copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
 :license: CeCILL, see LICENSE for details.
 """
+from __future__ import unicode_literals
 
 
 from .sumatra_rst import SumatraImage, smt_link_role

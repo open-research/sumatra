@@ -11,6 +11,11 @@ BazaarRepository
 :copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
 :license: CeCILL, see LICENSE for details.
 """
+from __future__ import absolute_import
+from __future__ import unicode_literals
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
 
 from bzrlib.branch import Branch
 from bzrlib.workingtree import WorkingTree
@@ -18,10 +23,13 @@ from bzrlib import diff
 from bzrlib.errors import NotBranchError
 
 import os
+try:
+    from StringIO import StringIO # bazaar does not handle unicode
+except ImportError: # Python3
+    from io import StringIO
 
-from base import VersionControlError
-from base import Repository, WorkingCopy
-from ..compatibility import string_type, StringIO
+from .base import VersionControlError
+from .base import Repository, WorkingCopy
 from ..core import registry
 
 
@@ -44,8 +52,7 @@ class BazaarWorkingCopy(WorkingCopy):
         return self.path and os.path.exists(os.path.join(self.path, ".bzr"))
 
     def _get_revision_tree(self, version):
-        if isinstance(version, string_type):
-            version = int(version)
+        version = int(version)
         revision_id = self.workingtree.branch.get_rev_id(version)
         return self.workingtree.branch.repository.revision_tree(revision_id)
 

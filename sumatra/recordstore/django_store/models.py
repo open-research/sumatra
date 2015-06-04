@@ -5,9 +5,11 @@ Definition of database tables and object retrieval for the DjangoRecordStore.
 :copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
 :license: CeCILL, see LICENSE for details.
 """
+from __future__ import unicode_literals
+from builtins import str
+from builtins import object
 
 from django.db import models
-from django.contrib.auth.models import User
 from sumatra import programs, launch, datastore, records, versioncontrol, parameters, dependency_finder
 import tagging.fields
 from tagging.models import Tag
@@ -47,7 +49,7 @@ class SumatraObjectsManager(models.Manager):
 class BaseModel(models.Model):
     objects = SumatraObjectsManager()
 
-    class Meta:
+    class Meta(object):
         abstract = True
 
     def field_names(self):
@@ -62,7 +64,7 @@ class Project(BaseModel):
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True)
 
-    class Meta:
+    class Meta(object):
         ordering = ('id',)
 
     def get_name(self):
@@ -106,7 +108,7 @@ class Dependency(BaseModel):
         return getattr(dependency_finder, self.module).Dependency(
             self.name, self.path, self.version, self.diff, self.source)
 
-    class Meta:
+    class Meta(object):
         ordering = ['name']
 
 
@@ -139,9 +141,9 @@ class ParameterSet(BaseModel):
     def to_sumatra(self):
         if hasattr(parameters, self.type):
             ps = getattr(parameters, self.type)(self.content)
-        elif self.content == u'None':
+        elif self.content == 'None':
             ps = None
-        elif self.content == u'{}':
+        elif self.content == '{}':
             ps = {}
         else:
             ps = self.content
@@ -189,7 +191,7 @@ class DataKey(BaseModel):
     output_from_record = models.ForeignKey('Record', related_name =
                                            'output_data', null = True)
 
-    class Meta:
+    class Meta(object):
         ordering = ('path',)
 
     def get_metadata(self):
@@ -247,7 +249,7 @@ class Record(BaseModel):
     # parameters which will be used in the fulltext search (see sumatra.web.services fulltext_search)
     params_search = ('label', 'reason', 'duration', 'main_file', 'outcome', 'user', 'tags')
 
-    class Meta:
+    class Meta(object):
         ordering = ('-timestamp',)
 
     def to_sumatra(self):

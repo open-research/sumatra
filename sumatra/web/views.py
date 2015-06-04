@@ -4,20 +4,28 @@ Defines views for the Sumatra web interface.
 :copyright: Copyright 2006-2015 by the Sumatra team, see doc/authors.txt
 :license: CeCILL, see LICENSE for details.
 """
+from __future__ import print_function
+from __future__ import absolute_import
+from __future__ import unicode_literals
+from builtins import str
 
 
 import mimetypes
-import json
-import os.path
-from django.views.generic import View, ListView, DetailView
 from django.http import HttpResponse, Http404
 from django.shortcuts import render_to_response
+from django.views.generic.list import ListView
+try:
+    from django.views.generic.dates import MonthArchiveView
+except ImportError:  # older versions of Django
+    MonthArchiveView = object
+
+import json
+import os.path
+from django.views.generic import View, DetailView
 from tagging.models import Tag
 from sumatra.recordstore.serialization import datestring_to_datetime
 from sumatra.recordstore.django_store.models import Project, Record, DataKey, Datastore
 from sumatra.records import RecordDifference
-from sumatra.projects import load_project
-
 
 DEFAULT_MAX_DISPLAY_LENGTH = 10 * 1024
 global_conf_file = os.path.expanduser(os.path.join("~", ".smtrc"))
@@ -194,7 +202,7 @@ class DataDetailView(DetailView):
 def delete_records(request, project):
     records_to_delete = request.POST.getlist('delete[]')
     delete_data = request.POST.get('delete_data', False)
-    if isinstance(delete_data, basestring):
+    if isinstance(delete_data, str):
         # Convert strings returned from Javascript function into Python bools
         delete_data = {'false': False, 'true': True}[delete_data]
     records = Record.objects.filter(label__in=records_to_delete, project__id=project)
@@ -266,7 +274,6 @@ def pair_datafiles(data_keys_a, data_keys_b, threshold=0.7):
     return {"matches": matches,
             "unmatched_a": unmatched_files_a,
             "unmatched_b": unmatched_files_b}
-
 
 
 class SettingsView(View):

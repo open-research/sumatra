@@ -20,13 +20,17 @@ load_project() - read project information from the working directory and return
 :copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
 :license: CeCILL, see LICENSE for details.
 """
+from __future__ import print_function
+from __future__ import unicode_literals
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import object
 
 import os
 import re
-try:
-    import cPickle as pickle
-except ImportError:
-    import pickle
+import importlib
+import pickle
 from copy import deepcopy
 import uuid
 import sumatra
@@ -178,15 +182,15 @@ class Project(object):
                    main_file='default', version='current', launch_mode='default',
                    label=None, reason=None, timestamp_format='default'):
         logger.debug("Creating new record")
-        if executable is 'default':
+        if executable == 'default':
             executable = deepcopy(self.default_executable)
-        if repository is 'default':
+        if repository == 'default':
             repository = deepcopy(self.default_repository)
-        if main_file is 'default':
+        if main_file == 'default':
             main_file = self.default_main_file
-        if launch_mode is 'default':
+        if launch_mode == 'default':
             launch_mode = deepcopy(self.default_launch_mode)
-        if timestamp_format is 'default':
+        if timestamp_format == 'default':
             timestamp_format = self.timestamp_format
         working_copy = repository.get_working_copy()
         version, diff = self.update_code(working_copy, version)
@@ -258,11 +262,11 @@ class Project(object):
                 success = True
                 self._most_recent = record.label
             except (django.db.utils.DatabaseError, sqlite3.OperationalError):
-                print "Failed to save record due to database error. Trying again in {} seconds. (Attempt {}/{})".format(sleep_seconds, cnt, max_tries)
+                print("Failed to save record due to database error. Trying again in {} seconds. (Attempt {}/{})".format(sleep_seconds, cnt, max_tries))
                 time.sleep(sleep_seconds)
                 cnt += 1
         if cnt == max_tries:
-            print "Reached maximum number of attempts to save record. Aborting."
+            print("Reached maximum number of attempts to save record. Aborting.")
 
     def get_record(self, label):
         """Search for a record with the supplied label and return it if found.
@@ -425,8 +429,8 @@ def _load_project_from_json(path):
             parts = str(value["type"]).split(".")  # make sure not unicode, see http://stackoverflow.com/questions/1971356/haystack-whoosh-index-generation-error/2683624#2683624
             module_name = ".".join(parts[:-1])
             class_name = parts[-1]
-            _temp = __import__(module_name, globals(), locals(), [class_name], -1)  # from <module_name> import <class_name>
-            cls = getattr(_temp, class_name)
+            module = importlib.import_module(module_name)
+            cls = getattr(module, class_name)
             args = {}
             for k, v in value.items():
                 if k != 'type':

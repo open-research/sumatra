@@ -11,18 +11,23 @@ GitRepository
 :copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
 :license: CeCILL, see LICENSE for details.
 """
+from __future__ import print_function
+from __future__ import absolute_import
+from __future__ import unicode_literals
+from future import standard_library
+standard_library.install_aliases()
 
 import logging
 import git
 import os
 import shutil
 from distutils.version import LooseVersion
-from ConfigParser import NoSectionError, NoOptionError
+from configparser import NoSectionError, NoOptionError
 try:
     from git.errors import InvalidGitRepositoryError, NoSuchPathError
 except:
     from git.exc import InvalidGitRepositoryError, NoSuchPathError
-from base import Repository, WorkingCopy, VersionControlError
+from .base import Repository, WorkingCopy, VersionControlError
 from ..core import registry
 
 

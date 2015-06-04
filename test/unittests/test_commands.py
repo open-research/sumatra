@@ -1,6 +1,12 @@
 """
 Unit tests for the sumatra.commands module
 """
+from __future__ import print_function
+from __future__ import unicode_literals
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import object
 
 try:
     import unittest2 as unittest
@@ -84,6 +90,20 @@ class MockWorkingCopy(object):
     repository = MockRepository("http://mock_repository")
 
 
+class MockParameterSet(dict):
+
+    def __init__(self, filename):
+        dict.__init__(self, this='mock')
+        self.ps = SimpleParameterSet("")
+        self.parameter_file = filename
+
+    def parse_command_line_parameter(self, cl):
+        return self.ps.parse_command_line_parameter(cl)
+
+    def pretty(self, expand_urls):
+        return str(self)
+
+
 class MockProject(object):
     name = None
     path = "/path/to/project"
@@ -160,12 +180,7 @@ def mock_mkdir(path, mode=511):  # octal 777 "-rwxrwxrwx"
 
 def mock_build_parameters(filename):
     if filename != "this.is.not.a.parameter.file":
-        P = SimpleParameterSet("")
-        ps = type("MockParameterSet", (dict,),
-                  {"parameter_file": filename,
-                   "parse_command_line_parameter": lambda self, cl: P.parse_command_line_parameter(cl),
-                   "pretty": lambda self, expand_urls: str(self)})
-        return ps(this="mock")
+        return MockParameterSet(filename)
     else:
         return None
 
@@ -425,9 +440,8 @@ class TestParseArguments(unittest.TestCase):
         self.assertEqual(script_args, "spam eggs")
 
     def test_with_single_parameter_file_and_nonfile_arg(self):
-        f = open("test.param", 'w')
-        f.write("a = 2\nb = 3\n")
-        f.close()
+        with open("test.param", 'w') as f:
+            f.write("a = 2\nb = 3\n")
         parameter_sets, input_data, script_args = commands.parse_arguments(["spam", "test.param"], self.input_datastore)
         self.assertEqual(parameter_sets, [{'this': 'mock'}])
         self.assertEqual(input_data, [])
@@ -436,9 +450,8 @@ class TestParseArguments(unittest.TestCase):
 
     def test_with_single_datafile(self):
         data_content = "23496857243968b24cbc4275dc82470a\n"
-        f = open("this.is.not.a.parameter.file", 'w')
-        f.write(data_content)
-        f.close()
+        with open("this.is.not.a.parameter.file", 'w') as f:
+            f.write(data_content)
         parameter_sets, input_data, script_args = commands.parse_arguments(
             ["this.is.not.a.parameter.file"], self.input_datastore)
         self.assertEqual(parameter_sets, [])
@@ -457,9 +470,8 @@ class TestParseArguments(unittest.TestCase):
             raise unittest.SkipTest("test directory doesn't exist")
 
     def test_with_cmdline_parameters(self):
-        f = open("test.param", 'w')
-        f.write("a = 2\nb = 3\n")
-        f.close()
+        with open("test.param", 'w') as f:
+            f.write("a = 2\nb = 3\n")
         parameter_sets, input_data, script_args = commands.parse_arguments(["test.param", "a=17", "umlue=43"], self.input_datastore)
         self.assertEqual(parameter_sets, [{'this': 'mock', 'a': 17, 'umlue': 43}])
         self.assertEqual(input_data, [])
@@ -470,13 +482,11 @@ class TestParseArguments(unittest.TestCase):
         self.assertRaises(Exception, commands.parse_arguments, ["a=17", "yagri=43"])
 
     def test_with_everything(self):
-        f = open("test.param", 'w')
-        f.write("a = 2\nb = 3\n")
-        f.close()
+        with open("test.param", 'w') as f:
+            f.write("a = 2\nb = 3\n")
         data_content = "23496857243968b24cbc4275dc82470a\n"
-        f = open("this.is.not.a.parameter.file", 'w')
-        f.write(data_content)
-        f.close()
+        with open("this.is.not.a.parameter.file", 'w') as f:
+            f.write(data_content)
         parameter_sets, input_data, script_args = commands.parse_arguments(["spam", "test.param", "eggs", "this.is.not.a.parameter.file", "a=17", "umlue=43", "beans"],
                                                                            self.input_datastore)
         self.assertEqual(parameter_sets, [{'this': 'mock', 'a': 17, 'umlue': 43}])
@@ -517,9 +527,8 @@ class RunCommandTests(unittest.TestCase):
 
     def test_with_single_input_file(self):
         data_content = b"0.0 242\n0.1 2345\n0.2 42451\n"
-        f = open("this.is.not.a.parameter.file", 'wb')
-        f.write(data_content)
-        f.close()
+        with open("this.is.not.a.parameter.file", 'wb') as f:
+            f.write(data_content)
         commands.run(["this.is.not.a.parameter.file"])  # file exists but is not a parameter file so is treated as input data
         self.assertEqual(self.prj.launch_args,
                          {'executable': 'default',
@@ -533,13 +542,11 @@ class RunCommandTests(unittest.TestCase):
         os.remove("this.is.not.a.parameter.file")
 
     def test_with_everything(self):
-        f = open("test.param", 'w')
-        f.write("a = 2\nb = 3\n")
-        f.close()
+        with open("test.param", 'w') as f:
+            f.write("a = 2\nb = 3\n")
         data_content = b"23496857243968b24cbc4275dc82470a\n"
-        f = open("this.is.not.a.parameter.file", 'wb')
-        f.write(data_content)
-        f.close()
+        with open("this.is.not.a.parameter.file", 'wb') as f:
+            f.write(data_content)
         commands.run(["-l", "vikings", "-v", "234", "--reason='test'",
                       "-e", "python", "--main=main.py", "spam", "test.param",
                       "eggs", "this.is.not.a.parameter.file", "a=17",
@@ -797,7 +804,7 @@ class ArgumentParsingTests(unittest.TestCase):
             self.assertEqual(result, {'b': 2.0})
             assert isinstance(result['b'], float)
 
-    def test_parse_commend_line_parameter_warns(self):
+    def test_parse_command_line_parameter_warns(self):
         ## but still returns name and value with ValueError
         for P in self.PSETS:
             self.assertRaises(ValueError, P.parse_command_line_parameter, "bt=2")

@@ -10,6 +10,9 @@ Usage:
 or:
     python test_ircr.py
 """
+from __future__ import print_function
+from __future__ import unicode_literals
+from builtins import input
 
 # Requirements: numpy, scipy, matplotlib, mercurial, sarge
 import os
@@ -18,6 +21,7 @@ import utils
 from utils import (setup, teardown, run_test, build_command, assert_file_exists, assert_in_output,
                    assert_config, assert_label_equal, assert_records, edit_parameters,
                    expected_short_list, substitute_labels)
+from functools import partial
 
 repository = "https://bitbucket.org/apdavison/ircr2013"
 #repository = "/Volumes/USERS/andrew/dev/ircr2013"  # during development
@@ -26,12 +30,13 @@ repository = "https://bitbucket.org/apdavison/ircr2013"
 
 def modify_script(filename):
     def wrapped():
-        with open(os.path.join(utils.working_dir, filename), 'rb') as fp:
+        with open(os.path.join(utils.working_dir, filename), 'r') as fp:
             script = fp.readlines()
-        with open(os.path.join(utils.working_dir, filename), 'wb') as fp:
+        with open(os.path.join(utils.working_dir, filename), 'w') as fp:
             for line in script:
                 if "print(mean_bubble_size, median_bubble_size)" in line:
-                    fp.write('print("Mean:", mean_bubble_size)\nprint("Median:", median_bubble_size)\n')
+                    fp.write('print("Mean:", mean_bubble_size)\n')
+                    fp.write('print("Median:", median_bubble_size)\n')
                 else:
                     fp.write(line)
     return wrapped
@@ -114,8 +119,9 @@ def test_all():
         if callable(step):
             step()
         else:
-            run_test.description = step[0]
-            yield tuple([run_test] + list(step[1:]))
+            test = partial(*tuple([run_test] + list(step[1:])))
+            test.description = step[0]
+            yield test
 
 # Still to test:
 #
@@ -136,10 +142,10 @@ if __name__ == '__main__':
         if callable(step):
             step()
         else:
-            print step[0]  # description
+            print(step[0])  # description
             run_test(*step[1:])
-    response = raw_input("Do you want to delete the temporary directory (default: yes)? ")
+    response = input("Do you want to delete the temporary directory (default: yes)? ")
     if response not in ["n", "N", "no", "No"]:
         teardown()
     else:
-        print "Temporary directory %s not removed" % utils.temporary_dir
+        print("Temporary directory %s not removed" % utils.temporary_dir)

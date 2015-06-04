@@ -7,11 +7,11 @@ This script should be placed somewhere on the user's path.
 :copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
 :license: CeCILL, see LICENSE for details.
 """
+from __future__ import unicode_literals
 
 from mpi4py import MPI
 import platform
 import socket
-import time
 from datetime import datetime
 
 TIMESTAMP_FORMAT = "%Y%m%d-%H%M%S"

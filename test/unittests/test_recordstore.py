@@ -3,15 +3,21 @@ Unit tests for the sumatra.recordstore package
 """
 
 from __future__ import unicode_literals
+from __future__ import print_function
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import object
 try:
     import unittest2 as unittest
 except ImportError:
     import unittest
 import os
 import sys
-from datetime import datetime
+import tempfile
+import shutil
+from datetime import datetime, timedelta
 from glob import glob
-from django.core import management
 
 from sumatra.records import Record
 from sumatra.programs import Executable
@@ -23,13 +29,13 @@ import sumatra.datastore
 import sumatra.parameters
 from sumatra.core import registry
 import json
-import urlparse
-from sumatra.compatibility import string_type
+import urllib.parse
 
 
 originals = []
 django_store1 = None
 django_store2 = None
+django_dir = None
 
 this_directory = os.path.dirname(__file__)
 
@@ -102,9 +108,9 @@ class MockParameterSet(object):
 
 class MockRecord(object):
 
-    def __init__(self, label):
+    def __init__(self, label, timestamp=datetime.now()):
         self.label = label
-        self.timestamp = datetime.now()  # datetime(1901, 6, 1, 12, 0, 0)
+        self.timestamp = timestamp
         self.reason = "because"
         self.duration = 7543.2
         self.outcome = None
@@ -135,16 +141,11 @@ class MockProject(object):
     name = "TestProject"
 
 
-def clean_up():
-    pass
-    #for filename in ("test.db", "test2.db"):
-    #    if os.path.exists(filename):
-    #        os.remove(filename)
-
-
 def setup():
-    global django_store1, django_store2
-    clean_up()
+    global django_store1, django_store2, django_dir
+    django_dir = tempfile.mkdtemp(prefix='sumatra-test-')
+    cwd_before = os.getcwd()
+    os.chdir(django_dir)
     sumatra.launch.MockLaunchMode = MockLaunchMode
     sumatra.datastore.MockDataStore = MockDataStore
     sumatra.parameters.MockParameterSet = MockParameterSet
@@ -154,37 +155,52 @@ def setup():
         django_store2 = django_store.DjangoRecordStore(db_file="test2.db")
     django_store.db_config.configure()
     vcs_list.append(sys.modules[__name__])
+    os.chdir(cwd_before)
 
 
 def teardown():
-    global django_store1, django_store2
+    global django_store1, django_store2, django_dir
     del sumatra.launch.MockLaunchMode
     del sumatra.datastore.MockDataStore
     del sumatra.parameters.MockParameterSet
-    clean_up()
+    shutil.rmtree(django_dir)
     vcs_list.remove(sys.modules[__name__])
 
 
 class BaseTestRecordStore(object):
 
+    def setUp(self):
+        self.dir = tempfile.mkdtemp(prefix='sumatra-test-')
+        self.cwd_before_test = os.getcwd()
+        os.chdir(self.dir)
+
     def tearDown(self):
         django_store1.delete_all()
         django_store2.delete_all()
-        for filename in glob("test_record_store2*"):
-            if os.path.exists(filename):
-                os.remove(filename)
+        os.chdir(self.cwd_before_test)
+        shutil.rmtree(self.dir)
 
     def add_some_records(self):
-        r1 = MockRecord("record1")
-        r2 = MockRecord("record2")
-        r3 = MockRecord("record3")
+        # records must have a delta timestamp of one second as RecordStores
+        # might serialize the record using serialization.encode_record
+        # (like HttpRecordStore). There, the timestamp will be cut off
+        # milliseconds.
+        now = datetime.now()
+        r1 = MockRecord("record1", timestamp=now - timedelta(seconds=2))
+        r2 = MockRecord("record2", timestamp=now - timedelta(seconds=1))
+        r3 = MockRecord("record3", timestamp=now)
         for r in r1, r2, r3:
             #print "saving record %s" % r.label
             self.store.save(self.project.name, r)
 
     def add_some_tags(self):
-        r1 = MockRecord("record1")
-        r3 = MockRecord("record3")
+        # records must have a delta timestamp of one second as RecordStores
+        # might serialize the record using serialization.encode_record
+        # (like HttpRecordStore). There, the timestamp will be cut off
+        # milliseconds.
+        now = datetime.now()
+        r1 = MockRecord("record1", timestamp=now - timedelta(seconds=1))
+        r3 = MockRecord("record3", timestamp=now)
         r1.tags.add("tag1")
         r1.tags.add("tag2")
         r3.tags.add("tag1")
@@ -245,7 +261,7 @@ class BaseTestRecordStore(object):
 
     def test_str(self):
         #this test is pointless, just to increase coverage
-        assert isinstance(str(self.store), string_type)
+        assert isinstance(str(self.store), str)
 
     def test_most_recent(self):
         self.add_some_records()
@@ -283,35 +299,32 @@ class BaseTestRecordStore(object):
 class TestShelveRecordStore(unittest.TestCase, BaseTestRecordStore):
 
     def setUp(self):
+        BaseTestRecordStore.setUp(self)
         self.store = shelve_store.ShelveRecordStore(shelf_name="test_record_store")
         self.project = MockProject()
 
     def tearDown(self):
+        del self.store  # this is necessary when using the dumbdbm module, which otherwise creates files after test
         BaseTestRecordStore.tearDown(self)
-        for filename in glob("test_record_store*"):
-            if os.path.exists(filename):
-                os.remove(filename)
 
     def test_record_store_is_pickleable(self):
         import pickle
         self.add_some_records()
         s = pickle.dumps(self.store)
         del self.store
-        unpickled = pickle.loads(s)
-        self.assertEqual(unpickled._shelf_name, "test_record_store")
+        self.store = pickle.loads(s)
+        self.assertEqual(self.store._shelf_name, "test_record_store")
 
 
 class TestDjangoRecordStore(unittest.TestCase, BaseTestRecordStore):
 
     def setUp(self):
+        BaseTestRecordStore.setUp(self)
         self.store = django_store1
         self.project = MockProject()
 
     def tearDown(self):
         BaseTestRecordStore.tearDown(self)
-
-    def __del__(self):
-        clean_up()
 
     def test_record_store_is_pickleable(self):
         import pickle
@@ -354,7 +367,7 @@ class MockHttp(object):
     def add_credentials(self, *args, **kwargs):
         pass
     def request(self, uri, method="GET", body=None, headers=None, **kwargs):
-        u = urlparse.urlparse(uri)
+        u = urllib.parse.urlparse(uri)
         parts = u.path.split("/")[1:-1]
         if self.debug:
             print("\n<<<<< %s %s %d %s %s %s %s %s" % (uri, u.path, len(parts),
@@ -379,7 +392,7 @@ class MockHttp(object):
             elif method == "DELETE":
                 self.records.pop(parts[1])
                 most_recent = ""
-                for record in self.records.itervalues():
+                for record in self.records.values():
                     if record["timestamp"] > most_recent:
                         most_recent = record["timestamp"]
                         self.last_record = record
@@ -407,7 +420,7 @@ class MockHttp(object):
             if method == "DELETE":
                 tag = parts[2]
                 n = 0
-                for key, record in self.records.items():
+                for key, record in list(self.records.items()):
                     if tag in record["tags"]:
                         self.records.pop(key)
                         n += 1
@@ -439,8 +452,12 @@ class TestHttpRecordStore(unittest.TestCase, BaseTestRecordStore):
         http_store.httplib2 = self.real_httplib
 
     def setUp(self):
+        BaseTestRecordStore.setUp(self)
         self.store = http_store.HttpRecordStore("http://127.0.0.1:8000/", "testuser", "z6Ty49HY")
         self.project = MockProject()
+
+    def tearDown(self):
+        BaseTestRecordStore.tearDown(self)
 
     def test_record_store_is_pickleable(self):
         import pickle
@@ -484,7 +501,7 @@ class TestSerialization(unittest.TestCase):
     def test_build_record_v0p5(self):
         with open(os.path.join(this_directory,"example_0.5.json")) as fp:
             record = serialization.build_record(json.load(fp))
-        self.assertEqual(record.label, "haggling")    
+        self.assertEqual(record.label, "haggling")
 
     def test_build_record_v0p6(self):
         with open(os.path.join(this_directory, "example_0.6.json")) as fp:
@@ -496,6 +513,10 @@ class TestSerialization(unittest.TestCase):
             data_in = json.load(fp)
         record = serialization.build_record(data_in)
         data_out = json.loads(serialization.encode_record(record, indent=2))
+        # tags in records are a set, hence have arbitrary order.
+        self.assertTrue('tags' in data_out)
+        data_in['tags'] = sorted(data_in['tags'])
+        data_out['tags'] = sorted(data_out['tags'])
         self.assertEqual(data_in, data_out)
 
     def test_encode_project_info(self):
@@ -504,10 +525,14 @@ class TestSerialization(unittest.TestCase):
 
 class TestModuleFunctions(unittest.TestCase):
 
+    def setUp(self):
+        self.dir = tempfile.mkdtemp(prefix='sumatra-test-')
+        self.cwd_before_test = os.getcwd()
+        os.chdir(self.dir)
+
     def tearDown(self):
-        for filename in glob("test_record_store.shelf*"):
-            if os.path.exists(filename):
-                os.remove(filename)
+        os.chdir(self.cwd_before_test)
+        shutil.rmtree(self.dir)
 
     def test_get_record_store_http(self, ):
         self.assertIsInstance(get_record_store("http://records.example.com/"),
@@ -515,7 +540,8 @@ class TestModuleFunctions(unittest.TestCase):
 
     def test_get_record_store_shelve(self):
         store = shelve_store.ShelveRecordStore(shelf_name="test_record_store.shelf")
-        store.shelf[str("foo")] = "bar"
+        key = "foo".__str__()  # string wrapping is necessary for dumbdbm, which fails with unicode in Py2
+        store.shelf[key] = "bar"
         store.shelf.sync()
         del store
         assert len(glob("test_record_store.shelf*")) > 0
@@ -526,7 +552,7 @@ class TestModuleFunctions(unittest.TestCase):
         assert len(glob("test_record_store.shelf*")) == 0
         self.assertIsInstance(get_record_store("test_record_store.shelf"),
                               shelve_store.ShelveRecordStore)
-    
+
 
 if __name__ == '__main__':
     setup()

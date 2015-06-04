@@ -11,12 +11,15 @@ MercurialRepository
 :copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
 :license: CeCILL, see LICENSE for details.
 """
+from __future__ import print_function
+from __future__ import absolute_import
+from __future__ import unicode_literals
 
 import hgapi
 import os
 import functools
-from base import UncommittedModificationsError
-from base import Repository, WorkingCopy
+from .base import UncommittedModificationsError
+from .base import Repository, WorkingCopy
 from ..core import registry
 
 
@@ -71,7 +74,7 @@ class MercurialWorkingCopy(WorkingCopy):
         changed = False
         for st in 'modified', 'removed', 'missing':
             if status[st]:
-                print "!!!!!", st, status[st]
+                print("!!!!!", st, status[st])
                 changed = True
                 break
         return changed

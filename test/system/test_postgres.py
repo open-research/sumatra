@@ -7,9 +7,14 @@ Usage:
 or:
     python test_postgres.py
 """
+from __future__ import print_function
+from __future__ import unicode_literals
+from future import standard_library
+standard_library.install_aliases()
+from builtins import input
 
 import os
-from urlparse import urlparse
+from urllib.parse import urlparse
 try:
     import docker
     if "DOCKER_HOST" in os.environ:
@@ -113,10 +118,10 @@ if __name__ == '__main__':
         if callable(step):
             step()
         else:
-            print step[0]  # description
+            print(step[0])  # description
             run_test(*step[1:])
-    response = raw_input("Do you want to delete the temporary directory (default: yes)? ")
+    response = input("Do you want to delete the temporary directory (default: yes)? ")
     if response not in ["n", "N", "no", "No"]:
         teardown()
     else:
-        print "Temporary directory %s not removed" % utils.temporary_dir
+        print("Temporary directory %s not removed" % utils.temporary_dir)

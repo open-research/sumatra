@@ -29,10 +29,10 @@ heuristics - a list of functions that will be called in sequence by
 """
 
 from __future__ import with_statement
+from __future__ import unicode_literals
 import re
 import os
 from sumatra.dependency_finder import core
-from sumatra import versioncontrol
 
 
 class Dependency(core.BaseDependency):

@@ -6,6 +6,10 @@ obtaining information about the platform(s) on which the simulations are run.
 :copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
 :license: CeCILL, see LICENSE for details.
 """
+from __future__ import print_function
+from __future__ import unicode_literals
+from builtins import range
+from builtins import object
 
 import platform
 import socket
@@ -350,7 +354,7 @@ class SlurmMPILaunchMode(LaunchMode):
         else:
             cmd += " %s %s %s %s" % (executable.path, mpi_options,
                                      executable.options, arguments)
-        print cmd
+        print(cmd)
         return cmd
     generate_command.__doc__ = LaunchMode.generate_command.__doc__
 

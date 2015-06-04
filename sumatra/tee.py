@@ -4,12 +4,10 @@
 # License: public domain
 from __future__ import print_function
 from __future__ import unicode_literals
+from builtins import str
 import logging, sys, subprocess, types, time, os, codecs, platform
 
-if sys.version_info[0] == 3:
-    string_types = str,
-else:
-    string_types = basestring,
+string_types = str,
 
 global logger
 global stdout
@@ -25,7 +23,7 @@ log_command = True # outputs the command being executed to the log (before comma
 _sentinel = object()
 
 def quote_command(cmd):
-        """ 
+        """
         This function does assure that the command line is entirely quoted.
         This is required in order to prevent getting "The input line is too long" error message.
         """
@@ -36,7 +34,7 @@ def quote_command(cmd):
         re_quoted_items = re.compile(r'" \s* [^"\s] [^"]* \"', re.VERBOSE)
         woqi = re_quoted_items.sub('', cmd)
         if len(cmd) == 0 or (len(woqi) > 0 and not (woqi[0] == '"' and woqi[-1] == '"')):
-                return '"' + cmd + '"'    
+                return '"' + cmd + '"'
         else:
                 return cmd
 
@@ -66,17 +64,17 @@ def system2(cmd, cwd=None, logger=_sentinel, stdout=_sentinel, log_command=_sent
         * 'handle' - it just write to it
         * 'function' - it call it using the message
         * None - disable any logging
-        
+
         If logger parameter is not specified it will use python logging module.
-        
+
         This method return (returncode, output_lines_as_list)
-        
+
         """
         t = time.clock()
         output = []
         if log_command is _sentinel: log_command = globals().get('log_command')
         if timing is _sentinel: timing = globals().get('timing')
-        
+
         if logger is _sentinel: # default to python native logger if logger parameter is not used
                 logger = globals().get('logger')
         if stdout is _sentinel:
@@ -127,11 +125,11 @@ def system2(cmd, cwd=None, logger=_sentinel, stdout=_sentinel, log_command=_sent
 
         if cwd is not None and not os.path.isdir(cwd):
                 os.makedirs(cwd) # this throws exception if fails
-        
+
         # samarkanov: commented 'quote_command' deliberately
         # reason: if I have 'quote_command' Sumatra does not work in Windows (it encloses the command in quotes. I did not understand why should we quote)
         # I have never catched "The input line is too long" (yet?)
-        # cmd = quote_command(cmd)  
+        # cmd = quote_command(cmd)
         p = subprocess.Popen(cmd, cwd=cwd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, close_fds=(platform.system() == 'Linux'))
         if(log_command):
                 mylogger("Running: %s" % cmd)
@@ -152,7 +150,7 @@ def system2(cmd, cwd=None, logger=_sentinel, stdout=_sentinel, log_command=_sent
                 mylogger(line.rstrip('\n\r')) # they are added by logging anyway
                 #import pdb; pdb.set_trace()
                 if(stdout):
-                        print(line.encode(encoding), end="")
+                        print(line, end="")
                         sys.stdout.flush()
         returncode = p.wait()
         if(log_command):
@@ -167,8 +165,8 @@ def system2(cmd, cwd=None, logger=_sentinel, stdout=_sentinel, log_command=_sent
         if not returncode == 0: # running a tool that returns non-zero? this deserves a warning
                 logging.warning("Returned: %d from: %s\nOutput %s" % (returncode, cmd, ''.join(output)))
 
-        return(returncode, output)      
-                
+        return(returncode, output)
+
 def system(cmd, cwd=None, logger=None, stdout=None, log_command=_sentinel, timing=_sentinel):
         """ System does not return a tuple """
         (returncode, output) = system2(cmd, cwd=cwd, logger=logger, stdout=stdout, log_command=log_command, timing=timing)
@@ -180,12 +178,12 @@ if __name__ == '__main__':
 
         logging.basicConfig(level=logging.NOTSET,
                 format='%(message)s')
-        
-        # default (stdout)      
+
+        # default (stdout)
         print("#1")
         system("python --version")
 
-        # function/method               
+        # function/method
         print("#2")
         system("python --version", logger=logging.error)
 
@@ -214,5 +212,5 @@ if __name__ == '__main__':
         print("#7")
         stdout = True
         system("echo test2")
-        
-                
+
+

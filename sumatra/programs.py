@@ -34,11 +34,13 @@ get_executable()
 """
 
 from __future__ import with_statement
+from __future__ import print_function
+from __future__ import unicode_literals
+from builtins import object
 import os.path
 import re
 import sys
 import warnings
-from .compatibility import string_type
 from .core import run, registry
 
 
@@ -131,7 +133,7 @@ class NEURONSimulator(Executable):
         filename = filebasename + ".hoc"
         with open(filename, 'w') as fp:
             for name, value in parameters.as_dict().items():
-                if isinstance(value, string_type):
+                if isinstance(value, str):
                     fp.write('strdef %s\n' % name)
                     fp.write('%s = "%s"\n' % (name, value))
                 else:

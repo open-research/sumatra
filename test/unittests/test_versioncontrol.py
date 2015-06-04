@@ -1,8 +1,11 @@
 """
 Unit tests for the sumatra.versioncontrol package
 """
-
 from __future__ import with_statement
+from __future__ import unicode_literals
+from builtins import str
+from builtins import object
+
 try:
     import unittest2 as unittest
 except ImportError:
@@ -84,7 +87,7 @@ class BaseTestWorkingCopy(object):
         self.assertEqual(self.wc.current_version(), self.latest_version)
 
     def test__contains(self):
-        self.assert_(self.wc.contains("romans.param"))
+        self.assertTrue(self.wc.contains("romans.param"))
 
 
 @unittest.skipUnless(have_hg, "Could not import hgapi")

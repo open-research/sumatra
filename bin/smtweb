@@ -5,9 +5,10 @@ Web interface to the Sumatra computational experiment management tool.
 
 import sys
 import os
-import webbrowser
-import thread
-import time
+try:
+    import thread
+except ImportError: # Python 3. TODO: move to higher level ``threading`` module
+    import _thread as thread
 from django.core import management
 from django.conf import settings
 from sumatra.projects import load_project
@@ -15,6 +16,7 @@ from sumatra.recordstore.django_store import DjangoRecordStore, db_config
 from sumatra.web import __file__ as sumatra_web
 from optparse import OptionParser
 from textwrap import dedent
+import time
 
 
 def delayed_new_tab(url, delay):
@@ -22,7 +24,7 @@ def delayed_new_tab(url, delay):
     Open a new browser tab with a time delay, to give the server enough
     time to start up.
     """
-    
+
     time.sleep(delay)
     # maybe optional with python setup develop ?
     webbrowser.open_new_tab(url)
@@ -63,7 +65,7 @@ def main(argv):
                               os.path.join(root_dir, "templates"),)
     settings.INSTALLED_APPS = list(settings.INSTALLED_APPS) + ['sumatra.web']
     settings.MIDDLEWARE_CLASSES = tuple()
-    
+
     if not options.no_browser:
         thread.start_new_thread(delayed_new_tab, ("http://127.0.0.1:%s" % options.port, 3))
 
@@ -73,7 +75,7 @@ def main(argv):
         address = '127.0.0.1'
     address += ':' + options.port
     management.call_command('runserver', address, use_reloader=False)
-    
+
 
 if __name__ == "__main__":
     main(sys.argv[1:])

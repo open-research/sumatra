@@ -1,6 +1,8 @@
 """
 Unit tests for the sumatra.formatting module
 """
+from __future__ import unicode_literals
+from builtins import object
 
 try:
     import unittest2 as unittest
@@ -34,7 +36,7 @@ class MockRepository(object):
         return self.url == other.url
     def __repr__(self):
         return "MockRepository(%s)" % self.url
-    
+
 
 class MockExecutable(object):
     name = "brian"
@@ -42,7 +44,7 @@ class MockExecutable(object):
     def write_parameters(self, param, filebase):
         return "filename"
     def __repr__(self):
-        return "MockExecutable()" 
+        return "MockExecutable()"
 
 
 class MockLaunchMode(object):
@@ -50,7 +52,7 @@ class MockLaunchMode(object):
     def generate_command(self, ex, main, args):
         return ex.name + " " + main + " " + args
     def __repr__(self):
-        return "MockLaunchMode()" 
+        return "MockLaunchMode()"
 
 
 class MockDataItem(object):
@@ -59,7 +61,7 @@ class MockDataItem(object):
         self.metadata = {'size': 1024}
     def __repr__(self):
         return self.path
-    
+
 
 class MockRecord(Record):
     def __init__(self, label=None):

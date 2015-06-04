@@ -1,8 +1,11 @@
 """
 Unit tests for the sumatra.launch module
 """
-
 from __future__ import with_statement
+from __future__ import unicode_literals
+from builtins import str
+from builtins import object
+
 try:
     import unittest2 as unittest
 except ImportError:

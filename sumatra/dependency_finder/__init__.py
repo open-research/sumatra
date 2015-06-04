@@ -14,11 +14,10 @@ under version control.
 """
 
 from __future__ import with_statement
-import os
-import sys
+from __future__ import unicode_literals
 import warnings
 
-from sumatra.dependency_finder import core, neuron, python, genesis, matlab, r
+from sumatra.dependency_finder import neuron, python, genesis, matlab, r
 
 
 def find_dependencies(filename, executable):

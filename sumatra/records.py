@@ -14,13 +14,15 @@ Record - gathers and stores information about an individual simulation or
 :copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
 :license: CeCILL, see LICENSE for details.
 """
+from __future__ import print_function
+from __future__ import unicode_literals
+from builtins import object
 
 from datetime import datetime
 import time
 import os
-from os.path import relpath, normpath, join, basename, exists
+from os.path import join, basename, exists
 import re
-import getpass
 from operator import or_
 from functools import reduce
 from .formatting import get_formatter
@@ -28,8 +30,8 @@ from . import dependency_finder
 from sumatra.core import TIMESTAMP_FORMAT
 from sumatra.users import get_user
 from .versioncontrol import VersionControlError
-from .compatibility import string_type
 import logging
+from pathlib import Path
 
 logger = logging.getLogger("Sumatra")
 
@@ -43,11 +45,9 @@ class MissingInformationError(Exception):
 
 
 def check_file_under_version_control(file_path, working_copy):
-    cwd_relative_to_wc = relpath(os.getcwd(), working_copy.path)
-    file_relative_to_cwd = relpath(file_path, os.getcwd())
-    if not working_copy.contains(
-        normpath(join(cwd_relative_to_wc, file_relative_to_cwd))):
-            raise VersionControlError("File %s is not under version control" % file_path)
+    file_relative_to_wc = Path(file_path).resolve().relative_to(Path(working_copy.path).resolve())
+    if not working_copy.contains(file_relative_to_wc.as_posix()):
+        raise VersionControlError("File %s is not under version control" % file_path)
 
 
 class Record(object):
@@ -67,7 +67,7 @@ class Record(object):
         # distributed/batch simulations on machines with out-of-sync clocks,
         # but only do this if you really know what you're doing, otherwise the
         # association of output data with this record may be incorrect
-        self.timestamp = timestamp or datetime.now() 
+        self.timestamp = timestamp or datetime.now()
         self.label = label or self.timestamp.strftime(timestamp_format)
         if not re.match(Record.valid_name_pattern, self.label):
             raise ValueError("Invalid record label.")
@@ -106,7 +106,7 @@ class Record(object):
         logger.debug("Recording dependencies")
         self.dependencies = []
         if self.main_file is None:
-            if self.executable.requires_script:            
+            if self.executable.requires_script:
                 raise MissingInformationError("main script file not specified")
         else:
             if len(self.main_file.split()) == 1: # this assumes filenames cannot contain spaces
@@ -185,7 +185,7 @@ class Record(object):
     def describe(self, format='text', mode='long'):
         """
         Return a description of the record.
-        
+
         *mode*:
             either 'long' or 'short'
         *format*
@@ -236,8 +236,8 @@ class RecordDifference(object):
                  ignore_filenames=[]):
         self.recordA = recordA
         self.recordB = recordB
-        assert not isinstance(ignore_mimetypes, string_type) # catch a
-        assert not isinstance(ignore_filenames, string_type) # common error
+        assert not isinstance(ignore_mimetypes, str) # catch a
+        assert not isinstance(ignore_filenames, str) # common error
         self.ignore_mimetypes += ignore_mimetypes
         self.ignore_filenames += ignore_filenames
         self.executable_differs = recordA.executable != recordB.executable
@@ -252,7 +252,7 @@ class RecordDifference(object):
         self.launch_mode_differs = recordA.launch_mode != recordB.launch_mode
         self.diff_differs = recordA.diff != recordB.diff
 
-    def __nonzero__(self):
+    def __bool__(self):
         """
         Return True if there are differences in executable, code, parameters or
         output data between the records, otherwise return False.

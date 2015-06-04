@@ -9,16 +9,18 @@ Mac OS X, with the bash shell.
 Requirements
 ------------
 
-    * Python_ 2.6 and/or 2.7
+    * Python_ 2.6, 2.7 or >= 3.3
     * Django_ >= 1.4
     * django-tagging_ >= 0.3
     * parameters >= 0.2.1
     * nose_ >= 0.11.4
+    * future >= 0.14
+    * if using Python <= 3.3, pathlib >= 1.0.0
     * if using Python 2.6, unittest2_ >= 0.5.1
     * (optional) mpi4py_ >= 1.2.2
     * (optional) twill_ >= 0.9 (for testing web interface)
     * (optional) coverage_ >= 3.3.1 (for measuring test coverage)
-    
+
 .. can setup.py install all these?
 
 We strongly recommend developing within a virtualenv_.
@@ -92,7 +94,7 @@ Once you are happy with your changes, you can commit them to your local copy of
 the repository::
 
     $ git commit -m 'informative commit message'
-    
+
 and then push them to your Github repository::
 
     $ git push
@@ -107,7 +109,7 @@ Coding standards and style
 --------------------------
 
 All code should conform as much as possible to `PEP 8`_, and should run with
-Python 2.6 and 2.7. Lines should be no longer than 99 characters.
+Python 2.6, 2.7, 3.3 and 3.4. Lines should be no longer than 99 characters.
 
 
 Reviewing pull requests

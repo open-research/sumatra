@@ -1,10 +1,14 @@
 """
 Utility functions for writing system tests.
 """
+from __future__ import print_function
+from __future__ import unicode_literals
+from builtins import zip
+from builtins import str
 
 import os.path
 import re
-from itertools import islice, izip
+from itertools import islice
 import tempfile
 import shutil
 import sarge
@@ -55,7 +59,7 @@ def setup():
     temporary_dir = os.path.realpath(tempfile.mkdtemp())
     working_dir = os.path.join(temporary_dir, "sumatra_exercise")
     os.mkdir(working_dir)
-    print working_dir
+    print(working_dir)
     env["labels"] = []
 
 
@@ -79,7 +83,7 @@ def pairs(iterable):
     """
     ABCDEF -> (A, B), (C, D), (E, F)
     """
-    return izip(islice(iterable, 0, None, 2), islice(iterable, 1, None, 2))
+    return zip(islice(iterable, 0, None, 2), islice(iterable, 1, None, 2))
 
 
 def get_label(p):
@@ -93,7 +97,7 @@ def get_label(p):
 
 def assert_in_output(p, texts):
     """Assert that the stdout from process 'p' contains all of the provided text."""
-    if isinstance(texts, basestring):
+    if isinstance(texts, str):
         texts = [texts]
     for text in texts:
         assert text in p.stdout.text, "'{}' is not in '{}'".format(text, p.stdout.text)
@@ -111,7 +115,7 @@ def assert_records(p, expected_records):
     """ """
     matches = [match.groupdict() for match in record_pattern.finditer(p.stdout.text)]
     if not matches:
-        raise Exception("No matches for record_pattern.\nStdout:\n%s" % p.stdout.text)
+        raise AssertionError("No matches for record_pattern.\nStdout:\n%s" % p.stdout.text)
     match_dict = dict((match["label"], match) for match in matches)
     for record in expected_records:
         if record["label"] not in match_dict:
@@ -146,7 +150,7 @@ def build_command(template, env_var):
 
     def wrapped(env):
         args = env[env_var]
-        if hasattr(args, "__len__") and not isinstance(args, basestring):
+        if hasattr(args, "__len__") and not isinstance(args, str):
             s = template.format(*args)
         else:
             s = template.format(args)
@@ -159,8 +163,8 @@ def edit_parameters(input, output, name, new_value):
     global working_dir
 
     def wrapped():
-        with open(os.path.join(working_dir, input), 'rb') as fpin:
-            with open(os.path.join(working_dir, output), 'wb') as fpout:
+        with open(os.path.join(working_dir, input), 'r') as fpin:
+            with open(os.path.join(working_dir, output), 'w') as fpout:
                 for line in fpin:
                     if name in line:
                         fpout.write("{0} = {1}\n".format(name, new_value))
@@ -177,7 +181,7 @@ def run_test(command, *checks):
         command = command(env)
     p = run(command)
     if DEBUG:
-        print p.stdout.text
+        print(p.stdout.text)
     for check, checkarg in pairs(checks):
         if callable(checkarg):
             checkarg = checkarg(env)
@@ -185,5 +189,5 @@ def run_test(command, *checks):
     label = get_label(p)
     if label is not None:
         env["labels"].append(label)
-        print "label is", label
+        print("label is", label)
 run_test.__test__ = False  # nose should not treat this as a test

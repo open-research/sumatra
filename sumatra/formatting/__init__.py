@@ -7,12 +7,17 @@ formats: currently text or HTML.
 :copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
 :license: CeCILL, see LICENSE for details.
 """
+from __future__ import unicode_literals
+from builtins import zip
+from builtins import str
+from builtins import object
 
 import json
 import textwrap
 import cgi
 import re
 from ..core import registry
+from functools import reduce
 
 
 fields = ['label', 'timestamp', 'reason', 'outcome', 'duration', 'repository',
@@ -241,11 +246,12 @@ class ShellFormatter(Formatter):
             output += "#   Machine #%d: %s processor running %s. %s(%s)\n" % (i + 1, platform.machine, platform.version, platform.network_name, platform.ip_addr, )
 
         output += "\n# Original software environment:\n"
-        repositories = set(record.repository for record in self.records)
+        repositories = list(set(record.repository for record in self.records))
         if len(repositories) > 1:
             raise NotImplementedError
         else:
-            output += "#   %s repository at %s\n" % (record.repository.vcs_type, record.repository.upstream or record.repository.url)
+            repository = repositories[0] # choose arbitrarily, repository is unique anyway
+            output += "#   %s repository at %s\n" % (repository.vcs_type, repository.upstream or repository.url)
         dependency_sets = list(set(tuple(sorted(record.dependencies)) for record in self.records))
         for i, dependency_set in enumerate(dependency_sets):
             output += "#   Dependency set #%d: %s\n" % (i + 1, dependency_set)
@@ -280,7 +286,7 @@ class ShellFormatter(Formatter):
                 current_version = record.version
             if record.diff:
                 diff_file = "%s.patch" % record.label
-                with open(diff_file, 'wb') as fp:
+                with open(diff_file, 'w') as fp:
                     fp.write(record.diff + '\n')
                 output += "%s %s\n" % (record.repository.apply_patch_cmd, diff_file)
                 cleanup += "rm -f %s\n" % diff_file
@@ -412,7 +418,7 @@ class TextDiffFormatter(Formatter):
               Main file differs     : %s
               Version differs       : %s
               Non checked-in code   : %s
-              Dependencies differ   : %s 
+              Dependencies differ   : %s
             Launch mode differs     : %s
             Input data differ       : %s
             Script arguments differ : %s

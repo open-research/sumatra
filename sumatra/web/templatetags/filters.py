@@ -3,6 +3,7 @@
 :copyright: Copyright 2006-2015 by the Sumatra team, see doc/authors.txt
 :license: CeCILL, see LICENSE for details.
 """
+from __future__ import unicode_literals
 
 import os
 from django import template
