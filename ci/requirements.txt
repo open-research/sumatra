@@ -1,3 +1,4 @@
+# Base requirements for running Sumatra, for all supported versions of Python
 Django==1.6
 django-tagging
 httplib2
@@ -5,20 +6,11 @@ jinja2
 docutils
 parameters
 future
-# for running system tests
-sarge
 # optional requirements, depending on which version control systems you use
 hgapi
 GitPython>=0.3.6
-bzr
 # optional requirements, depending on which serialization formats you want
 pyyaml
-# for Python < 3.4 only
-pathlib
-# for Python 2.6 only
-ordereddict
-unittest2
-importlib
 # optional, for WebDAV support
 #dexml
 #fs

@@ -1,0 +1,4 @@
+# additional requirements for Python 2.7
+pathlib
+# optional, if you use Bazaar
+bzr

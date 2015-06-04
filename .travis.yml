@@ -21,8 +21,9 @@ before_install:
 install:
   - conda create -n testenv --yes python=$TRAVIS_PYTHON_VERSION numpy scipy matplotlib nose dateutil pillow
   - source activate testenv
-  - pip install -r requirements.txt
-  - pip install coverage coveralls
+  - pip install -r ci/requirements.txt
+  - pip install -r ci/requirements-test.txt
+  - pip install -r ci/requirements-$TRAVIS_PYTHON_VERSION.txt
   - pip install .
 # command to run tests
 script:

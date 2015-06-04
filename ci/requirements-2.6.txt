@@ -1,0 +1,7 @@
+# additional requirements for Python 2.6
+ordereddict
+unittest2
+importlib
+pathlib
+# optional, if you use Bazaar
+bzr

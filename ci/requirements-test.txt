@@ -1,0 +1,9 @@
+# Additional requirements for running the Sumatra test suite
+sarge
+numpy
+scipy
+matplotlib
+nose
+pillow
+coverage
+coveralls
