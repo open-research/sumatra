@@ -53,22 +53,23 @@ try:
 except ImportError:
     yaml_loaded = False
 import parameters
-from .core import registry
+from .core import component, component_type, get_registered_components, conditional_component
 
 POP_NONE = "eiutbocqnluiegnclqiuetyvbietcbdgsfzpq"
 
+
+@component_type
 class ParameterSet(with_metaclass(abc.ABCMeta, object)):
     required_attributes = ("update", "save")
     list_pattern = re.compile(r'^\s*\[.*\]\s*$')
     tuple_pattern = re.compile(r'^\s*\(.*\)\s*$')
-    casts = (yaml.load, ) ## good behavior for all bool, at cost of dependency
+    casts = (yaml.load, )  # good behavior for all bool, at cost of dependency
 
     def _new_param_check(self, name, value):
         try:
             self.values[name]
         except KeyError:
             raise ValueError("")
-
 
     def parse_command_line_parameter(self, p):
         """Parse command line parameter
@@ -97,7 +98,7 @@ class ParameterSet(with_metaclass(abc.ABCMeta, object)):
             self._new_param_check(name, value)
         except ValueError as v:
             raise ValueError(str(v), name,  value)
-            ## attempt to pass undefined param -- let commands.py deal with
+            # attempt to pass undefined param -- let commands.py deal with
 
         return {name: value}
 
@@ -129,6 +130,7 @@ def _dict_diff(a, b):
         return result1, result2
 
 
+@conditional_component(condition=yaml_loaded)
 class YAMLParameterSet(ParameterSet):
     """
     Handles parameter files in YAML format, as parsed by the
@@ -206,11 +208,13 @@ class YAMLParameterSet(ParameterSet):
             return d
 
 
+@component
 class NTParameterSet(parameters.ParameterSet, ParameterSet):
     # just a re-name, to clarify things
     name = ".ntparameterset"
 
 
+@component
 class SimpleParameterSet(ParameterSet):
     """
     Handles parameter files in a simple "name = value" format, with no nesting or grouping.
@@ -365,6 +369,7 @@ class SimpleParameterSet(ParameterSet):
     update.__doc__ = dict.update.__doc__
 
 
+@component
 class ConfigParserParameterSet(SafeConfigParser, ParameterSet):
     """
     Handles parameter files in traditional config file format, as parsed by the
@@ -487,6 +492,8 @@ class ConfigParserParameterSet(SafeConfigParser, ParameterSet):
     def _new_param_check(self, name, value):
         raise ValueError("Config file: parameter name checking not implemented!")
 
+
+@component
 class JSONParameterSet(ParameterSet):
     """
     Handles parameter files in JSON format, as parsed by the
@@ -560,20 +567,10 @@ class JSONParameterSet(ParameterSet):
             return d
 
 
-registry.add_component_type(ParameterSet)
-
-registry.register(JSONParameterSet)
-if yaml_loaded:
-    registry.register(YAMLParameterSet)
-registry.register(NTParameterSet)
-registry.register(ConfigParserParameterSet)
-registry.register(SimpleParameterSet)
-
-
 def build_parameters(filename):
     body, ext = os.path.splitext(filename)
     parameters = None
-    extension_map = registry.components[ParameterSet]
+    extension_map = get_registered_components(ParameterSet)
     if ext in extension_map:
         parameter_set_class = extension_map[ext]
         parameters = parameter_set_class(filename)

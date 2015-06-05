@@ -12,7 +12,7 @@ import os
 import shelve
 from datetime import datetime
 from sumatra.recordstore.base import RecordStore
-from ..core import registry
+from ..core import component
 
 
 def check_name(f):
@@ -28,6 +28,7 @@ def check_name(f):
     return wrapped
 
 
+@component
 class ShelveRecordStore(RecordStore):
     """
     Handles storage of simulation/analysis records based on the Python standard
@@ -128,6 +129,3 @@ class ShelveRecordStore(RecordStore):
     @classmethod
     def accepts_uri(cls, uri):
         return os.path.exists(uri) or os.path.exists(uri + ".db") or os.path.splitext(uri)[1] == ".shelf"
-
-
-registry.register(ShelveRecordStore)

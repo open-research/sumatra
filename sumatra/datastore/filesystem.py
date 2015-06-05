@@ -13,7 +13,7 @@ import mimetypes
 from subprocess import Popen
 import warnings
 from pathlib import Path
-from ..core import registry
+from ..core import component
 from .base import DataStore, DataItem, IGNORE_DIGEST
 
 
@@ -29,7 +29,7 @@ class DataFile(DataItem):
             self.size = stats.st_size
         else:
             raise IOError("File %s does not exist" % self.full_path)
-            #self.size = None
+            # self.size = None
         self.creation = creation or datetime.datetime.fromtimestamp(stats.st_ctime).replace(microsecond=0)
         self.name = os.path.basename(self.full_path)
         self.extension = os.path.splitext(self.full_path)
@@ -64,6 +64,7 @@ class DataFile(DataItem):
     # as a filesystem copy will be much faster
 
 
+@component
 class FileSystemDataStore(DataStore):
     """
     Represents a locally-mounted filesystem. The root of the data store will
@@ -85,6 +86,7 @@ class FileSystemDataStore(DataStore):
 
     def __get_root(self):
         return self._root
+
     def __set_root(self, value):
         path = Path(value)
         self._root = value
@@ -112,7 +114,7 @@ class FileSystemDataStore(DataStore):
                     dirs.remove(igdir)
             for file in files:
                 full_path = os.path.join(root, file)
-                relative_path = os.path.join(root[length_dataroot:],file)
+                relative_path = os.path.join(root[length_dataroot:], file)
                 last_modified = datetime.datetime.fromtimestamp(os.stat(full_path).st_mtime)
                 if last_modified >= timestamp:
                     new_files.append(relative_path)
@@ -149,6 +151,3 @@ class FileSystemDataStore(DataStore):
 
     def contains_path(self, path):
         return os.path.isfile(os.path.join(self.root, path))
-
-
-registry.register(FileSystemDataStore)

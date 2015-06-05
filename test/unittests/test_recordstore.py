@@ -27,7 +27,7 @@ from sumatra.versioncontrol import vcs_list
 import sumatra.launch
 import sumatra.datastore
 import sumatra.parameters
-from sumatra.core import registry
+from sumatra.core import component
 import json
 import urllib.parse
 
@@ -40,6 +40,7 @@ django_dir = None
 this_directory = os.path.dirname(__file__)
 
 
+@component
 class MockExecutable(Executable):
     name = "a.out"
     executable_names = ("/usr/local/bin/a.out",)
@@ -49,7 +50,6 @@ class MockExecutable(Executable):
     options = "-v"
     def __init__(self, *args, **kwargs):
         pass
-registry.register(MockExecutable)
 
 
 class MockRepository(object):

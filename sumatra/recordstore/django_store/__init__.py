@@ -22,7 +22,7 @@ import imp
 import django.conf as django_conf
 from django.core import management
 from sumatra.recordstore.base import RecordStore
-from ...core import registry
+from ...core import component
 from urllib.request import urlparse
 from io import StringIO
 
@@ -112,6 +112,7 @@ class DjangoConfiguration(object):
 db_config = DjangoConfiguration()
 
 
+@component
 class DjangoRecordStore(RecordStore):
     """
     Handles storage of simulation/analysis records in a relational database, via
@@ -311,6 +312,3 @@ class DjangoRecordStore(RecordStore):
     @classmethod
     def accepts_uri(cls, uri):
         return uri[:8] == "postgres" or os.path.exists(uri) or os.path.exists(uri + ".db")
-
-
-registry.register(DjangoRecordStore)

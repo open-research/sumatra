@@ -9,6 +9,7 @@ from __future__ import unicode_literals
 from builtins import object
 
 import os.path
+from sumatra.core import component_type
 
 
 class VersionControlError(Exception):
@@ -19,6 +20,7 @@ class UncommittedModificationsError(Exception):
     pass
 
 
+@component_type
 class Repository(object):
     """
     Represents, and enables limited interaction with, the version control system
@@ -83,6 +85,7 @@ class Repository(object):
         raise NotImplementedError
 
 
+@component_type
 class WorkingCopy(object):
     """
     Represents, and enables limited interaction with, the version control system

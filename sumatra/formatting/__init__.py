@@ -16,7 +16,7 @@ import json
 import textwrap
 import cgi
 import re
-from ..core import registry
+from ..core import component, component_type, get_registered_components
 from functools import reduce
 
 
@@ -26,6 +26,7 @@ fields = ['label', 'timestamp', 'reason', 'outcome', 'duration', 'repository',
           'user', 'tags', 'repeats']
 
 
+@component_type
 class Formatter(object):
     required_attributes = ("short", "long")
 
@@ -100,7 +101,7 @@ def record2json(record, indent=None):
             "path": d.path,
             "version": d.version,
             "name": d.name,
-            #"language": d.language,
+            # "language": d.language,
             "module": d.module,
             "diff": d.diff,
             "source": d.source,  # added in 0.5
@@ -121,6 +122,7 @@ def record2json(record, indent=None):
     return json.dumps(data, indent=indent)
 
 
+@component
 class JSONFormatter(Formatter):
     name = "json"
 
@@ -132,6 +134,7 @@ class JSONFormatter(Formatter):
         return self.short(indent=indent)
 
 
+@component
 class TextFormatter(Formatter):
     """
     Format the information from a list of Sumatra records as text.
@@ -179,7 +182,7 @@ class TextFormatter(Formatter):
                 right_column.extend(new_lines)
                 if len(new_lines) > 1:
                     left_column.extend([' ' * left_column_width] * (len(new_lines) - 1))
-                #import pdb; pdb.set_trace()
+                # import pdb; pdb.set_trace()
             for left, right in zip(left_column, right_column):
                 output += left + ": " + right + "\n"
         return output
@@ -222,6 +225,7 @@ class TextTable(object):
         return output
 
 
+@component
 class ShellFormatter(Formatter):
     """
     Create a shell script that can be used to repeat a series of computations.
@@ -312,6 +316,7 @@ class ShellFormatter(Formatter):
         return self.short()
 
 
+@component
 class HTMLFormatter(Formatter):
     """
     Format information about a group of Sumatra records as HTML fragments, to
@@ -350,6 +355,7 @@ class HTMLFormatter(Formatter):
                "\n</table>"
 
 
+@component
 class LaTeXFormatter(Formatter):
     name = "latex"
     SUBSTITUTIONS = (
@@ -394,6 +400,7 @@ class LaTeXFormatter(Formatter):
                                paper_size='a4paper')
 
 
+@component
 class TextDiffFormatter(Formatter):
     """
     Format information about the differences between two Sumatra records in
@@ -503,22 +510,12 @@ class TextDiffFormatter(Formatter):
         return output
 
 
-registry.add_component_type(Formatter)
-
-registry.register(TextFormatter)
-registry.register(HTMLFormatter)
-registry.register(LaTeXFormatter)
-registry.register(ShellFormatter)
-registry.register(JSONFormatter)
-registry.register(TextDiffFormatter)
-
-
 def get_formatter(format):
     """
     Return a :class:`Formatter` object of the appropriate type. ``format``
     may be 'text, 'html' or 'textdiff'
     """
-    return registry.components[Formatter][format]
+    return get_registered_components(Formatter)[format]
 
 
 def get_diff_formatter():

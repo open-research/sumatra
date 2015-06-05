@@ -10,9 +10,10 @@ from builtins import object
 
 from sumatra.recordstore import serialization
 from sumatra.formatting import get_formatter
-from ..core import registry
+from ..core import component_type
 
 
+@component_type
 class RecordStore(object):
     """
     Base class for record store implementations.
@@ -121,7 +122,7 @@ class RecordStore(object):
 
         Arguments:
           *field*: the name of a record attribute, e.g. "datastore.root"
-          *value*: 
+          *value*:
         """
         # there is only a limited number of attributes that should be
         # modifiable, otherwise the whole point of using Sumatra for
@@ -136,9 +137,6 @@ class RecordStore(object):
                 obj = getattr(obj, part)
             setattr(obj, parts[-1], value)
             self.save(project_name, record)
-
-
-registry.add_component_type(RecordStore)
 
 
 class RecordStoreAccessError(OSError):

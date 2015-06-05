@@ -30,7 +30,7 @@ except ImportError:
     have_http = False
 from sumatra.recordstore.base import RecordStore, RecordStoreAccessError
 from sumatra.recordstore import serialization
-from ..core import registry
+from ..core import conditional_component
 
 
 API_VERSION = 3
@@ -51,10 +51,12 @@ def process_url(url):
         hostname = parts.hostname
         if parts.port:
             hostname += ":%s" % parts.port
-        url = urlunparse((parts.scheme, hostname, parts.path, parts.params, parts.query, parts.fragment))
+        url = urlunparse((parts.scheme, hostname, parts.path,
+                          parts.params, parts.query, parts.fragment))
     return url, username, password
 
 
+@conditional_component(condition=have_http)
 class HttpRecordStore(RecordStore):
     """
     Handles storage of simulation/analysis records on a remote server using HTTP.
@@ -81,8 +83,10 @@ class HttpRecordStore(RecordStore):
         password = password or _password
         if self.server_url[-1] != "/":
             self.server_url += "/"
-        self.client = httplib2.Http('.cache',
-                                    disable_ssl_certificate_validation=disable_ssl_certificate_validation)
+        self.client = httplib2.Http(
+            '.cache',
+            disable_ssl_certificate_validation=disable_ssl_certificate_validation
+        )
         if username:
             self.client.add_credentials(username, password, domain(self.server_url))
 
@@ -223,7 +227,3 @@ class HttpRecordStore(RecordStore):
     @classmethod
     def accepts_uri(cls, uri):
         return uri[:4] == "http"
-
-
-if have_http:
-    registry.register(HttpRecordStore)
