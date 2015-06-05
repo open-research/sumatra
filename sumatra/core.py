@@ -20,6 +20,7 @@ import subprocess
 from collections import OrderedDict
 from urllib.request import urlopen
 from urllib.error import URLError
+import warnings
 
 
 TIMESTAMP_FORMAT = "%Y%m%d-%H%M%S"
@@ -113,7 +114,7 @@ class _Registry(with_metaclass(SingletonType, object)):
 
     def add_component_type(self, base_class):
         if not hasattr(base_class, 'required_attributes'):
-            raise TypeError("%s is missing attribute 'required_attributes'."
+            raise TypeError("Component type {0} is missing attribute 'required_attributes'."
                             .format(base_class))
         self._components[base_class] = OrderedDict()
 
@@ -154,6 +155,12 @@ def component_type(cls):
     class MyConcreteComponent(MyComponentBase):
         pass
     """
+    for base_type in _Registry().components:
+        if issubclass(cls, base_type):
+            msg = "{cls} is a subclass of already registered component type {base} and " \
+                  "hence could not be registered as component type." \
+                  .format(**{'cls': cls, 'base': base_type})
+            raise TypeError(msg)
     _Registry().add_component_type(cls)
     return cls
 
@@ -178,9 +185,10 @@ def conditional_component(condition):
     Example:
     try:
         import NumPy
-        have_numpy = True
     except ImportError:
         have_numpy = False
+    else:
+        have_numpy = True
 
     @conditional_component(condition=have_numpy)
     class MyNumPyComponent(MyNumPyComponentBase):
