@@ -31,6 +31,7 @@ urlpatterns = patterns('',
                        (r'^%(project)s/%(label)s/$' % P, RecordDetailView.as_view()),
                        (r'^%(project)s/%(label)s/diff$' % P, DiffView.as_view()),
                        (r'^%(project)s/%(label)s/diff/(?P<package>[\w_]+)*$' % P, DiffView.as_view()),
+                       (r'^%(project)s/%(label)s/script$' % P, 'sumatra.web.views.show_script'),
                        (r'^%(project)s/data/datafile$' % P, DataDetailView.as_view()),
                        (r'^data/(?P<datastore_id>\d+)$', 'sumatra.web.views.show_content'),
                        )
