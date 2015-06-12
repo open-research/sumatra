@@ -102,11 +102,19 @@ class GitWorkingCopy(WorkingCopy):
         g = git.Git(self.path)
         return g.diff('HEAD', color='never')
 
-    def content(self, digest):
+    def content(self, digest, main_file=None):
+        """Get the file content from repository."""
         repo = git.Repo(self.path)
         for item in repo.iter_commits('master'):
             if item.hexsha == digest:
-                file_content = item.tree.blobs[0].data_stream.read()
+                if main_file is not None:           # Get the selected file content
+                    for blob in item.tree.blobs:
+                        if blob.name == main_file:
+                            file_content = blob.data_stream.read()
+                            break
+                else:                               # Otherwise get the latest added file content.
+                    file_content = item.tree.blobs[0].data_stream.read()
+                break
         return file_content
 
     def contains(self, path):
