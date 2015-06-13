@@ -99,16 +99,18 @@ class DjangoConfiguration(object):
                 db_file = db['NAME']
                 if not os.path.exists(os.path.dirname(db_file)):
                     os.makedirs(os.path.dirname(db_file))
+            try:
                 management.call_command('migrate', database=label, verbosity=0)
-            else:
-                management.call_command('migrate', database=label, verbosity=0)
+            except django.core.management.base.CommandError:
+                management.call_command('syncdb', database=label, verbosity=0)
 
     def configure(self):
         settings = django_conf.settings
         if not settings.configured:
             settings.configure(**self._settings)
             if not self.configured:
-                django.setup()
+                if hasattr(django, "setup"):
+                    django.setup()
                 self._create_databases()
             self.configured = True
 
