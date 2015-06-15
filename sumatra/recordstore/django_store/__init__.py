@@ -21,6 +21,7 @@ from textwrap import dedent
 import imp
 import django.conf as django_conf
 from django.core import management
+import django
 from sumatra.recordstore.base import RecordStore
 from ...core import component
 from urllib.request import urlparse
@@ -43,9 +44,10 @@ class DjangoConfiguration(object):
         self._settings = {
             'DEBUG': True,
             'DATABASES': {},
-            'INSTALLED_APPS': ('sumatra.recordstore.django_store',
+            'INSTALLED_APPS': ['sumatra.recordstore.django_store',
                                'django.contrib.contenttypes',  # needed for tagging
-                               'tagging'),
+                               'tagging'],
+            'MIDDLEWARE_CLASSES': [],
         }
         self._n_databases = 0
         self.configured = False
@@ -97,8 +99,9 @@ class DjangoConfiguration(object):
                 db_file = db['NAME']
                 if not os.path.exists(os.path.dirname(db_file)):
                     os.makedirs(os.path.dirname(db_file))
-                management.call_command('syncdb', database=label, verbosity=0)
-            else:
+            try:
+                management.call_command('migrate', database=label, verbosity=0)
+            except django.core.management.base.CommandError:
                 management.call_command('syncdb', database=label, verbosity=0)
 
     def configure(self):
@@ -106,6 +109,8 @@ class DjangoConfiguration(object):
         if not settings.configured:
             settings.configure(**self._settings)
             if not self.configured:
+                if hasattr(django, "setup"):
+                    django.setup()
                 self._create_databases()
             self.configured = True
 

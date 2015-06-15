@@ -27,7 +27,7 @@ class SumatraObjectsManager(models.Manager):
         # want to store in a single table in the database.
         # might be better to specify the list of field names explicitly
         # as an argument to the Manager __init__().
-        excluded_fields = ('id', 'record', 'input_to_records', 'output_from_record')
+        excluded_fields = ('id', 'record', 'input_to_records', 'output_from_record', 'output_from_record_id')
         field_names = set(self.model._meta.get_all_field_names()).difference(excluded_fields)
         attributes = {}
         for name in field_names:
@@ -187,9 +187,8 @@ class DataKey(BaseModel):
     digest = models.CharField(max_length=40)
     creation = models.DateTimeField(null=True, blank=True)
     metadata = models.TextField(blank=True)
-
-    output_from_record = models.ForeignKey('Record', related_name =
-                                           'output_data', null = True)
+    output_from_record = models.ForeignKey('Record', related_name='output_data',
+                                           null=True)
 
     class Meta(object):
         ordering = ('path',)
@@ -207,7 +206,7 @@ class PlatformInformation(BaseModel):
     architecture_linkage = models.CharField(max_length=100)
     machine = models.CharField(max_length=20)
     network_name = models.CharField(max_length=100)
-    ip_addr = models.IPAddressField()
+    ip_addr = models.GenericIPAddressField()
     processor = models.CharField(max_length=100)
     release = models.CharField(max_length=100)
     system_name = models.CharField(max_length=20)
