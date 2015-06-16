@@ -100,7 +100,7 @@ def assert_in_output(p, texts):
     if isinstance(texts, str):
         texts = [texts]
     for text in texts:
-        assert text in p.stdout.text, "'{}' is not in '{}'".format(text, p.stdout.text)
+        assert text in p.stdout.text, "'{0}' is not in '{1}'".format(text, p.stdout.text)
 
 
 def assert_config(p, expected_config):
@@ -108,7 +108,7 @@ def assert_config(p, expected_config):
     match = re.match(info_pattern, p.stdout.text)
     assert match, "Pattern: %s\nActual: %s" % (info_pattern, p.stdout.text)
     for key, value in expected_config.items():
-        assert match.groupdict()[key] == value, "expected {} = {}, actually {}".format(key, value, match.groupdict()[key])
+        assert match.groupdict()[key] == value, "expected {0} = {1}, actually {2}".format(key, value, match.groupdict()[key])
 
 
 def assert_records(p, expected_records):
@@ -123,6 +123,10 @@ def assert_records(p, expected_records):
         matching_record = match_dict[record["label"]]
         for key in record:
             assert record[key] == matching_record[key]
+
+
+def assert_return_code(p, value):
+    assert p.returncode == value, "Return code {0}, expected {1}".format(p.returncode, value)
 
 
 def assert_label_equal(p, expected_label):
@@ -182,6 +186,8 @@ def run_test(command, *checks):
     p = run(command)
     if DEBUG:
         print(p.stdout.text)
+    if assert_return_code not in checks:
+        assert_return_code(p, 0)
     for check, checkarg in pairs(checks):
         if callable(checkarg):
             checkarg = checkarg(env)
