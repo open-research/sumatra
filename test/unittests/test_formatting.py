@@ -1,3 +1,4 @@
+# encoding: utf-8
 """
 Unit tests for the sumatra.formatting module
 """
@@ -153,6 +154,12 @@ class TestTextFormatter(unittest.TestCase):
         lengths = [len(line) for line in txt.split("\n")[:-1]]
         for l in lengths:
             assert l == lengths[0]
+
+    def test__long__with_non_ascii_username(self):
+        self.record_list[0].user = "Paul Erdős <paul@elte.hu>"
+        tf1 = TextFormatter(self.record_list)
+        txt = tf1.long()
+        assert "Erdős" in txt
 
 
 class TestShellFormatter(unittest.TestCase):

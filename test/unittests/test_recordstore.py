@@ -1,3 +1,4 @@
+# encoding: utf-8
 """
 Unit tests for the sumatra.recordstore package
 """
@@ -128,7 +129,7 @@ class MockRecord(object):
         self.dependencies = [MockDependency(), MockDependency()]
         self.platforms = [MockPlatformInformation()]
         self.diff = ""
-        self.user = "michaelpalin"
+        self.user = "michaelpälin"
         self.input_data = []
         self.script_arguments = "arg1 arg2"
         self.repeats = None
