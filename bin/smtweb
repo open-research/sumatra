@@ -9,6 +9,7 @@ try:
     import thread
 except ImportError: # Python 3. TODO: move to higher level ``threading`` module
     import _thread as thread
+import webbrowser
 from django.core import management
 from django.conf import settings
 from sumatra.projects import load_project
@@ -57,14 +58,18 @@ def main(argv):
             print("This project cannot be accessed using the web interface (record store is not of type DjangoRecordStore).")
             sys.exit(1)
         del project
-    db_config.configure()
+
     root_dir = os.path.dirname(sumatra_web)
-    settings.ROOT_URLCONF = 'sumatra.web.urls'
-    settings.STATIC_URL = '/static/'
-    settings.TEMPLATE_DIRS = (os.path.join(os.getcwd(), ".smt", "templates"),
-                              os.path.join(root_dir, "templates"),)
-    settings.INSTALLED_APPS = list(settings.INSTALLED_APPS) + ['sumatra.web']
-    settings.MIDDLEWARE_CLASSES = tuple()
+    db_config.update_settings(
+        INSTALLED_APPS=db_config._settings["INSTALLED_APPS"] + ['sumatra.web'],
+        ROOT_URLCONF='sumatra.web.urls',
+        STATIC_URL='/static/',
+        TEMPLATE_DIRS=(os.path.join(os.getcwd(), ".smt", "templates"),
+                       os.path.join(root_dir, "templates"),),
+        MIDDLEWARE_CLASSES=tuple()
+    )
+
+    db_config.configure()
 
     if not options.no_browser:
         thread.start_new_thread(delayed_new_tab, ("http://127.0.0.1:%s" % options.port, 3))

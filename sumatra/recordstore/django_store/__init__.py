@@ -52,6 +52,9 @@ class DjangoConfiguration(object):
         self._n_databases = 0
         self.configured = False
 
+    def update_settings(self, **kwargs):
+        self._settings.update(kwargs)
+
     def uri_to_db(self, uri):
         parse_result = urlparse(uri)
         db = {}
