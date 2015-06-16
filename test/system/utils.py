@@ -38,20 +38,6 @@ Plug-ins            : \[\]
 Sumatra version     : 0.7dev
 """
 
-record_pattern = re.compile(r"""Label            : (?P<label>[\w-]+)
-Timestamp        : (?P<timestamp>.*)
-Reason           : *(?P<reason>.*)
-Outcome          : *(?P<outcome>.*)
-Duration         : (?P<duration>\d+.\d*)
-Repository       : (?P<vcs>\w+)Repository at .*
-.*
-Main_File        : (?P<main>\w+.\w.)
-Version          : (?P<version>\w+)
-Script_Arguments : *(?P<script_args>.*)
-Executable       : (?P<executable_name>\w+) \(version: (?P<executable_version>[\w\.]+)\) at\s+(: )?(?P<executable_path>.*)
-Parameters       : *(?P<parameters>.*)
-""")  # TO COMPLETE.
-
 
 def setup():
     """Create temporary directory for the Sumatra project."""
@@ -111,18 +97,47 @@ def assert_config(p, expected_config):
         assert match.groupdict()[key] == value, "expected {0} = {1}, actually {2}".format(key, value, match.groupdict()[key])
 
 
+def parse_records(text):
+    records = []
+    data = {}
+    for line in text.split("\n"):
+        if line[:5] == "-----":
+            if data:
+                records.append(data)
+            data = {}
+        else:
+            first_column_width = line.find(':')
+            first_column_content = line[:first_column_width].strip()
+            value = line[first_column_width+1:].strip()
+            if first_column_content:
+                field_name = first_column_content.lower()
+                data[field_name] = value
+            else:
+                data[field_name] += " " + value
+    if data:
+        records.append(data)
+    patterns = {
+        "repository": r'(?P<vcs>\w+)Repository at .*',
+        "executable": r'(?P<executable_name>\w+) \(version: (?P<executable_version>[\w\.]+)\) at\s+(: )?(?P<executable_path>.*)'
+    }
+    for field_name, pattern in patterns.items():
+        for record in records:
+            match = re.search(pattern, record[field_name])
+            for k, v in match.groupdict().items():
+                record[k] = v
+    return records
+
+
 def assert_records(p, expected_records):
     """ """
-    matches = [match.groupdict() for match in record_pattern.finditer(p.stdout.text)]
-    if not matches:
-        raise AssertionError("No matches for record_pattern.\nStdout:\n%s" % p.stdout.text)
-    match_dict = dict((match["label"], match) for match in matches)
-    for record in expected_records:
-        if record["label"] not in match_dict:
-            raise KeyError("Expected record %s not found in %s" % (record["label"], str(list(match_dict.keys()))))
-        matching_record = match_dict[record["label"]]
-        for key in record:
-            assert record[key] == matching_record[key]
+    record_list = parse_records(p.stdout.text)
+    records = dict((rec["label"], rec) for rec in record_list)
+    for expected in expected_records:
+        if expected["label"] not in records:
+            raise KeyError("Expected record %s not found in %s" % (expected["label"], str(list(records.keys()))))
+        matching_record = records[expected["label"]]
+        for key in expected:
+            assert expected[key] == matching_record[key]
 
 
 def assert_return_code(p, value):

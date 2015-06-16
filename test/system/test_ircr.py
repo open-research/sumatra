@@ -97,8 +97,8 @@ test_steps = [
      "smt list -l",
      assert_records, substitute_labels([
          {'label': 0, 'executable_name': 'Python', 'outcome': 'works fine', 'reason': 'initial run',
-          'version': '6038f9c500d1', 'vcs': 'Mercurial', 'script_args': '<parameters> MV_HFV_012.jpg',
-          'main': 'glass_sem_analysis.py'},   # TODO: add checking of parameters
+          'version': '6038f9c500d1', 'vcs': 'Mercurial', 'script_arguments': '<parameters> MV_HFV_012.jpg',
+          'main_file': 'glass_sem_analysis.py'},   # TODO: add checking of parameters
          {'label': 1, 'outcome': '', 'reason': 'No filtering'},
          {'label': 2, 'outcome': 'The default colourmap is nicer', 'reason': 'Trying a different colourmap'},
          {'label': 3, 'outcome': '', 'reason': 'Added labels to output'},
