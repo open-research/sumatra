@@ -33,7 +33,7 @@ from sumatra.recordstore import serialization
 from ..core import conditional_component
 
 
-API_VERSION = 3
+API_VERSION = 4
 
 
 def domain(url):

@@ -13,7 +13,7 @@ from datetime import datetime
 from sumatra import programs, launch, datastore, versioncontrol, parameters, dependency_finder
 from sumatra.records import Record
 from ..core import get_registered_components
-from sumatra.formatting import record2json
+from sumatra.formatting import record2json, record2dict
 
 
 def encode_record(record, indent=None):
