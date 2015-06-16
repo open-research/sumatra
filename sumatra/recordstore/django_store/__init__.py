@@ -32,6 +32,11 @@ from io import StringIO
 imp.find_module("tagging")
 
 
+def db_id(db):
+    """Return a unique identifier for a database, for comparison purposes."""
+    return (db['ENGINE'], db['NAME'], db.get('HOST', ''), db.get('PORT', ''))
+
+
 class DjangoConfiguration(object):
     """
     To allow multiple DjangoRecordStore instances to exist at the same
@@ -79,7 +84,7 @@ class DjangoConfiguration(object):
 
         if self.contains_database(db):
             for key, db_tmp in self._settings['DATABASES'].items():
-                if db == db_tmp:
+                if db_id(db) == db_id(db_tmp):
                     label = key
                     break
         else:
@@ -94,7 +99,8 @@ class DjangoConfiguration(object):
         return label
 
     def contains_database(self, db):
-        return db in [db_tmp for label, db_tmp in self._settings['DATABASES'].items()]
+        existing_dbs = [db_id(db_tmp) for db_tmp in self._settings['DATABASES'].values()]
+        return db_id(db) in existing_dbs
 
     def _create_databases(self):
         for label, db in self._settings['DATABASES'].items():
