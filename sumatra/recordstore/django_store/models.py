@@ -9,6 +9,7 @@ from __future__ import unicode_literals
 from builtins import str
 from builtins import object
 
+import json
 from django.db import models
 from sumatra import programs, launch, datastore, records, versioncontrol, parameters, dependency_finder
 import tagging.fields
@@ -31,18 +32,21 @@ class SumatraObjectsManager(models.Manager):
         field_names = set(self.model._meta.get_all_field_names()).difference(excluded_fields)
         attributes = {}
         for name in field_names:
-            try:
-                attributes[name] = getattr(obj, name)
-            except AttributeError:
-                if name == 'parameters':
-                    attributes[name] = str(obj.__getstate__())
-                elif name == 'type':
-                    attributes[name] = obj.__class__.__name__
-                elif name in ('content', 'metadata'):
-                    attributes[name] = str(obj)  # ParameterSet, DataKey
-                else:
-                    raise
-
+            if name == 'metadata':
+                assert isinstance(obj.metadata, dict)
+                attributes[name] = json.dumps(obj.metadata, sort_keys=True)  # DataKey
+            else:
+                try:
+                    attributes[name] = getattr(obj, name)
+                except AttributeError:
+                    if name == 'parameters':
+                        attributes[name] = str(obj.__getstate__())
+                    elif name == 'type':
+                        attributes[name] = obj.__class__.__name__
+                    elif name == 'content':
+                        attributes[name] = str(obj)  # ParameterSet
+                    else:
+                        raise
         return self.using(using).get_or_create(**attributes)
 
 
@@ -194,10 +198,21 @@ class DataKey(BaseModel):
         ordering = ('path',)
 
     def get_metadata(self):
-        return eval(self.metadata)  # should probably use json.decode
+        try:
+            md = json.loads(self.metadata)
+        except ValueError as err:
+            # metadata is now serialized as JSON, but was previously
+            # serialized as the string representation of a dict
+            # This block is to handle records created with
+            # previous versions of Sumatra.
+            try:
+                md = eval(self.metadata)
+            except NameError:
+                raise err
+        return md
 
     def to_sumatra(self):
-        metadata = eval(self.metadata)
+        metadata = self.get_metadata()
         return datastore.DataKey(self.path, self.digest, self.creation, **metadata)
 
 
