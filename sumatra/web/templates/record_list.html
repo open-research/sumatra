@@ -95,7 +95,7 @@
         <td>{{record.duration|human_readable_duration}}</td>
         <td>{{record.launch_mode.get_parameters.n|default:"1"}}</td>
         <td>{{record.executable.name}} {{record.executable.version}}</td>
-        <td>{{record.main_file|ubreak}}<a href="/script?path={{record.repository.url}}&digest={{record.version}}&main_file={{record.main_file}}" target="_blank"><span class="glyphicon glyphicon-file"></span></a></td>
+        <td><a target="script_content" onclick="window.open('/script?digest={{record.version}}&main_file={{record.main_file}}','script_content','width=640,height=600,scrollbars=yes,resizable=yes')"><span class="glyphicon glyphicon-file"></span></a> {{record.main_file|ubreak}}</td>
         <td>{{record.version|cut:"vers"}}{% if record.diff %}*{% endif %}</td>
         <td>{{record.script_arguments}}</td>
         <td>{{record.tags}}</td>

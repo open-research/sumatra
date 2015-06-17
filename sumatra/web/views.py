@@ -233,12 +233,14 @@ def show_content(request, datastore_id):
 
 def show_script(request):
     """ get the script content from the repos """
-    path = request.GET.get('path', False)
-    wc = get_working_copy(path)
+    wc = get_working_copy(os.path.os.getcwd())
     digest = request.GET.get('digest', False)
     main_file = request.GET.get('main_file', False)
-    file_content = wc.content(digest, main_file)
-    return HttpResponse(file_content.replace('\n', '<br />'))
+    try:
+        file_content = wc.content(digest, main_file)
+    except:
+        raise Http404
+    return HttpResponse('<p><span style="font-size: 16px; font-weight:bold">'+main_file+'</span> <span class="label">'+digest+'</span></p><hr>'+file_content.replace('\n', '<br />'))
 
 
 def compare_records(request, project):
