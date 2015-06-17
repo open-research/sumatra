@@ -132,8 +132,7 @@ class MercurialRepository(Repository):
         """Clone a repository."""
         path = os.path.abspath(path)
         if self.url == path:
-            # update
-            self._repository.update(reference="")  # hgapi expects reference
+            pass
         else:
             self._repository.hg_clone(url=self.url, path=path)
 

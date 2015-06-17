@@ -78,6 +78,3 @@ Replace 0.5.3 with the correct version number for your project. In case you are 
 it may help to run the following command in your project directory:
 
     $ cat .smt/project | grep sumatra_version
-
-You can also see a list of previously released versions on the PyPI website:
-https://pypi.python.org/packages/source/S/Sumatra/

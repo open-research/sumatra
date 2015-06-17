@@ -2,10 +2,9 @@ include doc/*.txt
 include doc/images/*.png
 include doc/releases/*.txt
 include COPYING
-include sumatra/web/media/css/*.css
-include sumatra/web/media/img/*.png
-include sumatra/web/media/js/*.js
-recursive-include sumatra/web/media/extras/fontawesome *
+include sumatra/web/static/css/*.css
+include sumatra/web/static/fonts/*
+include sumatra/web/static/js/*.js
 include sumatra/web/templates/*.html
 include sumatra/publishing/latex/sumatra.sty
 include sumatra/formatting/latex_template.tex
@@ -15,5 +14,6 @@ include test/unittests/*.py
 include test/unittests/README
 include test/unittests/all_tests.sh
 include test/unittests/example*.json
+include test/system/fixtures/*
+include test/system/*.py
 include test/*.py
-include distribute_setup.py

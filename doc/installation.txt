@@ -71,7 +71,7 @@ For Mercurial, you need to install the hgapi_ package.
 .. _docutils: http://docutils.sourceforge.net
 
 Command completion for bash
---------------------------
+---------------------------
 
 Sumatra comes with a limited bash completion facility.
 You can install it to you system by sourcing the file

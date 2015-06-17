@@ -31,7 +31,7 @@ Reading data from stdin
 
 If your usual invocation is something like::
 
-  $ myprog << mydata.dat
+  $ myprog < mydata.dat
   
 Then to run and track this with Sumatra, use::
 
@@ -159,7 +159,7 @@ Writing data to stdout
 
 If you program writes data to standard output, i.e. you would normally run it using::
 
-    $ myprog >> output.txt
+    $ myprog > output.txt
     
 Then you can tell Sumatra to run it the same way, but in addition to track the output file, using::
 

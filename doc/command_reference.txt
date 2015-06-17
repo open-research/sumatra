@@ -272,8 +272,8 @@ list
 
     usage: smt list [options] [TAGS]
     
-    If TAGS (optional) is specified, then only records with a tag in TAGS will be
-    listed.
+    If TAGS (optional) is specified, then only records tagged with all the tags in
+    TAGS will be listed.
     
     positional arguments:
       TAGS
@@ -282,8 +282,8 @@ list
       -h, --help            show this help message and exit
       -l, --long            prints full information for each record
       -T, --table           prints information in tab-separated columns
-      -f FMT, --format FMT  FMT can be 'text' (default), 'html', 'latex' or
-                            'shell'.
+      -f FMT, --format FMT  FMT can be 'text' (default), 'html', 'json', 'latex'
+                            or 'shell'.
       -r, --reverse         list records in reverse order (default: newest first)
 
 migrate
@@ -404,7 +404,7 @@ tag
     
     If TAG contains spaces, it must be enclosed in quotes. LIST should be a space-
     separated list of labels for individual records. If it is omitted, only the
-    most recent record will be tagged. If the '-d/--delete' option is set, the tag
+    most recent record will be tagged. If the '-r/--remove' option is set, the tag
     will be removed from the records.
     
     positional arguments:
