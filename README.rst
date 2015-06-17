@@ -24,7 +24,7 @@ backups of your records.
 For documentation, see http://packages.python.org/Sumatra/ and http://neuralensemble.org/sumatra/
 
 
-Intended functionality (not all implemented yet):
+Functionality:
 
     * launch simulations and analyses, and record various pieces of information,
       including:
@@ -50,12 +50,12 @@ Requirements
 ============
 
 Sumatra requires Python versions 2.6, 2.7 or ≥ 3.3. The web interface requires
-Django (>= 1.4) and the django-tagging package.
+Django (>= 1.6) and the django-tagging package.
 Sumatra requires that you keep your own code in a version control
 system (currently Subversion, Mercurial, Git and Bazaar are supported). If you
-are already using Mercurial or Bazaar there is nothing else to install. If you
+are already using Bazaar there is nothing else to install. If you
 are using Subversion you will need to install the pysvn package. If you using
-Git, you will need to install git-python bindings.
+Git, you will need to install git-python bindings, and for Mercurial install hg-api.
 
 
 ============
@@ -65,10 +65,10 @@ Installation
 These instructions are for Unix, Mac OS X. They may work on Windows as well, but
 it hasn't been thoroughly tested.
 
-If you have downloaded the source package, Sumatra-0.6.0.tar.gz::
+If you have downloaded the source package, Sumatra-0.7.0.tar.gz::
 
-    $ tar xzf Sumatra-0.6.0.tar.gz
-    $ cd Sumatra-0.6.0
+    $ tar xzf Sumatra-0.7.0.tar.gz
+    $ cd Sumatra-0.7.0
     # python setup.py install
 
 The last step may have to be done as root.

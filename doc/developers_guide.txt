@@ -10,18 +10,28 @@ Requirements
 ------------
 
     * Python_ 2.6, 2.7 or >= 3.3
-    * Django_ >= 1.4
+    * Django_ >= 1.6
     * django-tagging_ >= 0.3
     * parameters >= 0.2.1
     * nose_ >= 0.11.4
     * future >= 0.14
     * if using Python <= 3.3, pathlib >= 1.0.0
-    * if using Python 2.6, unittest2_ >= 0.5.1
-    * (optional) mpi4py_ >= 1.2.2
-    * (optional) twill_ >= 0.9 (for testing web interface)
-    * (optional) coverage_ >= 3.3.1 (for measuring test coverage)
+    * if using Python 2.6, ordereddict, unittest2_ >= 0.5.1
+    * docutils
+    * Jinja2
 
-.. can setup.py install all these?
+Optional:
+
+    * mpi4py_ >= 1.2.2
+    * coverage_ >= 3.3.1 (for measuring test coverage)
+    * httplib2 (for the remote record store)
+    * GitPython (for Git support)
+    * hgapi (for Mercurial support)
+    * bzr (for Bazaar support)
+    * PyYAML (for YAML support)
+    * psycopg2 (for PostgreSQL support)
+    * dexml and fs (for WebDAV support)
+
 
 We strongly recommend developing within a virtualenv_.
 
@@ -136,20 +146,19 @@ Things to check for:
   * Is there any commented out code, or print statements used for debugging?
 
 
-.. _Python: http://www.python.org
+.. _Python: https://www.python.org
 .. _Django: https://www.djangoproject.com/
 .. _django-tagging: http://code.google.com/p/django-tagging/
 .. _nose: https://nose.readthedocs.org/en/latest/
-.. _unittest2: http://pypi.python.org/pypi/unittest2
-.. _Distribute: http://pypi.python.org/pypi/distribute
+.. _unittest2: https://pypi.python.org/pypi/unittest2
+.. _Distribute: https://pypi.python.org/pypi/distribute
 .. _mpi4py: http://mpi4py.scipy.org/
 .. _tox: http://codespeak.net/tox/
-.. _twill: http://twill.idyll.org/
 .. _coverage: http://nedbatchelder.com/code/coverage/
-.. _`PEP 8`: http://www.python.org/dev/peps/pep-0008/
-.. _`issue tracker`: https://bitbucket.org/apdavison/sumatra/issues
+.. _`PEP 8`: https://www.python.org/dev/peps/pep-0008/
+.. _`issue tracker`: https://github.com/open-research/sumatra/issues
 .. _virtualenv: http://www.virtualenv.org
-.. _`Sumatra repository on Github`: https://github.com/open-research/sumatra.git
+.. _`Sumatra repository on Github`: https://github.com/open-research/sumatra
 .. _`continuous integration server`: https://qa.nest-initiative.org/view/Sumatra/job/sumatra/
 .. _`NEST Initiative`: http://www.nest-initiative.org/
 .. _`open a bug report`: https://github.com/open-research/sumatra/issues/new

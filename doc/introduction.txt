@@ -139,12 +139,12 @@ You might also be interested in watching a talk given at a workshop_ on
 
 .. _Subversion: http://subversion.tigris.org/
 .. _Git: http://git-scm.com
-.. _Mercurial: http://mercurial.selenic.com/
-.. _Bazaar: http://bazaar-vcs.org
+.. _Mercurial: https://mercurial.selenic.com/
+.. _Bazaar: http://bazaar.canonical.com/
 .. _MPI: http://en.wikipedia.org/wiki/Message_Passing_Interface
 .. _preprint: http://andrewdavison.info/media/files/reproducible_research_CiSE.pdf
 .. _`video with slides`: http://mediasite.mediagroup.ubc.ca/MediaGroup/Viewer/?peid=291fc2e10e3d4adab212c8949577b32e1d
-.. _`video only`: http://www.youtube.com/watch?v=7VcDvxvjqrc
+.. _`video only`: https://www.youtube.com/watch?v=7VcDvxvjqrc
 .. _slides: http://www.stodden.net/AMP2011/slides/sumatra_amp2011.pdf
 .. _workshop: http://www.stodden.net/AMP2011/
 .. _PDF: https://osf.io/w6fp4/osffiles/Andrew_Davison_chapter.pdf/version/1/download/

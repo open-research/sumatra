@@ -80,7 +80,7 @@ records from the old store to the new one. It will not delete the old one.
 
 .. _Django: https://www.djangoproject.com/
 .. _ORM: http://en.wikipedia.org/wiki/Object-relational_mapping
-.. _shelve: http://docs.python.org/2/library/shelve.html
+.. _shelve: https://docs.python.org/2/library/shelve.html
 .. _PostgreSQL: http://www.postgresql.org
 .. _SQLite: http://www.sqlite.org
 .. _psycopg2: https://pypi.python.org/pypi/psycopg2/
