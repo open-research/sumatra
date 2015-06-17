@@ -5,8 +5,8 @@ supported by Django could in principle be used, although for now we assume
 SQLite or PostgreSQL.
 
 
-:copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
-:license: CeCILL, see LICENSE for details.
+:copyright: Copyright 2006-2015 by the Sumatra team, see doc/authors.txt
+:license: BSD 2-clause, see LICENSE for details.
 """
 from __future__ import absolute_import
 from __future__ import unicode_literals

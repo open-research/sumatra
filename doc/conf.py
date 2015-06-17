@@ -39,7 +39,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'Sumatra'
-copyright = '2009-2014 Andrew P. Davison'
+copyright = '2009-2015 Sumatra authors and contributors'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -174,7 +174,7 @@ latex_paper_size = 'a4'
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
   ('index', 'Sumatra.tex', 'Sumatra Documentation',
-   'Andrew P. Davison', 'manual'),
+   'The Sumatra Project', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of

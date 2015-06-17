@@ -45,10 +45,4 @@ Many thanks also go to everyone who has reported bugs on the issue tracker.
 Licence
 =======
 
-Sumatra is freely available under the CeCILL v2 license, which is equivalent to,
-and compatible with, the GNU GPL license, but conforms to French law (and is
-also perfectly suited to international projects) - see
-`<http://www.cecill.info/index.en.html>`_ for more information.
-
-If you are interested in using Sumatra, but the choice of licence is a problem
-for you, please contact us - we are open to persuasion.
+Sumatra is freely available under the BSD 2-clause license.
