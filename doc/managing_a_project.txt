@@ -2,43 +2,287 @@
 Managing a research project with Sumatra
 ========================================
 
+Before reading this, we recommend reading :doc:`getting_started` for a quick introduction to Sumatra.
+This document expands on the information presented there, giving a fuller picture of the available options.
+
 
 Setting up your project
 =======================
+
+To create a Sumatra project, run::
+
+    $ smt init ProjectName
+
+in your working directory. :command:`smt init` has many options (see :doc:`command_reference` for a full list),
+but in general, :command:`smt configure` has the same options, so any of the options can be changed later. 
+To see the current configuration of your project, run :command:`smt info`.
 
 
 Telling Sumatra about your code
 -------------------------------
 
+Sumatra expects to find a version control repository in your working directory or one of its parent directories.
+If you haven't yet cloned your repository, Sumatra will do it for you if you give the ``--repository`` argument::
+
+    $ smt init --repository=https://github.com/someuser/MyCode
+
+If you usually run the same main program, you can store this as a default using the ``--executable`` option::
+
+    $ smt init --executable=python
+
+Here you can give a full path, or just the name; in the latter case Sumatra will use the ``PATH`` environment
+variable to search for an executable with that name, and use the first one it finds.
+
+For interpreted languages, it is also possible to set a default script file using the ``--main`` option::
+
+    $ smt init --main=myscript.py
+
+In this case you must give the full path, either relative to the working directory or an absolute path.
+
+Any time you run some code with Sumatra, it checks whether the code has changed (using your version control system).
+If it has, then by default Sumatra will refuse to run until you have committed your changes.
+This is so that the exact version of the code you run is always recorded. As an alternative, Sumatra can
+store the difference between the code in version control and the code you run. To enable this option, run::
+
+    $ smt init --on-changed=store-diff
+
+You can always change back to the "strict" setting with::
+
+    $ smt configure --on-changed=error
+
 
 Handling input and output data
 ------------------------------
+
+Sumatra tracks both input and output data files. For output data files it is important to tell Sumatra in which
+directory the files will be created, to avoid it having to search the entire disk::
+
+    $ smt init --datapath=results
+
+Now Sumatra will recursively search ``results`` and all sub-directories for any new files created during the
+computation. If your computations overlap in time there is a risk that Sumatra will mix up the files. A solution
+to this problem is given in the :doc:`faq`. If you don't specific the output data directory, Sumatra will assume it
+is a directory called "Data".
+
+The default directory for input data files is the filesystem root; this can also be changed with the :command:`--input`
+option. Note that input data files are only tracked if they are passed to your program as command-line arguments.
+This limitation will be removed in future.
+
+For more on data handling, see :doc:`handling_data`.
 
 
 Storing Sumatra records
 -----------------------
 
+Sumatra supports multiple back-end databases for storing records. More information about how to choose a storage
+back-end is given in :doc:`record_stores`.
+
 
 Running your code
 =================
 
+To track a computation with Sumatra, you can either use the :command:`smt` tool or write your own Python scripts
+using the Sumatra API (see :doc:`using_the_api`).
 
+A typical way to run a computation with :command:`smt` is::
+
+    $ smt run --executable=matlab --main=myscript.m input_file1 input_file2
+
+or::
+
+    $ smt run -e matlab -m myscript.m input_file1 input_file2
+
+using the short versions of the arguments. Note that input_file1 and input_file2 may be parameter/configuration
+files or data files. If the former, they will be treated specially, see :doc:`parameter_files`.
+
+Note that if you are not using an interpreted language, only the `--executable` argument is needed. If you have
+set default values for the executable and/or main script in the program configuration, the :command:`smt run` command
+can be simplified, e.g.::
+
+    $ smt configure -e matlab -m myscript.m
+    $ smt run input_file1 input_file2
+
+
+Running different versions
+--------------------------
+
+If you want to run a previous version of your code, rather than the currently checked-out version, use the
+``--version`` option::
+
+    $ smt run --version=3e6f02a
+
+Note that this will not overwrite any uncommitted changes; rather Sumatra will refuse to run until you have
+committed, stashed, reverted, etc. your changes. Sumatra will also not return to the most recent version after the run:
+future runs with no version specified will continue to use the older version.
+
+
+Labels
+------
+
+To identify your computation, a unique label is required. Sumatra can generate this for you automatically, or this
+can be specified using the ``--label`` option::
+
+    $ smt run --label=test0237
+
+Two formats are available for automatically-generated labels, timestamp-based (the default), and uuid-based.
+
+    $ smt configure --labelgenerator=uuid
+    $ smt configure --labelgenerator=timestamp --timestamp_format=%Y%m%d-%H%M%S
+
+
+Command-line options
+--------------------
+
+If your own program has its own command-line options of the form ``--option=value``, :command:`smt run` will
+try to interpret these as Sumatra command-line parameters (options of the form ``--option value``, without the equals
+sign, are fine). To avoid this, use the ``--plain`` configuration option::
+
+    $ smt configure --plain
+
+(``--no-plain`` turns this off).
+
+
+Reading from stdin, writing to stdout
+-------------------------------------
+
+If your program reads from stdin and/or writes to stdout, i.e. you would normally run it using::
+
+    $ myprog < input.txt > output.txt
+
+then you can tell Sumatra to run it the same way, but in addition to track the input/output file, using::
+
+    $ smt run -e myprog -i input.txt -o output.txt
+
+
+Commenting
+----------
+
+Sumatra offers two ways to attach comments to your computations. When you launch a computation, you
+can give the reason for running it, e.g. what hypothesis you are testing::
+
+    $ smt run --reason="Test the effect of using a low-pass filter"
+
+Once the computation is finished, you can comment on the outcome::
+
+    $ smt comment "Doesn't seem to make much of a difference"
+
+By default, the comment is attached to the most recent computation. You can also comment on an older record,
+by giving its label::
+
+    $ smt comment 20150423-235351 "Didn't work due to a bug"
+
+You can comment multiple times on the same record. By default, the new comment will be appended to the old one.
+To overwrite the old comment, use the "--replace" flag. If you would like to attach a longer comment than will fit on
+one line, or a more structured comment, you can write your comment in a temporary text file and then attach that to
+the record::
+
+    $ smt comment --file comment.txt
+
+Both the "reason" and "outcome" fields can be edited in the web browser interface. To add headings, sub-headings,
+hyperlinks, emphasis, etc. in a comment, you can use reStructuredText_ markup, which will be rendered as HTML.
+
+
+Tagging
+-------
+
+To structure your project, and make it easier to find the most interesting results, you can add tags to your
+records, either through the web browser interface or on the command line, e.g.::
+
+    $ smt tag "Figure 5" 20141203-093401
+
+If you omit the record label, the most recent computation will be tagged.
+
+Tags may contain spaces, but in this case must be contained in quotes. You can tag multiple records at the same time::
+
+    $ smt tag modelA 20141203-093401 20141203-122344 20150109-194344
+
+You can also remove tags::
+
+    $ smt tag --remove modelA 20141203-122344
 
 
 Viewing and searching results
 =============================
 
+The easiest way to review your project is to use the web browser interface - see :doc:`web_interface` for more
+information on this. It is also possible, however, to view computation records on the command line, or to
+export the information to other formats such as HTML and LaTeX.
+
+::
+
+    $ smt list
+
+lists the labels of all records. When you have a lot of records, it will probably be more useful to filter by tags::
+
+    $ smt list tag1 tag2 tag3
+
+will only show records that have been tagged with *all* the tags in the list. To show fuller information about
+each record, use the "--long/-l" option:
+
+    $ smt list -l
+
+The order of records can be reversed using the "--reverse/-r" flag.
+
+By default, the output is formatted for the console. Several other output formats are also available, for example
+LaTeX::
+
+    $ smt list --long --format=latex > myproject.tex
+    $ pdflatex myproject
+
+You can customize the LaTeX output by copying the default template from :file:`sumatra/formatting/latex_template.tex`
+to the :file:`.smt` subdirectory of your project, and then modifying it. The template uses the Jinja2_ templating
+language.
 
 
+Comparing records
+-----------------
+
+The web browser interface allows side-by-side comparison of pairs of records. A more limited comparison is
+available on the command-line with :command:`smt diff`.
+
+
+Deleting records
+----------------
+
+If your last computation failed because of a silly bug::
+
+    $ smt delete
+
+will remove it. Older records can be deleted by giving a list of labels::
+
+    $ smt delete 20141203-093401 20141203-122344
+
+or a list of tags::
+
+    $ smt delete --tag tag1
+
+If you want to also delete the data files generated by the computations, add the "--data" flag.
+Records can also be deleted through the web browser interface.
 
 
 Relocating a project
 ====================
 
-For Mercurial, Git and Bazaar::
+If you need to move a Sumatra project to a new directory or a new computer, first copy all the files, ensuring that
+the :file:`.smt` directory and its contents are also copied. We strongly suggest you also take a backup, and check
+carefully that everything is working correctly in the new location before deleting the original.
 
-    $ smt configure -r .
+You will next need to update the project configuration to reflect the new location. Supposed you created your project
+with the default settings, so that your record store is in :file:`.smt/records` and your output data is stored under
+the :file:`Data` subdirectory, run the following in the new location::
 
-If you are also moving the data, i.e. your datastore was the same as, or a
-subdirectory of your working directory, there is at present no easy way to handle this,
-since each record contains the absolute path to the original datastore.
+    $ smt configure --store .smt/records --repository . --datapath Data
+
+Alternatively, you can manually edit :file:`.smt/project`.
+
+If you have also moved the data associated with your project, you will need to update the paths stored in the
+record store::
+
+    $ smt migrate --datapath Data
+
+If you are using the archive or mirror options for your data (see :doc:`handling_data`) you may also need to migrate
+those paths/URLs.
+
+
+.. _reStructuredText: http://docutils.sourceforge.net/rst.html
+.. _Jinja2: http://jinja.pocoo.org

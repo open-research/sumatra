@@ -30,18 +30,19 @@ Table of Contents
    introduction
    installation
    getting_started
-   command_reference
+   managing_a_project
    web_interface
-   gui
+   parameter_files
+   handling_data
    parallel_computations
    publishing
    reporting
    using_the_api
-   parameter_files
-   handling_data
    record_stores
    upgrading
    plugins
+   gui
+   command_reference
    developers_guide
    api_reference
    faq

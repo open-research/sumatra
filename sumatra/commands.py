@@ -401,7 +401,7 @@ def list(argv):  # add 'report' and 'log' as aliases
     """List records belonging to the current project."""
     usage = "%(prog)s list [options] [TAGS]"
     description = dedent("""\
-      If TAGS (optional) is specified, then only records with a tag in TAGS
+      If TAGS (optional) is specified, then only records tagged with all the tags in TAGS
       will be listed.""")
     parser = ArgumentParser(usage=usage,
                             description=description)
@@ -411,8 +411,9 @@ def list(argv):  # add 'report' and 'log' as aliases
                         help="prints full information for each record"),
     parser.add_argument('-T', '--table', action="store_const", const="table",
                         dest="mode", help="prints information in tab-separated columns")
-    parser.add_argument('-f', '--format', metavar='FMT', choices=['text', 'html', 'latex', 'shell'], default='text',
-                        help="FMT can be 'text' (default), 'html', 'latex' or 'shell'.")
+    parser.add_argument('-f', '--format', metavar='FMT', choices=['text', 'html', 'latex', 'shell', 'json'],
+                        default='text',
+                        help="FMT can be 'text' (default), 'html', 'json', 'latex' or 'shell'.")
     parser.add_argument('-r', '--reverse', action="store_true", dest="reverse", default=False,
                         help="list records in reverse order (default: newest first)"),
     args = parser.parse_args(argv)
@@ -496,7 +497,7 @@ def tag(argv):
     description = dedent("""\
       If TAG contains spaces, it must be enclosed in quotes. LIST should be a
       space-separated list of labels for individual records. If it is omitted,
-      only the most recent record will be tagged. If the '-d/--delete' option
+      only the most recent record will be tagged. If the '-r/--remove' option
       is set, the tag will be removed from the records.""")
     parser = ArgumentParser(usage=usage,
                             description=description)
@@ -698,6 +699,7 @@ def migrate(argv):
             value = getattr(args, option_name)
             if value:
                 project.record_store.update(project.name, field, value)
+    # should we also change the default values stored in the Project?
 
 
 def version(argv):
