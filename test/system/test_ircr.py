@@ -19,8 +19,8 @@ import os
 from datetime import datetime
 import utils
 from utils import (setup, teardown, run_test, build_command, assert_file_exists, assert_in_output,
-                   assert_config, assert_label_equal, assert_records, edit_parameters,
-                   expected_short_list, substitute_labels)
+                   assert_config, assert_label_equal, assert_records, assert_return_code,
+                   edit_parameters, expected_short_list, substitute_labels)
 from functools import partial
 
 repository = "https://bitbucket.org/apdavison/ircr2013"
@@ -79,6 +79,7 @@ test_steps = [
     modify_script("glass_sem_analysis.py"),
     ("Run the modified code",
      "smt run -r 'Added labels to output' default_parameters MV_HFV_012.jpg",
+     assert_return_code, 1,
      assert_in_output, "Code has changed, please commit your changes"),
     ("Commit changes...",
      "hg commit -m 'Added labels to output' -u testuser"),
@@ -96,8 +97,8 @@ test_steps = [
      "smt list -l",
      assert_records, substitute_labels([
          {'label': 0, 'executable_name': 'Python', 'outcome': 'works fine', 'reason': 'initial run',
-          'version': '6038f9c500d1', 'vcs': 'Mercurial', 'script_args': '<parameters> MV_HFV_012.jpg',
-          'main': 'glass_sem_analysis.py'},   # TODO: add checking of parameters
+          'version': '6038f9c500d1', 'vcs': 'Mercurial', 'script_arguments': '<parameters> MV_HFV_012.jpg',
+          'main_file': 'glass_sem_analysis.py'},   # TODO: add checking of parameters
          {'label': 1, 'outcome': '', 'reason': 'No filtering'},
          {'label': 2, 'outcome': 'The default colourmap is nicer', 'reason': 'Trying a different colourmap'},
          {'label': 3, 'outcome': '', 'reason': 'Added labels to output'},

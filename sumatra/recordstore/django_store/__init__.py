@@ -21,6 +21,7 @@ from textwrap import dedent
 import imp
 import django.conf as django_conf
 from django.core import management
+import django
 from sumatra.recordstore.base import RecordStore
 from ...core import component
 from urllib.request import urlparse
@@ -29,6 +30,11 @@ from io import StringIO
 # Check that django-tagging is available. It would be better to try importing
 # it, but that seems to mess with Django's internals.
 imp.find_module("tagging")
+
+
+def db_id(db):
+    """Return a unique identifier for a database, for comparison purposes."""
+    return (db['ENGINE'], db['NAME'], db.get('HOST', ''), db.get('PORT', ''))
 
 
 class DjangoConfiguration(object):
@@ -43,12 +49,16 @@ class DjangoConfiguration(object):
         self._settings = {
             'DEBUG': True,
             'DATABASES': {},
-            'INSTALLED_APPS': ('sumatra.recordstore.django_store',
+            'INSTALLED_APPS': ['sumatra.recordstore.django_store',
                                'django.contrib.contenttypes',  # needed for tagging
-                               'tagging'),
+                               'tagging'],
+            'MIDDLEWARE_CLASSES': [],
         }
         self._n_databases = 0
         self.configured = False
+
+    def update_settings(self, **kwargs):
+        self._settings.update(kwargs)
 
     def uri_to_db(self, uri):
         parse_result = urlparse(uri)
@@ -74,7 +84,7 @@ class DjangoConfiguration(object):
 
         if self.contains_database(db):
             for key, db_tmp in self._settings['DATABASES'].items():
-                if db == db_tmp:
+                if db_id(db) == db_id(db_tmp):
                     label = key
                     break
         else:
@@ -89,7 +99,8 @@ class DjangoConfiguration(object):
         return label
 
     def contains_database(self, db):
-        return db in [db_tmp for label, db_tmp in self._settings['DATABASES'].items()]
+        existing_dbs = [db_id(db_tmp) for db_tmp in self._settings['DATABASES'].values()]
+        return db_id(db) in existing_dbs
 
     def _create_databases(self):
         for label, db in self._settings['DATABASES'].items():
@@ -97,8 +108,9 @@ class DjangoConfiguration(object):
                 db_file = db['NAME']
                 if not os.path.exists(os.path.dirname(db_file)):
                     os.makedirs(os.path.dirname(db_file))
-                management.call_command('syncdb', database=label, verbosity=0)
-            else:
+            try:
+                management.call_command('migrate', database=label, verbosity=0)
+            except django.core.management.base.CommandError:
                 management.call_command('syncdb', database=label, verbosity=0)
 
     def configure(self):
@@ -106,6 +118,8 @@ class DjangoConfiguration(object):
         if not settings.configured:
             settings.configure(**self._settings)
             if not self.configured:
+                if hasattr(django, "setup"):
+                    django.setup()
                 self._create_databases()
             self.configured = True
 

@@ -9,6 +9,7 @@ from __future__ import unicode_literals
 from builtins import str
 from builtins import object
 
+import json
 from django.db import models
 from sumatra import programs, launch, datastore, records, versioncontrol, parameters, dependency_finder
 import tagging.fields
@@ -27,22 +28,25 @@ class SumatraObjectsManager(models.Manager):
         # want to store in a single table in the database.
         # might be better to specify the list of field names explicitly
         # as an argument to the Manager __init__().
-        excluded_fields = ('id', 'record', 'input_to_records', 'output_from_record')
+        excluded_fields = ('id', 'record', 'input_to_records', 'output_from_record', 'output_from_record_id')
         field_names = set(self.model._meta.get_all_field_names()).difference(excluded_fields)
         attributes = {}
         for name in field_names:
-            try:
-                attributes[name] = getattr(obj, name)
-            except AttributeError:
-                if name == 'parameters':
-                    attributes[name] = str(obj.__getstate__())
-                elif name == 'type':
-                    attributes[name] = obj.__class__.__name__
-                elif name in ('content', 'metadata'):
-                    attributes[name] = str(obj)  # ParameterSet, DataKey
-                else:
-                    raise
-
+            if name == 'metadata':
+                assert isinstance(obj.metadata, dict)
+                attributes[name] = json.dumps(obj.metadata, sort_keys=True)  # DataKey
+            else:
+                try:
+                    attributes[name] = getattr(obj, name)
+                except AttributeError:
+                    if name == 'parameters':
+                        attributes[name] = str(obj.__getstate__())
+                    elif name == 'type':
+                        attributes[name] = obj.__class__.__name__
+                    elif name == 'content':
+                        attributes[name] = str(obj)  # ParameterSet
+                    else:
+                        raise
         return self.using(using).get_or_create(**attributes)
 
 
@@ -187,18 +191,28 @@ class DataKey(BaseModel):
     digest = models.CharField(max_length=40)
     creation = models.DateTimeField(null=True, blank=True)
     metadata = models.TextField(blank=True)
-
-    output_from_record = models.ForeignKey('Record', related_name =
-                                           'output_data', null = True)
+    output_from_record = models.ForeignKey('Record', related_name='output_data',
+                                           null=True)
 
     class Meta(object):
         ordering = ('path',)
 
     def get_metadata(self):
-        return eval(self.metadata)  # should probably use json.decode
+        try:
+            md = json.loads(self.metadata)
+        except ValueError as err:
+            # metadata is now serialized as JSON, but was previously
+            # serialized as the string representation of a dict
+            # This block is to handle records created with
+            # previous versions of Sumatra.
+            try:
+                md = eval(self.metadata)
+            except NameError:
+                raise err
+        return md
 
     def to_sumatra(self):
-        metadata = eval(self.metadata)
+        metadata = self.get_metadata()
         return datastore.DataKey(self.path, self.digest, self.creation, **metadata)
 
 
@@ -207,7 +221,7 @@ class PlatformInformation(BaseModel):
     architecture_linkage = models.CharField(max_length=100)
     machine = models.CharField(max_length=20)
     network_name = models.CharField(max_length=100)
-    ip_addr = models.IPAddressField()
+    ip_addr = models.GenericIPAddressField()
     processor = models.CharField(max_length=100)
     release = models.CharField(max_length=100)
     system_name = models.CharField(max_length=20)

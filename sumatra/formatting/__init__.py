@@ -43,8 +43,8 @@ class Formatter(object):
         return getattr(self, mode)()
 
 
-def record2json(record, indent=None):
-    """Encode a Sumatra record as JSON."""
+def record2dict(record):
+    """Convert a Sumatra record to nested dicts"""
     data = {
         "label": record.label,  # 0.1: 'group'
         "timestamp": record.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
@@ -94,7 +94,7 @@ def record2json(record, indent=None):
             "metadata": key.metadata,
             "creation": None if key.creation is None else key.creation.strftime("%Y-%m-%d %H:%M:%S")  # added in 0.7
         } for key in record.output_data],
-        "tags": list(record.tags),  # not sure if tags should be PUT, perhaps have separate URL for this?
+        "tags": sorted(list(record.tags)),  # not sure if tags should be PUT, perhaps have separate URL for this?
         "diff": record.diff,
         "user": record.user,  # added in 0.2
         "dependencies": [{
@@ -119,6 +119,12 @@ def record2json(record, indent=None):
         } for p in record.platforms],
         "repeats": record.repeats,  # added in 0.6
     }
+    return data
+
+
+def record2json(record, indent=None):
+    """Encode a Sumatra record as JSON."""
+    data = record2dict(record)
     return json.dumps(data, indent=indent)
 
 
