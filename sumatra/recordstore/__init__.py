@@ -43,6 +43,10 @@ def get_record_store(uri):
     """
     for record_store_class in get_registered_components(RecordStore).values():
         if record_store_class.accepts_uri(uri):
-            store = record_store_class(uri)
-            return store
+            try:
+                store = record_store_class(uri)
+            except Exception:  # e.g. anydbm.error
+                continue
+            else:
+                return store
     return DefaultRecordStore(uri)
