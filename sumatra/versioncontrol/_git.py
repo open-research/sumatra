@@ -113,7 +113,7 @@ class GitWorkingCopy(WorkingCopy):
                 elif '/' in main_file:
                     path_to_mainfile = main_file.split('/')
                     pardir_list, main_file = path_to_mainfile[:-1], path_to_mainfile[-1]
-                    for dirname in pardir_list[::-1]:
+                    for dirname in pardir_list:
                         for subtree in curtree.trees:
                             if subtree.name == dirname:
                                 curtree = subtree
