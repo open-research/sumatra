@@ -10,14 +10,13 @@
 
 {% block content %}
 
-<h3>{{project.get_name}} <button type="button" class="btn btn-xs" data-toggle="modal" data-target="#editProjectNameModal">Edit</button></h3>
-
 <div class="btn-group" role="group">
     <a type="button" class="btn btn-default" href="/{{project.id}}/">Record View</a>
     <a type="button" class="btn btn-default" href="/{{project.id}}/data/">Data View</a>
     <button type="button" class="btn btn-primary">About</button>
 </div>
 
+<h3>{{project.get_name}} <button type="button" class="btn btn-xs" data-toggle="modal" data-target="#editProjectNameModal">Edit</button></h3>
 
 {% if project.description %}
 <div class="panel panel-default" id="projectDescriptionPanel">
