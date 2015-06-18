@@ -169,6 +169,9 @@ class DataDetailView(DetailView):
 
     def handle_plain_text(self, context, content):
         context["content"] = content
+        if os.path.exists('.smt/templates'):
+            context["templates"] = [os.path.splitext(t)[0] for t in os.listdir(os.getcwd()+'/.smt/templates') if t.endswith('.html')]
+            context["templates"].sort()
         return context
 
     def handle_zipfile(self, context, content):
@@ -337,6 +340,12 @@ def pair_datafiles(data_keys_a, data_keys_b, threshold=0.7):
     return {"matches": matches,
             "unmatched_a": unmatched_files_a,
             "unmatched_b": unmatched_files_b}
+
+
+def plot_file(request, project):
+    query = request.GET.copy()
+    query['path_list'] = request.GET.getlist('path')
+    return render_to_response(request.GET['template'], query)
 
 
 class SettingsView(View):

@@ -52,6 +52,7 @@ class DjangoConfiguration(object):
             'INSTALLED_APPS': ['sumatra.recordstore.django_store',
                                'django.contrib.contenttypes',  # needed for tagging
                                'tagging'],
+            'STATICFILES_DIRS': ['.smt/static','Data'],
             'MIDDLEWARE_CLASSES': [],
         }
         self._n_databases = 0

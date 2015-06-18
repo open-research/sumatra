@@ -1,5 +1,18 @@
 {% extends "data_detail_base.html" %}
 
+{% block plot %}
+{% if templates %}
+    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+        <span class="glyphicon glyphicon-stats"></span> select a plot template <span class="caret"></span>
+    </a>
+    <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
+        {% for template in templates %}
+            <li><a class="plot_template" tabindex="-1" id="{{template}}" onclick="window.open('/{{project_name}}/plot?template={{template}}.html&path={{data_key.path}}','plot_data','width=970,height=520,scrollbars=yes,resizable=yes')">{{template}}</a></li>
+        {% endfor %}
+    </ul>
+{% endif %}
+{% endblock %}
+
 {% block data %}
 <pre>{{content}}</pre>
 {% endblock %}
