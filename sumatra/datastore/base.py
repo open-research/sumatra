@@ -2,7 +2,7 @@
 
 
 :copyright: Copyright 2006-2015 by the Sumatra team, see doc/authors.txt
-:license: CeCILL, see LICENSE for details.
+:license: BSD 2-clause, see LICENSE for details.
 """
 from __future__ import unicode_literals
 from builtins import object
