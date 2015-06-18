@@ -14,8 +14,8 @@ and should both accept and return JSON-encoded data when the Accept header is
 The required JSON structure can be seen in recordstore.serialization.
 
 
-:copyright: Copyright 2006-2014 by the Sumatra team, see doc/authors.txt
-:license: CeCILL, see LICENSE for details.
+:copyright: Copyright 2006-2015 by the Sumatra team, see doc/authors.txt
+:license: BSD 2-clause, see LICENSE for details.
 """
 from __future__ import unicode_literals
 from future import standard_library
