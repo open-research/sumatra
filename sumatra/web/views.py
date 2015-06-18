@@ -200,6 +200,24 @@ class DataDetailView(DetailView):
         return template_name
 
 
+def parameter_list(request, project):
+    project_obj = Project.objects.get(id=project)
+    main_file = request.GET.get('main_file', None)
+    if main_file:
+        record_list = Record.objects.filter(project_id=project, main_file=main_file)
+        keys = []
+        for record in record_list:
+            parameter_set = record.parameters.to_sumatra()
+            if hasattr(parameter_set, "as_dict"):
+                parameter_set = parameter_set.as_dict()
+            for key in parameter_set.keys():            # only works with simple parameter set
+                if key not in keys:
+                    keys.append(key)
+        return render_to_response('parameter_list.html',{'project':project_obj, 'object_list':record_list, 'keys': keys, 'main_file':main_file})
+    else:
+        return render_to_response('parameter_list.html',{'project':project_obj})
+
+
 def delete_records(request, project):
     records_to_delete = request.POST.getlist('delete[]')
     delete_data = request.POST.get('delete_data', False)

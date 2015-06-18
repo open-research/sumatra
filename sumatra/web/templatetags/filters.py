@@ -39,6 +39,11 @@ def dirname(text):
 
 
 @register.filter
+def get_item(dictionary, key):
+    return dictionary.get(key)
+
+
+@register.filter
 def eval_metadata(data, key):
     '''Convert DataKey metadata from unicode to dictionary and return
     item accessed by key.
