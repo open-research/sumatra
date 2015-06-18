@@ -218,6 +218,38 @@ def parameter_list(request, project):
         return render_to_response('parameter_list.html',{'project':project_obj})
 
 
+def image_list(request, project):
+    project_obj = Project.objects.get(id=project)
+    tags = Tag.objects.all()
+    offset = int(request.GET.get('offset',0))
+    limit = int(request.GET.get('limit',8))
+    selected_tag = request.GET.get('selected_tag',None)
+    if selected_tag:
+        record_all = Record.objects.filter(project_id=project, tags__contains=selected_tag)
+    else:
+        record_all = Record.objects.filter(project_id=project)
+    if request.is_ajax():
+        data = []
+        for record in record_all:
+            for data_key in record.output_data.all():
+                mimetype, encoding = mimetypes.guess_type(data_key.path)
+                if mimetype in ("image/png", "image/jpeg", "image/gif", "image/x-png"):
+                    data.append({
+                        'project_name':     project_obj.id,
+                        'label':            record.label,
+                        'main_file':        record.main_file,
+                        'repos_url':        record.repository.url,
+                        'version':          record.version,
+                        'tags':             record.tags,
+                        'path':             data_key.path,
+                        'creation':         data_key.creation.strftime('%Y-%m-%d %H:%M:%S'),
+                        'digest':           data_key.digest
+                    })
+        return HttpResponse(json.dumps(data[offset:offset+limit]), content_type='application/json')
+    else:
+        return render_to_response('image_list.html', {'project':project_obj, 'tags':tags})
+
+
 def delete_records(request, project):
     records_to_delete = request.POST.getlist('delete[]')
     delete_data = request.POST.get('delete_data', False)
