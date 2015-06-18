@@ -39,3 +39,7 @@ code {
 ul.hierarchical {
     list-style-type: none;
 }
+
+.dropdown-menu li a {
+    cursor: pointer;
+}
