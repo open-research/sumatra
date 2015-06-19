@@ -262,7 +262,7 @@ class Project(object):
                 success = True
                 self._most_recent = record.label
             except (django.db.utils.DatabaseError, sqlite3.OperationalError):
-                print("Failed to save record due to database error. Trying again in {} seconds. (Attempt {}/{})".format(sleep_seconds, cnt, max_tries))
+                print("Failed to save record due to database error. Trying again in {0} seconds. (Attempt {1}/{2})".format(sleep_seconds, cnt, max_tries))
                 time.sleep(sleep_seconds)
                 cnt += 1
         if cnt == max_tries:
