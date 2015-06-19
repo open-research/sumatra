@@ -9,13 +9,13 @@ Mac OS X, with the bash shell.
 Requirements
 ------------
 
-    * Python_ 2.6, 2.7 or >= 3.3
+    * Python_ 2.6, 2.7 or 3.4
     * Django_ >= 1.6
     * django-tagging_ >= 0.3
     * parameters >= 0.2.1
     * nose_ >= 0.11.4
     * future >= 0.14
-    * if using Python <= 3.3, pathlib >= 1.0.0
+    * if using Python < 3.4, pathlib >= 1.0.0
     * if using Python 2.6, ordereddict, unittest2_ >= 0.5.1
     * docutils
     * Jinja2
@@ -119,7 +119,7 @@ Coding standards and style
 --------------------------
 
 All code should conform as much as possible to `PEP 8`_, and should run with
-Python 2.6, 2.7, 3.3 and 3.4. Lines should be no longer than 99 characters.
+Python 2.6, 2.7 and 3.4. Lines should be no longer than 99 characters.
 
 
 Reviewing pull requests
