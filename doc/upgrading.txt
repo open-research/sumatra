@@ -61,7 +61,7 @@ The original :file:`.smt` directory will be copied to a time-stamped directory, 
 :file:`.smt_backup_20140209132422`.
 
 
-.. _export.py: http://neuralensemble.org/trac/sumatra/browser/tools/export.py?format=txt
+.. _export.py: https://raw.githubusercontent.com/open-research/sumatra/master/tools/export.py
 
 
 Downgrading an accidentally upgraded Sumatra to export the project

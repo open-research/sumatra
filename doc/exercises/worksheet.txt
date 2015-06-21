@@ -8,7 +8,7 @@ Hands-on exercises with Sumatra
 This worksheet will introduce you to the most important capabilities of Sumatra.
 To learn more, check out the documentation at http://neuralensemble.org/sumatra/.
 If you have questions, you will get answers in the sumatra-users Google Group
-at https://groups.google.com/forum/#!forum/sumatra-users.
+at https://groups.google.com/forum/#!forum/sumatra-users
 
 As our example code, we will use a Python program for analyzing scanning
 electron microscope (SEM) images of glass samples. This example was taken from
@@ -296,9 +296,9 @@ Bugs and feature requests
 -------------------------
 
 If you find a bug in Sumatra or wish to suggest an improvement or a new feature,
-please open a ticket in the issue tracker at https://bitbucket.org/apdavison/sumatra/issues/new
+please open a ticket in the issue tracker at https://github.com/open-research/sumatra/issues/new
 
 If you fix the bug or implement the improvement yourself, you can either attach
-a patch to the ticket, or clone the Sumatra mirror on BitBucket (https://bitbucket.org/apdavison/sumatra)
+a patch to the ticket, or clone the Sumatra mirror on Github (https://github.com/open-research/sumatra/)
 and open a pull request.
 

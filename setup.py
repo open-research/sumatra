@@ -35,7 +35,7 @@ if major_python_version < 3 or (major_python_version == 3 and minor_python_versi
 
 setup(
     name = "Sumatra",
-    version = "0.7dev",
+    version = "0.7.0rc1",
     package_dir = {'sumatra': 'sumatra'},
     packages = ['sumatra', 'sumatra.dependency_finder', 'sumatra.datastore',
                 'sumatra.recordstore', 'sumatra.recordstore.django_store',
@@ -65,7 +65,6 @@ setup(
                    'Programming Language :: Python',
                    'Programming Language :: Python :: 2.6',
                    'Programming Language :: Python :: 2.7',
-                   'Programming Language :: Python :: 3.3',
                    'Programming Language :: Python :: 3.4',
                    'Topic :: Scientific/Engineering'],
     cmdclass = {'sdist': sdist_git},
