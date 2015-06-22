@@ -17,8 +17,8 @@ The easiest way to install Sumatra is directly from the `Python Package Index`_
 Alternatively, you can download the Sumatra package from either PyPI or the
 `INCF Software Centre`_ and install it as follows::
 
-    $ tar xzf Sumatra-0.6.0.tar.gz
-    $ cd Sumatra-0.6.0
+    $ tar xzf Sumatra-0.7.0.tar.gz
+    $ cd Sumatra-0.7.0
     # python setup.py install
 
 The last step may need to be run as root, or using sudo, although in general
@@ -29,7 +29,7 @@ Installing Django
 -----------------
 
 If you wish to use the web interface, you will also need to install Django_
-version 1.4 or later. On Linux, you may be able to do this via your package
+version 1.6 or later. On Linux, you may be able to do this via your package
 management system: see https://code.djangoproject.com/wiki/Distributions.
 
 Otherwise, it is very easy to install manually: see
@@ -53,9 +53,22 @@ Since Bazaar is mostly written in Python, just installing the main Bazaar
 package is sufficient. For Git, you need to install the GitPython_ package.
 For Mercurial, you need to install the hgapi_ package.
 
-.. _python.org: http://www.python.org
+
+Command completion for bash
+---------------------------
+
+Sumatra comes with a limited bash completion facility.
+You can install it to you system by sourcing the file
+`smt-completion.sh` in your `.bashrc` or `.profile.
+By default, Sumatra installs this script to your
+`/usr/bin` directory by default but moving it
+elsewhere (e.g. to `~/.bash_completion.d/`)
+is recommended.
+
+
+.. _python.org: https://www.python.org
 .. _Django: https://www.djangoproject.com
-.. _Mercurial: http://mercurial.selenic.com/
+.. _Mercurial: https://mercurial.selenic.com/
 .. _Subversion: http://subversion.tigris.org/
 .. _Git: http://git-scm.com/
 .. _Bazaar: http://bazaar.canonical.com/
@@ -69,14 +82,3 @@ For Mercurial, you need to install the hgapi_ package.
 .. _`Python(x,y)`: http://code.google.com/p/pythonxy/
 .. _Anaconda: http://docs.continuum.io/anaconda/
 .. _docutils: http://docutils.sourceforge.net
-
-Command completion for bash
----------------------------
-
-Sumatra comes with a limited bash completion facility.
-You can install it to you system by sourcing the file
-`smt-completion.sh` in your `.bashrc` or `.profile.
-By default, Sumatra installs this script to your
-`/usr/bin` directory by default but moving it
-elsewhere (e.g. to `~/.bash_completion.d/`)
-is recommended.

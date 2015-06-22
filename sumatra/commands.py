@@ -637,7 +637,7 @@ def upgrade(argv):
     else:
         print("Record file not found")
         sys.exit(1)
-    print("Project successfully upgraded to Sumatra version {}.".format(project.sumatra_version))
+    print("Project successfully upgraded to Sumatra version {0}.".format(project.sumatra_version))
 
 
 def export(argv):

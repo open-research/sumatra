@@ -1,0 +1,112 @@
+===========================
+Sumatra 0.7.0 release notes
+===========================
+
+*DATE*
+
+Welcome to Sumatra 0.7.0!
+
+This version of Sumatra brings some major improvements for users, including an
+improved web browser interface, improved support for the R language, Python 3
+compatibility, a plug-in interface making Sumatra easier to extend and
+customize, and support for storing data using WebDAV.
+
+In addition, there have been many changes under the hood, including a move to
+Github and improvements to the test framework, largely supported by the use of
+Docker.
+
+Last but not least, we have changed licence from the CeCILL licence (GPL-compatible)
+to a BSD 2-Clause Licence, which should make it easier for other developers to
+use Sumatra in their own projects.
+
+
+Updated and extended web interface
+----------------------------------
+
+Thanks to Felix Hoffman's Google Summer of Code project, the web browser
+interface now provides the option of viewing the history of your project
+either in a "process-centric" view, as in previous versions, where each row in
+the table represents a computation, or in a "data-centric" view, where each row
+is a data file. Where the output from one computation is the input to another,
+additional links make it possible to follow these connections.
+
+The web interface has also had a cosmetic update and several other improvements,
+including a more powerful comparison view (see screenshot). Importantly, the
+interface layout no longer breaks in narrower browser windows.
+
+.. figure:: ../images/compare_records.png
+ :width: 80%
+ :align: center
+
+
+BSD licence
+-----------
+
+The Sumatra project aims to provide not only tools for scientists as end users
+(such as ``smt`` and ``smtweb``), but also library components for developers
+to add Sumatra's functionality to their own tools. To support this
+second use, we have switched licence from CeCILL (GPL-compatible) to the
+BSD 2-Clause Licence.
+
+
+Python 3 support
+----------------
+
+In version 0.6.0, Sumatra already supported provenance capture for projects
+using Python 3, but required Python 2.6 or 2.7 to run.
+Thanks to Tim Tröndle, Sumatra now also runs in Python 3.4.
+
+
+Plug-in interface
+-----------------
+
+To support the wide diversity of workflows in scientific computing, Sumatra has
+always had an extensible architecture. It is intended to be easy to add support
+for new database formats, new programming languages, new version control systems,
+or new ways of launching computations.
+
+Until now, adding such extensions has required that the code be included in
+Sumatra's code base. Version 0.7.0 adds a plug-in interface, so you can define
+your own local extensions, or use other people's.
+
+For more information, see :doc:`../plugins`.
+
+WebDAV support
+--------------
+
+The option to archive output data files has been extended to allow archiving to a
+remote server using the WebDAV protocol.
+
+
+Support for the R language
+--------------------------
+
+Sumatra will now attempt to determine the versions of all external packages loaded by an R script.
+
+
+Other changes
+-------------
+
+For developers, there has been a significant change - the project has moved from Mercurial to Git,
+and is now hosted on Github_. Testing has also been significantly improved, with more system/integration
+testing, and the use of Docker_ for testing PostgreSQL and WebDAV support.
+
+Parsing of command-line parameters has been improved. The :class:`ParameterSet` classes now have a :meth:`diff()`
+method, making it easier to see the difference between two parameter sets, especially for large and hierarchical
+sets.
+
+Following the `recommendation of the Mercurial developers`_, and to enable the change of licence to BSD, we no longer
+use the Mercurial internal API. Instead we use the Mercurial command line interface via the hgapi_ package.
+
+
+Bug fixes
+---------
+
+A `fair number of bugs`_ have been fixed.
+
+.. _`fair number of bugs`: https://github.com/open-research/sumatra/issues?q=is%3Aissue+milestone%3A0.7+is%3Aclosed+label%3Abug
+.. _`recommendation of the Mercurial developers`: https://mercurial.selenic.com/wiki/MercurialApi#Why_you_shouldn.27t_use_Mercurial.27s_internal_API
+.. _hgapi: https://hgapi.readthedocs.org/
+.. _Github: https://github.com/open-research/sumatra
+.. _Docker: https://www.docker.com
+

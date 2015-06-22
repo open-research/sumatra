@@ -39,9 +39,9 @@ def create_script():
 
 def get_url():
     info = dkr.containers()[0]
-    assert info["Image"] == "{}:latest".format(IMAGE)
+    assert info["Image"] == "{0}:latest".format(IMAGE)
     host = urlparse(dkr.base_url).hostname
-    return "{}:{}".format(host, info["Ports"][0]["PublicPort"])
+    return "{0}:{1}".format(host, info["Ports"][0]["PublicPort"])
 
 
 def start_webdav_container():

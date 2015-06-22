@@ -96,7 +96,7 @@ To see the current configuration of your project, use the ``info`` command::
     Append label to     : None
     Label generator     : timestamp
     Timestamp format    : %Y%m%d-%H%M%S
-    Sumatra version     : 0.6.0
+    Sumatra version     : 0.7.0
     
 Sumatra automatically records the identity and versions of the simulation files
 and the simulator executable, stores links to any files created by the
@@ -162,7 +162,7 @@ available by running ``smt`` by itself::
     $ smt
     Usage: smt <subcommand> [options] [args]
     
-    Simulation/analysis management tool version 0.6.0
+    Simulation/analysis management tool version 0.7.0
     
     Available subcommands:
       init
@@ -216,5 +216,5 @@ covers :doc:`using smt for parallel computations <parallel_computations>` (using
 Also see :doc:`smtweb <web_interface>`, which provides a more graphical interface to viewing lists
 of records than ``smt list``.
 
-.. _Python: http://www.python.org
+.. _Python: https://www.python.org
 .. _MPI: http://en.wikipedia.org/wiki/Message_Passing_Interface

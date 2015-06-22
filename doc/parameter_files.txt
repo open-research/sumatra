@@ -139,5 +139,5 @@ include a plugin system which will greatly simplify adding your own
 customizations.
     
 
-.. _ConfigParser: http://docs.python.org/2/library/configparser.html
+.. _ConfigParser: https://docs.python.org/2/library/configparser.html
 .. _parameters: https://parameters.readthedocs.org/en/latest/

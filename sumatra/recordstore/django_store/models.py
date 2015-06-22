@@ -135,8 +135,7 @@ class Repository(BaseModel):
     def to_sumatra(self):
         for m in versioncontrol.vcs_list:
             if hasattr(m, self.type):
-                repos = getattr(m, self.type)(self.url)
-                repos.upstream = self.upstream
+                repos = getattr(m, self.type)(self.url, upstream = self.upstream)
                 return repos
         raise Exception("Repository type %s not supported." % self.type)
 

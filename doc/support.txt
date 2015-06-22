@@ -5,5 +5,5 @@ Getting support
 If you have a question about, or problems with using Sumatra, please post a
 message on either the sumatra-users_ or neuralensemble_ Google Groups.
 
-.. _sumatra-users: http://groups.google.com/group/sumatra-users
-.. _neuralensemble: http://groups.google.com/group/neuralensemble
+.. _sumatra-users: https://groups.google.com/forum/#!forum/sumatra-users
+.. _neuralensemble: https://groups.google.com/forum/#!forum/neuralensemble
