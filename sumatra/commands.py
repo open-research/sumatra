@@ -408,14 +408,17 @@ def list(argv):  # add 'report' and 'log' as aliases
     parser.add_argument('tags', metavar='TAGS', nargs='*')
     parser.add_argument('-l', '--long', action="store_const", const="long",
                         dest="mode", default="short",
-                        help="prints full information for each record"),
+                        help="prints full information for each record")
     parser.add_argument('-T', '--table', action="store_const", const="table",
                         dest="mode", help="prints information in tab-separated columns")
     parser.add_argument('-f', '--format', metavar='FMT', choices=['text', 'html', 'latex', 'shell', 'json'],
                         default='text',
                         help="FMT can be 'text' (default), 'html', 'json', 'latex' or 'shell'.")
     parser.add_argument('-r', '--reverse', action="store_true", dest="reverse", default=False,
-                        help="list records in reverse order (default: newest first)"),
+                        help="list records in reverse order (default: newest first)")
+    parser.add_argument('-m', '--main_file', help="the name of the script for filtering list of records.")
+    parser.add_argument('-v', '--version', metavar='REV',
+                        help="use version REV of the code. The first 5 characters is sufficent for filtering list of records.")
     args = parser.parse_args(argv)
 
     project = load_project()
@@ -423,7 +426,10 @@ def list(argv):  # add 'report' and 'log' as aliases
         f = open('.smt/labels', 'w')
         f.writelines(project.format_records(tags=None, mode='short', format='text', reverse=False))
         f.close()
-    print(project.format_records(tags=args.tags, mode=args.mode, format=args.format, reverse=args.reverse))
+    kwargs = {'tags':args.tags, 'mode':args.mode, 'format':args.format, 'reverse':args.reverse}
+    if args.main_file is not None: kwargs['main_file__startswith'] = args.main_file
+    if args.version is not None: kwargs['version__startswith'] = args.version
+    print(project.format_records(**kwargs))
 
 def delete(argv):
     """Delete records or records with a particular tag from a project."""

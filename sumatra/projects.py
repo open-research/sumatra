@@ -290,16 +290,16 @@ class Project(object):
         self._most_recent = self.record_store.most_recent(self.name)
         return n
 
-    def find_records(self, tags=None, reverse=False):
-        records = self.record_store.list(self.name, tags)
+    def find_records(self, tags=None, reverse=False, *args, **kwargs):
+        records = self.record_store.list(self.name, tags, *args, **kwargs)
         if reverse:
             records.reverse()
         return records
 
     # def find_data() here?
 
-    def format_records(self, format='text', mode='short', tags=None, reverse=False):
-        records = self.find_records(tags=tags, reverse=reverse)
+    def format_records(self, format='text', mode='short', tags=None, reverse=False, *args, **kwargs):
+        records = self.find_records(tags=tags, reverse=reverse, *args, **kwargs)
         formatter = get_formatter(format)(records, project=self, tags=tags)
         return formatter.format(mode)
 
