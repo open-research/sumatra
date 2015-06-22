@@ -411,7 +411,7 @@ def list(argv):  # add 'report' and 'log' as aliases
                         help="prints full information for each record")
     parser.add_argument('-T', '--table', action="store_const", const="table",
                         dest="mode", help="prints information in tab-separated columns")
-    parser.add_argument('-f', '--format', metavar='FMT', choices=['text', 'html', 'latex', 'shell', 'json'],
+    parser.add_argument('-f', '--format', metavar='FMT', choices=['text', 'html', 'latex', 'shell', 'json', 'csv', 'tsv'],
                         default='text',
                         help="FMT can be 'text' (default), 'html', 'json', 'latex' or 'shell'.")
     parser.add_argument('-r', '--reverse', action="store_true", dest="reverse", default=False,

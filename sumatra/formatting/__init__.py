@@ -474,6 +474,70 @@ class LaTeXFormatter(Formatter):
 
 
 @component
+class CSVFormatter(Formatter):
+    """
+    Format the information from a list of Sumatra records as csv.
+    """
+    name = "csv"
+
+    def short(self):
+        """Return a list of record labels, one per line."""
+        return ";".join(record.label for record in self.records)
+
+    def long(self):
+        """
+        Return information about a list of records as text, in a simple
+        tabular format.
+        """
+        tt = TextTable(fields, self.records, seperator=';')
+        return str(tt)
+
+    def table(self):
+        # perhaps have all the comments in the long version but not the short one
+        return self.long()
+
+    def parameter_view(self):
+        """
+        Return information about a list of records as text, in a simple
+        tabular format.
+        """
+        tt = ParamsTable(self.records, max_column_width=30, seperator=';')
+        return str(tt)
+
+
+@component
+class TSVFormatter(Formatter):
+    """
+    Format the information from a list of Sumatra records as tsv.
+    """
+    name = "tsv"
+
+    def short(self):
+        """Return a list of record labels, one per line."""
+        return "\t".join(record.label for record in self.records)
+
+    def long(self):
+        """
+        Return information about a list of records as text, in a simple
+        tabular format.
+        """
+        tt = TextTable(fields, self.records, seperator='\t')
+        return str(tt)
+
+    def table(self):
+        # perhaps have all the comments in the long version but not the short one
+        return self.long()
+
+    def parameter_view(self):
+        """
+        Return information about a list of records as text, in a simple
+        tabular format.
+        """
+        tt = ParamsTable(self.records, max_column_width=30, seperator='\t')
+        return str(tt)
+
+
+@component
 class TextDiffFormatter(Formatter):
     """
     Format information about the differences between two Sumatra records in
