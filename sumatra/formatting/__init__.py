@@ -37,12 +37,15 @@ class Formatter(object):
         self.project = project
         self.tags = None
 
-    def format(self, mode='short'):
+    def format(self, mode='short', keyword=None):
         """
         Format a record according to the given mode. ``mode`` may be 'short',
         'long' or 'table'.
         """
-        return getattr(self, mode)
+        if mode == 'keyword':
+            return getattr(self, mode)(keyword)
+        else:
+            return getattr(self, mode)()
 
 
 def record2dict(record):
