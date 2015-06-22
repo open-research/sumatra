@@ -42,10 +42,12 @@ class Formatter(object):
         Format a record according to the given mode. ``mode`` may be 'short',
         'long' or 'table'.
         """
-        if mode == 'keyword':
-            return getattr(self, mode)(keyword)
-        else:
-            return getattr(self, mode)()
+
+        try:
+            if keyword is not None: return getattr(self, mode)(keyword)
+        except:
+            pass
+        return getattr(self, mode)()
 
 
 def record2dict(record):
