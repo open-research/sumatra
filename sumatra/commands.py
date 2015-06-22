@@ -424,6 +424,8 @@ def list(argv):  # add 'report' and 'log' as aliases
     parser.add_argument('-k', '--keyword', metavar='KW', default=None,  help="additional information to label")
     args = parser.parse_args(argv)
 
+    if args.keyword is not None: args.mode = 'keyword'
+
     project = load_project()
     if os.path.exists('.smt'):
         f = open('.smt/labels', 'w')

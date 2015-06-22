@@ -41,7 +41,7 @@ class Formatter(object):
         Format a record according to the given mode. ``mode`` may be 'short',
         'long' or 'table'.
         """
-        return getattr(self, mode)()
+        return getattr(self, mode)
 
 
 def record2dict(record):
@@ -207,6 +207,20 @@ class TextFormatter(Formatter):
         tt = ParamsTable(self.records, max_column_width=13, seperator='|')
         return str(tt)
 
+    def keyword(self, keyword=None):
+        """Return a list of record labels plus one content of the record, one per line."""
+        if ',' in keyword:
+            keywords = keyword.split(',')
+        else:
+            keywords = [keyword]
+        rec_print = []
+        for record in self.records:
+            info_list = [record.label]
+            for kw in keywords:
+                if hasattr(record,kw):
+                    info_list.append(str(getattr(record,kw)))
+            rec_print.append('\t'.join(info_list))
+        return '\n'.join(rec_print)
 
 class TextTable(object):
     """
