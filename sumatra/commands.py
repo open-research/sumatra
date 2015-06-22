@@ -422,6 +422,8 @@ def list(argv):  # add 'report' and 'log' as aliases
     parser.add_argument('-p', '--parameter_view', action="store_const", const="parameter_view",
                         dest="mode", help="list records with a set of parameter")
     parser.add_argument('-k', '--keyword', metavar='KW', default=None,  help="additional information to label")
+    parser.add_argument('-o', '--output_files', action="store_const", const="output_files",
+                        dest="mode", help="list output files")
     args = parser.parse_args(argv)
 
     if args.keyword is not None: args.mode = 'keyword'

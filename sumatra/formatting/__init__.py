@@ -19,6 +19,7 @@ import re
 from ..core import component, component_type, get_registered_components
 from ..parameters import flatten_dict
 from functools import reduce
+import operator
 
 
 fields = ['label', 'timestamp', 'reason', 'outcome', 'duration', 'repository',
@@ -221,6 +222,12 @@ class TextFormatter(Formatter):
                     info_list.append(str(getattr(record,kw)))
             rec_print.append('\t'.join(info_list))
         return '\n'.join(rec_print)
+
+    def output_files(self):
+        """Return a list of record files, one per line."""
+        a = [[f.path for f in r.output_data] for r in self.records]
+        return '\n'.join(reduce(operator.add, a))
+
 
 class TextTable(object):
     """
@@ -518,6 +525,12 @@ class CSVFormatter(Formatter):
         tt = ParamsTable(self.records, max_column_width=30, seperator=';')
         return str(tt)
 
+    def output_files(self):
+        """Return a list of record files, one per line."""
+        a = [[f.path for f in r.output_data] for r in self.records]
+        return ";".join(reduce(operator.add, a))
+
+
 
 @component
 class TSVFormatter(Formatter):
@@ -549,6 +562,11 @@ class TSVFormatter(Formatter):
         """
         tt = ParamsTable(self.records, max_column_width=30, seperator='\t')
         return str(tt)
+
+    def output_files(self):
+        """Return a list of record files, one per line."""
+        a = [[f.path for f in r.output_data] for r in self.records]
+        return "\t".join(reduce(operator.add, a))
 
 
 @component
