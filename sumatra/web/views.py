@@ -27,6 +27,7 @@ from sumatra.recordstore.serialization import datestring_to_datetime
 from sumatra.recordstore.django_store.models import Project, Record, DataKey, Datastore
 from sumatra.records import RecordDifference
 from sumatra.versioncontrol import get_working_copy
+from sumatra.parameters import flatten_dict
 
 DEFAULT_MAX_DISPLAY_LENGTH = 10 * 1024
 global_conf_file = os.path.expanduser(os.path.join("~", ".smtrc"))
@@ -210,12 +211,16 @@ def parameter_list(request, project):
         record_list = Record.objects.filter(project_id=project, main_file=main_file)
         keys = []
         for record in record_list:
-            parameter_set = record.parameters.to_sumatra()
-            if hasattr(parameter_set, "as_dict"):
-                parameter_set = parameter_set.as_dict()
-            for key in parameter_set.keys():            # only works with simple parameter set
-                if key not in keys:
-                    keys.append(key)
+            try:
+                parameter_set = record.parameters.to_sumatra()
+                if hasattr(parameter_set, "as_dict"):
+                    parameter_set = parameter_set.as_dict()
+                parameter_set = flatten_dict(parameter_set)
+                for key in parameter_set.keys():            # only works with simple parameter set
+                    if key not in keys:
+                        keys.append(key)
+            except:
+                return Http404
         return render_to_response('parameter_list.html',{'project':project_obj, 'object_list':record_list, 'keys': keys, 'main_file':main_file})
     else:
         return render_to_response('parameter_list.html',{'project':project_obj})

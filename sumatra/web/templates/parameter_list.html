@@ -70,7 +70,7 @@
                     </td>
                     <td>{{ record.version|truncatechars:12 }}</td>
                     {% for key in keys %}
-                        <td>{{ record.parameters.to_sumatra.as_dict|get_item:key }}</td>
+                        <td>{{ record.parameters.to_sumatra|get_item:key }}</td>
                     {% endfor %}
                 </tr>
             {% endfor %}
