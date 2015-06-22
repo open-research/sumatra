@@ -298,10 +298,10 @@ class Project(object):
 
     # def find_data() here?
 
-    def format_records(self, format='text', mode='short', tags=None, reverse=False, *args, **kwargs):
+    def format_records(self, format='text', mode='short', tags=None, reverse=False, keyword=None, *args, **kwargs):
         records = self.find_records(tags=tags, reverse=reverse, *args, **kwargs)
         formatter = get_formatter(format)(records, project=self, tags=tags)
-        return formatter.format(mode)
+        return formatter.format(mode)(keyword)
 
     def most_recent(self):
         try:

@@ -421,6 +421,7 @@ def list(argv):  # add 'report' and 'log' as aliases
                         help="use version REV of the code. The first 5 characters is sufficent for filtering list of records.")
     parser.add_argument('-p', '--parameter_view', action="store_const", const="parameter_view",
                         dest="mode", help="list records with a set of parameter")
+    parser.add_argument('-k', '--keyword', metavar='KW', default=None,  help="additional information to label")
     args = parser.parse_args(argv)
 
     project = load_project()
@@ -428,7 +429,7 @@ def list(argv):  # add 'report' and 'log' as aliases
         f = open('.smt/labels', 'w')
         f.writelines(project.format_records(tags=None, mode='short', format='text', reverse=False))
         f.close()
-    kwargs = {'tags':args.tags, 'mode':args.mode, 'format':args.format, 'reverse':args.reverse}
+    kwargs = {'tags':args.tags, 'mode':args.mode, 'format':args.format, 'reverse':args.reverse, 'keyword':args.keyword}
     if args.main_file is not None: kwargs['main_file__startswith'] = args.main_file
     if args.version is not None: kwargs['version__startswith'] = args.version
     print(project.format_records(**kwargs))
