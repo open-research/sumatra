@@ -419,6 +419,8 @@ def list(argv):  # add 'report' and 'log' as aliases
     parser.add_argument('-m', '--main_file', help="the name of the script for filtering list of records.")
     parser.add_argument('-v', '--version', metavar='REV',
                         help="use version REV of the code. The first 5 characters is sufficent for filtering list of records.")
+    parser.add_argument('-p', '--parameter_view', action="store_const", const="parameter_view",
+                        dest="mode", help="list records with a set of parameter")
     args = parser.parse_args(argv)
 
     project = load_project()
