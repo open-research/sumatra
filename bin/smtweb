@@ -49,6 +49,8 @@ def main(argv):
                       help="run server on this port number PORT")
     parser.add_option('-n', '--no-browser', default=False, action="store_true",
                       help="do not open browser")
+    parser.add_option('-r', '--read_only', default=False, action="store_true",
+                      help="set read-only mode")
     (options, args) = parser.parse_args(argv)
 
     if args:
@@ -68,7 +70,8 @@ def main(argv):
         STATIC_URL='/static/',
         TEMPLATE_DIRS=(os.path.join(os.getcwd(), ".smt", "templates"),
                        os.path.join(root_dir, "templates"),),
-        MIDDLEWARE_CLASSES=tuple()
+        MIDDLEWARE_CLASSES=tuple(db_config._settings["MIDDLEWARE_CLASSES"]),
+        READ_ONLY = options.read_only
     )
 
     db_config.configure()

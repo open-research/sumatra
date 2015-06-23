@@ -27,7 +27,9 @@
 {% endblock %}
 
 {% block navbar-right %}
-            <li><a href="#" data-toggle="modal" data-target="#settingsModal"><span class="glyphicon glyphicon-cog"></span></a></li>
+{% if not read_only %}
+            <li><a href="#" data-toggle="modal" data-target="#settingsModal"><span class="glyphicon glyphicon-cog"></span></a></li>{
+{% endif %}
 {% endblock %}
 
 {% block content %}
@@ -45,7 +47,9 @@
 </div>
 
 <div class="pull-right" role="group" style="padding-left: 2px;">
-    <button type="button" class="btn btn-danger btn-sm" id="delete" data-toggle="modal" data-target="#deleteModal"><span class="glyphicon glyphicon-trash"></span> Delete selected</button>
+    {% if not read_only %}
+        <button type="button" class="btn btn-danger btn-sm" id="delete" data-toggle="modal" data-target="#deleteModal"><span class="glyphicon glyphicon-trash"></span> Delete selected</button>
+    {% endif %}
     <button type="button" class="btn btn-warning btn-sm" id="compare"><span class="glyphicon glyphicon-transfer"></span> Compare selected</button>
 </div>
 
@@ -301,6 +305,7 @@ $(document).ready(function() {
         table.draw();
     });
 
+    {% if not read_only %}
     /* apply settings */
     $('#apply-settings').click(function() {
         var success = false;
@@ -333,6 +338,7 @@ $(document).ready(function() {
             $('#settingsModal').modal('hide');
         };
     });
+    {% endif %}
 });
 </script>
 {% endblock %}
