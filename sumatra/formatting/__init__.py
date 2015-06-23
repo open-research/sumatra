@@ -43,10 +43,7 @@ class Formatter(object):
         'long' or 'table'.
         """
 
-        try:
-            if keyword is not None: return getattr(self, mode)(keyword)
-        except:
-            pass
+        if keyword is not None: return getattr(self, 'keyword')(keyword)
         return getattr(self, mode)()
 
 

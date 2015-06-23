@@ -431,7 +431,6 @@ def list(argv):  # add 'report' and 'log' as aliases
         f = open('.smt/labels', 'w')
         f.writelines(project.format_records(tags=None, mode='short', format='text', reverse=False))
         f.close()
-    #if args.keyword is not None: args.mode = 'keyword'
     kwargs = {'tags':args.tags, 'mode':args.mode, 'format':args.format, 'reverse':args.reverse}
     if args.main_file is not None: kwargs['main_file__startswith'] = args.main_file
     if args.version is not None: kwargs['version__startswith'] = args.version
