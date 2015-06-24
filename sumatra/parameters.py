@@ -254,7 +254,7 @@ class SimpleParameterSet(ParameterSet):
         try:
             path = Path(path.__str__())
             return path.exists() and path.is_file()
-        except TypeError:
+        except (TypeError, OSError):
             return False
 
     @classmethod
