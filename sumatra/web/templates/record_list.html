@@ -9,9 +9,8 @@
 {% endblock %}
 
 {% block navbar %}
-            <li><a href="#">{{project.id}}</a></li>
             <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"><span class="glyphicon glyphicon-tag"></span> <span class="caret"></span></a>
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"><span class="glyphicon glyphicon-tag"></span> Tag <span class="caret"></span></a>
                 <ul class="dropdown-menu" role="menu" id="tagList">
                     {% if tags %}
                         {% for tag in tags %}
@@ -28,7 +27,7 @@
 
 {% block navbar-right %}
 {% if not read_only %}
-            <li><a href="#" data-toggle="modal" data-target="#settingsModal"><span class="glyphicon glyphicon-cog"></span></a></li>{
+            <li><a href="#" data-toggle="modal" data-target="#settingsModal" data-toggle="tooltip" data-placement="bottom" title="Setting"><span class="glyphicon glyphicon-cog"></span></a></li>
 {% endif %}
 {% endblock %}
 
@@ -38,19 +37,13 @@
 <h3>{{project.name}}</h3>
 {% endif %}
 
-<div class="btn-group" role="group">
-    <button type="button" class="btn btn-primary">Record View</button>
-    <a type="button" class="btn btn-default" href="/{{project.id}}/data/">Data View</a>
-    <a type="button" class="btn btn-default" href="/{{project.id}}/parameter">Parameter View</a>
-    <a type="button" class="btn btn-default" href="/{{project.id}}/image">Image View</a>
-    <a type="button" class="btn btn-default" href="/{{project.id}}/about/">About</a>
-</div>
-
-<div class="pull-right" role="group" style="padding-left: 2px;">
+<div class="pull-left" role="group">
     {% if not read_only %}
-        <button type="button" class="btn btn-danger btn-sm" id="delete" data-toggle="modal" data-target="#deleteModal"><span class="glyphicon glyphicon-trash"></span> Delete selected</button>
+        <button type="button" class="btn btn-danger btn-sm" id="delete" data-toggle="modal" data-target="#deleteModal">
+            <span class="glyphicon glyphicon-trash"></span> Delete selected</button>
     {% endif %}
-    <button type="button" class="btn btn-warning btn-sm" id="compare"><span class="glyphicon glyphicon-transfer"></span> Compare selected</button>
+    <button type="button" class="btn btn-warning btn-sm" id="compare">
+        <span class="glyphicon glyphicon-transfer"></span> Compare selected</button>
 </div>
 
 <table id="records" class="table table-striped table-condensed" cellspacing="0" width="100%">
@@ -198,8 +191,10 @@ $.fn.dataTable.ext.search.push(
     }
 );
 
-
 $(document).ready(function() {
+    $('#nav-record').addClass('active');
+    $('[data-toggle="tooltip"]').tooltip();
+
     /* retrieve settings */
     var columnDefs = null;
     $.ajax({
@@ -231,6 +226,8 @@ $(document).ready(function() {
         "order": [[ 1, "desc" ]],
         "columnDefs": columnDefs
     });
+
+    $('#records').find('td:eq(1)').attr('nowrap', 'nowrap');
 
     /* select rows when clicked */
     $('#records tbody').on('click', 'tr', function() {

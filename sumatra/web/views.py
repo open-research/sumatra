@@ -96,6 +96,7 @@ class RecordDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(RecordDetailView, self).get_context_data(**kwargs)
+        context['project'] = Project.objects.get(pk=self.kwargs["project"])
         context['project_name'] = self.kwargs["project"]  # use project full name?
         parameter_set = self.object.parameters.to_sumatra()
         if hasattr(parameter_set, "as_dict"):
@@ -139,6 +140,7 @@ class DataDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(DataDetailView, self).get_context_data(**kwargs)
+        context['project'] = Project.objects.get(pk=self.kwargs["project"])
         context['project_name'] = self.kwargs["project"]  # use project full name?
 
         if 'truncate' in self.request.GET:
@@ -150,6 +152,7 @@ class DataDetailView(DetailView):
             max_display_length = DEFAULT_MAX_DISPLAY_LENGTH
 
         datakey = self.object
+        context['data_key'] = datakey
         mimetype = datakey.to_sumatra().metadata["mimetype"]
         try:
             datastore = datakey.output_from_record.datastore

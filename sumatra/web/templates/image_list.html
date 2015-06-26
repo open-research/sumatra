@@ -5,9 +5,8 @@
 {% block title %}{{project.id}}: List of images{% endblock %}
 
 {% block navbar %}
-            <li><a href=".">{{project.id}}</a></li>
             <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"><span class="glyphicon glyphicon-tag"></span> <span class="caret"></span></a>
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"><span class="glyphicon glyphicon-tag"></span> Tag <span class="caret"></span></a>
                 <ul class="dropdown-menu" role="menu" id="tagList">
                     {% if tags %}
                         {% for tag in tags %}
@@ -27,15 +26,6 @@
 {% if project.name %}
 <h3>{{project.name}}</h3>
 {% endif %}
-
-<div class="btn-group" role="group">
-    <a type="button" class="btn btn-default" href="/{{project.id}}/">Record View</an>
-    <a type="button" class="btn btn-default" href="/{{project.id}}/data/">Data View</a>
-    <a type="button" class="btn btn-default" href="/{{project.id}}/parameter">Parameter View</a>
-    <button type="button" class="btn btn-primary">Image View</button>
-    <a type="button" class="btn btn-default" href="/{{project.id}}/about/">About</a>
-</div>
-
 
 <!-- Page Content -->
     <div class="container">
@@ -94,6 +84,8 @@ var load_images = function() {
 };
 
 $(document).ready(function() {
+        $('#nav-image').addClass('active');
+
         load_images()
         $(window).scroll(function() {
             if (!loading && ($(window).scrollTop() >  $(document).height() - $(window).height())) {
