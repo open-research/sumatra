@@ -10,10 +10,6 @@ code {
     color: black;
 }
 
-#projectDescriptionPanel {
-    margin-top: 20px;
-}
-
 .dl-horizontal dt{
     text-align: left;
     width: auto;
@@ -45,11 +41,9 @@ ul.hierarchical {
 }
 
 .footer {
-    background-color: #f5f5f5;
-      position: relative;
-      margin-top: -15px; /* negative value of footer height */
-      height: 15px;
-      clear:both;
-    width: 100%;
+    position: absolute;
+    padding:5px;
+    left:0px;
+    bottom: 0px;
     font-size: 10px;
 }

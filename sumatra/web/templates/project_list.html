@@ -4,15 +4,8 @@
 
 {% block title %}List of projects{% endblock %}
 
-{% block css %}
-<style>
-html {overflow-y: scroll;}
-</style>
-{% endblock %}
-
 {% block content %}
 <div class="row">
-
     <div class="col-xs-12 col-md-5">
         <div class="jumbotron">
           <h3><img alt="Sumatra" src="/static/img/logo.png"></h3>
@@ -24,54 +17,24 @@ html {overflow-y: scroll;}
 
     <div class="col-xs-12 col-md-7">
         <div class="page-header">
-            <h1>List of projects</h1>
+            <h3>List of projects</h3>
         </div>
-
         <div class="list-group">
             {% for project in projects %}
-            <a class="list-group-item" href="/{{project.id}}/" data-toggle="show_description" data-content="{{project.description}}">
-                {{project.get_name}}
+            <a class="list-group-item" href="/{{project.id}}/">
                 <span class="badge">{{project.record_set.count}} records</span>
+                <h4 class="list-group-item-heading">{{project.get_name}}</h4>
+                {% if project.description %}<p class="list-group-item-text">{{project.description|truncatechars:200}}</p>{% endif %}
             </a>
             {% endfor %}
-            {% for project in projects %}
-            <a class="list-group-item" href="/{{project.id}}/" data-toggle="show_description" data-content="test test">
-                {{project.get_name}}
-                <span class="badge">{{project.record_set.count}} records</span>
-            </a>
-            {% endfor %}
-            {% for project in projects %}
-            <a class="list-group-item" href="/{{project.id}}/" data-toggle="show_description" data-content="bla bla">
-                {{project.get_name}}
-                <span class="badge">{{project.record_set.count}} records</span>
-            </a>
-            {% endfor %}
-        </div>
-
-        <div class="collapse" id="project-description">
-            <div class="well"></div>
         </div>
 
     </div>
 </div>
 
-    <footer class="footer">
+<footer class="footer">
     <div class="container">
-    <div class="text-muted">© Copyright 2006-2015 by the Sumatra team. License: BSD 2-clause, see LICENSE for details.</div>
+        <div class="text-muted">© Copyright 2006-2015 by the Sumatra team. License: BSD 2-clause, see LICENSE for details.</div>
     </div>
-    </footer>
-{% endblock %}
-
-
-{% block scripts %}
-<script type="text/javascript">
-$(document).ready(function() {
-    $('[data-toggle="show_description"]').hover( function() {
-        $(".list-group-item").removeClass('active')
-        $(this).addClass('active')
-        $('#project-description .well').html($(this).attr("data-content"))
-        $('#project-description').show()
-    });
-})
-</script>
+</footer>
 {% endblock %}

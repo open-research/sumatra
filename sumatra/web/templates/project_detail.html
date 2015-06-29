@@ -17,11 +17,11 @@
   <div class="panel-body">
   {{project.description|restructuredtext}}&nbsp;
   </div>
-  <div class="panel-footer">
   {% if not read_only %}
-  <button type="button" class="btn btn-xs" data-toggle="modal" data-target="#editProjectDescriptionModal">Edit</button>
-  {% endif %}
+  <div class="panel-footer">
+    <button type="button" class="btn btn-xs" data-toggle="modal" data-target="#editProjectDescriptionModal">Edit</button>
   </div>
+  {% endif %}
 </div>
 {% elif not read_only %}
 <button type="button" class="btn btn-xs" data-toggle="modal" data-target="#editProjectDescriptionModal">Add description</button>

@@ -23,9 +23,8 @@
 
   <body>
 
-    <nav class="navbar navbar-default navbar-static-top">
-
     {% if project %}
+    <nav class="navbar navbar-default navbar-static-top">
       <div class="container">
         <div class="navbar-header">
           <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
@@ -43,8 +42,6 @@
                 <li id="nav-parameter"><a href="/{{project.id}}/parameter">Parameter View</a></li>
                 <li id="nav-image"><a href="/{{project.id}}/image">Image View</a></li>
                 <li id="nav-about"><a href="/{{project.id}}/about/">About</a></li>
-            {% block navbar %}
-            {% endblock %}
           </ul>
           <ul class="nav navbar-nav navbar-right">
             {% block navbar-right %}
@@ -52,9 +49,10 @@
           </ul>
         </div><!--/.nav-collapse -->
       </div>
-
-    {% endif %}
     </nav>
+    {% else%}
+    <p></p>
+    {% endif %}
 
     <div class="container">
 
@@ -65,6 +63,8 @@
         {% if record %}<li><a href="/{{project.id}}/{{record.label}}/">{{record.label}}</a></li>{% endif %}
         {% if data_key.path %}<li><a href="/{{project.id}}/{{data_key.output_from_record.label}}/">{{data_key.output_from_record.label}}</a></li>
             <li><a href="/{{project.id}}/{{data_key.path}}/">{{data_key.path}}</a></li>{% endif %}
+            {% block navbar %}
+            {% endblock %}
     </ol>
     {% endif %}
 
