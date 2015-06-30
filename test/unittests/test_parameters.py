@@ -228,8 +228,8 @@ class TestSimpleParameterSet(unittest.TestCase):
         self.assertEqual(P1.diff(P3),
                          ({'y': 3}, {'y': 4, 'z': 4}))
 
-    def test_long_paramter(self):
-        parameters = "x = '" + ''.join(["a" for unused in range(250)]) + "'"
+    def test_long_parameter(self):
+        parameters = "x = '{0}'".format(''.join("a" * 250))
         SimpleParameterSet(parameters)
 
 
