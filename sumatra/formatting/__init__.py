@@ -261,11 +261,6 @@ class TextTable(object):
 
 
 class ParamsTable(object):
-    """
-    Very primitive implementation of a text table. There are more sophisticated
-    implementations around, e.g. http://pypi.python.org/pypi/texttable/0.6.0/
-    but for now I'd like to avoid too many dependencies.
-    """
 
     def __init__(self, rows, max_column_width=20, seperator='|'):
         self.rows = rows
@@ -275,15 +270,17 @@ class ParamsTable(object):
 
     def get_headers(self):
         headers = [u'label',u'version',u'main_file']
+        param_headers = []
         for row in self.rows:
             parameter_set = row.parameters
             if hasattr(parameter_set, 'as_dict'):
                 parameter_set = parameter_set.as_dict()
             parameter_set = flatten_dict(parameter_set)
             for key in parameter_set.keys():
-                if key not in headers:
-                    headers.append(key)
-        return headers
+                if key not in param_headers:
+                    param_headers.append(key)
+        param_headers.sort()
+        return headers + param_headers
 
     def calculate_column_widths(self):
         column_widths = []
@@ -309,7 +306,7 @@ class ParamsTable(object):
         else:
             format = self.seperator.join(len(column_widths)*["%s"]) + "\n"
         assert len(column_widths) == len(self.headers)
-        output = format % tuple(h for h in self.headers)
+        output = format % tuple(h[:self.max_column_width] for h in self.headers)
         for row in self.rows:
             parameter_set = row.parameters
             if hasattr(parameter_set, 'as_dict'):
