@@ -232,6 +232,7 @@ def parameter_list(request, project):
                 for key in parameter_set.keys():            # only works with simple parameter set
                     if key not in keys:
                         keys.append(key)
+                keys.sort()
             except:
                 return Http404
         return render_to_response('parameter_list.html',{'project':project_obj, 'object_list':record_list, 'keys': keys, 'main_file':main_file})
@@ -312,7 +313,7 @@ def show_script(request):
         file_content = wc.content(digest, main_file)
     except:
         raise Http404
-    return HttpResponse('<p><span style="font-size: 16px; font-weight:bold">'+main_file+'</span> <span class="label">'+digest+'</span></p><hr>'+file_content.replace('\n', '<br />'))
+    return HttpResponse('<p><span style="font-size: 15px; font-weight:bold">'+main_file+'</span> <span class="label">'+digest+'</span></p><hr>'+file_content.replace(' ','&#160;').replace('\n', '<br />'))
 
 
 def compare_records(request, project):

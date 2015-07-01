@@ -59,7 +59,8 @@
                         </span>
                         {{record.timestamp|date:"d/m/Y H:i:s"}}
                     </td>
-                    <td>{{ record.version|truncatechars:12 }}</td>
+                    <td><a target="script_content" onclick="window.open('/script?digest={{record.version}}&main_file={{record.main_file}}','{{record.version}}','width=640,height=600,scrollbars=yes,resizable=yes')">
+                        <span class="glyphicon glyphicon-file"></span></a> {{ record.version|truncatechars:12 }}</td>
                     {% for key in keys %}
                         <td>{{ record.parameters.to_sumatra|get_item:key }}</td>
                     {% endfor %}
