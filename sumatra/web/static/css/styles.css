@@ -6,15 +6,15 @@ div.container {
     width: 100%;
 }
 
-.navbar-default .logo {
-background-image: url(/static/img/sumatra_logo.png);
+.navbar-default .brand-logo {
+background-image: url(/static/img/brand_logo.png);
 }
 
-.navbar-inverse .logo {
-background-image: url(/static/img/sumatra_logo_inverse.png);
+.navbar-inverse .brand-logo {
+background-image: url(/static/img/brand_logo_inverse.png);
 }
 
-.logo {
+.brand-logo {
 background-size: 92.5px 24px;
 background-repeat: no-repeat;
 width: 92.5px;height:24px;
