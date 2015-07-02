@@ -150,7 +150,10 @@ class Project(object):
             if hasattr(attr, "__getstate__"):
                 state[name] = {'type': attr.__class__.__module__ + "." + attr.__class__.__name__}
                 for key, value in attr.__getstate__().items():
-                    state[name][key] = value
+                    if key in ['url','root','working_directory','db_file']:
+                        state[name][key] = os.path.relpath(value)
+                    else:
+                        state[name][key] = value
             else:
                 state[name] = attr
         f = open(_get_project_file(self.path), 'w')  # should check if file exists?
