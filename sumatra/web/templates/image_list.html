@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% load filters %}
+
+{% block title %}{{project.id}}: List of images{% endblock %}
+
+{% block navbar %}
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button">
+                    <span class="glyphicon glyphicon-tag"></span> <span id="tag-label">Tag</span> <span class="caret"></span></a>
+                <ul class="dropdown-menu" role="menu" id="tagList">
+                    {% if tags %}
+                        {% for tag in tags %}
+                        <li><a data-target="#">{{tag.name}}</a></li>
+                        {% endfor %}
+                        <li role="presentation" class="divider"></li>
+                        <li><a data-target="#"><i>clear selection</i></a></li>
+                    {% else %}
+                    <li role="presentation" class="dropdown-header">No tags defined.</li>
+                    {% endif %}
+                </ul>
+            </li>
+{% endblock %}
+
+{% block content %}
+
+{% if project.name %}
+<h3>{{project.name}}</h3>
+{% endif %}
+
+<!-- Page Content -->
+    <div class="container">
+        <div class="row" style="margin-top:20px">
+            <div class="col-lg-3 col-md-4 col-xs-6 thumb" style="display:none">
+                <div class="thumbnail">
+                    <a class="image"><img class="img-responsive"></a>
+                    <div class="caption">
+                        <h4 class="filename"></h4>
+                        <p>Record data: <a class="rec-label"></a></p>
+                        <p>Script: <a target="script_content" class="show_script">
+                        <span class="glyphicon glyphicon-file" style="cursor:pointer" title="show script content"></span></a></p>
+                        <p>Tags: <span class="tags"></span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+
+/* filter by tag */
+var selected_tag = null;
+var loading= false;
+var offset = 0;
+var limit = 8;
+
+var load_images = function() {
+    $.ajax({
+        url: '/{{project.id}}/image',
+        type: 'GET',
+        data: selected_tag ? {'offset': offset, 'limit': limit, 'selected_tag':selected_tag} : {'offset': offset, 'limit': limit},
+        dataType: "json",
+        complete: function(data){
+            data = data.responseJSON
+            for (var i in data) {
+                var thumb = $('.thumb:last-child')
+                thumb.clone().appendTo( ".row" );
+                thumb.find('.image').attr('href', '/'+data[i].project_name+'/data/datafile?path='+data[i].path+'&digest='+data[i].digest+'&creation='+data[i].creation);
+                thumb.find('.image img').attr('src', '/data/1?path='+data[i].path+'&digest='+data[i].digest+'&creation='+data[i].creation);
+                thumb.find('.filename').html(data[i].path);
+                thumb.find('.rec-label').attr('href','/'+data[i].project_name+'/'+data[i].label+'/').html(data[i].label);
+                thumb.find('.show_script').attr('onclick', "window.open('/script?path="+data[i].repos_url+"&digest="+data[i].version+"&main_file="+data[i].main_file +"','script_content','width=640,height=600,scrollbars=yes,resizable=yes')").parent().append(' '+data[i].main_file)
+                thumb.find('.tags').html(data[i].tags)
+                thumb.addClass('loaded').show();
+            }
+            if (data.length > 0) {
+                offset = offset + data.length
+                loading = false; // reset value of loading once content loaded
+            }
+        },
+        async: false
+    });
+};
+
+$(document).ready(function() {
+        $('#nav-image').addClass('active');
+
+        load_images()
+        $(window).scroll(function() {
+            if (!loading && ($(window).scrollTop() >  $(document).height() - $(window).height())) {
+                loading= true;
+                load_images()
+            }
+        });
+
+    /* select tag from dropdown menu */
+    $('#tagList a').click(function (event) {
+        var target = $(event.target);
+        var li = target.parent();
+        selected_tag = target[0].textContent;
+        if (selected_tag == 'clear selection') {
+            $('#tagList').children().removeClass('selected');
+            selected_tag = null;
+            $('#tag-label').html('Tag');
+        } else {
+            li.addClass('selected').siblings().removeClass('selected');
+            selected_tag = target[0].textContent;
+            $('#tag-label').html(selected_tag);
+        };
+        $('.loaded').remove();
+        offset = 0;
+        load_images()
+    });
+} );
+</script>
+{% endblock %}
