@@ -25,11 +25,15 @@ urlpatterns = patterns('',
                        (r'^%(project)s/$' % P, RecordListView.as_view()),
                        (r'^%(project)s/about/$' % P, ProjectDetailView.as_view()),
                        (r'^%(project)s/data/$' % P, DataListView.as_view()),
+                       (r'^%(project)s/parameter$' % P, 'sumatra.web.views.parameter_list'),
+                       (r'^%(project)s/image$' % P, 'sumatra.web.views.image_list'),
                        (r'^%(project)s/delete/$' % P, 'sumatra.web.views.delete_records'),
                        (r'^%(project)s/compare/$' % P, 'sumatra.web.views.compare_records'),
+                       (r'^%(project)s/plot$' % P, 'sumatra.web.views.plot_file'),
                        (r'^%(project)s/%(label)s/$' % P, RecordDetailView.as_view()),
                        (r'^%(project)s/data/datafile$' % P, DataDetailView.as_view()),
                        (r'^data/(?P<datastore_id>\d+)$', 'sumatra.web.views.show_content'),
+                       (r'^script$', 'sumatra.web.views.show_script'),
                        )
 
 urlpatterns += staticfiles_urlpatterns()

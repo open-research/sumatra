@@ -15,3 +15,5 @@ MANIFEST
 .komodoproject
 .idea
 *.egg-info
+*.py~
+*.html~

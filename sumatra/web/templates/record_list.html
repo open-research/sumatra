@@ -9,9 +9,9 @@
 {% endblock %}
 
 {% block navbar %}
-            <li><a href="#">{{project.id}}</a></li>
             <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"><span class="glyphicon glyphicon-tag"></span> <span class="caret"></span></a>
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button">
+                    <span class="glyphicon glyphicon-tag"></span> <span id="tag-label">Tag</span> <span class="caret"></span></a>
                 <ul class="dropdown-menu" role="menu" id="tagList">
                     {% if tags %}
                         {% for tag in tags %}
@@ -27,7 +27,9 @@
 {% endblock %}
 
 {% block navbar-right %}
-            <li><a href="#" data-toggle="modal" data-target="#settingsModal"><span class="glyphicon glyphicon-cog"></span></a></li>
+{% if not read_only %}
+            <li><a href="#" data-toggle="modal" data-target="#settingsModal" data-toggle="tooltip" data-placement="bottom" title="Setting"><span class="glyphicon glyphicon-cog"></span></a></li>
+{% endif %}
 {% endblock %}
 
 {% block content %}
@@ -36,15 +38,13 @@
 <h3>{{project.name}}</h3>
 {% endif %}
 
-<div class="btn-group" role="group">
-    <button type="button" class="btn btn-primary">Record View</button>
-    <a type="button" class="btn btn-default" href="/{{project.id}}/data/">Data View</a>
-    <a type="button" class="btn btn-default" href="/{{project.id}}/about/">About</a>
-</div>
-
-<div class="pull-right" role="group" style="padding-left: 2px;">
-    <button type="button" class="btn btn-danger btn-sm" id="delete" data-toggle="modal" data-target="#deleteModal"><span class="glyphicon glyphicon-trash"></span> Delete selected</button>
-    <button type="button" class="btn btn-warning btn-sm" id="compare"><span class="glyphicon glyphicon-transfer"></span> Compare selected</button>
+<div class="pull-left" role="group">
+    {% if not read_only %}
+        <button type="button" class="btn btn-danger btn-sm" id="delete" data-toggle="modal" data-target="#deleteModal">
+            <span class="glyphicon glyphicon-trash"></span> Delete selected</button>
+    {% endif %}
+    <button type="button" class="btn btn-warning btn-sm" id="compare">
+        <span class="glyphicon glyphicon-transfer"></span> Compare selected</button>
 </div>
 
 <table id="records" class="table table-striped table-condensed" cellspacing="0" width="100%">
@@ -95,7 +95,7 @@
         <td>{{record.duration|human_readable_duration}}</td>
         <td>{{record.launch_mode.get_parameters.n|default:"1"}}</td>
         <td>{{record.executable.name}} {{record.executable.version}}</td>
-        <td>{{record.main_file|ubreak}}</td>
+        <td><a target="script_content" onclick="window.open('/script?digest={{record.version}}&main_file={{record.main_file}}','script_content','width=640,height=600,scrollbars=yes,resizable=yes')"><span class="glyphicon glyphicon-file"></span></a> {{record.main_file|ubreak}}</td>
         <td>{{record.version|cut:"vers"}}{% if record.diff %}*{% endif %}</td>
         <td>{{record.script_arguments}}</td>
         <td>{{record.tags}}</td>
@@ -192,8 +192,10 @@ $.fn.dataTable.ext.search.push(
     }
 );
 
-
 $(document).ready(function() {
+    $('#nav-record').addClass('active');
+    $('[data-toggle="tooltip"]').tooltip();
+
     /* retrieve settings */
     var columnDefs = null;
     $.ajax({
@@ -225,6 +227,8 @@ $(document).ready(function() {
         "order": [[ 1, "desc" ]],
         "columnDefs": columnDefs
     });
+
+    $('#records').find('td:eq(1)').attr('nowrap', 'nowrap');
 
     /* select rows when clicked */
     $('#records tbody').on('click', 'tr', function() {
@@ -292,13 +296,16 @@ $(document).ready(function() {
         if (selected_tag == 'clear selection') {
             $('#tagList').children().removeClass('selected');
             selected_tag = null;
+            $('#tag-label').html('Tag');
         } else {
             li.addClass('selected').siblings().removeClass('selected');
             selected_tag = target[0].textContent;
+            $('#tag-label').html(selected_tag);
         };
         table.draw();
     });
 
+    {% if not read_only %}
     /* apply settings */
     $('#apply-settings').click(function() {
         var success = false;
@@ -331,6 +338,7 @@ $(document).ready(function() {
             $('#settingsModal').modal('hide');
         };
     });
+    {% endif %}
 });
 </script>
 {% endblock %}

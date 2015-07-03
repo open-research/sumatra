@@ -52,6 +52,7 @@ class DjangoConfiguration(object):
             'INSTALLED_APPS': ['sumatra.recordstore.django_store',
                                'django.contrib.contenttypes',  # needed for tagging
                                'tagging'],
+            'STATICFILES_DIRS': ['.smt/static','Data'],
             'MIDDLEWARE_CLASSES': [],
         }
         self._n_databases = 0
@@ -139,7 +140,7 @@ class DjangoRecordStore(RecordStore):
 
     def __init__(self, db_file='.smt/records'):
         self._db_label = db_config.add_database(db_file)
-        self._db_file = db_file
+        self._db_file = os.path.abspath(db_file)
 
     def __str__(self):
         return "Django (%s)" % self._db_file
@@ -251,8 +252,8 @@ class DjangoRecordStore(RecordStore):
             raise KeyError(label)
         return db_record.to_sumatra()
 
-    def list(self, project_name, tags=None):
-        db_records = self._manager.filter(project__id=project_name).select_related()
+    def list(self, project_name, tags=None, *args, **kwargs):
+        db_records = self._manager.filter(project__id=project_name, *args, **kwargs).select_related()
         if tags:
             if not hasattr(tags, "__len__"):
                 tags = [tags]

@@ -150,7 +150,10 @@ class Project(object):
             if hasattr(attr, "__getstate__"):
                 state[name] = {'type': attr.__class__.__module__ + "." + attr.__class__.__name__}
                 for key, value in attr.__getstate__().items():
-                    state[name][key] = value
+                    if key in ['url','root','working_directory','db_file']:
+                        state[name][key] = os.path.relpath(value)
+                    else:
+                        state[name][key] = value
             else:
                 state[name] = attr
         f = open(_get_project_file(self.path), 'w')  # should check if file exists?
@@ -290,18 +293,18 @@ class Project(object):
         self._most_recent = self.record_store.most_recent(self.name)
         return n
 
-    def find_records(self, tags=None, reverse=False):
-        records = self.record_store.list(self.name, tags)
+    def find_records(self, tags=None, reverse=False, *args, **kwargs):
+        records = self.record_store.list(self.name, tags, *args, **kwargs)
         if reverse:
             records.reverse()
         return records
 
     # def find_data() here?
 
-    def format_records(self, format='text', mode='short', tags=None, reverse=False):
-        records = self.find_records(tags=tags, reverse=reverse)
+    def format_records(self, format='text', mode='short', tags=None, reverse=False, keyword=None, *args, **kwargs):
+        records = self.find_records(tags=tags, reverse=reverse, *args, **kwargs)
         formatter = get_formatter(format)(records, project=self, tags=tags)
-        return formatter.format(mode)
+        return formatter.format(mode,keyword=keyword)
 
     def most_recent(self):
         try:

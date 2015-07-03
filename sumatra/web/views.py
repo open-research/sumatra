@@ -11,6 +11,7 @@ from builtins import str
 
 
 import mimetypes
+from django.conf import settings
 from django.http import HttpResponse, Http404
 from django.shortcuts import render_to_response
 from django.views.generic.list import ListView
@@ -26,6 +27,8 @@ from tagging.models import Tag
 from sumatra.recordstore.serialization import datestring_to_datetime
 from sumatra.recordstore.django_store.models import Project, Record, DataKey, Datastore
 from sumatra.records import RecordDifference
+from sumatra.versioncontrol import get_working_copy
+from sumatra.parameters import flatten_dict
 
 DEFAULT_MAX_DISPLAY_LENGTH = 10 * 1024
 global_conf_file = os.path.expanduser(os.path.join("~", ".smtrc"))
@@ -45,7 +48,13 @@ class ProjectDetailView(DetailView):
     def get_object(self):
         return Project.objects.get(pk=self.kwargs["project"])
 
+    def get_context_data(self, **kwargs):
+        context = super(ProjectDetailView, self).get_context_data(**kwargs)
+        context['read_only'] = settings.READ_ONLY
+        return context
+
     def post(self, request, *args, **kwargs):
+        if settings.READ_ONLY: return HttpResponse('Read-only')
         name = request.POST.get('name', None)
         description = request.POST.get('description', None)
         project = self.get_object()
@@ -69,6 +78,7 @@ class RecordListView(ListView):
         context = super(RecordListView, self).get_context_data(**kwargs)
         context['project'] = Project.objects.get(pk=self.kwargs["project"])
         context['tags'] = Tag.objects.all()  # would be better to filter, to return only tags used in this project.
+        context['read_only'] = settings.READ_ONLY
         return context
 
 
@@ -86,14 +96,17 @@ class RecordDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(RecordDetailView, self).get_context_data(**kwargs)
+        context['project'] = Project.objects.get(pk=self.kwargs["project"])
         context['project_name'] = self.kwargs["project"]  # use project full name?
         parameter_set = self.object.parameters.to_sumatra()
         if hasattr(parameter_set, "as_dict"):
             parameter_set = parameter_set.as_dict()
         context['parameters'] = parameter_set
+        context['read_only'] = settings.READ_ONLY
         return context
 
     def post(self, request, *args, **kwargs):
+        if settings.READ_ONLY: return HttpResponse('Read-only')
         record = self.get_object()
         for attr in ("reason", "outcome", "tags"):
             value = request.POST.get(attr, None)
@@ -127,6 +140,7 @@ class DataDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(DataDetailView, self).get_context_data(**kwargs)
+        context['project'] = Project.objects.get(pk=self.kwargs["project"])
         context['project_name'] = self.kwargs["project"]  # use project full name?
 
         if 'truncate' in self.request.GET:
@@ -138,6 +152,7 @@ class DataDetailView(DetailView):
             max_display_length = DEFAULT_MAX_DISPLAY_LENGTH
 
         datakey = self.object
+        context['data_key'] = datakey
         mimetype = datakey.to_sumatra().metadata["mimetype"]
         try:
             datastore = datakey.output_from_record.datastore
@@ -168,6 +183,9 @@ class DataDetailView(DetailView):
 
     def handle_plain_text(self, context, content):
         context["content"] = content
+        if os.path.exists('.smt/templates'):
+            context["templates"] = [os.path.splitext(t)[0] for t in os.listdir(os.getcwd()+'/.smt/templates') if t.endswith('.html')]
+            context["templates"].sort()
         return context
 
     def handle_zipfile(self, context, content):
@@ -199,7 +217,63 @@ class DataDetailView(DetailView):
         return template_name
 
 
+def parameter_list(request, project):
+    project_obj = Project.objects.get(id=project)
+    main_file = request.GET.get('main_file', None)
+    if main_file:
+        record_list = Record.objects.filter(project_id=project, main_file=main_file)
+        keys = []
+        for record in record_list:
+            try:
+                parameter_set = record.parameters.to_sumatra()
+                if hasattr(parameter_set, "as_dict"):
+                    parameter_set = parameter_set.as_dict()
+                parameter_set = flatten_dict(parameter_set)
+                for key in parameter_set.keys():            # only works with simple parameter set
+                    if key not in keys:
+                        keys.append(key)
+                keys.sort()
+            except:
+                return Http404
+        return render_to_response('parameter_list.html',{'project':project_obj, 'object_list':record_list, 'keys': keys, 'main_file':main_file})
+    else:
+        return render_to_response('parameter_list.html',{'project':project_obj})
+
+
+def image_list(request, project):
+    project_obj = Project.objects.get(id=project)
+    tags = Tag.objects.all()
+    offset = int(request.GET.get('offset',0))
+    limit = int(request.GET.get('limit',8))
+    selected_tag = request.GET.get('selected_tag',None)
+    if selected_tag:
+        record_all = Record.objects.filter(project_id=project, tags__contains=selected_tag)
+    else:
+        record_all = Record.objects.filter(project_id=project)
+    if request.is_ajax():
+        data = []
+        for record in record_all:
+            for data_key in record.output_data.all():
+                mimetype, encoding = mimetypes.guess_type(data_key.path)
+                if mimetype in ("image/png", "image/jpeg", "image/gif", "image/x-png"):
+                    data.append({
+                        'project_name':     project_obj.id,
+                        'label':            record.label,
+                        'main_file':        record.main_file,
+                        'repos_url':        record.repository.url,
+                        'version':          record.version,
+                        'tags':             record.tags,
+                        'path':             data_key.path,
+                        'creation':         data_key.creation.strftime('%Y-%m-%d %H:%M:%S'),
+                        'digest':           data_key.digest
+                    })
+        return HttpResponse(json.dumps(data[offset:offset+limit]), content_type='application/json')
+    else:
+        return render_to_response('image_list.html', {'project':project_obj, 'tags':tags})
+
+
 def delete_records(request, project):
+    if settings.READ_ONLY: return HttpResponse('Read-only')
     records_to_delete = request.POST.getlist('delete[]')
     delete_data = request.POST.get('delete_data', False)
     if isinstance(delete_data, str):
@@ -228,6 +302,18 @@ def show_content(request, datastore_id):
     except (IOError, KeyError):
         raise Http404
     return HttpResponse(content, content_type=mimetype)
+
+
+def show_script(request):
+    """ get the script content from the repos """
+    wc = get_working_copy(os.path.os.getcwd())
+    digest = request.GET.get('digest', False)
+    main_file = request.GET.get('main_file', False)
+    try:
+        file_content = wc.content(digest, main_file)
+    except:
+        raise Http404
+    return HttpResponse('<p><span style="font-size: 15px; font-weight:bold">'+main_file+'</span> <span class="label">'+digest+'</span></p><hr>'+file_content.replace(' ','&#160;').replace('\n', '<br />'))
 
 
 def compare_records(request, project):
@@ -276,12 +362,19 @@ def pair_datafiles(data_keys_a, data_keys_b, threshold=0.7):
             "unmatched_b": unmatched_files_b}
 
 
+def plot_file(request, project):
+    query = request.GET.copy()
+    query['path_list'] = request.GET.getlist('path')
+    return render_to_response(request.GET['template'], query)
+
+
 class SettingsView(View):
 
     def get(self, request):
         return HttpResponse(json.dumps(self.load_settings()), content_type='application/json')
 
     def post(self, request):
+        if settings.READ_ONLY: return HttpResponse('Read-only')
         settings = self.load_settings()
         data = json.loads(request.body)
         settings.update(data["settings"])

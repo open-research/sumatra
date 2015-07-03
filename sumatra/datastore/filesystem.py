@@ -24,12 +24,14 @@ class DataFile(DataItem):
     def __init__(self, path, store, creation=None):
         self.path = path
         self.full_path = os.path.join(store.root, path)
-        if os.path.exists(self.full_path):
-            stats = os.stat(self.full_path)
-            self.size = stats.st_size
-        else:
-            raise IOError("File %s does not exist" % self.full_path)
+        if not os.path.exists(self.full_path):                          # check if data in absolute path
+            if os.path.exists(os.path.join('Data', path)):              # else check in relative path of Data folder (portable)
+                self.full_path = os.path.join('Data', path)
+            else:
+                raise IOError("File %s does not exist" % self.full_path)
             # self.size = None
+        stats = os.stat(self.full_path)
+        self.size = stats.st_size
         self.creation = creation or datetime.datetime.fromtimestamp(stats.st_ctime).replace(microsecond=0)
         self.name = os.path.basename(self.full_path)
         self.extension = os.path.splitext(self.full_path)
