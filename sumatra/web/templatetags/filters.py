@@ -39,6 +39,17 @@ def dirname(text):
 
 
 @register.filter
+def get_item(parameter_set, key):
+    if hasattr(parameter_set, "as_dict"):
+        parameter_set = parameter_set.as_dict()
+    keys = key.split('.')
+    for key in keys:
+        if parameter_set:
+            parameter_set = parameter_set.get(key)
+    return parameter_set
+
+
+@register.filter
 def eval_metadata(data, key):
     '''Convert DataKey metadata from unicode to dictionary and return
     item accessed by key.

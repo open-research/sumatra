@@ -26,6 +26,7 @@ from tagging.models import Tag
 from sumatra.recordstore.serialization import datestring_to_datetime
 from sumatra.recordstore.django_store.models import Project, Record, DataKey, Datastore
 from sumatra.records import RecordDifference
+from sumatra.parameters import flatten_dict
 
 DEFAULT_MAX_DISPLAY_LENGTH = 10 * 1024
 global_conf_file = os.path.expanduser(os.path.join("~", ".smtrc"))
@@ -197,6 +198,29 @@ class DataDetailView(DetailView):
         }
         template_name = template_dispatch.get(mimetype, 'data_detail_base.html')
         return template_name
+
+
+def parameter_list(request, project):
+    project_obj = Project.objects.get(id=project)
+    main_file = request.GET.get('main_file', None)
+    if main_file:
+        record_list = Record.objects.filter(project_id=project, main_file=main_file)
+        keys = []
+        for record in record_list:
+            try:
+                parameter_set = record.parameters.to_sumatra()
+                if hasattr(parameter_set, "as_dict"):
+                    parameter_set = parameter_set.as_dict()
+                parameter_set = flatten_dict(parameter_set)
+                for key in parameter_set.keys():            # only works with simple parameter set
+                    if key not in keys:
+                        keys.append(key)
+                keys.sort()
+            except:
+                return Http404
+        return render_to_response('parameter_list.html',{'project':project_obj, 'object_list':record_list, 'keys': keys, 'main_file':main_file})
+    else:
+        return render_to_response('parameter_list.html',{'project':project_obj})
 
 
 def delete_records(request, project):
