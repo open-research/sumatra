@@ -35,7 +35,7 @@ if major_python_version < 3 or (major_python_version == 3 and minor_python_versi
 
 setup(
     name = "Sumatra",
-    version = "0.7.0",
+    version = "0.8dev",
     package_dir = {'sumatra': 'sumatra'},
     packages = ['sumatra', 'sumatra.dependency_finder', 'sumatra.datastore',
                 'sumatra.recordstore', 'sumatra.recordstore.django_store',
