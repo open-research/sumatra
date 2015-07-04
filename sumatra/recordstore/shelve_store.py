@@ -65,6 +65,9 @@ class ShelveRecordStore(RecordStore):
     def list_projects(self):
         return [str(key) for key in self.shelf.keys()]
 
+    def has_project(self, project_name):
+        return project_name in self.shelf
+
     @check_name
     def save(self, project_name, record):
         if project_name in self.shelf:

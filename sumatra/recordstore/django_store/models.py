@@ -12,8 +12,11 @@ from builtins import object
 import json
 from django.db import models
 from sumatra import programs, launch, datastore, records, versioncontrol, parameters, dependency_finder
-import tagging.fields
-from tagging.models import Tag
+import warnings
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+    import tagging.fields
+    from tagging.models import Tag
 import datetime
 import django
 from distutils.version import LooseVersion

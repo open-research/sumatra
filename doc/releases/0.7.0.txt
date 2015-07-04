@@ -2,7 +2,7 @@
 Sumatra 0.7.0 release notes
 ===========================
 
-*DATE*
+*3rd July 2015*
 
 Welcome to Sumatra 0.7.0!
 

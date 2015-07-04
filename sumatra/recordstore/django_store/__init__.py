@@ -206,6 +206,10 @@ class DjangoRecordStore(RecordStore):
         models = self._get_models()
         return [project.id for project in models.Project.objects.using(self._db_label).all()]
 
+    def has_project(self, project_name):
+        models = self._get_models()
+        return bool(models.Project.objects.using(self._db_label).filter(id=project_name).count())
+
     def save(self, project_name, record):
         db_record = self._get_db_record(project_name, record)
         for attr in 'reason', 'duration', 'outcome', 'main_file', 'version', 'timestamp':
