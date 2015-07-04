@@ -9,13 +9,14 @@
 {% endblock %}
 
 {% block navbar %}
+            <li><a href="#">{{project.id}}</a></li>
             <li class="dropdown">
                 <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                     <span class="glyphicon glyphicon-file"></span> {% if main_file %}{{main_file}}{% else %}Script file{% endif %}
                     <span class="caret"></span>
                 </a>
                 <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
-                {% for mainfile in  project.get_mainfiles %}
+                {% for mainfile in  project.get_main_files %}
                   <li><a tabindex="-1" href="/{{project.id}}/parameter?main_file={{mainfile}}">{{mainfile}}</a></li>
                 {% endfor %}
                 </ul>

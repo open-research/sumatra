@@ -9,7 +9,7 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 from builtins import str
 
-
+import parameters
 import mimetypes
 from django.http import HttpResponse, Http404
 from django.shortcuts import render_to_response
@@ -26,7 +26,6 @@ from tagging.models import Tag
 from sumatra.recordstore.serialization import datestring_to_datetime
 from sumatra.recordstore.django_store.models import Project, Record, DataKey, Datastore
 from sumatra.records import RecordDifference
-from sumatra.parameters import flatten_dict
 
 DEFAULT_MAX_DISPLAY_LENGTH = 10 * 1024
 global_conf_file = os.path.expanduser(os.path.join("~", ".smtrc"))
@@ -211,7 +210,7 @@ def parameter_list(request, project):
                 parameter_set = record.parameters.to_sumatra()
                 if hasattr(parameter_set, "as_dict"):
                     parameter_set = parameter_set.as_dict()
-                parameter_set = flatten_dict(parameter_set)
+                parameter_set = parameters.nesteddictflatten(parameter_set)
                 for key in parameter_set.keys():            # only works with simple parameter set
                     if key not in keys:
                         keys.append(key)

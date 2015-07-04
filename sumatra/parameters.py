@@ -130,17 +130,6 @@ def _dict_diff(a, b):
         return result1, result2
 
 
-def flatten_dict(init, lkey=''):
-    ret = {}
-    for rkey,val in init.items():
-        key = lkey+rkey
-        if isinstance(val, dict):
-            ret.update(flatten_dict(val, key+'.'))
-        else:
-            ret[key] = val
-    return ret
-
-
 @conditional_component(condition=yaml_loaded)
 class YAMLParameterSet(ParameterSet):
     """
