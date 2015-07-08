@@ -63,7 +63,10 @@ class ParameterSet(with_metaclass(abc.ABCMeta, object)):
     required_attributes = ("update", "save")
     list_pattern = re.compile(r'^\s*\[.*\]\s*$')
     tuple_pattern = re.compile(r'^\s*\(.*\)\s*$')
-    casts = (yaml.load, )  # good behavior for all bool, at cost of dependency
+    if yaml_loaded:
+        casts = (yaml.load, )  # good behavior for all bool, at cost of dependency
+    else:
+        casts = tuple()
 
     def _new_param_check(self, name, value):
         try:

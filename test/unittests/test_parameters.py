@@ -390,8 +390,12 @@ class TestJSONParameterSet(unittest.TestCase):
         self.assertEqual(P1.diff(P2),
                          ({'a': 2, 'c': {'b': 2}, 'd': [1, 2, 3, 4]},
                           {'a': 3, 'c': {'b': 22}, 'd': [1, 2, 77, 4]}))
-        P3 = YAMLParameterSet(TestYAMLParameterSet.test_parameters)
-        self.assertEqual(P2.diff(P3), P2.diff(P1))
+        try:
+            P3 = YAMLParameterSet(TestYAMLParameterSet.test_parameters)
+        except ImportError:
+            pass
+        else:
+            self.assertEqual(P2.diff(P3), P2.diff(P1))
 
 
 class TestYAMLParameterSet(unittest.TestCase):
