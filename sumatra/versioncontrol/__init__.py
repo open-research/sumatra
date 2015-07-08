@@ -63,7 +63,9 @@ def vcs_err_msg():
     if vcs_list:
         err_msg += "\nTried: %s" % ", ".join(vcs.__name__.split(".")[-1][1:].title() for vcs in vcs_list)
     if vcs_unavailable:
-        err_msg += "\nNot installed or missing Python bindings: %s" % ", ".join(vcs.title() for vcs in vcs_unavailable)
+        err_msg += "\nNo Python bindings available: %s" % ", ".join(vcs.title() for vcs in vcs_unavailable)
+        err_msg += "\nYou may need to install Python bindings for your version control system"
+        err_msg += "\n- see http://sumatra.readthedocs.org/en/latest/installation.html#installing-python-bindings-for-your-version-control-system"
     return err_msg
 
 
