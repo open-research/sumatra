@@ -13,6 +13,7 @@ def main(parameters, [other_args...]):
 """
 from __future__ import unicode_literals
 
+from builtins import str
 import time
 from sumatra.programs import PythonExecutable
 import sys
@@ -21,10 +22,20 @@ import contextlib
 from io import StringIO
 
 
+class _ByteAndUnicodeStringIO(StringIO):
+    """A StringIO subclass accepting `str` in Py2 and `str` in Py3.
+
+    The io.StringIO implementation does not accept Py2 `str`.
+    """
+
+    def write(self, object):
+        StringIO.write(self, str(object))
+
+
 @contextlib.contextmanager
 def _grab_stdout_stderr():
     try:
-        output = StringIO()
+        output = _ByteAndUnicodeStringIO()
         sys.stdout, sys.stderr = output, output
         yield output
     finally:
