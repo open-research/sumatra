@@ -82,6 +82,11 @@ or::
 
     $ easy_install sumatra
 
+You will also need to install Python bindings for the version control system(s) you use, e.g.:
+
+    $ pip install gitpython
+    $ pip install mercurial hgapi
+
 
 ===========
 Code status
