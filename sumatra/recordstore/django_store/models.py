@@ -83,6 +83,9 @@ class Project(BaseModel):
     def last_updated(self):
         return self.record_set.all().aggregate(models.Max('timestamp'))["timestamp__max"] or datetime(1970, 1, 1, 0, 0, 0)
 
+    def get_main_files(self):
+        return list(set([str(record.main_file) for record in self.record_set.all()]))
+
 
 class Executable(BaseModel):
     path = models.CharField(max_length=200)

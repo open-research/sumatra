@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% load filters %}
+
+{% block title %}{{project.id}}{{ main_file }}: List of parameters{% endblock %}
+
+{% block css %}
+    <link href="/static/css/dataTables.bootstrap.css" rel="stylesheet">
+{% endblock %}
+
+{% block navbar %}
+            <li><a href="#">{{project.id}}</a></li>
+            <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                    <span class="glyphicon glyphicon-file"></span> {% if main_file %}{{main_file}}{% else %}Script file{% endif %}
+                    <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
+                {% for mainfile in  project.get_main_files %}
+                  <li><a tabindex="-1" href="/{{project.id}}/parameter?main_file={{mainfile}}">{{mainfile}}</a></li>
+                {% endfor %}
+                </ul>
+            </li>
+{% endblock %}
+
+{% block content %}
+
+{% if project.name %}
+<h3>{{project.name}}</h3>
+{% endif %}
+
+{% if main_file %}
+    <table id="records" class="table table-striped table-condensed" cellspacing="0" width="100%">
+        <thead>
+            <tr>
+                <th>Label</th>
+                <th>Date</th>
+                <th>Version</th>
+                {% for key in keys %}
+                    <th>{{ key }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tfoot>
+            <tr>
+                <th>Date</th><th>Label</th><th>Version</th>
+                {% for key in keys %}
+                    <th>{{ key }}</th>
+                {% endfor %}
+            </tr>
+        </tfoot>
+        <tbody>
+            {% for record in object_list %}
+                <tr id='{{record.label}}'>
+                    <td><a href="/{{project.id}}/{{record.label}}/">{{record.label|ubreak}}</a></td>
+                    <td>
+                        <span style='display:none;'>
+                            <!-- hack for correct sorting -->
+                            {{record.timestamp|date:"YmdHis"}}
+                        </span>
+                        {{record.timestamp|date:"d/m/Y H:i:s"}}
+                    </td>
+                    <td><a target="script_content" onclick="window.open('/script?digest={{record.version}}&main_file={{record.main_file}}','{{record.version}}','width=640,height=600,scrollbars=yes,resizable=yes')">
+                        <span class="glyphicon glyphicon-file"></span></a> {{ record.version|truncatechars:12 }}</td>
+                    {% for key in keys %}
+                        <td>{{ record.parameters.to_sumatra|get_item:key }}</td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+{% else %}
+    <p style="margin:10px"> Please first select a script file. </p>
+{% endif %}
+{% endblock %}
+
+
+{% block scripts %}
+<script type="text/javascript" language="javascript" src="/static/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" language="javascript" src="/static/js/dataTables.bootstrap.js"></script>
+<script type="text/javascript">
+
+$(document).ready(function() {
+    $('#nav-parameter').addClass('active');
+
+
+    /* initialize DataTable */
+    var table = $('#records').DataTable({
+        "info": false,
+        "dom": 'ftlp',
+        "order": [[ 1, "desc" ]],
+    });
+
+    // Setup - add a text input to each footer cell
+    $('#records tfoot th').each( function () {
+        var title = $('#records thead th').eq( $(this).index() ).text();
+        $(this).html( '<input type="text" placeholder="Search '+title+'" />' );
+    });
+
+    // Apply the search
+    table.columns().every( function () {
+        var that = this;
+        $( 'input', this.footer() ).on( 'keyup change', function () {
+            that.search( this.value ).draw();
+        } );
+    } );
+});
+</script>
+{% endblock %}
