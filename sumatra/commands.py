@@ -205,7 +205,7 @@ def init(argv):
                       input_datastore=input_datastore,
                       label_generator=args.labelgenerator,
                       timestamp_format=args.timestamp_format)
-    if os.path.exists('.smt'):
+    if os.path.exists('.smt') and project.record_store.has_project(project.name):
         f = open('.smt/labels', 'w')
         f.writelines(project.format_records(tags=None, mode='short', format='text', reverse=False))
         f.close()

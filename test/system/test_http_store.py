@@ -55,7 +55,7 @@ def start_server():
     global ctr, dkr
     env = docker.utils.kwargs_from_env(assert_hostname=False)
     dkr = docker.Client(timeout=60, **env)
-    # docker run -rm -P -name pg_test postgresql_test
+    # docker run --rm -P --name smtserve apdavison/sumatra-server-v4
     ctr = dkr.create_container(image, command=None, hostname=None, user=None,
                                detach=False, stdin_open=False, tty=False, mem_limit=0,
                                ports=None, environment=None, dns=None, volumes=None,

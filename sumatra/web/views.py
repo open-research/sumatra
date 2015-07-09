@@ -9,7 +9,7 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 from builtins import str
 
-
+import parameters
 import mimetypes
 from django.http import HttpResponse, Http404
 from django.shortcuts import render_to_response
@@ -199,6 +199,29 @@ class DataDetailView(DetailView):
         return template_name
 
 
+def parameter_list(request, project):
+    project_obj = Project.objects.get(id=project)
+    main_file = request.GET.get('main_file', None)
+    if main_file:
+        record_list = Record.objects.filter(project_id=project, main_file=main_file)
+        keys = []
+        for record in record_list:
+            try:
+                parameter_set = record.parameters.to_sumatra()
+                if hasattr(parameter_set, "as_dict"):
+                    parameter_set = parameter_set.as_dict()
+                parameter_set = parameters.nesteddictflatten(parameter_set)
+                for key in parameter_set.keys():            # only works with simple parameter set
+                    if key not in keys:
+                        keys.append(key)
+                keys.sort()
+            except:
+                return Http404
+        return render_to_response('parameter_list.html',{'project':project_obj, 'object_list':record_list, 'keys': keys, 'main_file':main_file})
+    else:
+        return render_to_response('parameter_list.html',{'project':project_obj})
+
+
 def image_list(request, project):
     project_obj = Project.objects.get(id=project)
     tags = Tag.objects.all()
@@ -315,7 +338,7 @@ class SettingsView(View):
 
     def post(self, request):
         settings = self.load_settings()
-        data = json.loads(request.body)
+        data = json.loads(request.body.decode('utf-8'))
         settings.update(data["settings"])
         self.save_settings(settings)
         return HttpResponse('OK')
