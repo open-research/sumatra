@@ -65,10 +65,10 @@ Installation
 These instructions are for Unix, Mac OS X. They may work on Windows as well, but
 it hasn't been thoroughly tested.
 
-If you have downloaded the source package, Sumatra-0.7.0.tar.gz::
+If you have downloaded the source package, Sumatra-0.7.2.tar.gz::
 
-    $ tar xzf Sumatra-0.7.0.tar.gz
-    $ cd Sumatra-0.7.0
+    $ tar xzf Sumatra-0.7.2.tar.gz
+    $ cd Sumatra-0.7.2
     # python setup.py install
 
 The last step may have to be done as root.

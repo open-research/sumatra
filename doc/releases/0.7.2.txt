@@ -1,0 +1,20 @@
+===========================
+Sumatra 0.7.2 release notes
+===========================
+
+*July 9th 2015*
+
+Sumatra 0.7.2 is a bug-fix release. It fixes the following bugs:
+
+* `issue 268`_: "Using @capture decorator makes python "print" unusable."
+* `issue 269`_: "smt init fails if yaml is not defined".
+* `issue 270`_: Unhelpful error message if gitpython not installed.
+
+In addition, the ``stdout_stderr`` field in smtweb now displays line breaks.
+
+(Release 0.7.1 fixed an installation problem - `issue 266`_)
+
+.. _`issue 268`: https://github.com/open-research/sumatra/issues/268
+.. _`issue 269`: https://github.com/open-research/sumatra/issues/269
+.. _`issue 270`: https://github.com/open-research/sumatra/issues/270
+.. _`issue 266`: https://github.com/open-research/sumatra/issues/266
