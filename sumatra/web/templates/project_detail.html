@@ -10,7 +10,11 @@
 
 {% block content %}
 
-<h3>{{project.get_name}} <button type="button" class="btn btn-xs" data-toggle="modal" data-target="#editProjectNameModal">Edit</button></h3>
+<h3>{{project.get_name}}
+    {% if not read_only %}
+    <button type="button" class="btn btn-xs" data-toggle="modal" data-target="#editProjectNameModal">Edit</button>
+    {% endif %}
+</h3>
 
 <div class="btn-group" role="group">
     <a type="button" class="btn btn-default" href="/{{project.id}}/">Record View</a>
@@ -24,11 +28,13 @@
   <div class="panel-body">
   {{project.description|restructuredtext}}&nbsp;
   </div>
+  {% if not read_only %}
   <div class="panel-footer">
   <button type="button" class="btn btn-xs" data-toggle="modal" data-target="#editProjectDescriptionModal">Edit</button>
   </div>
+  {% endif %}
 </div>
-{% else %}
+{% elif not read_only %}
 <button type="button" class="btn btn-xs" data-toggle="modal" data-target="#editProjectDescriptionModal">Add description</button>
 {% endif %}
 
