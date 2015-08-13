@@ -11,6 +11,7 @@ import time
 import os
 from pathlib import Path
 from sumatra.records import Record, RecordDifference, check_file_under_version_control
+from sumatra.parameters import SimpleParameterSet
 
 
 class MockExecutable(object):
@@ -81,6 +82,11 @@ class TestRecord(unittest.TestCase):
     def test__run(self):
         r1 = Record(MockExecutable("1"), MockRepository(), "test.py",
                     999, MockLaunchMode(), MockDataStore(), {"a": 3}, label="A")
+        r1.run(with_label='parameters')
+
+    def test__update_parameters_with_timestamp_label(self):
+        r1 = Record(MockExecutable("1"), MockRepository(), "test.py",
+                    999, MockLaunchMode(), MockDataStore(), SimpleParameterSet("a = 3"))
         r1.run(with_label='parameters')
 
 
