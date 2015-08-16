@@ -28,7 +28,7 @@ class sdist_git(sdist):
 
 
 install_requires = ['Django>=1.6, <1.9', 'django-tagging', 'httplib2',
-                    'docutils', 'jinja2', 'parameters', 'future']
+                    'docutils', 'jinja2', 'parameters', 'future<0.15']
 major_python_version, minor_python_version, _, _, _ = sys.version_info
 if major_python_version < 3 or (major_python_version == 3 and minor_python_version < 4):
     install_requires.append('pathlib')
