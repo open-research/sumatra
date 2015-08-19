@@ -22,6 +22,7 @@ except ImportError:  # older versions of Django
 import json
 import os.path
 from django.views.generic import View, DetailView
+from django.db.models import Q
 from tagging.models import Tag
 from sumatra.recordstore.serialization import datestring_to_datetime
 from sumatra.recordstore.django_store.models import Project, Record, DataKey, Datastore
@@ -108,7 +109,8 @@ class DataListView(ListView):
     template_name = 'data_list.html'
 
     def get_queryset(self):
-        return DataKey.objects.filter(output_from_record__project_id=self.kwargs["project"])
+        return DataKey.objects.filter(Q(output_from_record__project_id=self.kwargs["project"]) |
+                                      Q(input_to_records__project_id=self.kwargs["project"])).distinct()
 
     def get_context_data(self, **kwargs):
         context = super(DataListView, self).get_context_data(**kwargs)
