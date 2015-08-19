@@ -78,7 +78,7 @@ class MirroredFileSystemDataStore(FileSystemDataStore):
         self.mirror_base_url = mirror_base_url
 
     def __str__(self):
-        return "{} (mirrored at {})".format(self.root, self.mirror_base_url)
+        return "{0} (mirrored at {1})".format(self.root, self.mirror_base_url)
 
     def __getstate__(self):
         return {'root': self.root, 'mirror_base_url': self.mirror_base_url}
