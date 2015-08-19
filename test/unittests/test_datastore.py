@@ -105,7 +105,7 @@ class TestArchivingFileSystemDataStore(unittest.TestCase):
         self.assert_(os.path.exists(self.root_dir))
 
     def test__str__should_return_root_and_archive(self):
-        self.assertEqual(str(self.ds), "{} (archiving to {})".format(self.root_dir, self.archive_dir))
+        self.assertEqual(str(self.ds), "{0} (archiving to {1})".format(self.root_dir, self.archive_dir))
 
     def test__get_state__should_return_dict_containing_root_and_archive_store(self):
         self.assertEqual(self.ds.__getstate__(),
