@@ -73,6 +73,9 @@ class ArchivingFileSystemDataStore(FileSystemDataStore):
         self.archive_store = archive
         # should allow specification of archive format, e.g. tar.gz or zip
 
+    def __str__(self):
+        return "{} (archiving to {})".format(self.root, self.archive_store)
+
     def __getstate__(self):
         return {'root': self.root, 'archive': self.archive_store}
 
