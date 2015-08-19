@@ -16,7 +16,7 @@ Record - gathers and stores information about an individual simulation or
 """
 from __future__ import print_function
 from __future__ import unicode_literals
-from builtins import object
+from builtins import object, str
 
 from datetime import datetime
 import time
@@ -68,7 +68,7 @@ class Record(object):
         # but only do this if you really know what you're doing, otherwise the
         # association of output data with this record may be incorrect
         self.timestamp = timestamp or datetime.now()
-        self.label = label or self.timestamp.strftime(timestamp_format)
+        self.label = label or str(self.timestamp.strftime(timestamp_format))
         if not re.match(Record.valid_name_pattern, self.label):
             raise ValueError("Invalid record label.")
         self.reason = reason
