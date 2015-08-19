@@ -15,7 +15,7 @@
 
 <div class="panel panel-info">
     <div class="panel-heading">
-        <h2 class="panel-title">{{data_key.path}} <small>{{data_key.digest}}</small> {{data_key.get_metadata.mimetype}} {{data_key.get_metadata.size|filesizeformat}}</h2>
+        <h2 class="panel-title">{{data_key.path}} <small>{{data_key.digest}}</small> {{data_key.get_metadata.mimetype|default_if_none:"unknown"}} {{data_key.get_metadata.size|filesizeformat}}</h2>
     </div>
     <div class="panel-body">
 
@@ -36,5 +36,5 @@
     <p>File contents truncated. <a href="/{{project_name}}/data/datafile?path={{data_key.path|urlencode}}&digest={{data_key.digest}}&creation={{data_key.creation|date:"c"}}&truncate=false" class="btn btn-default">Show entire contents</a></p>
 {% endif %}
 
-<p><a href="/data/{{datastore_id}}?path={{data_key.path|urlencode}}&digest={{data_key.digest}}&creation={{data_key.creation|date:"c"}}" class="btn btn-default">Download</a></p>
+<p><a href="/data/{{datastore_id}}?path={{data_key.path|urlencode}}&digest={{data_key.digest}}&creation={{data_key.creation|date:"c"}}" class="btn btn-default" type="{{data_key.get_metadata.mimetype|default_if_none:"application/unknown"}}" download="{{data_key.path}}">Download</a></p>
 {% endblock content %}
