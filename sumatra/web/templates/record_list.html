@@ -78,8 +78,8 @@
         </span>
             {{record.timestamp|date:"d/m/Y H:i:s"}}
         </td>
-        <td>{{record.reason}}</td>
-        <td>{{record.outcome}}</td>
+        <td>{{record.reason|restructuredtext}}</td>
+        <td>{{record.outcome|restructuredtext}}</td>
         <td>
             {% for data in record.input_data.all %}
             <a href="/{{project.id}}/data/datafile?path={{data.path|urlencode}}&digest={{data.digest}}&creation={{data.creation|date:"c"}}">
