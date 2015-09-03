@@ -79,8 +79,12 @@ def parse_arguments(args, input_datastore, stdin=None, stdout=None,
                 script_args.append("<parameters>")
                 have_parameters = True
         if not have_parameters:
-            if input_datastore.contains_path(arg):
-                data_key = input_datastore.generate_keys(arg)
+            if arg[0] == "/":
+                path = arg
+            else:
+                path = os.path.relpath(arg, input_datastore.root)
+            if input_datastore.contains_path(path):
+                data_key = input_datastore.generate_keys(path)
                 input_data.extend(data_key)
                 script_args.append(arg)
             elif allow_command_line_parameters and "=" in arg:  # cmdline parameter
