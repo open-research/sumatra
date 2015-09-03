@@ -17,8 +17,8 @@ The easiest way to install Sumatra is directly from the `Python Package Index`_
 Alternatively, you can download the Sumatra package from either PyPI or the
 `INCF Software Centre`_ and install it as follows::
 
-    $ tar xzf Sumatra-0.7.2.tar.gz
-    $ cd Sumatra-0.7.2
+    $ tar xzf Sumatra-0.7.3.tar.gz
+    $ cd Sumatra-0.7.3
     # python setup.py install
 
 The last step may need to be run as root, or using sudo, although in general

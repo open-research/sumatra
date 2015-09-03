@@ -1,0 +1,24 @@
+===========================
+Sumatra 0.7.3 release notes
+===========================
+
+*September 3rd 2015*
+
+Sumatra 0.7.3 is a bug-fix release. It fixes the following bugs:
+
+* `issue 274`_: "Download button does not download file."
+* `issue 278`_: "Using --addlabel=parameters raises TypeError."
+* `issue 280`_: "Input not shown in dataview (web interface)."
+* `issue 281`_: "smt configure --mirror has no effect".
+
+In addition:
+
+* If the "reason" and "comment" fields are formatted as reStructuredText they are correctly
+  rendered in the list view (as well as in the detail view).
+* Browsers (except Safari and IE) get a sensible filename when downloading data files.
+* Fixed a failure to find input data files when the datastore root is not set to the working directory.
+
+.. _`issue 274`: https://github.com/open-research/sumatra/issues/274
+.. _`issue 278`: https://github.com/open-research/sumatra/issues/278
+.. _`issue 280`: https://github.com/open-research/sumatra/issues/280
+.. _`issue 281`: https://github.com/open-research/sumatra/issues/281

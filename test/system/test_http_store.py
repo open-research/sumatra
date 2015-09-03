@@ -15,6 +15,7 @@ standard_library.install_aliases()
 
 import os
 from urllib.parse import urlparse
+from time import sleep
 
 try:
     import docker
@@ -63,6 +64,7 @@ def start_server():
                                entrypoint=None, cpu_shares=None, working_dir=None)
     dkr.start(ctr, publish_all_ports=True)
     utils.env["url"] = get_url()
+    sleep(5)  # give the server enough time to start
 
 
 def teardown():

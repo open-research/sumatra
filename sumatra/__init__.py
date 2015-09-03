@@ -4,4 +4,4 @@ __all__ = ['commands', 'datastore', 'formatting', 'launch', 'parameters',
            'dependency_finder', 'web', 'decorators', 'publishing',
            'users', 'core']
 
-__version__ = "0.7.2"
+__version__ = "0.7.3"
