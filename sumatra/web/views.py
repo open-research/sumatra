@@ -250,7 +250,7 @@ def show_content(request, datastore_id):
         content = datastore.get_content(data_key)
     except (IOError, KeyError):
         raise Http404
-    return HttpResponse(content, content_type=mimetype)
+    return HttpResponse(content, content_type=mimetype or "application/unknown")
 
 
 def compare_records(request, project):
