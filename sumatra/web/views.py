@@ -11,7 +11,7 @@ from builtins import str
 
 import parameters
 import mimetypes
-from django.conf import settings
+from django.conf import settings as django_settings
 from django.http import HttpResponse, Http404
 from django.shortcuts import render_to_response
 from django.views.generic.list import ListView
@@ -49,11 +49,12 @@ class ProjectDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(ProjectDetailView, self).get_context_data(**kwargs)
-        context['read_only'] = settings.READ_ONLY
+        context['read_only'] = django_settings.READ_ONLY
         return context
 
     def post(self, request, *args, **kwargs):
-        if settings.READ_ONLY: return HttpResponse('It is in read-only mode.')
+        if django_settings.READ_ONLY:
+            return HttpResponse('It is in read-only mode.')
         name = request.POST.get('name', None)
         description = request.POST.get('description', None)
         project = self.get_object()
@@ -77,7 +78,7 @@ class RecordListView(ListView):
         context = super(RecordListView, self).get_context_data(**kwargs)
         context['project'] = Project.objects.get(pk=self.kwargs["project"])
         context['tags'] = Tag.objects.all()  # would be better to filter, to return only tags used in this project.
-        context['read_only'] = settings.READ_ONLY
+        context['read_only'] = django_settings.READ_ONLY
         return context
 
 
@@ -100,11 +101,12 @@ class RecordDetailView(DetailView):
         if hasattr(parameter_set, "as_dict"):
             parameter_set = parameter_set.as_dict()
         context['parameters'] = parameter_set
-        context['read_only'] = settings.READ_ONLY
+        context['read_only'] = django_settings.READ_ONLY
         return context
 
     def post(self, request, *args, **kwargs):
-        if settings.READ_ONLY: return HttpResponse('It is in read-only mode.')
+        if django_settings.READ_ONLY:
+            return HttpResponse('It is in read-only mode.')
         record = self.get_object()
         for attr in ("reason", "outcome", "tags"):
             value = request.POST.get(attr, None)
@@ -235,7 +237,8 @@ def parameter_list(request, project):
 
 
 def delete_records(request, project):
-    if settings.READ_ONLY: return HttpResponse('It is in read-only mode.')
+    if django_settings.READ_ONLY:
+        return HttpResponse('It is in read-only mode.')
     records_to_delete = request.POST.getlist('delete[]')
     delete_data = request.POST.get('delete_data', False)
     if isinstance(delete_data, str):
@@ -318,7 +321,8 @@ class SettingsView(View):
         return HttpResponse(json.dumps(self.load_settings()), content_type='application/json')
 
     def post(self, request):
-        if settings.READ_ONLY: return HttpResponse('It is in read-only mode.')
+        if django_settings.READ_ONLY:
+            return HttpResponse('It is in read-only mode.')
         settings = self.load_settings()
         data = json.loads(request.body.decode('utf-8'))
         settings.update(data["settings"])
@@ -338,3 +342,4 @@ class SettingsView(View):
     def save_settings(self, settings):
         with open(global_conf_file, 'w') as fp:
             json.dump(settings, fp)
+
