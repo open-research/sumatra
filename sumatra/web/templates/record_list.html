@@ -96,7 +96,7 @@
         <td>{{record.launch_mode.get_parameters.n|default:"1"}}</td>
         <td>{{record.executable.name}} {{record.executable.version}}</td>
         <td>{{record.main_file|ubreak}}</td>
-        <td>{{record.version|cut:"vers"}}{% if record.diff %}*{% endif %}</td>
+        <td>{{record.version|cut:"vers"|truncatechars:10}}{% if record.diff %}*{% endif %}</td>
         <td>{{record.script_arguments}}</td>
         <td>{{record.tags}}</td>
     </tr>
