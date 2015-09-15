@@ -124,7 +124,7 @@ class MockProject(object):
     removed_tags = {}
     def __init__(self, **kwargs):
         self.data_store = MockDataStore("/path/to/root")
-        self.input_datastore = MockDataStore("/path/to/root")
+        self.input_datastore = MockDataStore(".")
         self.__class__.instances.append(self)
         for k,v in kwargs.items():
             self.__dict__[k] = v
@@ -418,7 +418,7 @@ class InfoCommandTests(unittest.TestCase):
 class TestParseArguments(unittest.TestCase):
 
     def setUp(self):
-        self.input_datastore = MockDataStore('/path/to/root')
+        self.input_datastore = MockDataStore('.')
 
     def test_with_no_args(self):
         parameter_sets, input_data, script_args = commands.parse_arguments([], self.input_datastore)
@@ -779,8 +779,11 @@ class ArgumentParsingTests(unittest.TestCase):
 
     def setUp(self):
         ## setup parsets with legal params
-        self.PSETS = (SimpleParameterSet(""), JSONParameterSet(""),
-                      YAMLParameterSet(""))
+        self.PSETS = [SimpleParameterSet(""), JSONParameterSet("")]
+        try:
+            self.PSETS.append(YAMLParameterSet(""))
+        except ImportError:
+            pass
         self.PConfigParser = ConfigParserParameterSet("")
         for k in ('a', 'b', 'c', 'd', 'l', 'save'):
             up_dict = {k: 1}
@@ -833,22 +836,27 @@ class ArgumentParsingTests(unittest.TestCase):
             self.assertEqual(result, {'c': [1, 2, 3, 4, 5]})
 
     def test_parse_command_line_parameter_with_bool(self):
-        PS, PJSON, PYAML = self.PSETS
+        if len(self.PSETS) == 3:
+            PS, PJSON, PYAML = self.PSETS
+        else:
+            PS, PJSON = self.PSETS
+            PYAML = None
         result = PJSON.parse_command_line_parameter("l=false")
         self.assertEqual(result, {'l': False})
         result = PS.parse_command_line_parameter("l=false")
         self.assertEqual(result, {'l': 'false'})
-        # yaml has language agnostic bool
-        result = PYAML.parse_command_line_parameter("l=False") #python-like
-        self.assertEqual(result, {'l': False})
-        result = PYAML.parse_command_line_parameter("l=false") #json-like
-        self.assertEqual(result, {'l': False})
-        result = PYAML.parse_command_line_parameter("l=FALSE") #r-like
-        self.assertEqual(result, {'l': False})
-        result = PYAML.parse_command_line_parameter("l=off") # possibly undesired
-        self.assertEqual(result, {'l': False})
-        result = PYAML.parse_command_line_parameter("l=On") # possibly undesired
-        self.assertEqual(result, {'l': True})
+        if PYAML:
+            # yaml has language agnostic bool
+            result = PYAML.parse_command_line_parameter("l=False") #python-like
+            self.assertEqual(result, {'l': False})
+            result = PYAML.parse_command_line_parameter("l=false") #json-like
+            self.assertEqual(result, {'l': False})
+            result = PYAML.parse_command_line_parameter("l=FALSE") #r-like
+            self.assertEqual(result, {'l': False})
+            result = PYAML.parse_command_line_parameter("l=off") # possibly undesired
+            self.assertEqual(result, {'l': False})
+            result = PYAML.parse_command_line_parameter("l=On") # possibly undesired
+            self.assertEqual(result, {'l': True})
 
     def test_parse_command_line_parameter_with_tuple(self):
         for P in self.PSETS:

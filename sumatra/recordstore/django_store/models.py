@@ -12,8 +12,11 @@ from builtins import object
 import json
 from django.db import models
 from sumatra import programs, launch, datastore, records, versioncontrol, parameters, dependency_finder
-import tagging.fields
-from tagging.models import Tag
+import warnings
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+    import tagging.fields
+    from tagging.models import Tag
 import datetime
 import django
 from distutils.version import LooseVersion
@@ -79,6 +82,9 @@ class Project(BaseModel):
 
     def last_updated(self):
         return self.record_set.all().aggregate(models.Max('timestamp'))["timestamp__max"] or datetime(1970, 1, 1, 0, 0, 0)
+
+    def get_main_files(self):
+        return list(set([str(record.main_file) for record in self.record_set.all()]))
 
 
 class Executable(BaseModel):

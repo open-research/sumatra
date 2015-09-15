@@ -43,7 +43,9 @@
 </div>
 
 <div class="pull-right" role="group" style="padding-left: 2px;">
+    {% if not read_only %}
     <button type="button" class="btn btn-danger btn-sm" id="delete" data-toggle="modal" data-target="#deleteModal"><span class="glyphicon glyphicon-trash"></span> Delete selected</button>
+    {% endif %}
     <button type="button" class="btn btn-warning btn-sm" id="compare"><span class="glyphicon glyphicon-transfer"></span> Compare selected</button>
 </div>
 
@@ -78,8 +80,8 @@
         </span>
             {{record.timestamp|date:"d/m/Y H:i:s"}}
         </td>
-        <td>{{record.reason}}</td>
-        <td>{{record.outcome}}</td>
+        <td>{{record.reason|restructuredtext}}</td>
+        <td>{{record.outcome|restructuredtext}}</td>
         <td>
             {% for data in record.input_data.all %}
             <a href="/{{project.id}}/data/datafile?path={{data.path|urlencode}}&digest={{data.digest}}&creation={{data.creation|date:"c"}}">
@@ -106,6 +108,7 @@
 
 {% endblock %}
 
+{% if not read_only %}
 {% block dialogs %}
 <div class="modal fade" id="deleteModal">
   <div class="modal-dialog">
@@ -169,7 +172,7 @@
   </div> <!-- modal-dialog -->
 </div> <!-- modal -->
 {% endblock %}
-
+{% endif %}
 
 {% block scripts %}
 <script type="text/javascript" language="javascript" src="/static/js/jquery.dataTables.min.js"></script>
@@ -231,6 +234,7 @@ $(document).ready(function() {
         $(this).toggleClass('info');
     } );
 
+    {% if not read_only %}
     /* delete selected records */
     $('#confirm-delete').click(function() {
         //alert( table.rows('.info').data()[0] +' row(s) selected');
@@ -264,6 +268,7 @@ $(document).ready(function() {
             window.open('.','_self');
         };
     });
+    {% endif %}
 
     /* compare selected records */
     $('#compare').click(function() {

@@ -1,7 +1,8 @@
 include doc/*.txt
 include doc/images/*.png
 include doc/releases/*.txt
-include COPYING
+include LICENSE
+include README.rst
 include sumatra/web/static/css/*.css
 include sumatra/web/static/fonts/*
 include sumatra/web/static/js/*.js
