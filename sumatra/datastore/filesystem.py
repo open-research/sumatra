@@ -88,7 +88,11 @@ class FileSystemDataStore(DataStore):
         return self._root
 
     def __set_root(self, value):
-        path = Path(value)
+        try:
+            path = Path(value)
+        except TypeError:
+            # This can happen in Python2 if 'value' is a subclass of string
+            path = Path(unicode(value))
         self._root = value
         if not path.exists():
             try:

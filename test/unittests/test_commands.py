@@ -124,7 +124,7 @@ class MockProject(object):
     removed_tags = {}
     def __init__(self, **kwargs):
         self.data_store = MockDataStore("/path/to/root")
-        self.input_datastore = MockDataStore("/path/to/root")
+        self.input_datastore = MockDataStore(".")
         self.__class__.instances.append(self)
         for k,v in kwargs.items():
             self.__dict__[k] = v
@@ -418,7 +418,7 @@ class InfoCommandTests(unittest.TestCase):
 class TestParseArguments(unittest.TestCase):
 
     def setUp(self):
-        self.input_datastore = MockDataStore('/path/to/root')
+        self.input_datastore = MockDataStore('.')
 
     def test_with_no_args(self):
         parameter_sets, input_data, script_args = commands.parse_arguments([], self.input_datastore)

@@ -19,9 +19,11 @@
 
 <div class="panel panel-info">
     <div class="panel-heading clearfix">
+        {% if not read_only %}
         <div class="pull-right" role="group">
             <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteModal"><span class="glyphicon glyphicon-trash"></span> Delete record</button>
         </div>
+        {% endif %}
         <h2 class="panel-title" style="padding-top: 6px;">{{record.label}}</h2>
     </div>
     <div class="panel-body">
@@ -34,10 +36,18 @@
             <dt>Repository:</dt><dd>{{record.repository.url}}
             {% if record.repository.upstream %} - cloned from {{record.repository.upstream|urlize}}{% endif %}</dd>
             <dt>{{record.executable.name}} version:</dt><dd>{{record.executable.version}}</dd>
-            <dt>Reason:</dt><dd> <button type="button" class="btn btn-xs pull-right" data-toggle="modal" data-target="#editReasonModal"><span class="glyphicon glyphicon-pencil"></span> Edit</button> {{record.reason|restructuredtext}}</dd>
-            <dt>Tags:</dt><dd><button type="button" class="btn btn-xs pull-right" data-toggle="modal" data-target="#editTagsModal"><span class="glyphicon glyphicon-pencil"></span> Edit</button> {% for tag in record.tag_objects %}<span class="label label-default">{{tag.name}}</span> {% endfor %}</dd>
+            <dt>Reason:</dt><dd>
+                {% if not read_only %}
+                <button type="button" class="btn btn-xs pull-right" data-toggle="modal" data-target="#editReasonModal"><span class="glyphicon glyphicon-pencil"></span> Edit</button>
+                {% endif %}
+                {{record.reason|restructuredtext}}</dd>
+            <dt>Tags:</dt><dd>
+                {% if not read_only %}
+                <button type="button" class="btn btn-xs pull-right" data-toggle="modal" data-target="#editTagsModal"><span class="glyphicon glyphicon-pencil"></span> Edit</button>
+                {% endif %}
+                {% for tag in record.tag_objects %}<span class="label label-default">{{tag.name}}</span> {% endfor %}</dd>
         </dl>
-        {% if not record.outcome %}
+        {% if not read_only and not record.outcome %}
         <p><button type="button" class="btn btn-xs btn-success pull-right" data-toggle="modal" data-target="#editOutcomeModal"><span class="glyphicon glyphicon-plus"></span> Add outcome</button></p>
         {% endif %}
     </div>

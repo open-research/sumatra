@@ -79,8 +79,12 @@ def parse_arguments(args, input_datastore, stdin=None, stdout=None,
                 script_args.append("<parameters>")
                 have_parameters = True
         if not have_parameters:
-            if input_datastore.contains_path(arg):
-                data_key = input_datastore.generate_keys(arg)
+            if arg[0] == "/":
+                path = arg
+            else:
+                path = os.path.relpath(arg, input_datastore.root)
+            if input_datastore.contains_path(path):
+                data_key = input_datastore.generate_keys(path)
                 input_data.extend(data_key)
                 script_args.append(arg)
             elif allow_command_line_parameters and "=" in arg:  # cmdline parameter
@@ -248,24 +252,29 @@ def configure(argv):
     if args.store:
         new_store = get_record_store(args.store)
         project.change_record_store(new_store)
-
+    if args.datapath:
+        project.data_store.root = args.datapath
     if args.archive:
         if args.archive.lower() == "true":
             args.archive = ".smt/archive"
         if hasattr(project.data_store, 'archive_store'):  # current data store is archiving
             if args.archive.lower() == 'false':
-                project.data_store = get_data_store("FileSystemDataStore", {"root": project.data_store.root})
+                project.data_store = get_data_store("FileSystemDataStore",
+                                                    {"root": project.data_store.root})
             else:
                 project.data_store.archive_store = args.archive
         else:  # current data store is not archiving
             if args.archive.lower() != 'false':
-                project.data_store = get_data_store("ArchivingFileSystemDataStore", {"root": args.datapath, "archive": args.archive})
-    if args.webdav:
+                project.data_store = get_data_store("ArchivingFileSystemDataStore",
+                                                    {"root": project.data_store.root, "archive": args.archive})
+    elif args.mirror:
+        project.data_store = get_data_store("MirroredFileSystemDataStore",
+                                            {"root": project.data_store.root, "mirror_base_url": args.mirror})
+    elif args.webdav:
         # should we care about archive migration??
-        project.data_store = get_data_store("DavFsDataStore", {"root": args.datapath, "dav_url": args.webdav})
+        project.data_store = get_data_store("DavFsDataStore",
+                                            {"root": project.data_store.root, "dav_url": args.webdav})
         project.data_store.archive_store = '.smt/archive'
-    if args.datapath:
-        project.data_store.root = args.datapath
     if args.input:
         project.input_datastore.root = args.input
     if args.repository:

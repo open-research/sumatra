@@ -43,6 +43,13 @@ class TestFileSystemDataStore(unittest.TestCase):
     def test__str__should_return_root(self):
         self.assertEqual(str(self.ds), self.root_dir)
 
+    def test__setting_root_with_str_should_work(self):
+        # This is a regression test for Python2 where str(...) returns an instance
+        # of type 'future.types.newstr.newstr' which makes Pathlib choke if passed
+        # directly (because it tries to intern the string). Here we check that the
+        # class FileSystemDataStore knows how to deal with this.
+        self.ds.root = str('/tmp/foo/bar')
+
     def test__get_state__should_return_dict_containing_root(self):
         self.assertEqual(self.ds.__getstate__(), {'root': self.root_dir})
 
@@ -104,8 +111,8 @@ class TestArchivingFileSystemDataStore(unittest.TestCase):
     def test__init__should_create_root_and_archive_if_they_dont_exist(self):
         self.assert_(os.path.exists(self.root_dir))
 
-    def test__str__should_return_root(self):
-        self.assertEqual(str(self.ds), self.root_dir)
+    def test__str__should_return_root_and_archive(self):
+        self.assertEqual(str(self.ds), "{0} (archiving to {1})".format(self.root_dir, self.archive_dir))
 
     def test__get_state__should_return_dict_containing_root_and_archive_store(self):
         self.assertEqual(self.ds.__getstate__(),

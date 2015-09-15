@@ -56,6 +56,18 @@ var loading= false;
 var offset = 0;
 var limit = 8;
 
+function equalHeight(group) {
+    var tallest = 0;
+    group.each(function() {
+        var thisHeight = $(this).height();
+        if(thisHeight > tallest) {
+            tallest = thisHeight;
+        }
+    });
+    group.each(function() { $(this).height(tallest); });
+}
+
+
 var load_images = function() {
     $.ajax({
         url: '/{{project.id}}/image',
@@ -68,7 +80,7 @@ var load_images = function() {
                 var thumb = $('.thumb:last-child')
                 thumb.clone().appendTo( ".row" );
                 thumb.find('.image').attr('href', '/'+data[i].project_name+'/data/datafile?path='+data[i].path+'&digest='+data[i].digest+'&creation='+data[i].creation);
-                thumb.find('.image img').attr('src', '/data/1?path='+data[i].path+'&digest='+data[i].digest+'&creation='+data[i].creation);
+                thumb.find('.image img').attr('src', '/static/'+data[i].path);
                 thumb.find('.filename').html(data[i].path);
                 thumb.find('.rec-label').attr('href','/'+data[i].project_name+'/'+data[i].label+'/').html(data[i].label);
                 thumb.find('.show_script').attr('onclick', "window.open('/script?path="+data[i].repos_url+"&digest="+data[i].version+"&main_file="+data[i].main_file +"','script_content','width=640,height=600,scrollbars=yes,resizable=yes')").parent().append(' '+data[i].main_file)
@@ -79,6 +91,7 @@ var load_images = function() {
                 offset = offset + data.length
                 loading = false; // reset value of loading once content loaded
             }
+            equalHeight($(".thumbnail"));
         },
         async: false
     });
