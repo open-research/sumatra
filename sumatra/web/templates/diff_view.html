@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% load filters %}
+
+{% block title %}{{project_name}}: {{label}}: Difference in {{package}}{% endblock %}
+
+{% block navbar %}
+            <li><a href="..">{{project_name}}</a></li>
+            <li><a href="/{{project_name}}/{{label}}/"> {{label}}</a></li>
+            <li><a href="#">Diff</a></li>
+{% endblock %}
+
+{% block content %}
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <h2 class="panel-title">{{package}}: Difference between the code used in {{label}} and version {{parent_version}}</h2>
+    </div>
+    <div class="panel-body">
+    <code>
+    {{diff|escape|linebreaksbr}}
+    </code>
+    </div>
+</div>
+
+{% endblock %}
