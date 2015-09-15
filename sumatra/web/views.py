@@ -257,6 +257,7 @@ def image_list(request, project):
                         'repos_url':        record.repository.url,
                         'version':          record.version,
                         'tags':             record.tags,
+                        'datastore_id':     record.datastore.id,
                         'path':             data_key.path,
                         'creation':         data_key.creation.strftime('%Y-%m-%d %H:%M:%S'),
                         'digest':           data_key.digest
