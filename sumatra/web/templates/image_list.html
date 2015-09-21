@@ -44,6 +44,12 @@
                 </div>
             </div>
         </div>
+        <div class="text-center">
+            <div class="btn-group">
+                <div class="btn btn-default load" onclick="load_images(8)">load more</div>
+                <div class="btn btn-default load" onclick="load_images(-1)">load all</div>
+            </div>
+        </div>
     </div>
 {% endblock %}
 
@@ -68,7 +74,8 @@ function equalHeight(group) {
 }
 
 
-var load_images = function() {
+var load_images = function(limit) {
+    if (limit == -1) { $('.loaded').remove(); }
     $.ajax({
         url: '/{{project.id}}/image',
         type: 'GET',
@@ -92,21 +99,15 @@ var load_images = function() {
                 loading = false; // reset value of loading once content loaded
             }
             equalHeight($(".thumbnail"));
+            if (limit == -1 || limit > data.length) {$('.load').hide()}
         },
         async: false
     });
 };
 
 $(document).ready(function() {
-        $('#nav-image').addClass('active');
-
-        load_images()
-        $(window).scroll(function() {
-            if (!loading && ($(window).scrollTop() >  $(document).height() - $(window).height())) {
-                loading= true;
-                load_images()
-            }
-        });
+    $('#nav-image').addClass('active');
+    load_images(limit)
 
     /* select tag from dropdown menu */
     $('#tagList a').click(function (event) {
@@ -124,7 +125,7 @@ $(document).ready(function() {
         };
         $('.loaded').remove();
         offset = 0;
-        load_images()
+        load_images(limit)
     });
 } );
 </script>

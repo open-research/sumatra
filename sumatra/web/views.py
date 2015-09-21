@@ -262,7 +262,10 @@ def image_list(request, project):
                         'creation':         data_key.creation.strftime('%Y-%m-%d %H:%M:%S'),
                         'digest':           data_key.digest
                     })
-        return HttpResponse(json.dumps(data[offset:offset+limit]), content_type='application/json')
+        if limit != -1:
+            return HttpResponse(json.dumps(data[offset:offset+limit]), content_type='application/json')
+        else:
+            return HttpResponse(json.dumps(data), content_type='application/json')
     else:
         return render_to_response('image_list.html', {'project':project_obj, 'tags':tags})
 
