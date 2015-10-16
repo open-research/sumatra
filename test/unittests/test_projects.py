@@ -188,6 +188,9 @@ class MockRecordStore(object):
     def __getstate__(self):
         return {}
 
+    def backup(self):
+        pass
+
 
 class TestProject(unittest.TestCase):
 
