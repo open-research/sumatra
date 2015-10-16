@@ -22,7 +22,7 @@ except ImportError:  # older versions of Django
 
 import json
 import os.path
-from django.views.generic import View, DetailView
+from django.views.generic import View, DetailView, TemplateView
 from django.db.models import Q
 from tagging.models import Tag
 from sumatra.recordstore.serialization import datestring_to_datetime
@@ -343,3 +343,24 @@ class SettingsView(View):
         with open(global_conf_file, 'w') as fp:
             json.dump(settings, fp)
 
+
+class DiffView(TemplateView):
+    template_name = 'diff_view.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(DiffView, self).get_context_data(**kwargs)
+        project = self.kwargs["project"]
+        label = unescape(self.kwargs["label"])
+        package = self.kwargs.get("package", None)
+        record = Record.objects.get(label=label, project__id=project)
+        if package:
+            dependency = record.dependencies.get(name=package)
+        else:
+            package = "Main script"
+            dependency = record
+        context.update({'label': label,
+                        'project_name': project,
+                        'package': package,
+                        'parent_version': dependency.version,
+                        'diff': dependency.diff})
+        return context
