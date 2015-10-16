@@ -379,7 +379,7 @@ class Project(object):
         working_copy.use_version(current_version)  # ensure we switch back to the original working copy state
         return new_label, original.label
 
-    def backup(self):
+    def backup(self, remove_original=False):
         """
         Create a new backup directory in the same location as the
         project directory and copy the contents of the project
@@ -390,10 +390,15 @@ class Project(object):
           - `backup_dir`: the directory used for the backup
 
         """
+        if remove_original:
+            self.record_store.remove()  # creates backup then removes original file
+        else:
+            self.record_store.backup()
         smt_dir = os.path.split(_get_project_file(self.path))[0]
         backup_dir = smt_dir + "_backup_%s" % datetime.now().strftime(TIMESTAMP_FORMAT)
         shutil.copytree(smt_dir, backup_dir)
-        # TODO: also backup the record store, if it is not contained in .smt ?
+        if remove_original:
+            shutil.rmtree(smt_dir)
         return backup_dir
 
     def change_record_store(self, new_store):

@@ -9,6 +9,7 @@ from __future__ import unicode_literals
 from builtins import str
 
 import os
+import shutil
 import shelve
 from datetime import datetime
 from sumatra.recordstore.base import RecordStore
@@ -132,3 +133,16 @@ class ShelveRecordStore(RecordStore):
     @classmethod
     def accepts_uri(cls, uri):
         return os.path.exists(uri) or os.path.exists(uri + ".db") or os.path.splitext(uri)[1] == ".shelf"
+
+    def backup(self):
+        """
+        Copy the database file
+        """
+        shutil.copy2(self._shelf_name, self._shelf_name + ".backup")
+
+    def remove(self):
+        """
+        Delete the database entirely.
+        """
+        self.backup()
+        os.remove(self._shelf_name)
