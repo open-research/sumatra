@@ -1,0 +1,18 @@
+===========================
+Sumatra 0.7.4 release notes
+===========================
+
+*October 16th 2015*
+
+Sumatra 0.7.4 is a bug-fix release. It fixes the following bugs:
+
+* `issue 301`_: "Upgrading fails when record store is not in `.smt` directory."
+* `issue 287`_: "Using --addlabel=parameters raises TypeError("can't intern subclass of string") in Python 2.7."
+
+In addition:
+
+* Long version numbers/hashes are truncated in the record list view
+* We have restored the diff view in the web interface, which was accidentally removed during the preparation of the 0.7.0 release.
+
+.. _`issue 301`: https://github.com/open-research/sumatra/issues/301
+.. _`issue 287`: https://github.com/open-research/sumatra/issues/287
