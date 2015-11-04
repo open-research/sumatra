@@ -297,8 +297,11 @@ class SimpleParameterSet(ParameterSet):
             or (stripped.startswith(double_quote) and stripped.endswith(double_quote))
 
     def _add_or_update_parameter(self, name, value, comment=None):
-        if not isinstance(value, (int, float, str, list)):
-            raise TypeError("value must be a numeric value or a string")
+        # Technically, bool is a subtype of int but we list it explicitly for clarity.
+        # TODO: Should we check for and disallow nested lists/tuples?
+        if value is not None and not isinstance(value, (int, float, str, bool, list, tuple)):
+            raise TypeError("Value must be one of the basic types (a numeric value, bool, "
+                "string, list, tuple or None. Got: '{}' ({})".format(value, type(value)))
         self.values[name] = value
         self.types[name] = type(value)
         if comment is not None:
