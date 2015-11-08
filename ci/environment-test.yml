@@ -1,0 +1,12 @@
+name: testenv
+dependencies:
+  # Additional requirements for running the Sumatra test suite
+  - numpy
+  - scipy
+  - matplotlib
+  - nose
+  - pillow
+  - coverage
+  - pip:
+    - sarge
+    - coveralls
