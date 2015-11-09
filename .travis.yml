@@ -11,6 +11,7 @@ install:
   - sudo apt-get update
   # We do this conditionally because it saves us some downloading if the
   # version is the same.
+  - echo $TRAVIS_PYTHON_VERSION
   - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
       wget https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh;
     else
@@ -24,9 +25,11 @@ install:
   # Useful for debugging any issues with conda
   - conda info -a
 
-  - conda env create -f ci/environment.yml
-  - conda env update -f ci/environment-test.yml
+  - conda create -n testenv --yes python=$TRAVIS_PYTHON_VERSION numpy scipy matplotlib nose dateutil pillow
   - source activate testenv
+  - pip install -r ci/requirements.txt
+  - pip install -r ci/requirements-test.txt
+  - pip install -r ci/requirements-$TRAVIS_PYTHON_VERSION.txt
   - pip install .
 
   - curl -OL http://raw.github.com/craigcitro/r-travis/master/scripts/travis-tool.sh
