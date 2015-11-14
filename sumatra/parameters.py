@@ -249,7 +249,7 @@ class SimpleParameterSet(ParameterSet):
                 for line in filterfalse(SimpleParameterSet._empty_or_comment, initialiser.split("\n")):
                     name, value, comment = self._parse_parameter_from_line(line)
                     self._add_or_update_parameter(name=name, value=value, comment=comment)
-            except (AttributeError, TypeError):
+            except (AttributeError, TypeError, ValueError):
                 raise TypeError("Parameter set initialiser must be a filename, string or dict.")
 
     @staticmethod
@@ -257,7 +257,7 @@ class SimpleParameterSet(ParameterSet):
         try:
             path = Path(path.__str__())
             return path.exists() and path.is_file()
-        except (TypeError, OSError):
+        except (TypeError, OSError, ValueError):
             return False
 
     @classmethod
@@ -278,7 +278,7 @@ class SimpleParameterSet(ParameterSet):
                     value = eval(value)
             except NameError:
                 value = str(value)
-            except TypeError as err:  # e.g. null bytes
+            except (TypeError, ValueError) as err:  # e.g. null bytes
                 raise SyntaxError("File is not a valid simple parameter file. %s" % err)
             if self.COMMENT_CHAR in line:
                 comment = self.COMMENT_CHAR.join(line.split(self.COMMENT_CHAR)[1:])  # this fails if the value is a string containing COMMENT_CHAR
