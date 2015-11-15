@@ -4,6 +4,7 @@ python:
   - "2.7"
   - "2.6"
   - "3.4"
+  - "3.5"
 env:
   global:
     - PATH=/home/travis/miniconda/bin:$PATH
@@ -25,7 +26,7 @@ install:
   # Useful for debugging any issues with conda
   - conda info -a
 
-  - conda create -n testenv --yes python=$TRAVIS_PYTHON_VERSION numpy scipy matplotlib nose dateutil pillow
+  - conda create -n testenv --yes python=$TRAVIS_PYTHON_VERSION numpy scipy matplotlib nose pillow
   - source activate testenv
   - pip install -r ci/requirements.txt
   - pip install -r ci/requirements-test.txt
