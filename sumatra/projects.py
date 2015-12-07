@@ -467,7 +467,7 @@ def load_project(path=None):
     if not path:
         p = os.getcwd()
     else:
-        p = path
+        p = os.path.abspath(path)
     while not os.path.isdir(os.path.join(p, ".smt")):
         oldp, p = p, os.path.dirname(p)
         if p == oldp:
