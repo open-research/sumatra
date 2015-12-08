@@ -210,9 +210,8 @@ def init(argv):
                       label_generator=args.labelgenerator,
                       timestamp_format=args.timestamp_format)
     if os.path.exists('.smt') and project.record_store.has_project(project.name):
-        f = open('.smt/labels', 'w')
-        f.writelines(project.format_records(tags=None, mode='short', format='text', reverse=False))
-        f.close()
+        with open('.smt/labels', 'w') as f:
+            f.write('\n'.join(project.get_labels()))
     project.save()
 
 
@@ -404,6 +403,9 @@ def run(argv):
         sys.exit(1)
     if args.tag:
         project.add_tag(run_label, args.tag)
+    if os.path.exists('.smt'):
+        with open('.smt/labels', 'w') as f:
+            f.write('\n'.join(project.get_labels()))
 
 
 def list(argv):  # add 'report' and 'log' as aliases
@@ -424,15 +426,15 @@ def list(argv):  # add 'report' and 'log' as aliases
                         default='text',
                         help="FMT can be 'text' (default), 'html', 'json', 'latex' or 'shell'.")
     parser.add_argument('-r', '--reverse', action="store_true", dest="reverse", default=False,
-                        help="list records in reverse order (default: newest first)"),
+                        help="list records in reverse order (default: newest first)")
     args = parser.parse_args(argv)
 
     project = load_project()
     if os.path.exists('.smt'):
-        f = open('.smt/labels', 'w')
-        f.writelines(project.format_records(tags=None, mode='short', format='text', reverse=False))
-        f.close()
+        with open('.smt/labels', 'w') as f:
+            f.write('\n'.join(project.get_labels()))
     print(project.format_records(tags=args.tags, mode=args.mode, format=args.format, reverse=args.reverse))
+
 
 def delete(argv):
     """Delete records or records with a particular tag from a project."""
@@ -466,7 +468,9 @@ def delete(argv):
                 project.delete_record(label, delete_data=args.data)
             except Exception:  # could be KeyError or DoesNotExist: should create standard NoSuchRecord or RecordDoesNotExist exception
                 warnings.warn("Could not delete record '%s' because it does not exist" % label)
-
+    if os.path.exists('.smt'):
+        with open('.smt/labels', 'w') as f:
+            f.write('\n'.join(project.get_labels()))
 
 def comment(argv):
     """Add a comment to an existing record."""
