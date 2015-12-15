@@ -39,7 +39,7 @@ def check_version():
         raise VersionControlError(
             "GitPython not installed. There is a 'git' package, but it is not "
             "GitPython (https://pypi.python.org/pypi/GitPython/)")
-    minimum_version = '0.3.5'
+    minimum_version = '1.0.1'
     if LooseVersion(git.__version__) < LooseVersion(minimum_version):
         raise VersionControlError(
             "Your Git Python binding is too old. You require at least "
@@ -54,7 +54,7 @@ def findrepo(path):
     except InvalidGitRepositoryError:
         return
     else:
-        return os.path.dirname(repo.git_dir)
+        return repo.working_dir
 
 
 @component
