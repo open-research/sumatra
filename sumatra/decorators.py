@@ -16,6 +16,7 @@ from __future__ import unicode_literals
 from builtins import str
 import time
 from sumatra.programs import PythonExecutable
+from sumatra.parameters import SimpleParameterSet
 import sys
 import os
 import contextlib
@@ -66,4 +67,28 @@ def capture(main):
         record.output_data = record.datastore.find_new_data(record.timestamp)
         project.add_record(record)
         project.save()
+
+    return wrapped_main
+
+def capture_args(main):
+    """
+    Decorator for a main() function, which will create a new record for this
+    execution.
+
+    The arguments of main() will be considered the parameter set. This assumes
+    all arguments are basic types (i.e. they get passed to SimpleParameterSet).
+    """
+    def wrapped_main(*args, **kwargs):
+        parameters = dict(zip(["arg%d" % x for x in range(len(args))], args))
+        parameters.update(kwargs)
+        parameters = SimpleParameterSet(parameters)
+
+        @capture
+        def fake_main(param, *args, **kwargs):
+            # Discard parameters
+            main(*args, **kwargs)
+
+        # Run the fake main to discard the parameters
+        fake_main(parameters, *args, **kwargs)
+
     return wrapped_main
