@@ -15,8 +15,9 @@ try:
     from subprocess import check_output
 except ImportError:
     check_output = False
-from sumatra.programs import Executable, version_pattern, get_executable, \
+from sumatra.programs import Executable, version_in_command_line_output, get_executable, \
                              PythonExecutable, NESTSimulator, RExecutable
+
 
 class TestVersionRegExp(unittest.TestCase):
 
@@ -25,22 +26,17 @@ class TestVersionRegExp(unittest.TestCase):
             "NEURON -- Release 7.1 (359:7f113b76a94b) 2009-10-26": "7.1",
             "NEST version 1.9.8498, built on Mar  2 2010 09:40:15 for x86_64-unknown-linux-gnu\nCopyright (C) 1995-2008 The NEST Initiative": "1.9.8498",
             "Python 2.6.2": "2.6.2",
-            "abcdefg": None,
-            "usage: ls [-ABCFGHLPRSTWabcdefghiklmnopqrstuwx1] [file ...]": None,
+            "abcdefg": "unknown",
+            "usage: ls [-ABCFGHLPRSTWabcdefghiklmnopqrstuwx1] [file ...]": "unknown",
             "4.2rc3": "4.2rc3",
             "R scripting front-end version 3.1.2 (2014-10-31)": "3.1.2",
-            "First version that reads numbers from 0..1": None,
+            "First version that reads numbers from 0..1": "unknown",
             "Mature Tool 12.10": "12.10",
             "Beta Tool 0.9.0.dev": "0.9.0.dev",
             "Another Tool 0.8.4.Clumsy message.": "0.8.4"
         }
         for input, output in examples.items():
-            match = version_pattern.search(input)
-            if match:
-                version = match.groupdict()['version']
-            else:
-                version = None
-            self.assertEqual(version, output)
+            self.assertEqual(version_in_command_line_output(input), output)
 
 
 class TestExecutable(unittest.TestCase):
