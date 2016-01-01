@@ -472,7 +472,7 @@ def load_project(path=None):
         oldp, p = p, os.path.dirname(p)
         if p == oldp:
             raise IOError("No Sumatra project exists in the current directory or above it.")
-    mimetypes.init([os.path.join(p, ".smt", "mime.types")])
+    mimetypes.init(mimetypes.knownfiles + [os.path.join(p, ".smt", "mime.types")])
     # try:
     prj = _load_project_from_json(p)
     # except Exception:
