@@ -365,6 +365,10 @@ class ConfigureCommandTests(unittest.TestCase):
                           commands.configure,
                           ["-l", "andaprettybow"])
 
+    def test_unset_add_label(self):
+        commands.configure(["-l", "none"])
+        self.assertEqual(self.prj.data_label, None)
+
     def test_with_repository_option_should_perform_checkout(self):
         commands.configure(["--repository", "/path/to/another/repos"])
         self.assertEqual(self.prj.default_repository.url, "/path/to/another/repos")
