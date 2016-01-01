@@ -147,6 +147,14 @@ class TestGitWorkingCopy(unittest.TestCase, BaseTestWorkingCopy):
         os.unlink("%s/.git" % self.repository_path)
         shutil.rmtree(self.tmpdir)
 
+    def test__script_content(self):
+        self.assertEqual(self.wc.content(self.latest_version, 'wrong.py'), 'File content not found.')
+        path_to_project = os.path.join(this_directory, os.pardir, "example_projects", "python")
+        for filename in ['default.param','romans.param']:
+            with open(os.path.join(path_to_project, filename), 'r') as f:
+                lines = f.readlines()
+                self.assertEqual(self.wc.content(self.latest_version, filename), ''.join(lines))
+
 
 @unittest.skipUnless(have_pysvn, "Could not import pysvn")
 class TestSubversionWorkingCopy(unittest.TestCase, BaseTestWorkingCopy):
