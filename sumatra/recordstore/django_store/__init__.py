@@ -55,6 +55,8 @@ class DjangoConfiguration(object):
                                'django.contrib.contenttypes',  # needed for tagging
                                'tagging'],
             'MIDDLEWARE_CLASSES': [],
+            'READ_ONLY': 0,
+            'SERVERSIDE': 0,
         }
         self._n_databases = 0
         self.configured = False

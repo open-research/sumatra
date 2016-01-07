@@ -26,6 +26,13 @@ option to ``smtweb``, e.g.::
 
     $ smtweb -p 8001
 
+If you have a large dataset and the webpage loads slowly, using the serverside
+processing increases the performance of the website. This method fetchs only
+displayed records from the server instead of all records. You can specify the
+``-s`` option to start the local server with serverside processing::
+
+    $ smtweb -s
+
 If you are using a single record store for multiple projects, you can run
 :command:`smtweb` from anywhere and specify the location of the record store
 on the command line, e.g.::

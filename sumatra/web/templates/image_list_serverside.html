@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+
+{% load filters %}
+
+{% block title %}{{project.id}}: List of data files{% endblock %}
+
+{% block css %}
+    <link href="/static/css/dataTables.bootstrap.css" rel="stylesheet">
+{% endblock %}
+
+{% block navbar %}
+            <li><a href="#">{{project.id}}</a></li>
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button">
+                    <span class="glyphicon glyphicon-tag"></span>
+                    <span id="tag-label"></span>
+                    <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu" role="menu" id="tagList">
+                    {% if tags %}
+                        {% for tag in tags %}
+                        <li><a data-target="#" class="tag" value="{{tag.name}}">{{tag.name}}</a></li>
+                        {% endfor %}
+                        <li role="presentation" class="divider"></li>
+                        <li><a data-target="#" class="tag" value="null"><i>clear selection</i></a></li>
+                    {% else %}
+                    <li role="presentation" class="dropdown-header">No tags defined.</li>
+                    {% endif %}
+                </ul>
+            </li>
+{% endblock %}
+
+{% block content %}
+
+{% if project.name %}
+<h3>{{project.name}}</h3>
+{% endif %}
+
+<div class="btn-group" role="group">
+    <a type="button" class="btn btn-default" href="/{{project.id}}/">Record View</a>
+    <a type="button" class="btn btn-default" href="/{{project.id}}/data/">Data View</a>
+    <button type="button" class="btn btn-primary">Image View</button>
+    <a type="button" class="btn btn-default" href="/{{project.id}}/about/">About</a>
+</div>
+
+<div role="group" class="pull-right" style="padding-left:2px">
+    <button class="btn btn-default btn-sm active" id="image-table-view">
+        <span class="glyphicon glyphicon-th-list"></span></button>
+    <button class="btn btn-default btn-sm" id="thumbgrid-view">
+        <span class="glyphicon glyphicon-th"></span></button>
+    <button class="btn btn-default btn-sm" id="thumbgrid-view-large">
+        <span class="glyphicon glyphicon-th-large"></span></button>
+</div>
+
+<table id="images-table" class="table table-striped table-condensed" cellspacing="0" width="100%">
+    <thead>
+        <tr>
+          <th>Date/Time</th>
+          <th>Image</th>
+          <th>Output of</th>
+          <th>Reason</th>
+          <th>Outcome</th>
+          <th>Tags</th>
+          <!-- <th>Parameter</th> -->
+        </tr>
+    </thead>
+
+    <tbody>
+    </tbody>
+</table>
+
+<div id="thumbgrid" class="container hidden"></div>
+
+{% endblock %}
+
+{% block scripts %}
+    <script type="text/javascript" language="javascript" src="/static/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" language="javascript" src="/static/js/dataTables.bootstrap.js"></script>
+    <script type="text/javascript">
+
+/* filter by tag */
+var selected_tag = null;
+var thumbgrid_view = 'col-md-3 col-sm-4 col-xs-6';
+
+$(document).ready(function() {
+
+    // Column Renderer
+    var columnDefs = [
+        {"render": function(data, type, row) {
+            return '<div class=""><a href="/'+row.project+'/data/datafile?'+
+                'path='+row.path+'&digest='+row.digest+'&creation='+row.creation+'" title="'+row.path+'">'+
+                '<img src="/data/'+row.datastore+'?path='+row.path+'&digest='+row.digest+'&creation='+row.creation+
+                '" style="width:250px">  </a></div>'
+        }, "targets": [1]},                                                     // image
+        {"render": function(data, type, row) {
+            return '<a href="/'+row.project+'/'+data+'/">'+data+'</a>'
+        }, "targets": [2]},                                                     // record
+        {"render": function(data, type, row) {
+            if (data.length < 200) {
+                return data
+            } else {
+                return '<span title="'+data+'">'+data.slice(0,200)+'...</span>'
+            }
+        }, "targets": [3,4]},                                                   // reason,outcome
+        {"render": function(data, type, row) {
+            if (data.length == 0) {
+                return ''
+            } else {
+                tags = data.split(',')
+                tags_button = []
+                for (var i in tags) {
+                    tags_button.push('<button class="btn btn-default btn-xs tag '+(selected_tag==tags[i]? 'active' : '')+'" value="'+tags[i]+'">'+tags[i]+'</button>')
+                }
+                return tags_button.join(' ')
+            }
+        }, "targets": [5]},                                                     // tags
+    ]
+
+    var table = $('#images-table').DataTable({
+        "processing":       true,
+        "serverSide":       true,
+        "info":             false,
+        "dom":              'ftlp',
+        "ajax": {
+            "url": "/{{project.id}}/datatable/image",
+            "data": function ( d ) {
+                d.tag = selected_tag;
+            }
+        },
+        "columns": [
+            { "data": "date" },
+            { "data": "image" },
+            { "data": "record" },
+            { "data": "reason" },
+            { "data": "outcome" },
+            { "data": "tags" },
+            // { "data": "parameters" },
+        ],
+        "order":            [[ 0, "desc" ]],
+        "columnDefs":       columnDefs,
+        "fnPreDrawCallback": function (oSettings) {
+              // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
+              if ($('#thumbs_container').length < 1) {$('#thumbgrid').append("<div id='thumbs_container' class='row'></div>");}
+              $('#thumbs_container').html('');                  // clear out the thumbs container
+              return true
+          },
+        "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
+            $('#thumbs_container').append('<div class="thumb"><div class="thumbnail">' +
+                '<a href=/"'+aData.project+'/data/datafile?path='+aData.path+'&digest='+aData.digest+'&creation='+aData.date+'">' +
+                '<img src="/data/'+aData.datastore+'?path='+aData.path+'&digest='+aData.digest+'&creation='+aData.creation+'">' +
+                '</a></div></div>');
+            $('.thumb').addClass(thumbgrid_view);
+            return nRow
+        },
+    });
+
+    $('#thumbgrid-view').on('click', function() {
+        $(this).addClass('active').siblings().removeClass('active')
+        $('#images-table').addClass('hidden')
+        thumbgrid_view = 'col-md-3 col-sm-4 col-xs-6'
+        $('.thumb').removeClass().addClass('thumb').addClass(thumbgrid_view)
+        $('#thumbgrid').removeClass('hidden')
+    })
+
+    $('#thumbgrid-view-large').on('click', function() {
+        $(this).addClass('active').siblings().removeClass('active')
+        $('#images-table').addClass('hidden')
+        thumbgrid_view = 'col-md-6 col-sm-12'
+        $('.thumb').removeClass().addClass('thumb').addClass(thumbgrid_view)
+        $('#thumbgrid').removeClass('hidden')
+    })
+
+    $('#image-table-view').on('click', function() {
+        $(this).addClass('active').siblings().removeClass('active')
+        $('#images-table').removeClass('hidden')
+        $('#thumbgrid').addClass('hidden')
+    })
+
+    /* select tag from dropdown menu */
+    $('.tag').on('click', function () {
+        $('#tagList a').removeClass('selected');
+        $('#tag-label').html('');
+        $('button.tag').removeClass("active");
+        var tag = $(this).attr('value');
+        console.log(tag)
+        if ( tag == selected_tag || tag == 'null') {
+            selected_tag = null
+        } else {
+            selected_tag = tag;
+            $('#tagList a.tag[value='+ selected_tag+']').addClass('selected');
+            $('#tag-label').html(selected_tag);
+            $('button.tag[value='+ selected_tag+']').addClass("active");
+        }
+        table.draw();
+    });
+} );
+    </script>
+{% endblock %}
