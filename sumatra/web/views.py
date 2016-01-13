@@ -21,13 +21,14 @@ except ImportError:  # older versions of Django
     MonthArchiveView = object
 
 import json
-import os.path
+import os
 from django.views.generic import View, DetailView, TemplateView
 from django.db.models import Q
 from tagging.models import Tag
 from sumatra.recordstore.serialization import datestring_to_datetime
 from sumatra.recordstore.django_store.models import Project, Record, DataKey, Datastore
 from sumatra.records import RecordDifference
+from sumatra.versioncontrol import get_working_copy
 
 DEFAULT_MAX_DISPLAY_LENGTH = 10 * 1024
 global_conf_file = os.path.expanduser(os.path.join("~", ".smtrc"))
@@ -213,6 +214,60 @@ class DataDetailView(DetailView):
         return template_name
 
 
+class ImageListView(ListView):
+    context_object_name = 'data_keys'
+    template_name = 'image_list.html'
+
+    def get_queryset(self):
+        return DataKey.objects \
+            .filter(output_from_record__project_id=self.kwargs["project"]) \
+            .filter(metadata__contains='image')
+
+    def get_context_data(self, **kwargs):
+        context = super(ImageListView, self).get_context_data(**kwargs)
+        context['project'] = Project.objects.get(pk=self.kwargs["project"])
+        context['tags'] = Tag.objects.all()  # would be better to filter, to return only tags used in this project.
+        return context
+
+
+def image_thumbgrid(request, project):
+    project_obj = Project.objects.get(id=project)
+    if request.is_ajax():
+        offset = int(request.GET.get('offset',0))
+        limit = int(request.GET.get('limit',8))
+        selected_tag = request.GET.get('selected_tag', 'None')
+        if selected_tag != 'None':
+            record_all = Record.objects.filter(project_id=project, tags__contains=selected_tag)
+        else:
+            record_all = Record.objects.filter(project_id=project)
+
+        data = []
+        for record in record_all:
+            tags = [tag.name for tag in record.tag_objects()]
+            for data_key in record.output_data.filter(metadata__contains='image'):
+                data.append({
+                    'project_name':     project_obj.id,
+                    'label':            record.label,
+                    'main_file':        record.main_file,
+                    'repos_url':        record.repository.url,
+                    'version':          record.version,
+                    'reason':           record.reason,
+                    'outcome':          record.outcome,
+                    'tags':             tags,
+                    'datastore_id':     data_key.output_from_record.datastore.id,
+                    'path':             data_key.path,
+                    'creation':         data_key.creation.strftime('%Y-%m-%d %H:%M:%S'),
+                    'digest':           data_key.digest
+                })
+        if limit != -1:
+            return HttpResponse(json.dumps(data[offset:offset+limit]), content_type='application/json')
+        else:
+            return HttpResponse(json.dumps(data), content_type='application/json')
+    else:
+        tags = Tag.objects.all()
+        return render_to_response('image_thumbgrid.html', {'project':project_obj, 'tags':tags})
+
+
 def parameter_list(request, project):
     project_obj = Project.objects.get(id=project)
     main_file = request.GET.get('main_file', None)
@@ -267,6 +322,17 @@ def show_content(request, datastore_id):
     except (IOError, KeyError):
         raise Http404
     return HttpResponse(content, content_type=mimetype or "application/unknown")
+
+
+def show_script(request, project, label):
+    """ get the script content from the repos """
+    record = Record.objects.get(label=label, project__id=project)
+    wc = get_working_copy(os.getcwd())
+    if record.repository.url == wc.path:
+        file_content = wc.content(record.version, file=record.main_file)
+    else:
+        raise Http404
+    return HttpResponse('<p><span style="font-size: 16px; font-weight:bold">'+record.main_file+'</span><br><span>'+record.version+'</span></p><hr>'+file_content.replace(' ','&#160;').replace('\n', '<br />'))
 
 
 def compare_records(request, project):

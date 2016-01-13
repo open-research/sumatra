@@ -39,6 +39,7 @@
 <div class="btn-group" role="group">
     <button type="button" class="btn btn-primary">Record View</button>
     <a type="button" class="btn btn-default" href="/{{project.id}}/data/">Data View</a>
+    <a type="button" class="btn btn-default" href="/{{project.id}}/image/">Image View</a>
     <a type="button" class="btn btn-default" href="/{{project.id}}/about/">About</a>
 </div>
 
@@ -97,7 +98,7 @@
         <td>{{record.duration|human_readable_duration}}</td>
         <td>{{record.launch_mode.get_parameters.n|default:"1"}}</td>
         <td>{{record.executable.name}} {{record.executable.version}}</td>
-        <td>{{record.main_file|ubreak}}</td>
+        <td><a target="script_content" onclick="window.open('/{{project.id}}/{{record.label}}/script','script_content','width=640,height=600,scrollbars=yes,resizable=yes')"><span class="glyphicon glyphicon-file"></span></a> {{record.main_file|ubreak}}</td>
         <td>{{record.version|cut:"vers"|truncatechars:10}}{% if record.diff %}*{% endif %}</td>
         <td>{{record.script_arguments}}</td>
         <td>{{record.tags}}</td>
