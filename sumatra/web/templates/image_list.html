@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% load filters %}
+
+{% block title %}{{project.id}}: List of data files{% endblock %}
+
+{% block css %}
+    <link href="/static/css/dataTables.bootstrap.css" rel="stylesheet">
+{% endblock %}
+
+{% block navbar %}
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button">
+                    <span class="glyphicon glyphicon-tag"></span> <span id="tag-label">Tag</span> <span class="caret"></span></a>
+                <ul class="dropdown-menu" role="menu" id="tagList">
+                    {% if tags %}
+                        {% for tag in tags %}
+                        <li id="id_tag_{{tag.name}}"><a data-target="#" value="{{tag.name}}" class="tag">{{tag.name}}</a></li>
+                        {% endfor %}
+                        <li role="presentation" class="divider"></li>
+                        <li ><a data-target="#" value="null" class="tag"><i>clear selection</i></a></li>
+                    {% else %}
+                    <li role="presentation" class="dropdown-header">No tags defined.</li>
+                    {% endif %}
+                </ul>
+            </li>
+{% endblock %}
+
+{% block content %}
+
+{% if project.name %}
+<h3>{{project.name}}</h3>
+{% endif %}
+
+<div class="btn-group" role="group">
+    <a type="button" class="btn btn-default" href="/{{project.id}}/">Record View</a>
+    <a type="button" class="btn btn-default" href="/{{project.id}}/data/">Data View</a>
+    <button type="button" class="btn btn-primary">Image View</button>
+    <a type="button" class="btn btn-default" href="/{{project.id}}/about/">About</a>
+</div>
+
+<div role="group" class="pull-right" style="padding-left:2px">
+    <button class="btn btn-default btn-sm active"><span class="glyphicon glyphicon-th-list"></span></button>
+    <a href='/{{project.id}}/image/thumbgrid' type="button" class="btn btn-default btn-sm" id="layout">
+        <span class="glyphicon glyphicon-th"></span>
+    </a>
+</div>
+
+<table id="data-keys" class="table table-striped table-condensed" cellspacing="0" width="100%">
+    <thead>
+    <tr>
+      <th>Date/Time</th>
+      <th>Image</th>
+      <th>Output of</th>
+      <th>Reason</th>
+      <th>Outcome</th>
+      <!-- <th>Parameter</th> -->
+      <th>Tags</th>
+    </tr>
+    </thead>
+
+    <tbody>
+
+    {% for data_key in data_keys %}
+    <tr id="{{data_key.digest}}">
+        <td>
+            <span style='display:none;'>
+              <!-- hack for correct sorting -->
+                {{data_key.output_from_record.timestamp|date:"YmdHis"}}
+            </span>
+                {{data_key.output_from_record.timestamp|date:"d/m/Y H:i:s"}}
+        </td>
+        <td>
+            <a href="/{{project.id}}/data/datafile?path={{data_key.path|urlencode}}&digest={{data_key.digest}}&creation={{data_key.creation|date:"c"}}" title="{{data_key.path|urlencode}}">
+                <img src="/data/{{data_key.output_from_record.datastore.id}}?path={{data_key.path}}&digest={{data_key.digest}}&creation={{data_key.creation|date:"c"}}" style="width:250px">
+            </a>
+        </td>
+        <td>
+            <a href="/{{project.id}}/{{data_key.output_from_record.label}}/">
+                {{data_key.output_from_record.label|ubreak}}
+            </a>
+        </td>
+        <td title="{{data_key.output_from_record.reason}}">
+            {{data_key.output_from_record.reason|truncatechars:400 }}
+        </td>
+        <td title="{{data_key.output_from_record.outcome}}">
+            {{data_key.output_from_record.outcome|truncatechars:400 }}
+        </td>
+        <!-- <td>
+            {{data_key.output_from_record.parameters.to_sumatra }}
+        </td> -->
+        <td id="id_button_tags">
+            {% for tag in data_key.output_from_record.tag_objects %}
+                <button class="btn btn-default btn-xs tag" value="{{tag}}">{{tag}}</button>
+            {% endfor %}
+        </td>
+    </tr>
+    {% endfor %}
+
+    <tbody>
+</table>
+
+{% endblock %}
+
+{% block scripts %}
+    <script type="text/javascript" language="javascript" src="/static/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" language="javascript" src="/static/js/dataTables.bootstrap.js"></script>
+    <script type="text/javascript">
+
+/* filter by tag */
+var selected_tag = null;
+
+$.fn.dataTable.ext.search.push(
+    function( settings, data, dataIndex ) {
+        if (selected_tag) {
+        for (var i in settings.aoColumns) {
+            if (settings.aoColumns[i].sTitle == 'Tags') {
+                var tags = data[settings.aoColumns[i].idx].split(" ")
+            }
+        }
+        return tags.indexOf(selected_tag) > -1
+        }
+        return true;
+    }
+);
+
+$(document).ready(function() {
+    $('#nav-image').addClass('active');
+
+    var table = $('#data-keys').dataTable( {
+        "info": false,
+        "deferRender": true,
+        "dom": 'ftlp',
+        "order": [[ 0, "desc" ]]
+    } );
+
+    $('#data-keys tbody').on( 'click', 'tr', function () {
+        $(this).toggleClass('info');
+    } );
+    /* select tag from dropdown menu */
+    $('.tag').click(function () {
+        if ( selected_tag == $(this).attr('value') ) {
+            selected_tag = 'null';
+        } else {
+            selected_tag = $(this).attr('value');
+        }
+        $('#tagList li').removeClass('selected');
+        $('#tag-label').html('Tag');
+
+        if (selected_tag == 'null') {
+            selected_tag = null;
+        } else {
+            $("#tagList #id_tag_"+selected_tag).addClass('selected');
+            $('#tag-label').html(selected_tag);
+        }
+        table.fnDraw();
+        $('#id_button_tags .tag').removeClass("active");
+        $('#id_button_tags .tag[value='+ selected_tag+']').addClass("active");
+    });
+} );
+    </script>
+{% endblock %}

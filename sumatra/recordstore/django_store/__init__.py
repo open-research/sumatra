@@ -17,6 +17,8 @@ from builtins import object
 
 
 import os
+import shutil
+from warnings import warn
 from textwrap import dedent
 import imp
 import django.conf as django_conf
@@ -74,6 +76,10 @@ class DjangoConfiguration(object):
             db['ENGINE'] = 'django.db.backends.sqlite3'
             db['NAME'] = os.path.abspath(parse_result.path)
         return db
+
+    @property
+    def engine(self):
+        return self._settings['DATABASES']['default']['ENGINE']
 
     def add_database(self, uri):
         """
@@ -330,3 +336,22 @@ class DjangoRecordStore(RecordStore):
     @classmethod
     def accepts_uri(cls, uri):
         return uri[:8] == "postgres" or os.path.exists(uri) or os.path.exists(uri + ".db")
+
+    def backup(self):
+        """
+        Copy the database file
+        """
+        if 'sqlite3' in db_config.engine:
+            shutil.copy2(self._db_file, self._db_file + ".backup")
+        else:
+            warn("Cannot backup a PostgreSQL store directly.")
+
+    def remove(self):
+        """
+        Delete the database entirely.
+        """
+        self.backup()
+        if 'sqlite3' in db_config.engine:
+            os.remove(self._db_file)
+        else:
+            warn("Cannot remove a PostgreSQL store directly.")

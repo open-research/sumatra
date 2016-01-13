@@ -187,14 +187,24 @@ class TestSimpleParameterSet(unittest.TestCase):
         os.remove("test_file")
         os.remove("test_file.orig")
 
-    def test__update__should_only_accept_numbers_or_strings(self):
-        # could maybe allow lists of numbers or strings
+    def test__update__should_accept_basic_python_types(self):
         P = SimpleParameterSet("x = 2\ny = 3")
-        P.update({"z": "hello"})
-        self.assertEqual(P["z"], "hello")
-        P.update({"tumoltuae": 42})
-        self.assertEqual(P["tumoltuae"], 42)
-        self.assertRaises(TypeError, P.update, "bar", {})
+        param_values = [("z", "hello"),
+                        ("tumoltuae", 42),
+                        ("somelist", [1, 2, "a", "b"]),
+                        ("sometuple", (3, 4, "c")),
+                        ("foo", None),
+                        ("isittrue", False)]
+        for name, value in param_values:
+            P.update({name: value})
+            self.assertEqual(P[name], value)
+
+    def test__update__should_not_accept_complex_types(self):
+        class CustomClass(object):
+            pass
+        P = SimpleParameterSet("x = 2\ny = 3")
+        self.assertRaises(TypeError, P.update, "somedict", {})
+        self.assertRaises(TypeError, P.update, "someclass", CustomClass())
 
     def test__update_kwargs(self):
         P = SimpleParameterSet("x = 2\ny = 3")

@@ -227,3 +227,15 @@ class HttpRecordStore(RecordStore):
     @classmethod
     def accepts_uri(cls, uri):
         return uri[:4] == "http"
+
+    def backup(self):
+        """
+        Copy the database file
+        """
+        warn("Cannot backup a remote record store directly. Contact the record store administrator")
+
+    def remove(self):
+        """
+        Delete the database entirely.
+        """
+        warn("Cannot remove a remote record store directly. Contact the record store administrator")

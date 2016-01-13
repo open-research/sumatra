@@ -616,8 +616,7 @@ def upgrade(argv):
 
     # backup and remove .smt
     import shutil
-    backup_dir = project.backup()
-    shutil.rmtree(".smt")
+    backup_dir = project.backup(remove_original=True)
     # upgrade the project data
     os.mkdir(".smt")
     shutil.copy("%s/project_export.json" % backup_dir, ".smt/project")

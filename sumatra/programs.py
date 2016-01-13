@@ -48,6 +48,18 @@ version_pattern = re.compile(r'\b(?P<version>\d+(\.\d+){1,2}(\.?[a-z]+\d?)?)\b')
 version_pattern_matlab = re.compile(r'(?<=SMT_DETECT_MATLAB_VERSION=)(?P<version>\d.+)\b')
 
 
+def version_in_command_line_output(command_line_output, pattern=version_pattern):
+    """Searches and returns version string in command line output.
+
+    Returns "unknown" if no version could be found.
+    """
+    match = pattern.search(command_line_output)
+    if match:
+        return match.groupdict()['version']
+    else:
+        return "unknown"
+
+
 @component_type
 class Executable(object):
     # store compilation/configuration options? yes, if we can determine them
@@ -95,12 +107,7 @@ class Executable(object):
     def _get_version(self):
         returncode, output, err = run("%s --version" % self.path,
                                       shell=True, timeout=5)
-        match = version_pattern.search(output + err)
-        if match:
-            version = match.groupdict()['version']
-        else:
-            version = "unknown"
-        return version
+        return version_in_command_line_output(command_line_output=output + err)
 
     def __eq__(self, other):
         return type(self) == type(other) and self.path == other.path and self.name == other.name and self.version == other.version and self.options == other.options
@@ -148,7 +155,7 @@ class PythonExecutable(Executable):
     name = "Python"
     executable_names = ('python', 'python2', 'python3', 'python2.5',
                         'python2.6', 'python2.7', 'python3.1', 'python3.2',
-                        'python3.3', 'python3.4')
+                        'python3.3', 'python3.4', 'python3.5')
     file_extensions = ('.py',)
     default_executable_name = "python"
     requires_script = True
@@ -165,12 +172,10 @@ class MatlabExecutable(Executable):
     def _get_version(self):
         returncode, output, err = run("matlab -nodesktop -nosplash -nojvm -r \"disp(['SMT_DETECT_MATLAB_VERSION=' version()]);quit\"",
                                       shell=True)
-        match = version_pattern_matlab.search(output + err)
-        if match:
-            version = match.groupdict()['version']
-        else:
-            version = "unknown"
-        return version
+        return version_in_command_line_output(
+            command_line_output=output + err,
+            pattern=version_pattern_matlab
+        )
 
 
 @component
