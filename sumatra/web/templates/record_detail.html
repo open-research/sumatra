@@ -45,7 +45,7 @@
                 {% if not read_only %}
                 <button type="button" class="btn btn-xs pull-right" data-toggle="modal" data-target="#editTagsModal"><span class="glyphicon glyphicon-pencil"></span> Edit</button>
                 {% endif %}
-                {% for tag in record.tag_objects %}<span class="label label-default">{{tag.name}}</span> {% endfor %}</dd>
+                {% for tag in record.tag_objects %}{{tag.name|labelize_tag}} {% endfor %}</dd>
         </dl>
         {% if not read_only and not record.outcome %}
         <p><button type="button" class="btn btn-xs btn-success pull-right" data-toggle="modal" data-target="#editOutcomeModal"><span class="glyphicon glyphicon-plus"></span> Add outcome</button></p>
@@ -383,6 +383,35 @@
   </div> <!-- modal-dialog -->
 </div> <!-- modal -->
 
+<div class="modal fade" id="editStatusModal">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Status</h4>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <select id="status">
+            {% with "initialized pre_run running finished failed killed succeeded crashed" as statuses %}
+              {% for status in statuses.split %}
+                <option value={{status}} 
+                {% if status == record.status %}selected="selected"{% endif %}>
+                  {{status|title}}
+                </option>
+              {% endfor %}  
+            {% endwith %}
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="saveStatus">Save</button>
+      </div>
+    </div> <!-- modal-content -->
+  </div> <!-- modal-dialog -->
+</div> <!-- modal -->
+
 <div class="modal fade" id="deleteModal">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -461,6 +490,22 @@ $(document).ready(function() {
             type: 'POST',
             url: '.',
             data: {'tags': $('#tag_list').val()},
+            success: function() {
+                success = true;
+            },
+            async: false
+        });
+        if (success) {
+            window.open('.','_self');
+        };
+    });
+
+    /* Save status */
+    $('#saveStatus').click(function() {
+        $.ajax({
+            type: 'POST',
+            url: '.',
+            data: {'status': $('#status').val()},
             success: function() {
                 success = true;
             },
