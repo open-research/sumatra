@@ -3,7 +3,9 @@ Getting support
 ===============
 
 If you have a question about, or problems with using Sumatra, please post a
-message on either the sumatra-users_ or neuralensemble_ Google Groups.
+message on either the sumatra-users_ or neuralensemble_ Google Groups. If
+you think you have found a bug you can post it on the Github `issue tracker`_.
 
 .. _sumatra-users: https://groups.google.com/forum/#!forum/sumatra-users
 .. _neuralensemble: https://groups.google.com/forum/#!forum/neuralensemble
+.. _issue tracker: https://github.com/open-research/sumatra/issues
