@@ -151,6 +151,9 @@ class MockRecord(object):
     def difference(r1, r2, igm, igf):
         return ""
 
+    def add_tag(self, tag):
+        self.tags.add(tag)
+
 
 class MockDatastore(object):
 
