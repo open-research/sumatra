@@ -106,7 +106,7 @@ class Executable(BaseModel):
 class Dependency(BaseModel):
     name = models.CharField(max_length=50)
     path = models.CharField(max_length=200)
-    version = models.CharField(max_length=20)
+    version = models.CharField(max_length=40)
     diff = models.TextField(blank=True)
     source = models.CharField(max_length=200, null=True, blank=True)
     module = models.CharField(max_length=50)  # should be called language, or something
