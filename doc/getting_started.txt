@@ -61,7 +61,7 @@ use the ``--long`` option::
     Launch_Mode      : serial
     Output_Data      : [example2.dat(43a47cb379df2a7008fdeb38c6172278d000fdc4)]
     User             : Arthur Dent <dent@example.com>
-    Tags             :
+    Tags             : _finished_
     Repeats          : None
     
 (most options also have a short form, ``-l`` in this case.)
@@ -125,6 +125,21 @@ and remove tags::
 
     $ smt tag --remove barfoo
 
+During the execution of ``smt run``, the tag will be automatically marked
+with a status that progresses through ``_initialized_``, ``_pre_run_``, and
+``_running_``. Upon completion, status will be set to ``_finished_`` or
+``_failed_``. If the status is ``_failed_``, the outcome field will reflect
+the return code. If you terminate the run early with ``control-C``, the
+status will be ``_killed_``. You can manually assign the status of a
+simulation record::
+
+    $ smt tag _succeeded_
+    $ smt tag _crashed_
+
+Any of the preceeding status codes may be assigned manually, but
+``_succeeded_`` and ``_crashed_`` will never be assigned automatically, as
+they are somewhat in the eye of the beholder.
+
 The parameter file may be in any format - it is your script which is responsible
 for reading it. However, if it is in one of the :doc:`formats that Sumatra understands <parameter_files>`
 then it is possible to modify parameter values
@@ -180,6 +195,7 @@ available by running ``smt`` by itself::
       upgrade
       sync
       migrate
+      version
 
 
 and help on a given command is available by running the command with the ``--help``

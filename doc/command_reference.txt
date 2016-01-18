@@ -401,16 +401,18 @@ tag
 ::
 
     usage: smt tag [options] TAG [LIST]
-    
+
     If TAG contains spaces, it must be enclosed in quotes. LIST should be a space-
     separated list of labels for individual records. If it is omitted, only the
     most recent record will be tagged. If the '-r/--remove' option is set, the tag
-    will be removed from the records.
-    
+    will be removed from the records. TAG can be a status from the mutually
+    exclusive list: _initialized_, _pre_run_, _running_, _finished_, _failed_,
+    _killed_, _succeeded_, _crashed_.
+
     positional arguments:
       TAG           tag to add
       LIST          a space-separated list of records to be tagged
-    
+
     optional arguments:
       -h, --help    show this help message and exit
       -r, --remove  remove the tag from the record(s), rather than adding it.
@@ -437,4 +439,3 @@ version
     
     optional arguments:
       -h, --help  show this help message and exit
-
