@@ -202,8 +202,12 @@ class Project(object):
                         on_changed=self.on_changed,
                         input_datastore=self.input_datastore,
                         timestamp_format=timestamp_format)
+
+        self.add_record(record)
+
         if not isinstance(executable, programs.MatlabExecutable):
             record.register(working_copy)
+
         return record
 
     def launch(self, parameters={}, input_data=[], script_args="",
@@ -214,12 +218,15 @@ class Project(object):
         record = self.new_record(parameters, input_data, script_args,
                                  executable, repository, main_file, version,
                                  launch_mode, label, reason, timestamp_format)
-        record.run(with_label=self.data_label)
+
+        record.run(with_label=self.data_label, project=self)
+
         if 'matlab' in record.executable.name.lower():
             record.register(record.repository.get_working_copy())
         if repeats:
             record.repeats = repeats
-        self.add_record(record)
+        self.save_record(record)
+        logger.debug("Record saved @ completion.")
         self.save()
         return record.label
 
@@ -258,15 +265,19 @@ class Project(object):
         sleep_seconds = 5
         while not success and cnt < max_tries:
             try:
-                self.record_store.save(self.name, record)
+                self.save_record(record)
                 success = True
                 self._most_recent = record.label
+                logger.debug("Created record: %s" % self.most_recent())
             except (django.db.utils.DatabaseError, sqlite3.OperationalError):
                 print("Failed to save record due to database error. Trying again in {0} seconds. (Attempt {1}/{2})".format(sleep_seconds, cnt, max_tries))
                 time.sleep(sleep_seconds)
                 cnt += 1
         if cnt == max_tries:
             print("Reached maximum number of attempts to save record. Aborting.")
+            
+    def save_record(self, record):
+        self.record_store.save(self.name, record)
 
     def get_record(self, label):
         """Search for a record with the supplied label and return it if found.
@@ -319,17 +330,17 @@ class Project(object):
             record.outcome = comment
         else:
             record.outcome = record.outcome + "\n" + comment
-        self.record_store.save(self.name, record)
+        self.save_record(record)
 
     def add_tag(self, label, tag):
         record = self.record_store.get(self.name, label)
-        record.tags.add(tag)
-        self.record_store.save(self.name, record)
+        record.add_tag(tag)
+        self.save_record(record)
 
     def remove_tag(self, label, tag):
         record = self.record_store.get(self.name, label)
         record.tags.remove(tag)
-        self.record_store.save(self.name, record)
+        self.save_record(record)
 
     def compare(self, label1, label2, ignore_mimetypes=[], ignore_filenames=[]):
         record1 = self.record_store.get(self.name, label1)
