@@ -106,23 +106,21 @@ class GitWorkingCopy(WorkingCopy):
     def content(self, digest, file=None):
         """Get the file content from repository."""
         repo = git.Repo(self.path)
-        for item in repo.iter_commits('master'):
-            if item.hexsha == digest:
-                curtree = item.tree
-                if file is None:
-                    return curtree.blobs[0].data_stream.read() # Get the latest added file content.
-                dirname,filename = os.path.split(file)
-                if dirname != '':
-                    for dname in dirname.split(os.path.sep):
-                        for subtree in curtree.trees:
-                            if subtree.name == dname:
-                                curtree = subtree
-                                break
-                for blob in curtree.blobs:
-                    if blob.name == filename:
-                        expected_encoding = sys.getfilesystemencoding()
-                        file_content = blob.data_stream.read().decode(expected_encoding)
-                        return file_content
+        curtree = repo.commit(digest).tree
+        if file is None:
+            return curtree.blobs[0].data_stream.read() # Get the latest added file content.
+        dirname, filename = os.path.split(file)
+        if dirname != '':
+            for dname in dirname.split(os.path.sep):
+                for subtree in curtree.trees:
+                    if subtree.name == dname:
+                        curtree = subtree
+                        break
+        for blob in curtree.blobs:
+            if blob.name == filename:
+                expected_encoding = sys.getfilesystemencoding()
+                file_content = blob.data_stream.read().decode(expected_encoding)
+                return file_content
         return 'File content not found.'
 
     def contains(self, path):
