@@ -58,7 +58,9 @@
 {% if record.outcome %}
 <div class="panel panel-default">
     <div class="panel-heading">
+        {% if not read_only %}
         <button type="button" class="btn btn-xs pull-right" data-toggle="modal" data-target="#editOutcomeModal"><span class="glyphicon glyphicon-pencil"></span> Edit</button>
+        {% endif %}
         <h4 class="panel-title">
             <a data-toggle="collapse" href="#outcome-panel">Outcome</a>
         </h4>

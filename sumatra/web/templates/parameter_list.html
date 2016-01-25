@@ -29,6 +29,14 @@
 <h3>{{project.name}}</h3>
 {% endif %}
 
+<div class="btn-group" role="group">
+    <a type="button" class="btn btn-default" href="/{{project.id}}/">Record View</a>
+    <a type="button" class="btn btn-default" href="/{{project.id}}/data/">Data View</a>
+    <a type="button" class="btn btn-default" href="/{{project.id}}/image/">Image View</a>
+    <button type="button" class="btn btn-primary">Parameter View</button>
+    <a type="button" class="btn btn-default" href="/{{project.id}}/about/">About</a>
+</div>
+
 {% if main_file %}
     <table id="records" class="table table-striped table-condensed" cellspacing="0" width="100%">
         <thead>
@@ -60,7 +68,8 @@
                         </span>
                         {{record.timestamp|date:"d/m/Y H:i:s"}}
                     </td>
-                    <td><a target="script_content" onclick="window.open('/script?digest={{record.version}}&main_file={{record.main_file}}','{{record.version}}','width=640,height=600,scrollbars=yes,resizable=yes')">
+                    <td><a target="script_content" style='cursor:pointer'
+                        onclick="window.open('/{{project.id}}/{{record.label}}/script','script_content','width=640,height=600,scrollbars=yes,resizable=yes')">
                         <span class="glyphicon glyphicon-file"></span></a> {{ record.version|truncatechars:12 }}</td>
                     {% for key in keys %}
                         <td>{{ record.parameters.to_sumatra|get_item:key }}</td>
