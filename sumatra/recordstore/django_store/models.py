@@ -12,15 +12,16 @@ from builtins import object
 import json
 from django.db import models
 from sumatra import programs, launch, datastore, records, versioncontrol, parameters, dependency_finder
+from sumatra.datastore import get_data_store
+import datetime
+import django
+from distutils.version import LooseVersion
+from sumatra.core import get_registered_components
 import warnings
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     import tagging.fields
     from tagging.models import Tag
-import datetime
-import django
-from distutils.version import LooseVersion
-from sumatra.core import get_registered_components
 
 
 class SumatraObjectsManager(models.Manager):
@@ -181,9 +182,9 @@ class Datastore(BaseModel):
 
     def to_sumatra(self):
         parameters = eval(self.parameters)
-        if hasattr(datastore, self.type):
-            ds = getattr(datastore, self.type)(**parameters)
-        else:
+        try:
+            ds = get_data_store(self.type, parameters)
+        except KeyError:
             raise Exception("Unknown datastore type '%s' stored in database" % self.type)
         return ds
 
