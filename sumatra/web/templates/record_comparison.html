@@ -91,6 +91,25 @@
         </div>
         {% endif %}
 
+        {% ifequal diff.recordA.main_file diff.recordB.main_file %}
+        <hr>
+        <div class="row">
+            <div class="col-md-6">
+                {% for change,line in diff.recordA_script_content_diff %}
+                <div style="background-color:{% if change == '+' %}YellowGreen{% elif change == '-' %}Salmon{% endif %}">
+                    <span style="display: inline-block; width:30px">{{forloop.counter}}</span> {{ line }} </div>
+                {% endfor %}
+            </div>
+            <div class="col-md-6">
+                {% for change,line in diff.recordB_script_content_diff %}
+                <div style="background-color:{% if change == '+' %}YellowGreen{% elif change == '-' %}Salmon{% endif %}">
+                    <span style="display: inline-block; width:30px">{{forloop.counter}}</span> {{ line }} </div>
+                {% endfor %}
+            </div>
+        </div>
+        <hr>
+        {% endifequal %}
+
         {% if diff.diff_differs %}
         <div class="row">
             <div class="col-md-6">

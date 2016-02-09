@@ -28,7 +28,6 @@ from tagging.models import Tag
 from sumatra.recordstore.serialization import datestring_to_datetime
 from sumatra.recordstore.django_store.models import Project, Record, DataKey, Datastore
 from sumatra.records import RecordDifference
-from sumatra.versioncontrol import get_working_copy
 
 DEFAULT_MAX_DISPLAY_LENGTH = 10 * 1024
 global_conf_file = os.path.expanduser(os.path.join("~", ".smtrc"))
@@ -327,10 +326,8 @@ def show_content(request, datastore_id):
 def show_script(request, project, label):
     """ get the script content from the repos """
     record = Record.objects.get(label=label, project__id=project)
-    wc = get_working_copy(os.getcwd())
-    try:
-        file_content = wc.content(record.version, file=record.main_file)
-    except:
+    file_content = record.to_sumatra().script_content
+    if not file_content:
         raise Http404
     return HttpResponse('<p><span style="font-size: 16px; font-weight:bold">'+record.main_file+'</span><br><span>'+record.version+'</span></p><hr>'+file_content.replace(' ','&#160;').replace('\n', '<br />'))
 
