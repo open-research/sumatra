@@ -43,9 +43,9 @@ def main(argv):
                               os.path.join(root_dir, "templates"),)
     settings.INSTALLED_APPS = list(settings.INSTALLED_APPS) + ['sumatra.web']
     settings.MIDDLEWARE_CLASSES = tuple()
-    
+
     management.call_command('shell')
-    
+
 
 if __name__ == "__main__":
     main(sys.argv[1:])
