@@ -328,9 +328,9 @@ def show_script(request, project, label):
     """ get the script content from the repos """
     record = Record.objects.get(label=label, project__id=project)
     wc = get_working_copy(os.getcwd())
-    if record.repository.url == wc.path:
+    try:
         file_content = wc.content(record.version, file=record.main_file)
-    else:
+    except:
         raise Http404
     return HttpResponse('<p><span style="font-size: 16px; font-weight:bold">'+record.main_file+'</span><br><span>'+record.version+'</span></p><hr>'+file_content.replace(' ','&#160;').replace('\n', '<br />'))
 
