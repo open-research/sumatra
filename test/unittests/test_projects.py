@@ -191,6 +191,10 @@ class MockRecordStore(object):
     def backup(self):
         pass
 
+    def labels(self, project_name, tags=None):
+        return [self.get(project_name, 'foo_label').label,
+            self.get(project_name, 'bar_label').label]
+
 
 class TestProject(unittest.TestCase):
 

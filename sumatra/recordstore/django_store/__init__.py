@@ -279,8 +279,14 @@ class DjangoRecordStore(RecordStore):
             raise Exception(errmsg)
         return records
 
-    def labels(self, project_name):
-        return [record.label for record in self._manager.filter(project__id=project_name)]
+    def labels(self, project_name, tags=None):
+        db_records = self._manager.filter(project__id=project_name).select_related()
+        if tags:
+            if not hasattr(tags, "__len__"):
+                tags = [tags]
+            for tag in tags:
+                db_records = db_records.filter(tags__contains=tag)
+        return [db_record.label for db_record in db_records]
 
     def delete(self, project_name, label):
         db_record = self._manager.get(label=label, project__id=project_name)
