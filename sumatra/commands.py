@@ -292,7 +292,7 @@ def configure(argv):
     if args.on_changed:
         project.on_changed = args.on_changed
     if args.addlabel:
-        if args.addlabel == 'none':
+        if args.addlabel in ('none', 'None', 'NONE'):
             project.data_label = None
         else:
             project.data_label = args.addlabel
