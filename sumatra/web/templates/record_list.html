@@ -244,7 +244,7 @@ $(document).ready(function() {
         //alert( table.rows('.info').data()[0] +' row(s) selected');
         var success = false;
         var includeData = function(){
-            if ($('#is_data').attr('checked')) {
+            if ($('#is_data').prop('checked')) {
                 return true;
             } else {
                 return false;
