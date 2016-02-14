@@ -49,6 +49,8 @@ def main(argv):
                       help="do not open browser")
     parser.add_option('-r', '--read_only', default=False, action="store_true",
                       help="set read-only mode")
+    parser.add_option('-s', '--serverside', default=False, action="store_true",
+                      help="load website faster, recommended for large dataset")
     (options, args) = parser.parse_args(argv)
 
     if args:
@@ -69,7 +71,8 @@ def main(argv):
         TEMPLATE_DIRS=(os.path.join(os.getcwd(), ".smt", "templates"),
                        os.path.join(root_dir, "templates"),),
         MIDDLEWARE_CLASSES=tuple(),
-        READ_ONLY = options.read_only
+        READ_ONLY = options.read_only,
+        SERVERSIDE = options.serverside,
     )
 
     db_config.configure()

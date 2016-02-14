@@ -11,7 +11,11 @@
 {% block navbar %}
             <li><a href="#">{{project.id}}</a></li>
             <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"><span class="glyphicon glyphicon-tag"></span> <span class="caret"></span></a>
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button">
+                    <span class="glyphicon glyphicon-tag"></span>
+                    <span id="tag-label"></span>
+                    <span class="caret"></span>
+                </a>
                 <ul class="dropdown-menu" role="menu" id="tagList">
                     {% if tags %}
                         {% for tag in tags %}
@@ -40,7 +44,6 @@
     <button type="button" class="btn btn-primary">Record View</button>
     <a type="button" class="btn btn-default" href="/{{project.id}}/data/">Data View</a>
     <a type="button" class="btn btn-default" href="/{{project.id}}/image/">Image View</a>
-    <a type="button" class="btn btn-default" href="/{{project.id}}/parameter">Parameter View</a>
     <a type="button" class="btn btn-default" href="/{{project.id}}/about/">About</a>
 </div>
 
@@ -54,60 +57,25 @@
 <table id="records" class="table table-striped table-condensed" cellspacing="0" width="100%">
 <!-- <table id="records" class="display" cellspacing="0" width="100%"> -->
     <thead>
-    <tr>
-        <th>Label</th>
-        <th>Date/Time</th>
-        <th>Reason</th>
-        <th>Outcome</th>
-        <th>Input&nbsp;data</th>
-        <th>Output&nbsp;data</th>
-        <th>Duration</th>
-        <th>Processes</th>
-        <th>Executable</th>
-        <th>Main</th>
-        <th>Version</th>
-        <th>Arguments</th>
-        <th>Tags</th>
-    </tr>
+        <tr>
+            <th>Label</th>
+            <th>Date/Time</th>
+            <th>Reason</th>
+            <th>Outcome</th>
+            <th>Input&nbsp;data</th>
+            <th>Output&nbsp;data</th>
+            <th>Duration</th>
+            <th>Processes</th>
+            <th>Executable</th>
+            <th>Main</th>
+            <th>Version</th>
+            <th>Arguments</th>
+            <th>Tags</th>
+        </tr>
     </thead>
 
     <tbody>
-    {% for record in records %}
-    <tr id='{{record.label}}'>
-        <td><a href="/{{project.id}}/{{record.label}}/">{{record.label|ubreak}}</a></td>
-        <td>
-        <span style='display:none;'>
-          <!-- hack for correct sorting -->
-          {{record.timestamp|date:"YmdHis"}}
-        </span>
-            {{record.timestamp|date:"d/m/Y H:i:s"}}
-        </td>
-        <td>{{record.reason|restructuredtext}}</td>
-        <td>{{record.outcome|restructuredtext}}</td>
-        <td>
-            {% for data in record.input_data.all %}
-            <a href="/{{project.id}}/data/datafile?path={{data.path|urlencode}}&digest={{data.digest}}&creation={{data.creation|date:"c"}}">
-                {{data.path|basename|ubreak}}</a>{% if not forloop.last %}, {% endif %}
-            {% endfor %}
-        </td>
-        <td>
-            {% for data in record.output_data.all %}
-            <a href="/{{project.id}}/data/datafile?path={{data.path|urlencode}}&digest={{data.digest}}&creation={{data.creation|date:"c"}}">
-                {{data.path|basename|ubreak}}</a>{% if not forloop.last %}, {% endif %}
-            {% endfor %}
-        </td>
-        <td>{{record.duration|human_readable_duration}}</td>
-        <td>{{record.launch_mode.get_parameters.n|default:"1"}}</td>
-        <td>{{record.executable.name}} {{record.executable.version}}</td>
-        <td><a target="script_content" style='cursor:pointer'
-            onclick="window.open('/{{project.id}}/{{record.label}}/script','script_content','width=640,height=600,scrollbars=yes,resizable=yes')">
-            <span class="glyphicon glyphicon-file"></span></a> {{record.main_file|ubreak}}</td>
-        <td>{{record.version|cut:"vers"|truncatechars:10}}{% if record.diff %}*{% endif %}</td>
-        <td>{{record.script_arguments}}</td>
-        <td>{{record.tags}}</td>
-    </tr>
-    {% endfor %}
-    <tbody>
+    </tbody>
 </table>
 
 {% endblock %}
@@ -185,20 +153,7 @@
 
 /* filter by tag */
 var selected_tag = null;
-
-$.fn.dataTable.ext.search.push(
-    function( settings, data, dataIndex ) {
-        if (selected_tag) {
-            var tags = data[12].split(', ');
-            if ( tags.indexOf(selected_tag) > -1 ) {
-                return true;
-            }
-            return false;
-        }
-        return true;
-    }
-);
-
+var selected = [];
 
 $(document).ready(function() {
     /* retrieve settings */
@@ -212,12 +167,12 @@ $(document).ready(function() {
             if (typeof hidden === "undefined" || hidden ===  null) {
                 hidden = [];
             }
-            console.log("hidden: " + hidden);
+            // console.log("hidden: " + hidden);
             columnDefs = [{
                 "targets": hidden,
                 "visible": false
             }];
-            console.log(columnDefs);
+            // console.log(columnDefs);
             hidden.forEach(function(col) {
                 $('#columnsToDisplay input[data-column="'+col+'"]')[0].checked=false;
             });
@@ -225,16 +180,97 @@ $(document).ready(function() {
         async: false
     });
 
+    // Column Renderer
+    columnDefs = columnDefs.concat([
+        {"render": function(data, type, row) {
+            return '<a href="/'+row.project+'/'+data+'/">'+data+'</a>';
+        }, "targets": [0]},                                                     // label
+        //  {"render": function(data, type, row) {
+        //     return '<span class="hidden">'+row.date_filter+'</span>'+data;
+        // }, "targets": [1]},                                                     // date
+        {"render": function(data, type, row) {
+            if (data.length < 20) {
+                return data
+            } else {
+                return '<span title="'+data+'">'+data.slice(0,20)+'...</span>'
+            }
+        }, "targets": [2,3]},                                                   // reason,outcome
+        {"render": function(data, type, row) {
+            var rendered_data = [];
+            for (var i=0;i<data.length;i++) {
+                rendered_data.push('<a href="/'+row.project+'/data/datafile?'+
+                    'path='+data[i].path+'&digest='+data[i].digest+
+                    '&creation='+data[i].creation+'">'+data[i].path+'</a>')
+            }
+            return rendered_data.join(' ');
+        }, "targets": [4,5]},                                                   // input data, output data
+        {"render": function(data, type, row) {
+            return data.toFixed(2)+'s';
+        }, "targets": [6]},                                                     // duration
+        {"render": function(data, type, row) {
+            return "<a target='script_content' onclick=window.open('/"+row.project+"/"+row.label+"/script','script_content','width=640,height=600,scrollbars=yes,resizable=yes') style='cursor:pointer'><span class='glyphicon glyphicon-file'></span></a> "+data;
+        }, "targets": [9]},                                                     // mainfile
+
+        {"render": function(data, type, row) {
+            return '<span title="'+data+'">'+data.slice(0,7) + row.diff +'</span>'
+        }, "targets": [10]},                                                    // version
+        {"render": function(data, type, row) {
+            if (data.length == 0) {
+                return ''
+            } else {
+                tags = data.split(',')
+                return '<button class="btn btn-default btn-xs tag">'+tags.join('</button> <button class="btn btn-default btn-xs tag">')+'</button>';
+            }
+        }, "targets": [12]},                                                    // tags
+    ])
+
     /* initialize DataTable */
     var table = $('#records').DataTable({
-        "info": false,
-        "dom": 'ftlp',
-        "order": [[ 1, "desc" ]],
-        "columnDefs": columnDefs
+        "processing":       true,
+        "serverSide":       true,
+        "info":             false,
+        "dom":              'ftlp',
+        "ajax": {
+            "url": "/{{project.id}}/datatable/record",
+            "data": function ( d ) {
+                d.tag = selected_tag;
+            }
+        },
+        "columns": [
+            { "data": "label" },
+            { "data": "date" },
+            { "data": "reason" },
+            { "data": "outcome" },
+            { "data": "input_data" },
+            { "data": "output_data" },
+            { "data": "duration" },
+            { "data": "processes" },
+            { "data": "executable" },
+            { "data": "main_file" },
+            { "data": "version" },
+            { "data": "arguments" },
+            { "data": "tags" },
+        ],
+        "order":            [[ 1, "desc" ]],
+        "columnDefs":       columnDefs,
+        "rowCallback": function( row, data ) {
+            if ( $.inArray(data.DT_RowId, selected) !== -1 ) {
+                $(row).addClass('info');
+            }
+        }
     });
 
     /* select rows when clicked */
     $('#records tbody').on('click', 'tr', function() {
+        var id = this.id;
+        var index = $.inArray(id, selected);
+
+        if ( index === -1 ) {
+            selected.push( id );
+        } else {
+            selected.splice( index, 1 );
+        }
+
         $(this).toggleClass('info');
     } );
 
@@ -250,18 +286,11 @@ $(document).ready(function() {
                 return false;
             };
         };
-        var deleteArr = new Array(); // records to delete
-
-        table.rows('.info').every( function() {
-            deleteArr.push(this.node().getAttribute('id'));
-            //console.log(this.node().getAttribute('id'));
-        });
-        console.log(deleteArr);
-
+        console.log(selected);
         $.ajax({
             type: 'POST',
             url: 'delete/',
-            data: {'delete': deleteArr,
+            data: {'delete': selected,
                    'delete_data': includeData()},
             success: function() {
                 success = true;
@@ -276,20 +305,15 @@ $(document).ready(function() {
 
     /* compare selected records */
     $('#compare').click(function() {
-        var compareArr = new Array();
-
-        table.rows('.info').every( function() {
-            compareArr.push(this.node().getAttribute('id'));
-        });
-        if (compareArr.length < 2) {
+        if (selected.length < 2) {
             //alert('Need at least two records to compare');
             $('#alertMessage').text('Need at least two records to compare.')
             $('#alert').modal();
-        } else if (compareArr.length > 2) {
+        } else if (selected.length > 2) {
             $('#alertMessage').text('Can only compare two records at a time.')
             $('#alert').modal();
         } else {
-            window.location.href = 'compare/?a=' + compareArr[0] + '&b=' + compareArr[1];
+            window.location.href = 'compare/?a=' + selected[0] + '&b=' + selected[1];
         }
     });
 
@@ -305,6 +329,7 @@ $(document).ready(function() {
             li.addClass('selected').siblings().removeClass('selected');
             selected_tag = target[0].textContent;
         };
+        $('#tag-label').html(selected_tag);
         table.draw();
     });
 

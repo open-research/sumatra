@@ -70,7 +70,7 @@ class ProjectDetailView(DetailView):
 
 class RecordListView(ListView):
     context_object_name = 'records'
-    template_name = 'record_list.html'
+    template_name = ['record_list.html','record_list_serverside.html'][django_settings.SERVERSIDE]
 
     def get_queryset(self):
         return Record.objects.filter(project__id=self.kwargs["project"]).order_by('-timestamp')
@@ -119,7 +119,7 @@ class RecordDetailView(DetailView):
 
 class DataListView(ListView):
     context_object_name = 'data_keys'
-    template_name = 'data_list.html'
+    template_name = ['data_list.html','data_list_serverside.html'][django_settings.SERVERSIDE]
 
     def get_queryset(self):
         return DataKey.objects.filter(Q(output_from_record__project_id=self.kwargs["project"]) |
@@ -216,7 +216,7 @@ class DataDetailView(DetailView):
 
 class ImageListView(ListView):
     context_object_name = 'data_keys'
-    template_name = 'image_list.html'
+    template_name = ['image_list.html','image_list_serverside.html'][django_settings.SERVERSIDE]
 
     def get_queryset(self):
         return DataKey.objects \
@@ -328,9 +328,9 @@ def show_script(request, project, label):
     """ get the script content from the repos """
     record = Record.objects.get(label=label, project__id=project)
     wc = get_working_copy(os.getcwd())
-    if record.repository.url == wc.path:
+    try:
         file_content = wc.content(record.version, file=record.main_file)
-    else:
+    except:
         raise Http404
     return HttpResponse('<p><span style="font-size: 16px; font-weight:bold">'+record.main_file+'</span><br><span>'+record.version+'</span></p><hr>'+file_content.replace(' ','&#160;').replace('\n', '<br />'))
 
@@ -430,3 +430,195 @@ class DiffView(TemplateView):
                         'parent_version': dependency.version,
                         'diff': dependency.diff})
         return context
+
+
+#
+# Ajax request for datatable
+#
+
+def datatable_record(request, project):
+    columns = ['label', 'timestamp', 'reason', 'outcome', 'input_data', 'output_data',
+     'duration', 'launch_mode', 'executable', 'main_file', 'version', 'script_arguments', 'tags']
+    selected_tag = request.GET['tag']
+    search_value = request.GET['search[value]']
+    order = int(request.GET['order[0][column]'])
+    order_dir = {'desc': '-', 'asc': ''}[request.GET['order[0][dir]']]
+    length = int(request.GET['length'])
+    start = int(request.GET['start'])
+    draw = int(request.GET['draw'])
+
+    records = Record.objects.filter(project__id=project)
+    recordsTotal = len(records)
+
+    # Filter by tag
+    if selected_tag != '':
+        records = records.filter(tags__contains=selected_tag)
+
+    # Filter by search queries
+    if search_value != '':
+        search_queries = search_value.split(' ')
+        for sq in search_queries:
+            records = records.filter(
+                Q(label__contains=sq) |
+                Q(timestamp__contains=sq) |
+                Q(reason__contains=sq) |
+                Q(outcome__contains=sq) |
+                Q(duration__contains=sq) |
+                Q(main_file__contains=sq) |
+                Q(version__contains=sq) |
+                Q(tags__contains=sq)
+                )
+    records = records.order_by(order_dir+columns[order])                        # Ordering
+
+    data = []
+    for rec in records[start:start+length]:
+        try:
+            data.append({
+                'DT_RowId':     rec.label,
+                'project':      project,
+                'label':        rec.label,
+                'date':         rec.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+                'reason':       rec.reason,
+                'outcome':      rec.outcome,
+                'input_data':   map(lambda x: {'path': x.path, 'digest': x.digest, 'creation': x.creation.strftime('%Y-%m-%dT%H:%M:%S')}, rec.input_data.all()),
+                'output_data':  map(lambda x: {'path': x.path, 'digest': x.digest, 'creation': x.creation.strftime('%Y-%m-%dT%H:%M:%S')}, rec.output_data.all()),
+                'duration':     rec.duration,
+                'processes':    rec.launch_mode.get_parameters().get('n',1),
+                'executable':   '%s %s' %(rec.executable.name,rec.executable.version),
+                'main_file':    rec.main_file,
+                'diff' :        rec.diff,
+                'version':      rec.version,
+                'arguments':    rec.script_arguments,
+                'tags':         rec.tags,
+            })
+        except:
+            pass
+
+    response_json = json.dumps({
+        "draw": draw,
+        "recordsTotal": recordsTotal,
+        "recordsFiltered": len(records),
+        "data": data
+        })
+
+    return HttpResponse(response_json,content_type="application/json")
+
+
+def datatable_data(request, project):
+    columns = ['path', 'path', 'digest', 'metadata', 'creation', 'output_from_record','input_to_records']
+    search_value = request.GET['search[value]']
+    order = int(request.GET['order[0][column]'])
+    order_dir = {'desc': '-', 'asc': ''}[request.GET['order[0][dir]']]
+    length = int(request.GET['length'])
+    start = int(request.GET['start'])
+    draw = int(request.GET['draw'])
+
+    datakeys = DataKey.objects.filter(output_from_record__project_id=project)
+    datakeysTotal = len(datakeys)
+
+    # Filter by search queries
+    if search_value != '':
+        search_queries = search_value.split(' ')
+        for sq in search_queries:
+            datakeys = datakeys.filter(
+                Q(path__contains=sq) |
+                Q(digest__contains=sq) |
+                Q(creation__contains=sq) |
+                Q(metadata__contains=sq)
+                )
+    datakeys = datakeys.order_by(order_dir+columns[order])                        # Ordering
+
+    data = []
+    for dk in datakeys[start:start+length]:
+        try:
+            data.append({
+                'DT_RowId':             dk.path,
+                'project':              project,
+                'path':                 dk.path,
+                'directory':            os.path.dirname(dk.path),
+                'filename':             os.path.basename(dk.path),
+                'digest':               dk.digest,
+                'size':                 dk.get_metadata()['size'],
+                # 'size':                 filters.filesizeformat(dk.get_metadata()['size']),
+                'creation':             dk.creation.strftime('%Y-%m-%d %H:%M:%S'),
+                'output_from_record':   dk.output_from_record.label,
+                'input_to_records':     map(lambda x: x.label, dk.input_to_records.all())
+            })
+        except:
+            pass
+
+    response_json = json.dumps({
+        "draw": draw,
+        "recordsTotal": datakeysTotal,
+        "recordsFiltered": len(datakeys),
+        "data": data
+        })
+
+    return HttpResponse(response_json,content_type="application/json")
+
+
+def datatable_image(request, project):
+    columns = ['creation', 'path', 'output_from_record__label', 'output_from_record__reason', 'output_from_record__outcome', 'output_from_record__tags']
+    selected_tag = request.GET['tag']
+    search_value = request.GET['search[value]']
+    order = int(request.GET['order[0][column]'])
+    order_dir = {'desc': '-', 'asc': ''}[request.GET['order[0][dir]']]
+    length = int(request.GET['length'])
+    start = int(request.GET['start'])
+    draw = int(request.GET['draw'])
+
+    images = DataKey.objects.filter(output_from_record__project_id=project, metadata__contains='image')
+    imagesTotal = len(images)
+
+    # Filter by tag
+    if selected_tag != '':
+        images = images.filter(output_from_record__tags__contains=selected_tag)
+
+    # Filter by search queries
+    if search_value != '':
+        search_queries = search_value.split(' ')
+        for sq in search_queries:
+            images = images.filter(
+                Q(path__contains=sq) |
+                Q(digest__contains=sq) |
+                Q(creation__contains=sq) |
+                Q(output_from_record__label__contains=sq) |
+                Q(output_from_record__reason__contains=sq) |
+                Q(output_from_record__outcome__contains=sq) |
+                Q(output_from_record__tags__contains=sq)
+                )
+    images = images.order_by(order_dir+columns[order])                        # Ordering
+
+    data = []
+    for im in images[start:start+length]:
+        try:
+            data.append({
+                'DT_RowId':     im.path,
+                'project':      project,
+                'date':         im.creation.strftime('%Y-%m-%d %H:%M:%S'),
+                'creation':     im.creation.strftime('%Y-%m-%dT%H:%M:%S'),
+                'path':         im.path,
+                'digest':       im.digest,
+                'datastore':    im.output_from_record.datastore.id,
+                'record':       im.output_from_record.label,
+                'reason':       im.output_from_record.reason,
+                'outcome':      im.output_from_record.outcome,
+                'parameters':   im.output_from_record.parameters.content,
+                'tags':         im.output_from_record.tags,
+                # 'href':         '/%s/data/datafile?path=%s&digest=%s&creation=%s' %(project,im.path,im.digest,im.creation.strftime('%Y-%m-%d %H:%M:%S')),
+                # 'src':          '/data/%s?path=%s&digest=%s&creation=%s' %(im.ouput_from_record.datastore.id, im.path, im.digest, im.creation.strftime('%Y-%m-%dT%H:%M:%S')),
+                # 'thumb':        '<a href="/{0}/data/datafile?path={2}&digest={3}&creation={4}" title="{2}"> \
+                #     <img src="/data/{1}?path={2}&digest={3}&creation={5}"></a>'.format(
+                #         project, im.output_from_record.datastore.id, im.path, im.digest, im.creation.strftime('%Y-%m-%d %H:%M:%S'), im.creation.strftime('%Y-%m-%dT%H:%M:%S')),
+            })
+        except:
+            pass
+
+    response_json = json.dumps({
+        "draw": draw,
+        "recordsTotal": imagesTotal,
+        "recordsFiltered": len(images),
+        "data": data
+        })
+
+    return HttpResponse(response_json,content_type="application/json")
