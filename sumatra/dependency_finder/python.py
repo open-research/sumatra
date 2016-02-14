@@ -205,7 +205,10 @@ def find_imported_packages(filename, executable_path, debug=0, exclude_stdlib=Tr
                         os.path.join(stdlib_path, "plat-mac", "lib-scriptpackages"))
         exclude_stdlib = %s
         finder = ModuleFinder(path=sys.path, debug=%d)
-        finder.run_script("%s")
+        try:
+            finder.run_script("%s")
+        except Exception as ex:
+            sys.stdout.write("Determining dependencies failed for some Python modules.")
         top_level_packages = {}
         for name, module in finder.modules.items():
             if module.__path__ and "." not in name:
