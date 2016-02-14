@@ -9,6 +9,7 @@ try:
     import unittest2 as unittest
 except ImportError:
     import unittest
+import distutils.spawn
 import sys
 import os
 try:
@@ -101,8 +102,9 @@ class TestModuleFunctions(unittest.TestCase):
         if os.path.exists("/usr/local/bin/nest"):
             prog = get_executable("/usr/local/bin/nest")
             assert isinstance(prog, NESTSimulator)
-        if os.path.exists("/usr/bin/Rscript"):
-            prog = get_executable("/usr/bin/Rscript")
+        rscript_path = distutils.spawn.find_executable('Rscript')
+        if rscript_path is not None:
+            prog = get_executable(rscript_path)
             assert isinstance(prog, RExecutable)
 
     def test__get_executable__with_path_of_unregistered_executable(self):
