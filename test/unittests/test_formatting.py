@@ -200,7 +200,7 @@ class TestLaTeXFormatter(unittest.TestCase):
         if get_executable("pdflatex").path == "pdflatex":  # pdflatex not found
             raise unittest.SkipTest
         else:
-            returncode, stdout, stderr = run(["pdflatex", "test.tex"], cwd=self.tmpdir)  # check it builds
+            returncode, stdout, stderr = run(["pdflatex", "-interaction=nonstopmode", "test.tex"], cwd=self.tmpdir)  # check it builds
             output = stdout + stderr
             if returncode != 0:
                 if "not found" in output:  # one of the required LaTeX packages is unavailable
