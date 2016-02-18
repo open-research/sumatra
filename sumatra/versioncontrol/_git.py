@@ -116,7 +116,9 @@ class GitWorkingCopy(WorkingCopy):
                 for tree in item.tree.trees:
                     for blob in tree.blobs:
                         if blob.name == filename:
-                            return blob.data_stream.read()
+                            expected_encoding = sys.getfilesystemencoding()
+                            file_content = blob.data_stream.read().decode(expected_encoding)
+                            return file_content
             else:
                 if item.hexsha.startswith(digest):
                     curtree = True

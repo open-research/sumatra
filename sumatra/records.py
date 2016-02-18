@@ -29,7 +29,7 @@ from .formatting import get_formatter
 from . import dependency_finder
 from sumatra.core import TIMESTAMP_FORMAT
 from sumatra.users import get_user
-from .versioncontrol import VersionControlError
+from .versioncontrol import VersionControlError,get_working_copy
 import logging
 from pathlib import Path
 
@@ -227,7 +227,7 @@ class Record(object):
     @property
     def script_content(self):
         """
-        Return the file content from versioncontrol 
+        Return the file content from versioncontrol
         """
         wc = get_working_copy()
         return wc.content(self.main_file, self.version)
