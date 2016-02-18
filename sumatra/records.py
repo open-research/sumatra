@@ -224,6 +224,14 @@ class Record(object):
         """
         return self.launch_mode.generate_command(self.executable, self.main_file, self.script_arguments)
 
+    @property
+    def script_content(self):
+        """
+        Return the file content from versioncontrol 
+        """
+        wc = get_working_copy()
+        return wc.content(self.main_file, self.version)
+
 
 class RecordDifference(object):
     """Represents the difference between two Record objects."""
