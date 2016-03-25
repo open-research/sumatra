@@ -263,8 +263,8 @@ class DjangoRecordStore(RecordStore):
             raise KeyError(label)
         return db_record.to_sumatra()
 
-    def list(self, project_name, tags=None):
-        db_records = self._manager.filter(project__id=project_name).select_related()
+    def list(self, project_name, tags=None, *args, **kwarg):
+        db_records = self._manager.filter(project__id=project_name, *args, **kwarg).select_related()
         if tags:
             if not hasattr(tags, "__len__"):
                 tags = [tags]

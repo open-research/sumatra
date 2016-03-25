@@ -427,13 +427,19 @@ def list(argv):  # add 'report' and 'log' as aliases
                         help="FMT can be 'text' (default), 'html', 'json', 'latex' or 'shell'.")
     parser.add_argument('-r', '--reverse', action="store_true", dest="reverse", default=False,
                         help="list records in reverse order (default: newest first)")
+    parser.add_argument('-m', '--main_file', help="filter list of records by main file")
+    parser.add_argument('-P', '--parameter_table', action="store_const", const="parameter_table",
+                        dest="mode", help="list records with parameter values")
     args = parser.parse_args(argv)
 
     project = load_project()
     if os.path.exists('.smt'):
         with open('.smt/labels', 'w') as f:
             f.write('\n'.join(project.get_labels()))
-    print(project.format_records(tags=args.tags, mode=args.mode, format=args.format, reverse=args.reverse))
+
+    kwargs = {'tags':args.tags, 'mode':args.mode, 'format':args.format, 'reverse':args.reverse}
+    if args.main_file is not None: kwargs['main_file__startswith'] = args.main_file
+    print(project.format_records(**kwargs))
 
 
 def delete(argv):

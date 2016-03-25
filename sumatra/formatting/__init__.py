@@ -17,7 +17,9 @@ import textwrap
 import cgi
 import re
 from ..core import component, component_type, get_registered_components
+import parameters
 from functools import reduce
+
 
 
 fields = ['label', 'timestamp', 'reason', 'outcome', 'duration', 'repository',
@@ -201,6 +203,11 @@ class TextFormatter(Formatter):
         tt = TextTable(fields, self.records)
         return str(tt)
 
+    def parameter_table(self):
+        """ Return parameter information about a list of records as text, in a simple tabular format."""
+        pt = ParamsTable(self.records, max_column_width=13, seperator='|')
+        return str(pt)
+
 
 class TextTable(object):
     """
@@ -228,6 +235,64 @@ class TextTable(object):
         output = format % tuple(h.title() for h in self.headers)
         for row in self.rows:
             output += format % tuple(str(getattr(row, header))[:self.max_column_width] for header in self.headers)
+        return output
+
+
+class ParamsTable(object):
+
+    def __init__(self, rows, max_column_width=20, seperator='|'):
+        self.rows = rows
+        self.headers = self.get_headers()
+        self.max_column_width = max_column_width
+        self.seperator = seperator
+
+    def get_headers(self):
+        headers = [u'label',u'version',u'main_file']
+        param_headers = []
+        for row in self.rows:
+            parameter_set = row.parameters
+            if hasattr(parameter_set, 'as_dict'):
+                parameter_set = parameter_set.as_dict()
+            parameter_set = parameters.nesteddictflatten(parameter_set)
+            for key in parameter_set.keys():
+                if key not in param_headers:
+                    param_headers.append(key)
+        param_headers.sort()
+        return headers + param_headers
+
+    def calculate_column_widths(self):
+        column_widths = []
+        for header in self.headers:
+            if header in [u'label',u'version',u'main_file']:
+                column_width = max([len(header)] + [len(str(getattr(row, header))) for row in self.rows])
+            else:
+                column_val_width = []
+                for row in self.rows:
+                    parameter_set = row.parameters
+                    if hasattr(parameter_set, 'as_dict'):
+                        parameter_set = parameter_set.as_dict()
+                    parameter_set = parameters.nesteddictflatten(parameter_set)
+                    column_val_width.append(len(str(parameter_set.get(header))))
+                column_width = max([len(header)] + column_val_width)
+            column_widths.append(min(self.max_column_width, column_width))
+        return column_widths
+
+    def __str__(self):
+        column_widths = self.calculate_column_widths()
+        if self.seperator == '|':
+            format = "| " + " | ".join("%%-%ds" % w for w in column_widths) + " |\n"
+        else:
+            format = self.seperator.join(len(column_widths)*["%s"]) + "\n"
+        assert len(column_widths) == len(self.headers)
+        output = format % tuple(h[:self.max_column_width] for h in self.headers)
+        for row in self.rows:
+            parameter_set = row.parameters
+            if hasattr(parameter_set, 'as_dict'):
+                parameter_set = parameter_set.as_dict()
+            parameter_set = parameters.nesteddictflatten(parameter_set)
+            output += format % tuple(
+                [str(getattr(row, header))[:self.max_column_width] for header in self.headers[:3]]
+               +[str(parameter_set.get(header,''))[:self.max_column_width] for header in self.headers[3:]])
         return output
 
 
