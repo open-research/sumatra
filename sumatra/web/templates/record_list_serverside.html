@@ -19,10 +19,12 @@
                 <ul class="dropdown-menu" role="menu" id="tagList">
                     {% if tags %}
                         {% for tag in tags %}
-                        <li><a data-target="#">{{tag.name}}</a></li>
+                        <li id="id_tag_{{tag.name}}">
+                            <a data-target="#" value="{{tag.name}}" class="tag">{{tag.name}}</a>
+                        </li>
                         {% endfor %}
                         <li role="presentation" class="divider"></li>
-                        <li><a data-target="#"><i>clear selection</i></a></li>
+                        <li><a data-target="#" value="null" class="tag"><i>clear selection</i></a></li>
                     {% else %}
                     <li role="presentation" class="dropdown-header">No tags defined.</li>
                     {% endif %}
@@ -31,8 +33,11 @@
 {% endblock %}
 
 {% block navbar-right %}
+{% if not read_only %}
             <li><a href="#" data-toggle="modal" data-target="#settingsModal"><span class="glyphicon glyphicon-cog"></span></a></li>
+{% endif %}
 {% endblock %}
+
 
 {% block content %}
 
@@ -44,7 +49,8 @@
     <button type="button" class="btn btn-primary">Record View</button>
     <a type="button" class="btn btn-default" href="/{{project.id}}/data/">Data View</a>
     <a type="button" class="btn btn-default" href="/{{project.id}}/image/">Image View</a>
-    <a type="button" class="btn btn-default" href="/{{project.id}}/about/">About</a>
+    <a type="button" class="btn btn-default" href="/{{project.id}}/parameter">Parameter View</a>
+     <a type="button" class="btn btn-default" href="/{{project.id}}/about/">About</a>
 </div>
 
 <div class="pull-right" role="group" style="padding-left: 2px;">
@@ -80,7 +86,6 @@
 
 {% endblock %}
 
-{% if not read_only %}
 {% block dialogs %}
 <div class="modal fade" id="deleteModal">
   <div class="modal-dialog">
@@ -138,13 +143,14 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        {% if not read_only %}
         <button type="button" class="btn btn-primary" id="apply-settings">Apply</button>
+        {% endif %}
       </div>
     </div> <!-- modal-content -->
   </div> <!-- modal-dialog -->
 </div> <!-- modal -->
 {% endblock %}
-{% endif %}
 
 {% block scripts %}
 <script type="text/javascript" language="javascript" src="/static/js/jquery.dataTables.min.js"></script>
@@ -218,8 +224,12 @@ $(document).ready(function() {
             if (data.length == 0) {
                 return ''
             } else {
-                tags = data.split(',')
-                return '<button class="btn btn-default btn-xs tag">'+tags.join('</button> <button class="btn btn-default btn-xs tag">')+'</button>';
+                var rendered = [];
+                for (var i=0;i<data.length;i++) {
+                    var tag = data[i];
+                    rendered.push('<button class="btn btn-default btn-xs tag" value="'+ tag +'">'+ tag +'</button>')
+                }
+                return rendered.join(' ');
             }
         }, "targets": [12]},                                                    // tags
     ])
@@ -257,7 +267,11 @@ $(document).ready(function() {
             if ( $.inArray(data.DT_RowId, selected) !== -1 ) {
                 $(row).addClass('info');
             }
-        }
+        },
+        "drawCallback": function( settings ) {
+            $('button.tag').removeClass("active");
+            $('button.tag[value='+ selected_tag+']').addClass("active");
+        },
     });
 
     /* select rows when clicked */
@@ -333,6 +347,26 @@ $(document).ready(function() {
         table.draw();
     });
 
+    /* select tag from dropdown menu and from tag button */
+    $('body').on('click', '.tag', function () {
+        if ( selected_tag == $(this).attr('value') ) {
+            selected_tag = 'null';
+        } else {
+            selected_tag = $(this).attr('value');
+        }
+        $('#tagList li').removeClass('selected');
+        $('#tag-label').html('Tag');
+
+        if (selected_tag == 'null') {
+            selected_tag = null;
+        } else {
+            $("#tagList #id_tag_"+selected_tag).addClass('selected');
+            $('#tag-label').html(selected_tag);
+        }
+        table.draw();
+    });
+
+    {% if not read_only %}
     /* apply settings */
     $('#apply-settings').click(function() {
         var success = false;
@@ -365,6 +399,7 @@ $(document).ready(function() {
             $('#settingsModal').modal('hide');
         };
     });
+    {% endif %}
 });
 </script>
 {% endblock %}

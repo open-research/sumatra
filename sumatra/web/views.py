@@ -489,7 +489,7 @@ def datatable_record(request, project):
                 'diff' :        rec.diff,
                 'version':      rec.version,
                 'arguments':    rec.script_arguments,
-                'tags':         rec.tags,
+                'tags':         [tag.name for tag in rec.tag_objects()],
             })
         except:
             pass
@@ -604,12 +604,7 @@ def datatable_image(request, project):
                 'reason':       im.output_from_record.reason,
                 'outcome':      im.output_from_record.outcome,
                 'parameters':   im.output_from_record.parameters.content,
-                'tags':         im.output_from_record.tags,
-                # 'href':         '/%s/data/datafile?path=%s&digest=%s&creation=%s' %(project,im.path,im.digest,im.creation.strftime('%Y-%m-%d %H:%M:%S')),
-                # 'src':          '/data/%s?path=%s&digest=%s&creation=%s' %(im.ouput_from_record.datastore.id, im.path, im.digest, im.creation.strftime('%Y-%m-%dT%H:%M:%S')),
-                # 'thumb':        '<a href="/{0}/data/datafile?path={2}&digest={3}&creation={4}" title="{2}"> \
-                #     <img src="/data/{1}?path={2}&digest={3}&creation={5}"></a>'.format(
-                #         project, im.output_from_record.datastore.id, im.path, im.digest, im.creation.strftime('%Y-%m-%d %H:%M:%S'), im.creation.strftime('%Y-%m-%dT%H:%M:%S')),
+                'tags':         [tag.name for tag in im.output_from_record.tag_objects()],
             })
         except:
             pass
