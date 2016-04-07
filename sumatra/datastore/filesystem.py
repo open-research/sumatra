@@ -152,6 +152,8 @@ class FileSystemDataStore(DataStore):
                 warnings.warn("Tried to delete %s, but it did not exist." % key)
             else:
                 os.remove(data_item.full_path)
+                if len(os.listdir(self.root)) == 0:
+                    os.rmdir(self.root)
 
     def contains_path(self, path):
         return os.path.isfile(os.path.join(self.root, path))
