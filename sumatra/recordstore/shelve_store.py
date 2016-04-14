@@ -97,11 +97,18 @@ class ShelveRecordStore(RecordStore):
         return records
 
     @check_name
-    def labels(self, project_name):
+    def labels(self, project_name, tags=None):
         if project_name in self.shelf:
-            return list(self.shelf[project_name].keys())
+            if tags:
+                if not isinstance(tags, list):
+                    tags = [tags]
+                lbls = [label for label, record in self.shelf[project_name].items()
+                        if any([tag in record.tags for tag in tags])]
+            else:
+                lbls = list(self.shelf[project_name].keys())
         else:
-            return []
+            lbls = []
+        return lbls
 
     @check_name
     def delete(self, project_name, label):

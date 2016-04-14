@@ -235,6 +235,20 @@ class BaseTestRecordStore(object):
         records = self.store.list(self.project.name, "tag1")
         self.assertEqual(len(records), 2)
 
+    def test_labels_without_tags_should_return_all_labels(self):
+        self.add_some_records()
+        labels = self.store.labels(self.project.name)
+        assert isinstance(labels, list), type(labels)
+        self.assertEqual(len(labels), 3)
+        self.assertIsInstance(labels[0], basestring)
+
+    def test_labels_for_tags_should_filter_records_appropriately(self):
+        self.add_some_records()
+        self.add_some_tags()
+        labels = self.store.labels(self.project.name, "tag1")
+        self.assertEqual(len(labels), 2)
+        self.assertIsInstance(labels[0], basestring)
+
     def test_delete_removes_record(self):
         self.add_some_records()
         key = "record1"

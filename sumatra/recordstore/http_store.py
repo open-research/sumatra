@@ -196,8 +196,8 @@ class HttpRecordStore(RecordStore):
             records.append(self._get_record(record_url))
         return records
 
-    def labels(self, project_name):
-        return [record.label for record in self.list(project_name)]  # probably inefficient
+    def labels(self, project_name, tags=None):
+        return [record.label for record in self.list(project_name, tags=tags)]  # probably inefficient
 
     def delete(self, project_name, label):
         url = "%s%s/%s/" % (self.server_url, project_name, label)
