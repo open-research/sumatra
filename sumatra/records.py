@@ -29,7 +29,7 @@ from .formatting import get_formatter
 from . import dependency_finder
 from sumatra.core import TIMESTAMP_FORMAT
 from sumatra.users import get_user
-from .versioncontrol import VersionControlError
+from .versioncontrol import VersionControlError,get_working_copy
 import logging
 from pathlib import Path
 
@@ -224,6 +224,17 @@ class Record(object):
         """
         return self.launch_mode.generate_command(self.executable, self.main_file, self.script_arguments)
 
+    @property
+    def script_content(self):
+        """
+        Return the script content from the main file.
+        """
+        wc = get_working_copy()
+        try:
+            return wc.content(self.version, file=self.main_file)
+        except:
+            return False
+
 
 class RecordDifference(object):
     """Represents the difference between two Record objects."""
@@ -382,3 +393,29 @@ class RecordDifference(object):
     @property
     def parameter_differences(self):
         return self.recordA.parameters.diff(self.recordB.parameters)
+
+    def script_content_diff(self, record, other):
+        wc = get_working_copy()
+        repo = wc.repository._repository
+        script = record.script_content.split('\n')
+        script_changes = map(lambda x: (0,x), script)
+        try:
+            if record.timestamp > other.timestamp:
+                script_diff = repo.git.diff(other.version,record.version)
+            else:
+                script_diff = repo.git.diff(record.version,other.version)
+            for line in script_diff.split('\n'):
+                if line[1:] in script and len(line[1:]) > 0:
+                    index = script.index(line[1:])
+                    script_changes[index] = (line[0],line[1:])
+            return script_changes
+        except:
+            return False
+
+    @property
+    def recordA_script_content_diff(self):
+        return self.script_content_diff(self.recordA, self.recordB)
+
+    @property
+    def recordB_script_content_diff(self):
+        return self.script_content_diff(self.recordB, self.recordA)
