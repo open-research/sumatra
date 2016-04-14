@@ -14,12 +14,14 @@ except ImportError:
     import unittest
 import os
 import hashlib
+import shutil
+import tempfile
 from datetime import datetime
 from sumatra import commands, launch, datastore
 from sumatra.parameters import (SimpleParameterSet, JSONParameterSet,
                                 YAMLParameterSet, ConfigParserParameterSet)
 
-originals = []  # use for storing originals of mocked objects
+originals = {}  # use for storing originals of mocked objects
 
 
 back_to_the_future = datetime(2015, 10, 21, 16, 29, 0)
@@ -187,7 +189,7 @@ def mock_build_parameters(filename):
 
 def store_original(module, name):
     global originals
-    originals.append((module, name, getattr(module, name)))
+    originals[module.__name__, name] = (module, name, getattr(module, name))
 
 
 def setup():
@@ -203,7 +205,7 @@ def setup():
 
 
 def teardown():
-    for item in originals:
+    for item in originals.values():
         setattr(*item)
 
 
@@ -421,6 +423,21 @@ class InfoCommandTests(unittest.TestCase):
 
 class TestParseArguments(unittest.TestCase):
 
+    @classmethod
+    def setUpClass(cls):
+        # Create an (empty) temporary directory which is needed
+        # by 'test_with_arg_that_is_directory'. We need to access
+        # the original function os.mkdir() for this because we
+        # have mocked it.
+        cls.tmp_test_dir = os.path.join(tempfile.gettempdir(), 'test_tmp_dir')
+        if not os.path.exists(cls.tmp_test_dir):
+            orig_os_mkdir = originals[('os', 'mkdir')][2]
+            orig_os_mkdir(cls.tmp_test_dir)
+
+    @classmethod
+    def tearDownClass(cls):
+        shutil.rmtree(cls.tmp_test_dir)
+
     def setUp(self):
         self.input_datastore = MockDataStore('.')
 
@@ -464,14 +481,10 @@ class TestParseArguments(unittest.TestCase):
         os.remove("this.is.not.a.parameter.file")
 
     def test_with_arg_that_is_directory(self):
-        test_dir = "__pycache__"  # a directory that is likely to exist already, easier than creating one since we have mocked out os.mkdir
-        if os.path.exists(test_dir):
-            parameter_sets, input_data, script_args = commands.parse_arguments([test_dir], self.input_datastore)
-            self.assertEqual(parameter_sets, [])
-            self.assertEqual(input_data, [])
-            self.assertEqual(script_args, test_dir)
-        else:
-            raise unittest.SkipTest("test directory doesn't exist")
+        parameter_sets, input_data, script_args = commands.parse_arguments([self.tmp_test_dir], self.input_datastore)
+        self.assertEqual(parameter_sets, [])
+        self.assertEqual(input_data, [])
+        self.assertEqual(script_args, self.tmp_test_dir)
 
     def test_with_cmdline_parameters(self):
         with open("test.param", 'w') as f:

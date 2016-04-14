@@ -41,6 +41,7 @@ from builtins import str
 import os
 import sys
 from modulefinder import Module
+import textwrap
 import warnings
 import inspect
 import logging
@@ -194,7 +195,7 @@ def find_imported_packages(filename, executable_path, debug=0, exclude_stdlib=Tr
     # could run in parallel with the simulation (good for multicore): we could
     # move setting of dependencies to after the simulation, rather than having it
     # in record.register()
-    script = """
+    script = textwrap.dedent("""
         from modulefinder import ModuleFinder
         import sys, os
         import distutils.sysconfig
@@ -204,13 +205,16 @@ def find_imported_packages(filename, executable_path, debug=0, exclude_stdlib=Tr
                         os.path.join(stdlib_path, "plat-mac", "lib-scriptpackages"))
         exclude_stdlib = %s
         finder = ModuleFinder(path=sys.path, debug=%d)
-        finder.run_script("%s")
+        try:
+            finder.run_script("%s")
+        except Exception as ex:
+            sys.stdout.write("Determining dependencies failed for some Python modules.")
         top_level_packages = {}
         for name, module in finder.modules.items():
             if module.__path__ and "." not in name:
                 if not(exclude_stdlib and os.path.dirname(module.__path__[0]) in stdlib_paths):
                     top_level_packages[name] = module
-        sys.stdout.write("%s" + str(top_level_packages))""" % (exclude_stdlib, int(debug), filename, SENTINEL)
+        sys.stdout.write("%s" + str(top_level_packages))""" % (exclude_stdlib, int(debug), filename, SENTINEL))
     return run_script(executable_path, script)
 
 
