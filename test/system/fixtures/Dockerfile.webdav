@@ -2,9 +2,9 @@
 # For testing Sumatra's webdav remote store support
 #
 #
-# Usage:  docker build -t webdav_test - < fixtures/Dockerfile.webdav
+# Usage:  docker build -t webdav_test -f Dockerfile.webdav .
 
-FROM debian:wheezy
+FROM debian:jessie
 MAINTAINER andrew.davison@unic.cnrs-gif.fr
 
 RUN apt-get update
@@ -14,7 +14,7 @@ RUN a2enmod dav_fs
 
 RUN mkdir /var/www/webdav
 RUN chown www-data:www-data /var/www/webdav
-ADD apache_webdav.conf /etc/apache2/sites-available/
+COPY apache_webdav.conf /etc/apache2/sites-available/
 RUN htpasswd -c -b /var/www/webdav.password sumatra sumatra
 RUN a2ensite apache_webdav.conf
 

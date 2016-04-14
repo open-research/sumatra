@@ -47,7 +47,7 @@ def create_script():
 
 def get_url():
     info = dkr.containers()[0]
-    assert info["Image"] == "{0}:latest".format(image)
+    assert info["Image"] == image
     host = urlparse(dkr.base_url).hostname
     return "{0}:{1}".format(host, info["Ports"][0]["PublicPort"])
 
@@ -65,7 +65,7 @@ def start_pg_container():
     dkr = docker.Client(timeout=60, **env)
     # docker run -rm -P -name pg_test postgresql_test
     ctr = dkr.create_container(image, command=None, hostname=None, user=None,
-                               detach=False, stdin_open=False, tty=False, mem_limit=0,
+                               detach=False, stdin_open=False, tty=False,
                                ports=None, environment=None, dns=None, volumes=None,
                                volumes_from=None, network_disabled=False, name=None,
                                entrypoint=None, cpu_shares=None, working_dir=None)
