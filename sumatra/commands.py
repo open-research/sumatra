@@ -39,7 +39,8 @@ logger.addHandler(h)
 logger.debug("STARTING")
 
 modes = ("init", "configure", "info", "run", "list", "delete", "comment", "tag",
-         "repeat", "diff", "help", "export", "upgrade", "sync", "migrate", "version")
+         "repeat", "diff", "help", "export", "upgrade", "sync", "migrate", "version",
+         "script")
 
 store_arg_help = "The argument can take the following forms: (1) `/path/to/sqlitedb` - DjangoRecordStore is used with the specified Sqlite database, (2) `http[s]://location` - remote HTTPRecordStore is used with a remote Sumatra server, (3) `postgres://username:password@hostname/databasename` - DjangoRecordStore is used with specified Postgres database."
 
@@ -721,6 +722,23 @@ def migrate(argv):
             if value:
                 project.record_store.update(project.name, field, value)
     # should we also change the default values stored in the Project?
+
+
+def script(argv):
+    """Print script content of the recording label."""
+    usage = "%(prog)s script"
+    description = "Print script content of the recording label."
+    parser = ArgumentParser(usage=usage,
+                            description=description)
+    parser.add_argument('label')
+    args = parser.parse_args(argv)
+    project = load_project()
+    record = project.get_record(args.label)
+    print('Main_File\t :',record.main_file)
+    print('Version\t\t :',record.version)
+    print(80*'-')
+    print(record.script_content)
+    print(80*'-')
 
 
 def version(argv):
