@@ -12,14 +12,17 @@
             <li><a href="#">{{project.id}}</a></li>
             <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button">
-                    <span class="glyphicon glyphicon-tag"></span> <span id="tag-label">Tag</span> <span class="caret"></span></a>
+                    <span class="glyphicon glyphicon-tag"></span>
+                    <span id="tag-label">Tag</span>
+                    <span class="caret"></span>
+                </a>
                 <ul class="dropdown-menu" role="menu" id="tagList">
                     {% if tags %}
                         {% for tag in tags %}
                         <li id="id_tag_{{tag.name}}"><a data-target="#" value="{{tag.name}}" class="tag">{{tag.name}}</a></li>
                         {% endfor %}
                         <li role="presentation" class="divider"></li>
-                        <li ><a data-target="#" value="null" class="tag"><i>clear selection</i></a></li>
+                        <li><a data-target="#" value="null" class="tag"><i>clear selection</i></a></li>
                     {% else %}
                     <li role="presentation" class="dropdown-header">No tags defined.</li>
                     {% endif %}
@@ -129,9 +132,8 @@ $.fn.dataTable.ext.search.push(
 $(document).ready(function() {
     $('#nav-image').addClass('active');
 
-    var table = $('#data-keys').dataTable( {
+    var table = $('#data-keys').DataTable( {
         "info": false,
-        "deferRender": true,
         "dom": 'ftlp',
         "order": [[ 0, "desc" ]]
     } );
@@ -139,15 +141,18 @@ $(document).ready(function() {
     $('#data-keys tbody').on( 'click', 'tr', function () {
         $(this).toggleClass('info');
     } );
-    /* select tag from dropdown menu */
-    $('.tag').click(function () {
+
+    /* select tag from dropdown menu and from tag button */
+    $('body').on('click', '.tag', function () {
+        $('button.tag').removeClass("active");
+        $('#tagList li').removeClass('selected');
+        $('#tag-label').html('');
+
         if ( selected_tag == $(this).attr('value') ) {
             selected_tag = 'null';
         } else {
             selected_tag = $(this).attr('value');
         }
-        $('#tagList li').removeClass('selected');
-        $('#tag-label').html('Tag');
 
         if (selected_tag == 'null') {
             selected_tag = null;
@@ -155,9 +160,9 @@ $(document).ready(function() {
             $("#tagList #id_tag_"+selected_tag).addClass('selected');
             $('#tag-label').html(selected_tag);
         }
-        table.fnDraw();
-        $('#id_button_tags .tag').removeClass("active");
-        $('#id_button_tags .tag[value='+ selected_tag+']').addClass("active");
+        table.draw();
+        $('button.tag[value='+ selected_tag+']').addClass("active");
+        // $('button.tag').off('click', tag_click_event).on('click', tag_click_event);
     });
 } );
     </script>

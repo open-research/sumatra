@@ -40,6 +40,7 @@
     <a type="button" class="btn btn-default" href="/{{project.id}}/">Record View</a>
     <a type="button" class="btn btn-default" href="/{{project.id}}/data/">Data View</a>
     <button type="button" class="btn btn-primary">Image View</button>
+    <a type="button" class="btn btn-default" href="/{{project.id}}/parameter">Parameter View</a>
     <a type="button" class="btn btn-default" href="/{{project.id}}/about/">About</a>
 </div>
 
@@ -106,12 +107,12 @@ $(document).ready(function() {
             if (data.length == 0) {
                 return ''
             } else {
-                tags = data.split(',')
-                tags_button = []
-                for (var i in tags) {
-                    tags_button.push('<button class="btn btn-default btn-xs tag '+(selected_tag==tags[i]? 'active' : '')+'" value="'+tags[i]+'">'+tags[i]+'</button>')
+                var rendered = [];
+                for (var i=0;i<data.length;i++) {
+                    var tag = data[i];
+                    rendered.push('<button class="btn btn-default btn-xs tag" value="'+ tag +'">'+ tag +'</button>')
                 }
-                return tags_button.join(' ')
+                return rendered.join(' ');
             }
         }, "targets": [5]},                                                     // tags
     ]
@@ -138,19 +139,23 @@ $(document).ready(function() {
         ],
         "order":            [[ 0, "desc" ]],
         "columnDefs":       columnDefs,
-        "fnPreDrawCallback": function (oSettings) {
+        "preDrawCallback": function (settings) {
               // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
               if ($('#thumbs_container').length < 1) {$('#thumbgrid').append("<div id='thumbs_container' class='row'></div>");}
               $('#thumbs_container').html('');                  // clear out the thumbs container
               return true
           },
-        "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
+        "rowCallback": function( row, data ) {
             $('#thumbs_container').append('<div class="thumb"><div class="thumbnail">' +
-                '<a href=/"'+aData.project+'/data/datafile?path='+aData.path+'&digest='+aData.digest+'&creation='+aData.date+'">' +
-                '<img src="/data/'+aData.datastore+'?path='+aData.path+'&digest='+aData.digest+'&creation='+aData.creation+'">' +
+                '<a href=/"'+data.project+'/data/datafile?path='+data.path+'&digest='+data.digest+'&creation='+data.date+'">' +
+                '<img src="/data/'+data.datastore+'?path='+data.path+'&digest='+data.digest+'&creation='+data.creation+'">' +
                 '</a></div></div>');
             $('.thumb').addClass(thumbgrid_view);
-            return nRow
+            return row
+        },
+        "drawCallback": function(settings) {
+            $('button.tag').removeClass("active");
+            $('button.tag[value='+ selected_tag+']').addClass("active");
         },
     });
 
@@ -176,20 +181,21 @@ $(document).ready(function() {
         $('#thumbgrid').addClass('hidden')
     })
 
-    /* select tag from dropdown menu */
-    $('.tag').on('click', function () {
-        $('#tagList a').removeClass('selected');
-        $('#tag-label').html('');
-        $('button.tag').removeClass("active");
-        var tag = $(this).attr('value');
-        console.log(tag)
-        if ( tag == selected_tag || tag == 'null') {
-            selected_tag = null
+    /* select tag from dropdown menu and from tag button */
+    $('body').on('click', '.tag', function () {
+        if ( selected_tag == $(this).attr('value') ) {
+            selected_tag = 'null';
         } else {
-            selected_tag = tag;
-            $('#tagList a.tag[value='+ selected_tag+']').addClass('selected');
+            selected_tag = $(this).attr('value');
+        }
+        $('#tagList li').removeClass('selected');
+        $('#tag-label').html('Tag');
+
+        if (selected_tag == 'null') {
+            selected_tag = null;
+        } else {
+            $("#tagList #id_tag_"+selected_tag).addClass('selected');
             $('#tag-label').html(selected_tag);
-            $('button.tag[value='+ selected_tag+']').addClass("active");
         }
         table.draw();
     });

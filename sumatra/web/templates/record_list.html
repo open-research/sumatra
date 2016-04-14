@@ -11,14 +11,17 @@
 {% block navbar %}
             <li><a href="#">{{project.id}}</a></li>
             <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"><span class="glyphicon glyphicon-tag"></span> <span class="caret"></span></a>
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button">
+                    <span class="glyphicon glyphicon-tag"></span>
+                    <span class="caret"></span>
+                </a>
                 <ul class="dropdown-menu" role="menu" id="tagList">
                     {% if tags %}
                         {% for tag in tags %}
-                        <li><a data-target="#">{{tag.name}}</a></li>
+                        <li id="id_tag_{{tag.name}}"><a data-target="#" value="{{tag.name}}" class="tag">{{tag.name}}</a></li>
                         {% endfor %}
                         <li role="presentation" class="divider"></li>
-                        <li><a data-target="#"><i>clear selection</i></a></li>
+                        <li><a data-target="#" value="null" class="tag"><i>clear selection</i></a></li>
                     {% else %}
                     <li role="presentation" class="dropdown-header">No tags defined.</li>
                     {% endif %}
@@ -27,7 +30,9 @@
 {% endblock %}
 
 {% block navbar-right %}
+{% if not read_only %}
             <li><a href="#" data-toggle="modal" data-target="#settingsModal"><span class="glyphicon glyphicon-cog"></span></a></li>
+{% endif %}
 {% endblock %}
 
 {% block content %}
@@ -104,7 +109,11 @@
             <span class="glyphicon glyphicon-file"></span></a> {{record.main_file|ubreak}}</td>
         <td>{{record.version|cut:"vers"|truncatechars:10}}{% if record.diff %}*{% endif %}</td>
         <td>{{record.script_arguments}}</td>
-        <td>{{record.tags}}</td>
+        <td id="id_button_tags">
+            {% for tag in record.tag_objects %}
+                <button class="btn btn-default btn-xs tag" value="{{tag}}">{{tag}}</button>
+            {% endfor %}
+        </td>
     </tr>
     {% endfor %}
     <tbody>
@@ -112,7 +121,6 @@
 
 {% endblock %}
 
-{% if not read_only %}
 {% block dialogs %}
 <div class="modal fade" id="deleteModal">
   <div class="modal-dialog">
@@ -170,13 +178,14 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        {% if not read_only %}
         <button type="button" class="btn btn-primary" id="apply-settings">Apply</button>
+        {% endif %}
       </div>
     </div> <!-- modal-content -->
   </div> <!-- modal-dialog -->
 </div> <!-- modal -->
 {% endblock %}
-{% endif %}
 
 {% block scripts %}
 <script type="text/javascript" language="javascript" src="/static/js/jquery.dataTables.min.js"></script>
@@ -189,11 +198,12 @@ var selected_tag = null;
 $.fn.dataTable.ext.search.push(
     function( settings, data, dataIndex ) {
         if (selected_tag) {
-            var tags = data[12].split(', ');
-            if ( tags.indexOf(selected_tag) > -1 ) {
-                return true;
+            for (var i in settings.aoColumns) {
+                if (settings.aoColumns[i].sTitle == 'Tags') {
+                    var tags = data[settings.aoColumns[i].idx].split(" ")
             }
-            return false;
+        }
+        return tags.indexOf(selected_tag) > -1
         }
         return true;
     }
@@ -217,7 +227,6 @@ $(document).ready(function() {
                 "targets": hidden,
                 "visible": false
             }];
-            console.log(columnDefs);
             hidden.forEach(function(col) {
                 $('#columnsToDisplay input[data-column="'+col+'"]')[0].checked=false;
             });
@@ -230,7 +239,7 @@ $(document).ready(function() {
         "info": false,
         "dom": 'ftlp',
         "order": [[ 1, "desc" ]],
-        "columnDefs": columnDefs
+        "columnDefs": columnDefs,
     });
 
     /* select rows when clicked */
@@ -293,21 +302,29 @@ $(document).ready(function() {
         }
     });
 
-    /* select tag from dropdown menu */
-    $('#tagList a').click(function (event) {
-        var target = $(event.target);
-        var li = target.parent();
-        selected_tag = target[0].textContent;
-        if (selected_tag == 'clear selection') {
-            $('#tagList').children().removeClass('selected');
+    /* select tag from dropdown menu and from tag button */
+    $('body').on('click', '.tag', function () {
+        $('button.tag').removeClass("active");
+        $('#tagList li').removeClass('selected');
+        $('#tag-label').html('');
+
+        if ( selected_tag == $(this).attr('value') ) {
+            selected_tag = 'null';
+        } else {
+            selected_tag = $(this).attr('value');
+        }
+
+        if (selected_tag == 'null') {
             selected_tag = null;
         } else {
-            li.addClass('selected').siblings().removeClass('selected');
-            selected_tag = target[0].textContent;
-        };
+            $("#tagList #id_tag_"+selected_tag).addClass('selected');
+            $('#tag-label').html(selected_tag);
+        }
         table.draw();
+        $('button.tag[value='+ selected_tag+']').addClass("active");
     });
 
+    {% if not read_only %}
     /* apply settings */
     $('#apply-settings').click(function() {
         var success = false;
@@ -325,7 +342,6 @@ $(document).ready(function() {
         });
 
         // save settings to file
-        console.log(hidden);
         $.ajax({
             type: 'POST',
             url: '/settings/',
@@ -340,6 +356,7 @@ $(document).ready(function() {
             $('#settingsModal').modal('hide');
         };
     });
+    {% endif %}
 });
 </script>
 {% endblock %}
