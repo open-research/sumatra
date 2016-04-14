@@ -22,7 +22,7 @@ except ImportError:
 from subprocess import PIPE
 import sarge
 
-from nose.tools import assert_equal, assert_dict_contains_subset
+from nose.tools import assert_equal, assert_dict_contains_subset, assert_in
 
 import utils
 from utils import (setup as default_setup, teardown as default_teardown,
@@ -132,7 +132,7 @@ def test_record_list():
     for row, expected in zip(rows[1:], reversed(expected_content)):
         cells = row.find_elements_by_tag_name('td')
         label = cells[0].text
-        assert row.get_attribute('id') == label
+        assert_equal(row.get_attribute('id'), label)
         actual = dict((key.lower(), cell.text) for key, cell in zip(column_headers, cells))
         assert_dict_contains_subset(expected, actual)
 
@@ -182,22 +182,25 @@ def test_comparison_view():
     for row in rows[1:]:
         if row.get_attribute("id") in target_records:
             row.click()
+
+    # scroll back to the top of the screen
+    driver.execute_script("window.scrollTo(0, 0)")
     compare_button.click()
     # assert go to comparison page
-    assert "compare" in driver.current_url
+    assert_in("compare", driver.current_url)
 
 
 def test_data_detail_view():
     driver.get("http://127.0.0.1:8765/ProjectGlass/")
     rows = driver.find_elements_by_tag_name('tr')
     rows[1].find_element_by_tag_name('td').find_element_by_tag_name('a').click()
-    assert driver.current_url == "http://127.0.0.1:8765/ProjectGlass/{}/".format(utils.env["labels"][-1])
+    assert_equal(driver.current_url, "http://127.0.0.1:8765/ProjectGlass/{}/".format(utils.env["labels"][-1]))
 
     dl = driver.find_element_by_tag_name('dl')
     general_attributes = dict(zip((item.text for item in dl.find_elements_by_tag_name("dt")),
                                   (item.text for item in dl.find_elements_by_tag_name("dd"))))
-    assert general_attributes["Code version:"] == '6038f9c500d1* (diff)'
-    assert "Added labels to output" in general_attributes["Reason:"]
+    assert_equal(general_attributes["Code version:"], '6038f9c500d1* (diff)')
+    assert_in("Added labels to output", general_attributes["Reason:"])
 
 
 if __name__ == '__main__':
