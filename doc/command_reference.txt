@@ -7,19 +7,19 @@ comment
 ::
 
     usage: smt comment [options] [LABEL] COMMENT
-    
+
     This command is used to describe the outcome of the simulation/analysis. If
     LABEL is omitted, the comment will be added to the most recent experiment. If
     the '-f/--file' option is set, COMMENT should be the name of a file containing
     the comment, otherwise it should be a string of text. By default, comments
     will be appended to any existing comments. To overwrite existing comments, use
     the '-r/--replace flag.
-    
+
     positional arguments:
       LABEL          the record to which the comment will be added
       comment        a string of text, or the name of a file containing the
                      comment.
-    
+
     optional arguments:
       -h, --help     show this help message and exit
       -r, --replace  if this flag is set, any existing comment will be
@@ -33,9 +33,9 @@ configure
 ::
 
     usage: smt configure [options]
-    
+
     Modify the settings for the current project.
-    
+
     optional arguments:
       -h, --help            show this help message and exit
       -d PATH, --datapath PATH
@@ -112,17 +112,17 @@ delete
 ::
 
     usage: smt delete [options] LIST
-    
+
     LIST should be a space-separated list of labels for individual records or of
     tags. If it contains tags, you must set the --tag/-t option (see below). The
     special value "last" allows you to delete the most recent simulation/analysis.
     If you want to delete all records, just delete the .smt directory and use smt
     init to create a new, empty project.
-    
+
     positional arguments:
       LIST        a space-separated list of labels for individual records or of
                   tags
-    
+
     optional arguments:
       -h, --help  show this help message and exit
       -t, --tag   interpret LIST as containing tags. Records with any of these
@@ -134,13 +134,13 @@ diff
 ::
 
     usage: smt diff [options] LABEL1 LABEL2
-    
+
     Show the differences, if any, between two records.
-    
+
     positional arguments:
       label1
       label2
-    
+
     optional arguments:
       -h, --help            show this help message and exit
       -i IGNORE, --ignore IGNORE
@@ -154,10 +154,10 @@ export
 ::
 
     usage: smt export
-    
+
     Export a Sumatra project and its records to JSON. This is needed before
     running upgrade.
-    
+
     optional arguments:
       -h, --help  show this help message and exit
 
@@ -166,12 +166,12 @@ help
 ::
 
     usage: smt help CMD
-    
+
     Get help on an smt command.
-    
+
     positional arguments:
       cmd
-    
+
     optional arguments:
       -h, --help  show this help message and exit
 
@@ -180,9 +180,9 @@ info
 ::
 
     usage: smt info
-    
+
     Print information about the current project.
-    
+
     optional arguments:
       -h, --help  show this help message and exit
 
@@ -191,13 +191,13 @@ init
 ::
 
     usage: smt init [options] NAME
-    
+
     Create a new project called NAME in the current directory.
-    
+
     positional arguments:
       NAME                  a short name for the project; should not contain
                             spaces.
-    
+
     optional arguments:
       -h, --help            show this help message and exit
       -d PATH, --datapath PATH
@@ -271,13 +271,13 @@ list
 ::
 
     usage: smt list [options] [TAGS]
-    
+
     If TAGS (optional) is specified, then only records tagged with all the tags in
     TAGS will be listed.
-    
+
     positional arguments:
       TAGS
-    
+
     optional arguments:
       -h, --help            show this help message and exit
       -l, --long            prints full information for each record
@@ -285,16 +285,18 @@ list
       -f FMT, --format FMT  FMT can be 'text' (default), 'html', 'json', 'latex'
                             or 'shell'.
       -r, --reverse         list records in reverse order (default: newest first)
+      -m NAME, --main_file NAME     filter list of records by main file
+      -P, --parameter_view          list records with parameter values
 
 migrate
 -------
 ::
 
     usage: smt migrate [options]
-    
+
     If you have moved your data files to a new location, update the record store
     to reflect the new paths.
-    
+
     optional arguments:
       -h, --help            show this help message and exit
       -d PATH, --datapath PATH
@@ -313,13 +315,13 @@ repeat
 ::
 
     usage: smt repeat LABEL
-    
+
     Re-run a previous simulation/analysis under (in theory) identical conditions,
     and check that the results are unchanged.
-    
+
     positional arguments:
       LABEL                 label of record to be repeated
-    
+
     optional arguments:
       -h, --help            show this help message and exit
       -l NEW_LABEL, --label NEW_LABEL
@@ -331,7 +333,7 @@ run
 ::
 
     usage: smt run [options] [arg1, ...] [param=value, ...]
-    
+
     The list of arguments will be passed on to the simulation/analysis script. It
     should normally contain at least the name of a parameter file, but can also
     contain input files, flags, etc. If the parameter file should be in a format
@@ -341,7 +343,7 @@ run
     specify those parameters that are different from the default values on the
     command line with any number of param=value pairs (note no space around the
     equals sign).
-    
+
     optional arguments:
       -h, --help            show this help message and exit
       -v REV, --version REV
@@ -382,17 +384,17 @@ sync
 ::
 
     usage: smt sync PATH1 [PATH2]
-    
+
     Synchronize two record stores. If both PATH1 and PATH2 are given, the record
     stores at those locations will be synchronized. If only PATH1 is given, and
     the command is run in a directory containing a Sumatra project, only that
     project's records be synchronized with the store at PATH1. Note that PATH1 and
     PATH2 may be either filesystem paths or URLs.
-    
+
     positional arguments:
       path1
       path2
-    
+
     optional arguments:
       -h, --help  show this help message and exit
 
@@ -401,16 +403,16 @@ tag
 ::
 
     usage: smt tag [options] TAG [LIST]
-    
+
     If TAG contains spaces, it must be enclosed in quotes. LIST should be a space-
     separated list of labels for individual records. If it is omitted, only the
     most recent record will be tagged. If the '-r/--remove' option is set, the tag
     will be removed from the records.
-    
+
     positional arguments:
       TAG           tag to add
       LIST          a space-separated list of records to be tagged
-    
+
     optional arguments:
       -h, --help    show this help message and exit
       -r, --remove  remove the tag from the record(s), rather than adding it.
@@ -420,10 +422,10 @@ upgrade
 ::
 
     usage: smt upgrade
-    
+
     Upgrade an existing Sumatra project. You must have previously run "smt export"
     or the standalone 'export.py' script.
-    
+
     optional arguments:
       -h, --help  show this help message and exit
 
@@ -432,9 +434,8 @@ version
 ::
 
     usage: smt version
-    
+
     Print the Sumatra version.
-    
+
     optional arguments:
       -h, --help  show this help message and exit
-
