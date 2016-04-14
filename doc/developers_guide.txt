@@ -26,7 +26,7 @@ Optional:
     * coverage_ >= 3.3.1 (for measuring test coverage)
     * httplib2 (for the remote record store)
     * GitPython (for Git support)
-    * hgapi (for Mercurial support)
+    * mercurial and hgapi (for Mercurial support)
     * bzr (for Bazaar support)
     * PyYAML (for YAML support)
     * psycopg2 (for PostgreSQL support)
