@@ -47,22 +47,22 @@
 <div role="group" class="pull-right" style="padding-left:2px">
     <button class="btn btn-default btn-sm active" id="image-table-view">
         <span class="glyphicon glyphicon-th-list"></span></button>
-    <button class="btn btn-default btn-sm" id="thumbgrid-view">
-        <span class="glyphicon glyphicon-th"></span></button>
     <button class="btn btn-default btn-sm" id="thumbgrid-view-large">
         <span class="glyphicon glyphicon-th-large"></span></button>
+    <button class="btn btn-default btn-sm" id="thumbgrid-view">
+        <span class="glyphicon glyphicon-th"></span></button>
 </div>
 
 <table id="images-table" class="table table-striped table-condensed" cellspacing="0" width="100%">
     <thead>
         <tr>
-          <th>Date/Time</th>
-          <th>Image</th>
+          <th data-orderable="false">Image</th>
+          <th>Record info (sorted by date)</th>
           <th>Output of</th>
           <th>Reason</th>
           <th>Outcome</th>
           <th>Tags</th>
-          <!-- <th>Parameter</th> -->
+          <th>Parameter</th>
         </tr>
     </thead>
 
@@ -91,18 +91,75 @@ $(document).ready(function() {
             return '<div class=""><a href="/'+row.project+'/data/datafile?'+
                 'path='+row.path+'&digest='+row.digest+'&creation='+row.creation+'" title="'+row.path+'">'+
                 '<img src="/data/'+row.datastore+'?path='+row.path+'&digest='+row.digest+'&creation='+row.creation+
-                '" style="width:250px">  </a></div>'
-        }, "targets": [1]},                                                     // image
+                '" style="width:100%">  </a></div>'
+        }, "width": "40%", "targets": [0]},                                                     // image
+        {"render": function(data, type, row) {
+            if (data.length == 0) {
+                return ''
+            } else {
+                var rendered = [];
+
+                rendered.push('<dl>')
+                rendered.push('<dt>Date/Time</dt>')
+                rendered.push('<dd>'+data+'</dd>');
+                rendered.push('<dt>Output of</dt>')
+                rendered.push("<dd><a target='script_content' onclick=window.open('/"+row.project+"/"+row.record+"/script','script_content','width=640,height=600,scrollbars=yes,resizable=yes') style='cursor:pointer'><i class='fa fa-file-code-o'></i></a>"+
+                    ' <a href="/'+row.project+'/'+row.record+'/">'+row.record+'</a></dd>')
+                if (row.reason.length > 0) {
+                    rendered.push('<dt>Reason</dt>')
+                    rendered.push('<dd>')
+                    if (row.reason.length < 200) {
+                        rendered.push(row.reason)
+                    } else {
+                        rendered.push('<span title="'+row.reason+'">'+row.reason.slice(0,200)+'...</span>')
+                    }
+                    rendered.push('</dd>')
+                }
+                if (row.outcome.length > 0) {
+                    rendered.push('<dt>Outcome</dt>')
+                    rendered.push('<dd>')
+                    if (row.outcome.length < 200) {
+                        rendered.push(row.outcome)
+                    } else {
+                        rendered.push('<span title="'+row.outcome+'">'+row.outcome.slice(0,200)+'...</span>')
+                    }
+                    rendered.push('</dd>')
+                }
+                if (row.tags.length > 0) {
+                    rendered.push('<dt>Tags</dt>')
+                    rendered.push('<dd>')
+                    for (var i=0;i<row.tags.length;i++) {
+                        var tag = row.tags[i];
+                        rendered.push('<button class="btn btn-default btn-xs tag" value="'+ tag +'">' + tag + '</button>')
+                    }
+                    rendered.push('</dd>')
+                }
+                if (row.parameters.length > 0) {
+                    // rendered.push('<div style="display:none">')
+                    rendered.push('<dt>Parameters</dt>')
+                    rendered.push('<dd>')
+                    if (row.parameters.length < 8) {
+                        rendered.push(row.parameters.join('<br>'))
+                    } else {
+                        rendered.push('<span>'+row.parameters.slice(0,8).join('<br>')+'...</span>')
+                    }
+                    rendered.push('</dd>')
+                    // rendered.push('</div>')
+                }
+                rendered.push('</dl>')
+                return rendered.join(' ');
+            }
+        }, "targets": [1]},                                                     // info
         {"render": function(data, type, row) {
             return '<a href="/'+row.project+'/'+data+'/">'+data+'</a>'
-        }, "targets": [2]},                                                     // record
+        }, "visible": false, "targets": [2]},                                   // record
         {"render": function(data, type, row) {
             if (data.length < 200) {
                 return data
             } else {
                 return '<span title="'+data+'">'+data.slice(0,200)+'...</span>'
             }
-        }, "targets": [3,4]},                                                   // reason,outcome
+        }, "visible": false, "targets": [3,4,6]},                               // reason,outcome, parameters
         {"render": function(data, type, row) {
             if (data.length == 0) {
                 return ''
@@ -114,7 +171,7 @@ $(document).ready(function() {
                 }
                 return rendered.join(' ');
             }
-        }, "targets": [5]},                                                     // tags
+        }, "visible": false, "targets": [5]},                                   // tags
     ]
 
     var table = $('#images-table').DataTable({
@@ -129,15 +186,15 @@ $(document).ready(function() {
             }
         },
         "columns": [
-            { "data": "date" },
             { "data": "image" },
+            { "data": "date" },
             { "data": "record" },
             { "data": "reason" },
             { "data": "outcome" },
             { "data": "tags" },
-            // { "data": "parameters" },
+            { "data": "parameters" },
         ],
-        "order":            [[ 0, "desc" ]],
+        "order":            [[ 1, "desc" ]],
         "columnDefs":       columnDefs,
         "preDrawCallback": function (settings) {
               // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
@@ -147,7 +204,7 @@ $(document).ready(function() {
           },
         "rowCallback": function( row, data ) {
             $('#thumbs_container').append('<div class="thumb"><div class="thumbnail">' +
-                '<a href=/"'+data.project+'/data/datafile?path='+data.path+'&digest='+data.digest+'&creation='+data.date+'">' +
+                '<a href="/'+data.project+'/data/datafile?path='+data.path+'&digest='+data.digest+'&creation='+data.creation+'">' +
                 '<img src="/data/'+data.datastore+'?path='+data.path+'&digest='+data.digest+'&creation='+data.creation+'">' +
                 '</a></div></div>');
             $('.thumb').addClass(thumbgrid_view);
