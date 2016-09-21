@@ -153,7 +153,7 @@ class TestGitWorkingCopy(unittest.TestCase, BaseTestWorkingCopy):
         for filename in ['default.param','romans.param']:
             with open(os.path.join(path_to_project, filename), 'r') as f:
                 lines = f.readlines()
-                self.assertEqual(self.wc.content(self.latest_version, filename), ''.join(lines))
+                self.assertEqual(self.wc.content(self.latest_version, filename), ''.join(lines)[:-1])
 
 
 @unittest.skipUnless(have_pysvn, "Could not import pysvn")
