@@ -22,6 +22,7 @@ import git
 import os
 import sys
 import shutil
+import tempfile
 from distutils.version import LooseVersion
 from configparser import NoSectionError, NoOptionError
 try:
@@ -102,6 +103,28 @@ class GitWorkingCopy(WorkingCopy):
         """Difference between working copy and repository."""
         g = git.Git(self.path)
         return g.diff('HEAD', color='never')
+
+    def reset(self):
+        """Resets all uncommitted changes since the commit. Destructive, be
+        careful with use"""
+        g = git.Git(self.path)
+        g.reset('HEAD', '--hard')
+
+    def patch(self, diff):
+        """Resets all uncommitted changes since the commit. Destructive, be
+        careful with use"""
+        assert not self.has_changed(), "Cannot patch dirty working copy"
+        # Create temp patch file
+        if diff[-1] != '\n':
+            diff = diff + '\n'
+        with tempfile.NamedTemporaryFile(mode='w+', delete=False) as temp_file:
+            temp_file.write(diff)
+            temp_file_name = temp_file.name
+        try:
+            g = git.Git(self.path)
+            g.apply(temp_file_name)
+        finally:
+            os.remove(temp_file_name)
 
     def content(self, digest, file=None):
         """Get the file content from repository."""
