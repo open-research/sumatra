@@ -8,8 +8,6 @@ from sumatra import commands, __version__
 from sumatra.versioncontrol.base import VersionControlError
 from sumatra.recordstore.base import RecordStoreAccessError
 
-import ipdb
-
 usage = """Usage: smt <subcommand> [options] [args]
 
 Simulation/analysis management tool version %s
@@ -30,9 +28,7 @@ except AttributeError:
     sys.exit(1)
 
 try:
-    ipdb.set_trace()
-    with ipdb.launch_ipdb_on_exception():
-        main(sys.argv[2:])
+    main(sys.argv[2:])
 except (VersionControlError, RecordStoreAccessError) as err:
     print("Error: {}".format(err))
     sys.exit(1)
