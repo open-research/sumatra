@@ -28,9 +28,6 @@ from builtins import str
 from builtins import object
 
 import os
-import io
-import subprocess
-import tempfile
 import re
 import importlib
 import pickle
