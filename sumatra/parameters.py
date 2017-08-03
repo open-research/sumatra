@@ -216,6 +216,12 @@ class NTParameterSet(parameters.ParameterSet, ParameterSet):
     # just a re-name, to clarify things
     name = ".ntparameterset"
 
+    def save(self, filename, add_extension=False):
+        if add_extension:
+            filename += ".params"
+        super().save(filename)
+        return filename
+
 
 @component
 class SimpleParameterSet(ParameterSet):
