@@ -195,6 +195,8 @@ def find_imported_packages(filename, executable_path, debug=0, exclude_stdlib=Tr
     # could run in parallel with the simulation (good for multicore): we could
     # move setting of dependencies to after the simulation, rather than having it
     # in record.register()
+
+    # HACK Added excludes=['jinja2.asyncsupport']
     script = textwrap.dedent("""
         from modulefinder import ModuleFinder
         import sys, os
@@ -204,7 +206,7 @@ def find_imported_packages(filename, executable_path, debug=0, exclude_stdlib=Tr
                         os.path.join(stdlib_path, "plat-mac"),
                         os.path.join(stdlib_path, "plat-mac", "lib-scriptpackages"))
         exclude_stdlib = %s
-        finder = ModuleFinder(path=sys.path, debug=%d)
+        finder = ModuleFinder(path=sys.path, debug=%d, excludes=['jinja2.asyncsupport'])
         try:
             finder.run_script("%s")
         except Exception as ex:
