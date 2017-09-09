@@ -6,10 +6,7 @@ from __future__ import unicode_literals
 from builtins import str
 from builtins import object
 
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
+import unittest
 from sumatra.launch import SerialLaunchMode, DistributedLaunchMode
 import sys
 import os

@@ -5,10 +5,7 @@ from __future__ import with_statement
 from __future__ import unicode_literals
 from builtins import str
 
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
+import unittest
 import os
 import textwrap
 from copy import deepcopy

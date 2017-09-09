@@ -5,10 +5,7 @@ Unit tests for the sumatra.formatting module
 from __future__ import unicode_literals
 from builtins import object
 
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
+import unittest
 import tempfile
 from datetime import datetime
 import os

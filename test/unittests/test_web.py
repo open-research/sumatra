@@ -5,10 +5,7 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 from builtins import object
 
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
+import unittest
 from datetime import datetime
 
 

@@ -20,10 +20,7 @@ try:
     have_docker = True
 except ImportError:
     have_docker = False
-try:
-    from unittest2 import SkipTest
-except ImportError:
-    from unittest import SkipTest
+from unittest import SkipTest
 import utils
 from utils import setup, teardown as default_teardown, run_test, build_command
 
