@@ -296,16 +296,18 @@ class Project(object):
             labels.reverse()
         return labels
 
-    def find_records(self, tags=None, reverse=False, *args, **kwargs):
+    def find_records(self, tags=None, reverse=False, parameters=None, *args, **kwargs):
         records = self.record_store.list(self.name, tags, *args, **kwargs)
         if reverse:
             records.reverse()
+        if parameters is not None:
+            records = [rec for rec in records if len(rec.parameters.diff(parameters)[-1]) == 0]
         return records
 
     # def find_data() here?
 
     def format_records(self, format='text', mode='short', tags=None, reverse=False, *args, **kwargs):
-        if format=='text' and mode=='short':
+        if format=='text' and mode=='short' and ('parameters' not in kwargs.keys()):
             return '\n'.join(self.get_labels(tags=tags, reverse=reverse))
         else:
             records = self.find_records(tags=tags, reverse=reverse, *args, **kwargs)
