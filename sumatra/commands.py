@@ -54,6 +54,17 @@ def _warning(
     print(message)
 warnings.showwarning = _warning
 
+def _convertStr(s):
+ 	"""Convert string to either int or float or not both."""
+ 	try:
+ 		ret = int(s)
+ 	except ValueError:
+         try:
+             ret = float(s)
+         except ValueError:
+             ret = s
+ 	return ret
+
 def parse_executable_str(exec_str):
     """
     Split the string describing the executable into a path part and an
@@ -433,6 +444,7 @@ def list(argv):  # add 'report' and 'log' as aliases
     parser.add_argument('-m', '--main_file', help="filter list of records by main file")
     parser.add_argument('-P', '--parameter_table', action="store_const", const="parameter_table",
                         dest="mode", help="list records with parameter values")
+    parser.add_argument('-p', '--parameters', metavar='parameters', default=None, help="filter records by parameter values, separated by comma")
     args = parser.parse_args(argv)
 
     project = load_project()
@@ -442,6 +454,14 @@ def list(argv):  # add 'report' and 'log' as aliases
 
     kwargs = {'tags':args.tags, 'mode':args.mode, 'format':args.format, 'reverse':args.reverse}
     if args.main_file is not None: kwargs['main_file__startswith'] = args.main_file
+    if args.parameters:
+        parameters = {}
+        for pp in args.parameters.split(','):
+            for operator in ['=',':']:
+                if operator in pp:
+                    pkey,pval = pp.split(operator)
+                    parameters.update({pkey:_convertStr(pval)})
+        kwargs.update({'parameters':parameters})
     print(project.format_records(**kwargs))
 
 
