@@ -9,10 +9,7 @@ from __future__ import unicode_literals
 import os
 from time import sleep
 from builtins import input
-try:
-    from unittest2 import SkipTest
-except ImportError:
-    from unittest import SkipTest
+from unittest import SkipTest
 try:
     from selenium import webdriver
     have_selenium = True

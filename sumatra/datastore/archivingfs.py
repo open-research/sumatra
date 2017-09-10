@@ -15,7 +15,7 @@ import shutil
 import logging
 import mimetypes
 import datetime
-from contextlib import closing  # needed for Python 2.6
+from contextlib import closing
 from sumatra.core import TIMESTAMP_FORMAT, component
 
 

@@ -49,7 +49,9 @@ def _warning(
         message,
         category = UserWarning,
         filename = '',
-        lineno = -1):
+        lineno = -1,
+        file=None,
+        line=None):
     print("Warning: ")
     print(message)
 warnings.showwarning = _warning

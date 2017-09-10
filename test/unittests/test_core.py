@@ -2,10 +2,7 @@
 Unit tests for the sumatra.core module
 """
 
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
+import unittest
 
 from sumatra.core import _Registry as Registry
 

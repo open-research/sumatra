@@ -155,7 +155,7 @@ class PythonExecutable(Executable):
     name = "Python"
     executable_names = ('python', 'python2', 'python3', 'python2.5',
                         'python2.6', 'python2.7', 'python3.1', 'python3.2',
-                        'python3.3', 'python3.4', 'python3.5')
+                        'python3.3', 'python3.4', 'python3.5', 'python3.6')
     file_extensions = ('.py',)
     default_executable_name = "python"
     requires_script = True

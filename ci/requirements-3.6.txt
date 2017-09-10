@@ -1,0 +1,2 @@
+# Additional requirements for Python 3.5
+pyyaml  # this is already in requirements.txt, but pip doesn't allow empty requirements files
