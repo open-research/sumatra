@@ -96,8 +96,7 @@ class LaunchMode(object):
         """
         Run a computation in a shell, with the given executable, script and
         arguments. If `append_label` is provided, it is appended to the
-        command line. Return True if the computation finishes successfully,
-        False otherwise.
+        command line. Return resultcode.
         """
         self.check_files(executable, main_file)
         cmd = self.generate_command(executable, main_file, arguments)
@@ -110,10 +109,7 @@ class LaunchMode(object):
         else:
             result, output = tee.system2(cmd, cwd=self.working_directory, stdout=True)  # cwd only relevant for local launch, not for MPI, for example
         self.stdout_stderr = "".join(output)
-        if result == 0:
-            return True
-        else:
-            return False
+        return result
 
     def __key(self):
         state = self.__getstate__()

@@ -28,7 +28,7 @@ from sumatra.recordstore import get_record_store
 from sumatra.versioncontrol import get_working_copy, get_repository, UncommittedModificationsError
 from sumatra.formatting import get_diff_formatter
 from sumatra.records import MissingInformationError
-from sumatra.core import TIMESTAMP_FORMAT
+from sumatra.core import TIMESTAMP_FORMAT, STATUS_FORMAT, STATUS_PATTERN
 
 logger = logging.getLogger("Sumatra")
 logger.setLevel(logging.CRITICAL)
@@ -538,11 +538,15 @@ def comment(argv):
 def tag(argv):
     """Tag, or remove a tag, from a record or records."""
     usage = "%(prog)s tag [options] TAG [LIST]"
+    statuses = ('initialized', 'pre_run', 'running', 'finished', 'failed', 
+                'killed', 'succeeded', 'crashed')
+    formatted_statuses = ", ".join((STATUS_FORMAT % s for s in statuses))
     description = dedent("""\
       If TAG contains spaces, it must be enclosed in quotes. LIST should be a
       space-separated list of labels for individual records. If it is omitted,
       only the most recent record will be tagged. If the '-r/--remove' option
-      is set, the tag will be removed from the records.""")
+      is set, the tag will be removed from the records. TAG can be a status 
+      from the mutually exclusive list:  %s. """ % formatted_statuses)
     parser = ArgumentParser(usage=usage,
                             description=description)
     parser.add_argument('tag', metavar='TAG', help="tag to add")
@@ -550,6 +554,13 @@ def tag(argv):
     parser.add_argument('-r', '--remove', action='store_true',
                         help="remove the tag from the record(s), rather than adding it.")
     args = parser.parse_args(argv)
+
+    m = STATUS_PATTERN.match(args.tag)
+    if m:
+        tag = m.group(1).lower()
+        if tag not in statuses:
+            raise ValueError("TAG should be one of %s" % formatted_statuses)
+
     project = load_project()
     if args.remove:
         op = project.remove_tag

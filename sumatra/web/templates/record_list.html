@@ -60,19 +60,9 @@
 <!-- <table id="records" class="display" cellspacing="0" width="100%"> -->
     <thead>
     <tr>
-        <th>Label</th>
-        <th>Date/Time</th>
-        <th>Reason</th>
-        <th>Outcome</th>
-        <th>Input&nbsp;data</th>
-        <th>Output&nbsp;data</th>
-        <th>Duration</th>
-        <th>Processes</th>
-        <th>Executable</th>
-        <th>Main</th>
-        <th>Version</th>
-        <th>Arguments</th>
-        <th>Tags</th>
+        {% for column in project.columns %}
+          <th>{{column|nbsp}}</th>
+        {% endfor %}
     </tr>
     </thead>
 
@@ -109,11 +99,7 @@
             <span class="glyphicon glyphicon-file"></span></a> {{record.main_file|ubreak}}</td>
         <td>{{record.version|cut:"vers"|truncatechars:10}}{% if record.diff %}*{% endif %}</td>
         <td>{{record.script_arguments}}</td>
-        <td id="id_button_tags">
-            {% for tag in record.tag_objects %}
-                <button class="btn btn-default btn-xs tag" value="{{tag}}">{{tag}}</button>
-            {% endfor %}
-        </td>
+        <td>{% for tag in record.tag_objects %}{{tag.name|labelize_tag}}{% if not forloop.last %} {% endif %}{% endfor %}</td>
     </tr>
     {% endfor %}
     <tbody>
@@ -163,18 +149,10 @@
       </div>
       <div class="modal-body" id="columnsToDisplay">
         <h5>Columns to display</h5>
-        <div class="checkbox"><label><input type="checkbox" data-column='1' checked="checked"> Date/Time</label></div>
-        <div class="checkbox"><label><input type="checkbox" data-column='2' checked="checked"> Reason</label></div>
-        <div class="checkbox"><label><input type="checkbox" data-column='3' checked="checked"> Outcome</label></div>
-        <div class="checkbox"><label><input type="checkbox" data-column='4' checked="checked"> Input data</label></div>
-        <div class="checkbox"><label><input type="checkbox" data-column='5' checked="checked"> Output data</label></div>
-        <div class="checkbox"><label><input type="checkbox" data-column='6' checked="checked"> Duration</label></div>
-        <div class="checkbox"><label><input type="checkbox" data-column='7' checked="checked"> Processes</label></div>
-        <div class="checkbox"><label><input type="checkbox" data-column='8' checked="checked"> Executable</label></div>
-        <div class="checkbox"><label><input type="checkbox" data-column='9' checked="checked"> Main</label></div>
-        <div class="checkbox"><label><input type="checkbox" data-column='10' checked="checked"> Version</label></div>
-        <div class="checkbox"><label><input type="checkbox" data-column='11' checked="checked"> Arguments</label></div>
-        <div class="checkbox"><label><input type="checkbox" data-column='12' checked="checked"> Tags</label></div>
+        {% for column in project.columns|slice:"1:" %}
+          <div class="checkbox"><label><input type="checkbox" 
+          data-column='{{forloop.counter}}' checked="checked">{{column}}</label></div>
+        {% endfor %}
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>

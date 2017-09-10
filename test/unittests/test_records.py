@@ -34,7 +34,7 @@ class MockLaunchMode(object):
     def pre_run(self, executable):
         pass
     def run(self, *args, **kwargs):
-        pass
+        return 0
 
 class MockFile(object):
     def __init__(self, name):

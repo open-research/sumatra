@@ -21,6 +21,8 @@ import sys
 import os
 import contextlib
 from io import StringIO
+import traceback
+from sumatra.core import STATUS_FORMAT
 
 
 class _ByteAndUnicodeStringIO(StringIO):
@@ -82,13 +84,28 @@ def capture(main):
                                     executable=executable)
         record.launch_mode.working_directory = os.getcwd()
         parameters.update({"sumatra_label": record.label})
+        record.add_tag(STATUS_FORMAT % "running")
+        record.stdout_stderr = "Not yet captured."
+        project.add_record(record)
         start_time = time.time()
         with _grab_stdout_stderr() as stdout_stderr:
-            main(*args, **kwargs)
-            record.stdout_stderr = stdout_stderr.getvalue()
+            try:
+                main(*args, **kwargs)
+                status = "finished"
+            except KeyboardInterrupt:
+                status = "killed"
+            except Exception as e:
+                status = "failed"
+                record.outcome = repr(e)
+                traceback.print_exc()
+            finally:
+                record.stdout_stderr = stdout_stderr.getvalue()
+        record.add_tag(STATUS_FORMAT % (status + "..."))
+        project.save_record(record)
         record.duration = time.time() - start_time
         record.output_data = record.datastore.find_new_data(record.timestamp)
-        project.add_record(record)
+        record.add_tag(STATUS_FORMAT % status)
+        project.save_record(record)
         project.save()
 
     return wrapped_main
