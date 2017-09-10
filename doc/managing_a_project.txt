@@ -61,7 +61,7 @@ directory the files will be created, to avoid it having to search the entire dis
 
 Now Sumatra will recursively search ``results`` and all sub-directories for any new files created during the
 computation. If your computations overlap in time there is a risk that Sumatra will mix up the files. A solution
-to this problem is given in the :doc:`faq`. If you don't specific the output data directory, Sumatra will assume it
+to this problem is given in the :doc:`faq`. If you don't specify the output data directory, Sumatra will assume it
 is a directory called "Data".
 
 The default directory for input data files is the filesystem root; this can also be changed with the :command:`--input`
