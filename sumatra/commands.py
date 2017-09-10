@@ -40,7 +40,7 @@ logger.debug("STARTING")
 
 modes = ("init", "configure", "info", "run", "list", "delete", "comment", "tag",
          "repeat", "diff", "help", "export", "upgrade", "sync", "migrate", "version",
-         "script")
+         "view")
 
 store_arg_help = "The argument can take the following forms: (1) `/path/to/sqlitedb` - DjangoRecordStore is used with the specified Sqlite database, (2) `http[s]://location` - remote HTTPRecordStore is used with a remote Sumatra server, (3) `postgres://username:password@hostname/databasename` - DjangoRecordStore is used with specified Postgres database."
 
@@ -759,21 +759,27 @@ def migrate(argv):
     # should we also change the default values stored in the Project?
 
 
-def script(argv):
-    """Print script content of the recording label."""
-    usage = "%(prog)s script"
-    description = "Print script content of the recording label."
+def view(argv):
+    """View detail of a single record."""
+    usage = "%(prog)s view"
+    description = "View detail of a single record."
     parser = ArgumentParser(usage=usage,
                             description=description)
     parser.add_argument('label')
+    parser.add_argument('-s', '--script', help="show script content.")
+    parser.add_argument('-v', '--version', help="show version of main script.")
     args = parser.parse_args(argv)
     project = load_project()
     record = project.get_record(args.label)
     print('Main_File\t :',record.main_file)
-    print('Version\t\t :',record.version)
-    print(80*'-')
-    print(record.script_content)
-    print(80*'-')
+    if args.version:
+        print('Version\t\t :',record.version)
+        print(80*'-')
+    if args.script:
+        print(record.script_content)
+        print(80*'-')
+    # implementation to finish, including other record fields as options
+    # todo: use `formatting` module, rather than print statements
 
 
 def version(argv):
