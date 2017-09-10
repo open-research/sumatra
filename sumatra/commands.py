@@ -57,16 +57,18 @@ def _warning(
     print(message)
 warnings.showwarning = _warning
 
+
 def _convertStr(s):
- 	"""Convert string to either int or float or not both."""
- 	try:
- 		ret = int(s)
- 	except ValueError:
-         try:
-             ret = float(s)
-         except ValueError:
-             ret = s
- 	return ret
+    """Convert string to either int or float or not both."""
+    try:
+        ret = int(s)
+    except ValueError:
+        try:
+            ret = float(s)
+        except ValueError:
+            ret = s
+    return ret
+
 
 def parse_executable_str(exec_str):
     """
