@@ -19,6 +19,7 @@ import re
 from ..core import component, component_type, get_registered_components
 import parameters
 from functools import reduce
+import os
 
 
 
@@ -203,6 +204,11 @@ class TextFormatter(Formatter):
         tt = TextTable(fields, self.records)
         return str(tt)
 
+    def output_table(self):
+        """Return a list of output files, one per line."""
+        dt = DataTable(self.records, max_column_width=20, seperator='|')
+        return str(dt)
+
     def parameter_table(self):
         """ Return parameter information about a list of records as text, in a simple tabular format."""
         pt = ParamsTable(self.records, max_column_width=13, seperator='|')
@@ -235,6 +241,56 @@ class TextTable(object):
         output = format % tuple(h.title() for h in self.headers)
         for row in self.rows:
             output += format % tuple(str(getattr(row, header))[:self.max_column_width] for header in self.headers)
+        return output
+
+
+class DataTable(object):
+
+    def __init__(self, rows, max_column_width=20, seperator='|'):
+        self.rows = rows
+        self.headers = self.get_headers()
+        self.max_column_width = max_column_width
+        self.seperator = seperator
+
+    def get_headers(self):
+        return ['output_from_record', 'directory', 'filename', 'digest', 'creation', 'size', 'mimetype']
+
+    def calculate_column_widths(self):
+        column_widths = []
+        for header in self.headers:
+            column_val_width = []
+            for row in self.rows:
+                for output_file in row.output_data:
+                    if header == 'output_from_record':
+                        column_val_width.append(len(str(row.label)))
+                    if header == 'directory':
+                        column_val_width.append(len(str(os.path.dirname(output_file.path))))
+                    if header == 'filename':
+                        column_val_width.append(len(str(os.path.basename(output_file.path))))
+                    if header in output_file.__dict__:
+                        column_val_width.append(len(str(output_file.__dict__[header])))
+                    elif header in output_file.__dict__['metadata']:
+                        column_val_width.append(len(str(output_file.__dict__['metadata'][header])))
+            column_width = max([len(header)] + column_val_width)
+            column_widths.append(min(self.max_column_width, column_width))
+        return column_widths
+
+    def __str__(self):
+        column_widths = self.calculate_column_widths()
+        if self.seperator == '|':
+            format = "| " + " | ".join("%%-%ds" % w for w in column_widths) + " |\n"
+        else:
+            format = self.seperator.join(len(column_widths)*["%s"]) + "\n"
+        assert len(column_widths) == len(self.headers)
+        output = format % tuple(h[:self.max_column_width] for h in self.headers)
+        for row in self.rows:
+            for output_file in row.output_data:
+                output += format % tuple(
+                    [str(row.label[:self.max_column_width])]
+                    +[str(os.path.dirname(output_file.path)[:self.max_column_width])]
+                    +[str(os.path.basename(output_file.path)[:self.max_column_width])]
+                    +[str(getattr(output_file, header))[:self.max_column_width] for header in self.headers[3:5]]
+                    +[str(output_file.metadata[header])[:self.max_column_width] for header in self.headers[5:]])
         return output
 
 
