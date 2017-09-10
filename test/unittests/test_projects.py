@@ -77,6 +77,9 @@ class MockWorkingCopy(object):
     def get_username(self):
         return "The Knights Who Say Ni"
 
+    def reset(self):
+        pass
+    
 
 class MockExecutable(object):
     name = "Python"
