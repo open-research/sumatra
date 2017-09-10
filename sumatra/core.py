@@ -21,9 +21,13 @@ from collections import OrderedDict
 from urllib.request import urlopen
 from urllib.error import URLError
 import warnings
+import re
 
 
 TIMESTAMP_FORMAT = "%Y%m%d-%H%M%S"
+
+STATUS_FORMAT = "_%s_"
+STATUS_PATTERN = re.compile(r"_(([^.]*)(\.\.\.)?)_")
 
 
 def have_internet_connection():

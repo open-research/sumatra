@@ -10,7 +10,7 @@ import tarfile
 import logging
 from fs.contrib.davfs import DAVFS
 from urllib.parse import urlparse
-from contextlib import closing  # needed for Python 2.6
+from contextlib import closing
 
 from sumatra.core import component
 from .archivingfs import ArchivingFileSystemDataStore, ArchivedDataFile, TIMESTAMP_FORMAT

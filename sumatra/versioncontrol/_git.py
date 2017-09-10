@@ -20,7 +20,6 @@ standard_library.install_aliases()
 import logging
 import git
 import os
-import sys
 import shutil
 import tempfile
 from distutils.version import LooseVersion
@@ -126,23 +125,12 @@ class GitWorkingCopy(WorkingCopy):
         finally:
             os.remove(temp_file_name)
 
-    def content(self, digest, file=None):
+    def content(self, digest, filename):
         """Get the file content from repository."""
         repo = git.Repo(self.path)
-        curtree = repo.commit(digest).tree
-        if file is None:
-            return curtree.blobs[0].data_stream.read() # Get the latest added file content.
-        dirname, filename = os.path.split(file)
-        if dirname != '':
-            for dname in dirname.split(os.path.sep):
-                for subtree in curtree.trees:
-                    if subtree.name == dname:
-                        curtree = subtree
-                        break
-        for blob in curtree.blobs:
-            if blob.name == filename:
-                expected_encoding = sys.getfilesystemencoding()
-                file_content = blob.data_stream.read().decode(expected_encoding)
+        for _,blob in repo.index.iter_blobs():
+            if blob.name == os.path.basename(filename):
+                file_content = repo.git.show('%s:%s' %(digest, blob.path))
                 return file_content
         return 'File content not found.'
 

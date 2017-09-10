@@ -9,10 +9,7 @@ from future import standard_library
 standard_library.install_aliases()
 from builtins import str
 from builtins import object
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
+import unittest
 import os
 import sys
 import tempfile

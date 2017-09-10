@@ -13,7 +13,7 @@ import json
 from django.db import models
 from sumatra import programs, launch, datastore, records, versioncontrol, parameters, dependency_finder
 from sumatra.datastore import get_data_store
-import datetime
+from datetime import datetime
 import django
 from distutils.version import LooseVersion
 from sumatra.core import get_registered_components
@@ -71,6 +71,10 @@ class Project(BaseModel):
     id = models.SlugField(primary_key=True)
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True)
+    columns = ["Label", "Date/Time", "Reason", "Outcome", 
+               "Input data", "Output data", "Duration", "Processes", 
+               "Executable", "Main", "Version", "Arguments", "Tags"]
+
 
     class Meta(object):
         ordering = ('id',)

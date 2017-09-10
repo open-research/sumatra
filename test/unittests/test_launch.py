@@ -6,10 +6,7 @@ from __future__ import unicode_literals
 from builtins import str
 from builtins import object
 
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
+import unittest
 from sumatra.launch import SerialLaunchMode, DistributedLaunchMode
 import sys
 import os
@@ -42,11 +39,11 @@ class BaseTestLaunchMode(object):
         with open("test_parameters", "w") as f:
             f.write("b = 3\n")
 
-    def test__run__should_return_True_if_the_command_completed_successfully(self):
+    def test__run__should_return_zero_if_the_command_completed_successfully(self):
         self.write_valid_script()
         self.write_parameter_file()
         prog = MockExecutable(sys.executable)
-        self.assertEqual(True, self.lm.run(prog, "valid_test_script.py", "test_parameters"))
+        self.assertEqual(0, self.lm.run(prog, "valid_test_script.py", "test_parameters"))
 
     def test__run__should_raise_an_Exception_if_the_executable_does_not_exist(self):
         self.write_valid_script()
@@ -64,11 +61,11 @@ class BaseTestLaunchMode(object):
         self.write_valid_script()
         self.lm.run(prog, "valid_test_script.py", None)
 
-    def test__run__should_return_False_if_the_command_failed(self):
+    def test__run__should_return_one_if_the_command_failed(self):
         self.write_invalid_script()
         self.write_parameter_file()
         prog = MockExecutable(sys.executable)
-        self.assertEqual(False, self.lm.run(prog, "invalid_test_script.py", "test_parameters"))
+        self.assertEqual(1, self.lm.run(prog, "invalid_test_script.py", "test_parameters"))
 
     def test__str(self):
         # just to make sure no errors are returned

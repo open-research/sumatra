@@ -5,7 +5,7 @@
 from __future__ import print_function
 from __future__ import unicode_literals
 from builtins import str
-import logging, sys, subprocess, types, time, os, codecs, platform
+import logging, sys, signal, subprocess, types, time, os, codecs, platform
 
 string_types = str,
 
@@ -133,26 +133,32 @@ def system2(cmd, cwd=None, logger=_sentinel, stdout=_sentinel, log_command=_sent
         p = subprocess.Popen(cmd, cwd=cwd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, close_fds=(platform.system() == 'Linux'))
         if(log_command):
                 mylogger("Running: %s" % cmd)
-        while True:
-                try:
-                        line = p.stdout.readline()
-                        line = line.decode(encoding)
-                except Exception as e:
-                        logging.error(e)
-                        logging.error("The output of the command could not be decoded as %s\ncmd: %s\n line ignored: %s" %\
-                                (encoding, cmd, repr(line)))
-                        pass
+        try:
+            while True:
+                    try:
+                            line = p.stdout.readline()
+                            line = line.decode(encoding)
+                    except Exception as e:
+                            logging.error(e)
+                            logging.error("The output of the command could not be decoded as %s\ncmd: %s\n line ignored: %s" %\
+                                    (encoding, cmd, repr(line)))
+                            pass
 
-                output.append(line)
-                if not line:
-                        break
-                #line = line.rstrip('\n\r')
-                mylogger(line.rstrip('\n\r')) # they are added by logging anyway
-                #import pdb; pdb.set_trace()
-                if(stdout):
-                        print(line, end="")
-                        sys.stdout.flush()
-        returncode = p.wait()
+                    output.append(line)
+                    if not line:
+                            break
+                    #line = line.rstrip('\n\r')
+                    mylogger(line.rstrip('\n\r')) # they are added by logging anyway
+                    #import pdb; pdb.set_trace()
+                    if(stdout):
+                            print(line, end="")
+                            sys.stdout.flush()
+            returncode = p.wait()
+        except KeyboardInterrupt:
+            # Popen.returncode: 
+            #   "A negative value -N indicates that the child was terminated by signal N (Unix only)."
+            # see https://docs.python.org/2/library/subprocess.html#subprocess.Popen.returncode
+            returncode = -signal.SIGINT
         if(log_command):
                 if(timing):
                         def secondsToStr(t):

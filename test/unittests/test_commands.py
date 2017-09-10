@@ -8,10 +8,7 @@ standard_library.install_aliases()
 from builtins import str
 from builtins import object
 
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
+import unittest
 import os
 import hashlib
 import shutil
@@ -84,6 +81,7 @@ class MockRecord(object):
     main_file = "main.py"
     version = "42"
     launch_mode = "dummy"
+    tags = ["_finished_"]
     def __init__(self, label):
         self.label = label
 
@@ -678,6 +676,13 @@ class TestTagCommand(unittest.TestCase):
     def test_single_arg_interpreted_as_tag_on_last_record(self):
         commands.tag(["foo"])
         self.assertEqual(self.prj.tags["most_recent"], "foo")
+
+    def test_with_unknown_status(self):
+        self.assertRaises(ValueError, commands.tag, ["_cromulent_"])
+
+    def test_single_arg_interpreted_as_status_on_last_record(self):
+        commands.tag(["_succeeded_"])
+        self.assertEqual(self.prj.tags["most_recent"], "_succeeded_")
 
     def test_tag_multiple_records(self):
         commands.tag(["foo", "a", "b", "c"])

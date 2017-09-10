@@ -28,7 +28,7 @@ from sumatra.recordstore import get_record_store
 from sumatra.versioncontrol import get_working_copy, get_repository, UncommittedModificationsError
 from sumatra.formatting import get_diff_formatter
 from sumatra.records import MissingInformationError
-from sumatra.core import TIMESTAMP_FORMAT
+from sumatra.core import TIMESTAMP_FORMAT, STATUS_FORMAT, STATUS_PATTERN
 
 logger = logging.getLogger("Sumatra")
 logger.setLevel(logging.CRITICAL)
@@ -39,7 +39,8 @@ logger.addHandler(h)
 logger.debug("STARTING")
 
 modes = ("init", "configure", "info", "run", "list", "delete", "comment", "tag",
-         "repeat", "diff", "help", "export", "upgrade", "sync", "migrate", "version")
+         "repeat", "diff", "help", "export", "upgrade", "sync", "migrate", "version",
+         "view")
 
 store_arg_help = "The argument can take the following forms: (1) `/path/to/sqlitedb` - DjangoRecordStore is used with the specified Sqlite database, (2) `http[s]://location` - remote HTTPRecordStore is used with a remote Sumatra server, (3) `postgres://username:password@hostname/databasename` - DjangoRecordStore is used with specified Postgres database."
 
@@ -49,10 +50,25 @@ def _warning(
         message,
         category = UserWarning,
         filename = '',
-        lineno = -1):
+        lineno = -1,
+        file=None,
+        line=None):
     print("Warning: ")
     print(message)
 warnings.showwarning = _warning
+
+
+def _convertStr(s):
+    """Convert string to either int or float or not both."""
+    try:
+        ret = int(s)
+    except ValueError:
+        try:
+            ret = float(s)
+        except ValueError:
+            ret = s
+    return ret
+
 
 def parse_executable_str(exec_str):
     """
@@ -431,8 +447,11 @@ def list(argv):  # add 'report' and 'log' as aliases
     parser.add_argument('-r', '--reverse', action="store_true", dest="reverse", default=False,
                         help="list records in reverse order (default: newest first)")
     parser.add_argument('-m', '--main_file', help="filter list of records by main file")
+    parser.add_argument('-O', '--output_table', action="store_const", const="output_table",
+                        dest="mode", help="list output files from records.")
     parser.add_argument('-P', '--parameter_table', action="store_const", const="parameter_table",
                         dest="mode", help="list records with parameter values")
+    parser.add_argument('-p', '--parameters', metavar='parameters', default=None, help="filter records by parameter values, separated by comma")
     args = parser.parse_args(argv)
 
     project = load_project()
@@ -442,6 +461,14 @@ def list(argv):  # add 'report' and 'log' as aliases
 
     kwargs = {'tags':args.tags, 'mode':args.mode, 'format':args.format, 'reverse':args.reverse}
     if args.main_file is not None: kwargs['main_file__startswith'] = args.main_file
+    if args.parameters:
+        parameters = {}
+        for pp in args.parameters.split(','):
+            for operator in ['=',':']:
+                if operator in pp:
+                    pkey,pval = pp.split(operator)
+                    parameters.update({pkey:_convertStr(pval)})
+        kwargs.update({'parameters':parameters})
     print(project.format_records(**kwargs))
 
 
@@ -516,11 +543,15 @@ def comment(argv):
 def tag(argv):
     """Tag, or remove a tag, from a record or records."""
     usage = "%(prog)s tag [options] TAG [LIST]"
+    statuses = ('initialized', 'pre_run', 'running', 'finished', 'failed', 
+                'killed', 'succeeded', 'crashed')
+    formatted_statuses = ", ".join((STATUS_FORMAT % s for s in statuses))
     description = dedent("""\
       If TAG contains spaces, it must be enclosed in quotes. LIST should be a
       space-separated list of labels for individual records. If it is omitted,
       only the most recent record will be tagged. If the '-r/--remove' option
-      is set, the tag will be removed from the records.""")
+      is set, the tag will be removed from the records. TAG can be a status 
+      from the mutually exclusive list:  %s. """ % formatted_statuses)
     parser = ArgumentParser(usage=usage,
                             description=description)
     parser.add_argument('tag', metavar='TAG', help="tag to add")
@@ -528,6 +559,13 @@ def tag(argv):
     parser.add_argument('-r', '--remove', action='store_true',
                         help="remove the tag from the record(s), rather than adding it.")
     args = parser.parse_args(argv)
+
+    m = STATUS_PATTERN.match(args.tag)
+    if m:
+        tag = m.group(1).lower()
+        if tag not in statuses:
+            raise ValueError("TAG should be one of %s" % formatted_statuses)
+
     project = load_project()
     if args.remove:
         op = project.remove_tag
@@ -721,6 +759,29 @@ def migrate(argv):
             if value:
                 project.record_store.update(project.name, field, value)
     # should we also change the default values stored in the Project?
+
+
+def view(argv):
+    """View detail of a single record."""
+    usage = "%(prog)s view"
+    description = "View detail of a single record."
+    parser = ArgumentParser(usage=usage,
+                            description=description)
+    parser.add_argument('label')
+    parser.add_argument('-s', '--script', help="show script content.")
+    parser.add_argument('-v', '--version', help="show version of main script.")
+    args = parser.parse_args(argv)
+    project = load_project()
+    record = project.get_record(args.label)
+    print('Main_File\t :',record.main_file)
+    if args.version:
+        print('Version\t\t :',record.version)
+        print(80*'-')
+    if args.script:
+        print(record.script_content)
+        print(80*'-')
+    # implementation to finish, including other record fields as options
+    # todo: use `formatting` module, rather than print statements
 
 
 def version(argv):
