@@ -555,7 +555,9 @@ def datatable_data(request, project):
 
 
 def datatable_image(request, project):
-    columns = ['creation', 'path', 'output_from_record__label', 'output_from_record__reason', 'output_from_record__outcome', 'output_from_record__tags']
+    columns = ['path','creation',
+        'output_from_record__label', 'output_from_record__reason',
+        'output_from_record__outcome', 'output_from_record__tags']
     selected_tag = request.GET['tag']
     search_value = request.GET['search[value]']
     order = int(request.GET['order[0][column]'])
@@ -600,7 +602,7 @@ def datatable_image(request, project):
                 'record':       im.output_from_record.label,
                 'reason':       im.output_from_record.reason,
                 'outcome':      im.output_from_record.outcome,
-                'parameters':   im.output_from_record.parameters.content,
+                'parameters':   im.output_from_record.parameters.content.split('\n'),
                 'tags':         [tag.name for tag in im.output_from_record.tag_objects()],
             })
         except:
