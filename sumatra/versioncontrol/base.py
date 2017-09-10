@@ -161,6 +161,16 @@ class WorkingCopy(object):
         """Return the difference between working copy and repository."""
         raise NotImplementedError
 
+    def reset(self):
+        """Resets all uncommitted changes since the commit. Destructive, be
+        careful with use"""
+        raise NotImplementedError
+
+    def patch(self, diff):
+        """Applies the diff patch onto the repository files. Only works on a
+        clean working copy"""
+        raise NotImplementedError
+
     def get_username(self):
         """
         Return the username and e-mail of the current user, as understood by the
