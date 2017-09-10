@@ -23,11 +23,12 @@ import time
 import os
 from os.path import join, basename, exists
 import re
+import signal
 from operator import or_
 from functools import reduce
 from .formatting import get_formatter
 from . import dependency_finder
-from sumatra.core import TIMESTAMP_FORMAT
+from sumatra.core import TIMESTAMP_FORMAT, STATUS_FORMAT, STATUS_PATTERN
 from sumatra.users import get_user
 from .versioncontrol import VersionControlError,get_working_copy
 import logging
@@ -85,12 +86,14 @@ class Record(object):
         self.input_datastore = input_datastore or self.datastore
         self.outcome = ''
         self.output_data = []
-        self.tags = set()
+        self.tags = set([STATUS_FORMAT % 'initialized'])
         self.diff = diff
         self.user = user
         self.on_changed = on_changed
         self.stdout_stderr = stdout_stderr
         self.repeats = None
+        self.dependencies = []
+        self.platforms = []
 
     def register(self, working_copy):
         """Record information about the environment."""
@@ -122,7 +125,7 @@ class Record(object):
         # Record information about the current user
         self.user = get_user(working_copy)
 
-    def run(self, with_label=False):
+    def run(self, with_label=False, project=None):
         """
         Launch the simulation or analysis.
 
@@ -144,8 +147,15 @@ class Record(object):
             else:
                 raise Exception("with_label must be either 'parameters' or 'cmdline'")
             self.datastore.root = join(self.datastore.root, self.label)
+
+        self.add_tag(STATUS_FORMAT % "pre_run")
+        if project:
+            project.save_record(self)
+            logger.debug("Record saved @ pre_run.")
+
         # run pre-simulation/analysis tasks, e.g. nrnivmodl
         self.launch_mode.pre_run(self.executable)
+
         # Write the executable-specific parameter file
         script_arguments = self.script_arguments
         if self.parameters:
@@ -154,8 +164,35 @@ class Record(object):
             script_arguments = script_arguments.replace("<parameters>", self.parameter_file)
         # Run simulation/analysis
         start_time = time.time()
+
+        self.add_tag(STATUS_FORMAT % "running")
+        self.stdout_stderr = "Not yet captured."
+        if project:
+            project.save_record(self)
+            logger.debug("Record saved @ running.")
+
         result = self.launch_mode.run(self.executable, self.main_file,
                                       script_arguments, data_label)
+        if result == 0:
+            status = "finished"
+            logger.debug("  Run finished.")
+        elif result == -signal.SIGINT:
+            status = "killed"
+            logger.debug("  Run killed.")
+        else:
+            status = "failed"
+            if result < 0:
+                self.outcome = ("Failed with `returncode \
+                                <https://docs.python.org/2/library/subprocess.html\
+                                #subprocess.Popen.returncode>`_ %d" % result)
+            logger.debug("  Run failed.")
+            
+        self.add_tag(STATUS_FORMAT % (status + "..."))
+        if project:
+            project.save_record(self)
+            logger.debug("Record saved @ gathering.")
+        self.add_tag(STATUS_FORMAT % status)
+            
         self.duration = time.time() - start_time
 
         # try to get stdout_stderr from launch_mode
@@ -178,6 +215,8 @@ class Record(object):
         if self.parameters and exists(self.parameter_file):
             time.sleep(0.5) # execution of matlab: parameter_file is not always deleted immediately
             os.remove(self.parameter_file)
+                
+        return result
 
     def __repr__(self):
         return "Record #%s" % self.label
@@ -215,6 +254,12 @@ class Record(object):
         """
         self.datastore.delete(*self.output_data)
         self.output_data = []
+
+    def add_tag(self, tag):
+        if STATUS_PATTERN.match(tag):
+            # remove any existing status tags
+            self.tags = set((t for t in self.tags if not STATUS_PATTERN.match(t)))
+        self.tags.add(tag)
 
     @property
     def command_line(self):
