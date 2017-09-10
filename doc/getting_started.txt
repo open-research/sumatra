@@ -8,7 +8,8 @@ project is under version control. Note that the following is equally valid if
 your project is based on data analysis rather than, or as well as,
 simulation: just mentally replace "simulation" with "analysis" in the following.
 
-Change to the working directory for your project, and then create a new Sumatra
+Change to the working directory for your project, check that the code is under
+version control (e.g. run ``git status`` if using Git), and then create a new Sumatra
 project in this directory using the ``smt init`` command::
 
     $ cd myproject
