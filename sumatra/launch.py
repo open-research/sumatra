@@ -218,9 +218,11 @@ class DistributedLaunchMode(LaunchMode):
             default_executable_name = mpirun
 
         if os.path.exists(mpirun):  # mpirun is a full path
-            mpi_cmd = MPI(path=mpirun)
+            # Executable.__init__ tries to _get_version and we don't care
+            # See #321
+            mpi_cmd = MPI(path=mpirun, version="ignore")
         else:
-            mpi_cmd = MPI(path=None)
+            mpi_cmd = MPI(path=None, version="ignore")
         self.mpirun = mpi_cmd.path
         # should warn if mpirun not found
         self.hosts = hosts
