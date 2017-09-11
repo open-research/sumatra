@@ -186,13 +186,13 @@ class Record(object):
                                 <https://docs.python.org/2/library/subprocess.html\
                                 #subprocess.Popen.returncode>`_ %d" % result)
             logger.debug("  Run failed.")
-            
+
         self.add_tag(STATUS_FORMAT % (status + "..."))
         if project:
             project.save_record(self)
             logger.debug("Record saved @ gathering.")
         self.add_tag(STATUS_FORMAT % status)
-            
+
         self.duration = time.time() - start_time
 
         # try to get stdout_stderr from launch_mode
@@ -215,7 +215,7 @@ class Record(object):
         if self.parameters and exists(self.parameter_file):
             time.sleep(0.5) # execution of matlab: parameter_file is not always deleted immediately
             os.remove(self.parameter_file)
-                
+
         return result
 
     def __repr__(self):
@@ -276,7 +276,7 @@ class Record(object):
         """
         wc = get_working_copy()
         try:
-            return wc.content(self.version, file=self.main_file)
+            return wc.content(self.version, self.main_file)
         except:
             return False
 
