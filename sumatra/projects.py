@@ -276,7 +276,7 @@ class Project(object):
                 cnt += 1
         if cnt == max_tries:
             print("Reached maximum number of attempts to save record. Aborting.")
-            
+
     def save_record(self, record):
         self.record_store.save(self.name, record)
 
@@ -302,14 +302,14 @@ class Project(object):
         self._most_recent = self.record_store.most_recent(self.name)
         return n
 
-    def get_labels(self, tags=None, reverse=False):
-        labels = self.record_store.labels(self.name, tags=tags)
+    def get_labels(self, tags=None, reverse=False, *args, **kwargs):
+        labels = self.record_store.labels(self.name, tags=tags, *args, **kwargs)
         if reverse:
             labels.reverse()
         return labels
 
     def find_records(self, tags=None, reverse=False, parameters=None, *args, **kwargs):
-        records = self.record_store.list(self.name, tags, *args, **kwargs)
+        records = self.record_store.list(self.name, tags=tags, *args, **kwargs)
         if reverse:
             records.reverse()
         if parameters is not None:
@@ -320,7 +320,7 @@ class Project(object):
 
     def format_records(self, format='text', mode='short', tags=None, reverse=False, *args, **kwargs):
         if format=='text' and mode=='short' and ('parameters' not in kwargs.keys()):
-            return '\n'.join(self.get_labels(tags=tags, reverse=reverse))
+            return '\n'.join(self.get_labels(tags=tags, reverse=reverse, *args, **kwargs))
         else:
             records = self.find_records(tags=tags, reverse=reverse, *args, **kwargs)
             formatter = get_formatter(format)(records, project=self, tags=tags)
