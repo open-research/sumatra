@@ -29,7 +29,7 @@ Installing Django
 -----------------
 
 If you wish to use the web interface, you will also need to install Django_
-version 1.6 or later. On Linux, you may be able to do this via your package
+version 1.8 or later. On Linux, you may be able to do this via your package
 management system: see https://code.djangoproject.com/wiki/Distributions.
 
 Otherwise, it is very easy to install manually: see

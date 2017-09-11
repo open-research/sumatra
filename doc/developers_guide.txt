@@ -10,7 +10,7 @@ Requirements
 ------------
 
     * Python_ 2.7, 3.4, 3.5 or 3.6
-    * Django_ >= 1.6 < 1.9
+    * Django_ >= 1.8
     * django-tagging_ >= 0.3
     * parameters >= 0.2.1
     * nose_ >= 0.11.4

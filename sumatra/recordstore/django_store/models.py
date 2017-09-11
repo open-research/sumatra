@@ -33,7 +33,7 @@ class SumatraObjectsManager(models.Manager):
         # might be better to specify the list of field names explicitly
         # as an argument to the Manager __init__().
         excluded_fields = ('id', 'record', 'input_to_records', 'output_from_record', 'output_from_record_id')
-        field_names = set(self.model._meta.get_all_field_names()).difference(excluded_fields)
+        field_names = set([f.name for f in self.model._meta.get_fields()]).difference(excluded_fields)
         attributes = {}
         for name in field_names:
             if name == 'metadata':
@@ -61,7 +61,7 @@ class BaseModel(models.Model):
         abstract = True
 
     def field_names(self):
-        field_names = self._meta.get_all_field_names()
+        field_names = [f.name for f in self._meta.get_fields()]
         field_names.remove('id')
         field_names.remove('record')
         return field_names

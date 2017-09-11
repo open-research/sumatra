@@ -1,5 +1,5 @@
 # Base requirements for running Sumatra, for all supported versions of Python
-Django>=1.6, <1.9
+Django>=1.8
 django-tagging>=0.4
 httplib2
 jinja2
