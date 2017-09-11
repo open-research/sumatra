@@ -17,6 +17,7 @@ from argparse import ArgumentParser
 from textwrap import dedent
 import warnings
 import logging
+import datetime
 import sumatra
 
 from sumatra.programs import get_executable
@@ -452,6 +453,7 @@ def list(argv):  # add 'report' and 'log' as aliases
     parser.add_argument('-P', '--parameter_table', action="store_const", const="parameter_table",
                         dest="mode", help="list records with parameter values")
     parser.add_argument('-p', '--parameters', metavar='parameters', default=None, help="filter records by parameter values, separated by comma")
+    parser.add_argument('-d', '--date', dest='timestamp', help="filter records by the date (today or YYYYMMDD)")
     args = parser.parse_args(argv)
 
     project = load_project()
@@ -460,6 +462,13 @@ def list(argv):  # add 'report' and 'log' as aliases
             f.write('\n'.join(project.get_labels()))
 
     kwargs = {'tags':args.tags, 'mode':args.mode, 'format':args.format, 'reverse':args.reverse}
+
+    if args.timestamp:
+        if args.timestamp == 'today':
+            date = datetime.datetime.today().date()
+        else:
+            date = datetime.datetime.strptime(args.timestamp, '%Y%m%d')
+        kwargs['timestamp__range'] = [date, date+datetime.timedelta(1)]
     if args.main_file is not None: kwargs['main_file__startswith'] = args.main_file
     if args.parameters:
         parameters = {}
