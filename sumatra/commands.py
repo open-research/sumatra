@@ -26,7 +26,7 @@ from sumatra.launch import get_launch_mode
 from sumatra.parameters import build_parameters
 from sumatra.recordstore import get_record_store
 from sumatra.versioncontrol import get_working_copy, get_repository, UncommittedModificationsError
-from sumatra.formatting import get_diff_formatter
+from sumatra.formatting import get_diff_formatter, get_formatter
 from sumatra.records import MissingInformationError
 from sumatra.core import TIMESTAMP_FORMAT, STATUS_FORMAT, STATUS_PATTERN
 
@@ -543,14 +543,14 @@ def comment(argv):
 def tag(argv):
     """Tag, or remove a tag, from a record or records."""
     usage = "%(prog)s tag [options] TAG [LIST]"
-    statuses = ('initialized', 'pre_run', 'running', 'finished', 'failed', 
+    statuses = ('initialized', 'pre_run', 'running', 'finished', 'failed',
                 'killed', 'succeeded', 'crashed')
     formatted_statuses = ", ".join((STATUS_FORMAT % s for s in statuses))
     description = dedent("""\
       If TAG contains spaces, it must be enclosed in quotes. LIST should be a
       space-separated list of labels for individual records. If it is omitted,
       only the most recent record will be tagged. If the '-r/--remove' option
-      is set, the tag will be removed from the records. TAG can be a status 
+      is set, the tag will be removed from the records. TAG can be a status
       from the mutually exclusive list:  %s. """ % formatted_statuses)
     parser = ArgumentParser(usage=usage,
                             description=description)
@@ -763,23 +763,24 @@ def migrate(argv):
 
 def view(argv):
     """View detail of a single record."""
-    usage = "%(prog)s view"
+    usage = "%(prog)s view [options] LABEL"
     description = "View detail of a single record."
     parser = ArgumentParser(usage=usage,
                             description=description)
     parser.add_argument('label')
-    parser.add_argument('-s', '--script', help="show script content.")
-    parser.add_argument('-v', '--version', help="show version of main script.")
+    parser.add_argument('-s', '--script', action='store_true',
+        help="show script content.")
     args = parser.parse_args(argv)
     project = load_project()
     record = project.get_record(args.label)
-    print('Main_File\t :',record.main_file)
-    if args.version:
-        print('Version\t\t :',record.version)
-        print(80*'-')
     if args.script:
+        print('Main_File\t :',record.main_file)
+        print(80*'-')
         print(record.script_content)
         print(80*'-')
+    else:
+        formatter = get_formatter('text')([record], project=project)
+        print(formatter.format('long'))
     # implementation to finish, including other record fields as options
     # todo: use `formatting` module, rather than print statements
 
