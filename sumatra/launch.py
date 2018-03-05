@@ -88,7 +88,7 @@ class LaunchMode(object):
         """Return a string containing the command to be launched."""
         raise NotImplementedError("must be impemented by sub-classes")
 
-    def run(self, executable, main_file, arguments, append_label=None):
+    def run(self, executable, main_file, arguments, append_label=None, catch_stderr=False):
         """
         Run a computation in a shell, with the given executable, script and
         arguments. If `append_label` is provided, it is appended to the
@@ -103,7 +103,7 @@ class LaunchMode(object):
             dependencies in order to avoid opening of Matlab shell two times '''
             result, output = save_dependencies(cmd, main_file)
         else:
-            result, output = tee.system2(cmd, cwd=self.working_directory, stdout=True)  # cwd only relevant for local launch, not for MPI, for example
+            result, output = tee.system2(cmd, cwd=self.working_directory, stdout=True, catch_stderr=catch_stderr)  # cwd only relevant for local launch, not for MPI, for example
         self.stdout_stderr = "".join(output)
         return result
 
@@ -186,6 +186,18 @@ class SerialLaunchMode(LaunchMode):
         return cmd
     generate_command.__doc__ = LaunchMode.generate_command.__doc__
 
+@component
+class SerialTqdmLaunchMode(SerialLaunchMode):
+    """
+    Enable running with a tqdm progress bar.
+    Effectively this launch mode just disables the capture of stderr, which tqdm uses
+    for its output.
+    """
+    name = "serial-tqdm"
+
+    def run(self, *args, **kwargs):
+        return super().run(*args, catch_stderr=False, **kwargs)
+    run.__doc__ = LaunchMode.run.__doc__
 
 @component
 class DistributedLaunchMode(LaunchMode):
