@@ -54,7 +54,7 @@ def system3(cmd):
     tf.close()
     return result, stdout_stderr
 
-def system2(cmd, cwd=None, logger=_sentinel, stdout=_sentinel, log_command=_sentinel, timing=_sentinel):
+def system2(cmd, cwd=None, logger=_sentinel, stdout=_sentinel, log_command=_sentinel, timing=_sentinel, catch_stderr=True):
         #def tee(cmd, cwd=None, logger=tee_logger, console=tee_console):
         """ This is a simple placement for os.system() or subprocess.Popen()
         that simulates how Unix tee() works - logging stdout/stderr using logging
@@ -130,11 +130,16 @@ def system2(cmd, cwd=None, logger=_sentinel, stdout=_sentinel, log_command=_sent
         if cwd is not None and not os.path.isdir(cwd):
                 os.makedirs(cwd) # this throws exception if fails
 
+        if catch_stderr:
+                stderr = subprocess.STDOUT
+        else:
+                stderr = False
+
         # samarkanov: commented 'quote_command' deliberately
         # reason: if I have 'quote_command' Sumatra does not work in Windows (it encloses the command in quotes. I did not understand why should we quote)
         # I have never catched "The input line is too long" (yet?)
         # cmd = quote_command(cmd)
-        p = subprocess.Popen(cmd, cwd=cwd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, close_fds=(platform.system() == 'Linux'))
+        p = subprocess.Popen(cmd, cwd=cwd, shell=True, stdout=subprocess.PIPE, stderr=stderr, close_fds=(platform.system() == 'Linux'))
         if(log_command):
                 mylogger("Running: %s" % cmd)
         try:

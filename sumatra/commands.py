@@ -248,7 +248,7 @@ def configure(argv):
     parser.add_argument('-c', '--on-changed', help="may be 'store-diff' or 'error': the action to take if the code in the repository or any of the dependencies has changed.", choices=['store-diff', 'error'])
     parser.add_argument('-g', '--labelgenerator', choices=['timestamp', 'uuid'], metavar='OPTION', help="specify which method Sumatra should use to generate labels (options: timestamp, uuid)")
     parser.add_argument('-t', '--timestamp_format', help="the timestamp format given to strftime")
-    parser.add_argument('-L', '--launch_mode', choices=['serial', 'distributed', 'slurm-mpi'], help="how computations should be launched.")
+    parser.add_argument('-L', '--launch_mode', choices=['serial', 'serial-tqdm', 'distributed', 'slurm-mpi'], help="how computations should be launched.")
     parser.add_argument('-o', '--launch_mode_options', help="extra options for the given launch mode, to be given in quotes with a leading space, e.g. ' --foo=3'")
     parser.add_argument('-p', '--plain', dest='plain', action='store_true', help="pass arguments to the 'run' command straight through to the program. Otherwise arguments of the form name=value can be used to overwrite default parameter values.")
     parser.add_argument('--no-plain', dest='plain', action='store_false', help="arguments to the 'run' command of the form name=value will overwrite default parameter values. This is the opposite of the --plain option.")
