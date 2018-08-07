@@ -316,7 +316,14 @@ class Project(object):
             records = [rec for rec in records if len(rec.parameters.diff(parameters)[-1]) == 0]
         return records
 
-    # def find_data() here?
+    def find_data(self, *args, **kwargs):
+        records = self.find_records(*args, **kwargs)
+        output_data = []
+        for record in records:
+            for output_datakey in record.output_data:
+                if self.data_store.contains_path(output_datakey.path):
+                    output_data.append(os.path.join(self.data_store.root, output_datakey.path))
+        return output_data
 
     def format_records(self, format='text', mode='short', tags=None, reverse=False, *args, **kwargs):
         if format=='text' and mode=='short' and ('parameters' not in kwargs.keys()):
