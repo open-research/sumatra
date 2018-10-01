@@ -298,7 +298,8 @@ class RecordDifference(object):
         self.main_file_differs = recordA.main_file != recordB.main_file
         self.version_differs = recordA.version != recordB.version
         for rec in recordA, recordB:
-            if rec.parameters:
+            # hasattr guard is for some malformed custom parameter type
+            if rec.parameters and hasattr(rec.parameters, 'pop'):
                 rec.parameters.pop("sumatra_label", 1)
         self.parameters_differ = recordA.parameters != recordB.parameters
         self.script_arguments_differ = recordA.script_arguments != recordB.script_arguments
