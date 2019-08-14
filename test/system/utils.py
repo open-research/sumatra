@@ -83,10 +83,13 @@ def get_label(p):
 
 def assert_in_output(p, texts):
     """Assert that the stdout from process 'p' contains all of the provided text."""
-    if isinstance(texts, str):
+    if isinstance(texts, (str, re.Pattern)):
         texts = [texts]
     for text in texts:
-        assert text in p.stdout.text, "'{0}' is not in '{1}'".format(text, p.stdout.text)
+        if isinstance(text, re.Pattern):
+            assert text.search(p.stdout.text), "regular expression '{0}' has no match in '{1}'".format(text, p.stdout.text)
+        else:
+            assert text in p.stdout.text, "'{0}' is not in '{1}'".format(text, p.stdout.text)
 
 
 def assert_config(p, expected_config):
