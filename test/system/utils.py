@@ -23,7 +23,7 @@ label_pattern = re.compile("Record label for this run: '(?P<label>\d{8}-\d{6})'"
 label_pattern = re.compile("Record label for this run: '(?P<label>[\w\-_]+)'")
 
 info_pattern = r"""Project name        : (?P<project_name>\w+)
-Default executable  : (?P<executable>\w+) \(version: \d+.\d+.\d+\) at /[\w\/_-]+/bin/python
+Default executable  : (?P<executable>\w+) \(version: \d+.\d+.\d+\) at /[\w\/_.-]+/bin/python
 Default repository  : MercurialRepository at \S+/sumatra_exercise \(upstream: \S+/ircr2013\)
 Default main file   : (?P<main>\w+.\w+)
 Default launch mode : serial
