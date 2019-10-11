@@ -23,7 +23,7 @@ label_pattern = re.compile("Record label for this run: '(?P<label>\d{8}-\d{6})'"
 label_pattern = re.compile("Record label for this run: '(?P<label>[\w\-_]+)'")
 
 info_pattern = r"""Project name        : (?P<project_name>\w+)
-Default executable  : (?P<executable>\w+) \(version: \d+.\d+.\d+\) at /[\w\/_-]+/bin/python
+Default executable  : (?P<executable>\w+) \(version: \d+.\d+.\d+\) at /[\w\/_.-]+/bin/python
 Default repository  : MercurialRepository at \S+/sumatra_exercise \(upstream: \S+/ircr2013\)
 Default main file   : (?P<main>\w+.\w+)
 Default launch mode : serial
@@ -83,10 +83,13 @@ def get_label(p):
 
 def assert_in_output(p, texts):
     """Assert that the stdout from process 'p' contains all of the provided text."""
-    if isinstance(texts, str):
+    if isinstance(texts, (str, type(re.compile("")))):
         texts = [texts]
     for text in texts:
-        assert text in p.stdout.text, "'{0}' is not in '{1}'".format(text, p.stdout.text)
+        if isinstance(text, type(re.compile(""))):
+            assert text.search(p.stdout.text), "regular expression '{0}' has no match in '{1}'".format(text, p.stdout.text)
+        else:
+            assert text in p.stdout.text, "'{0}' is not in '{1}'".format(text, p.stdout.text)
 
 
 def assert_config(p, expected_config):
