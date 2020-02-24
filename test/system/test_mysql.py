@@ -50,7 +50,7 @@ def start_pg_container():
 
     Requires the "mysql_test" image. If this does not yet exist, run
 
-        docker build -t postgresql_test - < fixtures/Dockerfile.mysql
+        docker build -t mysql_test - < fixtures/Dockerfile.mysql
     """
     global ctr, dkr
     env = docker.utils.kwargs_from_env(assert_hostname=False)
