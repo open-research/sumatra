@@ -16,5 +16,5 @@ RUN service mysql start &&\
 	mysql -u root --password=${MYSQL_PWD} -e "GRANT ALL PRIVILEGES ON sumatra_test.* TO docker IDENTIFIED BY 'docker';"
 
 EXPOSE 5432
-VOLUME	["VOLUME /var/lib/mysql"]
+VOLUME ["/var/lib/mysql"]
 CMD ["mysqld"]
