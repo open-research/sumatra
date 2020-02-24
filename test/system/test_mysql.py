@@ -55,17 +55,12 @@ def start_pg_container():
     global ctr, dkr
     env = docker.utils.kwargs_from_env(assert_hostname=False)
     dkr = docker.Client(timeout=60, **env)
-    environment = {
-        "MYSQL_DATABASE": "sumatra_test",
-        "MYSQL_USER": "docker",
-        "MYSQL_PASSWORD": "docker"
-    }
 
     host_config = dkr.create_host_config(publish_all_ports=True)
     # docker run -rm -P -name ms_test mysql_test
     ctr = dkr.create_container(image, command=None, hostname=None, user=None,
                                detach=False, stdin_open=False, tty=False,
-                               ports=None, environment=environment, dns=None,
+                               ports=None, environment=None, dns=None,
                                volumes=None, volumes_from=None,
                                network_disabled=False, name=None,
                                entrypoint=None, cpu_shares=None,
