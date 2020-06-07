@@ -22,6 +22,7 @@ from utils import (setup, teardown, run_test, build_command, assert_file_exists,
                    assert_config, assert_label_equal, assert_records, assert_return_code,
                    edit_parameters, expected_short_list, substitute_labels)
 from functools import partial
+import re
 
 repository = "https://bitbucket.org/apdavison/ircr2013"
 #repository = "/Volumes/USERS/andrew/dev/ircr2013"  # during development
@@ -48,7 +49,7 @@ test_steps = [
      assert_in_output, "updating to branch default"),
     ("Run the computation without Sumatra",
      "python glass_sem_analysis.py default_parameters MV_HFV_012.jpg",
-     assert_in_output, "2416.86315789",
+     assert_in_output, re.compile(r"2416\.863[0-9]* 60\.0"),
      assert_file_exists, os.path.join("Data", datetime.now().strftime("%Y%m%d")),  # Data subdirectory contains another subdirectory labelled with today's date)
      ),  # assert(subdirectory contains three image files).
     ("Set up a Sumatra project",
@@ -56,7 +57,7 @@ test_steps = [
      assert_in_output, "Sumatra project successfully set up"),
     ("Run the ``glass_sem_analysis.py`` script with Sumatra",
      "smt run -e python -m glass_sem_analysis.py -r 'initial run' default_parameters MV_HFV_012.jpg",
-     assert_in_output, ("2416.86315789", "histogram.png")),
+     assert_in_output, (re.compile(r"2416\.863[0-9]* 60\.0"), "histogram.png")),
     ("Comment on the outcome",
      "smt comment 'works fine'"),
     ("Set defaults",
