@@ -116,10 +116,7 @@ class DjangoConfiguration(object):
                 db_file = db['NAME']
                 if not os.path.exists(os.path.dirname(db_file)):
                     os.makedirs(os.path.dirname(db_file))
-            try:
-                management.call_command('migrate', database=label, verbosity=0)
-            except django.core.management.base.CommandError:
-                management.call_command('syncdb', database=label, verbosity=0)
+            management.call_command('migrate', run_syncdb=True, database=label, verbosity=0, interactive=False)
 
     def configure(self):
         settings = django_conf.settings
