@@ -5,7 +5,12 @@
 from __future__ import print_function
 from __future__ import unicode_literals
 from builtins import str
-import logging, sys, signal, subprocess, types, time, os, codecs, platform
+import logging, sys, signal, subprocess, types, os, codecs, platform
+try:
+    from time import process_time
+except ImportError:
+    from time import clock as process_time
+
 
 string_types = str,
 
@@ -70,7 +75,7 @@ def system2(cmd, cwd=None, logger=_sentinel, stdout=_sentinel, log_command=_sent
         This method return (returncode, output_lines_as_list)
 
         """
-        t = time.clock()
+        t = process_time()
         output = []
         if log_command is _sentinel: log_command = globals().get('log_command')
         if timing is _sentinel: timing = globals().get('timing')
@@ -155,7 +160,7 @@ def system2(cmd, cwd=None, logger=_sentinel, stdout=_sentinel, log_command=_sent
                             sys.stdout.flush()
             returncode = p.wait()
         except KeyboardInterrupt:
-            # Popen.returncode: 
+            # Popen.returncode:
             #   "A negative value -N indicates that the child was terminated by signal N (Unix only)."
             # see https://docs.python.org/2/library/subprocess.html#subprocess.Popen.returncode
             returncode = -signal.SIGINT
@@ -164,7 +169,7 @@ def system2(cmd, cwd=None, logger=_sentinel, stdout=_sentinel, log_command=_sent
                         def secondsToStr(t):
                                 from functools import reduce
                                 return "%02d:%02d:%02d" % reduce(lambda ll,b : divmod(ll[0],b) + ll[1:], [(t*1000,),1000,60,60])[:3]
-                        mylogger("Returned: %d (execution time %s)\n" % (returncode, secondsToStr(time.clock()-t)))
+                        mylogger("Returned: %d (execution time %s)\n" % (returncode, secondsToStr(process_time() - t)))
                 else:
                         mylogger("Returned: %d\n" % (returncode))
 
