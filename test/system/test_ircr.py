@@ -48,7 +48,7 @@ test_steps = [
      assert_in_output, "updating to branch default"),
     ("Run the computation without Sumatra",
      "python glass_sem_analysis.py default_parameters MV_HFV_012.jpg",
-     assert_in_output, "2416.86315789 60.0",
+     assert_in_output, "2416.86315789",
      assert_file_exists, os.path.join("Data", datetime.now().strftime("%Y%m%d")),  # Data subdirectory contains another subdirectory labelled with today's date)
      ),  # assert(subdirectory contains three image files).
     ("Set up a Sumatra project",
@@ -56,7 +56,7 @@ test_steps = [
      assert_in_output, "Sumatra project successfully set up"),
     ("Run the ``glass_sem_analysis.py`` script with Sumatra",
      "smt run -e python -m glass_sem_analysis.py -r 'initial run' default_parameters MV_HFV_012.jpg",
-     assert_in_output, ("2416.86315789 60.0", "histogram.png")),
+     assert_in_output, ("2416.86315789", "histogram.png")),
     ("Comment on the outcome",
      "smt comment 'works fine'"),
     ("Set defaults",
