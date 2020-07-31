@@ -40,6 +40,7 @@ setup(
     package_dir = {'sumatra': 'sumatra'},
     packages = ['sumatra', 'sumatra.dependency_finder', 'sumatra.datastore',
                 'sumatra.recordstore', 'sumatra.recordstore.django_store',
+                'sumatra.recordstore.django_store.migrations',
                 'sumatra.versioncontrol', 'sumatra.formatting',
                 'sumatra.web', 'sumatra.web.templatetags',
                 'sumatra.publishing',
