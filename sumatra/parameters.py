@@ -32,7 +32,7 @@ from __future__ import with_statement, absolute_import
 from __future__ import unicode_literals
 from future import standard_library
 standard_library.install_aliases()
-from builtins import str
+from builtins import str as newstr
 from builtins import object
 import os.path
 import shutil
@@ -100,7 +100,7 @@ class ParameterSet(with_metaclass(abc.ABCMeta, object)):
         try:
             self._new_param_check(name, value)
         except ValueError as v:
-            raise ValueError(str(v), name,  value)
+            raise ValueError(newstr(v), name,  value)
             # attempt to pass undefined param -- let commands.py deal with
 
         return {name: value}
@@ -268,22 +268,22 @@ class SimpleParameterSet(ParameterSet):
 
     @classmethod
     def _empty_or_comment(cls, line):
-        line = str(line.strip())
+        line = newstr(line.strip())
         return len(line) == 0 or line.startswith(cls.COMMENT_CHAR)
 
     def _parse_parameter_from_line(self, line):
-        line = str(line.strip())
+        line = newstr(line.strip())
         if "=" in line:
             parts = line.split("=")
             name = parts[0].strip()
             value = "=".join(parts[1:])
             try:
                 if SimpleParameterSet._value_represents_string(value):
-                    value = str(eval(value))
+                    value = newstr(eval(value))
                 else:
                     value = eval(value)
             except NameError:
-                value = str(value)
+                value = newstr(value)
             except (TypeError, ValueError) as err:  # e.g. null bytes
                 raise SyntaxError("File is not a valid simple parameter file. %s" % err)
             if self.COMMENT_CHAR in line:
@@ -305,7 +305,7 @@ class SimpleParameterSet(ParameterSet):
     def _add_or_update_parameter(self, name, value, comment=None):
         # Technically, bool is a subtype of int but we list it explicitly for clarity.
         # TODO: Should we check for and disallow nested lists/tuples?
-        if value is not None and not isinstance(value, (int, float, str, bool, list, tuple)):
+        if value is not None and not isinstance(value, (int, float, str, newstr, bool, list, tuple)):
             raise TypeError("Value must be one of the basic types (a numeric value, bool, "
                 "string, list, tuple or None. Got: '{}' ({})".format(value, type(value)))
         self.values[name] = value
