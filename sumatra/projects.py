@@ -470,6 +470,7 @@ class Project(object):
 
 
 def _load_project_from_json(path):
+    path = os.path.expanduser(path)
     f = open(_get_project_file(path), 'r')
     data = json.load(f)
     f.close()
@@ -498,6 +499,7 @@ def _load_project_from_json(path):
 
 def _load_project_from_pickle(path):
     # earlier versions of Sumatra saved Projects using pickle
+    path = os.path.expanduser(path)
     f = open(_get_project_file(path), 'r')
     prj = pickle.load(f)
     f.close()
@@ -513,7 +515,7 @@ def load_project(path=None):
     if not path:
         p = os.getcwd()
     else:
-        p = os.path.abspath(path)
+        p = os.path.abspath(os.path.expanduser(path))
     while not os.path.isdir(os.path.join(p, ".smt")):
         oldp, p = p, os.path.dirname(p)
         if p == oldp:
