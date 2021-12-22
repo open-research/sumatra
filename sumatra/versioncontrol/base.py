@@ -31,7 +31,7 @@ class Repository(object):
 
     def __init__(self, url, upstream=None):
         if url == ".":
-            url = os.path.abspath(url)
+            url = os.path.abspath(os.path.expanduser(url))
         self.url = url
         self.upstream = upstream
 

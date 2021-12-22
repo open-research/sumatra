@@ -72,6 +72,8 @@ class FileSystemDataStore(DataStore):
     data_item_class = DataFile
 
     def __init__(self, root):
+        if root:
+            root = os.path.expanduser(root)
         self.root = os.path.abspath(root or "./Data")
 
     def __str__(self):
