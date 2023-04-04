@@ -6,14 +6,26 @@
 """
 
 import subprocess
-import pkg_resources
 from sumatra.dependency_finder import core
+
+import sys
+if sys.version_info >= (3, 9):
+    import importlib.resources as importlib_resources
+elif sys.version_info >= (3, 7):
+    import importlib_resources  # Backport
+else:
+    # pkg_resources is much slower than import_resources, and just doesn’t work with newer Python
+    # Migration to importlib based on https://importlib-resources.readthedocs.io/en/latest/migration.html
+    import pkg_resources   
+    importlib_resources = None
 
 package_split_str = 'pkg::\n'
 element_split_str = '\n'
 name_value_split_str = ':'
-r_script_to_find_deps = pkg_resources.resource_filename("sumatra", "external_scripts/script_introspect.R")
-
+if importlib_resources:
+    r_script_to_find_deps = importlib_resources.files("sumatra") / "external_scripts/script_introspect.R"
+else:
+    r_script_to_find_deps = pkg_resources.resource_filename("sumatra", "external_scripts/script_introspect.R")
 
 
 class Dependency(core.BaseDependency):
@@ -37,7 +49,7 @@ def _get_r_dependencies(executable_path, rscriptfile, depfinder=r_script_to_find
         Rscript executable
     rscriptfile : path
         script file to be evaluated
-    rscriptfile : depfinder
+    depfinder : importlib.resources.abc.Traversable
         R script that finds dependencies
     pkg_split : str
         delimit packages in output
@@ -58,12 +70,19 @@ def _get_r_dependencies(executable_path, rscriptfile, depfinder=r_script_to_find
     Raises
     ------
     """
-    parglist = [executable_path, depfinder,
-                rscriptfile, pkg_split, el_split, nv_split]
-    p = subprocess.Popen(parglist, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    result = p.wait()
-    output = p.stdout.read().decode("utf-8")
-    # import pdb; pdb.set_trace()
+    if importlib_resources:
+        with importlib_resources.as_file(depfinder) as depfinder_path:
+            parglist = [executable_path, depfinder_path,
+                        rscriptfile, pkg_split, el_split, nv_split]
+            p = subprocess.Popen(parglist, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            result = p.wait()
+            output = p.stdout.read().decode("utf-8")
+    else:  # Python < 3.7
+        parglist = [executable_path, depfinder_path,
+                    rscriptfile, pkg_split, el_split, nv_split]
+        p = subprocess.Popen(parglist, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        result = p.wait()
+        output = p.stdout.read().decode("utf-8")
     return result, output
 
 
