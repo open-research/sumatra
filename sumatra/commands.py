@@ -538,9 +538,8 @@ def comment(argv):
     args = parser.parse_args(argv)
 
     if args.file:
-        f = open(args.comment, 'r')
-        comment = f.read()
-        f.close()
+        with open(args.comment, 'r') as f:
+            comment = f.read()
     else:
         comment = args.comment
 
@@ -686,9 +685,8 @@ def upgrade(argv):
     project.record_store.clear()
     filename = "%s/records_export.json" % backup_dir
     if os.path.exists(filename):
-        f = open(filename)
-        project.record_store.import_(project.name, f.read())
-        f.close()
+        with open(filename) as f:
+            project.record_store.import_(project.name, f.read())
     else:
         print("Record file not found")
         sys.exit(1)
