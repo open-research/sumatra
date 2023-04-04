@@ -147,9 +147,8 @@ class Project(object):
                     state[name][key] = value
             else:
                 state[name] = attr
-        f = open(_get_project_file(self.path), 'w')  # should check if file exists?
-        json.dump(state, f, indent=2)
-        f.close()
+        with open(_get_project_file(self.path), 'w') as f:  # should check if file exists?
+            json.dump(state, f, indent=2)
 
     def info(self):
         """Show some basic information about the project."""
@@ -383,9 +382,8 @@ class Project(object):
         # copy the project data
         shutil.copy(".smt/project", ".smt/project_export.json")
         # export the record data
-        f = open(".smt/records_export.json", 'w')
-        f.write(self.record_store.export(self.name))
-        f.close()
+        with open(".smt/records_export.json", 'w') as f:
+            f.write(self.record_store.export(self.name))
 
     def repeat(self, original_label, new_label=None):
         if original_label == 'last':
@@ -465,9 +463,8 @@ class Project(object):
 
 def _load_project_from_json(path):
     path = os.path.expanduser(path)
-    f = open(_get_project_file(path), 'r')
-    data = json.load(f)
-    f.close()
+    with open(_get_project_file(path), 'r') as f:
+        data = json.load(f)
     prj = Project.__new__(Project)
     prj.path = path
     for key, value in data.items():
@@ -494,9 +491,8 @@ def _load_project_from_json(path):
 def _load_project_from_pickle(path):
     # earlier versions of Sumatra saved Projects using pickle
     path = os.path.expanduser(path)
-    f = open(_get_project_file(path), 'r')
-    prj = pickle.load(f)
-    f.close()
+    with open(_get_project_file(path), 'r') as f:
+        prj = pickle.load(f)
     return prj
 
 
