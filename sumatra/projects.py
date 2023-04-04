@@ -353,7 +353,7 @@ class Project(object):
             record = self.record_store.get(self.name, label)
         except Exception as e:
             raise Exception("%s. label=<%s>" % (e, label))
-        if replace or record.outcome ==  "":
+        if replace or record.outcome == "":
             record.outcome = comment
         else:
             record.outcome = record.outcome + "\n" + comment
