@@ -34,7 +34,13 @@ import pickle
 from copy import deepcopy
 import uuid
 import sumatra
-import django
+try:
+    import django
+except ImportError:
+    class DjangoDatabaseError:  # If django can't be loaded, a django..DatabaseError also
+        pass                    # cannot be raised, so a mock exception class is all we need
+else:
+    DjangoDatabaseError = django.db.utils.DatabaseError
 import sqlite3
 import time
 import shutil
@@ -270,7 +276,7 @@ class Project(object):
                 success = True
                 self._most_recent = record.label
                 logger.debug("Created record: %s" % self.most_recent())
-            except (django.db.utils.DatabaseError, sqlite3.OperationalError):
+            except (DjangoDatabaseError, sqlite3.OperationalError):
                 print("Failed to save record due to database error. Trying again in {0} seconds. (Attempt {1}/{2})".format(sleep_seconds, cnt, max_tries))
                 time.sleep(sleep_seconds)
                 cnt += 1
