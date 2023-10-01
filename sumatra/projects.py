@@ -35,7 +35,7 @@ from copy import deepcopy
 import uuid
 import sumatra
 try:
-    import django
+    import django.db.utils
 except ImportError:
     class DjangoDatabaseError:  # If django can't be loaded, a django..DatabaseError also
         pass                    # cannot be raised, so a mock exception class is all we need
