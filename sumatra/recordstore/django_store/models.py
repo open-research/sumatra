@@ -5,9 +5,6 @@ Definition of database tables and object retrieval for the DjangoRecordStore.
 :copyright: Copyright 2006-2015 by the Sumatra team, see doc/authors.txt
 :license: BSD 2-clause, see LICENSE for details.
 """
-from __future__ import unicode_literals
-from builtins import str
-from builtins import object
 
 import json
 from django.db import models
@@ -15,7 +12,7 @@ from sumatra import programs, launch, datastore, records, versioncontrol, parame
 from sumatra.datastore import get_data_store
 from datetime import datetime
 import django
-from distutils.version import LooseVersion
+from packaging.version import parse as parse_version
 from sumatra.core import get_registered_components
 import warnings
 with warnings.catch_warnings():
@@ -130,7 +127,7 @@ class Dependency(BaseModel):
 class Repository(BaseModel):
     # the following should be unique together.
     type = models.CharField(max_length=100)
-    if LooseVersion(django.get_version()) < LooseVersion('1.5'):
+    if parse_version(django.get_version()) < parse_version('1.5'):
         url = models.URLField(verify_exists=False)
         upstream = models.URLField(verify_exists=False, null=True, blank=True)
     else:

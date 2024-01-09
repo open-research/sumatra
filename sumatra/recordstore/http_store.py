@@ -17,9 +17,6 @@ The required JSON structure can be seen in recordstore.serialization.
 :copyright: Copyright 2006-2015 by the Sumatra team, see doc/authors.txt
 :license: BSD 2-clause, see LICENSE for details.
 """
-from __future__ import unicode_literals
-from future import standard_library
-standard_library.install_aliases()
 
 from warnings import warn
 from urllib.parse import urlparse, urlunparse

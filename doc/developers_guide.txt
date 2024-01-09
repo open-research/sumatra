@@ -9,7 +9,7 @@ Mac OS X, with the bash shell.
 Requirements
 ------------
 
-    * Python_ 2.7, 3.4, 3.5 or 3.6
+    * Python_ 3.4, 3.5 or 3.6
     * Django_ >= 1.8
     * django-tagging_ >= 0.3
     * parameters >= 0.2.1
@@ -118,7 +118,7 @@ Coding standards and style
 --------------------------
 
 All code should conform as much as possible to `PEP 8`_, and should run with
-Python 2.7, 3.4, 3.5 and 3.6. Lines should be no longer than 99 characters.
+Python 3.4, 3.5 and 3.6. Lines should be no longer than 99 characters.
 
 
 Reviewing pull requests

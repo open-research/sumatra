@@ -1,10 +1,6 @@
 """
 Utility functions for writing system tests.
 """
-from __future__ import print_function
-from __future__ import unicode_literals
-from builtins import zip
-from builtins import str
 
 import os.path
 import re

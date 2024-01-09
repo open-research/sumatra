@@ -20,8 +20,6 @@ find_version()                   - tries to find version information by calling 
 :copyright: Copyright 2006-2015 by the Sumatra team, see doc/authors.txt
 :license: BSD 2-clause, see LICENSE for details.
 """
-from __future__ import unicode_literals
-from builtins import object
 
 import os
 from sumatra import versioncontrol

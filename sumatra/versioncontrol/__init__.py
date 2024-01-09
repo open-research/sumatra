@@ -32,7 +32,6 @@ get_repository()   - determine whether a revision control system repository
 :copyright: Copyright 2006-2015 by the Sumatra team, see doc/authors.txt
 :license: BSD 2-clause, see LICENSE for details.
 """
-from __future__ import unicode_literals
 
 import sys
 import os.path

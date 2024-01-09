@@ -2,9 +2,7 @@
 # encoding: utf-8
 # Author: sorin sbarnea
 # License: public domain
-from __future__ import print_function
-from __future__ import unicode_literals
-from builtins import str
+
 import logging, sys, signal, subprocess, types, os, codecs, platform
 try:
     from time import process_time

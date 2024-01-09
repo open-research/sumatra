@@ -4,11 +4,8 @@ Tests of the web browser interface (smtweb) using Selenium
 
 """
 
-from __future__ import print_function
-from __future__ import unicode_literals
 import os
 from time import sleep
-from builtins import input
 from unittest import SkipTest
 try:
     from selenium import webdriver

@@ -8,19 +8,12 @@ SQLite or PostgreSQL.
 :copyright: Copyright 2006-2015 by the Sumatra team, see doc/authors.txt
 :license: BSD 2-clause, see LICENSE for details.
 """
-from __future__ import absolute_import
-from __future__ import unicode_literals
-from future.standard_library import install_aliases
-install_aliases()
-from builtins import range
-from builtins import object
-
 
 import os
 import shutil
 from warnings import warn
 from textwrap import dedent
-import imp
+import importlib
 import django.conf as django_conf
 from django.core import management
 import django
@@ -31,7 +24,7 @@ from io import StringIO
 
 # Check that django-tagging is available. It would be better to try importing
 # it, but that seems to mess with Django's internals.
-imp.find_module("tagging")
+importlib.util.find_spec("tagging")
 
 
 def db_id(db):

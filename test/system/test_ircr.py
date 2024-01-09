@@ -10,9 +10,6 @@ Usage:
 or:
     python test_ircr.py
 """
-from __future__ import print_function
-from __future__ import unicode_literals
-from builtins import input
 
 # Requirements: numpy, scipy, matplotlib, mercurial, sarge
 import os

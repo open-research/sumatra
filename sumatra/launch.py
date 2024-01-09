@@ -6,10 +6,6 @@ obtaining information about the platform(s) on which the simulations are run.
 :copyright: Copyright 2006-2015 by the Sumatra team, see doc/authors.txt
 :license: BSD 2-clause, see LICENSE for details.
 """
-from __future__ import print_function
-from __future__ import unicode_literals
-from builtins import range
-from builtins import object
 
 import platform
 import socket

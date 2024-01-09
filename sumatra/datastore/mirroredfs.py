@@ -9,9 +9,6 @@ user to take care of this.
 :copyright: Copyright 2006-2015 by the Sumatra team, see doc/authors.txt
 :license: BSD 2-clause, see LICENSE for details.
 """
-from __future__ import unicode_literals
-from future.standard_library import install_aliases
-install_aliases()
 
 import os
 import mimetypes

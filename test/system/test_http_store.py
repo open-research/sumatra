@@ -7,12 +7,6 @@ or:
     python test_http_store.py
 """
 
-from __future__ import print_function
-from __future__ import unicode_literals
-from future import standard_library
-from builtins import input
-standard_library.install_aliases()
-
 import os
 from urllib.parse import urlparse
 

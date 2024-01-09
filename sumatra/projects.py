@@ -20,12 +20,6 @@ load_project() - read project information from the working directory and return
 :copyright: Copyright 2006-2015 by the Sumatra team, see doc/authors.txt
 :license: BSD 2-clause, see LICENSE for details.
 """
-from __future__ import print_function
-from __future__ import unicode_literals
-from future import standard_library
-standard_library.install_aliases()
-from builtins import str
-from builtins import object
 
 import os
 import re
@@ -147,7 +141,7 @@ class Project(object):
                 else:
                     # Default value for unrecognised parameters
                     attr = None
-            if hasattr(attr, "__getstate__"):
+            if hasattr(attr, "__getstate__") and attr.__getstate__() is not None:
                 state[name] = {'type': attr.__class__.__module__ + "." + attr.__class__.__name__}
                 for key, value in attr.__getstate__().items():
                     state[name][key] = value
@@ -359,7 +353,7 @@ class Project(object):
             record = self.record_store.get(self.name, label)
         except Exception as e:
             raise Exception("%s. label=<%s>" % (e, label))
-        if replace or record.outcome is "":
+        if replace or record.outcome ==  "":
             record.outcome = comment
         else:
             record.outcome = record.outcome + "\n" + comment

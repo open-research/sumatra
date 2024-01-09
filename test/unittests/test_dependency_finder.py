@@ -1,10 +1,6 @@
 """
 Unit tests for the sumatra.dependency_finder module
 """
-from __future__ import print_function
-from __future__ import unicode_literals
-from builtins import str
-from builtins import object
 
 import unittest
 import distutils.spawn
@@ -277,7 +273,7 @@ class TestRDependency(unittest.TestCase):
         self.assertNotEqual(dep1, dep2)
 
 
-def setup():
+def setUpModule():
     global tmpdir
     tmpdir = tempfile.mkdtemp()
     shutil.rmtree(tmpdir)
@@ -285,14 +281,12 @@ def setup():
     shutil.copytree(os.path.join(this_directory, os.path.pardir, "example_projects"), tmpdir)
     print(os.listdir(tmpdir))
 
-def teardown():
+
+def tearDownModule():
     global tmpdir
     print("removing tmpdir")
-    shutil.rmtree(tmpdir) # this only gets called when running with nose. Perhaps use atexit, or do this on a class-by-class basis and use __del__
+    shutil.rmtree(tmpdir)
 
 
 if __name__ == '__main__':
-    setup()
     unittest.main()
-    teardown()
-

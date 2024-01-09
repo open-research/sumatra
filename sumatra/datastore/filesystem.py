@@ -5,7 +5,6 @@ Datastore based on files written to and retrieved from a local filesystem.
 :copyright: Copyright 2006-2015 by the Sumatra team, see doc/authors.txt
 :license: BSD 2-clause, see LICENSE for details.
 """
-from __future__ import unicode_literals
 
 import os
 import datetime

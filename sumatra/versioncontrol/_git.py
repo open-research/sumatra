@@ -11,18 +11,13 @@ GitRepository
 :copyright: Copyright 2006-2015 by the Sumatra team, see doc/authors.txt
 :license: BSD 2-clause, see LICENSE for details.
 """
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-from future import standard_library
-standard_library.install_aliases()
 
 import logging
 import git
 import os
 import shutil
 import tempfile
-from distutils.version import LooseVersion
+from packaging.version import parse as parse_version
 from configparser import NoSectionError, NoOptionError
 try:
     from git.errors import InvalidGitRepositoryError, NoSuchPathError
@@ -41,7 +36,7 @@ def check_version():
             "GitPython not installed. There is a 'git' package, but it is not "
             "GitPython (https://pypi.python.org/pypi/GitPython/)")
     minimum_version = '0.3.5'
-    if LooseVersion(git.__version__) < LooseVersion(minimum_version):
+    if parse_version(git.__version__) < parse_version(minimum_version):
         raise VersionControlError(
             "Your Git Python binding is too old. You require at least "
             "version {0}. You can install the latest version e.g. via "
@@ -84,7 +79,7 @@ class GitWorkingCopy(WorkingCopy):
 
     def use_version(self, version):
         logger.debug("Using git version: %s" % version)
-        if version is not 'master':
+        if version != 'master':
             assert not self.has_changed()
         g = git.Git(self.path)
         g.checkout(version)

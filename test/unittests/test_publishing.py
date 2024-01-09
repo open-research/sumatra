@@ -1,8 +1,6 @@
 """
 
 """
-from __future__ import unicode_literals
-from builtins import object
 
 import unittest
 
@@ -97,7 +95,7 @@ class TestUtils(unittest.TestCase):
 
     def test_determine_record_store_from_project(self):
         store = utils.determine_record_store(MockProject(), {})
-        self.assert_(isinstance(store, MockRecordStore))
+        self.assertTrue(isinstance(store, MockRecordStore))
 
     def test_determine_record_store_with_no_options_no_project(self):
         self.assertRaises(Exception, utils.determine_record_store, None, {})
