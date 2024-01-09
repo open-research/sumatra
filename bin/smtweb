@@ -68,8 +68,16 @@ def main(argv):
         INSTALLED_APPS=db_config._settings["INSTALLED_APPS"] + ['sumatra.web'],
         ROOT_URLCONF='sumatra.web.urls',
         STATIC_URL='/static/',
-        TEMPLATE_DIRS=(os.path.join(os.getcwd(), ".smt", "templates"),
-                       os.path.join(root_dir, "templates"),),
+        TEMPLATES=[
+            {
+                'BACKEND': 'django.template.backends.django.DjangoTemplates',
+                'APP_DIRS': False,
+                'DIRS': [
+                    os.path.join(os.getcwd(), ".smt", "templates"),
+                    os.path.join(root_dir, "templates")
+                ]
+            },
+        ],
         MIDDLEWARE_CLASSES=tuple(),
         READ_ONLY = options.read_only,
         SERVERSIDE = options.serverside,

@@ -199,7 +199,7 @@ class DataKey(BaseModel):
     creation = models.DateTimeField(null=True, blank=True)
     metadata = models.TextField(blank=True)
     output_from_record = models.ForeignKey('Record', related_name='output_data',
-                                           null=True)
+                                           null=True, on_delete=models.CASCADE)
 
     class Meta(object):
         ordering = ('path',)
@@ -246,15 +246,15 @@ class Record(BaseModel):
     db_id = models.AutoField(primary_key=True)  # django-tagging needs an integer as primary key - see http://code.google.com/p/django-tagging/issues/detail?id=15
     reason = models.TextField(blank=True)
     duration = models.FloatField(null=True)
-    executable = models.ForeignKey(Executable, null=True, blank=True)  # null and blank for the search. If user doesn't want to specify the executable during the search
-    repository = models.ForeignKey(Repository, null=True, blank=True)  # null and blank for the search.
+    executable = models.ForeignKey(Executable, null=True, blank=True, on_delete=models.PROTECT)  # null and blank for the search. If user doesn't want to specify the executable during the search
+    repository = models.ForeignKey(Repository, null=True, blank=True, on_delete=models.PROTECT)  # null and blank for the search.
     main_file = models.CharField(max_length=100)
     version = models.CharField(max_length=50)
-    parameters = models.ForeignKey(ParameterSet)
+    parameters = models.ForeignKey(ParameterSet, on_delete=models.PROTECT)
     input_data = models.ManyToManyField(DataKey, related_name="input_to_records")
-    launch_mode = models.ForeignKey(LaunchMode)
-    datastore = models.ForeignKey(Datastore)
-    input_datastore = models.ForeignKey(Datastore, related_name="input_to_records")
+    launch_mode = models.ForeignKey(LaunchMode, on_delete=models.PROTECT)
+    datastore = models.ForeignKey(Datastore, on_delete=models.PROTECT)
+    input_datastore = models.ForeignKey(Datastore, related_name="input_to_records", on_delete=models.PROTECT)
     outcome = models.TextField(blank=True)
     timestamp = models.DateTimeField()
     tags = tagging.fields.TagField()
@@ -262,7 +262,7 @@ class Record(BaseModel):
     platforms = models.ManyToManyField(PlatformInformation)
     diff = models.TextField(blank=True)
     user = models.CharField(max_length=100)
-    project = models.ForeignKey(Project, null=True)
+    project = models.ForeignKey(Project, null=True, on_delete=models.PROTECT)
     script_arguments = models.TextField(blank=True)
     stdout_stderr = models.TextField(blank=True)
     repeats = models.CharField(max_length=100, null=True, blank=True)
