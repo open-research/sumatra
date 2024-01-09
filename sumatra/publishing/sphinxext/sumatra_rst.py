@@ -141,8 +141,8 @@ class SumatraImage(Image):
                 reference_node = nodes.reference(refuri=data)
             elif target_type == 'refname':
                 reference_node = nodes.reference(
-                    refname=fully_normalize_name(data),
-                    name=whitespace_normalize_name(data))
+                    refname=nodes.fully_normalize_name(data),
+                    name=nodes.whitespace_normalize_name(data))
                 reference_node.indirect_reference_name = data
                 self.state.document.note_refname(reference_node)
             else:                           # malformed target

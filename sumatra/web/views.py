@@ -181,9 +181,11 @@ class DataDetailView(DetailView):
         return context
 
     def handle_zipfile(self, context, content):
+        import io
         import zipfile
-        if zipfile.is_zipfile(path):
-            zf = zipfile.ZipFile(path, 'r')
+        fp = io.StringIO(content)
+        if zipfile.is_zipfile(fp):
+            zf = zipfile.ZipFile(fp, 'r')
             contents = zf.namelist()
             zf.close()
         context["content"] = "\n".join(contents)

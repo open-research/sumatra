@@ -86,7 +86,7 @@ def setup():
 
     server = sarge.Command("smtweb -p 8765 --no-browser", cwd=utils.working_dir,
                            stdout=sarge.Capture(), stderr=sarge.Capture())
-    server.run(async=True)
+    server.run(async_=True)
     driver = webdriver.Firefox()
 
 

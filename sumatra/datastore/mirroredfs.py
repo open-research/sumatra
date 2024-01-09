@@ -10,6 +10,7 @@ user to take care of this.
 :license: BSD 2-clause, see LICENSE for details.
 """
 
+import datetime
 import os
 import mimetypes
 from urllib.request import urlopen
