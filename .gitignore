@@ -15,3 +15,5 @@ MANIFEST
 .komodoproject
 .idea
 *.egg-info
+env
+test/example_repositories/mercurial/hg/wcache
