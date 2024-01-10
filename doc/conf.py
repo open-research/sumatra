@@ -39,7 +39,7 @@ master_doc = 'index'
 # General information about the project.
 project = 'Sumatra'
 authors = 'Sumatra authors and contributors'
-copyright = '2009-2015 ' + authors
+copyright = '2009-2020, 2024 ' + authors
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
