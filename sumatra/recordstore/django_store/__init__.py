@@ -5,7 +5,7 @@ supported by Django could in principle be used, although for now we assume
 SQLite or PostgreSQL.
 
 
-:copyright: Copyright 2006-2015 by the Sumatra team, see doc/authors.txt
+:copyright: Copyright 2006-2020, 2024 by the Sumatra team, see doc/authors.txt
 :license: BSD 2-clause, see LICENSE for details.
 """
 

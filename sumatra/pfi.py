@@ -4,7 +4,7 @@ Obtain platform information from every node of a cluster.
 
 This script should be placed somewhere on the user's path.
 
-:copyright: Copyright 2006-2015 by the Sumatra team, see doc/authors.txt
+:copyright: Copyright 2006-2020, 2024 by the Sumatra team, see doc/authors.txt
 :license: BSD 2-clause, see LICENSE for details.
 """
 

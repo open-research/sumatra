@@ -17,7 +17,7 @@ Functions
 load_project() - read project information from the working directory and return
                  a Project object.
 
-:copyright: Copyright 2006-2015 by the Sumatra team, see doc/authors.txt
+:copyright: Copyright 2006-2020, 2024 by the Sumatra team, see doc/authors.txt
 :license: BSD 2-clause, see LICENSE for details.
 """
 

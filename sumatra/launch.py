@@ -3,7 +3,7 @@ The launch module handles launching of simulations/analyses as sub-processes, an
 obtaining information about the platform(s) on which the simulations are run.
 
 
-:copyright: Copyright 2006-2015 by the Sumatra team, see doc/authors.txt
+:copyright: Copyright 2006-2020, 2024 by the Sumatra team, see doc/authors.txt
 :license: BSD 2-clause, see LICENSE for details.
 """
 
