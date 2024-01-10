@@ -65,7 +65,7 @@ Installation
 These instructions are for Unix and Mac OS. They may work on Windows as well, but
 it hasn't been thoroughly tested.
 
-The easiest way to install is with pipPython Package Index::
+The easiest way to install is with pip::
 
     $ pip install sumatra
 

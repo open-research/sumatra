@@ -4,6 +4,6 @@ numpy
 scipy
 matplotlib
 pillow
-pytest
+pytest<8
 pytest-cov
 flake8

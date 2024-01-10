@@ -3,13 +3,13 @@ Developers' guide
 =================
 
 These instructions are for developing on a Unix-like platform, e.g. Linux or
-Mac OS X.
+Mac OS.
 
 
 Requirements
 ------------
 
-    * Python_ 3.4 or later
+    * Python_ 3.8 or later
     * Django_ >= 2.2
     * django-tagging_
     * parameters
@@ -114,7 +114,7 @@ Coding standards and style
 --------------------------
 
 All code should conform as much as possible to `PEP 8`_, and should run with
-Python 3.4 or later. Lines should be no longer than 119 characters.
+Python 3.8 or later. Lines should be no longer than 119 characters.
 
 
 Reviewing pull requests

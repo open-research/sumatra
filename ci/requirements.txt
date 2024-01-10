@@ -7,6 +7,7 @@ jinja2
 docutils
 parameters
 # optional requirements, depending on which version control systems you use
+mercurial
 hgapi
 GitPython>=0.3.6
 # optional requirements, depending on which serialization formats you want
