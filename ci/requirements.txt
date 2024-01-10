@@ -1,4 +1,5 @@
 # Base requirements for running Sumatra, for all supported versions of Python
+setuptools  # needed for Python 3.12, since distutils removed
 Django<3
 django-tagging>=0.4
 httplib2
