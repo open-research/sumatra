@@ -149,7 +149,7 @@ class TestLaTeX(unittest.TestCase):
         cmd = includefigure.generate_latex_command(sumatra_options, graphics_options)
         sys.stdout.seek(0)
         self.assertEqual(sys.stdout.read().strip(),
-                         r"\includegraphics[width=\textwidth]{smt_images/bar.jpg}")
+                         "\\includegraphics[width=\textwidth]{smt_images/bar.jpg}")
         sys.stdout = sys.__stdout__
 
     @patch(utils, 'get_record_store', MockRecordStore)
@@ -166,7 +166,7 @@ class TestLaTeX(unittest.TestCase):
         cmd = includefigure.generate_latex_command(sumatra_options, graphics_options)
         sys.stdout.seek(0)
         self.assertEqual(sys.stdout.read().strip(),
-                         r"\includegraphics[width=\textwidth]{smt_images/subdirectory/baz.png}")
+                         "\\includegraphics[width=\textwidth]{smt_images/subdirectory/baz.png}")
         sys.stdout = sys.__stdout__
 
 @unittest.skipUnless(have_docutils, "docutils not available")
