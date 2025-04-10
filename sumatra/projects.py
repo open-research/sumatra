@@ -147,10 +147,14 @@ class Project(object):
                 else:
                     # Default value for unrecognised parameters
                     attr = None
-            if hasattr(attr, "__getstate__"):
-                state[name] = {'type': attr.__class__.__module__ + "." + attr.__class__.__name__}
-                for key, value in attr.__getstate__().items():
-                    state[name][key] = value
+            if hasattr(attr, "__getstate__"):  # For Python 3.11+, all objects have __getstate__. Default return value is None.
+                attr_state = attr.__getstate__()
+                if attr_state is None:
+                    state[name] = attr
+                else:
+                    state[name] = {'type': attr.__class__.__module__ + "." + attr.__class__.__name__}
+                    for key, value in attr.__getstate__().items():
+                        state[name][key] = value
             else:
                 state[name] = attr
         f = open(_get_project_file(self.path), 'w')  # should check if file exists?
