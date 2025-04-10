@@ -50,7 +50,7 @@ setup(
                                 'formatting/latex_template.tex', 'external_scripts/script_introspect.R']},
     scripts = ['bin/smt', 'bin/smtweb', 'bin/smt-complete.sh'],
     author = "Sumatra authors and contributors",
-    author_email = "andrew.davison@unic.cnrs-gif.fr",
+    author_email = "andrew.davison@cnrs.fr",
     description = "A tool for automated tracking of computation-based scientific projects",
     long_description = open('README.rst').read(),
     license = "BSD 2 clause",

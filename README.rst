@@ -26,23 +26,23 @@ For documentation, see http://packages.python.org/Sumatra/ and http://neuralense
 
 Functionality:
 
-    * launch simulations and analyses, and record various pieces of information,
-      including:
+* launch simulations and analyses, and record various pieces of information,
+  including:
 
-        - the executable (identity, version)
-        - the script (identity, version)
-        - the parameters
-        - the duration (execution time)
-        - console output
-        - links to all data (whether in files, in a database, etc.) produced by
-          the simulation/analysis
-        - the reason for doing the simulation/analysis
-        - the outcome of the simulation/analysis
+    - the executable (identity, version)
+    - the script (identity, version)
+    - the parameters
+    - the duration (execution time)
+    - console output
+    - links to all data (whether in files, in a database, etc.) produced by
+      the simulation/analysis
+    - the reason for doing the simulation/analysis
+    - the outcome of the simulation/analysis
 
-    * allow browsing/searching/visualising the results of previous experiments
-    * allow the re-running of previous simulations/analyses with automatic
-      verification that the results are unchanged
-    * launch single or batch experiments, serial or parallel
+* allow browsing/searching/visualising the results of previous experiments
+* allow the re-running of previous simulations/analyses with automatic
+  verification that the results are unchanged
+* launch single or batch experiments, serial or parallel
 
 
 ============
@@ -85,8 +85,8 @@ You will also need to install Python bindings for the version control system(s) 
 Code status
 ===========
 
-.. image:: https://travis-ci.org/open-research/sumatra.png?branch=master
-   :target: https://travis-ci.org/open-research/sumatra
+.. image:: https://github.com/open-research/sumatra/actions/workflows/tests/badge.svg
+   :target: https://github.com/open-research/sumatra/actions/workflows/tests.yml
    :alt: Unit Test Status
 
 .. image:: https://coveralls.io/repos/open-research/sumatra/badge.svg
