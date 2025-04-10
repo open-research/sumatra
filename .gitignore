@@ -16,4 +16,5 @@ MANIFEST
 .idea
 *.egg-info
 env
+env-ci
 test/example_repositories/mercurial/hg/wcache

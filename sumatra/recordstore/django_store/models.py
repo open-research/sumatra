@@ -68,8 +68,8 @@ class Project(BaseModel):
     id = models.SlugField(primary_key=True)
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True)
-    columns = ["Label", "Date/Time", "Reason", "Outcome", 
-               "Input data", "Output data", "Duration", "Processes", 
+    columns = ["Label", "Date/Time", "Reason", "Outcome",
+               "Input data", "Output data", "Duration", "Processes",
                "Executable", "Main", "Version", "Arguments", "Tags"]
 
 
@@ -232,7 +232,7 @@ class PlatformInformation(BaseModel):
     processor = models.CharField(max_length=100)
     release = models.CharField(max_length=100)
     system_name = models.CharField(max_length=20)
-    version = models.CharField(max_length=100)
+    version = models.CharField(max_length=200)
 
     def to_sumatra(self):
         pi = {}
