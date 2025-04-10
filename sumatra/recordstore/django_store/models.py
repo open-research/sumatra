@@ -18,6 +18,10 @@ import django
 from distutils.version import LooseVersion
 from sumatra.core import get_registered_components
 import warnings
+# Hack to prevent `import tagging.fields` from failing
+import django.conf
+if django.conf.settings._wrapped is django.conf.empty:
+    django.conf.settings.configure()
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     import tagging.fields
