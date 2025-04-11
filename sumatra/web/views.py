@@ -9,7 +9,7 @@ import parameters
 import mimetypes
 from django.conf import settings as django_settings
 from django.http import HttpResponse, Http404
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.views.generic.list import ListView
 try:
     from django.views.generic.dates import MonthArchiveView
@@ -262,7 +262,7 @@ def image_thumbgrid(request, project):
             return HttpResponse(json.dumps(data), content_type='application/json')
     else:
         tags = Tag.objects.all()
-        return render_to_response('image_thumbgrid.html', {'project':project_obj, 'tags':tags})
+        return render(request, 'image_thumbgrid.html', {'project':project_obj, 'tags':tags})
 
 
 def parameter_list(request, project):
@@ -283,9 +283,9 @@ def parameter_list(request, project):
                 keys.sort()
             except:
                 return Http404
-        return render_to_response('parameter_list.html',{'project':project_obj, 'object_list':record_list, 'keys': keys, 'main_file':main_file})
+        return render(request, 'parameter_list.html',{'project':project_obj, 'object_list':record_list, 'keys': keys, 'main_file':main_file})
     else:
-        return render_to_response('parameter_list.html',{'project':project_obj})
+        return render(request, 'parameter_list.html',{'project':project_obj})
 
 
 def delete_records(request, project):
@@ -342,7 +342,7 @@ def compare_records(request, project):
         context['input_data_pairs'] = pair_datafiles(diff.recordA.input_data, diff.recordB.input_data)
     if diff.output_data_differ:
         context['output_data_pairs'] = pair_datafiles(diff.recordA.output_data, diff.recordB.output_data)
-    return render_to_response("record_comparison.html", context)
+    return render(request, "record_comparison.html", context)
 
 
 
