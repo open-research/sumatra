@@ -88,7 +88,7 @@ class LaunchMode(object):
         """Return a string containing the command to be launched."""
         raise NotImplementedError("must be impemented by sub-classes")
 
-    def run(self, executable, main_file, arguments, append_label=None, catch_stderr=False):
+    def run(self, executable, main_file, arguments, append_label=None, catch_stderr=True):
         """
         Run a computation in a shell, with the given executable, script and
         arguments. If `append_label` is provided, it is appended to the
@@ -186,6 +186,7 @@ class SerialLaunchMode(LaunchMode):
         return cmd
     generate_command.__doc__ = LaunchMode.generate_command.__doc__
 
+
 @component
 class SerialTqdmLaunchMode(SerialLaunchMode):
     """
@@ -198,6 +199,7 @@ class SerialTqdmLaunchMode(SerialLaunchMode):
     def run(self, *args, **kwargs):
         return super().run(*args, catch_stderr=False, **kwargs)
     run.__doc__ = LaunchMode.run.__doc__
+
 
 @component
 class DistributedLaunchMode(LaunchMode):
