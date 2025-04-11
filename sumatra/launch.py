@@ -154,6 +154,9 @@ class LaunchMode(object):
                                     version=platform.version())]
         # maybe add system time?
 
+    def get_type(self):
+        return self.__class__.__name__
+
 
 @component
 class SerialLaunchMode(LaunchMode):
