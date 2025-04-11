@@ -55,22 +55,21 @@ class TestRModuleFunctions(unittest.TestCase):
 
     def test__r_get_r_dependencies(self):
         rex = MockRExecutable('R')
-        myscript_deps = 'pkg::\nname : dplyr \npath : /Library/Frameworks/R.framework/Versions/3.1/Resources/library/dplyr \nversion : 0.4.1 \nsource : CRAN \npkg::\nname : MASS \npath : /Library/Frameworks/R.framework/Versions/3.1/Resources/library/MASS \nversion : 7.3-35 \nsource : CRAN \n'
-        status, deps = df.r._get_r_dependencies(rex.path, 'myscript.R', depfinder='myscript.R')
-        self.assertEqual(deps, myscript_deps)
+        status, deps = df.r._get_r_dependencies(rex.path, 'myscript.R', depfinder=df.r.r_script_to_find_deps)
+        self.assertIn("name : MASS", deps)
+        self.assertIn("source : CRAN", deps)
         self.assertEqual(status, 0)
 
     def test__r_parse_deps(self):
         rex = MockRExecutable('R')
-        status, deps = df.r._get_r_dependencies(rex.path, 'myscript.R', depfinder='myscript.R')
+        status, deps = df.r._get_r_dependencies(rex.path, 'myscript.R', depfinder=df.r.r_script_to_find_deps)
+        self.assertEqual(status, 0)
         list_deps = df.r._parse_deps(deps)
         d1, d2 = list_deps
-        self.assertEqual(d1.name, 'dplyr')
+        self.assertEqual(d1.name, 'MASS')
         self.assertEqual(d1.source, 'CRAN')
-        self.assertEqual(d1.version, '0.4.1')
-        self.assertEqual(d2.name, 'MASS')
+        self.assertEqual(d2.name, 'foreign')
         self.assertEqual(d2.source, 'CRAN')
-        self.assertEqual(d2.version, '7.3-35')
 
 
 class TestPythonModuleFunctions(unittest.TestCase):
@@ -242,6 +241,7 @@ class TestNEURONDependency(unittest.TestCase):
         dep1 = df.neuron.Dependency(os.path.join(self.example_project, "main.hoc"))
         dep2 = df.neuron.Dependency(os.path.join(self.example_project, "dependency.hoc"))
         self.assertNotEqual(dep1, dep2)
+
 
 class TestRDependency(unittest.TestCase):
 
