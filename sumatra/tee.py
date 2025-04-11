@@ -2,9 +2,7 @@
 # encoding: utf-8
 # Author: sorin sbarnea
 # License: public domain
-from __future__ import print_function
-from __future__ import unicode_literals
-from builtins import str
+
 import logging, sys, signal, subprocess, types, os, codecs, platform
 try:
     from time import process_time
@@ -54,7 +52,7 @@ def system3(cmd):
     tf.close()
     return result, stdout_stderr
 
-def system2(cmd, cwd=None, logger=_sentinel, stdout=_sentinel, log_command=_sentinel, timing=_sentinel, catch_stderr=True):
+def system2(cmd, cwd=None, logger=_sentinel, stdout=_sentinel, log_command=_sentinel, timing=_sentinel, capture_stderr=True):
         #def tee(cmd, cwd=None, logger=tee_logger, console=tee_console):
         """ This is a simple placement for os.system() or subprocess.Popen()
         that simulates how Unix tee() works - logging stdout/stderr using logging
@@ -130,7 +128,7 @@ def system2(cmd, cwd=None, logger=_sentinel, stdout=_sentinel, log_command=_sent
         if cwd is not None and not os.path.isdir(cwd):
                 os.makedirs(cwd) # this throws exception if fails
 
-        if catch_stderr:
+        if capture_stderr:
                 stderr = subprocess.STDOUT
         else:
                 stderr = False
@@ -173,7 +171,7 @@ def system2(cmd, cwd=None, logger=_sentinel, stdout=_sentinel, log_command=_sent
                         def secondsToStr(t):
                                 from functools import reduce
                                 return "%02d:%02d:%02d" % reduce(lambda ll,b : divmod(ll[0],b) + ll[1:], [(t*1000,),1000,60,60])[:3]
-                        mylogger("Returned: %d (execution time %s)\n" % (returncode, secondsToStr(process_time() - t)))
+                        mylogger("Returned: %d (execution time %s)\n" % (returncode, secondsToStr(process_time()-t)))
                 else:
                         mylogger("Returned: %d\n" % (returncode))
 

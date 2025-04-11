@@ -3,7 +3,7 @@ sarge
 numpy
 scipy
 matplotlib
-nose
 pillow
-coverage
-coveralls
+pytest<8
+pytest-cov
+flake8

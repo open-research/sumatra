@@ -1,13 +1,9 @@
 """
 Defines views for the Sumatra web interface.
 
-:copyright: Copyright 2006-2015 by the Sumatra team, see doc/authors.txt
+:copyright: Copyright 2006-2020, 2024 by the Sumatra team, see doc/authors.txt
 :license: BSD 2-clause, see LICENSE for details.
 """
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-from builtins import str
 
 import parameters
 import mimetypes
@@ -185,9 +181,11 @@ class DataDetailView(DetailView):
         return context
 
     def handle_zipfile(self, context, content):
+        import io
         import zipfile
-        if zipfile.is_zipfile(path):
-            zf = zipfile.ZipFile(path, 'r')
+        fp = io.StringIO(content)
+        if zipfile.is_zipfile(fp):
+            zf = zipfile.ZipFile(fp, 'r')
             contents = zf.namelist()
             zf.close()
         context["content"] = "\n".join(contents)

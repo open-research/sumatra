@@ -27,8 +27,8 @@ class sdist_git(sdist):
         return repo.head.commit.hexsha[:7]
 
 
-install_requires = ['Django>=1.8, <3', 'django-tagging', 'httplib2',
-                    'docutils', 'jinja2', 'parameters', 'future']
+install_requires = ['Django>=2, <3', 'django-tagging', 'httplib2',
+                    'docutils', 'jinja2', 'parameters']
 major_python_version, minor_python_version, _, _, _ = sys.version_info
 if major_python_version < 3 or (major_python_version == 3 and minor_python_version < 4):
     install_requires.append('pathlib')
@@ -40,7 +40,6 @@ setup(
     package_dir = {'sumatra': 'sumatra'},
     packages = ['sumatra', 'sumatra.dependency_finder', 'sumatra.datastore',
                 'sumatra.recordstore', 'sumatra.recordstore.django_store',
-                'sumatra.recordstore.django_store.migrations',
                 'sumatra.versioncontrol', 'sumatra.formatting',
                 'sumatra.web', 'sumatra.web.templatetags',
                 'sumatra.publishing',
@@ -51,7 +50,7 @@ setup(
                                 'formatting/latex_template.tex', 'external_scripts/script_introspect.R']},
     scripts = ['bin/smt', 'bin/smtweb', 'bin/smt-complete.sh'],
     author = "Sumatra authors and contributors",
-    author_email = "andrew.davison@unic.cnrs-gif.fr",
+    author_email = "andrew.davison@cnrs.fr",
     description = "A tool for automated tracking of computation-based scientific projects",
     long_description = open('README.rst').read(),
     license = "BSD 2 clause",
@@ -65,10 +64,7 @@ setup(
                    'Natural Language :: English',
                    'Operating System :: OS Independent',
                    'Programming Language :: Python',
-                   'Programming Language :: Python :: 2.7',
-                   'Programming Language :: Python :: 3.4',
-                   'Programming Language :: Python :: 3.5',
-                   'Programming Language :: Python :: 3.6',
+                   'Programming Language :: Python :: 3'
                    'Topic :: Scientific/Engineering'],
     cmdclass = {'sdist': sdist_git},
     install_requires = install_requires,

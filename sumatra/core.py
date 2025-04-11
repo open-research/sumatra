@@ -1,15 +1,9 @@
 """
 
 
-:copyright: Copyright 2006-2015 by the Sumatra team, see doc/authors.txt
+:copyright: Copyright 2006-2020, 2024 by the Sumatra team, see doc/authors.txt
 :license: BSD 2-clause, see LICENSE for details.
 """
-from __future__ import unicode_literals
-from builtins import str
-from future.standard_library import install_aliases
-install_aliases()
-from builtins import object
-from future.utils import with_metaclass
 
 import socket
 import sys
@@ -20,7 +14,6 @@ import subprocess
 from collections import OrderedDict
 from urllib.request import urlopen
 from urllib.error import URLError
-import warnings
 import re
 
 
@@ -111,7 +104,7 @@ class SingletonType(type):
             return cls.__instance
 
 
-class _Registry(with_metaclass(SingletonType, object)):
+class _Registry(metaclass=SingletonType):
 
     def __init__(self):
         self._components = {}

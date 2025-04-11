@@ -3,13 +3,9 @@ The launch module handles launching of simulations/analyses as sub-processes, an
 obtaining information about the platform(s) on which the simulations are run.
 
 
-:copyright: Copyright 2006-2015 by the Sumatra team, see doc/authors.txt
+:copyright: Copyright 2006-2020, 2024 by the Sumatra team, see doc/authors.txt
 :license: BSD 2-clause, see LICENSE for details.
 """
-from __future__ import print_function
-from __future__ import unicode_literals
-from builtins import range
-from builtins import object
 
 import platform
 import socket
@@ -92,7 +88,7 @@ class LaunchMode(object):
         """Return a string containing the command to be launched."""
         raise NotImplementedError("must be impemented by sub-classes")
 
-    def run(self, executable, main_file, arguments, append_label=None, catch_stderr=False):
+    def run(self, executable, main_file, arguments, append_label=None, capture_stderr=True):
         """
         Run a computation in a shell, with the given executable, script and
         arguments. If `append_label` is provided, it is appended to the
@@ -107,7 +103,7 @@ class LaunchMode(object):
             dependencies in order to avoid opening of Matlab shell two times '''
             result, output = save_dependencies(cmd, main_file)
         else:
-            result, output = tee.system2(cmd, cwd=self.working_directory, stdout=True, catch_stderr=catch_stderr)  # cwd only relevant for local launch, not for MPI, for example
+            result, output = tee.system2(cmd, cwd=self.working_directory, stdout=True, capture_stderr=capture_stderr)  # cwd only relevant for local launch, not for MPI, for example
         self.stdout_stderr = "".join(output)
         return result
 
@@ -190,6 +186,7 @@ class SerialLaunchMode(LaunchMode):
         return cmd
     generate_command.__doc__ = LaunchMode.generate_command.__doc__
 
+
 @component
 class SerialTqdmLaunchMode(SerialLaunchMode):
     """
@@ -200,8 +197,9 @@ class SerialTqdmLaunchMode(SerialLaunchMode):
     name = "serial-tqdm"
 
     def run(self, *args, **kwargs):
-        return super().run(*args, catch_stderr=False, **kwargs)
+        return super().run(*args, capture_stderr=False, **kwargs)
     run.__doc__ = LaunchMode.run.__doc__
+
 
 @component
 class DistributedLaunchMode(LaunchMode):

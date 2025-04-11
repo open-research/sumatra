@@ -3,12 +3,10 @@ Datastore based on files written to the local filesystem, archived in gzipped
 tar files, then retrieved from the tar files.
 
 
-:copyright: Copyright 2006-2015 by the Sumatra team, see doc/authors.txt
+:copyright: Copyright 2006-2020, 2024 by the Sumatra team, see doc/authors.txt
 :license: BSD 2-clause, see LICENSE for details.
 """
 
-from __future__ import with_statement
-from __future__ import unicode_literals
 import os
 import tarfile
 import shutil

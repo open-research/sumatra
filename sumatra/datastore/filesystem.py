@@ -2,10 +2,9 @@
 Datastore based on files written to and retrieved from a local filesystem.
 
 
-:copyright: Copyright 2006-2015 by the Sumatra team, see doc/authors.txt
+:copyright: Copyright 2006-2020, 2024 by the Sumatra team, see doc/authors.txt
 :license: BSD 2-clause, see LICENSE for details.
 """
-from __future__ import unicode_literals
 
 import os
 import datetime
@@ -88,11 +87,7 @@ class FileSystemDataStore(DataStore):
         return self._root
 
     def __set_root(self, value):
-        try:
-            path = Path(value)
-        except TypeError:
-            # This can happen in Python2 if 'value' is a subclass of string
-            path = Path(unicode(value))
+        path = Path(value)
         self._root = value
         if not path.exists():
             try:

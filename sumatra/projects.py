@@ -17,15 +17,9 @@ Functions
 load_project() - read project information from the working directory and return
                  a Project object.
 
-:copyright: Copyright 2006-2015 by the Sumatra team, see doc/authors.txt
+:copyright: Copyright 2006-2020, 2024 by the Sumatra team, see doc/authors.txt
 :license: BSD 2-clause, see LICENSE for details.
 """
-from __future__ import print_function
-from __future__ import unicode_literals
-from future import standard_library
-standard_library.install_aliases()
-from builtins import str
-from builtins import object
 
 import os
 import re
@@ -147,14 +141,10 @@ class Project(object):
                 else:
                     # Default value for unrecognised parameters
                     attr = None
-            if hasattr(attr, "__getstate__"):  # For Python 3.11+, all objects have __getstate__. Default return value is None.
-                attr_state = attr.__getstate__()
-                if attr_state is None:
-                    state[name] = attr
-                else:
-                    state[name] = {'type': attr.__class__.__module__ + "." + attr.__class__.__name__}
-                    for key, value in attr.__getstate__().items():
-                        state[name][key] = value
+            if hasattr(attr, "__getstate__") and attr.__getstate__() is not None:
+                state[name] = {'type': attr.__class__.__module__ + "." + attr.__class__.__name__}
+                for key, value in attr.__getstate__().items():
+                    state[name][key] = value
             else:
                 state[name] = attr
         with open(_get_project_file(self.path), 'w') as f:  # should check if file exists?

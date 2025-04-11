@@ -1,9 +1,6 @@
 """
 Unit tests for the sumatra.projects module
 """
-from __future__ import with_statement
-from __future__ import unicode_literals
-from builtins import object
 
 import datetime
 import shutil
@@ -11,7 +8,6 @@ import os
 import sys
 import tempfile
 import unittest
-from future.utils import with_metaclass
 import sumatra.projects
 from sumatra.projects import Project, load_project
 from sumatra.core import SingletonType
@@ -27,7 +23,7 @@ class MockDiffFormatter(object):
 sumatra.projects.get_diff_formatter = lambda: MockDiffFormatter
 
 
-class MockRepository(with_metaclass(SingletonType, object)):
+class MockRepository(metaclass=SingletonType):
     url = "http://svn.example.com"
     vcs_type = 'git'
     use_version_cmd = ''

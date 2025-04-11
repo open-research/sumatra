@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-from builtins import range
 from sumatra.projects import Project
 from sumatra.records import Record
 from sumatra.recordstore import django_store
@@ -11,7 +9,7 @@ from sumatra.versioncontrol._git import GitRepository
 import random
 
 serial = SerialLaunchMode()
-executable = PythonExecutable("/usr/bin/python", version="2.7")
+executable = PythonExecutable("/usr/bin/python", version="3.11")
 repos = GitRepository('.')
 datastore = FileSystemDataStore("/path/to/datastore")
 project = Project("test_project",

@@ -1,10 +1,6 @@
 """
 Unit tests for the sumatra.datastore module
 """
-from __future__ import with_statement
-from __future__ import unicode_literals
-from builtins import str
-from builtins import object
 
 import unittest
 import shutil
@@ -38,7 +34,7 @@ class TestFileSystemDataStore(unittest.TestCase):
         del self.ds
 
     def test__init__should_create_root_if_it_doesnt_exist(self):
-        self.assert_(os.path.exists(self.root_dir))
+        self.assertTrue(os.path.exists(self.root_dir))
 
     def test__str__should_return_root(self):
         self.assertEqual(str(self.ds), self.root_dir)
@@ -79,7 +75,7 @@ class TestFileSystemDataStore(unittest.TestCase):
         digest = hashlib.sha1(self.test_data).hexdigest()
         keys = [DataKey(path, digest, creation=None) for path in self.test_files]
         self.ds.delete(*keys)
-        self.assert_(not os.path.exists(os.path.join(self.root_dir, 'test_file1')))
+        self.assertTrue(not os.path.exists(os.path.join(self.root_dir, 'test_file1')))
 
 
 class TestArchivingFileSystemDataStore(unittest.TestCase):
@@ -109,7 +105,7 @@ class TestArchivingFileSystemDataStore(unittest.TestCase):
         del self.ds
 
     def test__init__should_create_root_and_archive_if_they_dont_exist(self):
-        self.assert_(os.path.exists(self.root_dir))
+        self.assertTrue(os.path.exists(self.root_dir))
 
     def test__str__should_return_root_and_archive(self):
         self.assertEqual(str(self.ds), "{0} (archiving to {1})".format(self.root_dir, self.archive_dir))
@@ -129,13 +125,13 @@ class TestArchivingFileSystemDataStore(unittest.TestCase):
 
     def test__archive__should_create_a_tarball(self):
         self.ds._archive('test', self.test_files)
-        self.assert_(os.path.exists(os.path.join(self.archive_dir, 'test.tar.gz')))
-        self.assert_(not os.path.exists(os.path.join(self.root_dir, 'test.tar.gz')))
+        self.assertTrue(os.path.exists(os.path.join(self.archive_dir, 'test.tar.gz')))
+        self.assertTrue(not os.path.exists(os.path.join(self.root_dir, 'test.tar.gz')))
 
     def test__archive__should_delete_original_files_if_requested(self):
         assert os.path.exists(os.path.join(self.root_dir, 'test_file1'))
         self.ds._archive('test', self.test_files, delete_originals=True)
-        self.assert_(not os.path.exists(os.path.join(self.root_dir, 'test_file1')))
+        self.assertTrue(not os.path.exists(os.path.join(self.root_dir, 'test_file1')))
 
     def test__get_content__should_return_short_file_content(self):
         self.ds.find_new_data(self.now)
@@ -207,7 +203,7 @@ class TestModuleFunctions(unittest.TestCase):
     def test__get_data_store__should_return_DataStore_object(self):
         root_dir = 'kuqeyfgneuqygvn'
         ds = FileSystemDataStore(root_dir)
-        self.assert_(isinstance(get_data_store('FileSystemDataStore', {'root': root_dir}), DataStore))
+        self.assertTrue(isinstance(get_data_store('FileSystemDataStore', {'root': root_dir}), DataStore))
         if os.path.exists(root_dir):
             os.rmdir(root_dir)
 

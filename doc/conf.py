@@ -11,7 +11,6 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-from __future__ import unicode_literals
 import sys, os
 
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -40,7 +39,7 @@ master_doc = 'index'
 # General information about the project.
 project = 'Sumatra'
 authors = 'Sumatra authors and contributors'
-copyright = '2009-2015 ' + authors
+copyright = '2009-2020, 2024-2025 ' + authors
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

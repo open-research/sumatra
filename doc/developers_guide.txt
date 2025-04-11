@@ -3,26 +3,24 @@ Developers' guide
 =================
 
 These instructions are for developing on a Unix-like platform, e.g. Linux or
-Mac OS X, with the bash shell.
+Mac OS.
 
 
 Requirements
 ------------
 
-    * Python_ 2.7, 3.4, 3.5 or 3.6
-    * Django_ >= 1.8
-    * django-tagging_ >= 0.3
-    * parameters >= 0.2.1
-    * nose_ >= 0.11.4
-    * future >= 0.14
-    * if using Python < 3.4, pathlib >= 1.0.0
+    * Python_ 3.8 or later
+    * Django_ >= 2.2
+    * django-tagging_
+    * parameters
+    * pytest
     * docutils
     * Jinja2
 
 Optional:
 
-    * mpi4py_ >= 1.2.2
-    * coverage_ >= 3.3.1 (for measuring test coverage)
+    * mpi4py_
+    * pytest-cov (for measuring test coverage)
     * httplib2 (for the remote record store)
     * GitPython (for Git support)
     * mercurial and hgapi (for Mercurial support)
@@ -71,7 +69,7 @@ Before you make any changes, run the test suite to make sure all the tests pass
 on your system::
 
     $ cd sumatra/test/unittests
-    $ nosetests
+    $ pytest
 
 You will see some error messages, but don't worry - these are just tests of
 Sumatra's error handling. At the end, if you see "OK", then all the tests
@@ -79,8 +77,6 @@ passed, otherwise it will report how many tests failed or produced errors.
 
 If any of the tests fail, check out the `continuous integration server`_ to see
 if these are "known" failures, otherwise please `open a bug report`_.
-
-(many thanks to the `NEST Initiative`_ for hosting the CI server).
 
 
 Writing tests
@@ -93,7 +89,7 @@ check that the test now passes.
 
 To see how well the tests cover the code base, run::
 
-    $ nosetests --coverage --cover-package=sumatra --cover-erase
+    $ pytest --cov=sumatra
 
 
 Committing your changes
@@ -118,7 +114,7 @@ Coding standards and style
 --------------------------
 
 All code should conform as much as possible to `PEP 8`_, and should run with
-Python 2.7, 3.4, 3.5 and 3.6. Lines should be no longer than 99 characters.
+Python 3.8 or later. Lines should be no longer than 119 characters.
 
 
 Reviewing pull requests
@@ -138,8 +134,7 @@ Things to check for:
   * Do all public functions/classes have docstrings?
   * Are there tests for all new/changed functionality?
   * Has the documentation been updated?
-  * Has the Travis CI build passed?
-  * Is the syntax compatible with both Python 2 and 3? (even if we don't yet support Python 3, any new code should try to do so)
+  * Has the GitHub Actions CI build passed?
   * Is there any redundant or duplicate code?
   * Is the code as modular as possible?
   * Is there any commented out code, or print statements used for debugging?
@@ -148,7 +143,7 @@ Things to check for:
 .. _Python: https://www.python.org
 .. _Django: https://www.djangoproject.com/
 .. _django-tagging: http://code.google.com/p/django-tagging/
-.. _nose: https://nose.readthedocs.org/en/latest/
+.. _pytest: https://docs.pytest.org
 .. _Distribute: https://pypi.python.org/pypi/distribute
 .. _mpi4py: http://mpi4py.scipy.org/
 .. _tox: http://codespeak.net/tox/
@@ -157,6 +152,6 @@ Things to check for:
 .. _`issue tracker`: https://github.com/open-research/sumatra/issues
 .. _virtualenv: http://www.virtualenv.org
 .. _`Sumatra repository on Github`: https://github.com/open-research/sumatra
-.. _`continuous integration server`: https://qa.nest-initiative.org/view/Sumatra/job/sumatra/
+.. _`continuous integration server`: https://github.com/open-research/sumatra/actions
 .. _`NEST Initiative`: http://www.nest-initiative.org/
 .. _`open a bug report`: https://github.com/open-research/sumatra/issues/new

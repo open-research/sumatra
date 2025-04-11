@@ -1,8 +1,6 @@
 """
 Helper tools for unit tests
 """
-from __future__ import unicode_literals
-from builtins import object
 
 class patch(object):
     """
