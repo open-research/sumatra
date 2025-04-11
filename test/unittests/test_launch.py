@@ -115,10 +115,8 @@ class TestDistributedLaunchMode(unittest.TestCase, BaseTestLaunchMode):
         self.assertRaises(IOError, lm.check_files, MockExecutable(sys.executable), "main_file")  # main_file does not exist either, but mpirun is checked first
 
     def test__init__should_set_mpirun_to_the_full_path(self):
-        for path in "/usr/bin/mpiexec", "/usr/local/bin/mpiexec":
-            if os.path.exists(path):
-                self.assertEqual(self.lm.mpirun, path)
-                break
+        if os.path.exists(self.lm.mpirun):
+            self.assertEqual(self.lm.mpirun, os.path.abspath(self.lm.mpirun))
 
     def test_getstate_should_return_an_appropriate_dict(self):
         self.assertEqual(self.lm.__getstate__(),

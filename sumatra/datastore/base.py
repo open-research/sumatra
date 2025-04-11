@@ -65,6 +65,9 @@ class DataStore(object):
         """Does the store contain a data item with the given path?"""
         raise NotImplementedError
 
+    def get_type(self):
+        return self.__class__.__name__
+
 
 class DataKey(object):
     """

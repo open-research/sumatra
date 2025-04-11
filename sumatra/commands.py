@@ -248,7 +248,7 @@ def configure(argv):
     parser.add_argument('-c', '--on-changed', help="may be 'store-diff' or 'error': the action to take if the code in the repository or any of the dependencies has changed.", choices=['store-diff', 'error'])
     parser.add_argument('-g', '--labelgenerator', choices=['timestamp', 'uuid'], metavar='OPTION', help="specify which method Sumatra should use to generate labels (options: timestamp, uuid)")
     parser.add_argument('-t', '--timestamp_format', help="the timestamp format given to strftime")
-    parser.add_argument('-L', '--launch_mode', choices=['serial', 'distributed', 'slurm-mpi'], help="how computations should be launched.")
+    parser.add_argument('-L', '--launch_mode', choices=['serial', 'serial-tqdm', 'distributed', 'slurm-mpi'], help="how computations should be launched.")
     parser.add_argument('-o', '--launch_mode_options', help="extra options for the given launch mode, to be given in quotes with a leading space, e.g. ' --foo=3'")
     parser.add_argument('-p', '--plain', dest='plain', action='store_true', help="pass arguments to the 'run' command straight through to the program. Otherwise arguments of the form name=value can be used to overwrite default parameter values.")
     parser.add_argument('--no-plain', dest='plain', action='store_false', help="arguments to the 'run' command of the form name=value will overwrite default parameter values. This is the opposite of the --plain option.")
@@ -538,9 +538,8 @@ def comment(argv):
     args = parser.parse_args(argv)
 
     if args.file:
-        f = open(args.comment, 'r')
-        comment = f.read()
-        f.close()
+        with open(args.comment, 'r') as f:
+            comment = f.read()
     else:
         comment = args.comment
 
@@ -686,9 +685,8 @@ def upgrade(argv):
     project.record_store.clear()
     filename = "%s/records_export.json" % backup_dir
     if os.path.exists(filename):
-        f = open(filename)
-        project.record_store.import_(project.name, f.read())
-        f.close()
+        with open(filename) as f:
+            project.record_store.import_(project.name, f.read())
     else:
         print("Record file not found")
         sys.exit(1)

@@ -84,7 +84,7 @@ class GitWorkingCopy(WorkingCopy):
 
     def use_version(self, version):
         logger.debug("Using git version: %s" % version)
-        if version is not 'master':
+        if version != 'master':
             assert not self.has_changed()
         g = git.Git(self.path)
         g.checkout(version)

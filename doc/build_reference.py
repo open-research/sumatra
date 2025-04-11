@@ -24,16 +24,15 @@ for mode in modes:
 
 sys.stdout = sys.__stdout__
 
-f = open("command_reference.txt", "w")
-f.write("=====================\n")
-f.write("smt command reference\n")
-f.write("=====================\n\n")
+with open("command_reference.txt", "w") as f:
+    f.write("=====================\n")
+    f.write("smt command reference\n")
+    f.write("=====================\n\n")
 
-for mode in modes:
-    sio = usage[mode]
-    f.write(mode + '\n')
-    f.write('-'*len(mode) + '\n::\n\n    ')
-    sio.seek(0)
-    f.write("    ".join(sio.readlines()) + '\n')
-    sio.close()
-f.close()
+    for mode in modes:
+        sio = usage[mode]
+        f.write(mode + '\n')
+        f.write('-'*len(mode) + '\n::\n\n    ')
+        sio.seek(0)
+        f.write("    ".join(sio.readlines()) + '\n')
+        sio.close()
