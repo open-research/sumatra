@@ -88,7 +88,7 @@ class LaunchMode(object):
         """Return a string containing the command to be launched."""
         raise NotImplementedError("must be impemented by sub-classes")
 
-    def run(self, executable, main_file, arguments, append_label=None, catch_stderr=True):
+    def run(self, executable, main_file, arguments, append_label=None, capture_stderr=True):
         """
         Run a computation in a shell, with the given executable, script and
         arguments. If `append_label` is provided, it is appended to the
@@ -103,7 +103,7 @@ class LaunchMode(object):
             dependencies in order to avoid opening of Matlab shell two times '''
             result, output = save_dependencies(cmd, main_file)
         else:
-            result, output = tee.system2(cmd, cwd=self.working_directory, stdout=True, catch_stderr=catch_stderr)  # cwd only relevant for local launch, not for MPI, for example
+            result, output = tee.system2(cmd, cwd=self.working_directory, stdout=True, capture_stderr=capture_stderr)  # cwd only relevant for local launch, not for MPI, for example
         self.stdout_stderr = "".join(output)
         return result
 
@@ -197,7 +197,7 @@ class SerialTqdmLaunchMode(SerialLaunchMode):
     name = "serial-tqdm"
 
     def run(self, *args, **kwargs):
-        return super().run(*args, catch_stderr=False, **kwargs)
+        return super().run(*args, capture_stderr=False, **kwargs)
     run.__doc__ = LaunchMode.run.__doc__
 
 
