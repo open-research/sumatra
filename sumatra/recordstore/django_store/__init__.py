@@ -143,6 +143,7 @@ class DjangoRecordStore(RecordStore):
     """
 
     def __init__(self, db_file='.smt/records'):
+        db_file = os.path.expanduser(db_file)
         self._db_label = db_config.add_database(db_file)
         self._db_file = db_file
 

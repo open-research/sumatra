@@ -41,6 +41,7 @@ class ShelveRecordStore(RecordStore):
     """
 
     def __init__(self, shelf_name=".smt/records"):
+        shelf_name = os.path.expanduser(shelf_name)
         self._shelf_name = shelf_name
         # Some shelve backends add an extension to the filename, and more than one
         # file may be created. So that the file(s) can be deleted, we need to try
