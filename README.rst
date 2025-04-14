@@ -85,7 +85,7 @@ You will also need to install Python bindings for the version control system(s) 
 Code status
 ===========
 
-.. image:: https://github.com/open-research/sumatra/actions/workflows/tests/badge.svg
+.. image:: https://github.com/open-research/sumatra/actions/workflows/tests.yml/badge.svg
    :target: https://github.com/open-research/sumatra/actions/workflows/tests.yml
    :alt: Unit Test Status
 
