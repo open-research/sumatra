@@ -21,7 +21,7 @@ It consists of:
 Sumatra is currently beta code, and should be used with caution and frequent
 backups of your records.
 
-For documentation, see http://packages.python.org/Sumatra/ and http://neuralensemble.org/sumatra/
+For documentation, see http://neuralensemble.org/sumatra/
 
 
 Functionality:
@@ -49,8 +49,8 @@ Functionality:
 Requirements
 ============
 
-Sumatra requires Python version 3.4 or later The web interface requires
-Django (>= 2.2) and the django-tagging package.
+Sumatra requires Python version 3.8 or later The web interface requires
+Django (>= 4.2) and the django-tagging package.
 Sumatra requires that you keep your own code in a version control
 system (currently Subversion, Mercurial, Git and Bazaar are supported). If you
 are already using Bazaar there is nothing else to install. If you

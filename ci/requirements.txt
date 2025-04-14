@@ -1,7 +1,8 @@
 # Base requirements for running Sumatra, for all supported versions of Python
 setuptools  # needed for Python 3.12, since distutils removed
-Django<3
-django-tagging>=0.4
+Django<6
+#django-tagging>=0.5.2
+git+https://git@github.com/jazzband/django-tagging.git@79cb321b1e4c464d39ed96ddbef02617ab0c692e#egg=django-tagging
 httplib2
 jinja2
 docutils
