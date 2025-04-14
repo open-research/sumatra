@@ -5,7 +5,7 @@ Unit tests for the sumatra.datastore module
 import unittest
 import shutil
 import os
-import datetime
+from datetime import datetime, timezone, timedelta
 import hashlib
 from sumatra.datastore import FileSystemDataStore, ArchivingFileSystemDataStore, get_data_store, DataKey
 from sumatra.datastore.base import DataStore
@@ -21,7 +21,7 @@ class TestFileSystemDataStore(unittest.TestCase):
             shutil.rmtree(self.root_dir)
         assert not os.path.exists(self.root_dir)
         self.ds = FileSystemDataStore(self.root_dir)
-        self.now = datetime.datetime.now()
+        self.now = datetime.now(timezone.utc)
         os.mkdir(os.path.join(self.root_dir, 'test_dir'))
         self.test_files = set(['test_file1', 'test_file2', 'test_dir/test_file3'])
         self.test_data = b'licgsnireugcsenrigucsic\ncrgqgjch,kgch'
@@ -54,7 +54,7 @@ class TestFileSystemDataStore(unittest.TestCase):
                          self.test_files)
 
     def test__find_new_data_with_future_timestamp__should_return_empty_list(self):
-        tomorrow = self.now + datetime.timedelta(1)
+        tomorrow = self.now + timedelta(1)
         self.assertEqual(set(self.ds.find_new_data(tomorrow)),
                          set([]))
 
@@ -90,7 +90,7 @@ class TestArchivingFileSystemDataStore(unittest.TestCase):
             assert not os.path.exists(path)
 
         self.ds = ArchivingFileSystemDataStore(self.root_dir, self.archive_dir)
-        self.now = datetime.datetime.now()
+        self.now = datetime.now(timezone.utc)
         os.mkdir(os.path.join(self.root_dir, 'test_dir'))
         self.test_files = set(['test_file1', 'test_file2', 'test_dir/test_file3'])
         self.test_data = b'licgsnireugcsenrigucsic\ncrgqgjch,kgch'
@@ -119,7 +119,7 @@ class TestArchivingFileSystemDataStore(unittest.TestCase):
                          self.test_files)
 
     def test__find_new_data_with_future_timestamp__should_return_empty_list(self):
-        tomorrow = self.now + datetime.timedelta(1)
+        tomorrow = self.now + timedelta(1)
         self.assertEqual(set(self.ds.find_new_data(tomorrow)),
                          set([]))
 

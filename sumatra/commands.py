@@ -149,7 +149,7 @@ def init(argv):
     parser.add_argument('-c', '--on-changed', default='error', help="the action to take if the code in the repository or any of the depdendencies has changed. Defaults to %(default)s")  # need to add list of allowed values
     parser.add_argument('-s', '--store', help="Specify the path, URL or URI to the record store (must be specified). This can either be an existing record store or one to be created. {0} Not using the `--store` argument defaults to a DjangoRecordStore with Sqlite in `.smt/records`".format(store_arg_help))
     parser.add_argument('-g', '--labelgenerator', choices=['timestamp', 'uuid'], default='timestamp', metavar='OPTION', help="specify which method Sumatra should use to generate labels (options: timestamp, uuid)")
-    parser.add_argument('-t', '--timestamp_format', help="the timestamp format given to strftime", default=TIMESTAMP_FORMAT)
+    parser.add_argument('-t', '--timestamp_format', help="the timestamp format given to strftime for generating labels", default=TIMESTAMP_FORMAT)
     parser.add_argument('-L', '--launch_mode', choices=['serial', 'distributed', 'slurm-mpi'], default='serial', help="how computations should be launched. Defaults to %(default)s")
     parser.add_argument('-o', '--launch_mode_options', help="extra options for the given launch mode")
 

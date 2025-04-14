@@ -7,15 +7,15 @@ Handles serialization/deserialization of record store contents to/from JSON.
 """
 
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from sumatra import programs, launch, datastore, versioncontrol, parameters, dependency_finder
 from sumatra.records import Record
 from ..core import get_registered_components
 from sumatra.formatting import record2json, record2dict
 
 
-def encode_record(record, indent=None):
-    return record2json(record, indent)
+def encode_record(record, indent=None, with_timezones=True):
+    return record2json(record, indent, with_timezones=with_timezones)
 
 
 def encode_project_info(long_name, description):
@@ -54,10 +54,14 @@ def datestring_to_datetime(s):
     """docstring"""
     if s is None:
         return s
-    try:
-        timestamp = datetime.strptime(s, "%Y-%m-%d %H:%M:%S")
-    except ValueError:
-        timestamp = datetime.strptime(s, "%Y-%m-%dT%H:%M:%S")
+    formats = ["%Y-%m-%d %H:%M:%S%z", "%Y-%m-%dT%H:%M:%S%z", "%Y-%m-%d %H:%M:%S", "%Y-%m-%dT%H:%M:%S"]
+    for format in formats:
+        try:
+            timestamp = datetime.strptime(s, format)
+        except ValueError:
+            continue
+    if timestamp.tzinfo is None:
+        timestamp = timestamp.replace(tzinfo=timezone.utc)
     return timestamp
 
 

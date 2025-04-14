@@ -2,7 +2,7 @@
 Unit tests for the sumatra.projects module
 """
 
-import datetime
+from datetime import datetime, timezone
 import shutil
 import os
 import sys
@@ -75,7 +75,7 @@ class MockWorkingCopy(object):
 
     def reset(self):
         pass
-    
+
 
 class MockExecutable(object):
     name = "Python"
@@ -133,7 +133,7 @@ class MockRecord(object):
         self.version = "42"
         self.launch_mode = MockLaunchMode()
         self.outcome = ""
-        self.timestamp = datetime.datetime(2042, 1, 23)
+        self.timestamp = datetime(2042, 1, 23, tzinfo=timezone.utc)
         self.user = 'user'
         self.duration = 2.3
         self.datastore = MockDatastore()

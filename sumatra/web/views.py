@@ -253,7 +253,7 @@ def image_thumbgrid(request, project):
                     'tags':             tags,
                     'datastore_id':     data_key.output_from_record.datastore.id,
                     'path':             data_key.path,
-                    'creation':         data_key.creation.strftime('%Y-%m-%d %H:%M:%S'),
+                    'creation':         data_key.creation.strftime('%Y-%m-%d %H:%M:%S%z'),
                     'digest':           data_key.digest
                 })
         if limit != -1:
@@ -472,11 +472,11 @@ def datatable_record(request, project):
                 'DT_RowId':     rec.label,
                 'project':      project,
                 'label':        rec.label,
-                'date':         rec.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+                'date':         rec.timestamp.strftime('%Y-%m-%d %H:%M:%S%z'),
                 'reason':       rec.reason,
                 'outcome':      rec.outcome,
-                'input_data':   map(lambda x: {'path': x.path, 'digest': x.digest, 'creation': x.creation.strftime('%Y-%m-%dT%H:%M:%S')}, rec.input_data.all()),
-                'output_data':  map(lambda x: {'path': x.path, 'digest': x.digest, 'creation': x.creation.strftime('%Y-%m-%dT%H:%M:%S')}, rec.output_data.all()),
+                'input_data':   map(lambda x: {'path': x.path, 'digest': x.digest, 'creation': x.creation.strftime('%Y-%m-%dT%H:%M:%S%z')}, rec.input_data.all()),
+                'output_data':  map(lambda x: {'path': x.path, 'digest': x.digest, 'creation': x.creation.strftime('%Y-%m-%dT%H:%M:%S%z')}, rec.output_data.all()),
                 'duration':     rec.duration,
                 'processes':    rec.launch_mode.get_parameters().get('n',1),
                 'executable':   '%s %s' %(rec.executable.name,rec.executable.version),
@@ -535,7 +535,7 @@ def datatable_data(request, project):
                 'digest':               dk.digest,
                 'size':                 dk.get_metadata()['size'],
                 # 'size':                 filters.filesizeformat(dk.get_metadata()['size']),
-                'creation':             dk.creation.strftime('%Y-%m-%d %H:%M:%S'),
+                'creation':             dk.creation.strftime('%Y-%m-%d %H:%M:%S%z'),
                 'output_from_record':   dk.output_from_record.label,
                 'input_to_records':     map(lambda x: x.label, dk.input_to_records.all())
             })
@@ -592,8 +592,8 @@ def datatable_image(request, project):
             data.append({
                 'DT_RowId':     im.path,
                 'project':      project,
-                'date':         im.creation.strftime('%Y-%m-%d %H:%M:%S'),
-                'creation':     im.creation.strftime('%Y-%m-%dT%H:%M:%S'),
+                'date':         im.creation.strftime('%Y-%m-%d %H:%M:%S%z'),
+                'creation':     im.creation.strftime('%Y-%m-%dT%H:%M:%S%z'),
                 'path':         im.path,
                 'digest':       im.digest,
                 'datastore':    im.output_from_record.datastore.id,

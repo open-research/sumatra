@@ -9,7 +9,7 @@ an online SciPy tutorial at http://scipy-lectures.github.com/intro/summary-exerc
 
 # Requirements: numpy, scipy, matplotlib, mercurial, sarge
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 import shutil
 import tempfile
 from utils import (run_test, build_command, assert_file_exists, assert_in_output,
@@ -48,7 +48,7 @@ def test_all():
         ("Run the computation without Sumatra",
         "python glass_sem_analysis.py default_parameters MV_HFV_012.jpg",
         assert_in_output, re.compile(r"2416\.863[0-9]* 60\.0"),
-        assert_file_exists, os.path.join(working_dir, "Data", datetime.now().strftime("%Y%m%d")),  # Data subdirectory contains another subdirectory labelled with today's date)
+        assert_file_exists, os.path.join(working_dir, "Data", datetime.now(timezone.utc).strftime("%Y%m%d")),  # Data subdirectory contains another subdirectory labelled with today's date)
         ),  # assert(subdirectory contains three image files).
         ("Set up a Sumatra project",
         "smt init -d Data -i . ProjectGlass",
