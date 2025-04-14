@@ -23,7 +23,7 @@ except ImportError:
 
 import pytest
 
-DOCKER_IMAGE = "postgresql_test"
+DOCKER_IMAGE = "postgresql_test:15"
 
 
 def get_url(ctr):
