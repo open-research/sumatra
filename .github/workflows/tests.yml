@@ -65,7 +65,7 @@ jobs:
           cd test
           pytest -v --cov=sumatra --cov-report=term unittests system/test_ircr.py system/test_webui.py
       - name: Upload coverage data
-        if: github.repository_owner == 'open-research'
+        if: (github.repository_owner == 'open-research') && (matrix.python-version == '3.11')
         run: |
           coveralls --service=github
         env:
@@ -74,6 +74,7 @@ jobs:
           COVERALLS_PARALLEL: true
 
   coveralls:
+    if: (github.repository_owner == 'open-research')
     name: Indicate completion to coveralls.io
     needs: test_all
     runs-on: ubuntu-latest
