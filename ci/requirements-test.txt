@@ -4,7 +4,7 @@ numpy
 scipy
 matplotlib
 pillow
-pytest<8
+pytest
 pytest-cov
 flake8
 selenium

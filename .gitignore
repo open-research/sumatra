@@ -8,7 +8,7 @@ dist/*
 .cache
 htmlcov
 cover
-.coverage
+.coverage*
 MANIFEST
 .project
 .pydevproject
