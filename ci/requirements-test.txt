@@ -8,4 +8,4 @@ pytest
 pytest-cov
 flake8
 selenium
-coveralls
+coveralls>=4.0
