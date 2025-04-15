@@ -282,7 +282,10 @@ class TestProject(unittest.TestCase):
         self.assertEqual(proj.format_records('html'), '<ul>\n<li>foo_labelfoo_label</li>\n<li>bar_labelbar_label</li>\n</ul>')
         # TODO: Find a good way to check the output of the following formatters
         #       (currently we only check that we can call them without errors).
-        proj.format_records('latex', 'long')
+        try:
+            proj.format_records('latex', 'long')
+        except ModuleNotFoundError as err:
+            raise unittest.SkipTest(err)
         proj.format_records('shell')
         proj.format_records('json')
 

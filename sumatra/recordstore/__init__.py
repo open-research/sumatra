@@ -19,6 +19,7 @@ from . import serialization
 from .base import RecordStore
 from .shelve_store import ShelveRecordStore
 try:
+    import django
     from .django_store import DjangoRecordStore
     have_django = True
 except ImportError:

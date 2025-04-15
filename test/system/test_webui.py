@@ -14,6 +14,12 @@ try:
 except ImportError:
     have_selenium = False
 
+try:
+    import django
+    have_django = True
+except ImportError:
+    have_django = False
+
 import sarge
 
 import pytest
@@ -24,9 +30,7 @@ from utils import (run_test, build_command, assert_in_output, assert_label_equal
 
 pytest.mark.skipif(not have_selenium, reason="Tests require Selenium")
 
-#repository = "https://github.com/apdavison/ircr2013"
-repository = "/Users/adavison/projects/projectglass-git"
-
+repository = "https://github.com/apdavison/ircr2013"
 
 
 def modify_script(filename, working_dir):
@@ -50,6 +54,8 @@ def env():
 
 @pytest.fixture(scope="module")
 def server(env):
+    if not have_django:
+        raise pytest.skip("Web UI requires Django, which is not installed")
     temporary_dir = os.path.realpath(tempfile.mkdtemp())
     working_dir = os.path.join(temporary_dir, "sumatra_exercise")
     os.mkdir(working_dir)
@@ -57,7 +63,7 @@ def server(env):
 
     setup_steps = [
         ("Get the example code",
-        "git clone %s ." % repository,
+        "git clone --progress %s ." % repository,
         assert_in_output, "done."),
         ("Set up a Sumatra project",
         "smt init -d Data -i . -e python -m glass_sem_analysis.py --on-changed=store-diff ProjectGlass",

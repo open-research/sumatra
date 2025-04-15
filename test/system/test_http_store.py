@@ -14,14 +14,19 @@ try:
 except ImportError:
     have_docker = False
 
+try:
+    import httplib2
+    have_httplib = True
+except ImportError:
+    have_httplib = False
+
 from utils import (run_test, build_command, assert_in_output,
                    assert_label_equal, assert_records, edit_parameters,
                    expected_short_list, substitute_labels)
 
 import pytest
 
-#repository = "https://github.com/apdavison/ircr2013"
-repository = "/Users/adavison/projects/projectglass-git"
+repository = "https://github.com/apdavison/ircr2013"
 DOCKER_IMAGE = "apdavison/sumatra-server-v4"
 
 
@@ -46,6 +51,7 @@ def server():
     ctr.stop()
 
 
+@pytest.mark.skipif(not have_httplib, reason="This test requires httplib2")
 def test_all(server):
     """Run a series of Sumatra commands"""
 
@@ -60,7 +66,7 @@ def test_all(server):
 
     test_steps = [
         ("Get the example code",
-        "git clone %s ." % repository,
+        "git clone --progress %s ." % repository,
         assert_in_output, "done."),
         ("Set up a Sumatra project",
         build_command("smt init --store=http://testuser:abc123@{}/records/ -m glass_sem_analysis.py -e python -d Data -i . ProjectGlass", "url")),

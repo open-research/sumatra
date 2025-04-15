@@ -13,6 +13,7 @@ hgapi
 GitPython>=0.3.6
 # optional requirements, depending on which serialization formats you want
 pyyaml
+#docker
 # optional, for WebDAV support
 #dexml
 #fs

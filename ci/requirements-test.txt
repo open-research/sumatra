@@ -7,3 +7,4 @@ pillow
 pytest<8
 pytest-cov
 flake8
+selenium

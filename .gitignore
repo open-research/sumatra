@@ -17,4 +17,5 @@ MANIFEST
 *.egg-info
 env
 env-ci
+env-nodj
 test/example_repositories/mercurial/hg/wcache

@@ -7,6 +7,9 @@ Defines views for the Sumatra web interface.
 
 import parameters
 import mimetypes
+import json
+import os
+
 from django.conf import settings as django_settings
 from django.http import HttpResponse, Http404
 from django.shortcuts import render
@@ -15,9 +18,6 @@ try:
     from django.views.generic.dates import MonthArchiveView
 except ImportError:  # older versions of Django
     MonthArchiveView = object
-
-import json
-import os
 from django.views.generic import View, DetailView, TemplateView
 from django.db.models import Q
 from tagging.models import Tag

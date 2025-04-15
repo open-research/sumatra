@@ -508,7 +508,10 @@ class LaTeXFormatter(Formatter):
 
     def long(self):
         from os.path import dirname, join
-        from jinja2 import Environment, FileSystemLoader
+        try:
+            from jinja2 import Environment, FileSystemLoader
+        except ModuleNotFoundError:
+            raise ModuleNotFoundError("Please install jinja2 to use this feature")
         template_paths = [dirname(__file__)]
         if self.project:
             template_paths.insert(0, join(self.project.path, ".smt"))

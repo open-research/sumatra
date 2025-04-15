@@ -12,7 +12,12 @@ try:
     have_docker = True
 except ImportError:
     have_docker = False
-from unittest import SkipTest
+try:
+    from fs.contrib.davfs import DAVFS
+    have_davfs = True
+except ImportError:
+    have_davfs = False
+
 from utils import run_test, build_command
 
 import pytest
@@ -46,12 +51,10 @@ def server():
     ctr.stop()
 
 
-
+@pytest.mark.skipif(not have_docker, reason="Tests require docker Python package")
+@pytest.mark.skipif(not have_davfs, reason="Tests require the fs.contrib.davfs package")
 def test_all(server):
     """Run a series of Sumatra commands"""
-    if not have_docker:
-        raise SkipTest("Tests require docker")
-
     temporary_dir = os.path.realpath(tempfile.mkdtemp())
     working_dir = os.path.join(temporary_dir, "sumatra_exercise")
     os.mkdir(working_dir)

@@ -14,9 +14,13 @@ import shutil
 from warnings import warn
 from textwrap import dedent
 import importlib
-import django.conf as django_conf
-from django.core import management
-import django
+try:
+    import django.conf as django_conf
+    from django.core import management
+    import django
+    have_django = True
+except ImportError:
+    have_django = False
 from sumatra.recordstore.base import RecordStore
 from ...core import component
 from urllib.request import urlparse
@@ -113,6 +117,8 @@ class DjangoConfiguration(object):
             management.call_command('migrate', run_syncdb=True, database=label, verbosity=0, interactive=False)
 
     def configure(self):
+        if not have_django:
+            raise ImportError("Please install Django to use this feature.")
         settings = django_conf.settings
         if not settings.configured:
             settings.configure(**self._settings)
