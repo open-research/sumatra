@@ -65,24 +65,20 @@ jobs:
           cd test
           pytest -v --cov=sumatra --cov-report=term unittests system/test_ircr.py system/test_webui.py
       - name: Upload coverage data
-        if: (github.repository_owner == 'open-research') && (matrix.python-version == '3.11')
-        run: |
-          coveralls --service=github
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          COVERALLS_FLAG_NAME: ${{ matrix.os }}-${{ matrix.python-version }}
-          COVERALLS_PARALLEL: true
+        if: (github.repository_owner == 'open-research') && (matrix.python-version == '3.11') && (matrix.os == 'ubuntu-22.04')
+        uses: coverallsapp/github-action@v2
+        with:
+          flag-name: run-${{ join(matrix.*, '-') }}
+          parallel: true
+          base-path: /opt/hostedtoolcache/Python/3.11.11/x64/lib/python3.11/site-packages/sumatra
+
 
   coveralls:
-    if: (github.repository_owner == 'open-research')
-    name: Indicate completion to coveralls.io
     needs: test_all
+    if: (github.repository_owner == 'open-research')
     runs-on: ubuntu-latest
-    container: python:3-slim
     steps:
-    - name: Finished
-      run: |
-        pip3 install --upgrade coveralls
-        coveralls --service=github --finish
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Coveralls Finished
+      uses: coverallsapp/github-action@v2
+      with:
+        parallel-finished: true
