@@ -62,4 +62,26 @@ jobs:
           git config --global user.name "testuser"
       - name: Test with pytest
         run: |
-          pytest -v --cov=sumatra --cov-report=term test/unittests test/system/test_ircr.py test/system/test_webui.py
+          cd test
+          pytest -v --cov=sumatra --cov-report=term unittests system/test_ircr.py system/test_webui.py
+      - name: Upload coverage data
+        if: github.repository_owner == 'open-research'
+        run: |
+          coveralls --service=github
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COVERALLS_FLAG_NAME: ${{ matrix.os }}-${{ matrix.python-version }}
+          COVERALLS_PARALLEL: true
+
+  coveralls:
+    name: Indicate completion to coveralls.io
+    needs: test_all
+    runs-on: ubuntu-latest
+    container: python:3-slim
+    steps:
+    - name: Finished
+      run: |
+        pip3 install --upgrade coveralls
+        coveralls --service=github --finish
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
