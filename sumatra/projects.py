@@ -33,7 +33,7 @@ import sqlite3
 import time
 import shutil
 import textwrap
-from datetime import datetime
+from datetime import datetime, timezone
 from importlib import import_module
 from sumatra.records import Record
 from sumatra import programs, datastore
@@ -433,7 +433,7 @@ class Project(object):
         else:
             self.record_store.backup()
         smt_dir = os.path.split(_get_project_file(self.path))[0]
-        backup_dir = smt_dir + "_backup_%s" % datetime.now().strftime(TIMESTAMP_FORMAT)
+        backup_dir = smt_dir + "_backup_%s" % datetime.now(timezone.utc).strftime(TIMESTAMP_FORMAT)
         shutil.copytree(smt_dir, backup_dir)
         if remove_original:
             shutil.rmtree(smt_dir)

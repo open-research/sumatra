@@ -125,7 +125,7 @@ def assert_records(p, expected_records):
 
 
 def assert_return_code(p, value):
-    assert p.returncode == value, "Return code {0}, expected {1}".format(p.returncode, value)
+    assert p.returncode == value, "Return code {0}, expected {1}\n{2}".format(p.returncode, value, p.stderr.text)
 
 
 def assert_label_equal(p, expected_label):

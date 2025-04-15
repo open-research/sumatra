@@ -5,7 +5,7 @@ Unit tests for the sumatra.formatting module
 
 import unittest
 import tempfile
-from datetime import datetime
+from datetime import datetime, timezone
 import os
 import glob
 import shutil
@@ -61,7 +61,7 @@ class MockDataItem(object):
 
 class MockRecord(Record):
     def __init__(self, label=None):
-        self.timestamp = datetime.now()
+        self.timestamp = datetime.now(timezone.utc)
         self.label = label or self.timestamp.strftime(TIMESTAMP_FORMAT)
         self.reason = "determine how many shekels the gourd is worth"
         self.outcome = "apparently it is worth NaN shekels"

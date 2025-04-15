@@ -7,7 +7,7 @@ Datastore based on files written to and retrieved from a local filesystem.
 """
 
 import os
-import datetime
+from datetime import datetime, timezone
 import mimetypes
 from subprocess import Popen
 import warnings
@@ -29,7 +29,7 @@ class DataFile(DataItem):
         else:
             raise IOError("File %s does not exist" % self.full_path)
             # self.size = None
-        self.creation = creation or datetime.datetime.fromtimestamp(stats.st_ctime).replace(microsecond=0)
+        self.creation = creation or datetime.fromtimestamp(stats.st_ctime, tz=timezone.utc).replace(microsecond=0)
         self.name = os.path.basename(self.full_path)
         self.extension = os.path.splitext(self.full_path)
         self.mimetype, self.encoding = mimetypes.guess_type(self.full_path)
@@ -114,7 +114,7 @@ class FileSystemDataStore(DataStore):
             for file in files:
                 full_path = os.path.join(root, file)
                 relative_path = os.path.join(root[length_dataroot:], file)
-                last_modified = datetime.datetime.fromtimestamp(os.stat(full_path).st_mtime)
+                last_modified = datetime.fromtimestamp(os.stat(full_path).st_mtime, tz=timezone.utc)
                 if last_modified >= timestamp:
                     new_files.append(relative_path)
         return new_files

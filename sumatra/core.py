@@ -17,6 +17,9 @@ from urllib.error import URLError
 import re
 
 
+# Note: This is the format that is used in creating labels,
+#       it is _not_ the format used in serializing to/from JSON,
+#       which includes time-zone information.
 TIMESTAMP_FORMAT = "%Y%m%d-%H%M%S"
 
 STATUS_FORMAT = "_%s_"

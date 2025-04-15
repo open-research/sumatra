@@ -9,7 +9,7 @@ shelve module.
 import os
 import shutil
 import shelve
-from datetime import datetime
+from datetime import datetime, timezone
 from sumatra.recordstore.base import RecordStore
 from ..core import component
 
@@ -125,7 +125,7 @@ class ShelveRecordStore(RecordStore):
     @check_name
     def most_recent(self, project_name):
         most_recent = None
-        most_recent_timestamp = datetime.min
+        most_recent_timestamp = datetime.min.replace(tzinfo=timezone.utc)
         for record in self.shelf[project_name].values():
             if record.timestamp > most_recent_timestamp:
                 most_recent_timestamp = record.timestamp

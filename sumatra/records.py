@@ -15,7 +15,7 @@ Record - gathers and stores information about an individual simulation or
 :license: BSD 2-clause, see LICENSE for details.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 import time
 import os
 from os.path import join, basename, exists
@@ -65,7 +65,7 @@ class Record(object):
         # distributed/batch simulations on machines with out-of-sync clocks,
         # but only do this if you really know what you're doing, otherwise the
         # association of output data with this record may be incorrect
-        self.timestamp = timestamp or datetime.now()
+        self.timestamp = timestamp or datetime.now(timezone.utc)
         self.label = label or str(self.timestamp.strftime(timestamp_format))
         if not re.match(Record.valid_name_pattern, self.label):
             raise ValueError("Invalid record label.")

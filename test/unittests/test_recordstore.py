@@ -8,7 +8,7 @@ import os
 import sys
 import tempfile
 import shutil
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from glob import glob
 
 from sumatra.records import Record
@@ -100,7 +100,7 @@ class MockParameterSet(object):
 
 class MockRecord(object):
 
-    def __init__(self, label, timestamp=datetime.now()):
+    def __init__(self, label, timestamp=datetime.now(timezone.utc)):
         self.label = label
         self.timestamp = timestamp
         self.reason = "because"
@@ -177,7 +177,7 @@ class BaseTestRecordStore(object):
         # might serialize the record using serialization.encode_record
         # (like HttpRecordStore). There, the timestamp will be cut off
         # milliseconds.
-        now = datetime.now()
+        now = datetime.now(timezone.utc)
         r1 = MockRecord("record1", timestamp=now - timedelta(seconds=2))
         r2 = MockRecord("record2", timestamp=now - timedelta(seconds=1))
         r3 = MockRecord("record3", timestamp=now)
@@ -190,7 +190,7 @@ class BaseTestRecordStore(object):
         # might serialize the record using serialization.encode_record
         # (like HttpRecordStore). There, the timestamp will be cut off
         # milliseconds.
-        now = datetime.now()
+        now = datetime.now(timezone.utc)
         r1 = MockRecord("record1", timestamp=now - timedelta(seconds=1))
         r3 = MockRecord("record3", timestamp=now)
         r1.tags.add("tag1")
@@ -518,7 +518,8 @@ class TestSerialization(unittest.TestCase):
         with open(os.path.join(this_directory, "example_0.7.json")) as fp:
             data_in = json.load(fp)
         record = serialization.build_record(data_in)
-        data_out = json.loads(serialization.encode_record(record, indent=2))
+        # v0.7 doesn't include timezone info
+        data_out = json.loads(serialization.encode_record(record, indent=2, with_timezones=False))
         # tags in records are a set, hence have arbitrary order.
         self.assertTrue('tags' in data_out)
         data_in['tags'] = sorted(data_in['tags'])

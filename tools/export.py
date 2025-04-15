@@ -39,7 +39,7 @@ def encode_record(record, indent=None):
     data = {
         "SUMATRA_VERSION": __version__,
         "label": record.label,
-        "timestamp": record.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
+        "timestamp": record.timestamp.strftime("%Y-%m-%d %H:%M:%S%z"),
         "reason": record.reason,
         "duration": record.duration,
         "executable": {

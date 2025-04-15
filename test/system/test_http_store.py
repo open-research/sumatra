@@ -3,10 +3,10 @@ Tests of the HttpRecordStore
 
 """
 
-from functools import partial
 import os
 import shutil
 import tempfile
+from time import sleep
 
 try:
     import docker
@@ -41,6 +41,7 @@ def server():
     dkr = docker.from_env(timeout=60)
     ctr = dkr.containers.run(DOCKER_IMAGE, detach=True, publish_all_ports=True)
     container_url = get_url(ctr)
+    sleep(5)  # time for the all the processes in the container to start properly
     yield container_url
     ctr.stop()
 
@@ -86,7 +87,7 @@ def test_all(server):
         "smt list -l",
         assert_records, substitute_labels([
             {'label': 0, 'executable_name': 'Python', 'outcome': 'works fine', 'reason': 'initial run',
-            'version': '6038f9c500d1', 'vcs': 'Mercurial', 'script_arguments': '<parameters> MV_HFV_012.jpg',
+            'version': 'e74b39374b0a1a401848b05ba9c86042aac4d8e4', 'vcs': 'Git', 'script_arguments': '<parameters> MV_HFV_012.jpg',
             'main_file': 'glass_sem_analysis.py'},   # TODO: add checking of parameters
             {'label': 1, 'outcome': '', 'reason': 'No filtering'},
             {'label': 2, 'outcome': 'The default colourmap is nicer', 'reason': 'Trying a different colourmap'},
@@ -111,7 +112,7 @@ def test_all(server):
         #  "smt list -l",
         #  assert_records, substitute_labels([
         #      {'label': 0, 'executable_name': 'Python', 'outcome': 'works fine', 'reason': 'initial run',
-        #       'version': '6038f9c500d1', 'vcs': 'Mercurial', 'script_args': '<parameters> MV_HFV_012.jpg',
+        #       'version': 'e74b39374b0a1a401848b05ba9c86042aac4d8e4', 'vcs': 'Git', 'script_args': '<parameters> MV_HFV_012.jpg',
         #       'main': 'glass_sem_analysis.py'},   # TODO: add checking of parameters
         #      {'label': 1, 'outcome': '', 'reason': 'No filtering'},
         #      {'label': 2, 'outcome': 'The default colourmap is nicer', 'reason': 'Trying a different colourmap'},
