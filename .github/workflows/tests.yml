@@ -23,9 +23,13 @@ jobs:
           pip install -r ci/requirements-test.txt
           pip install --no-deps .
           pip freeze
+      - name: Configure git
+        run: |
+          git config --global user.email "testuser@example.org"
+          git config --global user.name "Test user"
       - name: Test with pytest
         run: |
-          pytest
+          pytest -v
 
   test_all:  # run tests with all features enabled
     strategy:
@@ -52,8 +56,12 @@ jobs:
           #flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
           # exit-zero treats all errors as warnings.
           #flake8 . --count --exit-zero --max-complexity=10 --max-line-length=119 --statistics
+      - name: Configure git
+        run: |
+          git config --global user.email "testuser@example.org"
+          git config --global user.name "testuser"
       - name: Test with pytest
         run: |
-          pytest test/unittests
-          pytest test/system/test_ircr.py
-          pytest test/system/test_webui.py
+          pytest -v test/unittests
+          pytest -v test/system/test_ircr.py
+          pytest -v test/system/test_webui.py
