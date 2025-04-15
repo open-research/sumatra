@@ -18,12 +18,12 @@ label_pattern = re.compile(r"Record label for this run: '(?P<label>[\w\-_]+)'")
 
 info_pattern = r"""Project name        : (?P<project_name>\w+)
 Default executable  : (?P<executable>\w+) \(version: \d+.\d+.\d+\) at /[\w\/_.-]+/bin/python
-Default repository  : GitRepository at \S+/sumatra_exercise \(upstream: \S+/projectglass-git\)
+Default repository  : GitRepository at \S+/sumatra_exercise \(upstream: \S+/ircr2013\)
 Default main file   : (?P<main>\w+.\w+)
 Default launch mode : serial
 Data store \(output\) : /[\w\/]+/sumatra_exercise/Data
 .          \(input\)  : /[\w\/]+/sumatra_exercise
-Record store        : Django \(/[\w\/]+/sumatra_exercise/.smt/records\)
+Record store        : (?P<record_store>[\w ]+) \([\w\/= ]+/sumatra_exercise/.smt/records\)
 Code change policy  : (?P<code_change>\w+)
 Append label to     : None
 Label generator     : timestamp

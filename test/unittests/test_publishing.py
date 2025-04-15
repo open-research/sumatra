@@ -66,7 +66,7 @@ class MockProject(object):
         self.record_store = MockRecordStore("/path/to/store")
 
 
-def teardown():
+def tearDownModule():
     if os.path.exists(".smt"):
         shutil.rmtree(".smt")
 

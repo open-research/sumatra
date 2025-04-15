@@ -20,10 +20,12 @@ def check_name(f):
     This decorator therefore converts a unicode project_name to a string
     before calling the wrapped method. See http://bugs.python.org/issue1036490
     """
+    # this is presumably not needed with Python 3
+    # todo: remove this decorator
 
-    def wrapped(self, project_name, *args):
+    def wrapped(self, project_name, *args, **kwargs):
         project_name = project_name.__str__()
-        return f(self, project_name, *args)
+        return f(self, project_name, *args, **kwargs)
     return wrapped
 
 
@@ -93,21 +95,11 @@ class ShelveRecordStore(RecordStore):
                 records = list(self.shelf[project_name].values())
         else:
             records = []
-        return records
+        return sorted(records, key=lambda rec: rec.timestamp, reverse=True)
 
     @check_name
     def labels(self, project_name, tags=None):
-        if project_name in self.shelf:
-            if tags:
-                if not isinstance(tags, list):
-                    tags = [tags]
-                lbls = [label for label, record in self.shelf[project_name].items()
-                        if any([tag in record.tags for tag in tags])]
-            else:
-                lbls = list(self.shelf[project_name].keys())
-        else:
-            lbls = []
-        return lbls
+        return [rec.label for rec in self.list(project_name, tags=tags)]
 
     @check_name
     def delete(self, project_name, label):

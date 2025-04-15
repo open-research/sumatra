@@ -416,6 +416,7 @@ class TestSubversionModuleFunctions(unittest.TestCase):
     pass
 
 
+@unittest.skipUnless(have_hg, "Could not import hgapi")
 class TestPackageFunctions(unittest.TestCase):
 
     def setUp(self):

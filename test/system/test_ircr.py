@@ -12,13 +12,20 @@ import os
 from datetime import datetime, timezone
 import shutil
 import tempfile
+import re
+
+try:
+    import django
+    have_django = True
+except ImportError:
+    have_django = False
+
 from utils import (run_test, build_command, assert_file_exists, assert_in_output,
                    assert_config, assert_label_equal, assert_records, assert_return_code,
                    edit_parameters, expected_short_list, substitute_labels)
-import re
 
-#repository = "https://github.com/apdavison/ircr2013"
-repository = "/Users/adavison/projects/projectglass-git"
+
+repository = "https://github.com/apdavison/ircr2013"
 
 
 def test_all():
@@ -43,7 +50,7 @@ def test_all():
 
     test_steps = [
         ("Get the example code",
-        "git clone %s ." % repository,
+        "git clone --progress %s ." % repository,
         assert_in_output, "done."),
         ("Run the computation without Sumatra",
         "python glass_sem_analysis.py default_parameters MV_HFV_012.jpg",
@@ -62,8 +69,9 @@ def test_all():
         "smt configure -e python -m glass_sem_analysis.py"),
         ("Look at the current configuration of the project",
         "smt info",
-        assert_config, {"project_name": "ProjectGlass", "executable": "Python", "main": "glass_sem_analysis.py",
-                        "code_change": "error"}),
+        assert_config, {"project_name": "ProjectGlass", "executable": "Python",
+                        "main": "glass_sem_analysis.py", "code_change": "error",
+                        "record_store": have_django and "Django" or "Record store using the shelve package"}),
         edit_parameters("default_parameters", "no_filter", "filter_size", 1, working_dir),
         ("Run with changed parameters and user-defined label",
         "smt run -l example_label -r 'No filtering' no_filter MV_HFV_012.jpg",  # TODO: assert(results have changed)

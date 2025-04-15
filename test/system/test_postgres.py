@@ -10,10 +10,8 @@ try:
     have_docker = True
 except ImportError:
     have_docker = False
-from unittest import SkipTest
 import shutil
 import tempfile
-import utils
 from utils import run_test, build_command
 try:
     import psycopg2
@@ -48,15 +46,10 @@ def pg_container():
     ctr.stop()
 
 
-# TODO: add test skips where docker, psycopg2 not found
-
-
+@pytest.mark.skipif(not have_docker, reason="Tests require docker Python package")
+@pytest.mark.skipif(not have_psycopg2, reason="Tests require psycopg2")
 def test_all(pg_container):
     """Run a series of Sumatra commands"""
-    if not have_psycopg2:
-        raise SkipTest("Tests require psycopg2")
-    if not have_docker:
-        raise SkipTest("Tests require docker")
     temporary_dir = os.path.realpath(tempfile.mkdtemp())
     working_dir = os.path.join(temporary_dir, "sumatra_exercise")
     os.mkdir(working_dir)

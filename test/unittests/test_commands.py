@@ -184,7 +184,7 @@ def store_original(module, name):
     originals[module.__name__, name] = (module, name, getattr(module, name))
 
 
-def setup():
+def setUpModule():
     store_original(os, "mkdir")
     os.mkdir = mock_mkdir
     for name in ("build_parameters", "get_executable", "get_repository", "get_working_copy", "get_record_store"):
@@ -196,7 +196,7 @@ def setup():
     commands.get_record_store = MockRecordStore
 
 
-def teardown():
+def tearDownModule():
     for item in originals.values():
         setattr(*item)
 

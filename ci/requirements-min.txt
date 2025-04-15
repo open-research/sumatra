@@ -1,0 +1,6 @@
+# Minimal requirements for running Sumatra, for all supported versions of Python
+setuptools
+parameters
+mercurial
+hgapi
+GitPython>=0.3.6
