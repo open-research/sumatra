@@ -62,6 +62,4 @@ jobs:
           git config --global user.name "testuser"
       - name: Test with pytest
         run: |
-          pytest -v test/unittests
-          pytest -v test/system/test_ircr.py
-          pytest -v test/system/test_webui.py
+          pytest -v --cov=sumatra --cov-report=term test/unittests test/system/test_ircr.py test/system/test_webui.py
