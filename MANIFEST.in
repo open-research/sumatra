@@ -9,6 +9,7 @@ include sumatra/web/static/js/*.js
 include sumatra/web/templates/*.html
 include sumatra/publishing/latex/sumatra.sty
 include sumatra/formatting/latex_template.tex
+include sumatra/external_scripts/script_introspect.R
 recursive-include test/example_projects *
 recursive-include test/example_repositories *
 include test/unittests/*.py
