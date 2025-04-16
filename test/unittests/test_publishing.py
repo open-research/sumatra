@@ -69,6 +69,8 @@ class MockProject(object):
 def tearDownModule():
     if os.path.exists(".smt"):
         shutil.rmtree(".smt")
+    if os.path.exists("smt_images"):
+        shutil.rmtree("smt_images")
 
 
 class TestUtils(unittest.TestCase):

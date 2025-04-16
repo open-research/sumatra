@@ -321,6 +321,7 @@ class DjangoRecordStore(RecordStore):
                              for x in ("record", "record_input_data", "record_dependencies",
                                        "record_platforms", "platforminformation", "datakey", "datastore", "launchmode",
                                        "parameterset", "repository", "dependency", "executable", "project")] + ["COMMIT;"]
+        # todo: also drop tagging_taggeditem, tagging_tag
         from django.db import connection
         cur = connection.cursor()
         for cmd in cmds:
