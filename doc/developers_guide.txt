@@ -40,17 +40,18 @@ should fork the main `Sumatra repository on Github`_, then clone your own fork.:
 
     $ cd /some/directory
     $ git clone https://github.com/<username>/sumatra.git
+    $ cd sumatra
 
 Now you need to make sure that the ``sumatra`` package is on your PYTHONPATH and
 that the ``smt`` and ``smtweb`` scripts are on your PATH. You can do this either
-by installing Sumatra normally::
+by installing Sumatra normally from the local checkout::
 
-    $ pip install ./sumatra
+    $ pip install .[dev]
 
 (if you do this, you will have to re-run ``pip install`` any time you make
 changes to the code) *or* using the "editable" option::
 
-    $ pip install --editable ./sumatra
+    $ pip install --editable .[dev]
 
 To ensure you always have access to the most recent version, add the main repository as "upstream"::
 

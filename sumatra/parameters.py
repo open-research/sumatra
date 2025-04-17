@@ -70,7 +70,7 @@ class ParameterSet(metaclass=abc.ABCMeta):
         Uses ParameterSet format-specific type parsers stored in self.casts
 
         Raises ValueError with args tuple containing name, value if parameter name
-        isn't in self.values.
+        isn't in self._values.
         """
         pos = p.find('=')
         if pos == -1:

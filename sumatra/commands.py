@@ -333,7 +333,6 @@ def configure(argv):
         project.allow_command_line_parameters = not args.plain
     if args.ignore_parameters is not None:
         project.ignore_parameters = args.ignore_parameters
-        print("Setting ignore parameters to {}".format(args.ignore_parameters))
     if args.add_plugin:
         project.load_plugins(args.add_plugin)
     if args.remove_plugin:

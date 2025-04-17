@@ -95,9 +95,10 @@ test = [
 ]
 
 dev = [
-    "sumatra[web,git,hg,remote,postgres,latex,mpi,docs,test]",
+    "sumatra[web,git,hg,remote,postgres,mysql,latex,mpi,docs,test]",
     "build",
-    "twine"
+    "twine",
+    "docker"
 ]
 
 [tool.black]

@@ -2,7 +2,7 @@
 Sumatra 0.8.0 release notes
 ===========================
 
-*17th April 2025*
+*18th April 2025*
 
 It is almost ten years since the last release of Sumatra!
 

@@ -14,6 +14,20 @@ If the name of your parameter file ends in a recognized extension, such as
 ".json" or ".yaml", Sumatra will use the associated format, otherwise it
 chooses the appropriate format based on file contents.
 
+
+Enabling and disabling parameter file parsing
+=============================================
+
+By default, Sumatra will try to parse your parameter files.
+You can turn this off with::
+
+  $ smt configure --ignore-parameters
+
+To re-enable parsing::
+
+  $ smt configure --parse-parameters
+
+
 Supported formats
 =================
 
@@ -83,6 +97,7 @@ sub-parameter sets to be included from other files. Example::
         "dt": 0.11,
       }
     }
+
 
 Adding new formats
 ==================
