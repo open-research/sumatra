@@ -2,7 +2,7 @@
 Handles storage of simulation/analysis records in a relational database, via the
 Django object-relational mapper (ORM), which means that any database
 supported by Django could in principle be used, although for now we assume
-SQLite or PostgreSQL.
+SQLite, PostgreSQL, MySQL or MariaDB.
 
 
 :copyright: Copyright 2006-2020, 2024 by the Sumatra team, see doc/authors.txt
@@ -67,6 +67,13 @@ class DjangoConfiguration(object):
         db = {}
         if 'postgres' in parse_result.scheme:
             db['ENGINE'] = 'django.db.backends.postgresql_psycopg2'
+            db['NAME'] = os.path.split(parse_result.path)[-1]
+            db['HOST'] = parse_result.hostname
+            db['USER'] = parse_result.username
+            db['PASSWORD'] = parse_result.password
+            db['PORT'] = parse_result.port or ''
+        elif 'mysql' in parse_result.scheme or 'mariadb' in parse_result.scheme:
+            db['ENGINE'] = 'django.db.backends.mysql'
             db['NAME'] = os.path.split(parse_result.path)[-1]
             db['HOST'] = parse_result.hostname
             db['USER'] = parse_result.username
@@ -342,7 +349,7 @@ class DjangoRecordStore(RecordStore):
 
     @classmethod
     def accepts_uri(cls, uri):
-        return uri[:8] == "postgres" or os.path.exists(uri) or os.path.exists(uri + ".db")
+        return uri[:8] == "postgres" or uri.startswith(('mysql', 'mariadb')) or os.path.exists(uri) or os.path.exists(uri + ".db")
 
     def backup(self):
         """
@@ -351,7 +358,7 @@ class DjangoRecordStore(RecordStore):
         if 'sqlite3' in db_config.engine:
             shutil.copy2(self._db_file, self._db_file + ".backup")
         else:
-            warn("Cannot backup a PostgreSQL store directly.")
+            warn("Cannot backup a PostgreSQL/MySQL/MariaDB store directly.")
 
     def remove(self):
         """
@@ -361,4 +368,4 @@ class DjangoRecordStore(RecordStore):
         if 'sqlite3' in db_config.engine:
             os.remove(self._db_file)
         else:
-            warn("Cannot remove a PostgreSQL store directly.")
+            warn("Cannot remove a PostgreSQL/MySQL/MariaDB store directly.")
