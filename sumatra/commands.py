@@ -40,7 +40,14 @@ modes = ("init", "configure", "info", "run", "list", "delete", "comment", "tag",
          "repeat", "diff", "help", "export", "upgrade", "sync", "migrate", "version",
          "view")
 
-store_arg_help = "The argument can take the following forms: (1) `/path/to/sqlitedb` - DjangoRecordStore is used with the specified Sqlite database, (2) `http[s]://location` - remote HTTPRecordStore is used with a remote Sumatra server, (3) `postgres://username:password@hostname/databasename` - DjangoRecordStore is used with specified Postgres database."
+store_arg_help = (
+    "The argument can take the following forms: "
+    "(1) `/path/to/sqlitedb` - DjangoRecordStore is used with the specified Sqlite database, "
+    "(2) `http[s]://location` - remote HTTPRecordStore is used with a remote Sumatra server, "
+    "(3) `postgres://username:password@hostname/databasename` - DjangoRecordStore is used with specified PostgreSQL database."
+    "(4) `mysql://username:password@hostname/databasename` - DjangoRecordStore is used with specified MySQL database."
+    "(5) `mariadb://username:password@hostname/databasename` - DjangoRecordStore is used with specified MariaDB database."
+)
 
 ## recommended method for modifying warning formatting
 ## see https://docs.python.org/2/library/warnings.html#warnings.showwarning

@@ -31,6 +31,7 @@ current affiliation of a contributor.
 * Dan Padilha [18]
 * Simon Chabot [19]
 * @maharjun
+* David Kleiven [20]
 
 1. Unité de Neuroscience, Information et Complexité, CNRS UPR 3293, Gif-sur-Yvette, France
 2. Ecole Centrale de Lille, Lille, France
@@ -51,6 +52,7 @@ current affiliation of a contributor.
 17. Institute of Nanotechnology, Karlsruhe Institute of Technology, Germany
 18. Shoal Engineering Pty Ltd, Canberra, Australia
 19. CEREMA Direction territoriale Méditerranée, Nice, France
+20. NTNU, Trondheim, Norway
 
 If we've somehow missed you off the list I'm very sorry - please let us know.
 

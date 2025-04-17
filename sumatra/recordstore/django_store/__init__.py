@@ -349,7 +349,7 @@ class DjangoRecordStore(RecordStore):
 
     @classmethod
     def accepts_uri(cls, uri):
-        return uri[:8] == "postgres" or uri.startswith(('mysql', 'mariadb')) or os.path.exists(uri) or os.path.exists(uri + ".db")
+        return uri.startswith(("postgres", "mysql", "mariadb")) or os.path.exists(uri) or os.path.exists(uri + ".db")
 
     def backup(self):
         """
