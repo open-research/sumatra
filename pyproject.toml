@@ -72,6 +72,7 @@ mpi = ["mpi4py"]
 docs = [
     "docutils",
     "sphinx",
+    "sphinxawesome-theme"
 ]
 
 default = [
