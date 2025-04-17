@@ -64,7 +64,7 @@ class ParameterSet(with_metaclass(abc.ABCMeta, object)):
     list_pattern = re.compile(r'^\s*\[.*\]\s*$')
     tuple_pattern = re.compile(r'^\s*\(.*\)\s*$')
     if yaml_loaded:
-        casts = (yaml.load, )  # good behavior for all bool, at cost of dependency
+        casts = (yaml.safe_load, )  # good behavior for all bool, at cost of dependency
     else:
         casts = tuple()
 
@@ -152,11 +152,11 @@ class YAMLParameterSet(ParameterSet):
             try:
                 if os.path.exists(initialiser):
                     with open(initialiser) as fid:
-                        self._values = yaml.load(fid)
+                        self._values = yaml.safe_load(fid)
                     self.source_file = initialiser
                 else:
                     if initialiser:
-                        self._values = yaml.load(initialiser)
+                        self._values = yaml.safe_load(initialiser)
                     else:
                         self._values = {}
             except yaml.YAMLError:
