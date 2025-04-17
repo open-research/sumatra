@@ -4,20 +4,27 @@ Tests using a PostgreSQL-based record store.
 """
 
 import os
-from urllib.parse import urlparse
+import shutil
+import tempfile
+
 try:
     import docker
     have_docker = True
 except ImportError:
-    have_docker = False
-import shutil
-import tempfile
-from utils import run_test, build_command
+    try:
+        import podman
+        docker = podman.PodmanClient
+        have_docker = True
+    except ImportError:
+        have_docker = False
+
 try:
     import psycopg2
     have_psycopg2 = True
 except ImportError:
     have_psycopg2 = False
+
+from utils import run_test, build_command
 
 import pytest
 
@@ -27,7 +34,7 @@ DOCKER_IMAGE = "postgresql_test:15"
 def get_url(ctr):
     ctr.reload()  # required to get auto-assigned ports
     info = ctr.ports["5432/tcp"][0]
-    return f"{info['HostIp']}:{info['HostPort']}"
+    return f"{info['HostIp'] or '127.0.0.1'}:{info['HostPort']}"
 
 
 @pytest.fixture(scope="module")
@@ -44,6 +51,8 @@ def pg_container():
     container_url = get_url(ctr)
     yield container_url
     ctr.stop()
+    if hasattr(dkr, "stop"):
+        dkr.stop()
 
 
 @pytest.mark.skipif(not have_docker, reason="Tests require docker Python package")

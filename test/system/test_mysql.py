@@ -6,13 +6,21 @@ Tests using a MariaDB/MySQL-based record store.
 import os
 import shutil
 import tempfile
+from time import sleep
+
 try:
     import docker
     have_docker = True
 except ImportError:
-    have_docker = False
+    try:
+        import podman
+        docker = podman.PodmanClient
+        have_docker = True
+    except ImportError:
+        have_docker = False
+
 try:
-    import mysqlclient
+    import MySQLdb
     have_mysql = True
 except ImportError:
     have_mysql = False
@@ -22,13 +30,13 @@ from utils import run_test, build_command
 
 import pytest
 
-DOCKER_IMAGE = "mariadb:latest"
+DOCKER_IMAGE = "docker.io/mariadb:latest"
 
 
 def get_url(ctr):
     ctr.reload()  # required to get auto-assigned ports
     info = ctr.ports["3306/tcp"][0]
-    return f"{info['HostIp']}:{info['HostPort']}"
+    return f"{info['HostIp'] or '127.0.0.1'}:{info['HostPort']}"
 
 
 @pytest.fixture(scope="module")
@@ -38,7 +46,6 @@ def mysql_container():
 
     """
     dkr = docker.from_env()
-
     ctr = dkr.containers.run(
         DOCKER_IMAGE, detach=True, publish_all_ports=True,
         environment={
@@ -49,8 +56,11 @@ def mysql_container():
         }
     )
     container_url = get_url(ctr)
+    sleep(15)  # time for the container to start properly
     yield container_url
     ctr.stop()
+    if hasattr(dkr, "stop"):
+        dkr.stop()
 
 
 @pytest.mark.skipif(not have_docker, reason="Tests require docker Python package")

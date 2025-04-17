@@ -12,7 +12,12 @@ try:
     import docker
     have_docker = True
 except ImportError:
-    have_docker = False
+    try:
+        import podman
+        docker = podman.PodmanClient
+        have_docker = True
+    except ImportError:
+        have_docker = False
 
 try:
     import httplib2
@@ -27,13 +32,13 @@ from utils import (run_test, build_command, assert_in_output,
 import pytest
 
 repository = "https://github.com/apdavison/ircr2013"
-DOCKER_IMAGE = "apdavison/sumatra-server-v4"
+DOCKER_IMAGE = "docker.io/apdavison/sumatra-server-v4"
 
 
 def get_url(ctr):
     ctr.reload()  # required to get auto-assigned ports
     info = ctr.ports["80/tcp"][0]
-    return f"{info['HostIp']}:{info['HostPort']}"
+    return f"{info['HostIp'] or 'localhost'}:{info['HostPort']}"
 
 
 @pytest.fixture(scope="module")
@@ -49,6 +54,8 @@ def server():
     sleep(5)  # time for the all the processes in the container to start properly
     yield container_url
     ctr.stop()
+    if hasattr(dkr, "stop"):
+        dkr.stop()
 
 
 @pytest.mark.skipif(not have_httplib, reason="This test requires httplib2")

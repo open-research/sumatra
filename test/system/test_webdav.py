@@ -6,12 +6,18 @@ Tests using a PostgreSQL-based record store.
 import os
 import shutil
 import tempfile
-from urllib.parse import urlparse
+
 try:
     import docker
     have_docker = True
 except ImportError:
-    have_docker = False
+    try:
+        import podman
+        docker = podman.PodmanClient
+        have_docker = True
+    except ImportError:
+        have_docker = False
+
 try:
     from fs.contrib.davfs import DAVFS
     have_davfs = True
@@ -28,7 +34,7 @@ DOCKER_IMAGE = "webdav_test"
 def get_url(ctr):
     ctr.reload()  # required to get auto-assigned ports
     info = ctr.ports["80/tcp"][0]
-    return f"{info['HostIp']}:{info['HostPort']}"
+    return f"{info['HostIp'] or 'localhost'}:{info['HostPort']}"
 
 
 @pytest.fixture(scope="module")
@@ -49,6 +55,8 @@ def server():
     container_url = get_url(ctr)
     yield container_url
     ctr.stop()
+    if hasattr(dkr, "stop"):
+        dkr.stop()
 
 
 @pytest.mark.skipif(not have_docker, reason="Tests require docker Python package")
