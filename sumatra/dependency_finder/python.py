@@ -193,26 +193,24 @@ def find_imported_packages(filename, executable_path, debug=0, exclude_stdlib=Tr
     # in record.register()
 
     # HACK Added excludes=['jinja2.asyncsupport']
-    script = textwrap.dedent("""
+    script = textwrap.dedent(f"""
         from modulefinder import ModuleFinder
         import sys, os
-        import distutils.sysconfig
-        stdlib_path = distutils.sysconfig.get_python_lib(standard_lib=True)
-        stdlib_paths = (stdlib_path,
-                        os.path.join(stdlib_path, "plat-mac"),
-                        os.path.join(stdlib_path, "plat-mac", "lib-scriptpackages"))
-        exclude_stdlib = %s
-        finder = ModuleFinder(path=sys.path, debug=%d, excludes=['jinja2.asyncsupport'])
+        import sysconfig
+        stdlib_paths = (sysconfig.get_path("stdlib"),
+                        sysconfig.get_path("platstdlib"))
+        exclude_stdlib = {exclude_stdlib}
+        finder = ModuleFinder(path=sys.path, debug={int(debug)}, excludes=['jinja2.asyncsupport'])
         try:
-            finder.run_script("%s")
+            finder.run_script("{filename}")
         except Exception as ex:
             sys.stdout.write("Determining dependencies failed for some Python modules.")
-        top_level_packages = {}
+        top_level_packages = {{}}
         for name, module in finder.modules.items():
             if module.__path__ and "." not in name:
                 if not(exclude_stdlib and os.path.dirname(module.__path__[0]) in stdlib_paths):
                     top_level_packages[name] = module
-        sys.stdout.write("%s" + str(top_level_packages))""" % (exclude_stdlib, int(debug), filename, SENTINEL))
+        sys.stdout.write("{SENTINEL}" + str(top_level_packages))""")
     return run_script(executable_path, script)
 
 
