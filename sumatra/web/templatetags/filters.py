@@ -1,9 +1,8 @@
 """
 
-:copyright: Copyright 2006-2015 by the Sumatra team, see doc/authors.txt
+:copyright: Copyright 2006-2020, 2024 by the Sumatra team, see doc/authors.txt
 :license: BSD 2-clause, see LICENSE for details.
 """
-from __future__ import unicode_literals
 
 import os
 from django import template
@@ -11,10 +10,7 @@ from django.template.defaultfilters import stringfilter
 from django.conf import settings
 from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
-try:
-    from django.utils.encoding import force_bytes, force_text  # Django 1.5+
-except ImportError:
-    from django.utils.encoding import smart_str as force_bytes, force_unicode as force_text  # Django 1.4
+from django.utils.encoding import force_bytes, force_str
 from sumatra.formatting import human_readable_duration
 from sumatra.core import STATUS_PATTERN
 
@@ -32,7 +28,7 @@ def ubreak(text):
 def nbsp(text):
     text_out = text.replace(" ", "&nbsp;")
     return mark_safe(text_out)
-    
+
 @register.filter
 @stringfilter
 def basename(text):
@@ -74,12 +70,12 @@ def restructuredtext(value):
         if settings.DEBUG:
             raise template.TemplateSyntaxError(
                 "Error in 'restructuredtext' filter: The Python docutils library isn't installed.")
-        return force_text(value)
+        return force_str(value)
     else:
         docutils_settings = getattr(settings, "RESTRUCTUREDTEXT_FILTER_SETTINGS", {})
         parts = publish_parts(source=force_bytes(value), writer_name="html4css1", settings_overrides=docutils_settings)
-        return mark_safe(force_text(parts["fragment"]))
-        
+        return mark_safe(force_str(parts["fragment"]))
+
 @register.filter(needs_autoescape=True)
 def labelize_tag(tag, autoescape=True):
     if autoescape:

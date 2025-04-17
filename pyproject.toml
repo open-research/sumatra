@@ -1,0 +1,102 @@
+[project]
+name = "Sumatra"
+version = "0.8.0.dev0"
+authors = [
+    {name = "Sumatra authors and contributors", email = "andrew.davison@cnrs.fr"}
+]
+description = "A tool for automated tracking of computation-based scientific projects"
+readme = "README.rst"
+requires-python = ">=3.9"
+license = "BSD-2-Clause"
+license-files = ["LICENSE"]
+keywords = ["computational science", "simulation", "analysis", "project management"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Environment :: Web Environment",
+    "Intended Audience :: Science/Research",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering"
+]
+dependencies = [
+    "setuptools",
+    "parameters",
+    "pyyaml"
+]
+
+[project.scripts]
+smt = "sumatra.cli:smt"
+smtweb = "sumatra.cli:smtweb"
+
+[project.urls]
+homepage = "https://neuralensemble.org/sumatra"
+documentation = "https://sumatra.readthedocs.io"
+repository = "https://github.com/open-research/sumatra"
+download = "http://pypi.python.org/pypi/sumatra"
+
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project.optional-dependencies]
+
+git = ["GitPython"]
+
+hg = ["mercurial", "hgapi"]
+
+web = [
+    "docutils",
+    "Django<6",
+    "django-tagging@git+https://github.com/jazzband/django-tagging"
+]
+
+remote = ["httplib2"]
+
+postgres = ["psycopg2-binary"]
+
+latex = ["jinja2"]
+
+sphinx = ["docutils"]
+
+mpi = ["mpi4py"]
+
+docs = [
+    "docutils",
+    "sphinx",
+    "sphinxawesome-theme"
+]
+
+default = [
+    "sumatra[web,git,remote]"
+]
+
+test = [
+    "sarge",
+    "numpy",
+    "scipy",
+    "matplotlib",
+    "pillow",
+    "pytest",
+    "pytest-cov",
+    "flake8",
+    "selenium",
+    "coveralls"
+]
+
+dev = [
+    "sumatra[web,git,hg,remote,postgres,latex,mpi,docs,test]",
+    "build",
+    "twine"
+]
+
+[tool.black]
+line-length = 120

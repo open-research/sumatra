@@ -7,7 +7,7 @@ API reference
 
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 2
 
    reference/datastore
    reference/dependency_finder
@@ -19,4 +19,3 @@ API reference
    reference/programs
    reference/projects
    reference/records
-   

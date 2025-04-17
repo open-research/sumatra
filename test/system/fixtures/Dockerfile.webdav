@@ -4,8 +4,8 @@
 #
 # Usage:  docker build -t webdav_test -f Dockerfile.webdav .
 
-FROM debian:jessie
-MAINTAINER andrew.davison@unic.cnrs-gif.fr
+FROM debian:bullseye
+MAINTAINER andrew.davison@cnrs.fr
 
 RUN apt-get update
 RUN apt-get -y -q install apache2

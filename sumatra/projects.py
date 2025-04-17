@@ -17,15 +17,9 @@ Functions
 load_project() - read project information from the working directory and return
                  a Project object.
 
-:copyright: Copyright 2006-2015 by the Sumatra team, see doc/authors.txt
+:copyright: Copyright 2006-2020, 2024 by the Sumatra team, see doc/authors.txt
 :license: BSD 2-clause, see LICENSE for details.
 """
-from __future__ import print_function
-from __future__ import unicode_literals
-from future import standard_library
-standard_library.install_aliases()
-from builtins import str
-from builtins import object
 
 import os
 import re
@@ -34,12 +28,18 @@ import pickle
 from copy import deepcopy
 import uuid
 import sumatra
-import django
+try:
+    import django.db.utils
+except ImportError:
+    class DjangoDatabaseError:  # If django can't be imported, a django..DatabaseError
+        pass                    # cannot be raised, so a mock exception is all we need
+else:
+     DjangoDatabaseError = django.db.utils.DatabaseError
 import sqlite3
 import time
 import shutil
 import textwrap
-from datetime import datetime
+from datetime import datetime, timezone
 from importlib import import_module
 from sumatra.records import Record
 from sumatra import programs, datastore
@@ -147,15 +147,14 @@ class Project(object):
                 else:
                     # Default value for unrecognised parameters
                     attr = None
-            if hasattr(attr, "__getstate__"):
+            if hasattr(attr, "__getstate__") and attr.__getstate__() is not None:
                 state[name] = {'type': attr.__class__.__module__ + "." + attr.__class__.__name__}
                 for key, value in attr.__getstate__().items():
                     state[name][key] = value
             else:
                 state[name] = attr
-        f = open(_get_project_file(self.path), 'w')  # should check if file exists?
-        json.dump(state, f, indent=2)
-        f.close()
+        with open(_get_project_file(self.path), 'w') as f:  # should check if file exists?
+            json.dump(state, f, indent=2)
 
     def info(self):
         """Show some basic information about the project."""
@@ -270,13 +269,13 @@ class Project(object):
                 success = True
                 self._most_recent = record.label
                 logger.debug("Created record: %s" % self.most_recent())
-            except (django.db.utils.DatabaseError, sqlite3.OperationalError):
+            except (DjangoDatabaseError, sqlite3.OperationalError):
                 print("Failed to save record due to database error. Trying again in {0} seconds. (Attempt {1}/{2})".format(sleep_seconds, cnt, max_tries))
                 time.sleep(sleep_seconds)
                 cnt += 1
         if cnt == max_tries:
             print("Reached maximum number of attempts to save record. Aborting.")
-            
+
     def save_record(self, record):
         self.record_store.save(self.name, record)
 
@@ -302,25 +301,46 @@ class Project(object):
         self._most_recent = self.record_store.most_recent(self.name)
         return n
 
-    def get_labels(self, tags=None, reverse=False):
-        labels = self.record_store.labels(self.name, tags=tags)
+    def get_labels(self, tags=None, reverse=False, *args, **kwargs):
+        labels = self.record_store.labels(self.name, tags=tags, *args, **kwargs)
         if reverse:
             labels.reverse()
         return labels
 
     def find_records(self, tags=None, reverse=False, parameters=None, *args, **kwargs):
-        records = self.record_store.list(self.name, tags, *args, **kwargs)
+        records = self.record_store.list(self.name, tags=tags, *args, **kwargs)
         if reverse:
             records.reverse()
         if parameters is not None:
             records = [rec for rec in records if len(rec.parameters.diff(parameters)[-1]) == 0]
         return records
 
-    # def find_data() here?
+    def find_input_data(self, *args, **kwargs):
+        records = self.find_records(*args, **kwargs)
+        if len(records) == 0: return []
+        input_data = []
+        for record in records:
+            for input_file in record.input_data:
+                input_data.append(input_file)
+        return input_data
+
+    def find_output_data(self, *args, **kwargs):
+        records = self.find_records(*args, **kwargs)
+        if (records) == 0: return []
+        output_data = []
+        for record in records:
+            for output_file in record.output_data:
+                output_data.append(output_file)
+        return output_data
+
+    def find_data(self, *args, **kwargs):
+        input_data = self.find_input_data(*args, **kwargs)
+        output_data = self.find_output_data(*args, **kwargs)
+        return {'input_data': input_data, 'output_data': output_data}
 
     def format_records(self, format='text', mode='short', tags=None, reverse=False, *args, **kwargs):
         if format=='text' and mode=='short' and ('parameters' not in kwargs.keys()):
-            return '\n'.join(self.get_labels(tags=tags, reverse=reverse))
+            return '\n'.join(self.get_labels(tags=tags, reverse=reverse, *args, **kwargs))
         else:
             records = self.find_records(tags=tags, reverse=reverse, *args, **kwargs)
             formatter = get_formatter(format)(records, project=self, tags=tags)
@@ -338,7 +358,7 @@ class Project(object):
             record = self.record_store.get(self.name, label)
         except Exception as e:
             raise Exception("%s. label=<%s>" % (e, label))
-        if replace or record.outcome is "":
+        if replace or record.outcome == "":
             record.outcome = comment
         else:
             record.outcome = record.outcome + "\n" + comment
@@ -368,9 +388,8 @@ class Project(object):
         # copy the project data
         shutil.copy(".smt/project", ".smt/project_export.json")
         # export the record data
-        f = open(".smt/records_export.json", 'w')
-        f.write(self.record_store.export(self.name))
-        f.close()
+        with open(".smt/records_export.json", 'w') as f:
+            f.write(self.record_store.export(self.name))
 
     def repeat(self, original_label, new_label=None):
         if original_label == 'last':
@@ -420,7 +439,7 @@ class Project(object):
         else:
             self.record_store.backup()
         smt_dir = os.path.split(_get_project_file(self.path))[0]
-        backup_dir = smt_dir + "_backup_%s" % datetime.now().strftime(TIMESTAMP_FORMAT)
+        backup_dir = smt_dir + "_backup_%s" % datetime.now(timezone.utc).strftime(TIMESTAMP_FORMAT)
         shutil.copytree(smt_dir, backup_dir)
         if remove_original:
             shutil.rmtree(smt_dir)
@@ -449,9 +468,9 @@ class Project(object):
 
 
 def _load_project_from_json(path):
-    f = open(_get_project_file(path), 'r')
-    data = json.load(f)
-    f.close()
+    path = os.path.expanduser(path)
+    with open(_get_project_file(path), 'r') as f:
+        data = json.load(f)
     prj = Project.__new__(Project)
     prj.path = path
     for key, value in data.items():
@@ -477,9 +496,9 @@ def _load_project_from_json(path):
 
 def _load_project_from_pickle(path):
     # earlier versions of Sumatra saved Projects using pickle
-    f = open(_get_project_file(path), 'r')
-    prj = pickle.load(f)
-    f.close()
+    path = os.path.expanduser(path)
+    with open(_get_project_file(path), 'r') as f:
+        prj = pickle.load(f)
     return prj
 
 
@@ -492,7 +511,7 @@ def load_project(path=None):
     if not path:
         p = os.getcwd()
     else:
-        p = os.path.abspath(path)
+        p = os.path.abspath(os.path.expanduser(path))
     while not os.path.isdir(os.path.join(p, ".smt")):
         oldp, p = p, os.path.dirname(p)
         if p == oldp:

@@ -1,5 +1,0 @@
-# additional requirements for Python 2.7
-pathlib
-configparser
-# optional, if you use Bazaar
-bzr

@@ -2,10 +2,12 @@
 # encoding: utf-8
 # Author: sorin sbarnea
 # License: public domain
-from __future__ import print_function
-from __future__ import unicode_literals
-from builtins import str
-import logging, sys, signal, subprocess, types, time, os, codecs, platform
+
+import logging, sys, signal, subprocess, types, os, codecs, platform
+try:
+    from time import process_time
+except ImportError:  # Python 2.7 fallback
+    from time import clock as process_time
 
 string_types = str,
 
@@ -50,7 +52,7 @@ def system3(cmd):
     tf.close()
     return result, stdout_stderr
 
-def system2(cmd, cwd=None, logger=_sentinel, stdout=_sentinel, log_command=_sentinel, timing=_sentinel):
+def system2(cmd, cwd=None, logger=_sentinel, stdout=_sentinel, log_command=_sentinel, timing=_sentinel, capture_stderr=True):
         #def tee(cmd, cwd=None, logger=tee_logger, console=tee_console):
         """ This is a simple placement for os.system() or subprocess.Popen()
         that simulates how Unix tee() works - logging stdout/stderr using logging
@@ -70,7 +72,7 @@ def system2(cmd, cwd=None, logger=_sentinel, stdout=_sentinel, log_command=_sent
         This method return (returncode, output_lines_as_list)
 
         """
-        t = time.clock()
+        t = process_time()
         output = []
         if log_command is _sentinel: log_command = globals().get('log_command')
         if timing is _sentinel: timing = globals().get('timing')
@@ -126,11 +128,16 @@ def system2(cmd, cwd=None, logger=_sentinel, stdout=_sentinel, log_command=_sent
         if cwd is not None and not os.path.isdir(cwd):
                 os.makedirs(cwd) # this throws exception if fails
 
+        if capture_stderr:
+                stderr = subprocess.STDOUT
+        else:
+                stderr = False
+
         # samarkanov: commented 'quote_command' deliberately
         # reason: if I have 'quote_command' Sumatra does not work in Windows (it encloses the command in quotes. I did not understand why should we quote)
         # I have never catched "The input line is too long" (yet?)
         # cmd = quote_command(cmd)
-        p = subprocess.Popen(cmd, cwd=cwd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, close_fds=(platform.system() == 'Linux'))
+        p = subprocess.Popen(cmd, cwd=cwd, shell=True, stdout=subprocess.PIPE, stderr=stderr, close_fds=(platform.system() == 'Linux'))
         if(log_command):
                 mylogger("Running: %s" % cmd)
         try:
@@ -155,7 +162,7 @@ def system2(cmd, cwd=None, logger=_sentinel, stdout=_sentinel, log_command=_sent
                             sys.stdout.flush()
             returncode = p.wait()
         except KeyboardInterrupt:
-            # Popen.returncode: 
+            # Popen.returncode:
             #   "A negative value -N indicates that the child was terminated by signal N (Unix only)."
             # see https://docs.python.org/2/library/subprocess.html#subprocess.Popen.returncode
             returncode = -signal.SIGINT
@@ -164,7 +171,7 @@ def system2(cmd, cwd=None, logger=_sentinel, stdout=_sentinel, log_command=_sent
                         def secondsToStr(t):
                                 from functools import reduce
                                 return "%02d:%02d:%02d" % reduce(lambda ll,b : divmod(ll[0],b) + ll[1:], [(t*1000,),1000,60,60])[:3]
-                        mylogger("Returned: %d (execution time %s)\n" % (returncode, secondsToStr(time.clock()-t)))
+                        mylogger("Returned: %d (execution time %s)\n" % (returncode, secondsToStr(process_time()-t)))
                 else:
                         mylogger("Returned: %d\n" % (returncode))
 

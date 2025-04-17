@@ -8,10 +8,14 @@ dist/*
 .cache
 htmlcov
 cover
-.coverage
+.coverage*
 MANIFEST
 .project
 .pydevproject
 .komodoproject
 .idea
 *.egg-info
+env
+env-ci
+env-nodj
+test/example_repositories/mercurial/hg/wcache

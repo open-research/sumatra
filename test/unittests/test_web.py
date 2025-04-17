@@ -1,12 +1,15 @@
 """
 Unit tests for the sumatra.web module
 """
-from __future__ import absolute_import
-from __future__ import unicode_literals
-from builtins import object
 
 import unittest
 from datetime import datetime
+
+try:
+    import django
+    have_django = True
+except ImportError:
+    have_django = False
 
 
 class MockDataKey(object):
@@ -22,6 +25,7 @@ class MockDataKey(object):
 
 class TestWebInterface(unittest.TestCase):
 
+    @unittest.skipUnless(have_django, "Django required")
     def test__pair_datafiles(self):
         from sumatra.web.views import pair_datafiles
         a = [MockDataKey("file_A_20010101.txt"),
@@ -42,6 +46,7 @@ class TestWebInterface(unittest.TestCase):
 
 class TestFilters(unittest.TestCase):
 
+    @unittest.skipUnless(have_django, "Django required")
     def test__human_readable_duration(self):
         from sumatra.web.templatetags import filters
         self.assertEqual(filters.human_readable_duration(((6 * 60 + 32) * 60 + 12)), '6h 32m 12.00s')

@@ -2,12 +2,9 @@
 Definition of database tables and object retrieval for the DjangoRecordStore.
 
 
-:copyright: Copyright 2006-2015 by the Sumatra team, see doc/authors.txt
+:copyright: Copyright 2006-2020, 2024 by the Sumatra team, see doc/authors.txt
 :license: BSD 2-clause, see LICENSE for details.
 """
-from __future__ import unicode_literals
-from builtins import str
-from builtins import object
 
 import json
 from django.db import models
@@ -15,7 +12,7 @@ from sumatra import programs, launch, datastore, records, versioncontrol, parame
 from sumatra.datastore import get_data_store
 from datetime import datetime
 import django
-from distutils.version import LooseVersion
+from packaging.version import parse as parse_version
 from sumatra.core import get_registered_components
 import warnings
 with warnings.catch_warnings():
@@ -33,7 +30,7 @@ class SumatraObjectsManager(models.Manager):
         # might be better to specify the list of field names explicitly
         # as an argument to the Manager __init__().
         excluded_fields = ('id', 'record', 'input_to_records', 'output_from_record', 'output_from_record_id')
-        field_names = set(self.model._meta.get_all_field_names()).difference(excluded_fields)
+        field_names = set([f.name for f in self.model._meta.get_fields()]).difference(excluded_fields)
         attributes = {}
         for name in field_names:
             if name == 'metadata':
@@ -61,7 +58,7 @@ class BaseModel(models.Model):
         abstract = True
 
     def field_names(self):
-        field_names = self._meta.get_all_field_names()
+        field_names = [f.name for f in self._meta.get_fields()]
         field_names.remove('id')
         field_names.remove('record')
         return field_names
@@ -71,8 +68,8 @@ class Project(BaseModel):
     id = models.SlugField(primary_key=True)
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True)
-    columns = ["Label", "Date/Time", "Reason", "Outcome", 
-               "Input data", "Output data", "Duration", "Processes", 
+    columns = ["Label", "Date/Time", "Reason", "Outcome",
+               "Input data", "Output data", "Duration", "Processes",
                "Executable", "Main", "Version", "Arguments", "Tags"]
 
 
@@ -130,7 +127,7 @@ class Dependency(BaseModel):
 class Repository(BaseModel):
     # the following should be unique together.
     type = models.CharField(max_length=100)
-    if LooseVersion(django.get_version()) < LooseVersion('1.5'):
+    if parse_version(django.get_version()) < parse_version('1.5'):
         url = models.URLField(verify_exists=False)
         upstream = models.URLField(verify_exists=False, null=True, blank=True)
     else:
@@ -202,7 +199,7 @@ class DataKey(BaseModel):
     creation = models.DateTimeField(null=True, blank=True)
     metadata = models.TextField(blank=True)
     output_from_record = models.ForeignKey('Record', related_name='output_data',
-                                           null=True)
+                                           null=True, on_delete=models.CASCADE)
 
     class Meta(object):
         ordering = ('path',)
@@ -235,7 +232,7 @@ class PlatformInformation(BaseModel):
     processor = models.CharField(max_length=100)
     release = models.CharField(max_length=100)
     system_name = models.CharField(max_length=20)
-    version = models.CharField(max_length=100)
+    version = models.CharField(max_length=200)
 
     def to_sumatra(self):
         pi = {}
@@ -249,15 +246,15 @@ class Record(BaseModel):
     db_id = models.AutoField(primary_key=True)  # django-tagging needs an integer as primary key - see http://code.google.com/p/django-tagging/issues/detail?id=15
     reason = models.TextField(blank=True)
     duration = models.FloatField(null=True)
-    executable = models.ForeignKey(Executable, null=True, blank=True)  # null and blank for the search. If user doesn't want to specify the executable during the search
-    repository = models.ForeignKey(Repository, null=True, blank=True)  # null and blank for the search.
+    executable = models.ForeignKey(Executable, null=True, blank=True, on_delete=models.PROTECT)  # null and blank for the search. If user doesn't want to specify the executable during the search
+    repository = models.ForeignKey(Repository, null=True, blank=True, on_delete=models.PROTECT)  # null and blank for the search.
     main_file = models.CharField(max_length=100)
     version = models.CharField(max_length=50)
-    parameters = models.ForeignKey(ParameterSet)
+    parameters = models.ForeignKey(ParameterSet, on_delete=models.PROTECT)
     input_data = models.ManyToManyField(DataKey, related_name="input_to_records")
-    launch_mode = models.ForeignKey(LaunchMode)
-    datastore = models.ForeignKey(Datastore)
-    input_datastore = models.ForeignKey(Datastore, related_name="input_to_records")
+    launch_mode = models.ForeignKey(LaunchMode, on_delete=models.PROTECT)
+    datastore = models.ForeignKey(Datastore, on_delete=models.PROTECT)
+    input_datastore = models.ForeignKey(Datastore, related_name="input_to_records", on_delete=models.PROTECT)
     outcome = models.TextField(blank=True)
     timestamp = models.DateTimeField()
     tags = tagging.fields.TagField()
@@ -265,7 +262,7 @@ class Record(BaseModel):
     platforms = models.ManyToManyField(PlatformInformation)
     diff = models.TextField(blank=True)
     user = models.CharField(max_length=100)
-    project = models.ForeignKey(Project, null=True)
+    project = models.ForeignKey(Project, null=True, on_delete=models.PROTECT)
     script_arguments = models.TextField(blank=True)
     stdout_stderr = models.TextField(blank=True)
     repeats = models.CharField(max_length=100, null=True, blank=True)

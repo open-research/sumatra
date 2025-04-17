@@ -2,16 +2,14 @@
 Handles storage of simulation/analysis records based on the Python standard
 shelve module.
 
-:copyright: Copyright 2006-2015 by the Sumatra team, see doc/authors.txt
+:copyright: Copyright 2006-2020, 2024 by the Sumatra team, see doc/authors.txt
 :license: BSD 2-clause, see LICENSE for details.
 """
-from __future__ import unicode_literals
-from builtins import str
 
 import os
 import shutil
 import shelve
-from datetime import datetime
+from datetime import datetime, timezone
 from sumatra.recordstore.base import RecordStore
 from ..core import component
 
@@ -22,10 +20,12 @@ def check_name(f):
     This decorator therefore converts a unicode project_name to a string
     before calling the wrapped method. See http://bugs.python.org/issue1036490
     """
+    # this is presumably not needed with Python 3
+    # todo: remove this decorator
 
-    def wrapped(self, project_name, *args):
+    def wrapped(self, project_name, *args, **kwargs):
         project_name = project_name.__str__()
-        return f(self, project_name, *args)
+        return f(self, project_name, *args, **kwargs)
     return wrapped
 
 
@@ -41,6 +41,7 @@ class ShelveRecordStore(RecordStore):
     """
 
     def __init__(self, shelf_name=".smt/records"):
+        shelf_name = os.path.expanduser(shelf_name)
         self._shelf_name = shelf_name
         # Some shelve backends add an extension to the filename, and more than one
         # file may be created. So that the file(s) can be deleted, we need to try
@@ -94,21 +95,11 @@ class ShelveRecordStore(RecordStore):
                 records = list(self.shelf[project_name].values())
         else:
             records = []
-        return records
+        return sorted(records, key=lambda rec: rec.timestamp, reverse=True)
 
     @check_name
     def labels(self, project_name, tags=None):
-        if project_name in self.shelf:
-            if tags:
-                if not isinstance(tags, list):
-                    tags = [tags]
-                lbls = [label for label, record in self.shelf[project_name].items()
-                        if any([tag in record.tags for tag in tags])]
-            else:
-                lbls = list(self.shelf[project_name].keys())
-        else:
-            lbls = []
-        return lbls
+        return [rec.label for rec in self.list(project_name, tags=tags)]
 
     @check_name
     def delete(self, project_name, label):
@@ -126,7 +117,7 @@ class ShelveRecordStore(RecordStore):
     @check_name
     def most_recent(self, project_name):
         most_recent = None
-        most_recent_timestamp = datetime.min
+        most_recent_timestamp = datetime.min.replace(tzinfo=timezone.utc)
         for record in self.shelf[project_name].values():
             if record.timestamp > most_recent_timestamp:
                 most_recent_timestamp = record.timestamp

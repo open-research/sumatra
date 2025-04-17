@@ -1,17 +1,13 @@
 """
 Unit tests for the sumatra.projects module
 """
-from __future__ import with_statement
-from __future__ import unicode_literals
-from builtins import object
 
-import datetime
+from datetime import datetime, timezone
 import shutil
 import os
 import sys
 import tempfile
 import unittest
-from future.utils import with_metaclass
 import sumatra.projects
 from sumatra.projects import Project, load_project
 from sumatra.core import SingletonType
@@ -27,7 +23,7 @@ class MockDiffFormatter(object):
 sumatra.projects.get_diff_formatter = lambda: MockDiffFormatter
 
 
-class MockRepository(with_metaclass(SingletonType, object)):
+class MockRepository(metaclass=SingletonType):
     url = "http://svn.example.com"
     vcs_type = 'git'
     use_version_cmd = ''
@@ -79,7 +75,7 @@ class MockWorkingCopy(object):
 
     def reset(self):
         pass
-    
+
 
 class MockExecutable(object):
     name = "Python"
@@ -137,7 +133,7 @@ class MockRecord(object):
         self.version = "42"
         self.launch_mode = MockLaunchMode()
         self.outcome = ""
-        self.timestamp = datetime.datetime(2042, 1, 23)
+        self.timestamp = datetime(2042, 1, 23, tzinfo=timezone.utc)
         self.user = 'user'
         self.duration = 2.3
         self.datastore = MockDatastore()
@@ -286,7 +282,10 @@ class TestProject(unittest.TestCase):
         self.assertEqual(proj.format_records('html'), '<ul>\n<li>foo_labelfoo_label</li>\n<li>bar_labelbar_label</li>\n</ul>')
         # TODO: Find a good way to check the output of the following formatters
         #       (currently we only check that we can call them without errors).
-        proj.format_records('latex', 'long')
+        try:
+            proj.format_records('latex', 'long')
+        except ModuleNotFoundError as err:
+            raise unittest.SkipTest(err)
         proj.format_records('shell')
         proj.format_records('json')
 

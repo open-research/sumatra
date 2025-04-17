@@ -11,14 +11,11 @@ Record - gathers and stores information about an individual simulation or
          new_record() method of Project.
 
 
-:copyright: Copyright 2006-2015 by the Sumatra team, see doc/authors.txt
+:copyright: Copyright 2006-2020, 2024 by the Sumatra team, see doc/authors.txt
 :license: BSD 2-clause, see LICENSE for details.
 """
-from __future__ import print_function
-from __future__ import unicode_literals
-from builtins import object, str
 
-from datetime import datetime
+from datetime import datetime, timezone
 import time
 import os
 from os.path import join, basename, exists
@@ -68,7 +65,7 @@ class Record(object):
         # distributed/batch simulations on machines with out-of-sync clocks,
         # but only do this if you really know what you're doing, otherwise the
         # association of output data with this record may be incorrect
-        self.timestamp = timestamp or datetime.now()
+        self.timestamp = timestamp or datetime.now(timezone.utc)
         self.label = label or str(self.timestamp.strftime(timestamp_format))
         if not re.match(Record.valid_name_pattern, self.label):
             raise ValueError("Invalid record label.")
@@ -186,13 +183,13 @@ class Record(object):
                                 <https://docs.python.org/2/library/subprocess.html\
                                 #subprocess.Popen.returncode>`_ %d" % result)
             logger.debug("  Run failed.")
-            
+
         self.add_tag(STATUS_FORMAT % (status + "..."))
         if project:
             project.save_record(self)
             logger.debug("Record saved @ gathering.")
         self.add_tag(STATUS_FORMAT % status)
-            
+
         self.duration = time.time() - start_time
 
         # try to get stdout_stderr from launch_mode
@@ -215,7 +212,7 @@ class Record(object):
         if self.parameters and exists(self.parameter_file):
             time.sleep(0.5) # execution of matlab: parameter_file is not always deleted immediately
             os.remove(self.parameter_file)
-                
+
         return result
 
     def __repr__(self):
@@ -276,7 +273,7 @@ class Record(object):
         """
         wc = get_working_copy()
         try:
-            return wc.content(self.version, file=self.main_file)
+            return wc.content(self.version, self.main_file)
         except:
             return False
 
@@ -301,7 +298,8 @@ class RecordDifference(object):
         self.main_file_differs = recordA.main_file != recordB.main_file
         self.version_differs = recordA.version != recordB.version
         for rec in recordA, recordB:
-            if rec.parameters:
+            # hasattr guard is for some malformed custom parameter type
+            if rec.parameters and hasattr(rec.parameters, 'pop'):
                 rec.parameters.pop("sumatra_label", 1)
         self.parameters_differ = recordA.parameters != recordB.parameters
         self.script_arguments_differ = recordA.script_arguments != recordB.script_arguments

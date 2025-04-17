@@ -29,14 +29,10 @@ get_executable()
     executable file or a script file that can be run with a given tool.
 
 
-:copyright: Copyright 2006-2015 by the Sumatra team, see doc/authors.txt
+:copyright: Copyright 2006-2020, 2024 by the Sumatra team, see doc/authors.txt
 :license: BSD 2-clause, see LICENSE for details.
 """
 
-from __future__ import with_statement
-from __future__ import print_function
-from __future__ import unicode_literals
-from builtins import object
 import os.path
 import re
 import sys

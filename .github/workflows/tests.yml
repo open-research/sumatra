@@ -1,0 +1,80 @@
+name: Run Sumatra tests
+
+on: [push, pull_request]
+
+jobs:
+
+  test_minimal:  # run tests with minimal installation
+    strategy:
+      matrix:
+        os: [ubuntu-22.04, macos-latest]
+        python-version: ["3.9", "3.11", "3.13"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install .[hg,git,test]
+          pip freeze
+      - name: Configure git
+        run: |
+          git config --global user.email "testuser@example.org"
+          git config --global user.name "Test user"
+      - name: Test with pytest
+        run: |
+          pytest -v
+
+  test_all:  # run tests with all features enabled
+    strategy:
+      matrix:
+        os: [ubuntu-22.04, macos-latest]
+        python-version: ["3.9", "3.11", "3.13"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install .[web,git,hg,remote,latex,docs,test]
+          pip freeze
+      - name: Lint with flake8
+        run: |
+          # stop the build if there are Python syntax errors or undefined names
+          #flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          # exit-zero treats all errors as warnings.
+          #flake8 . --count --exit-zero --max-complexity=10 --max-line-length=119 --statistics
+      - name: Configure git
+        run: |
+          git config --global user.email "testuser@example.org"
+          git config --global user.name "testuser"
+      - name: Test with pytest
+        run: |
+          cd test
+          pytest -v --cov=sumatra --cov-report=term unittests system/test_ircr.py system/test_webui.py
+      - name: Upload coverage data
+        if: (github.repository_owner == 'open-research') && (matrix.python-version == '3.11') && (matrix.os == 'ubuntu-22.04')
+        uses: coverallsapp/github-action@v2
+        with:
+          flag-name: run-${{ join(matrix.*, '-') }}
+          parallel: true
+          base-path: /opt/hostedtoolcache/Python/3.11.11/x64/lib/python3.11/site-packages/sumatra
+
+
+  coveralls:
+    needs: test_all
+    if: (github.repository_owner == 'open-research')
+    runs-on: ubuntu-latest
+    steps:
+    - name: Coveralls Finished
+      uses: coverallsapp/github-action@v2
+      with:
+        parallel-finished: true

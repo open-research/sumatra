@@ -2,11 +2,9 @@
 Define the base classes for the Sumatra version control abstraction layer.
 
 
-:copyright: Copyright 2006-2015 by the Sumatra team, see doc/authors.txt
+:copyright: Copyright 2006-2020, 2024 by the Sumatra team, see doc/authors.txt
 :license: BSD 2-clause, see LICENSE for details.
 """
-from __future__ import unicode_literals
-from builtins import object
 
 import os.path
 from sumatra.core import component_type
@@ -33,7 +31,7 @@ class Repository(object):
 
     def __init__(self, url, upstream=None):
         if url == ".":
-            url = os.path.abspath(url)
+            url = os.path.abspath(os.path.expanduser(url))
         self.url = url
         self.upstream = upstream
 

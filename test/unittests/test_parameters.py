@@ -1,9 +1,6 @@
 """
 Unit tests for the sumatra.parameters module
 """
-from __future__ import with_statement
-from __future__ import unicode_literals
-from builtins import str
 
 import unittest
 import os
@@ -180,7 +177,7 @@ class TestSimpleParameterSet(unittest.TestCase):
             f.write(init)
         P = SimpleParameterSet("test_file")
         P.save("test_file")
-        self.assert_(os.path.exists("test_file.orig"))
+        self.assertTrue(os.path.exists("test_file.orig"))
         os.remove("test_file")
         os.remove("test_file.orig")
 

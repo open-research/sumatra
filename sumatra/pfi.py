@@ -4,17 +4,16 @@ Obtain platform information from every node of a cluster.
 
 This script should be placed somewhere on the user's path.
 
-:copyright: Copyright 2006-2015 by the Sumatra team, see doc/authors.txt
+:copyright: Copyright 2006-2020, 2024 by the Sumatra team, see doc/authors.txt
 :license: BSD 2-clause, see LICENSE for details.
 """
-from __future__ import unicode_literals
 
 from mpi4py import MPI
 import platform
 import socket
-from datetime import datetime
+from datetime import datetime, timezone
 
-TIMESTAMP_FORMAT = "%Y%m%d-%H%M%S"
+TIMESTAMP_FORMAT = "%Y%m%d-%H%M%S%z"
 
 MPI_ROOT = 0
 comm = MPI.Comm.Get_parent()
@@ -32,7 +31,7 @@ platform_information = {
                        release=platform.release(),
                        system_name=platform.system(),
                        version=platform.version(),
-                       clock=datetime.now().strftime(TIMESTAMP_FORMAT))
+                       clock=datetime.now(timezone.utc).strftime(TIMESTAMP_FORMAT))
 }
 
 comm.send(platform_information, dest=MPI_ROOT, tag=rank)

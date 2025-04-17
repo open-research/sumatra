@@ -3,13 +3,9 @@ The launch module handles launching of simulations/analyses as sub-processes, an
 obtaining information about the platform(s) on which the simulations are run.
 
 
-:copyright: Copyright 2006-2015 by the Sumatra team, see doc/authors.txt
+:copyright: Copyright 2006-2020, 2024 by the Sumatra team, see doc/authors.txt
 :license: BSD 2-clause, see LICENSE for details.
 """
-from __future__ import print_function
-from __future__ import unicode_literals
-from builtins import range
-from builtins import object
 
 import platform
 import socket
@@ -64,7 +60,7 @@ class LaunchMode(object):
     required_attributes = ("check_files", "generate_command")
 
     def __init__(self, working_directory=None, options=None):
-        self.working_directory = working_directory or os.getcwd()
+        self.working_directory = os.path.expanduser(working_directory or os.getcwd())
         self.options = options
 
     def __getstate__(self):
@@ -92,7 +88,7 @@ class LaunchMode(object):
         """Return a string containing the command to be launched."""
         raise NotImplementedError("must be impemented by sub-classes")
 
-    def run(self, executable, main_file, arguments, append_label=None):
+    def run(self, executable, main_file, arguments, append_label=None, capture_stderr=True):
         """
         Run a computation in a shell, with the given executable, script and
         arguments. If `append_label` is provided, it is appended to the
@@ -107,7 +103,7 @@ class LaunchMode(object):
             dependencies in order to avoid opening of Matlab shell two times '''
             result, output = save_dependencies(cmd, main_file)
         else:
-            result, output = tee.system2(cmd, cwd=self.working_directory, stdout=True)  # cwd only relevant for local launch, not for MPI, for example
+            result, output = tee.system2(cmd, cwd=self.working_directory, stdout=True, capture_stderr=capture_stderr)  # cwd only relevant for local launch, not for MPI, for example
         self.stdout_stderr = "".join(output)
         return result
 
@@ -154,6 +150,9 @@ class LaunchMode(object):
                                     version=platform.version())]
         # maybe add system time?
 
+    def get_type(self):
+        return self.__class__.__name__
+
 
 @component
 class SerialLaunchMode(LaunchMode):
@@ -186,6 +185,20 @@ class SerialLaunchMode(LaunchMode):
                 cmd = "%s %s %s" % (executable.path, executable.options, arguments)
         return cmd
     generate_command.__doc__ = LaunchMode.generate_command.__doc__
+
+
+@component
+class SerialTqdmLaunchMode(SerialLaunchMode):
+    """
+    Enable running with a tqdm progress bar.
+    Effectively this launch mode just disables the capture of stderr, which tqdm uses
+    for its output.
+    """
+    name = "serial-tqdm"
+
+    def run(self, *args, **kwargs):
+        return super().run(*args, capture_stderr=False, **kwargs)
+    run.__doc__ = LaunchMode.run.__doc__
 
 
 @component

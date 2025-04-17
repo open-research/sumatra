@@ -2,11 +2,9 @@
 Provides base RecordStore class.
 
 
-:copyright: Copyright 2006-2015 by the Sumatra team, see doc/authors.txt
+:copyright: Copyright 2006-2020, 2024 by the Sumatra team, see doc/authors.txt
 :license: BSD 2-clause, see LICENSE for details.
 """
-from __future__ import unicode_literals
-from builtins import object
 
 from sumatra.recordstore import serialization
 from sumatra.formatting import get_formatter
@@ -42,8 +40,13 @@ class RecordStore(object):
         """
         raise NotImplementedError
 
-    def labels(self, project_name):
-        """Return the labels of all records in the given project."""
+    def labels(self, project_name, tags=None):
+        """
+        Return the labels of all records in the given project.
+
+        If *tags* is not provided, return all labels, otherwise return only labels
+        for records that have been tagged with one or more of the tags.
+        """
         raise NotImplementedError
 
     def delete(self, project_name, label):

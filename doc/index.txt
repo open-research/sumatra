@@ -53,6 +53,3 @@ Table of Contents
 .. * :ref:`genindex`
 .. * :ref:`modindex`
 .. * :ref:`search`
-
-
-.. managing_a_project to be added once finished

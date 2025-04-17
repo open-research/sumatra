@@ -5,25 +5,22 @@ supported by Django could in principle be used, although for now we assume
 SQLite or PostgreSQL.
 
 
-:copyright: Copyright 2006-2015 by the Sumatra team, see doc/authors.txt
+:copyright: Copyright 2006-2020, 2024 by the Sumatra team, see doc/authors.txt
 :license: BSD 2-clause, see LICENSE for details.
 """
-from __future__ import absolute_import
-from __future__ import unicode_literals
-from future.standard_library import install_aliases
-install_aliases()
-from builtins import range
-from builtins import object
-
 
 import os
 import shutil
 from warnings import warn
 from textwrap import dedent
-import imp
-import django.conf as django_conf
-from django.core import management
-import django
+import importlib
+try:
+    import django.conf as django_conf
+    from django.core import management
+    import django
+    have_django = True
+except ImportError:
+    have_django = False
 from sumatra.recordstore.base import RecordStore
 from ...core import component
 from urllib.request import urlparse
@@ -31,7 +28,7 @@ from io import StringIO
 
 # Check that django-tagging is available. It would be better to try importing
 # it, but that seems to mess with Django's internals.
-imp.find_module("tagging")
+importlib.util.find_spec("tagging")
 
 
 def db_id(db):
@@ -57,6 +54,7 @@ class DjangoConfiguration(object):
             'MIDDLEWARE_CLASSES': [],
             'READ_ONLY': 0,
             'SERVERSIDE': 0,
+            'USE_TZ': True
         }
         self._n_databases = 0
         self.configured = False
@@ -116,12 +114,11 @@ class DjangoConfiguration(object):
                 db_file = db['NAME']
                 if not os.path.exists(os.path.dirname(db_file)):
                     os.makedirs(os.path.dirname(db_file))
-            try:
-                management.call_command('migrate', database=label, verbosity=0)
-            except django.core.management.base.CommandError:
-                management.call_command('syncdb', database=label, verbosity=0)
+            management.call_command('migrate', run_syncdb=True, database=label, verbosity=0, interactive=False)
 
     def configure(self):
+        if not have_django:
+            raise ImportError("Please install Django to use this feature.")
         settings = django_conf.settings
         if not settings.configured:
             settings.configure(**self._settings)
@@ -146,6 +143,7 @@ class DjangoRecordStore(RecordStore):
     """
 
     def __init__(self, db_file='.smt/records'):
+        db_file = os.path.expanduser(db_file)
         self._db_label = db_config.add_database(db_file)
         self._db_file = db_file
 
@@ -263,8 +261,8 @@ class DjangoRecordStore(RecordStore):
             raise KeyError(label)
         return db_record.to_sumatra()
 
-    def list(self, project_name, tags=None, *args, **kwarg):
-        db_records = self._manager.filter(project__id=project_name, *args, **kwarg).select_related()
+    def list(self, project_name, tags=None, *args, **kwargs):
+        db_records = self._manager.filter(project__id=project_name, *args, **kwargs).select_related()
         if tags:
             if not hasattr(tags, "__len__"):
                 tags = [tags]
@@ -281,8 +279,8 @@ class DjangoRecordStore(RecordStore):
             raise Exception(errmsg)
         return records
 
-    def labels(self, project_name, tags=None):
-        db_records = self._manager.filter(project__id=project_name).select_related()
+    def labels(self, project_name, tags=None, *args, **kwargs):
+        db_records = self._manager.filter(project__id=project_name, *args, **kwargs).select_related()
         if tags:
             if not hasattr(tags, "__len__"):
                 tags = [tags]
@@ -323,6 +321,7 @@ class DjangoRecordStore(RecordStore):
                              for x in ("record", "record_input_data", "record_dependencies",
                                        "record_platforms", "platforminformation", "datakey", "datastore", "launchmode",
                                        "parameterset", "repository", "dependency", "executable", "project")] + ["COMMIT;"]
+        # todo: also drop tagging_taggeditem, tagging_tag
         from django.db import connection
         cur = connection.cursor()
         for cmd in cmds:

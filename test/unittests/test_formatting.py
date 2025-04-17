@@ -2,12 +2,10 @@
 """
 Unit tests for the sumatra.formatting module
 """
-from __future__ import unicode_literals
-from builtins import object
 
 import unittest
 import tempfile
-from datetime import datetime
+from datetime import datetime, timezone
 import os
 import glob
 import shutil
@@ -63,7 +61,7 @@ class MockDataItem(object):
 
 class MockRecord(Record):
     def __init__(self, label=None):
-        self.timestamp = datetime.now()
+        self.timestamp = datetime.now(timezone.utc)
         self.label = label or self.timestamp.strftime(TIMESTAMP_FORMAT)
         self.reason = "determine how many shekels the gourd is worth"
         self.outcome = "apparently it is worth NaN shekels"
@@ -143,7 +141,7 @@ class TestTextFormatter(unittest.TestCase):
         tf1 = TextFormatter(self.record_list)
         txt = tf1.long()
         lengths = [len(line) for line in txt.split("\n")]
-        self.assert_(max(lengths)  <= 80)
+        self.assertTrue(max(lengths)  <= 80)
 
     def test__table__should_return_a_constant_width_string(self):
         tf1 = TextFormatter(self.record_list)
@@ -191,7 +189,10 @@ class TestLaTeXFormatter(unittest.TestCase):
 
     def test__long(self):
         tf1 = LaTeXFormatter(self.record_list, project=MockProject())
-        txt = tf1.long()
+        try:
+            txt = tf1.long()
+        except ModuleNotFoundError as err:
+            raise unittest.SkipTest(err)
         with open(os.path.join(self.tmpdir, "test.tex"), "w") as fp:
             fp.write(txt)
         if get_executable("pdflatex").path == "pdflatex":  # pdflatex not found
@@ -216,7 +217,7 @@ class TestHTMLFormatter(unittest.TestCase):
         hf1 = HTMLFormatter(self.record_list)
         doc = ElementTree.fromstring(hf1.short())
         self.assertEqual(doc.tag, 'ul')
-        self.assertEqual(len(doc.getchildren()), 2)
+        self.assertEqual(len(list(doc)), 2)
 
     def test__long__should_return_a_definition_list(self):
         hf1 = HTMLFormatter(self.record_list)
@@ -225,8 +226,8 @@ class TestHTMLFormatter(unittest.TestCase):
         self.assertEqual(len(doc.findall("dt")), 2)
         self.assertEqual(len(doc.findall("dd")), 2)
         first_record = doc.find("dd")
-        self.assertEqual(len(first_record.getchildren()), 1)
-        self.assertEqual(first_record.getchildren()[0].tag, "dl")
+        self.assertEqual(len(list(first_record)), 1)
+        self.assertEqual(list(first_record)[0].tag, "dl")
         # this test is rather limited.
 
     def test__table__should_return_an_html_table(self):

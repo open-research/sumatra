@@ -1,12 +1,9 @@
 """
 Export a Sumatra project for version 0.1 or 0.2 to JSON.
 
-:copyright: Copyright 2006-2015 by the Sumatra team, see doc/authors.txt
+:copyright: Copyright 2006-2020, 2024 by the Sumatra team, see doc/authors.txt
 :license: BSD 2-clause, see LICENSE for details.
 """
-from __future__ import print_function
-from __future__ import unicode_literals
-from builtins import str
 
 import json
 from sumatra import __version__, projects
@@ -42,7 +39,7 @@ def encode_record(record, indent=None):
     data = {
         "SUMATRA_VERSION": __version__,
         "label": record.label,
-        "timestamp": record.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
+        "timestamp": record.timestamp.strftime("%Y-%m-%d %H:%M:%S%z"),
         "reason": record.reason,
         "duration": record.duration,
         "executable": {
@@ -102,18 +99,17 @@ def export_records(output_file):
     store = load_recordstore()
     if minor_version < 3:
         patch_sumatra()
-    f = open(output_file, 'w')
-    if minor_version == 1:
-        json.dump([encode_record(record) for record in store.list(groups=None)],
-                  f, indent=2)
-    else:
-        project_name = projects.load_project().name
-        if minor_version == 2:
-            json.dump([encode_record(record) for record in store.list(project_name)],
+    with open(output_file, 'w') as f:
+        if minor_version == 1:
+            json.dump([encode_record(record) for record in store.list(groups=None)],
                       f, indent=2)
         else:
-            f.write(store.export(project_name))
-    f.close()
+            project_name = projects.load_project().name
+            if minor_version == 2:
+                json.dump([encode_record(record) for record in store.list(project_name)],
+                          f, indent=2)
+            else:
+                f.write(store.export(project_name))
 
 
 def patch_sumatra():
@@ -172,9 +168,8 @@ def export_project(output_file):
         state['record_store']['db_file'] = ".smt/records" #prj.record_store._db_file
     else:
         state['record_store']['shelf_name'] = ".smt/records" #prj.record_store._shelf_name
-    f = open(output_file, 'w')
-    json.dump(state, f, indent=2)
-    f.close()
+    with open(output_file, 'w') as f:
+        json.dump(state, f, indent=2)
 
 
 if __name__ == "__main__":

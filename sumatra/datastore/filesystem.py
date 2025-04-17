@@ -2,13 +2,12 @@
 Datastore based on files written to and retrieved from a local filesystem.
 
 
-:copyright: Copyright 2006-2015 by the Sumatra team, see doc/authors.txt
+:copyright: Copyright 2006-2020, 2024 by the Sumatra team, see doc/authors.txt
 :license: BSD 2-clause, see LICENSE for details.
 """
-from __future__ import unicode_literals
 
 import os
-import datetime
+from datetime import datetime, timezone
 import mimetypes
 from subprocess import Popen
 import warnings
@@ -30,18 +29,17 @@ class DataFile(DataItem):
         else:
             raise IOError("File %s does not exist" % self.full_path)
             # self.size = None
-        self.creation = creation or datetime.datetime.fromtimestamp(stats.st_ctime).replace(microsecond=0)
+        self.creation = creation or datetime.fromtimestamp(stats.st_ctime, tz=timezone.utc).replace(microsecond=0)
         self.name = os.path.basename(self.full_path)
         self.extension = os.path.splitext(self.full_path)
         self.mimetype, self.encoding = mimetypes.guess_type(self.full_path)
 
     def get_content(self, max_length=None):
-        f = open(self.full_path, 'rb')
-        if max_length:
-            content = f.read(max_length)
-        else:
-            content = f.read()
-        f.close()
+        with open(self.full_path, 'rb') as f:
+            if max_length:
+                content = f.read(max_length)
+            else:
+                content = f.read()
         return content
     content = property(fget=get_content)
 
@@ -52,9 +50,8 @@ class DataFile(DataItem):
             cmd = "sort %s > %s" % (self.full_path, sorted_path)
             job = Popen(cmd, shell=True)
             job.wait()
-        f = open(sorted_path, 'rb')
-        content = f.read()
-        f.close()
+        with open(sorted_path, 'rb') as f:
+            content = f.read()
         if len(content) != self.size:  # sort adds a \n if the file does not end with one
             assert len(content) == self.size + 1
             content = content[:-1]
@@ -73,6 +70,8 @@ class FileSystemDataStore(DataStore):
     data_item_class = DataFile
 
     def __init__(self, root):
+        if root:
+            root = os.path.expanduser(root)
         self.root = os.path.abspath(root or "./Data")
 
     def __str__(self):
@@ -88,11 +87,7 @@ class FileSystemDataStore(DataStore):
         return self._root
 
     def __set_root(self, value):
-        try:
-            path = Path(value)
-        except TypeError:
-            # This can happen in Python2 if 'value' is a subclass of string
-            path = Path(unicode(value))
+        path = Path(value)
         self._root = value
         if not path.exists():
             try:
@@ -119,7 +114,7 @@ class FileSystemDataStore(DataStore):
             for file in files:
                 full_path = os.path.join(root, file)
                 relative_path = os.path.join(root[length_dataroot:], file)
-                last_modified = datetime.datetime.fromtimestamp(os.stat(full_path).st_mtime)
+                last_modified = datetime.fromtimestamp(os.stat(full_path).st_mtime, tz=timezone.utc)
                 if last_modified >= timestamp:
                     new_files.append(relative_path)
         return new_files

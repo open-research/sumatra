@@ -1,10 +1,9 @@
 """
 
 
-:copyright: Copyright 2006-2015 by the Sumatra team, see doc/authors.txt
+:copyright: Copyright 2006-2020, 2024 by the Sumatra team, see doc/authors.txt
 :license: BSD 2-clause, see LICENSE for details.
 """
-from __future__ import unicode_literals
 
 import os
 import re
@@ -36,15 +35,15 @@ def save_dependencies(cmd, filename):
 
 def find_dependencies(filename, executable):
     #ifile = os.path.join(os.getcwd(), 'depfun.data')
-    file_data = (open('depfun.data', 'r'))
-    content = file_data.read()
-    paths = re.split('1: ', content)[2:]
-    list_deps = []
-    for path in paths:
-        if os.name == 'posix':
-            list_data = path.split('/')
-        else:
-            list_data = path.split('\\')
-        list_deps.append(Dependency(list_data[-2], path.split('\n')[0]))
-    file_data.close() # TODO: find version of external toolboxes
+    with open('depfun.data', 'r') as file_data:
+        content = file_data.read()
+        paths = re.split('1: ', content)[2:]
+        list_deps = []
+        for path in paths:
+            if os.name == 'posix':
+                list_data = path.split('/')
+            else:
+                list_data = path.split('\\')
+            list_deps.append(Dependency(list_data[-2], path.split('\n')[0]))
+    # TODO: find version of external toolboxes
     return list_deps

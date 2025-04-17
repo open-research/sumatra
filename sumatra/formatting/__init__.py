@@ -4,23 +4,18 @@ records in different ways: summary, list or table; and in different mark-up
 formats: currently text or HTML.
 
 
-:copyright: Copyright 2006-2015 by the Sumatra team, see doc/authors.txt
+:copyright: Copyright 2006-2020, 2024 by the Sumatra team, see doc/authors.txt
 :license: BSD 2-clause, see LICENSE for details.
 """
-from __future__ import unicode_literals
-from builtins import zip
-from builtins import str
-from builtins import object
 
 import json
 import textwrap
-import cgi
+import html
 import re
 from ..core import component, component_type, get_registered_components
 import parameters
 from functools import reduce
 import os
-
 
 
 fields = ['label', 'timestamp', 'reason', 'outcome', 'duration', 'repository',
@@ -46,11 +41,14 @@ class Formatter(object):
         return getattr(self, mode)()
 
 
-def record2dict(record):
+def record2dict(record, with_timezones=True):
     """Convert a Sumatra record to nested dicts"""
+    timestamp_format = "%Y-%m-%d %H:%M:%S"
+    if with_timezones:
+        timestamp_format += "%z"
     data = {
         "label": record.label,  # 0.1: 'group'
-        "timestamp": record.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
+        "timestamp": record.timestamp.strftime(timestamp_format),
         "reason": record.reason,
         "duration": record.duration,
         "executable": {
@@ -74,7 +72,7 @@ def record2dict(record):
             "path": key.path,
             "digest": key.digest,
             "metadata": key.metadata,
-            "creation": None if key.creation is None else key.creation.strftime("%Y-%m-%d %H:%M:%S")  # added in 0.7
+            "creation": None if key.creation is None else key.creation.strftime(timestamp_format)  # added in 0.7
         } for key in record.input_data],
         "script_arguments": record.script_arguments,  # added in 0.3
         "launch_mode": {
@@ -95,7 +93,7 @@ def record2dict(record):
             "path": key.path,
             "digest": key.digest,
             "metadata": key.metadata,
-            "creation": None if key.creation is None else key.creation.strftime("%Y-%m-%d %H:%M:%S")  # added in 0.7
+            "creation": None if key.creation is None else key.creation.strftime(timestamp_format)  # added in 0.7
         } for key in record.output_data],
         "tags": sorted(list(record.tags)),  # not sure if tags should be PUT, perhaps have separate URL for this?
         "diff": record.diff,
@@ -125,9 +123,9 @@ def record2dict(record):
     return data
 
 
-def record2json(record, indent=None):
+def record2json(record, indent=None, with_timezones=True):
     """Encode a Sumatra record as JSON."""
-    data = record2dict(record)
+    data = record2dict(record, with_timezones=with_timezones)
     return json.dumps(data, indent=indent)
 
 
@@ -392,7 +390,7 @@ class ShellFormatter(Formatter):
         for record in reversed(self.records):  # oldest first
             output += "\n# " + "-" * 77 + "\n"
             output += "# %s\n" % record.label
-            output += "# Originally run on %s by %s\n" % (record.timestamp.strftime("%Y-%m-%d at %H:%M:%S"), record.user)
+            output += "# Originally run on %s by %s\n" % (record.timestamp.strftime("%Y-%m-%d at %H:%M:%S (%Z)"), record.user)
             if len(platforms) > 1:
                 output += "# on machines %s (see above)\n" % ", ".join(str(platforms.index(platform) + 1) for platform in record.platforms)
             if record.reason:
@@ -465,7 +463,7 @@ class HTMLFormatter(Formatter):
         def format_record(record):
             output = "  <dt>%s</dt>\n  <dd>\n    <dl>\n" % record.label
             for field in fields:
-                output += "      <dt>%s</dt><dd>%s</dd>\n" % (field, cgi.escape(str(getattr(record, field))))
+                output += "      <dt>%s</dt><dd>%s</dd>\n" % (field, html.escape(str(getattr(record, field))))
             output += "    </dl>\n  </dd>"
             return output
         return "<dl>\n" + "\n".join(format_record(record) for record in self.records) + "\n</dl>"
@@ -475,7 +473,7 @@ class HTMLFormatter(Formatter):
         Return detailed information about a list of records as an HTML table.
         """
         def format_record(record):
-            return "  <tr>\n    <td>" + "</td>\n    <td>".join(cgi.escape(str(getattr(record, field))) for field in fields) + "    </td>\n  </tr>"
+            return "  <tr>\n    <td>" + "</td>\n    <td>".join(html.escape(str(getattr(record, field))) for field in fields) + "    </td>\n  </tr>"
         return "<table>\n" + \
                "  <tr>\n    <th>" + "</th>\n    <th>".join(field.title() for field in fields) + "    </th>\n  </tr>\n" + \
                "\n".join(format_record(record) for record in self.records) + \
@@ -510,7 +508,10 @@ class LaTeXFormatter(Formatter):
 
     def long(self):
         from os.path import dirname, join
-        from jinja2 import Environment, FileSystemLoader
+        try:
+            from jinja2 import Environment, FileSystemLoader
+        except ModuleNotFoundError:
+            raise ModuleNotFoundError("Please install jinja2 to use this feature")
         template_paths = [dirname(__file__)]
         if self.project:
             template_paths.insert(0, join(self.project.path, ".smt"))

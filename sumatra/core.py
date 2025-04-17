@@ -1,15 +1,9 @@
 """
 
 
-:copyright: Copyright 2006-2015 by the Sumatra team, see doc/authors.txt
+:copyright: Copyright 2006-2020, 2024 by the Sumatra team, see doc/authors.txt
 :license: BSD 2-clause, see LICENSE for details.
 """
-from __future__ import unicode_literals
-from builtins import str
-from future.standard_library import install_aliases
-install_aliases()
-from builtins import object
-from future.utils import with_metaclass
 
 import socket
 import sys
@@ -20,10 +14,12 @@ import subprocess
 from collections import OrderedDict
 from urllib.request import urlopen
 from urllib.error import URLError
-import warnings
 import re
 
 
+# Note: This is the format that is used in creating labels,
+#       it is _not_ the format used in serializing to/from JSON,
+#       which includes time-zone information.
 TIMESTAMP_FORMAT = "%Y%m%d-%H%M%S"
 
 STATUS_FORMAT = "_%s_"
@@ -111,7 +107,7 @@ class SingletonType(type):
             return cls.__instance
 
 
-class _Registry(with_metaclass(SingletonType, object)):
+class _Registry(metaclass=SingletonType):
 
     def __init__(self):
         self._components = {}

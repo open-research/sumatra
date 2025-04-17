@@ -1,10 +1,6 @@
 """
 Unit tests for the sumatra.versioncontrol package
 """
-from __future__ import with_statement
-from __future__ import unicode_literals
-from builtins import str
-from builtins import object
 
 import unittest
 import os
@@ -420,6 +416,7 @@ class TestSubversionModuleFunctions(unittest.TestCase):
     pass
 
 
+@unittest.skipUnless(have_hg, "Could not import hgapi")
 class TestPackageFunctions(unittest.TestCase):
 
     def setUp(self):

@@ -1,10 +1,6 @@
 """
 Unit tests for the sumatra.dependency_finder module
 """
-from __future__ import print_function
-from __future__ import unicode_literals
-from builtins import str
-from builtins import object
 
 import unittest
 import distutils.spawn
@@ -59,22 +55,21 @@ class TestRModuleFunctions(unittest.TestCase):
 
     def test__r_get_r_dependencies(self):
         rex = MockRExecutable('R')
-        myscript_deps = 'pkg::\nname : dplyr \npath : /Library/Frameworks/R.framework/Versions/3.1/Resources/library/dplyr \nversion : 0.4.1 \nsource : CRAN \npkg::\nname : MASS \npath : /Library/Frameworks/R.framework/Versions/3.1/Resources/library/MASS \nversion : 7.3-35 \nsource : CRAN \n'
-        status, deps = df.r._get_r_dependencies(rex.path, 'myscript.R', depfinder='myscript.R')
-        self.assertEqual(deps, myscript_deps)
+        status, deps = df.r._get_r_dependencies(rex.path, 'myscript.R', depfinder=df.r.r_script_to_find_deps)
+        self.assertIn("name : MASS", deps)
+        self.assertIn("source : CRAN", deps)
         self.assertEqual(status, 0)
 
     def test__r_parse_deps(self):
         rex = MockRExecutable('R')
-        status, deps = df.r._get_r_dependencies(rex.path, 'myscript.R', depfinder='myscript.R')
+        status, deps = df.r._get_r_dependencies(rex.path, 'myscript.R', depfinder=df.r.r_script_to_find_deps)
+        self.assertEqual(status, 0)
         list_deps = df.r._parse_deps(deps)
         d1, d2 = list_deps
-        self.assertEqual(d1.name, 'dplyr')
+        self.assertEqual(d1.name, 'MASS')
         self.assertEqual(d1.source, 'CRAN')
-        self.assertEqual(d1.version, '0.4.1')
-        self.assertEqual(d2.name, 'MASS')
+        self.assertEqual(d2.name, 'foreign')
         self.assertEqual(d2.source, 'CRAN')
-        self.assertEqual(d2.version, '7.3-35')
 
 
 class TestPythonModuleFunctions(unittest.TestCase):
@@ -247,6 +242,7 @@ class TestNEURONDependency(unittest.TestCase):
         dep2 = df.neuron.Dependency(os.path.join(self.example_project, "dependency.hoc"))
         self.assertNotEqual(dep1, dep2)
 
+
 class TestRDependency(unittest.TestCase):
 
     def setUp(self):
@@ -277,7 +273,7 @@ class TestRDependency(unittest.TestCase):
         self.assertNotEqual(dep1, dep2)
 
 
-def setup():
+def setUpModule():
     global tmpdir
     tmpdir = tempfile.mkdtemp()
     shutil.rmtree(tmpdir)
@@ -285,14 +281,12 @@ def setup():
     shutil.copytree(os.path.join(this_directory, os.path.pardir, "example_projects"), tmpdir)
     print(os.listdir(tmpdir))
 
-def teardown():
+
+def tearDownModule():
     global tmpdir
     print("removing tmpdir")
-    shutil.rmtree(tmpdir) # this only gets called when running with nose. Perhaps use atexit, or do this on a class-by-class basis and use __del__
+    shutil.rmtree(tmpdir)
 
 
 if __name__ == '__main__':
-    setup()
     unittest.main()
-    teardown()
-

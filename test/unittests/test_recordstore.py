@@ -3,18 +3,12 @@
 Unit tests for the sumatra.recordstore package
 """
 
-from __future__ import unicode_literals
-from __future__ import print_function
-from future import standard_library
-standard_library.install_aliases()
-from builtins import str
-from builtins import object
 import unittest
 import os
 import sys
 import tempfile
 import shutil
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from glob import glob
 
 from sumatra.records import Record
@@ -106,7 +100,7 @@ class MockParameterSet(object):
 
 class MockRecord(object):
 
-    def __init__(self, label, timestamp=datetime.now()):
+    def __init__(self, label, timestamp=datetime.now(timezone.utc)):
         self.label = label
         self.timestamp = timestamp
         self.reason = "because"
@@ -139,7 +133,7 @@ class MockProject(object):
     name = "TestProject"
 
 
-def setup():
+def setUpModule():
     global django_store1, django_store2, django_dir
     django_dir = tempfile.mkdtemp(prefix='sumatra-test-')
     cwd_before = os.getcwd()
@@ -151,12 +145,15 @@ def setup():
         django_store1 = django_store.DjangoRecordStore(db_file="test.db")
     if django_store2 is None:
         django_store2 = django_store.DjangoRecordStore(db_file="test2.db")
-    django_store.db_config.configure()
+    try:
+        django_store.db_config.configure()
+    except ImportError as err:
+        raise unittest.SkipTest(err)
     vcs_list.append(sys.modules[__name__])
     os.chdir(cwd_before)
 
 
-def teardown():
+def tearDownModule():
     global django_store1, django_store2, django_dir
     del sumatra.launch.MockLaunchMode
     del sumatra.datastore.MockDataStore
@@ -173,8 +170,10 @@ class BaseTestRecordStore(object):
         os.chdir(self.dir)
 
     def tearDown(self):
-        django_store1.delete_all()
-        django_store2.delete_all()
+        if django_store1:
+            django_store1.delete_all()
+        if django_store2:
+            django_store2.delete_all()
         os.chdir(self.cwd_before_test)
         shutil.rmtree(self.dir)
 
@@ -183,7 +182,7 @@ class BaseTestRecordStore(object):
         # might serialize the record using serialization.encode_record
         # (like HttpRecordStore). There, the timestamp will be cut off
         # milliseconds.
-        now = datetime.now()
+        now = datetime.now(timezone.utc)
         r1 = MockRecord("record1", timestamp=now - timedelta(seconds=2))
         r2 = MockRecord("record2", timestamp=now - timedelta(seconds=1))
         r3 = MockRecord("record3", timestamp=now)
@@ -196,7 +195,7 @@ class BaseTestRecordStore(object):
         # might serialize the record using serialization.encode_record
         # (like HttpRecordStore). There, the timestamp will be cut off
         # milliseconds.
-        now = datetime.now()
+        now = datetime.now(timezone.utc)
         r1 = MockRecord("record1", timestamp=now - timedelta(seconds=1))
         r3 = MockRecord("record3", timestamp=now)
         r1.tags.add("tag1")
@@ -349,6 +348,10 @@ class TestDjangoRecordStore(unittest.TestCase, BaseTestRecordStore):
         #assert unpickled._shelf_name == "test_record_store"
         #assert os.path.exists(unpickled._shelf_name)
 
+    def test_clear(self):
+        # because we use the same db for all tests, we can't clear it
+        pass
+
 
 class MockResponse(object):
     def __init__(self, status):
@@ -457,11 +460,15 @@ class TestHttpRecordStore(unittest.TestCase, BaseTestRecordStore):
 
     def __init__(self, *args, **kwargs):
         unittest.TestCase.__init__(self, *args, **kwargs)
-        self.real_httplib = http_store.httplib2
+        try:
+            self.real_httplib = http_store.httplib2
+        except AttributeError:
+            self.real_httplib = None
         http_store.httplib2 = MockHttpLib()
 
     def __del__(self):
-        http_store.httplib2 = self.real_httplib
+        if self.real_httplib:
+            http_store.httplib2 = self.real_httplib
 
     def setUp(self):
         BaseTestRecordStore.setUp(self)
@@ -524,7 +531,8 @@ class TestSerialization(unittest.TestCase):
         with open(os.path.join(this_directory, "example_0.7.json")) as fp:
             data_in = json.load(fp)
         record = serialization.build_record(data_in)
-        data_out = json.loads(serialization.encode_record(record, indent=2))
+        # v0.7 doesn't include timezone info
+        data_out = json.loads(serialization.encode_record(record, indent=2, with_timezones=False))
         # tags in records are a set, hence have arbitrary order.
         self.assertTrue('tags' in data_out)
         data_in['tags'] = sorted(data_in['tags'])
@@ -549,6 +557,8 @@ class TestModuleFunctions(unittest.TestCase):
     def test_get_record_store_http(self, ):
         self.assertIsInstance(get_record_store("http://records.example.com/"),
                               http_store.HttpRecordStore)
+        self.assertIsInstance(get_record_store("http://testuser:abc123@0.0.0.0:55052/records/"),
+                              http_store.HttpRecordStore)
 
     def test_get_record_store_shelve(self):
         store = shelve_store.ShelveRecordStore(shelf_name="test_record_store.shelf")
@@ -567,6 +577,6 @@ class TestModuleFunctions(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    setup()
+    setUpModule()
     unittest.main()
-    teardown()
+    tearDownModule()

@@ -1,27 +1,23 @@
 """
 Defines views for the Sumatra web interface.
 
-:copyright: Copyright 2006-2015 by the Sumatra team, see doc/authors.txt
+:copyright: Copyright 2006-2020, 2024 by the Sumatra team, see doc/authors.txt
 :license: BSD 2-clause, see LICENSE for details.
 """
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import unicode_literals
-from builtins import str
 
 import parameters
 import mimetypes
+import json
+import os
+
 from django.conf import settings as django_settings
 from django.http import HttpResponse, Http404
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.views.generic.list import ListView
 try:
     from django.views.generic.dates import MonthArchiveView
 except ImportError:  # older versions of Django
     MonthArchiveView = object
-
-import json
-import os
 from django.views.generic import View, DetailView, TemplateView
 from django.db.models import Q
 from tagging.models import Tag
@@ -185,9 +181,11 @@ class DataDetailView(DetailView):
         return context
 
     def handle_zipfile(self, context, content):
+        import io
         import zipfile
-        if zipfile.is_zipfile(path):
-            zf = zipfile.ZipFile(path, 'r')
+        fp = io.StringIO(content)
+        if zipfile.is_zipfile(fp):
+            zf = zipfile.ZipFile(fp, 'r')
             contents = zf.namelist()
             zf.close()
         context["content"] = "\n".join(contents)
@@ -255,7 +253,7 @@ def image_thumbgrid(request, project):
                     'tags':             tags,
                     'datastore_id':     data_key.output_from_record.datastore.id,
                     'path':             data_key.path,
-                    'creation':         data_key.creation.strftime('%Y-%m-%d %H:%M:%S'),
+                    'creation':         data_key.creation.strftime('%Y-%m-%d %H:%M:%S%z'),
                     'digest':           data_key.digest
                 })
         if limit != -1:
@@ -264,7 +262,7 @@ def image_thumbgrid(request, project):
             return HttpResponse(json.dumps(data), content_type='application/json')
     else:
         tags = Tag.objects.all()
-        return render_to_response('image_thumbgrid.html', {'project':project_obj, 'tags':tags})
+        return render(request, 'image_thumbgrid.html', {'project':project_obj, 'tags':tags})
 
 
 def parameter_list(request, project):
@@ -285,9 +283,9 @@ def parameter_list(request, project):
                 keys.sort()
             except:
                 return Http404
-        return render_to_response('parameter_list.html',{'project':project_obj, 'object_list':record_list, 'keys': keys, 'main_file':main_file})
+        return render(request, 'parameter_list.html',{'project':project_obj, 'object_list':record_list, 'keys': keys, 'main_file':main_file})
     else:
-        return render_to_response('parameter_list.html',{'project':project_obj})
+        return render(request, 'parameter_list.html',{'project':project_obj})
 
 
 def delete_records(request, project):
@@ -344,7 +342,7 @@ def compare_records(request, project):
         context['input_data_pairs'] = pair_datafiles(diff.recordA.input_data, diff.recordB.input_data)
     if diff.output_data_differ:
         context['output_data_pairs'] = pair_datafiles(diff.recordA.output_data, diff.recordB.output_data)
-    return render_to_response("record_comparison.html", context)
+    return render(request, "record_comparison.html", context)
 
 
 
@@ -474,11 +472,11 @@ def datatable_record(request, project):
                 'DT_RowId':     rec.label,
                 'project':      project,
                 'label':        rec.label,
-                'date':         rec.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+                'date':         rec.timestamp.strftime('%Y-%m-%d %H:%M:%S%z'),
                 'reason':       rec.reason,
                 'outcome':      rec.outcome,
-                'input_data':   map(lambda x: {'path': x.path, 'digest': x.digest, 'creation': x.creation.strftime('%Y-%m-%dT%H:%M:%S')}, rec.input_data.all()),
-                'output_data':  map(lambda x: {'path': x.path, 'digest': x.digest, 'creation': x.creation.strftime('%Y-%m-%dT%H:%M:%S')}, rec.output_data.all()),
+                'input_data':   map(lambda x: {'path': x.path, 'digest': x.digest, 'creation': x.creation.strftime('%Y-%m-%dT%H:%M:%S%z')}, rec.input_data.all()),
+                'output_data':  map(lambda x: {'path': x.path, 'digest': x.digest, 'creation': x.creation.strftime('%Y-%m-%dT%H:%M:%S%z')}, rec.output_data.all()),
                 'duration':     rec.duration,
                 'processes':    rec.launch_mode.get_parameters().get('n',1),
                 'executable':   '%s %s' %(rec.executable.name,rec.executable.version),
@@ -537,7 +535,7 @@ def datatable_data(request, project):
                 'digest':               dk.digest,
                 'size':                 dk.get_metadata()['size'],
                 # 'size':                 filters.filesizeformat(dk.get_metadata()['size']),
-                'creation':             dk.creation.strftime('%Y-%m-%d %H:%M:%S'),
+                'creation':             dk.creation.strftime('%Y-%m-%d %H:%M:%S%z'),
                 'output_from_record':   dk.output_from_record.label,
                 'input_to_records':     map(lambda x: x.label, dk.input_to_records.all())
             })
@@ -594,8 +592,8 @@ def datatable_image(request, project):
             data.append({
                 'DT_RowId':     im.path,
                 'project':      project,
-                'date':         im.creation.strftime('%Y-%m-%d %H:%M:%S'),
-                'creation':     im.creation.strftime('%Y-%m-%dT%H:%M:%S'),
+                'date':         im.creation.strftime('%Y-%m-%d %H:%M:%S%z'),
+                'creation':     im.creation.strftime('%Y-%m-%dT%H:%M:%S%z'),
                 'path':         im.path,
                 'digest':       im.digest,
                 'datastore':    im.output_from_record.datastore.id,

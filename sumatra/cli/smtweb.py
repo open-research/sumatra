@@ -5,19 +5,22 @@ Web interface to the Sumatra computational experiment management tool.
 
 import sys
 import os
-try:
-    import thread
-except ImportError: # Python 3. TODO: move to higher level ``threading`` module
-    import _thread as thread
-import webbrowser
-from django.core import management
-from django.conf import settings
-from sumatra.projects import load_project
-from sumatra.recordstore.django_store import DjangoRecordStore, db_config
-from sumatra.web import __file__ as sumatra_web
 from optparse import OptionParser
 from textwrap import dedent
 import time
+import _thread as thread
+import webbrowser
+
+try:
+    from django.core import management
+    from django.conf import settings
+    from sumatra.recordstore.django_store import DjangoRecordStore, db_config
+    have_django = True
+except ImportError:
+    have_django = False
+
+from sumatra.projects import load_project
+from sumatra.web import __file__ as sumatra_web
 
 
 def delayed_new_tab(url, delay):
@@ -27,7 +30,6 @@ def delayed_new_tab(url, delay):
     """
 
     time.sleep(delay)
-    # maybe optional with python setup develop ?
     webbrowser.open_new_tab(url)
 
 
@@ -53,6 +55,10 @@ def main(argv):
                       help="load website faster, recommended for large dataset")
     (options, args) = parser.parse_args(argv)
 
+    if not have_django:
+        print("smtweb requires Django to be installed")
+        return 1
+
     if args:
         recordstore = DjangoRecordStore(db_file=args[0])
     else:
@@ -60,7 +66,7 @@ def main(argv):
         if not isinstance(project.record_store, DjangoRecordStore):
             # should make the web interface independent of the record store, if possible
             print("This project cannot be accessed using the web interface (record store is not of type DjangoRecordStore).")
-            sys.exit(1)
+            return 1
         del project
 
     root_dir = os.path.dirname(sumatra_web)
@@ -68,8 +74,16 @@ def main(argv):
         INSTALLED_APPS=db_config._settings["INSTALLED_APPS"] + ['sumatra.web'],
         ROOT_URLCONF='sumatra.web.urls',
         STATIC_URL='/static/',
-        TEMPLATE_DIRS=(os.path.join(os.getcwd(), ".smt", "templates"),
-                       os.path.join(root_dir, "templates"),),
+        TEMPLATES=[
+            {
+                'BACKEND': 'django.template.backends.django.DjangoTemplates',
+                'APP_DIRS': False,
+                'DIRS': [
+                    os.path.join(os.getcwd(), ".smt", "templates"),
+                    os.path.join(root_dir, "templates")
+                ]
+            },
+        ],
         MIDDLEWARE_CLASSES=tuple(),
         READ_ONLY = options.read_only,
         SERVERSIDE = options.serverside,
@@ -86,7 +100,8 @@ def main(argv):
         address = '127.0.0.1'
     address += ':' + options.port
     management.call_command('runserver', address, use_reloader=False)
+    return 0
 
 
-if __name__ == "__main__":
-    main(sys.argv[1:])
+def smtweb():
+    return main(sys.argv[1:])

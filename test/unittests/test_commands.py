@@ -1,12 +1,6 @@
 """
 Unit tests for the sumatra.commands module
 """
-from __future__ import print_function
-from __future__ import unicode_literals
-from future import standard_library
-standard_library.install_aliases()
-from builtins import str
-from builtins import object
 
 import unittest
 import os
@@ -190,7 +184,7 @@ def store_original(module, name):
     originals[module.__name__, name] = (module, name, getattr(module, name))
 
 
-def setup():
+def setUpModule():
     store_original(os, "mkdir")
     os.mkdir = mock_mkdir
     for name in ("build_parameters", "get_executable", "get_repository", "get_working_copy", "get_record_store"):
@@ -202,7 +196,7 @@ def setup():
     commands.get_record_store = MockRecordStore
 
 
-def teardown():
+def tearDownModule():
     for item in originals.values():
         setattr(*item)
 
@@ -228,7 +222,7 @@ class InitCommandTests(unittest.TestCase):
         commands.Project = MockProject
         commands.init(["NewProject", "--repository", "/path/to/repos"])
         self.assertEqual(MockProject.instances[-1].default_repository.url, "/path/to/repos")
-        self.assert_(MockProject.instances[-1].default_repository._checkout_called, "/path/to/repos")
+        self.assertTrue(MockProject.instances[-1].default_repository._checkout_called, "/path/to/repos")
 
     def test_set_executable_no_options(self):
         commands.load_project = no_project
@@ -372,7 +366,7 @@ class ConfigureCommandTests(unittest.TestCase):
     def test_with_repository_option_should_perform_checkout(self):
         commands.configure(["--repository", "/path/to/another/repos"])
         self.assertEqual(self.prj.default_repository.url, "/path/to/another/repos")
-        self.assert_(self.prj.default_repository._checkout_called, "/path/to/repos")
+        self.assertTrue(self.prj.default_repository._checkout_called, "/path/to/repos")
 
     def test_archive_option_set_to_true(self):
         commands.configure(["--archive", "true"])
@@ -393,7 +387,7 @@ class ConfigureCommandTests(unittest.TestCase):
         commands.configure(["--archive", "true"])
         self.assertIsInstance(self.prj.data_store, datastore.ArchivingFileSystemDataStore)
         commands.configure(["--archive", "false"])
-        self.assert_(not hasattr(self.prj.data_store, "archive_store"))
+        self.assertTrue(not hasattr(self.prj.data_store, "archive_store"))
         self.prj.data_store = MockDataStore("/path/to/root")
 
     def test_change_store(self):

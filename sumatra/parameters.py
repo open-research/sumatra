@@ -24,28 +24,18 @@ YAMLParameterSet
     handles parameter files in YAML format
 
 
-:copyright: Copyright 2006-2015 by the Sumatra team, see doc/authors.txt
+:copyright: Copyright 2006-2020, 2024 by the Sumatra team, see doc/authors.txt
 :license: BSD 2-clause, see LICENSE for details.
 """
 
-from __future__ import with_statement, absolute_import
-from __future__ import unicode_literals
-from future import standard_library
-standard_library.install_aliases()
-from builtins import str
-from builtins import object
 import os.path
 import shutil
 import abc
 import re
 from itertools import filterfalse
 from pathlib import Path
-try:
-    from StringIO import StringIO # this is necessary because Python2-ConfigParser can't handle unicode
-except ImportError: # Python 3
-    from io import StringIO
-from future.utils import with_metaclass
-from configparser import SafeConfigParser, MissingSectionHeaderError, NoOptionError
+from io import StringIO
+from configparser import ConfigParser, MissingSectionHeaderError, NoOptionError
 import json
 try:
     import yaml
@@ -59,7 +49,7 @@ POP_NONE = "eiutbocqnluiegnclqiuetyvbietcbdgsfzpq"
 
 
 @component_type
-class ParameterSet(with_metaclass(abc.ABCMeta, object)):
+class ParameterSet(metaclass=abc.ABCMeta):
     required_attributes = ("update", "save")
     list_pattern = re.compile(r'^\s*\[.*\]\s*$')
     tuple_pattern = re.compile(r'^\s*\(.*\)\s*$')
@@ -389,7 +379,7 @@ class SimpleParameterSet(ParameterSet):
 
 
 @component
-class ConfigParserParameterSet(SafeConfigParser, ParameterSet):
+class ConfigParserParameterSet(ConfigParser, ParameterSet):
     """
     Handles parameter files in traditional config file format, as parsed by the
     standard Python ConfigParser module. Note that this format does not
@@ -403,7 +393,7 @@ class ConfigParserParameterSet(SafeConfigParser, ParameterSet):
         """
         Create a new parameter set from a file or string.
         """
-        SafeConfigParser.__init__(self)
+        ConfigParser.__init__(self)
         try:
             if os.path.exists(initialiser):
                 self.read(initialiser)
@@ -411,7 +401,7 @@ class ConfigParserParameterSet(SafeConfigParser, ParameterSet):
             else:
                 input = StringIO(str(initialiser))  # configparser has some problems with unicode. Using str() is a crude, and probably partial fix.
                 input.seek(0)
-                self.readfp(input)
+                self.read_file(input)
         except MissingSectionHeaderError:
             raise SyntaxError("Initialiser contains no section headers")
 
@@ -432,11 +422,6 @@ class ConfigParserParameterSet(SafeConfigParser, ParameterSet):
 
     def __ne__(self, other):
         return not self.__eq__(other)
-
-    def __deepcopy__(self, memo):
-        # deepcopy of a SafeConfigParser fails under Python 2.7, so we
-        # implement this simple version which avoids copying SRE_Pattern objects
-        return ConfigParserParameterSet(self.pretty())
 
     def keys(self):
         return (section for section in self.sections())

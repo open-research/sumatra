@@ -14,10 +14,9 @@ If using a MirroredFileSystemDataStore could just use URL
 The project name and recordstore directive are optional if rst2xxxx is used in a Sumatra project directory
 
 
-:copyright: Copyright 2006-2015 by the Sumatra team, see doc/authors.txt
+:copyright: Copyright 2006-2020, 2024 by the Sumatra team, see doc/authors.txt
 :license: BSD 2-clause, see LICENSE for details.
 """
-from __future__ import unicode_literals
 
 from docutils.parsers.rst import directives, states
 from docutils.parsers.rst.directives.images import Image
@@ -142,8 +141,8 @@ class SumatraImage(Image):
                 reference_node = nodes.reference(refuri=data)
             elif target_type == 'refname':
                 reference_node = nodes.reference(
-                    refname=fully_normalize_name(data),
-                    name=whitespace_normalize_name(data))
+                    refname=nodes.fully_normalize_name(data),
+                    name=nodes.whitespace_normalize_name(data))
                 reference_node.indirect_reference_name = data
                 self.state.document.note_refname(reference_node)
             else:                           # malformed target

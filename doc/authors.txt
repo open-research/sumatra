@@ -23,6 +23,14 @@ current affiliation of a contributor.
 * Jaime Ashander[12]
 * Tim Tröndle [13]
 * Sebastian Spreizer [14]
+* Felix Hoffman [14]
+* Alexandre René [15]
+* Jonathan Guyer [11]
+* René Fritze [16]
+* Shahriar Heidrich [17]
+* Dan Padilha [18]
+* Simon Chabot [19]
+* @maharjun
 
 1. Unité de Neuroscience, Information et Complexité, CNRS UPR 3293, Gif-sur-Yvette, France
 2. Ecole Centrale de Lille, Lille, France
@@ -38,7 +46,11 @@ current affiliation of a contributor.
 12. University of California--Davis, USA
 13. Younicos AG, Berlin, Germany
 14. Bernstein Center Freiburg, University of Freiburg, Freiburg, Germany
-
+15. RWTH Aachen University: Aachen, Germany
+16. Insitute for  Computational and Applied Mathematics, University of Münster
+17. Institute of Nanotechnology, Karlsruhe Institute of Technology, Germany
+18. Shoal Engineering Pty Ltd, Canberra, Australia
+19. CEREMA Direction territoriale Méditerranée, Nice, France
 
 If we've somehow missed you off the list I'm very sorry - please let us know.
 

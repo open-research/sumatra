@@ -4,12 +4,9 @@ Commands provided by the smt tool.
 Each command corresponds to a function in this module.
 
 
-:copyright: Copyright 2006-2015 by the Sumatra team, see doc/authors.txt
+:copyright: Copyright 2006-2020, 2024 by the Sumatra team, see doc/authors.txt
 :license: BSD 2-clause, see LICENSE for details.
 """
-from __future__ import print_function
-from __future__ import unicode_literals
-from builtins import str
 
 import os.path
 import sys
@@ -17,6 +14,7 @@ from argparse import ArgumentParser
 from textwrap import dedent
 import warnings
 import logging
+import datetime
 import sumatra
 
 from sumatra.programs import get_executable
@@ -26,7 +24,7 @@ from sumatra.launch import get_launch_mode
 from sumatra.parameters import build_parameters
 from sumatra.recordstore import get_record_store
 from sumatra.versioncontrol import get_working_copy, get_repository, UncommittedModificationsError
-from sumatra.formatting import get_diff_formatter
+from sumatra.formatting import get_diff_formatter, get_formatter
 from sumatra.records import MissingInformationError
 from sumatra.core import TIMESTAMP_FORMAT, STATUS_FORMAT, STATUS_PATTERN
 
@@ -151,7 +149,7 @@ def init(argv):
     parser.add_argument('-c', '--on-changed', default='error', help="the action to take if the code in the repository or any of the depdendencies has changed. Defaults to %(default)s")  # need to add list of allowed values
     parser.add_argument('-s', '--store', help="Specify the path, URL or URI to the record store (must be specified). This can either be an existing record store or one to be created. {0} Not using the `--store` argument defaults to a DjangoRecordStore with Sqlite in `.smt/records`".format(store_arg_help))
     parser.add_argument('-g', '--labelgenerator', choices=['timestamp', 'uuid'], default='timestamp', metavar='OPTION', help="specify which method Sumatra should use to generate labels (options: timestamp, uuid)")
-    parser.add_argument('-t', '--timestamp_format', help="the timestamp format given to strftime", default=TIMESTAMP_FORMAT)
+    parser.add_argument('-t', '--timestamp_format', help="the timestamp format given to strftime for generating labels", default=TIMESTAMP_FORMAT)
     parser.add_argument('-L', '--launch_mode', choices=['serial', 'distributed', 'slurm-mpi'], default='serial', help="how computations should be launched. Defaults to %(default)s")
     parser.add_argument('-o', '--launch_mode_options', help="extra options for the given launch mode")
 
@@ -247,7 +245,7 @@ def configure(argv):
     parser.add_argument('-c', '--on-changed', help="may be 'store-diff' or 'error': the action to take if the code in the repository or any of the dependencies has changed.", choices=['store-diff', 'error'])
     parser.add_argument('-g', '--labelgenerator', choices=['timestamp', 'uuid'], metavar='OPTION', help="specify which method Sumatra should use to generate labels (options: timestamp, uuid)")
     parser.add_argument('-t', '--timestamp_format', help="the timestamp format given to strftime")
-    parser.add_argument('-L', '--launch_mode', choices=['serial', 'distributed', 'slurm-mpi'], help="how computations should be launched.")
+    parser.add_argument('-L', '--launch_mode', choices=['serial', 'serial-tqdm', 'distributed', 'slurm-mpi'], help="how computations should be launched.")
     parser.add_argument('-o', '--launch_mode_options', help="extra options for the given launch mode, to be given in quotes with a leading space, e.g. ' --foo=3'")
     parser.add_argument('-p', '--plain', dest='plain', action='store_true', help="pass arguments to the 'run' command straight through to the program. Otherwise arguments of the form name=value can be used to overwrite default parameter values.")
     parser.add_argument('--no-plain', dest='plain', action='store_false', help="arguments to the 'run' command of the form name=value will overwrite default parameter values. This is the opposite of the --plain option.")
@@ -452,6 +450,7 @@ def list(argv):  # add 'report' and 'log' as aliases
     parser.add_argument('-P', '--parameter_table', action="store_const", const="parameter_table",
                         dest="mode", help="list records with parameter values")
     parser.add_argument('-p', '--parameters', metavar='parameters', default=None, help="filter records by parameter values, separated by comma")
+    parser.add_argument('-d', '--date', dest='timestamp', help="filter records by the date (today or YYYYMMDD)")
     args = parser.parse_args(argv)
 
     project = load_project()
@@ -460,6 +459,13 @@ def list(argv):  # add 'report' and 'log' as aliases
             f.write('\n'.join(project.get_labels()))
 
     kwargs = {'tags':args.tags, 'mode':args.mode, 'format':args.format, 'reverse':args.reverse}
+
+    if args.timestamp:
+        if args.timestamp == 'today':
+            date = datetime.datetime.today().date()
+        else:
+            date = datetime.datetime.strptime(args.timestamp, '%Y%m%d')
+        kwargs['timestamp__range'] = [date, date+datetime.timedelta(1)]
     if args.main_file is not None: kwargs['main_file__startswith'] = args.main_file
     if args.parameters:
         parameters = {}
@@ -529,9 +535,8 @@ def comment(argv):
     args = parser.parse_args(argv)
 
     if args.file:
-        f = open(args.comment, 'r')
-        comment = f.read()
-        f.close()
+        with open(args.comment, 'r') as f:
+            comment = f.read()
     else:
         comment = args.comment
 
@@ -543,14 +548,14 @@ def comment(argv):
 def tag(argv):
     """Tag, or remove a tag, from a record or records."""
     usage = "%(prog)s tag [options] TAG [LIST]"
-    statuses = ('initialized', 'pre_run', 'running', 'finished', 'failed', 
+    statuses = ('initialized', 'pre_run', 'running', 'finished', 'failed',
                 'killed', 'succeeded', 'crashed')
     formatted_statuses = ", ".join((STATUS_FORMAT % s for s in statuses))
     description = dedent("""\
       If TAG contains spaces, it must be enclosed in quotes. LIST should be a
       space-separated list of labels for individual records. If it is omitted,
       only the most recent record will be tagged. If the '-r/--remove' option
-      is set, the tag will be removed from the records. TAG can be a status 
+      is set, the tag will be removed from the records. TAG can be a status
       from the mutually exclusive list:  %s. """ % formatted_statuses)
     parser = ArgumentParser(usage=usage,
                             description=description)
@@ -677,9 +682,8 @@ def upgrade(argv):
     project.record_store.clear()
     filename = "%s/records_export.json" % backup_dir
     if os.path.exists(filename):
-        f = open(filename)
-        project.record_store.import_(project.name, f.read())
-        f.close()
+        with open(filename) as f:
+            project.record_store.import_(project.name, f.read())
     else:
         print("Record file not found")
         sys.exit(1)
@@ -763,23 +767,24 @@ def migrate(argv):
 
 def view(argv):
     """View detail of a single record."""
-    usage = "%(prog)s view"
+    usage = "%(prog)s view [options] LABEL"
     description = "View detail of a single record."
     parser = ArgumentParser(usage=usage,
                             description=description)
     parser.add_argument('label')
-    parser.add_argument('-s', '--script', help="show script content.")
-    parser.add_argument('-v', '--version', help="show version of main script.")
+    parser.add_argument('-s', '--script', action='store_true',
+        help="show script content.")
     args = parser.parse_args(argv)
     project = load_project()
     record = project.get_record(args.label)
-    print('Main_File\t :',record.main_file)
-    if args.version:
-        print('Version\t\t :',record.version)
-        print(80*'-')
     if args.script:
+        print('Main_File\t :',record.main_file)
+        print(80*'-')
         print(record.script_content)
         print(80*'-')
+    else:
+        formatter = get_formatter('text')([record], project=project)
+        print(formatter.format('long'))
     # implementation to finish, including other record fields as options
     # todo: use `formatting` module, rather than print statements
 

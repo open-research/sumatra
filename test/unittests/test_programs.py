@@ -1,9 +1,6 @@
 """
 Unit tests for the sumatra.programs module
 """
-from __future__ import unicode_literals
-from builtins import str
-from builtins import object
 
 import unittest
 import distutils.spawn
@@ -88,7 +85,7 @@ class TestPythonExecutable(unittest.TestCase):
         prog = PythonExecutable(None)
         params = MockParameterSet()
         prog.write_parameters(params, "test_parameters")
-        self.assert_(params.saved)
+        self.assertTrue(params.saved)
 
 
 class TestModuleFunctions(unittest.TestCase):

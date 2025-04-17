@@ -10,33 +10,33 @@ scripts to perform the record-keeping tasks performed by ``smt run``.
 
 You may also wish to write your own custom script for creating a Sumatra project,
 instead of using ``smt init``, but we do not cover this scenario here.
-    
+
 We will start with a simple example script, a dummy simulation, that reads a
 parameter file, generates some random numbers, and writes some data to file::
 
     import numpy
     import sys
-    
+
     def main(parameters):
         numpy.random.seed(parameters["seed"])
         distr = getattr(numpy.random, parameters["distr"])
-        data = distr(size=parameters["n"])    
+        data = distr(size=parameters["n"])
         output_file = "example.dat"
         numpy.savetxt(output_file, data)
-    
+
     parameter_file = sys.argv[1]
     parameters = {}
-    execfile(parameter_file, parameters) # this way of reading parameters
-                                         # is not necessarily recommended
+    with open(parameter_file) as f:   # this way of reading parameters
+        exec(f.read(), parameters)    # is not recommended
     main(parameters)
-    
+
 Let's suppose this script is in a file named ``myscript.py``, and that we have a
 parameter file named ``defaults.param``, which contains::
 
     seed = 65784
     distr = "uniform"
     n = 100
-    
+
 Without Sumatra, we would normally run this script using something like::
 
     $ python myscript.py defaults.param
@@ -44,7 +44,7 @@ Without Sumatra, we would normally run this script using something like::
 To run the script using the ``smt`` command line tool, we would use::
 
     $ smt run --reason="reason for running this simulation" defaults.param
-    
+
 (This assumes we have previously used ``smt init`` or ``smt configure`` to specify that
 our executable is ``python`` and our main file is ``myscript.py``.)
 
@@ -55,24 +55,24 @@ First, we have to load the Sumatra project::
 
     from sumatra.projects import load_project
     project = load_project()
-    
+
 We're going to want to record the simulation duration, so we import the standard
 Python ``time`` module and record the start time::
 
     import time
     start_time = time.time()
-    
+
 We need to slightly modify the procedure for reading parameters. Sumatra stores
 the parameters for later use in searching and comparison, so they need to be
 transformed into a form Sumatra can use. This is very simple, we just replace
-the ``execfile()`` call with a ``build_parameters()`` call::
+the ``exec()`` call with a ``build_parameters()`` call::
 
     from sumatra.parameters import build_parameters
     parameters = build_parameters(parameter_file)
-    
+
 Now we create a new ``Record`` object, telling it that the script is the
 current file; this automatically registers information about the simulation environment::
-    
+
     record = project.new_record(parameters=parameters,
                                 main_file=__file__,
                                 reason="reason for running this simulation")
@@ -93,7 +93,7 @@ Now we add this simulation record to the project, and save the project::
 
     project.add_record(record)
     project.save()
-    
+
 Putting this all together::
 
     import numpy
@@ -101,26 +101,26 @@ Putting this all together::
     import time
     from sumatra.projects import load_project
     from sumatra.parameters import build_parameters
-    
+
     def main(parameters):
         numpy.random.seed(parameters["seed"])
         distr = getattr(numpy.random, parameters["distr"])
-        data = distr(size=parameters["n"])    
+        data = distr(size=parameters["n"])
         output_file = "%s.dat" % parameters["sumatra_label"]
         numpy.savetxt(output_file, data)
-    
+
     parameter_file = sys.argv[1]
     parameters = build_parameters(parameter_file)
-    
-    project = load_project()    
+
+    project = load_project()
     record = project.new_record(parameters=parameters,
                                 main_file=__file__,
                                 reason="reason for running this simulation")
     parameters.update({"sumatra_label": record.label})
     start_time = time.time()
-    
+
     main(parameters)
-    
+
     record.duration = time.time() - start_time
     record.output_data = record.datastore.find_new_data(record.timestamp)
     project.add_record(record)
@@ -130,7 +130,7 @@ Putting this all together::
 Now you can run the simulation in the original way::
 
     python myscript.py defaults.param
-    
+
 and still have the simulation recorded in your Sumatra project. For such a
 simple script and simple run environment there is no advantage to doing it this
 way: ``smt run`` is much simpler. However, if you already have a fairly complex run
@@ -146,14 +146,14 @@ and typing therefore, Sumatra provides a ``@capture`` decorator for your
     import sys
     from sumatra.parameters import build_parameters
     from sumatra.decorators import capture
-    
+
     @capture
     def main(parameters):
         numpy.random.seed(parameters["seed"])
         distr = getattr(numpy.random, parameters["distr"])
         data = distr(size=parameters["n"])
         numpy.savetxt("%s.dat" % parameters["sumatra_label"], data)
-  
+
     parameter_file = sys.argv[1]
     parameters = build_parameters(parameter_file)
     main(parameters)

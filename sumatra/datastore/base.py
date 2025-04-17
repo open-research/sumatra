@@ -1,11 +1,9 @@
 """
 
 
-:copyright: Copyright 2006-2015 by the Sumatra team, see doc/authors.txt
+:copyright: Copyright 2006-2020, 2024 by the Sumatra team, see doc/authors.txt
 :license: BSD 2-clause, see LICENSE for details.
 """
-from __future__ import unicode_literals
-from builtins import object
 
 import hashlib
 import os.path
@@ -64,6 +62,9 @@ class DataStore(object):
     def contains_path(self, path):
         """Does the store contain a data item with the given path?"""
         raise NotImplementedError
+
+    def get_type(self):
+        return self.__class__.__name__
 
 
 class DataKey(object):

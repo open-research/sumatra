@@ -14,7 +14,7 @@ To create a Sumatra project, run::
     $ smt init ProjectName
 
 in your working directory. :command:`smt init` has many options (see :doc:`command_reference` for a full list),
-but in general, :command:`smt configure` has the same options, so any of the options can be changed later. 
+but in general, :command:`smt configure` has the same options, so any of the options can be changed later.
 To see the current configuration of your project, run :command:`smt info`.
 
 
@@ -124,7 +124,7 @@ can be specified using the ``--label`` option::
 
     $ smt run --label=test0237
 
-Two formats are available for automatically-generated labels, timestamp-based (the default), and uuid-based.
+Two formats are available for automatically-generated labels, timestamp-based (the default), and uuid-based::
 
     $ smt configure --labelgenerator=uuid
     $ smt configure --labelgenerator=timestamp --timestamp_format=%Y%m%d-%H%M%S
@@ -217,11 +217,11 @@ lists the labels of all records. When you have a lot of records, it will probabl
     $ smt list tag1 tag2 tag3
 
 will only show records that have been tagged with *all* the tags in the list. To show fuller information about
-each record, use the "--long/-l" option:
+each record, use the ``--long/-l`` option::
 
     $ smt list -l
 
-The order of records can be reversed using the "--reverse/-r" flag.
+The order of records can be reversed using the ``--reverse/-r`` flag.
 
 By default, the output is formatted for the console. Several other output formats are also available, for example
 LaTeX::
@@ -244,7 +244,7 @@ available on the command-line with :command:`smt diff`.
 Deleting records
 ----------------
 
-If your last computation failed because of a silly bug::
+If your last computation failed because of a bug::
 
     $ smt delete
 

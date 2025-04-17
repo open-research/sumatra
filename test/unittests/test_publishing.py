@@ -1,8 +1,6 @@
 """
 
 """
-from __future__ import unicode_literals
-from builtins import object
 
 import unittest
 
@@ -68,9 +66,11 @@ class MockProject(object):
         self.record_store = MockRecordStore("/path/to/store")
 
 
-def teardown():
+def tearDownModule():
     if os.path.exists(".smt"):
         shutil.rmtree(".smt")
+    if os.path.exists("smt_images"):
+        shutil.rmtree("smt_images")
 
 
 class TestUtils(unittest.TestCase):
@@ -97,7 +97,7 @@ class TestUtils(unittest.TestCase):
 
     def test_determine_record_store_from_project(self):
         store = utils.determine_record_store(MockProject(), {})
-        self.assert_(isinstance(store, MockRecordStore))
+        self.assertTrue(isinstance(store, MockRecordStore))
 
     def test_determine_record_store_with_no_options_no_project(self):
         self.assertRaises(Exception, utils.determine_record_store, None, {})
@@ -151,7 +151,7 @@ class TestLaTeX(unittest.TestCase):
         cmd = includefigure.generate_latex_command(sumatra_options, graphics_options)
         sys.stdout.seek(0)
         self.assertEqual(sys.stdout.read().strip(),
-                         "\includegraphics[width=\textwidth]{smt_images/bar.jpg}")
+                         "\\includegraphics[width=\textwidth]{smt_images/bar.jpg}")
         sys.stdout = sys.__stdout__
 
     @patch(utils, 'get_record_store', MockRecordStore)
@@ -168,7 +168,7 @@ class TestLaTeX(unittest.TestCase):
         cmd = includefigure.generate_latex_command(sumatra_options, graphics_options)
         sys.stdout.seek(0)
         self.assertEqual(sys.stdout.read().strip(),
-                         "\includegraphics[width=\textwidth]{smt_images/subdirectory/baz.png}")
+                         "\\includegraphics[width=\textwidth]{smt_images/subdirectory/baz.png}")
         sys.stdout = sys.__stdout__
 
 @unittest.skipUnless(have_docutils, "docutils not available")

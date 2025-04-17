@@ -1,10 +1,6 @@
 """
 Utility functions for writing system tests.
 """
-from __future__ import print_function
-from __future__ import unicode_literals
-from builtins import zip
-from builtins import str
 
 import os.path
 import re
@@ -13,56 +9,40 @@ import tempfile
 import shutil
 import sarge
 
-DEBUG = False
-temporary_dir = None
-working_dir = None
-env = {}
+import pytest
 
+DEBUG = True
 
-label_pattern = re.compile("Record label for this run: '(?P<label>\d{8}-\d{6})'")
-label_pattern = re.compile("Record label for this run: '(?P<label>[\w\-_]+)'")
+label_pattern = re.compile(r"Record label for this run: '(?P<label>\d{8}-\d{6})'")
+label_pattern = re.compile(r"Record label for this run: '(?P<label>[\w\-_]+)'")
 
 info_pattern = r"""Project name        : (?P<project_name>\w+)
-Default executable  : (?P<executable>\w+) \(version: \d+.\d+.\d+\) at /[\w\/_-]+/bin/python
-Default repository  : MercurialRepository at \S+/sumatra_exercise \(upstream: \S+/ircr2013\)
+Default executable  : (?P<executable>\w+) \(version: \d+.\d+.\d+\) at /[\w\/_.-]+/bin/python
+Default repository  : GitRepository at \S+/sumatra_exercise \(upstream: \S+/ircr2013\)
 Default main file   : (?P<main>\w+.\w+)
 Default launch mode : serial
 Data store \(output\) : /[\w\/]+/sumatra_exercise/Data
 .          \(input\)  : /[\w\/]+/sumatra_exercise
-Record store        : Django \(/[\w\/]+/sumatra_exercise/.smt/records\)
+Record store        : (?P<record_store>[\w ]+) \([\w\/= ]+/sumatra_exercise/.smt/records\)
 Code change policy  : (?P<code_change>\w+)
 Append label to     : None
 Label generator     : timestamp
 Timestamp format    : %Y%m%d-%H%M%S
 Plug-ins            : \[\]
-Sumatra version     : 0.8dev
+Sumatra version     : 0.8.0.dev0
 """
 
 
-def setup():
-    """Create temporary directory for the Sumatra project."""
-    global temporary_dir, working_dir, env
-    temporary_dir = os.path.realpath(tempfile.mkdtemp())
-    working_dir = os.path.join(temporary_dir, "sumatra_exercise")
-    os.mkdir(working_dir)
-    print(working_dir)
-    env["labels"] = []
-
-
-def teardown():
-    """Delete all files."""
-    if os.path.exists(temporary_dir):
-        shutil.rmtree(temporary_dir)
-
-
-def run(command):
+def run(command, working_dir):
     """Run a command in the Sumatra project directory and capture the output."""
-    return sarge.run(command, cwd=working_dir, stdout=sarge.Capture(timeout=10, buffer_size=1))
+    print(f"Running '{command}' in {working_dir}")
+    return sarge.run(command, cwd=working_dir, stdout=sarge.Capture(timeout=10, buffer_size=1),
+                     stderr=sarge.Capture(timeout=10, buffer_size=1))
 
 
-def assert_file_exists(p, relative_path):
-    """Assert that a file exists at the given path, relative to the working directory."""
-    assert os.path.exists(os.path.join(working_dir, relative_path))
+def assert_file_exists(p, path):
+    """Assert that a file exists at the given absolute path."""
+    assert os.path.exists(path)
 
 
 def pairs(iterable):
@@ -83,10 +63,14 @@ def get_label(p):
 
 def assert_in_output(p, texts):
     """Assert that the stdout from process 'p' contains all of the provided text."""
-    if isinstance(texts, str):
+    output = p.stdout.text + p.stderr.text
+    if isinstance(texts, (str, type(re.compile("")))):
         texts = [texts]
     for text in texts:
-        assert text in p.stdout.text, "'{0}' is not in '{1}'".format(text, p.stdout.text)
+        if isinstance(text, type(re.compile(""))):
+            assert text.search(output), "regular expression '{0}' has no match in '{1}'".format(text, output)
+        else:
+            assert text in output, "'{0}' is not in '{1}'".format(text, output)
 
 
 def assert_config(p, expected_config):
@@ -141,7 +125,7 @@ def assert_records(p, expected_records):
 
 
 def assert_return_code(p, value):
-    assert p.returncode == value, "Return code {0}, expected {1}".format(p.returncode, value)
+    assert p.returncode == value, "Return code {0}, expected {1}\n{2}".format(p.returncode, value, p.stderr.text)
 
 
 def assert_label_equal(p, expected_label):
@@ -177,9 +161,8 @@ def build_command(template, env_var):
     return wrapped
 
 
-def edit_parameters(input, output, name, new_value):
+def edit_parameters(input, output, name, new_value, working_dir):
     """ """
-    global working_dir
 
     def wrapped():
         with open(os.path.join(working_dir, input), 'r') as fpin:
@@ -192,13 +175,13 @@ def edit_parameters(input, output, name, new_value):
     return wrapped
 
 
-def run_test(command, *checks):
+def run_test(command, *checks, env=None):
     """Execute a command in a sub-process then check that the output matches some criterion."""
-    global env, DEBUG
+    global DEBUG
 
     if callable(command):
         command = command(env)
-    p = run(command)
+    p = run(command, env["working_dir"])
     if DEBUG:
         print(p.stdout.text)
     if assert_return_code not in checks:
