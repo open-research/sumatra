@@ -130,13 +130,13 @@ Accessing record details
 You can access the record detail by clicking the corresponding label name in the
 main table. The record detail page contains the following sections:
 
-	- general info
-	- parameters
-	- input data
-	- output data
-	- dependencies
-	- platform information
-	- stdout & stderr
+- general info
+- parameters
+- input data
+- output data
+- dependencies
+- platform information
+- stdout & stderr
 
 .. figure:: /images/detail_view1.png
  :width: 100%

@@ -5,63 +5,73 @@ Installation
 To run Sumatra you will need Python installed on your machine. If you are running
 Linux or Mac OS, you almost certainly already have it. If you don't have Python,
 you can install it from `python.org`_, or install one of the
-"value-added" distributions aimed at scientific users of Python: `Enthought`_,
+"value-added" distributions aimed at scientific users of Python, such as
 `Python(x,y)`_ or Anaconda_.
 
-The easiest way to install Sumatra is directly from the `Python Package Index`_
-(PyPI)::
+We recommend installing Sumatra in a Python virtual environment created with conda
+or with the venv_ module.
+
+Default installation
+--------------------
+
+To install Sumatra with the most commonly used features, run the following::
+
+    $ pip install sumatra[default]
+
+or if you're on a Mac, using zsh::
+
+    $ pip install "sumatra[default]
+
+This installs Sumatra with the web interface, remote record store access and support
+for the Git version control system.
+
+Minimal installation
+--------------------
+
+For a minimal installation of Sumatra, without Django or any version control support,
+run simply::
 
     $ pip install sumatra
-
-
-Alternatively, you can download the Sumatra package from PyPI and install it as follows::
-
-    $ tar xzf Sumatra-0.8.0.tar.gz
-    $ cd Sumatra-0.8.0
-    # python setup.py install
-
-The last step may need to be run as root, or using sudo, although in general
-we recommend installing in an isolated environment created using virtualenv or conda.
-
-
-Installing Django
------------------
-
-If you wish to use the web interface, you will also need to install Django_
-version 1.8 or later. On Linux, you may be able to do this via your package
-management system: see https://code.djangoproject.com/wiki/Distributions.
-
-Otherwise, it is very easy to install manually: see
-https://docs.djangoproject.com/en/dev/topics/install/#installing-official-release
-
-You will also need to install the `parameters`, `django-tagging`_ and docutils_ packages,
-which may be in your package management system, otherwise they can be installed
-using pip::
-
-    $ pip install parameters
-    $ pip install django-tagging
-    $ pip install docutils
 
 
 Installing Python bindings for your version control system
 ----------------------------------------------------------
 
-Sumatra currently supports Mercurial_, Subversion_, Git_ and Bazaar_.
-If you are using Subversion, you will need to install the `pysvn bindings`_.
-Since Bazaar is mostly written in Python, just installing the main Bazaar
-package is sufficient. For Git, you need to install the GitPython_ package.
-For Mercurial, you need to install the hgapi_ package.
+Sumatra currently supports Mercurial_, Subversion_ and Git_.
+If you are using Subversion, you will need to install the `pysvn bindings`_,
+which cannot be installed with pip.
+To install bindings for Mercurial or Git, specify the appropriate option::
 
+    $ pip install sumatra[git,hg]
+
+
+Other install options
+---------------------
+
+A full list of install options is as follows:
+
+- web: enables the smtweb command (browser-based GUI) and the DjangoRecordStore
+- git: Git support
+- hg: Mercurial support
+- remote: enables the HttpRecordStore
+- postgres: allows use of PostgreSQL with the DjangoRecordStore
+- latex: for reproducible publications using LaTeX
+- sphinx: for reproducible publications using Sphinx
+- mpi: for launching distributed computations using MPI
+- docs: for building the Sumatra documentation
+- default: equivalent to "web,git,remote"
+- test: for running the test suite
+- dev: additional packages needed for developers of Sumatra
 
 Command completion for bash
 ---------------------------
 
 Sumatra comes with a limited bash completion facility.
-You can install it to you system by sourcing the file
+You can install it on your system by sourcing the file
 `smt-completion.sh` in your `.bashrc` or `.profile.
-By default, Sumatra installs this script to your
-`/usr/bin` directory by default but moving it
-elsewhere (e.g. to `~/.bash_completion.d/`)
+By default, Sumatra installs this script to the
+`bin` directory of your virtual environment, or to /usr/bin,
+but moving it elsewhere (e.g., to `~/.bash_completion.d/`)
 is recommended.
 
 
@@ -76,7 +86,7 @@ is recommended.
 .. _`pysvn bindings`: http://pysvn.tigris.org/project_downloads.html
 .. _`GitPython`: https://pypi.python.org/pypi/GitPython/
 .. _`hgapi`: https://pypi.python.org/pypi/hgapi/
-.. _`Enthought`: http://www.enthought.com/products/epd/
-.. _`Python(x,y)`: http://code.google.com/p/pythonxy/
-.. _Anaconda: http://docs.continuum.io/anaconda/
+.. _`Python(x,y)`: https://python-xy.github.io/
+.. _Anaconda: https://www.anaconda.com/docs/getting-started/getting-started
 .. _docutils: http://docutils.sourceforge.net
+.. _venv: https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/#create-and-use-virtual-environments

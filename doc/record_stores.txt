@@ -47,17 +47,17 @@ separately from Sumatra) or any other server software implementing the same API.
 follows::
 
   $ smt init --store=https://username:password@hostname/
-  
+
 Now when you run computations, Sumatra will send the records to the server, from where your collaborators can access
 them if they have an account on the server, or the project is set to public. Note that this does not transfer data files
 to the server, this has to be taken care of separately, using a mirroring data store.
 
-.. note:: at present, if the network connection fails the simulation record will be lost, so if you have a poor
+.. note:: At present, if the network connection fails the simulation record will be lost, so if you have a poor
           network connection or very long-running computations, it is probably safer to use a local record store. In the
           future we plan to add a caching mechanism which will keep a local copy of the record and retry the connection
           to the server later.
 
-The easiest way to try Sumatra Server out is to use Docker. 
+The easiest way to try out Sumatra Server is to use Docker.
 
 
 Open science
@@ -73,7 +73,7 @@ Changing record stores
 The :command:`smt configure` command also accepts the :option:`--store` option. In this case, Sumatra will copy all the
 records from the old store to the new one. It will not delete the old one.
 
-.. warning:: this feature is quite new, so we recommend making a backup of your Sumatra project before attempting to
+.. warning:: This feature is quite new, so we recommend making a backup of your Sumatra project before attempting to
              change record stores.
 
 
@@ -84,5 +84,5 @@ records from the old store to the new one. It will not delete the old one.
 .. _PostgreSQL: http://www.postgresql.org
 .. _SQLite: http://www.sqlite.org
 .. _psycopg2: https://pypi.python.org/pypi/psycopg2/
-.. _`Sumatra Server`: https://bitbucket.org/apdavison/sumatra_server/wiki/Home
+.. _`Sumatra Server`: https://github.com/apdavison/sumatra_server/wiki/Home
 .. _`open notebook science`: http://en.wikipedia.org/wiki/Open_notebook_science

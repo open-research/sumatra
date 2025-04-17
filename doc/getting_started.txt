@@ -14,7 +14,7 @@ project in this directory using the ``smt init`` command::
 
     $ cd myproject
     $ smt init MyProject
-    
+
 where ``MyProject`` is the project name. This creates a sub-directory named ``.smt``.
 
 Sumatra tracks data files created by your simulation by searching for newly
@@ -29,7 +29,7 @@ passing it the name of a parameter file on the command line, i.e., you would
 normally run a simulation using::
 
     $ python main.py default.param
-    
+
 To run it using Sumatra, you would use::
 
     $ smt run --executable=python --main=main.py default.param
@@ -54,7 +54,7 @@ use the ``--long`` option::
     Main_File        : main.py
     Version          : a75cf131a69ba831e915bc6a09987e832e65e7bc
     Script_Arguments : <parameters>
-    Executable       : Python (version: 2.6.8) at /usr/local/bin/python
+    Executable       : Python (version: 3.9.8) at /usr/local/bin/python
     Parameters       : seed = 65785 # seed for random number generator
                      : distr = "uniform" # statistical distribution to draw values from
                      : n = 100 # number of values to draw
@@ -64,7 +64,7 @@ use the ``--long`` option::
     User             : Arthur Dent <dent@example.com>
     Tags             : _finished_
     Repeats          : None
-    
+
 (most options also have a short form, ``-l`` in this case.)
 
 It is a bit tedious to have to tell Sumatra which simulator and which file to
@@ -73,7 +73,7 @@ the simulator almost never. Therefore, these can be set as defaults for a given
 project::
 
     $ smt configure --executable=python --main=main.py
-    
+
 (you could also have given these options to ``smt init``. ``init`` is used to create
 a project and ``configure`` to change its configuration later, but they mostly
 accept the same arguments).
@@ -81,7 +81,7 @@ accept the same arguments).
 Now you can run a simulation with a much shorter command line::
 
     $ smt run default.param
-    
+
 To see the current configuration of your project, use the ``info`` command::
 
     $ smt info
@@ -97,8 +97,8 @@ To see the current configuration of your project, use the ``info`` command::
     Append label to     : None
     Label generator     : timestamp
     Timestamp format    : %Y%m%d-%H%M%S
-    Sumatra version     : 0.7.0
-    
+    Sumatra version     : 0.8.0
+
 Sumatra automatically records the identity and versions of the simulation files
 and the simulator executable, stores links to any files created by the
 simulation, records any error messages, the date and time at which the simulation
@@ -107,26 +107,26 @@ different ways. On running the simulation, you can specify a unique label, and
 the reason for which you are running the simulation::
 
     $ smt run --label=haggling --reason="determine whether the gourd is worth 3 or 4 shekels" romans.param
-    
+
 After the simulation is complete, you can add a description of the outcome::
 
     $ smt comment "apparently, it is worth NaN shekels."
-    
+
 This adds the comment to the most recent simulation. You may also describe the outcome
 of an earlier simulation, by specifying its label::
 
     $ smt comment 20140418-154800 "Eureka! Nobel prize here we come."
-    
+
 You can also tag a simulation record with one or more short keywords::
 
     $ smt tag foobar
     $ smt tag barfoo
-    
+
 and remove tags::
 
     $ smt tag --remove barfoo
 
-During the execution of ``smt run``, the tag will be automatically marked
+During the execution of ``smt run``, the record will be automatically tagged
 with a status that progresses through ``_initialized_``, ``_pre_run_``, and
 ``_running_``. Upon completion, status will be set to ``_finished_`` or
 ``_failed_``. If the status is ``_failed_``, the outcome field will reflect
@@ -160,16 +160,16 @@ output is identical to that of the original run::
 
     $ smt repeat haggling
     The new record exactly matches the original.
-    
+
 Although it is better not to delete simulation records (so as to preserve a full
 record of the project, false starts and all), it is possible::
 
     $ smt delete 20140418-154800
-    
+
 It is also possible to delete all simulations with a given tag::
 
     $ smt delete --tag foobar
-    
+
 Most of the commands described here have further options that we have not
 described. A full description of the options for each command is given in the
 :doc:`command reference <command_reference>`. The full list of commands is
@@ -177,9 +177,9 @@ available by running ``smt`` by itself::
 
     $ smt
     Usage: smt <subcommand> [options] [args]
-    
-    Simulation/analysis management tool version 0.7.0
-    
+
+    Simulation/analysis management tool version 0.8.0
+
     Available subcommands:
       init
       configure
@@ -204,19 +204,19 @@ option, e.g.::
 
     $ smt comment --help
     usage: smt comment [options] [LABEL] COMMENT
-    
+
     This command is used to describe the outcome of the simulation/analysis. If
     LABEL is omitted, the comment will be added to the most recent experiment. If
     the '-f/--file' option is set, COMMENT should be the name of a file containing
     the comment, otherwise it should be a string of text. By default, comments
     will be appended to any existing comments. To overwrite existing comments, use
     the '-r/--replace flag.
-    
+
     positional arguments:
       LABEL          the record to which the comment will be added
       comment        a string of text, or the name of a file containing the
                      comment.
-    
+
     optional arguments:
       -h, --help     show this help message and exit
       -r, --replace  if this flag is set, any existing comment will be

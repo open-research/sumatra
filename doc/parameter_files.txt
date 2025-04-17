@@ -29,12 +29,12 @@ Comments are indicated by a leading "#". Example::
     ny = 12   # } size
     inputs = [1e-3, 2e-3, 5e-3, 1e-2]
     label = "default"
-    
+
 
 Config/ini-style
 ----------------
 
-Traditional config file format, as parsed by the standard Python ConfigParser_
+Traditional config file format, as parsed by the standard Python configparser_
 module. Note that this format does not distinguish numbers from string
 representations of those numbers, so all parameter values are treated as
 strings. This format allows one level of nesting: you can create sections within
@@ -44,12 +44,12 @@ Example::
     [sectionA]
         a: 2
         b: 3
-    
+
     [sectionB]
         c: hello
         d: world
-        
-See the ConfigParser_ docs for more details.
+
+See the configparser_ docs for more details.
 
 JSON
 ----
@@ -66,7 +66,7 @@ See http://www.yaml.org
 Hierarchical parameter set format
 ---------------------------------
 
-The parameters_ package (formerly part of NeuroTools) provides a format based
+The parameters_ package provides a format based
 on JSON, but with the addition of a ``url()`` function which allows
 sub-parameter sets to be included from other files. Example::
 
@@ -94,35 +94,39 @@ directly through to your simulation/analysis script.
 However, it is fairly straightforward to add support for a new format. You will
 need to write a Python class according to the following skeleton::
 
-    class MyParameterSet(object):
-    
+    from sumatra.core import component
+    from sumatra.parameters import ParameterSet
+
+    @component
+    class MyParameterSet(ParameterSet):
+
         def __init__(self, initialiser):
             # initialiser could be either a filesystem path or a string containing
             # the contents of your parameter file, and should raise a SyntaxError
             # if it cannot make sense of the contents.
-        
+
         def __getitem__(self, name):
             # return the parameter or sub-parameter set with the given name
-        
+
         def __eq__(self, other):
             # must be implemented
-            
+
         def __ne__(self, other):
             # must be implemented
-            
+
         def as_dict(self):
             # return the parameter set as a Python dict containing only numerical
             # types, lists, or other dicts.
-            
+
         def save(self, filename):
             # self-explanatory
-        
+
         def pop(self, k, d=None):
             # same behaviour as Python dict
-            
+
         def update(self, E, **F):
             # same behaviour as Python dict
-            
+
         def pretty(self, expand_urls=False):
             # Return a string representation of the parameter set, suitable for
             # creating a new, identical parameter set.
@@ -130,14 +134,10 @@ need to write a Python class according to the following skeleton::
             # not be used.
 
 
-For this version of Sumatra, you will have to include this class within the
-file ``parameters.py`` of your Sumatra installation, or send it to the
-developers to include in the Sumatra repository (see :doc:`developers_guide`),
-as well as editing the ``build_parameters()`` function within ``parameters.py``
-so that it tries to use your class. In the next version of Sumatra, we plan to
-include a plugin system which will greatly simplify adding your own
-customizations.
-    
+This code should be saved in a file that is somewhere on the Python module search path,
+and then registered as a Sumatra plugin - see :doc:`plugins`.
+If you think this format would be useful to other Sumatra users,
+please send it to the developers to include in the Sumatra repository (see :doc:`developers_guide`).
 
-.. _ConfigParser: https://docs.python.org/2/library/configparser.html
+.. _configparser: https://docs.python.org/3/library/configparser.html
 .. _parameters: https://parameters.readthedocs.org/en/latest/

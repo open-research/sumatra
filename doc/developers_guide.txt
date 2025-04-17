@@ -9,25 +9,25 @@ Mac OS.
 Requirements
 ------------
 
-    * Python_ 3.8 or later
-    * Django_ >= 2.2
-    * django-tagging_
-    * parameters
-    * pytest
-    * docutils
-    * Jinja2
+* Python_ 3.9 or later
+* Django_ >= 4.2
+* django-tagging_
+* parameters
+* pytest
+* docutils
+* Jinja2
 
 Optional:
 
-    * mpi4py_
-    * pytest-cov (for measuring test coverage)
-    * httplib2 (for the remote record store)
-    * GitPython (for Git support)
-    * mercurial and hgapi (for Mercurial support)
-    * bzr (for Bazaar support)
-    * PyYAML (for YAML support)
-    * psycopg2 (for PostgreSQL support)
-    * dexml and fs (for WebDAV support)
+* mpi4py_
+* pytest-cov (for measuring test coverage)
+* httplib2 (for the remote record store)
+* GitPython (for Git support)
+* mercurial and hgapi (for Mercurial support)
+* bzr (for Bazaar support)
+* PyYAML (for YAML support)
+* psycopg2 (for PostgreSQL support)
+* dexml and fs (for WebDAV support)
 
 
 We strongly recommend developing within a virtualenv_.
@@ -43,17 +43,16 @@ should fork the main `Sumatra repository on Github`_, then clone your own fork.:
 
 Now you need to make sure that the ``sumatra`` package is on your PYTHONPATH and
 that the ``smt`` and ``smtweb`` scripts are on your PATH. You can do this either
-by installing Sumatra::
+by installing Sumatra normally::
 
-    $ cd sumatra
-    $ python setup.py install
+    $ pip install ./sumatra
 
-(if you do this, you will have to re-run ``setup.py install`` any time you make
-changes to the code) *or* by installing using ``pip`` with the "editable" option::
+(if you do this, you will have to re-run ``pip install`` any time you make
+changes to the code) *or* using the "editable" option::
 
-    $ pip install --editable sumatra
+    $ pip install --editable ./sumatra
 
-To ensure you always have access to the most recent version, add the main repository as "upstream":
+To ensure you always have access to the most recent version, add the main repository as "upstream"::
 
     $ git remote add upstream https://github.com/open-research/sumatra.git
 
@@ -68,10 +67,9 @@ Running the test suite
 Before you make any changes, run the test suite to make sure all the tests pass
 on your system::
 
-    $ cd sumatra/test/unittests
     $ pytest
 
-You will see some error messages, but don't worry - these are just tests of
+You will see some warning messages, but don't worry - these are just tests of
 Sumatra's error handling. At the end, if you see "OK", then all the tests
 passed, otherwise it will report how many tests failed or produced errors.
 
@@ -114,7 +112,7 @@ Coding standards and style
 --------------------------
 
 All code should conform as much as possible to `PEP 8`_, and should run with
-Python 3.8 or later. Lines should be no longer than 119 characters.
+Python 3.9 or later. Lines should be no longer than 119 characters.
 
 
 Reviewing pull requests
@@ -125,28 +123,27 @@ merging.
 
 Things to check for:
 
-  * Does the pull request implement a single, well-defined piece of functionality?
-    (pull requests which perform system-wide refactoring are sometimes necessary, but need much more careful scrutiny)
-  * Does the code work? Is the logic correct? Does is anticipate possible failure conditions (e.g. lack of internet connection)?
-  * Is the code easily understood?
-  * Does the code conform to the coding standards (see above)?
-  * Does the code implement a general solution, or is the code too specific to a particular (language|version control system|storage backend)?
-  * Do all public functions/classes have docstrings?
-  * Are there tests for all new/changed functionality?
-  * Has the documentation been updated?
-  * Has the GitHub Actions CI build passed?
-  * Is there any redundant or duplicate code?
-  * Is the code as modular as possible?
-  * Is there any commented out code, or print statements used for debugging?
+* Does the pull request implement a single, well-defined piece of functionality?
+  (pull requests which perform system-wide refactoring are sometimes necessary, but need much more careful scrutiny)
+* Does the code work? Is the logic correct? Does it anticipate possible failure conditions (e.g. lack of internet connection)?
+* Is the code easily understood?
+* Does the code conform to the coding standards (see above)?
+* Does the code implement a general solution, or is the code too specific to a particular (language|version control system|storage backend)?
+* Do all public functions/classes have docstrings?
+* Are there tests for all new/changed functionality?
+* Has the documentation been updated?
+* Has the GitHub Actions CI build passed?
+* Is there any redundant or duplicate code?
+* Is the code as modular as possible?
+* Is there any commented out code, or print statements used for debugging?
 
 
 .. _Python: https://www.python.org
 .. _Django: https://www.djangoproject.com/
-.. _django-tagging: http://code.google.com/p/django-tagging/
+.. _django-tagging: https://github.com/jazzband/django-tagging
 .. _pytest: https://docs.pytest.org
 .. _Distribute: https://pypi.python.org/pypi/distribute
 .. _mpi4py: http://mpi4py.scipy.org/
-.. _tox: http://codespeak.net/tox/
 .. _coverage: http://nedbatchelder.com/code/coverage/
 .. _`PEP 8`: https://www.python.org/dev/peps/pep-0008/
 .. _`issue tracker`: https://github.com/open-research/sumatra/issues

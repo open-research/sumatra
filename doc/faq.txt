@@ -9,11 +9,11 @@ It is based on the initial letters of "Simulation Management Tool".
 (Sumatra was originally conceived for tracking simulations, it was only later
 that I realized it could equally well be used for any command-line driven
 computation). Despite a certain `geographical proximity`_, it has nothing to do
-with Java :-) (although it has certain similarities to Madagascar_).
+with Java_ :-) (although it has certain similarities to Madagascar_).
 
 When I run more than one simulation at once, Sumatra mixes up the output files. How can I make it associate the right files with the right simulation?
 ------------------------------------------------------------------------------------------------------------------------------------------------------
-  
+
 When you run a simulation/analysis, Sumatra looks for any new files within your
 datastore root directory, and associates them with your computation. This means
 that if you launch a second computation before the first one has finished
@@ -25,11 +25,11 @@ output files.
 The easiest way to do this is to use the record label. First run::
 
     $ smt configure --addlabel=cmdline
-    
+
 or::
 
     $ smt configure --addlabel=parameters
-    
+
 Then Sumatra will add the record label (which is generated from the timestamp
 unless you use the '``--label``' option to ``smt run``) to either the command
 line or the parameter file (as ``sumatra_label``) for your script. It is then up to
@@ -41,9 +41,9 @@ option and "./Data" set as the datastore root::
     import os
     options = sys.argv[1:]
     label = options[-1]  # label is added to the end of the command line
-    
+
     # computations happen here, results stored in `output_data`
-    
+
     output_dir = os.path.join("Data", label)
     os.mkdir(output_dir)
     with open(os.path.join(output_dir, "mydata.txt"), 'w') as fp:
@@ -52,3 +52,4 @@ option and "./Data" set as the datastore root::
 
 .. _`geographical proximity`: http://commons.wikimedia.org/wiki/File:1842_Greenleaf_Map_of_the_East_Indies,_Borneo,_Java,_Sumatra,_Thailand,_Vietnam_-_Geographicus_-_EastIndies-greenleaf-1842.jpg
 .. _Madagascar: http://www.ahay.org/wiki/Main_Page
+.. _Java: https://en.wikipedia.org/wiki/Java_(programming_language)

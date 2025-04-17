@@ -34,7 +34,7 @@ You can then use the ``\smtincludegraphics`` command in place of the usual
 .. code-block:: latex
 
    \smtincludegraphics{20120907-153528:my_figure.png}
-   
+
 Here the argument is the label of a Sumatra record. This command will look up
 the record in your Sumatra project, find the location of the image file (whether
 a local file path or a URL) and include the figure in the document. If you are
@@ -57,7 +57,7 @@ replacing the ":" separator with "?":
 .. code-block:: latex
 
    \smtincludegraphics{20120907-153528?my_fig}
-   
+
 
 All the usual ``\includegraphics`` options are supported, e.g.:
 
@@ -74,7 +74,7 @@ and that it hasn't been accidentally overwritten or replaced by another:
    \smtincludegraphics[width=\textwidth, digest=e2d1054c2893f19f50c43ddd5a344b59383df648]{20120907-153528:my_figure.png}
 
 
-.. note:: you will have to run :command:`latex`/:command:`pdflatex` with the :option:`-shell-escape` option.
+.. note:: You will have to run :command:`latex`/:command:`pdflatex` with the :option:`-shell-escape` option.
 
 .. todo:: mention that you can mix projects in a single document by providing
           the project name as an option to ``\smtincludegraphics``
@@ -96,7 +96,7 @@ simulations or analyses, in a Sphinx_ document, you should first add
 
 .. todo:: link_icon should be optional: should have a default shipped with Sumatra
 
-The :mod:`sumatra.publishing.sphinxext` extension provides a reStructuredText directive 
+The :mod:`sumatra.publishing.sphinxext` extension provides a reStructuredText directive
 :rst:dir:`smtimage` and a reStructuredText role :rst:role:`smtlink`
 
 The smtimage directive
@@ -138,6 +138,3 @@ To use this, you must set the `sumatra_link_icon` option, as discussed above.
 
 
 .. _Sphinx: http://sphinx-doc.org
-
-
-

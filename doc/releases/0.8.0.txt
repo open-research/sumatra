@@ -1,0 +1,25 @@
+===========================
+Sumatra 0.8.0 release notes
+===========================
+
+*17th April 2025*
+
+It is almost ten years since the last release of Sumatra!
+
+In part this is because Sumatra 0.7.4 was stable, and seemed to meet the needs of its users,
+in part it is because the main developer was working on other scientific software,
+for which he got funding!
+
+The usefulness of Sumatra has not diminished in this time, however;
+if anything, the need for carefully keeping track of project dependencies
+has only increased, as the pace of development in scientific software ecosystems
+has accelerated.
+
+This release of Sumatra has essentially the same features as 0.7.4,
+but has been updated to support more recent versions of Python
+and other dependencies, particularly Django.
+We have dropped support for Python 2.7, and formally only support Python 3.9 or later.
+
+[`Full list of the changes in this version`_]
+
+.. _`Full list of the changes in this version`: https://github.com/open-research/sumatra/pulls?q=is%3Apr+milestone%3A0.8+

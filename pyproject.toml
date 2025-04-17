@@ -28,7 +28,8 @@ classifiers = [
 ]
 dependencies = [
     "setuptools",
-    "parameters"
+    "parameters",
+    "pyyaml"
 ]
 
 [project.scripts]
@@ -62,8 +63,6 @@ remote = ["httplib2"]
 
 postgres = ["psycopg2-binary"]
 
-yaml = ["pyyaml"]
-
 latex = ["jinja2"]
 
 sphinx = ["docutils"]
@@ -76,7 +75,7 @@ docs = [
 ]
 
 default = [
-    "sumatra[web,git,remote,yaml]"
+    "sumatra[web,git,remote]"
 ]
 
 test = [
@@ -93,7 +92,7 @@ test = [
 ]
 
 dev = [
-    "sumatra[web,git,hg,remote,yaml,postgres,latex,mpi,docs,test]",
+    "sumatra[web,git,hg,remote,postgres,latex,mpi,docs,test]",
     "build",
     "twine"
 ]

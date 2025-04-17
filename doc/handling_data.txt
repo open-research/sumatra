@@ -9,7 +9,7 @@ Sumatra does not, by default, make copies of your files, although this is an opt
 the data (e.g. the filesystem path) and, importantly, the SHA-1 hash of the file contents. This hash can later be used
 to check that the datafiles have not been corrupted or over-written.
 
-.. note:: in its underlying design, Sumatra is agnostic as to how and where data files are stored. At the moment,
+.. note:: In its underlying design, Sumatra is agnostic as to how and where data are stored. At the moment,
           however, Sumatra assumes that data are stored in files (rather than in a relational database, for example),
           that input files are available on your local file system, and that output files will be written to the local
           file system. If this does not fit with your current workflow, please contact the developers.
@@ -20,9 +20,9 @@ Telling Sumatra about your input data files
 
 Sumatra currently handles two cases:
 
-  * your script or executable reads data from standard input (``stdin``);  
-  * the names of the input data files are given in the command-line invocation of your program.
-  
+* your script or executable reads data from standard input (``stdin``);
+* the names of the input data files are given in the command-line invocation of your program.
+
 If your workflow is different, e.g. if the filenames are hard-coded or provided in a parameter/configuration file,
 Sumatra will not at present track the files: please contact the developers if you need this functionality.
 
@@ -32,11 +32,11 @@ Reading data from stdin
 If your usual invocation is something like::
 
   $ myprog < mydata.dat
-  
+
 Then to run and track this with Sumatra, use::
 
   $ smt run -e myprog -i mydata.dat
-  
+
 
 Reading data from files
 -----------------------
@@ -44,7 +44,7 @@ Reading data from files
 If you normally launch computations with something like::
 
   $ python main.py config_file data_file1 data_file2
-  
+
 Then with Sumatra, run::
 
   $ smt configure -e python -m main.py
@@ -62,7 +62,7 @@ your working directory or some other directory (this is useful if running comput
 computers, or if you need to relocate your project directory), you can specify this as follows::
 
   $ smt configure --input .   # relative to working directory
-  
+
 
 Telling Sumatra where to find your output data files
 ====================================================
@@ -126,7 +126,7 @@ a data file, does some calculations and then writes data to a file "mydata/outpu
 
 .. code-block:: python
 
-    filename = os.path.join("mydata", "output.csv") 
+    filename = os.path.join("mydata", "output.csv")
     with open(filename, "wb") as fp:
         fp.write(data)
 
@@ -160,10 +160,10 @@ Writing data to stdout
 If you program writes data to standard output, i.e. you would normally run it using::
 
     $ myprog > output.txt
-    
+
 Then you can tell Sumatra to run it the same way, but in addition to track the output file, using::
 
     $ smt run -o output.txt
 
 
-.. _`Sumatra Server`: https://bitbucket.org/apdavison/sumatra_server/wiki/Home
+.. _`Sumatra Server`: https://github.com/apdavison/sumatra-server

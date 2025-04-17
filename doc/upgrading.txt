@@ -26,7 +26,7 @@ For Sumatra 0.1-0.3
 First, download export.py_ to your project directory, then run::
 
     $ python export.py
-    
+
 This will export your project in JSON format to two files in the :file:`.smt` directory:
 :file:`records_export.json` and :file:`project_export.json`.
 
@@ -56,7 +56,7 @@ Now you can install the new version, e.g. with::
 Then run::
 
     $ smt upgrade
-    
+
 The original :file:`.smt` directory will be copied to a time-stamped directory, e.g.
 :file:`.smt_backup_20140209132422`.
 
@@ -70,11 +70,11 @@ Downgrading an accidentally upgraded Sumatra to export the project
 Exporting a project will need to be done with the same Sumatra version that the project
 was run with last. If you accidentally upgraded your Sumatra version without exporting
 the old project first, you will need to roll back to the previously installed version.
-You can explicitly specify a version number with ``pip`` as follows:
+You can explicitly specify a version number with ``pip`` as follows::
 
     $ pip install sumatra==0.5.3
 
 Replace 0.5.3 with the correct version number for your project. In case you are unsure,
-it may help to run the following command in your project directory:
+it may help to run the following command in your project directory::
 
     $ cat .smt/project | grep sumatra_version
