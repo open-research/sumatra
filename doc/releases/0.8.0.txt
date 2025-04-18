@@ -15,11 +15,66 @@ if anything, the need for carefully keeping track of project dependencies
 has only increased, as the pace of development in scientific software ecosystems
 has accelerated.
 
-This release of Sumatra has essentially the same features as 0.7.4,
-but has been updated to support more recent versions of Python
+This release of Sumatra has been updated to support more recent versions of Python
 and other dependencies, particularly Django.
 We have dropped support for Python 2.7, and formally only support Python 3.9 or later.
+In addition, it includes various features and bug-fixes
+that were implemented in the months and years following the 0.7.4 release,
+but that have not been released until now.
 
-[`Full list of the changes in this version`_]
+MySQL/MariaDB support
+---------------------
 
-.. _`Full list of the changes in this version`: https://github.com/open-research/sumatra/pulls?q=is%3Apr+milestone%3A0.8+
+You can now use MySQL and MariaDB databases as record stores,
+in addition to the existing SQLite and PostgrSQL support.
+
+You will need to first create an empty database, then either in ``smt init`` or ``smt configure``,
+set ``--store=mysql://<username>:<password>@<host>:<port>/<db_name>``.
+
+Web GUI (smtweb) improvements
+-----------------------------
+
+- Added a button to show the script used in a specific record, opens in a new browser window.
+- Added an "image view" option to the record list, which lets you visualize any images found in your output data.
+- The record comparison view now shows line-by-line differences in scripts
+
+Command-line improvements
+-------------------------
+
+- To ``smt list``, added display options ``--output_table``, which lists output files,
+  and ``--parameter_table``, which shows parameter values in the list of records.
+- Also in ``smt_list``, added filtering options ``--main-file``, ``--parameters`` and ``--date``.
+- Added an ``smt view`` command, which shows details of an individual record.
+- To ``smt run``, added an option ``--ignore-parameters`` to turn off any attempt to parse command-line files as parameter files.
+
+
+Status tracking
+---------------
+
+When running jobs, the record is now automatically tagged with a status that progresses through
+"_initialized_", "_pre_run_", and "_running_".
+Upon completion, the status will be set to "_finished_" or "_failed_".
+If the status is _failed_, the outcome field will reflect the return code.
+If you terminate the run early with control-C, the status will be "_killed_".
+You can manually set the status of a simulation record to "_succeeded_" or "_crashed_".
+
+Testing
+-------
+
+- Some of the functionality of the Web GUI (smtweb) is now tested using Selenium_.
+- Switched from nose to pytest, and from Travis CI to GitHub Actions.
+
+
+Acknowledgements
+----------------
+
+Andrew Davison, Sebastian Spreizer, Alexandre René, Maximilian Albert, Tim Tröndle,
+Jonathan Guyer, Shahriar Heidrich, David Kleiven, Dan Padilha, Simon Chabot, and @maharjun
+contributed to this release of Sumatra.
+
+
+`Full list of changes in this version`_
+---------------------------------------
+
+.. _`Full list of the changes in this version`: https://github.com/open-research/sumatra/pulls?q=is%3Apr+milestone%3A0.8+is%3Amerged
+.. _Selenium: https://www.selenium.dev

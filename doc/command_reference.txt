@@ -54,10 +54,13 @@ configure
                             extra options for the given launch mode, to be given in quotes with a leading space, e.g. ' --foo=3'
       -p, --plain           pass arguments to the 'run' command straight through to the program. Otherwise arguments of the form name=value can be used to overwrite default parameter values.
       --no-plain            arguments to the 'run' command of the form name=value will overwrite default parameter values. This is the opposite of the --plain option.
+      --ignore-parameters   do not attempt to parse any parameter files.
+      --parse-parameters    parse parameter files if found. This is the default.
       -s STORE, --store STORE
                             Change the record store to the specified path, URL or URI (must be specified). The argument can take the following forms: (1) `/path/to/sqlitedb` - DjangoRecordStore is used with the
                             specified Sqlite database, (2) `http[s]://location` - remote HTTPRecordStore is used with a remote Sumatra server, (3) `postgres://username:password@hostname/databasename` -
-                            DjangoRecordStore is used with specified Postgres database.
+                            DjangoRecordStore is used with specified PostgreSQL database.(4) `mysql://username:password@hostname/databasename` - DjangoRecordStore is used with specified MySQL database.(5)
+                            `mariadb://username:password@hostname/databasename` - DjangoRecordStore is used with specified MariaDB database.
       -W URL, --webdav URL  specify a webdav URL (with username@password: if needed) as the archiving location for data
       -A PATH, --archive PATH
                             specify a directory in which to archive output datafiles. If not specified, or if 'false', datafiles are not archived.
@@ -169,8 +172,9 @@ init
       -s STORE, --store STORE
                             Specify the path, URL or URI to the record store (must be specified). This can either be an existing record store or one to be created. The argument can take the following forms: (1)
                             `/path/to/sqlitedb` - DjangoRecordStore is used with the specified Sqlite database, (2) `http[s]://location` - remote HTTPRecordStore is used with a remote Sumatra server, (3)
-                            `postgres://username:password@hostname/databasename` - DjangoRecordStore is used with specified Postgres database. Not using the `--store` argument defaults to a DjangoRecordStore with
-                            Sqlite in `.smt/records`
+                            `postgres://username:password@hostname/databasename` - DjangoRecordStore is used with specified PostgreSQL database.(4) `mysql://username:password@hostname/databasename` -
+                            DjangoRecordStore is used with specified MySQL database.(5) `mariadb://username:password@hostname/databasename` - DjangoRecordStore is used with specified MariaDB database. Not using the
+                            `--store` argument defaults to a DjangoRecordStore with Sqlite in `.smt/records`
       -g OPTION, --labelgenerator OPTION
                             specify which method Sumatra should use to generate labels (options: timestamp, uuid)
       -t TIMESTAMP_FORMAT, --timestamp_format TIMESTAMP_FORMAT

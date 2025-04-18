@@ -29,15 +29,15 @@ Functionality:
 * launch simulations and analyses, and record various pieces of information,
   including:
 
-    - the executable (identity, version)
-    - the script (identity, version)
-    - the parameters
-    - the duration (execution time)
-    - console output
-    - links to all data (whether in files, in a database, etc.) produced by
-      the simulation/analysis
-    - the reason for doing the simulation/analysis
-    - the outcome of the simulation/analysis
+  - the executable (identity, version)
+  - the script (identity, version)
+  - the parameters
+  - the duration (execution time)
+  - console output
+  - links to all data (whether in files, in a database, etc.) produced by
+    the simulation/analysis
+  - the reason for doing the simulation/analysis
+  - the outcome of the simulation/analysis
 
 * allow browsing/searching/visualising the results of previous experiments
 * allow the re-running of previous simulations/analyses with automatic
@@ -49,7 +49,7 @@ Functionality:
 Requirements
 ============
 
-Sumatra requires Python version 3.8 or later The web interface requires
+Sumatra requires Python version 3.9 or later The web interface requires
 Django (>= 4.2) and the django-tagging package.
 Sumatra requires that you keep your own code in a version control
 system (currently Subversion, Mercurial, Git and Bazaar are supported). If you
@@ -67,18 +67,18 @@ it hasn't been thoroughly tested.
 
 The easiest way to install is with pip::
 
-    $ pip install sumatra
+    $ pip install sumatra[default]
 
-Alternatively, you can download the source package, Sumatra-0.8.0.tar.gz from the Python Package Index::
+The "default" option installs the most commonly-used features:
 
-    $ tar xzf Sumatra-0.8.0.tar.gz
-    $ cd Sumatra-0.8.0
-    $ python setup.py install
+- Git support
+- the local web-based GUI
+- support for remote record stores
 
-You will also need to install Python bindings for the version control system(s) you use, e.g.::
+Other options are available. For example, to install support for Mercurial and for using a
+PostgreSQL database as the record store, run::
 
-    $ pip install gitpython
-    $ pip install mercurial hgapi
+    $ pip install sumatra[default,hg,postgres]
 
 
 ===========
