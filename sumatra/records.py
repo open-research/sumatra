@@ -441,19 +441,16 @@ class RecordDifference(object):
         wc = get_working_copy()
         repo = wc.repository._repository
         script = record.script_content.split('\n')
-        script_changes = map(lambda x: (0,x), script)
-        try:
-            if record.timestamp > other.timestamp:
-                script_diff = repo.git.diff(other.version,record.version)
-            else:
-                script_diff = repo.git.diff(record.version,other.version)
-            for line in script_diff.split('\n'):
-                if line[1:] in script and len(line[1:]) > 0:
-                    index = script.index(line[1:])
-                    script_changes[index] = (line[0],line[1:])
-            return script_changes
-        except:
-            return False
+        script_changes = list(map(lambda x: (0,x), script))
+        if record.timestamp > other.timestamp:
+            script_diff = repo.git.diff(other.version,record.version)
+        else:
+            script_diff = repo.git.diff(record.version,other.version)
+        for line in script_diff.split('\n'):
+            if line[1:] in script and len(line[1:]) > 0:
+                index = script.index(line[1:])
+                script_changes[index] = (line[0],line[1:])
+        return script_changes
 
     @property
     def recordA_script_content_diff(self):

@@ -75,7 +75,7 @@
                 {{diff.recordA.repository}} {% if diff.recordA.repository.upstream %}(upstream: {{diff.recordA.repository.upstream|urlize}}){% endif %}
             </div>
             <div class="col-md-6">
-                {{diff.recordB.repository}} version diff.recordB.executable.version}} {% if diff.recordB.repository.upstream %}(upstream: {{diff.recordB.repository.upstream|urlize}}){% endif %}
+                {{diff.recordB.repository}} version {{diff.recordB.executable.version}} {% if diff.recordB.repository.upstream %}(upstream: {{diff.recordB.repository.upstream|urlize}}){% endif %}
             </div>
         </div>
         {% endif %}
@@ -91,7 +91,7 @@
         </div>
         {% endif %}
 
-        {% ifequal diff.recordA.main_file diff.recordB.main_file %}
+        {% if diff.recordA.main_file == diff.recordB.main_file %}
         <hr>
         <div class="row">
             <div class="col-md-6">
@@ -108,7 +108,7 @@
             </div>
         </div>
         <hr>
-        {% endifequal %}
+        {% endif %}
 
         {% if diff.diff_differs %}
         <div class="row">
