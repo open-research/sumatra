@@ -132,7 +132,7 @@ class YAMLParameterSet(ParameterSet):
     Handles parameter files in YAML format, as parsed by the
     PyYAML module
     """
-    name = ".yaml"
+    names = (".yaml", ".yml")
 
     def __init__(self, initialiser):
         """
