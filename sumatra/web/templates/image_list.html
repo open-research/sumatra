@@ -76,8 +76,8 @@
                 {{data_key.output_from_record.timestamp|date:"d/m/Y H:i:s"}}
         </td>
         <td>
-            <a href="/{{project.id}}/data/datafile?path={{data_key.path|urlencode}}&digest={{data_key.digest}}&creation={{data_key.creation|date:"c"}}" title="{{data_key.path|urlencode}}">
-                <img src="/data/{{data_key.output_from_record.datastore.id}}?path={{data_key.path}}&digest={{data_key.digest}}&creation={{data_key.creation|date:"c"}}" style="width:250px">
+            <a href="/{{project.id}}/data/datafile?path={{data_key.path|urlencode}}&digest={{data_key.digest}}&creation={{data_key.creation|date:"c"|urlencode}}" title="{{data_key.path|urlencode}}">
+                <img src="/data/{{data_key.output_from_record.datastore.id}}?path={{data_key.path}}&digest={{data_key.digest}}&creation={{data_key.creation|date:"c"|urlencode}}" style="width:250px">
             </a>
         </td>
         <td>

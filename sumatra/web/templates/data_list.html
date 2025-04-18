@@ -48,7 +48,7 @@
             {{data_key.path|dirname|ubreak}}
         </td>
         <td>
-            <a href="/{{project.id}}/data/datafile?path={{data_key.path|urlencode}}&digest={{data_key.digest}}&creation={{data_key.creation|date:"c"}}">
+            <a href="/{{project.id}}/data/datafile?path={{data_key.path|urlencode}}&digest={{data_key.digest}}&creation={{data_key.creation|date:"c"|urlencode}}">
                 {{data_key.path|basename|ubreak}}
             </a>
         </td>

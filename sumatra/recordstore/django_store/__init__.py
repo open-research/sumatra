@@ -54,7 +54,9 @@ class DjangoConfiguration(object):
             'MIDDLEWARE_CLASSES': [],
             'READ_ONLY': 0,
             'SERVERSIDE': 0,
-            'USE_TZ': True
+            'USE_TZ': True,
+            'SECRET_KEY': "abc123",  # needed to avoid errors
+            'TIME_ZONE': "UTC"
         }
         self._n_databases = 0
         self.configured = False

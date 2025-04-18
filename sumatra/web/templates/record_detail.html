@@ -114,7 +114,7 @@
             {% for data in record.input_data.all %}
             <tr>
                 <td>
-                    <a href="/{{project_name}}/data/datafile?path={{data.path|urlencode}}&digest={{data.digest}}&creation={{data.creation|date:"c"}}">
+                    <a href="/{{project_name}}/data/datafile?path={{data.path|urlencode}}&digest={{data.digest}}&creation={{data.creation|date:"c"|urlencode}}">
                         {{data.path|basename|ubreak}}
                     </a>
                 </td>
@@ -183,7 +183,7 @@
             {% for data in record.output_data.all %}
             <tr>
                 <td>
-                    <a href="/{{project_name}}/data/datafile?path={{data.path|urlencode}}&digest={{data.digest}}&creation={{data.creation|date:"c"}}">
+                    <a href="/{{project_name}}/data/datafile?path={{data.path|urlencode}}&digest={{data.digest}}&creation={{data.creation|date:"c"|urlencode}}">
                         {{data.path|basename|ubreak}}
                     </a>
                 </td>

@@ -81,13 +81,13 @@
         <td>{{record.outcome|restructuredtext}}</td>
         <td>
             {% for data in record.input_data.all %}
-            <a href="/{{project.id}}/data/datafile?path={{data.path|urlencode}}&digest={{data.digest}}&creation={{data.creation|date:"c"}}">
+            <a href="/{{project.id}}/data/datafile?path={{data.path|urlencode}}&digest={{data.digest}}&creation={{data.creation|date:"c"|urlencode}}">
                 {{data.path|basename|ubreak}}</a>{% if not forloop.last %}, {% endif %}
             {% endfor %}
         </td>
         <td>
             {% for data in record.output_data.all %}
-            <a href="/{{project.id}}/data/datafile?path={{data.path|urlencode}}&digest={{data.digest}}&creation={{data.creation|date:"c"}}">
+            <a href="/{{project.id}}/data/datafile?path={{data.path|urlencode}}&digest={{data.digest}}&creation={{data.creation|date:"c"|urlencode}}">
                 {{data.path|basename|ubreak}}</a>{% if not forloop.last %}, {% endif %}
             {% endfor %}
         </td>

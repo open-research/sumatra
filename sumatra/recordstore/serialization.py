@@ -54,6 +54,10 @@ def datestring_to_datetime(s):
     """docstring"""
     if s is None:
         return s
+    if s.endswith(" 00:00"):
+        # this is a hack to handle any timestamps that have not been urlencoded
+        # (so that the '+' is interpreted as a space).
+        s = s[:-6] + "+00:00"
     formats = ["%Y-%m-%d %H:%M:%S%z", "%Y-%m-%dT%H:%M:%S%z", "%Y-%m-%d %H:%M:%S", "%Y-%m-%dT%H:%M:%S"]
     timestamp = None
     for format in formats:

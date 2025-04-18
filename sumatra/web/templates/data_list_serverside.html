@@ -63,7 +63,7 @@ $(document).ready(function() {
         {"render": function(data, type, row) {
             return '<a href="/'+row.project+'/data/datafile?'+
                 'path='+row.path+'&digest='+row.digest+
-                '&creation='+row.creation+'">'+data+'</a>';
+                '&creation='+encodeURI(row.creation)+'">'+data+'</a>';
         }, "targets": [1]},                                                     // filename
         {"render": function(data, type, row) {
             return '<span title="'+data+'">'+data.slice(0,8)+'...</span>'

@@ -190,7 +190,7 @@
                     </div>
                     {% if keyA.metadata.mimetype == 'image/png' or keyA.metadata.mimetype == 'image/jpeg' %}
                     <div class="panel-body">
-                    <img src="/data/{{db_records.0.input_datastore.id}}?path={{keyA.path}}&digest={{keyA.digest}}&creation={{keyA.creation|date:"c"}}" alt="Image {{keyA.path}}" width="100%">
+                    <img src="/data/{{db_records.0.input_datastore.id}}?path={{keyA.path}}&digest={{keyA.digest}}&creation={{keyA.creation|date:"c"|urlencode}}" alt="Image {{keyA.path}}" width="100%">
                     </div>
                     {% endif %}
                 </div>
@@ -203,7 +203,7 @@
                     </div>
                     {% if keyB.metadata.mimetype == 'image/png' or keyB.metadata.mimetype == 'image/jpeg' %}
                     <div class="panel-body">
-                    <img src="/data/{{db_records.1.input_datastore.id}}?path={{keyB.path}}&digest={{keyB.digest}}&creation={{keyB.creation|date:"c"}}" alt="Image {{keyB.path}}" width="100%">
+                    <img src="/data/{{db_records.1.input_datastore.id}}?path={{keyB.path}}&digest={{keyB.digest}}&creation={{keyB.creation|date:"c"|urlencode}}" alt="Image {{keyB.path}}" width="100%">
                     </div>
                     {% endif %}
                 </div>
@@ -254,7 +254,7 @@
                     </div>
                     {% if keyA.metadata.mimetype == 'image/png' or keyA.metadata.mimetype == 'image/jpeg' %}
                     <div class="panel-body">
-                    <img src="/data/{{db_records.0.datastore.id}}?path={{keyA.path}}&digest={{keyA.digest}}&creation={{keyA.creation|date:"c"}}" alt="Image {{keyA.path}}" width="100%">
+                    <img src="/data/{{db_records.0.datastore.id}}?path={{keyA.path}}&digest={{keyA.digest}}&creation={{keyA.creation|date:"c"|urlencode}}" alt="Image {{keyA.path}}" width="100%">
                     </div>
                     {% endif %}
                 </div>
@@ -267,7 +267,7 @@
                     </div>
                     {% if keyB.metadata.mimetype == 'image/png' or keyB.metadata.mimetype == 'image/jpeg' %}
                     <div class="panel-body">
-                    <img src="/data/{{db_records.1.datastore.id}}?path={{keyB.path}}&digest={{keyB.digest}}&creation={{keyB.creation|date:"c"}}" alt="Image {{keyB.path}}" width="100%">
+                    <img src="/data/{{db_records.1.datastore.id}}?path={{keyB.path}}&digest={{keyB.digest}}&creation={{keyB.creation|date:"c"|urlencode}}" alt="Image {{keyB.path}}" width="100%">
                     </div>
                     {% endif %}
                 </div>
