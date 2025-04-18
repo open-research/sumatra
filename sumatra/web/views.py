@@ -227,9 +227,12 @@ class ImageListView(ListView):
         return context
 
 
+def is_ajax(request):
+    return request.headers.get('x-requested-with') == 'XMLHttpRequest'
+
 def image_thumbgrid(request, project):
     project_obj = Project.objects.get(id=project)
-    if request.is_ajax():
+    if is_ajax(request):
         offset = int(request.GET.get('offset',0))
         limit = int(request.GET.get('limit',8))
         selected_tag = request.GET.get('selected_tag', 'None')

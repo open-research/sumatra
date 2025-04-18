@@ -55,11 +55,14 @@ def datestring_to_datetime(s):
     if s is None:
         return s
     formats = ["%Y-%m-%d %H:%M:%S%z", "%Y-%m-%dT%H:%M:%S%z", "%Y-%m-%d %H:%M:%S", "%Y-%m-%dT%H:%M:%S"]
+    timestamp = None
     for format in formats:
         try:
             timestamp = datetime.strptime(s, format)
         except ValueError:
             continue
+    if timestamp is None:
+        raise ValueError(f"Cannot parse timestamp '{s}'")
     if timestamp.tzinfo is None:
         timestamp = timestamp.replace(tzinfo=timezone.utc)
     return timestamp
