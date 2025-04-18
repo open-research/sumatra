@@ -62,3 +62,11 @@ Licence
 =======
 
 Sumatra is freely available under the BSD 2-clause license.
+
+
+django-tagging
+==============
+
+Some of the code in Sumatra's `django_store` module is taken from or based on
+the django-tagging package, by Jonathan Buchanan and Julien Fache,
+which in turn was based on the Cab package by James Bennett.

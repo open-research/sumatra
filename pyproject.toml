@@ -55,8 +55,7 @@ hg = ["mercurial", "hgapi"]
 
 web = [
     "docutils",
-    "Django<6",
-    "django-tagging@git+https://github.com/jazzband/django-tagging"
+    "Django<6"
 ]
 
 remote = ["httplib2"]

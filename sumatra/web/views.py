@@ -20,9 +20,8 @@ except ImportError:  # older versions of Django
     MonthArchiveView = object
 from django.views.generic import View, DetailView, TemplateView
 from django.db.models import Q
-from tagging.models import Tag
 from sumatra.recordstore.serialization import datestring_to_datetime
-from sumatra.recordstore.django_store.models import Project, Record, DataKey, Datastore
+from sumatra.recordstore.django_store.models import Project, Record, DataKey, Datastore, Tag
 from sumatra.records import RecordDifference
 
 DEFAULT_MAX_DISPLAY_LENGTH = 10 * 1024
