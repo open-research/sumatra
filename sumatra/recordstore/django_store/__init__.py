@@ -26,10 +26,6 @@ from ...core import component
 from urllib.request import urlparse
 from io import StringIO
 
-# Check that django-tagging is available. It would be better to try importing
-# it, but that seems to mess with Django's internals.
-importlib.util.find_spec("tagging")
-
 
 def db_id(db):
     """Return a unique identifier for a database, for comparison purposes."""
@@ -49,8 +45,7 @@ class DjangoConfiguration(object):
             'DEBUG': True,
             'DATABASES': {},
             'INSTALLED_APPS': ['sumatra.recordstore.django_store',
-                               'django.contrib.contenttypes',  # needed for tagging
-                               'tagging'],
+                               'django.contrib.contenttypes'],
             'MIDDLEWARE_CLASSES': [],
             'READ_ONLY': 0,
             'SERVERSIDE': 0,
@@ -329,8 +324,8 @@ class DjangoRecordStore(RecordStore):
         cmds = ["BEGIN;"] + ['DROP TABLE "django_store_{0}";'.format(x)
                              for x in ("record", "record_input_data", "record_dependencies",
                                        "record_platforms", "platforminformation", "datakey", "datastore", "launchmode",
+                                       "taggeditem", "tag",
                                        "parameterset", "repository", "dependency", "executable", "project")] + ["COMMIT;"]
-        # todo: also drop tagging_taggeditem, tagging_tag
         from django.db import connection
         cur = connection.cursor()
         for cmd in cmds:
@@ -344,7 +339,7 @@ class DjangoRecordStore(RecordStore):
         import sys
         data = StringIO()
         sys.stdout = data
-        management.call_command('dumpdata', 'django_store', 'tagging', indent=indent)
+        management.call_command('dumpdata', 'django_store', indent=indent)
         sys.stdout = sys.__stdout__
         data.seek(0)
         return data.read()

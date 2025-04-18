@@ -6,19 +6,18 @@ Definition of database tables and object retrieval for the DjangoRecordStore.
 :license: BSD 2-clause, see LICENSE for details.
 """
 
+from datetime import datetime
 import json
+
+from packaging.version import parse as parse_version
 from django.db import models
+import django
+
 from sumatra import programs, launch, datastore, records, versioncontrol, parameters, dependency_finder
 from sumatra.datastore import get_data_store
-from datetime import datetime
-import django
-from packaging.version import parse as parse_version
 from sumatra.core import get_registered_components
-import warnings
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore")
-    import tagging.fields
-    from tagging.models import Tag
+
+from .tagging import TagField, Tag, TaggedItem, TagManager
 
 
 class SumatraObjectsManager(models.Manager):
@@ -257,7 +256,7 @@ class Record(BaseModel):
     input_datastore = models.ForeignKey(Datastore, related_name="input_to_records", on_delete=models.PROTECT)
     outcome = models.TextField(blank=True)
     timestamp = models.DateTimeField()
-    tags = tagging.fields.TagField()
+    tags = TagField()
     dependencies = models.ManyToManyField(Dependency)
     platforms = models.ManyToManyField(PlatformInformation)
     diff = models.TextField(blank=True)
