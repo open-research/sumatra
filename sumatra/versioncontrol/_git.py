@@ -48,9 +48,13 @@ def findrepo(path):
     try:
         repo = git.Repo(path, search_parent_directories=True)
     except InvalidGitRepositoryError:
-        return
+        return None
     else:
-        return os.path.dirname(repo.git_dir)
+        ignored = repo.ignored(path)
+        if path in ignored:
+            return None
+        else:
+            return os.path.dirname(repo.git_dir)
 
 
 @component
