@@ -199,6 +199,7 @@ class GitRepository(Repository):
         self.__repository = git.Repo(path)
 
     def get_working_copy(self, path=None):
+        path = self.url if path is None else path
         return GitWorkingCopy(path)
 
     def _get_upstream(self):
