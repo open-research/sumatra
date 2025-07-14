@@ -513,6 +513,8 @@ class TestModuleFunctions(unittest.TestCase):
         if yaml_loaded:
             with open("test_file.yaml", "w") as f:
                 f.write(init2)
+            with open("test_file.yml", "w") as f:
+                f.write(init2)
 
     def tearDown(self):
         os.remove("test_file.simple")
@@ -545,6 +547,12 @@ class TestModuleFunctions(unittest.TestCase):
     @unittest.skipUnless(yaml_loaded, "PyYAML not available")
     def test__build_parameters_yaml(self):
         P = build_parameters("test_file.yaml")
+        self.assertEqual(P.as_dict(), {'x': 2, 'y': {'a': 3, 'b': 4}})
+        self.assertIsInstance(P, YAMLParameterSet)
+
+    @unittest.skipUnless(yaml_loaded, "PyYAML not available")
+    def test__build_parameters_yml(self):
+        P = build_parameters("test_file.yml")
         self.assertEqual(P.as_dict(), {'x': 2, 'y': {'a': 3, 'b': 4}})
         self.assertIsInstance(P, YAMLParameterSet)
 

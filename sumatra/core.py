@@ -129,10 +129,13 @@ class _Registry(metaclass=SingletonType):
                     if not hasattr(component, attr):
                         raise TypeError("%s is missing required attribute %s" % (component, attr))
                 if hasattr(component, "name"):
-                    name = component.name
+                    names = [component.name]
+                elif hasattr(component, "names"):
+                    names = component.names
                 else:
-                    name = component.__name__
-                self._components[base_class][name] = component
+                    names = [component.__name__]
+                for name in names:
+                    self._components[base_class][name] = component
                 return
         raise TypeError("%s is not a Sumatra component." % component)
 
