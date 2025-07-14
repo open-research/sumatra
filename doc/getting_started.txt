@@ -97,7 +97,7 @@ To see the current configuration of your project, use the ``info`` command::
     Append label to     : None
     Label generator     : timestamp
     Timestamp format    : %Y%m%d-%H%M%S
-    Sumatra version     : 0.8.0
+    Sumatra version     : 0.8.1
 
 Sumatra automatically records the identity and versions of the simulation files
 and the simulator executable, stores links to any files created by the
@@ -178,7 +178,7 @@ available by running ``smt`` by itself::
     $ smt
     Usage: smt <subcommand> [options] [args]
 
-    Simulation/analysis management tool version 0.8.0
+    Simulation/analysis management tool version 0.8.1
 
     Available subcommands:
       init

@@ -1,0 +1,10 @@
+===========================
+Sumatra 0.8.1 release notes
+===========================
+
+*14th July 2025*
+
+This is a bug-fix release:
+
+- allow Sumatra to handle YAML files with both .yml and .yaml extensions
+- add missing dependency to pyproject.toml

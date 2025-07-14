@@ -29,7 +29,7 @@ Append label to     : None
 Label generator     : timestamp
 Timestamp format    : %Y%m%d-%H%M%S
 Plug-ins            : \[\]
-Sumatra version     : 0.8.0
+Sumatra version     : 0.8.1
 """
 
 

@@ -1,6 +1,6 @@
 [project]
 name = "Sumatra"
-version = "0.8.0"
+version = "0.8.1"
 authors = [
     {name = "Sumatra authors and contributors", email = "andrew.davison@cnrs.fr"}
 ]
@@ -28,6 +28,7 @@ classifiers = [
 ]
 dependencies = [
     "setuptools",
+    "packaging",
     "parameters",
     "pyyaml"
 ]
