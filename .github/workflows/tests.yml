@@ -7,7 +7,7 @@ jobs:
   test_minimal:  # run tests with minimal installation
     strategy:
       matrix:
-        os: [ubuntu-22.04, macos-latest]
+        os: [ubuntu-22.04, macos-latest, windows-latest]
         python-version: ["3.9", "3.11", "3.13"]
     runs-on: ${{ matrix.os }}
     steps:
