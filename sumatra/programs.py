@@ -226,10 +226,12 @@ def get_executable(path=None, script_file=None):
     """
     if path:
         prog_name = os.path.basename(path)
-        program = Executable(path)
+        program = None
         for executable_type in get_registered_components(Executable).values():
             if prog_name in executable_type.executable_names:
                 program = executable_type(path)
+        if program is None:
+             program = Executable(path)
     elif script_file:
         script_path, ext = os.path.splitext(script_file)
         program = None
