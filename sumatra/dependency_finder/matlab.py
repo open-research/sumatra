@@ -21,18 +21,6 @@ class Dependency(core.BaseDependency):
         super(Dependency, self).__init__(module_name, path, version, diff, source)
 
 
-def save_dependencies(cmd, filename):
-    ''' save all dependencies to the file in the current folder '''
-    file_dep = "depfun %s -toponly -quiet -print depfun.data;" %filename # save dependencies to a file
-    mat_args = cmd.split('-r ')[-1]
-    cmd = "%s; %s quit" %(mat_args, file_dep)
-    p = subprocess.Popen(['matlab','-nodesktop', '-nosplash', '-nojvm', ' -nodisplay', '-wait', '-r', cmd], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)    
-    result = p.wait()
-    output = p.stdout.read() 
-    # import pdb; pdb.set_trace() 
-    return result, output
-
-
 def find_dependencies(filename, executable):
     #ifile = os.path.join(os.getcwd(), 'depfun.data')
     with open('depfun.data', 'r') as file_data:

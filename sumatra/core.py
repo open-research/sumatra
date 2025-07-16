@@ -51,7 +51,7 @@ def get_encoding():
     return encoding
 
 
-def run(args, cwd=None, shell=False, kill_tree=True, timeout=-1, env=None):
+def run(args, cwd=None, shell=False, kill_tree=True, timeout=None, env=None):
     """
     Run a command with a timeout.
     """
@@ -65,9 +65,8 @@ def run(args, cwd=None, shell=False, kill_tree=True, timeout=-1, env=None):
 
 
 def _get_process_children(pid):
-    p = subprocess.Popen('ps --no-headers -o pid --ppid %d' % pid, shell=True,
-                         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    stdout, stderr = p.communicate()
+    completed_command = subprocess.run(['ps','--no-headers', '-o', 'pid', '--ppid', pid], shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdout = completed_command.stdout
     return [int(child_pid) for child_pid in stdout.split()]
 
 

@@ -76,9 +76,8 @@ class LaunchMode(object):
         """Run tasks before the simulation/analysis proper."""  # e.g. nrnivmodl
         # this implementation is a temporary hack. "pre_run" should probably be an Executable instance, not a string
         if hasattr(executable, "pre_run"):
-            p = subprocess.Popen(executable.pre_run, shell=True, stdout=None,
-                                 stderr=None, close_fds=True, cwd=self.working_directory)
-            result = p.wait()
+            completed_command = subprocess.run(executable.pre_run, shell=True, stdout=None, stderr=None, close_fds=True, cwd=self.working_directory)
+            result = completed_command.returncode
 
     def check_files(self, executable, main_file):
         """Check that all files exist and are accessible."""
@@ -95,16 +94,16 @@ class LaunchMode(object):
         command line. Return resultcode.
         """
         self.check_files(executable, main_file)
-        cmd = self.generate_command(executable, main_file, arguments)
+        cmd = executable.generate_command(main_file, arguments)
         if append_label:
-            cmd += " " + append_label
-        if 'matlab' in executable.name.lower():
+            cmd = [*cmd, append_label]
+        if isinstance(executable, MatlabExecutable):
             ''' we will be executing Matlab and at the same time saving the
             dependencies in order to avoid opening of Matlab shell two times '''
-            result, output = save_dependencies(cmd, main_file)
-        else:
-            result, output = tee.system2(cmd, cwd=self.working_directory, stdout=True, capture_stderr=capture_stderr)  # cwd only relevant for local launch, not for MPI, for example
-        self.stdout_stderr = "".join(output)
+            cmd[-1] = cmd[-1] + ';deps = matlab.codetools.requiredFilesAndProducts(\'%s\', \'toponly\');writelines(deps, \'depfun.data\');' % main_file
+
+        result, output = tee.system2(cmd, cwd=self.working_directory, stdout=True, capture_stderr=capture_stderr)  # cwd only relevant for local launch, not for MPI, for example
+        self.stdout_stderr = output
         return result
 
     def __key(self):

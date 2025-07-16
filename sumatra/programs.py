@@ -100,6 +100,9 @@ class Executable(object):
                 print('Multiple versions found, using %s. If you wish to use a different version, please specify it explicitly' % executable)
         return executable
 
+    def generate_command(self, main_file, arguments):
+        return [self.path, main_file, arguments]
+
     def _get_version(self):
         returncode, output, err = run([self.path, "--version"],
                                       shell=False, timeout=5)
@@ -173,6 +176,8 @@ class MatlabExecutable(Executable):
             command_line_output=output + err,
             pattern=version_pattern_matlab
         )
+    def generate_command(self, main_file, arguments):
+        return [self.path, '-batch', main_file.replace('.m','')]
 
 
 @component
