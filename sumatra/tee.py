@@ -137,35 +137,11 @@ def system2(cmd, cwd=None, logger=_sentinel, stdout=_sentinel, log_command=_sent
         # reason: if I have 'quote_command' Sumatra does not work in Windows (it encloses the command in quotes. I did not understand why should we quote)
         # I have never catched "The input line is too long" (yet?)
         # cmd = quote_command(cmd)
-        p = subprocess.Popen(cmd, cwd=cwd, shell=True, stdout=subprocess.PIPE, stderr=stderr, close_fds=(platform.system() == 'Linux'))
         if(log_command):
                 mylogger("Running: %s" % cmd)
-        try:
-            while True:
-                    try:
-                            line = p.stdout.readline()
-                            line = line.decode(encoding)
-                    except Exception as e:
-                            logging.error(e)
-                            logging.error("The output of the command could not be decoded as %s\ncmd: %s\n line ignored: %s" %\
-                                    (encoding, cmd, repr(line)))
-                            pass
-
-                    output.append(line)
-                    if not line:
-                            break
-                    #line = line.rstrip('\n\r')
-                    mylogger(line.rstrip('\n\r')) # they are added by logging anyway
-                    #import pdb; pdb.set_trace()
-                    if(stdout):
-                            print(line, end="")
-                            sys.stdout.flush()
-            returncode = p.wait()
-        except KeyboardInterrupt:
-            # Popen.returncode:
-            #   "A negative value -N indicates that the child was terminated by signal N (Unix only)."
-            # see https://docs.python.org/2/library/subprocess.html#subprocess.Popen.returncode
-            returncode = -signal.SIGINT
+        completed_command = subprocess.run(cmd, cwd=cwd, shell=False, stdout=subprocess.PIPE, stderr=stderr, close_fds=(platform.system() == 'Linux'));
+        returncode = completed_command.returncode
+        output = completed_command.stdout
         if(log_command):
                 if(timing):
                         def secondsToStr(t):
@@ -176,7 +152,7 @@ def system2(cmd, cwd=None, logger=_sentinel, stdout=_sentinel, log_command=_sent
                         mylogger("Returned: %d\n" % (returncode))
 
         if not returncode == 0: # running a tool that returns non-zero? this deserves a warning
-                logging.warning("Returned: %d from: %s\nOutput %s" % (returncode, cmd, ''.join(output)))
+                logging.warning("Returned: %d from: %s\nOutput %s" % (returncode, cmd, output))
 
         return(returncode, output)
 
