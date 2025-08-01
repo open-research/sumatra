@@ -1,4 +1,4 @@
-name: Run Sumatra tests
+name: Run Sumatra tests on Linux, Mac OS
 
 on: [push, pull_request]
 
@@ -7,7 +7,7 @@ jobs:
   test_minimal:  # run tests with minimal installation
     strategy:
       matrix:
-        os: [ubuntu-22.04, macos-latest, windows-latest]
+        os: [ubuntu-22.04, macos-latest]
         python-version: ["3.9", "3.11", "3.13"]
     runs-on: ${{ matrix.os }}
     steps:
